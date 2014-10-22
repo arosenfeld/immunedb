@@ -1,4 +1,0 @@
-#!/usr/bin/env python2
-from sldb.mt2sql import run_mt2sql
-
-sys.exiti(run_mt2sql())

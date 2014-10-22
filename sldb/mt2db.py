@@ -205,7 +205,7 @@ def _add_mt(session, path, study_name, sample_name, sample_date, interval,
     return sample
 
 
-if __name__ == '__main__':
+def run_mt2db():
     parser = argparse.ArgumentParser(description='Parse master-table into \
     database.')
     parser.add_argument('host', help='mySQL host')

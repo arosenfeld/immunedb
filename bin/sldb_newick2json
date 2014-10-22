@@ -1,0 +1,5 @@
+#!/usr/bin/env python2
+import sys
+from sldb.trees.newick2json import run_newick2json
+
+sys.exit(run_newick2json())

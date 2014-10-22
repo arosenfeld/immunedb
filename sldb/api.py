@@ -401,7 +401,7 @@ def _init_db(user, pw, db):
     return sessionmaker(bind=engine)
 
 
-if __name__ == '__main__':
+def run_api():
     parser = argparse.ArgumentParser(
         description='Provides a restless interface to the master table '
                     'database')

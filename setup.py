@@ -6,12 +6,18 @@ setup(name='SLDB',
     author_email='ar374@drexel.edu',
     packages=[
             'sldb',
+            'sldb.trees',
     ],
-    scripts=['bin/mt2db'],
+    scripts=[
+        'bin/sldb_mt2db',
+        'bin/sldb_api',
+        'bin/sldb_newick2json'
+    ],
     install_requires=[
         'sqlalchemy>=0.9.8',
-        'flask',
+        'Flask',
         'flask-restless',
+        'ete2 >= 2.2',
     ],
     license='LICENSE.txt',
     description='Various utilities for Drexel\'s Systems Immunology Lab.',
