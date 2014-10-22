@@ -59,8 +59,8 @@ def clone_compare(uids):
 @app.route('/api/clone_overlap/<filter_type>/<samples>', methods=['GET'])
 def clone_overlap(filter_type, samples):
     session = scoped_session(session_factory)()
-    items, num_pages = queries.get_clone_overlap(session,
-        filter_type, _split(samples), _get_paging())
+    items, num_pages = queries.get_clone_overlap(
+        session, filter_type, _split(samples), _get_paging())
     session.close()
     return jsonify(items=items, num_pages=num_pages)
 
