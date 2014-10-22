@@ -31,22 +31,22 @@ def test_germline_comparison():
 
     assert _same_dict(regions,
         {  
-            'all':{  
-                'counts':{  
-                    'total':{  
+            'all': {  
+                'counts': {  
+                    'total': {  
                         'sum':5,
                         'synonymous':0,
                         'nonconservative':4,
                         'conservative':1
                     },
-                    'unique':{  
+                    'unique': {  
                         'sum':5,
                         'synonymous':0,
                         'nonconservative':4,
                         'conservative':1
                     }
                 },
-                'mutations':{  
+                'mutations': {  
                     'synonymous':[  
 
                     ],
@@ -76,22 +76,22 @@ def test_germline_comparison():
                     ]
                 }
             },
-            'CDR3':{  
-                'counts':{  
-                    'total':{  
+            'CDR3': {  
+                'counts': {  
+                    'total': {  
                         'sum':0,
                         'synonymous':0,
                         'nonconservative':0,
                         'conservative':0
                     },
-                    'unique':{  
+                    'unique': {  
                         'sum':0,
                         'synonymous':0,
                         'nonconservative':0,
                         'conservative':0
                     }
                 },
-                'mutations':{  
+                'mutations': {  
                     'synonymous':[  
 
                     ],
@@ -103,22 +103,22 @@ def test_germline_comparison():
                     ]
                 }
             },
-            'CDR2':{  
-                'counts':{  
-                    'total':{  
+            'CDR2': {  
+                'counts': {  
+                    'total': {  
                         'sum':0,
                         'synonymous':0,
                         'nonconservative':0,
                         'conservative':0
                     },
-                    'unique':{  
+                    'unique': {  
                         'sum':0,
                         'synonymous':0,
                         'nonconservative':0,
                         'conservative':0
                     }
                 },
-                'mutations':{  
+                'mutations': {  
                     'synonymous':[  
 
                     ],
@@ -130,22 +130,22 @@ def test_germline_comparison():
                     ]
                 }
             },
-            'CDR1':{  
-                'counts':{  
-                    'total':{  
+            'CDR1': {  
+                'counts': {  
+                    'total': {  
                         'sum':3,
                         'synonymous':0,
                         'nonconservative':3,
                         'conservative':0
                     },
-                    'unique':{  
+                    'unique': {  
                         'sum':3,
                         'synonymous':0,
                         'nonconservative':3,
                         'conservative':0
                     }
                 },
-                'mutations':{  
+                'mutations': {  
                     'synonymous':[  
 
                     ],
@@ -168,22 +168,22 @@ def test_germline_comparison():
                     ]
                 }
             },
-            'FR3':{  
-                'counts':{  
-                    'total':{  
+            'FR3': {  
+                'counts': {  
+                    'total': {  
                         'sum':0,
                         'synonymous':0,
                         'nonconservative':0,
                         'conservative':0
                     },
-                    'unique':{  
+                    'unique': {  
                         'sum':0,
                         'synonymous':0,
                         'nonconservative':0,
                         'conservative':0
                     }
                 },
-                'mutations':{  
+                'mutations': {  
                     'synonymous':[  
 
                     ],
@@ -195,22 +195,22 @@ def test_germline_comparison():
                     ]
                 }
             },
-            'FR2':{  
-                'counts':{  
-                    'total':{  
+            'FR2': {  
+                'counts': {  
+                    'total': {  
                         'sum':1,
                         'synonymous':0,
                         'nonconservative':0,
                         'conservative':1
                     },
-                    'unique':{  
+                    'unique': {  
                         'sum':1,
                         'synonymous':0,
                         'nonconservative':0,
                         'conservative':1
                     }
                 },
-                'mutations':{  
+                'mutations': {  
                     'synonymous':[  
 
                     ],
@@ -225,22 +225,22 @@ def test_germline_comparison():
                     ]
                 }
             },
-            'FR1':{  
-                'counts':{  
-                    'total':{  
+            'FR1': {  
+                'counts': {  
+                    'total': {  
                         'sum':0,
                         'synonymous':0,
                         'nonconservative':0,
                         'conservative':0
                     },
-                    'unique':{  
+                    'unique': {  
                         'sum':0,
                         'synonymous':0,
                         'nonconservative':0,
                         'conservative':0
                     }
                 },
-                'mutations':{  
+                'mutations': {  
                     'synonymous':[  
 
                     ],
@@ -252,22 +252,22 @@ def test_germline_comparison():
                     ]
                 }
             },
-            'FR4':{  
-                'counts':{  
-                    'total':{  
+            'FR4': {  
+                'counts': {  
+                    'total': {  
                         'sum':1,
                         'synonymous':0,
                         'nonconservative':1,
                         'conservative':0
                     },
-                    'unique':{  
+                    'unique': {  
                         'sum':1,
                         'synonymous':0,
                         'nonconservative':1,
                         'conservative':0
                     }
                 },
-                'mutations':{  
+                'mutations': {  
                     'synonymous':[  
 
                     ],
@@ -287,27 +287,27 @@ def test_germline_comparison():
 
     assert _same_dict(poss, 
         {  
-            116:{  
+            116: {  
                 'synonymous':0,
                 'nonconservative':0,
                 'conservative':1
             },
-            84:{  
+            84: {  
                 'synonymous':0,
                 'nonconservative':1,
                 'conservative':0
             },
-            85:{  
+            85: {  
                 'synonymous':0,
                 'nonconservative':1,
                 'conservative':0
             },
-            86:{  
+            86: {  
                 'synonymous':0,
                 'nonconservative':1,
                 'conservative':0
             },
-            375:{  
+            375: {  
                 'synonymous':0,
                 'nonconservative':1,
                 'conservative':0
