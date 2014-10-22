@@ -6,16 +6,19 @@ setup(name='SLDB',
     author_email='ar374@drexel.edu',
     packages=[
             'sldb',
+            'sldb.api',
             'sldb.trees',
+            'sldb.util',
     ],
     scripts=[
         'bin/sldb_mt2db',
-        'bin/sldb_api',
+        'bin/sldb_rest',
         'bin/sldb_newick2json'
     ],
     install_requires=[
         'sqlalchemy>=0.9.8',
         'Flask',
+        'Flask-SQLAlchemy',
         'flask-restless',
         'ete2 >= 2.2',
     ],

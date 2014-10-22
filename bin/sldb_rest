@@ -1,0 +1,5 @@
+#!/usr/bin/env python2
+import sys
+from sldb.rest_service import run_rest_service
+
+sys.exit(run_rest_service())
