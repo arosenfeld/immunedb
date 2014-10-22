@@ -6,7 +6,7 @@ from sldb.api.mutations import MutationType, Mutations
 def get_all_clones(session, paging=None):
     res = []
     clone_q = session.query(Clone).order_by(Clone.v_gene, Clone.j_gene,
-                                           Clone.cdr3)
+                                            Clone.cdr3)
 
     if paging is not None:
         page, per_page = paging

@@ -3,6 +3,7 @@ import csv
 import json
 from ete2 import Tree
 
+
 def _generate_tab_dict(tab_fh):
     seq_info = {}
     for e in csv.DictReader(tab_fh, delimiter='\t'):
@@ -26,7 +27,7 @@ def _traverse(node, seq_info):
         node_inst['children'].append(_traverse(child, seq_info))
 
     return node_inst
-        
+
 
 def convert(tab_fh, newick_fh):
     t = Tree(newick_fh.read())

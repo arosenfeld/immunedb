@@ -89,7 +89,6 @@ def download_clone_overlap(filter_type, samples):
             samples.replace(',', '-'))})
 
 
-
 @app.route('/api/v_usage/<filter_type>/<samples>', methods=['GET'])
 def v_usage(filter_type, samples):
     session = scoped_session(session_factory)()

@@ -135,4 +135,3 @@ class Mutations(object):
                 sum(region['counts']['unique'].values())
 
         return final_region_stats, self.pos_stats
-
