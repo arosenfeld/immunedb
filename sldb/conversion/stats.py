@@ -1,6 +1,6 @@
 import argparse
 import json
-from sldb.models import *
+from sldb.common.models import *
 
 
 _dist_fields = ['v_match', 'v_length', 'j_match', 'j_length', 'v_call',

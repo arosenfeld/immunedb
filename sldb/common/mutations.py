@@ -1,3 +1,6 @@
+import sldb.util.lookups as lookups
+
+
 class MutationType(object):
     MUT_UNK = ('?', 'unknown')
     MUT_SYN = ('S', 'synonymous')
@@ -74,7 +77,7 @@ class Mutations(object):
 
     def _get_aa_at(self, seq, i):
         aa_off = i - i % 3
-        return aa_from_codon(seq[aa_off:aa_off + 3])
+        return lookups.aa_from_codon(seq[aa_off:aa_off + 3])
 
     def _get_mut_type(self, seq, i):
         if self.germline[i] != seq[i]:

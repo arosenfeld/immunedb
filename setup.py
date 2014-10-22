@@ -1,12 +1,14 @@
 from setuptools import setup
 
 setup(name='SLDB',
-    version='1.0.0',
+    version='1.0.5',
     author='Aaron M. Rosenfeld',
     author_email='ar374@drexel.edu',
     packages=[
             'sldb',
             'sldb.api',
+            'sldb.common',
+            'sldb.conversion',
             'sldb.trees',
             'sldb.util',
     ],

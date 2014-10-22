@@ -6,12 +6,11 @@ from flask import Flask, Response, request, jsonify
 import flask.ext.sqlalchemy
 import flask.ext.restless
 
-from sqlalchemy import create_engine, desc
+from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
-from sqlalchemy.sql import func
 
 import sldb.api.queries as queries
-from sldb.models import *
+from sldb.common.models import *
 
 app = flask.Flask(__name__)
 
@@ -52,7 +51,7 @@ def clone_compare(uids):
     clones_and_samples = []
     for u in uids.split():
         clones_and_samples.append(_split(u, '_'))
-    queries.compare_clones(session, clones_and_samples)
+    clones = queries.compare_clones(session, clones_and_samples)
     session.close()
     return jsonify(clones=clones)
 
@@ -60,7 +59,7 @@ def clone_compare(uids):
 @app.route('/api/clone_overlap/<filter_type>/<samples>', methods=['GET'])
 def clone_overlap(filter_type, samples):
     session = scoped_session(session_factory)()
-    items, num_pages = queries.get_clone_overlap(
+    items, num_pages = queries.get_clone_overlap(session,
         filter_type, _split(samples), _get_paging())
     session.close()
     return jsonify(items=items, num_pages=num_pages)
@@ -69,7 +68,7 @@ def clone_overlap(filter_type, samples):
 @app.route('/api/data/clone_overlap/<filter_type>/<samples>', methods=['GET'])
 def download_clone_overlap(filter_type, samples):
     session = scoped_session(session_factory)()
-    data = queries.get_clone_overlap(filter_type, _split(samples))
+    data = queries.get_clone_overlap(session, filter_type, _split(samples))
     session.close()
 
     def _gen(data):
@@ -92,7 +91,7 @@ def download_clone_overlap(filter_type, samples):
 @app.route('/api/v_usage/<filter_type>/<samples>', methods=['GET'])
 def v_usage(filter_type, samples):
     session = scoped_session(session_factory)()
-    data, headers = queries.get_v_usage(filter_type, _split(samples))
+    data, headers = queries.get_v_usage(session, filter_type, _split(samples))
     session.close()
     x_categories = headers
     y_categories = data.keys()
@@ -116,7 +115,7 @@ def v_usage(filter_type, samples):
 @app.route('/api/data/v_usage/<filter_type>/<samples>', methods=['GET'])
 def download_v_usage(filter_type, samples):
     session = scoped_session(session_factory)()
-    data, headers = queries.get_v_usage(filter_type, _split(samples))
+    data, headers = queries.get_v_usage(session, filter_type, _split(samples))
     session.close()
     ret = 'sample,' + ','.join(headers) + '\n'
     for sample, dist in data.iteritems():

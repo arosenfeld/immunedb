@@ -6,8 +6,8 @@ from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 from sqlalchemy.engine.reflection import Inspector
 
-from sldb.models import *
-from sldb.stats import Stats
+from sldb.common.models import *
+from sldb.common.stats import Stats
 
 
 _mt_headers = ['order', 'seqID', 'functional', 'in-frame', 'stop',

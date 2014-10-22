@@ -1,5 +1,5 @@
 #!/usr/bin/env python2
 import sys
-from sldb.mt2db import run_mt2db
+from sldb.conversion.mt2db import run_mt2db
 
 sys.exit(run_mt2db())

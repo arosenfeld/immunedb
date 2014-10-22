@@ -1,6 +1,11 @@
+import json
+import math
 from sqlalchemy import desc
-from sldb.models import *
-from sldb.api.mutations import MutationType, Mutations
+from sqlalchemy.sql import func
+
+import sldb.util.lookups as lookups
+from sldb.common.models import *
+from sldb.common.mutations import MutationType, Mutations
 
 
 def get_all_clones(session, paging=None):
@@ -75,9 +80,10 @@ def compare_clones(session, uids):
         clones[clone_id]['mutation_stats']['regions'] = region_stats
         clones[clone_id]['mutation_stats']['positions'] = pos_stats
 
+    return clones
+
 
 def get_clone_overlap(session, filter_type, samples, paging=None):
-    samples = map(int, samples.split(','))
     res = []
     q = session.query(CloneFrequency,
                       func.sum(CloneFrequency.copy_number).label('cn'),
@@ -115,7 +121,6 @@ def get_clone_overlap(session, filter_type, samples, paging=None):
 
 def get_v_usage(session, filter_type, samples):
     data = {}
-    samples = map(int, samples.split(','))
     headers = []
     for s in session.query(SampleStats)\
             .filter(SampleStats.filter_type == filter_type)\
