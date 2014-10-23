@@ -25,7 +25,6 @@ _mt_field_map = {
     'in-frame': 'in_frame',
 
     'juncton_gap_length': None,
-    'junction_aa': None,
 
     'germline': None,
     'cloneID': None,

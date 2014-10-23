@@ -102,7 +102,7 @@ class Sequence(Base):
     j_gap_length = Column(Integer)
     # No junction_gap_length; use len(junction_nt)
     junction_nt = Column(String(512))
-    # No junction AA since translation is easy
+    junction_aa = Column(String(512))
     gap_method = Column(String(16))
 
     subject = Column(String(128))
