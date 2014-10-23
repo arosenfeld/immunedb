@@ -42,7 +42,7 @@ def _make_table(paths, incl_remote):
 
     return tbl.strip()
 
-if __name__ == '__main__':
+def run_generate_table():
     parser = argparse.ArgumentParser(
         description='Generates a study|sample|date or study|sample|date|path '
         'table from a list of paths as formatted')

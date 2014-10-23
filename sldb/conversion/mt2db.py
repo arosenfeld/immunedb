@@ -1,5 +1,6 @@
 import argparse
 import sys
+import datetime
 from os.path import basename
 
 from sqlalchemy.orm import sessionmaker
@@ -175,6 +176,7 @@ def _add_mt(session, path, study_name, sample_name, sample_date, interval,
             session.add(record)
 
             if 'noresult' not in l:
+                '''
                 clone, germline, size, cn, new = _get_clone(session, l)
                 record.sequence_replaced = _n_to_germline(
                     germline,
@@ -184,6 +186,7 @@ def _add_mt(session, path, study_name, sample_name, sample_date, interval,
                     record.clone = clone
                     record.clone_size = size
                     record.clone_copy_number = cn
+                '''
                 size = None
                 cn = None
                 stats.process_sequence(record, size, cn)

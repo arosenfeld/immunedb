@@ -1,0 +1,5 @@
+#!/usr/bin/env python2
+import sys
+from sldb.util.generate_table import run_generate_table
+
+sys.exit(run_generate_table())

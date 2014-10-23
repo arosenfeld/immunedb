@@ -15,7 +15,8 @@ setup(name='SLDB',
       scripts=[
           'bin/sldb_mt2db',
           'bin/sldb_rest',
-          'bin/sldb_newick2json'
+          'bin/sldb_newick2json',
+          'bin/sldb_conv_table',
       ],
       install_requires=[
           'sqlalchemy>=0.9.8',
