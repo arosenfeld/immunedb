@@ -1,8 +1,9 @@
 import argparse
+import os
 from collections import Counter
 
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine, func
+from sqlalchemy import create_engine, func, distinct
 from sqlalchemy.engine.reflection import Inspector
 
 from sldb.common.models import *
@@ -10,8 +11,8 @@ from sldb.common.models import *
 
 def _similar(s1, s2, min_similarity):
     assert len(s1) == len(s2)
-    return sum(ch1 == ch2 for ch1, ch2 in zip(s1, s2)) / len(s1) >= \
-        min_similarity
+    return sum(ch1 == ch2 for ch1, ch2 in zip(s1, s2)) / float(len(s1)) >= \
+    min_similarity
 
 
 def _get_groups_from_db(session):
@@ -40,10 +41,11 @@ def _intragroup_similar(seqs, pseq, min_similarity):
 
 def _cluster_group(session, group, min_similarity):
     seq_clusters = []
-    for seq in session.query(Sequence.junction_aa)\
+    for seq in \
+        session.query(distinct(Sequence.junction_aa).label('junction_aa'))\
         .filter(Sequence.v_call == group[0])\
         .filter(Sequence.j_call == group[1])\
-        .filter(func.length(Sequence.junction_nt) == group[2]).yield_per(100000):
+        .filter(func.length(Sequence.junction_nt) == group[2]):
 
         cdr3 = seq.junction_aa
 
@@ -99,8 +101,6 @@ def run_cluster():
         v = group[0]
         j = group[1]
         cdr3_len = group[2]
-        print 'Clustering {} {} {}'.format(v, j, cdr3_len)
-        clusters = _cluster_group(session, group, args.p / 100.0)
 
         path = '{}/{}__{}__{}.cluster'.format(
             args.res_dir,
@@ -108,7 +108,14 @@ def run_cluster():
             j.replace('/','_'),
             cdr3_len)
 
-        with open(path, 'w+') as fh:
-            for c in clusters:
-                fh.write('{}\t{}\n'.format(
-                    _generate_consensus_cdr3(c), ','.join(c)))
+        if os.path.isfile(path):
+            print 'SKIPPING {} {} {}'.format(v, j, cdr3_len)
+        else:
+            print 'Clustering {} {} {}'.format(v, j, cdr3_len)
+
+            with open(path, 'w+') as fh:
+                clusters = _cluster_group(session, group, args.p / 100.0)
+                for c in clusters:
+                    cons_cdr3 = _generate_consensus_cdr3(c)
+                    for seq in c:
+                        fh.write('{}\t{}\n'.format(seq, cons_cdr3))
