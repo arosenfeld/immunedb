@@ -10,45 +10,65 @@ Base = declarative_base()
 
 
 class Study(Base):
+    """Represents a high-level study (e.g. Lupus)"""
     __tablename__ = 'studies'
     __table_args__ = {'mysql_engine': 'TokuDB'}
 
     id = Column(Integer, primary_key=True)
+    # The name of the study
     name = Column(String(length=128), unique=True)
+    # Some arbitrary information if necessary
     info = Column(String(length=1024))
 
 
 class Sample(Base):
+    """A sample from a study.  Generally this is from a single subject and
+    tissue"""
     __tablename__ = 'samples'
     __table_args__ = {'mysql_engine': 'TokuDB'}
 
+    # Unique ID for the sample
     id = Column(Integer, primary_key=True)
+    # A name for the sample
     name = Column(String(128))
+    # Some arbitrary information if necessary
     info = Column(String(1024))
 
+    # The date the sample was taken
     date = Column(Date)
 
+    # Reference to the study
     study_id = Column(Integer, ForeignKey('studies.id'))
     study = relationship('Study', backref=backref('samples', order_by=(date,
                                                   name)))
 
+    # Number of valid sequences in the sample
     valid_cnt = Column(Integer)
+    # Number of invalid sequences in the sample
     no_result_cnt = Column(Integer)
+    # Number of functional sequences in the sample
     functional_cnt = Column(Integer)
 
 
 class SampleStats(Base):
+    """Aggregate statistics for a sample.  This exists to reduce the time
+    queries take for a sample."""
     __tablename__ = 'sample_stats'
     __table_args__ = {'mysql_engine': 'TokuDB'}
 
+    # Reference to the sample the stats are for
     sample_id = Column(Integer, ForeignKey('samples.id'),
                        primary_key=True)
     sample = relationship('Sample', backref=backref('sample_stats',
                           order_by=sample_id))
 
+    # The filter type for the stats (e.g. unique, clones)
     filter_type = Column(String(length=255), primary_key=True)
 
+    # Total sequences with this filter
     sequence_cnt = Column(Integer)
+
+    # Distributions stored as JSON for a given field in the sample
     v_match_dist = Column(MEDIUMTEXT)
     v_length_dist = Column(MEDIUMTEXT)
 
@@ -67,12 +87,14 @@ class SampleStats(Base):
 
     clone_dist = Column(MEDIUMTEXT)
 
+    # Counts for different attributes of sequences
     in_frame_cnt = Column(Integer)
     stop_cnt = Column(Integer)
     mutation_inv_cnt = Column(Integer)
 
 
 class Sequence(Base):
+    """Represents a single unique sequence."""
     __tablename__ = 'sequences'
     __table_args__ = {'mysql_engine': 'TokuDB'}
 
@@ -135,6 +157,8 @@ class Sequence(Base):
 
 
 class DuplicateSequence(Base):
+    """A sequence which is a duplicate of a Sequence class instance.  This is
+    used to minimize the size of the sequences table."""
     __tablename__ = 'duplicate_sequences'
     __table_args__ = (UniqueConstraint('sample_id', 'identity_seq_id',
                                        'seq_id'), {'mysql_engine': 'TokuDB'})
@@ -144,6 +168,7 @@ class DuplicateSequence(Base):
     sample = relationship('Sample', backref=backref('duplicate_sequences',
                           order_by=sample_id))
 
+    # The Sequence object of which this is a duplicate
     identity_seq_id = Column(String(length=128),
                              ForeignKey('sequences.seq_id'),
                              primary_key=True,
@@ -151,10 +176,12 @@ class DuplicateSequence(Base):
     identity = relationship('Sequence', backref=backref('duplicate_sequences',
                             order_by=identity_seq_id))
 
+    # The ID of the sequence
     seq_id = Column(String(length=128), primary_key=True)
 
 
 class Clone(Base):
+    """A clone which is dictated by V, J, CDR3."""
     __tablename__ = 'clones'
     __table_args__ = (UniqueConstraint('v_gene', 'j_gene', 'cdr3',
                       'cdr3_num_nts'),
@@ -171,6 +198,7 @@ class Clone(Base):
 
 
 class CloneFrequency(Base):
+    """Frequency statistics for a clone with different filters."""
     __tablename__ = 'clone_frequencies'
     __table_args__ = {'mysql_engine': 'TokuDB'}
 
@@ -191,6 +219,7 @@ class CloneFrequency(Base):
 
 
 class NoResult(Base):
+    """A sequence which could not be match with a V or J."""
     __tablename__ = 'noresults'
     __table_args__ = {'mysql_engine': 'TokuDB'}
 

@@ -9,6 +9,7 @@ from sldb.common.mutations import MutationType, Mutations
 
 
 def get_all_clones(session, paging=None):
+    """Gets a list of all clones"""
     res = []
     clone_q = session.query(Clone).order_by(Clone.v_gene, Clone.j_gene,
                                             Clone.cdr3)
@@ -44,6 +45,7 @@ def get_all_clones(session, paging=None):
 
 
 def compare_clones(session, uids):
+    """Compares sequences within clones by determining their mutations"""
     clones = {}
     for clone_id, sample_id in uids:
         clone = session.query(Clone).filter(Clone.id == clone_id).first()
@@ -84,6 +86,7 @@ def compare_clones(session, uids):
 
 
 def get_clone_overlap(session, filter_type, samples, paging=None):
+    """Gets a list of clones and the samples in `samples` which they appear"""
     res = []
     q = session.query(CloneFrequency,
                       func.sum(CloneFrequency.copy_number).label('cn'),
@@ -120,6 +123,7 @@ def get_clone_overlap(session, filter_type, samples, paging=None):
 
 
 def get_v_usage(session, filter_type, samples):
+    """Gets the V-Gene usage percentages for samples"""
     data = {}
     headers = []
     for s in session.query(SampleStats)\

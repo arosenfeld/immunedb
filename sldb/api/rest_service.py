@@ -16,6 +16,7 @@ app = flask.Flask(__name__)
 
 
 def _add_cors_header(response):
+    """Add headers to allow cross-site requests"""
     response.headers['Access-Control-Allow-Origin'] = '*'
     response.headers['Access-Control-Allow-Methods'] = 'GET'
     response.headers['Access-Control-Allow-Headers'] = (
@@ -26,6 +27,7 @@ def _add_cors_header(response):
 
 
 def _get_paging():
+    """Handles paging based on a request's query string"""
     page = request.args.get('page') or 1
     per_page = request.args.get('per_page') or 10
     page = int(page)
@@ -34,11 +36,13 @@ def _get_paging():
 
 
 def _split(ids, delim=','):
+    """Helper function to split a string into an integer array"""
     return map(int, ids.split(delim))
 
 
 @app.route('/api/clones/', methods=['GET'])
 def clones():
+    """Gets a list of all clones"""
     session = scoped_session(session_factory)()
     clones = queries.get_all_clones(session, _get_paging())
     session.close()
@@ -47,6 +51,7 @@ def clones():
 
 @app.route('/api/clone_compare/<uids>', methods=['GET'])
 def clone_compare(uids):
+    """Compares clones by determining their mutations"""
     session = scoped_session(session_factory)()
     clones_and_samples = []
     for u in uids.split():
@@ -58,6 +63,7 @@ def clone_compare(uids):
 
 @app.route('/api/clone_overlap/<filter_type>/<samples>', methods=['GET'])
 def clone_overlap(filter_type, samples):
+    """Gets clonal overlap between samples"""
     session = scoped_session(session_factory)()
     items, num_pages = queries.get_clone_overlap(
         session, filter_type, _split(samples), _get_paging())
@@ -67,6 +73,7 @@ def clone_overlap(filter_type, samples):
 
 @app.route('/api/data/clone_overlap/<filter_type>/<samples>', methods=['GET'])
 def download_clone_overlap(filter_type, samples):
+    """Downloads a CSV of the clonal overlap between samples"""
     session = scoped_session(session_factory)()
     data = queries.get_clone_overlap(session, filter_type, _split(samples))
     session.close()
@@ -90,6 +97,7 @@ def download_clone_overlap(filter_type, samples):
 
 @app.route('/api/v_usage/<filter_type>/<samples>', methods=['GET'])
 def v_usage(filter_type, samples):
+    """Gets the V usage for samples in a heatmap-formatted array"""
     session = scoped_session(session_factory)()
     data, headers = queries.get_v_usage(session, filter_type, _split(samples))
     session.close()
@@ -112,6 +120,7 @@ def v_usage(filter_type, samples):
 
 @app.route('/api/data/v_usage/<filter_type>/<samples>', methods=['GET'])
 def download_v_usage(filter_type, samples):
+    """Downloads a CSV of the V usage for samples"""
     session = scoped_session(session_factory)()
     data, headers = queries.get_v_usage(session, filter_type, _split(samples))
     session.close()
@@ -133,6 +142,7 @@ def download_v_usage(filter_type, samples):
 
 
 def init_db(host, user, pw, db):
+    """Initializes the database session"""
     engine = create_engine(('mysql://{}:{}@{}/'
                             '{}?charset=utf8&use_unicode=0').format(
                                 user, pw, host, db))
@@ -144,6 +154,7 @@ def init_db(host, user, pw, db):
 
 
 def run_rest_service():
+    """Runs the rest service based on command line arguments"""
     parser = argparse.ArgumentParser(
         description='Provides a restless interface to the master table '
                     'database')

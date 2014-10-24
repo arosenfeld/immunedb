@@ -1,4 +1,5 @@
 def aa_from_codon(codon):
+    """Looks up an amino acid from a codon, or returns None"""
     aa_lookup = {'TTT': 'F', 'TTC': 'F', 'TTA': 'L', 'TTG': 'L', 'TCT': 'S',
                  'TCC': 'S', 'TCA': 'S', 'TCG': 'S', 'TAT': 'Y', 'TAC': 'Y',
                  'TAA': '*', 'TAG': '*', 'TGT': 'C', 'TGC': 'C', 'TGA': '*',
@@ -19,10 +20,9 @@ def aa_from_codon(codon):
 
 
 def are_conserved_aas(aa1, aa2):
-    '''
-    From: Structural Determinants in the Sequences of Immunoglobulin Variable
-    Domain
-    '''
+    """Determines if two amino acids are conserved based on the paper
+    'Structural Determinants in the Sequences of Immunoglobulin Variable
+    Domain'"""
     groups = [
         'WFILMVC',
         'PYTHSAG',
@@ -34,6 +34,7 @@ def are_conserved_aas(aa1, aa2):
     return False
 
 
+"""The ties between V's"""
 v_gene_ties = {
     'IGHV1-18': 'IGHV1-18',
     'IGHV1-2': 'IGHV1-2',

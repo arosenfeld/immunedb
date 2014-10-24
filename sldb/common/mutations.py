@@ -2,6 +2,7 @@ import sldb.util.lookups as lookups
 
 
 class MutationType(object):
+    """An enum-like class for different mutation types."""
     MUT_UNK = ('?', 'unknown')
     MUT_SYN = ('S', 'synonymous')
     MUT_CONS = ('C', 'conservative')
@@ -10,20 +11,26 @@ class MutationType(object):
 
     @classmethod
     def get_symbol(cls, mtype):
+        """Gets the single-character symbol for a mutation"""
         return mtype[0]
 
     @classmethod
     def get_readable(cls, mtype):
+        """Gets the readable text for a mutation"""
         return mtype[1]
 
     @classmethod
     def get_types(cls):
+        """Enumerates all the types of mutations"""
         return [getattr(MutationType, attr) for attr in filter(lambda a:
                 a.startswith('MUT_'), dir(MutationType))]
 
 
 class Mutations(object):
+    """Keeps track of mutations for a given germline"""
     def __init__(self, germline, cdr3_num_nts):
+        """Initializes the mutation statistics with a given germline & CDR3
+        length."""
         self.germline = germline
         self.region_stats = {}
         for region in ['all', 'CDR1', 'CDR2', 'CDR3', 'FR1', 'FR2', 'FR3']:
@@ -32,6 +39,7 @@ class Mutations(object):
         self.cdr3_num_nts = cdr3_num_nts
 
     def _get_region(self, index):
+        """Determines the gene region from an offset index"""
         if index <= 77:
             return 'FR1'
         elif index <= 113:
@@ -47,6 +55,9 @@ class Mutations(object):
         return 'FR4'
 
     def _create_count_record(self, int_count=False):
+        """Creates a statistics record for a region or position.  If
+        `int_count` is True, only the counts will be maintained, otherwise all
+        values will be stored."""
         rec = {}
         for m in (MutationType.MUT_SYN, MutationType.MUT_CONS,
                   MutationType.MUT_UNCONS):
@@ -57,6 +68,7 @@ class Mutations(object):
         return rec
 
     def _add_region_stat(self, i, seq):
+        """Adds mutations from `seq` at a given position to the region stats"""
         mtype = self._get_mut_type(seq, i)
         if mtype not in (MutationType.MUT_NONE, MutationType.MUT_UNK):
             mtype = MutationType.get_readable(mtype)
@@ -69,6 +81,8 @@ class Mutations(object):
             self.region_stats['all'][mtype].append(mutation)
 
     def _add_pos_stat(self, i, mtype, seq):
+        """Adds mutations from `seq` at a given position to the position
+        stats"""
         mtype = self._get_mut_type(seq, i)
         if mtype not in (MutationType.MUT_NONE, MutationType.MUT_UNK):
             if i not in self.pos_stats:
@@ -76,10 +90,12 @@ class Mutations(object):
             self.pos_stats[i][MutationType.get_readable(mtype)] += 1
 
     def _get_aa_at(self, seq, i):
+        """Gets the amino acid that is partially encoded by position `i`"""
         aa_off = i - i % 3
         return lookups.aa_from_codon(seq[aa_off:aa_off + 3])
 
     def _get_mut_type(self, seq, i):
+        """Determines the mutation type of a sequence at a position"""
         if self.germline[i] != seq[i]:
             grm_aa = self._get_aa_at(self.germline, i)
             seq_aa = self._get_aa_at(seq, i)
@@ -96,6 +112,7 @@ class Mutations(object):
             return MutationType.MUT_NONE
 
     def add_sequence(self, seq):
+        """Calculates all mutation information for a sequence"""
         mut_str = ''
         for i in range(0, len(self.germline)):
             mut = self._get_mut_type(seq, i)
@@ -105,6 +122,7 @@ class Mutations(object):
         return mut_str
 
     def get_aggregate(self):
+        """Aggregates all mutation information from added sequences"""
         final_region_stats = {}
         for r, regions in self.region_stats.iteritems():
             final_region_stats[r] = {
