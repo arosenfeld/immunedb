@@ -98,12 +98,10 @@ def v_usage(filter_type, samples):
 
     array = []
     for j, y in enumerate(y_categories):
-        s = 0
         for i, x in enumerate(x_categories):
             usage_for_y = data[y]
             if x in usage_for_y:
                 array.append([i, j, usage_for_y[x]])
-                s += usage_for_y[x]
             else:
                 array.append([i, j, 0])
 

@@ -134,6 +134,26 @@ class Sequence(Base):
     clone_copy_number = Column(Integer)
 
 
+class DuplicateSequence(Base):
+    __tablename__ = 'duplicate_sequences'
+    __table_args__ = (UniqueConstraint('sample_id', 'identity_seq_id',
+                                       'seq_id'), {'mysql_engine': 'TokuDB'})
+
+    sample_id = Column(Integer, ForeignKey('samples.id'),
+                       primary_key=True)
+    sample = relationship('Sample', backref=backref('duplicate_sequences',
+                          order_by=sample_id))
+
+    identity_seq_id = Column(String(length=128),
+                             ForeignKey('sequences.seq_id'),
+                             primary_key=True,
+                             index=True)
+    identity = relationship('Sequence', backref=backref('duplicate_sequences',
+                            order_by=identity_seq_id))
+
+    seq_id = Column(String(length=128), primary_key=True)
+
+
 class Clone(Base):
     __tablename__ = 'clones'
     __table_args__ = (UniqueConstraint('v_gene', 'j_gene', 'cdr3',

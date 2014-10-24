@@ -159,9 +159,14 @@ def _add_mt(session, path, study_name, sample_name, sample_date, interval,
     session.commit()
 
     stats = Stats(session, sample.id)
+    order_to_seq = {}
     with open(path, 'rU') as fh:
+        fh.readline()
         for i, l in enumerate(fh):
-            pass
+            fields = l.split('\t')
+            order = int(fields[_mt_headers.index('order')])
+            seq = fields[_mt_headers.index('seqID')]
+            order_to_seq[order] = seq
         total = i
         fh.seek(0)
         fh.readline()
@@ -169,29 +174,21 @@ def _add_mt(session, path, study_name, sample_name, sample_date, interval,
         for i, l in enumerate(fh):
             if 'noresult' in l:
                 record = _create_noresult_record(l)
+                stats.base_cnts['no_result_cnt'] += 1
+                record.sample = sample
+                session.add(record)
             else:
                 record = _create_record(l)
-
-            record.sample = sample
-            session.add(record)
-
-            if 'noresult' not in l:
-                '''
-                clone, germline, size, cn, new = _get_clone(session, l)
-                record.sequence_replaced = _n_to_germline(
-                    germline,
-                    record.sequence,
-                    record.seq_id)
-                if clone is not None:
-                    record.clone = clone
-                    record.clone_size = size
-                    record.clone_copy_number = cn
-                '''
-                size = None
-                cn = None
-                stats.process_sequence(record, size, cn)
-            else:
-                stats.base_cnts['no_result_cnt'] += 1
+                record.sample = sample
+                if record.copy_number_iden > 0:
+                    session.add(record)
+                    stats.process_sequence(record)
+                else:
+                    record = DuplicateSequence(
+                        sample=sample,
+                        identity_seq_id=order_to_seq[record.collapse_to_iden],
+                        seq_id=record.seq_id)
+                    session.add(record)
 
             if i > 0 and i % interval == 0:
                 session.commit()
