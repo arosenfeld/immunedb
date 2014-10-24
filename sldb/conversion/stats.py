@@ -17,7 +17,7 @@ class Stats(object):
                                                dir(Sample))}
         ''' Functional specific statistics '''
         self.stats = [
-            FilterStats(sample_id, 'all', 
+            FilterStats(sample_id, 'all',
                         lambda e: True,
                         lambda e: e.copy_number_iden),
             FilterStats(sample_id, 'functional',
@@ -97,11 +97,13 @@ class FilterStats(object):
     def process(self, e):
         self.cnt_update('in_frame_cnt', e.in_frame, self.count_fn(e))
         self.cnt_update('stop_cnt', e.stop, self.count_fn(e))
-        self.cnt_update('mutation_inv_cnt', e.mutation_invariate, self.count_fn(e))
+        self.cnt_update('mutation_inv_cnt', e.mutation_invariate,
+                        self.count_fn(e))
         self.cnt_update('sequence_cnt', True, self.count_fn(e))
 
         if e.junction_nt is not None:
-            self.dist_update_func('cdr3_len', len(e.junction_nt), self.count_fn(e))
+            self.dist_update_func('cdr3_len', len(e.junction_nt),
+                                  self.count_fn(e))
 
         for field in _dist_fields:
             self.dist_update(e, field)
