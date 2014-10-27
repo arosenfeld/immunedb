@@ -2,11 +2,13 @@ import argparse
 import sys
 import datetime
 from os.path import basename
+from collections import Counter
 
 from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, func
 from sqlalchemy.engine.reflection import Inspector
 
+import sldb.util.lookups as lookups
 from sldb.common.models import *
 from sldb.conversion.stats import Stats
 
@@ -32,6 +34,11 @@ _mt_field_map = {
     'collapsedCloneID': None,
     'withSinglecloneID': None
 }
+
+_cached_clones = {}
+
+def _field_value(fields, key):
+    return fields[_mt_headers.index(key)]
 
 
 def _lookup_model_attrib(index):
@@ -85,48 +92,71 @@ def _create_noresult_record(l):
     return record
 
 
-def _get_clone(session, l):
+def _similarity(seq1, seq2):
+    assert len(seq1) == len(seq2)
+    return sum(ch1 == ch2 for ch1, ch2 in zip(seq1, seq2)) / float(len(seq1))
+
+
+def _similar_to_all(seqs, check, min_similarity):
+    for seq in seqs:
+        if _similarity(check.junction_aa, seq.junction_aa) < min_similarity:
+            return False
+    return True
+
+
+def _get_clone(session, seq, germline, min_similarity):
     ''' Gets or creates a clone from a master table line '''
-    sp = map(lambda e: e.strip(), l.split('\t'))
-    clone = sp[_mt_headers.index('cloneID')]
-    germline = sp[_mt_headers.index('germline')]
-    if len(clone) == 0:
-        return None, germline, None, None, None
-    v, j, num_nts, cdr3, size, cn = clone.split('_')
-    size = int(size)
-    cn = int(cn)
-
-    clone, new = _get_or_create(session, Clone, v_gene=v, j_gene=j, cdr3=cdr3,
-                                cdr3_num_nts=num_nts)
-    if new:
-        clone.germline = germline
+    # Check if this exact CDR3 has already been assigned a clone
+    key = (seq.v_call, seq.j_call, seq.junction_aa)
+    if key in _cached_clones:
+        c = _cached_clones[key]
     else:
-        if clone.germline != germline:
-            print ('[ERROR] Germline mismatch with v={}, j={}, cdr3={},'
-                   ' cdr3_len={}'
-                   '\n\tIn DB    : {}'
-                   '\n\tInserting: {}').format(
-                       v, j, cdr3, num_nts, clone.germline, germline)
-            sys.exit(1)
-    return clone, germline, size, cn, new
+        c = session.query(Clone).filter(
+            Clone.v_gene == seq.v_call,
+            Clone.j_gene == seq.j_call,
+            Clone.cdr3_aa == seq.junction_aa).first()
+        if c == None:
+            # Otherwise, fuzzy match the CDR3
+            for c in session.query(Clone).filter(
+                Clone.v_gene==seq.v_call,
+                Clone.j_gene==seq.j_call,
+                Clone.cdr3_num_nts==len(seq.junction_nt)):
+
+                if _similar_to_all(session.query(Sequence).filter(Sequence.clone == c),
+                                   seq,
+                                   min_similarity):
+                    return c
+
+            if seq.clone is None:
+                c = Clone(
+                    v_gene=seq.v_call,
+                    j_gene=seq.j_call,
+                    cdr3_nt=seq.junction_nt,
+                    cdr3_num_nts=len(seq.junction_nt),
+                    germline=germline)
+    _cached_clones[key] = c
+    return c
 
 
-def _n_to_germline(germ, seq, seq_id):
-    if len(germ) != len(seq):
+def _n_to_germline(seq, germline):
+    if len(germline) != len(seq.sequence):
         print 'Germline and sequence different lengths'
-        print 'SeqID', seq_id
-        print germ
-        print seq
-        raise
+        print 'SeqID', seq.seq_id
+        print 'Germline: ', germline
+        print 'Sequence: ', seq.sequence
+        return seq
 
-    for i in range(0, len(seq)):
-        if seq[i].upper() == 'N':
-            seq = seq[:i] + germ[i] + seq[i+1:]
-    return seq
+    filled_seq = ''
+    for i, c in enumerate(seq.sequence):
+        if c.upper() == 'N':
+            filled_seq += germline[i].upper()
+        else:
+            filled_seq += c 
+    return filled_seq
 
 
 def _add_mt(session, path, study_name, sample_name, sample_date, interval,
-            force):
+            force, min_similarity):
     ''' Processes the entire master table '''
     m, d, y = map(int, sample_date.split('-'))
     sample_date = '{}-{}-{}'.format(y, m, d)
@@ -164,8 +194,8 @@ def _add_mt(session, path, study_name, sample_name, sample_date, interval,
         fh.readline()
         for i, l in enumerate(fh):
             fields = l.split('\t')
-            order = int(fields[_mt_headers.index('order')])
-            seq = fields[_mt_headers.index('seqID')]
+            order = int(_field_value(fields, 'order'))
+            seq = _field_value(fields, 'seqID')
             order_to_seq[order] = seq
         total = i
         fh.seek(0)
@@ -179,16 +209,31 @@ def _add_mt(session, path, study_name, sample_name, sample_date, interval,
                 session.add(record)
             else:
                 record = _create_record(l)
+                germline = _field_value(l.split('\t'), 'germline')
+                record.sequence_replaced = _n_to_germline(record, germline)
                 record.sample = sample
                 if record.copy_number_iden > 0:
-                    session.add(record)
+                    clone = _get_clone(session, record, germline,
+                                       min_similarity)
+                    '''
+                    if len(clone.germline) != len(germline):
+                        print ('Assigned sequence to clone with non-matching '
+                               'germline length')
+                        print 'Sample:', record.sample.name
+                        print 'Seq ID:', record.seq_id
+                        print 'Clone :', clone.germline
+                        print 'Seq   :', germline
+                    '''
+
+                    record.clone = clone
                     stats.process_sequence(record)
                 else:
                     record = DuplicateSequence(
                         sample=sample,
                         identity_seq_id=order_to_seq[record.collapse_to_iden],
                         seq_id=record.seq_id)
-                    session.add(record)
+
+                session.add(record)
 
             if i > 0 and i % interval == 0:
                 session.commit()
@@ -204,6 +249,25 @@ def _add_mt(session, path, study_name, sample_name, sample_date, interval,
     return sample
 
 
+def _consensus(strings):
+    cons = []
+    for chars in zip(*strings):
+        cons.append(Counter(chars).most_common(1)[0][0])
+
+    return ''.join(cons)
+
+
+def _process_all_clones(session):
+    print 'Generating clone consensuses'
+    for clone in session.query(Clone):
+        clone.cdr3_nt = _consensus(
+            map(lambda e: e.junction_nt,
+            session.query(Sequence).filter(Sequence.clone_id==clone.id)))
+
+        clone.cdr3_aa = lookups.aas_from_nts(
+            clone.cdr3_nt[0:len(clone.cdr3_nt) - len(clone.cdr3_nt) % 3])
+    session.commit()
+
 def run_mt2db():
     parser = argparse.ArgumentParser(description='Parse master-table into \
     database.')
@@ -211,6 +275,8 @@ def run_mt2db():
     parser.add_argument('db', help='mySQL database')
     parser.add_argument('user', help='mySQL user')
     parser.add_argument('pw', help='mySQL password')
+    parser.add_argument('-s', type=int, default=85, help='Minimum similarity '
+                        'between clone sequences.')
     parser.add_argument('-c', type=int, default=1000, help='Number of'
                         ' sequences to parse between commits')
     parser.add_argument('-f', action='store_true', default=False, help='Forces'
@@ -239,4 +305,7 @@ def run_mt2db():
             sample_name=sample_name,
             sample_date=date,
             interval=args.c,
-            force=args.f)
+            force=args.f,
+            min_similarity=args.s)
+
+    _process_all_clones(session)

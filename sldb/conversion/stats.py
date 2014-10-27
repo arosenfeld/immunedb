@@ -12,10 +12,10 @@ class Stats(object):
     def __init__(self, session, sample_id):
         self.session = session
         self.sample_id = sample_id
-        ''' Base statistics '''
+        # Base statistics
         self.base_cnts = {k: 0 for k in filter(lambda e: e.endswith('_cnt'),
                                                dir(Sample))}
-        ''' Functional specific statistics '''
+        # Functional specific statistics
         self.stats = [
             FilterStats(sample_id, 'all',
                         lambda e: True,
@@ -34,6 +34,18 @@ class Stats(object):
                         lambda e: 1)
         ]
 
+        self.clone_stats = [
+            FilterStats(sample_id, 'clones_all',
+                        lambda e: True,
+                        lambda e: 1),
+            FilterStats(sample_id, 'clones_functional',
+                        lambda e: e.functional,
+                        lambda e: 1),
+            FilterStats(sample_id, 'clones_nonfunctional',
+                        lambda e: not e.functional,
+                        lambda e: 1),
+        ]
+
     def process_sequence(self, seq, size=None):
         self.base_cnts['valid_cnt'] += seq.copy_number_iden
         self.base_cnts['functional_cnt'] += \
@@ -43,10 +55,31 @@ class Stats(object):
             if s.filter_fn(seq):
                 s.process(seq)
 
+        if seq.clone is not None:
+            for s in self.clone_stats:
+                if s.filter_fn(seq):
+                    s.process(seq)
+
+                    cf = self.session.query(CloneFrequency).filter(
+                        CloneFrequency.clone == seq.clone,
+                        CloneFrequency.sample == seq.sample,
+                        CloneFrequency.filter_type == s.filter_type).first()
+                    if cf is not None:
+                        cf.unique_sequences += 1
+                        cf.total_sequences += seq.copy_number_iden
+                    else:
+                        cf = CloneFrequency(clone=seq.clone,
+                                            sample=seq.sample,
+                                            unique_sequences=1,
+                                            total_sequences=seq.copy_number_iden,
+                                            filter_type=s.filter_type)
+
+                    self.session.add(cf)
+
     def add_and_commit(self):
         self.session.query(Sample).filter_by(id=self.sample_id).update(
             self.base_cnts)
-        for s in self.stats:
+        for s in self.stats + self.clone_stats:
             self.session.add(s.get_populated_stat())
         self.session.commit()
 

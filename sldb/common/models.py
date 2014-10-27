@@ -1,5 +1,5 @@
 from sqlalchemy import Column, Boolean, Integer, String, Text, Date, \
-    ForeignKey, UniqueConstraint, Index
+    ForeignKey, UniqueConstraint, Index, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declared_attr
@@ -152,9 +152,6 @@ class Sequence(Base):
     clone = relationship('Clone', backref=backref('sequences',
                          order_by=seq_id))
 
-    clone_size = Column(Integer)
-    clone_copy_number = Column(Integer)
-
 
 class DuplicateSequence(Base):
     """A sequence which is a duplicate of a Sequence class instance.  This is
@@ -183,15 +180,19 @@ class DuplicateSequence(Base):
 class Clone(Base):
     """A clone which is dictated by V, J, CDR3."""
     __tablename__ = 'clones'
-    __table_args__ = (UniqueConstraint('v_gene', 'j_gene', 'cdr3',
-                      'cdr3_num_nts'),
+    __table_args__ = (UniqueConstraint('v_gene', 'j_gene', 'cdr3_aa',
+                                       'cdr3_num_nts'),
+                      Index('clones_aa', 'v_gene', 'j_gene', 'cdr3_aa'),
+                      Index('clones_len', 'v_gene', 'j_gene',
+                            'cdr3_num_nts'),
                       {'mysql_engine': 'TokuDB'})
 
     id = Column(Integer, primary_key=True)
 
     v_gene = Column(String(length=200))
     j_gene = Column(String(length=200))
-    cdr3 = Column(String(length=128))
+    cdr3_aa = Column(String(length=128))
+    cdr3_nt = Column(String(length=512))
     cdr3_num_nts = Column(Integer)
 
     germline = Column(String(length=1024))
@@ -214,8 +215,8 @@ class CloneFrequency(Base):
 
     filter_type = Column(String(length=255), primary_key=True)
 
-    size = Column(Integer)
-    copy_number = Column(Integer)
+    unique_sequences = Column(Integer)
+    total_sequences = Column(Integer)
 
 
 class NoResult(Base):

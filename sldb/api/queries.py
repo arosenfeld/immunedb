@@ -12,7 +12,7 @@ def get_all_clones(session, paging=None):
     """Gets a list of all clones"""
     res = []
     clone_q = session.query(Clone).order_by(Clone.v_gene, Clone.j_gene,
-                                            Clone.cdr3)
+                                            Clone.cdr3_aa)
 
     if paging is not None:
         page, per_page = paging
@@ -23,21 +23,21 @@ def get_all_clones(session, paging=None):
         for stat in session.query(CloneFrequency)\
                            .filter(CloneFrequency.clone_id == c.id)\
                            .filter(CloneFrequency.filter_type == 'clones_all')\
-                           .order_by(desc(CloneFrequency.copy_number)):
+                           .order_by(desc(CloneFrequency.total_sequences)):
                 stats_comb.append({
                     'sample': {
                         'id': stat.sample.id,
                         'name': stat.sample.name
                     },
-                    'size': stat.size,
-                    'copy_number': stat.copy_number
+                    'unique_sequences': stat.unique_sequences,
+                    'total_sequences': stat.total_sequences
                 })
 
         res.append({
             'id': c.id,
             'v_gene': c.v_gene,
             'j_gene': c.j_gene,
-            'cdr3': c.cdr3,
+            'cdr3': c.cdr3_aa,
             'stats': stats_comb
         })
 
@@ -56,7 +56,7 @@ def compare_clones(session, uids):
                     'id': clone.id,
                     'v_gene': clone.v_gene,
                     'j_gene': clone.j_gene,
-                    'cdr3': clone.cdr3,
+                    'cdr3': clone.cdr3_aa,
                     'cdr3_num_nts': clone.cdr3_num_nts,
                     'germline': clone.germline
                 },
@@ -89,13 +89,14 @@ def get_clone_overlap(session, filter_type, samples, paging=None):
     """Gets a list of clones and the samples in `samples` which they appear"""
     res = []
     q = session.query(CloneFrequency,
-                      func.sum(CloneFrequency.copy_number).label('cn'),
+                      func.sum(CloneFrequency.unique_sequences).label('unique_sequences'),
+                      func.sum(CloneFrequency.total_sequences).label('total_sequences'),
                       func.group_concat(CloneFrequency.sample_id)
                       .label('samples'))\
         .filter(CloneFrequency.sample_id.in_(samples))\
         .filter(CloneFrequency.filter_type == filter_type)\
         .group_by(CloneFrequency.clone_id)\
-        .order_by(desc(func.sum(CloneFrequency.copy_number)))
+        .order_by(desc(func.sum(CloneFrequency.total_sequences)))
 
     if paging is not None:
         page, per_page = paging
@@ -103,17 +104,17 @@ def get_clone_overlap(session, filter_type, samples, paging=None):
         num_pages = math.ceil(len(q.all()) / per_page)
 
     for r in q:
-        cn = int(r.cn)
         samples = ','.join(map(str, sorted(map(int, r.samples.split(',')))))
-        r = r.CloneFrequency
+        freq = r.CloneFrequency
         res.append({
             'samples': samples,
-            'copy_number': cn,
+            'unique_sequences': int(r.unique_sequences),
+            'total_sequences': int(r.total_sequences),
             'clone': {
-                'id': r.clone.id,
-                'v_gene': r.clone.v_gene,
-                'j_gene': r.clone.j_gene,
-                'cdr3': r.clone.cdr3
+                'id': freq.clone.id,
+                'v_gene': freq.clone.v_gene,
+                'j_gene': freq.clone.j_gene,
+                'cdr3': freq.clone.cdr3_aa
             },
         })
 
