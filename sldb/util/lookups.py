@@ -1,10 +1,10 @@
-def aas_from_nts(nts):
+def aas_from_nts(nts, ret_on_wrong=None):
     aas = ''
     for i in range(0, len(nts), 3):
-        aas += aa_from_codon(nts[i:i+3])
+        aas += aa_from_codon(nts[i:i+3], ret_on_wrong)
     return aas
 
-def aa_from_codon(codon):
+def aa_from_codon(codon, ret_on_wrong=None):
     """Looks up an amino acid from a codon, or returns None"""
     aa_lookup = {'TTT': 'F', 'TTC': 'F', 'TTA': 'L', 'TTG': 'L', 'TCT': 'S',
                  'TCC': 'S', 'TCA': 'S', 'TCG': 'S', 'TAT': 'Y', 'TAC': 'Y',
@@ -22,7 +22,7 @@ def aa_from_codon(codon):
 
     if codon.upper() in aa_lookup:
         return aa_lookup[codon.upper()]
-    return None
+    return ret_on_wrong
 
 
 def are_conserved_aas(aa1, aa2):

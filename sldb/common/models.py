@@ -189,8 +189,8 @@ class Clone(Base):
 
     id = Column(Integer, primary_key=True)
 
-    v_gene = Column(String(length=200))
-    j_gene = Column(String(length=200))
+    v_gene = Column(String(length=512))
+    j_gene = Column(String(length=128))
     cdr3_aa = Column(String(length=128))
     cdr3_nt = Column(String(length=512))
     cdr3_num_nts = Column(Integer)

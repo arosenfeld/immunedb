@@ -37,7 +37,8 @@ def get_all_clones(session, paging=None):
             'id': c.id,
             'v_gene': c.v_gene,
             'j_gene': c.j_gene,
-            'cdr3': c.cdr3_aa,
+            'cdr3_nt': c.cdr3_nt,
+            'cdr3_aa': c.cdr3_aa,
             'stats': stats_comb
         })
 
@@ -49,16 +50,19 @@ def compare_clones(session, uids):
     clones = {}
     for clone_id, sample_id in uids:
         clone = session.query(Clone).filter(Clone.id == clone_id).first()
-        mutations = Mutations(clone.germline, clone.cdr3_num_nts)
+        germline = clone.germline[:309] + clone.cdr3_nt + \
+            clone.germline[309 + clone.cdr3_num_nts:]
+        mutations = Mutations(germline, clone.cdr3_num_nts)
         if clone_id not in clones:
             clones[clone_id] = {
                 'clone': {
                     'id': clone.id,
                     'v_gene': clone.v_gene,
                     'j_gene': clone.j_gene,
-                    'cdr3': clone.cdr3_aa,
+                    'cdr3_aa': clone.cdr3_aa,
+                    'cdr3_nt': clone.cdr3_nt,
                     'cdr3_num_nts': clone.cdr3_num_nts,
-                    'germline': clone.germline
+                    'germline': germline
                 },
                 'mutation_stats': {},
                 'seqs': []

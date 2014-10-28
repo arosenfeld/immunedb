@@ -107,33 +107,32 @@ def _similar_to_all(seqs, check, min_similarity):
 def _get_clone(session, seq, germline, min_similarity):
     ''' Gets or creates a clone from a master table line '''
     # Check if this exact CDR3 has already been assigned a clone
-    key = (seq.v_call, seq.j_call, seq.junction_aa)
+    key = (seq.v_call, seq.j_call, len(seq.junction_nt), seq.junction_aa)
+    c = None
     if key in _cached_clones:
-        c = _cached_clones[key]
-    else:
-        c = session.query(Clone).filter(
-            Clone.v_gene == seq.v_call,
-            Clone.j_gene == seq.j_call,
-            Clone.cdr3_aa == seq.junction_aa).first()
-        if c == None:
-            # Otherwise, fuzzy match the CDR3
-            for c in session.query(Clone).filter(
-                Clone.v_gene==seq.v_call,
-                Clone.j_gene==seq.j_call,
-                Clone.cdr3_num_nts==len(seq.junction_nt)):
+        return _cached_clones[key]
 
-                if _similar_to_all(session.query(Sequence).filter(Sequence.clone == c),
-                                   seq,
-                                   min_similarity):
-                    return c
+    # Otherwise, fuzzy match the CDR3
+    for clone in session.query(Clone).filter(
+        Clone.v_gene==seq.v_call,
+        Clone.j_gene==seq.j_call,
+        Clone.cdr3_num_nts==len(seq.junction_nt)):
 
-            if seq.clone is None:
-                c = Clone(
-                    v_gene=seq.v_call,
-                    j_gene=seq.j_call,
-                    cdr3_nt=seq.junction_nt,
-                    cdr3_num_nts=len(seq.junction_nt),
-                    germline=germline)
+        if _similar_to_all(session.query(Sequence).filter(
+            Sequence.clone == clone),
+                           seq,
+                           min_similarity):
+            c = clone
+            break
+
+    if c is None:
+        c = Clone(
+            v_gene=seq.v_call,
+            j_gene=seq.j_call,
+            cdr3_num_nts=len(seq.junction_nt),
+            germline=germline)
+        session.add(c)
+
     _cached_clones[key] = c
     return c
 
@@ -213,19 +212,12 @@ def _add_mt(session, path, study_name, sample_name, sample_date, interval,
                 record.sequence_replaced = _n_to_germline(record, germline)
                 record.sample = sample
                 if record.copy_number_iden > 0:
-                    clone = _get_clone(session, record, germline,
-                                       min_similarity)
-                    '''
-                    if len(clone.germline) != len(germline):
-                        print ('Assigned sequence to clone with non-matching '
-                               'germline length')
-                        print 'Sample:', record.sample.name
-                        print 'Seq ID:', record.seq_id
-                        print 'Clone :', clone.germline
-                        print 'Seq   :', germline
-                    '''
-
-                    record.clone = clone
+                    if record.junction_nt is not None:
+                        clone = _get_clone(session, record, germline,
+                                           min_similarity)
+                        if len(clone.germline) != len(germline):
+                            clone = None
+                        record.clone = clone
                     stats.process_sequence(record)
                 else:
                     record = DuplicateSequence(
@@ -260,12 +252,24 @@ def _consensus(strings):
 def _process_all_clones(session):
     print 'Generating clone consensuses'
     for clone in session.query(Clone):
+        seqs = session.query(Sequence).filter(Sequence.clone_id==clone.id).all()
+
         clone.cdr3_nt = _consensus(
             map(lambda e: e.junction_nt,
-            session.query(Sequence).filter(Sequence.clone_id==clone.id)))
+            seqs))
 
-        clone.cdr3_aa = lookups.aas_from_nts(
-            clone.cdr3_nt[0:len(clone.cdr3_nt) - len(clone.cdr3_nt) % 3])
+        clone.cdr3_aa = _consensus(
+            map(lambda e: e.junction_aa,
+            seqs))
+
+        for col in session.query(Clone).filter(
+            Clone.v_gene == clone.v_gene,
+            Clone.j_gene == clone.j_gene,
+            Clone.cdr3_num_nts == clone.cdr3_num_nts,
+            Clone.cdr3_aa == clone.cdr3_aa):
+            if col != clone:
+                print '> collision {} {}'.format(clone.id, col.id)
+
     session.commit()
 
 def run_mt2db():
@@ -281,6 +285,10 @@ def run_mt2db():
                         ' sequences to parse between commits')
     parser.add_argument('-f', action='store_true', default=False, help='Forces'
                         ' insertion if sample name already exists')
+    parser.add_argument('-m', action='store_true', default=False, help='Do '
+                        'not run master-table parsing.')
+    parser.add_argument('-l', action='store_true', default=False, help='Do '
+                        'not generate clone stats')
     parser.add_argument('mt_dir', help='Master table directory')
     args = parser.parse_args()
 
@@ -292,20 +300,22 @@ def run_mt2db():
     Base.metadata.bind = engine
     session = sessionmaker(bind=engine)()
 
-    for l in sys.stdin:
-        study_name, sample_name, date, _ = map(lambda s: s.strip(),
-                                               l.split('|'))
-        path = '{}/{}/{}/{}'.format(
-            args.mt_dir,  study_name, date, sample_name)
-        print study_name, sample_name, date, path
-        sample = _add_mt(
-            session=session,
-            path=path + '/master_table',
-            study_name=study_name,
-            sample_name=sample_name,
-            sample_date=date,
-            interval=args.c,
-            force=args.f,
-            min_similarity=args.s)
+    if not args.m:
+        for l in sys.stdin:
+            study_name, sample_name, date, _ = map(lambda s: s.strip(),
+                                                   l.split('|'))
+            path = '{}/{}/{}/{}'.format(
+                args.mt_dir,  study_name, date, sample_name)
+            print study_name, sample_name, date, path
+            sample = _add_mt(
+                session=session,
+                path=path + '/master_table',
+                study_name=study_name,
+                sample_name=sample_name,
+                sample_date=date,
+                interval=args.c,
+                force=args.f,
+                min_similarity=args.s / 100.0)
 
-    _process_all_clones(session)
+    if not args.l:
+        _process_all_clones(session)
