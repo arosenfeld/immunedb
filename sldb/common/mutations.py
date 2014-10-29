@@ -76,7 +76,9 @@ class Mutations(object):
             if region not in self.region_stats:
                 self.region_stats[region] = self._create_count_record()
 
-            mutation = (i, self.germline[i], seq[i])
+            mutation = (i, self.germline[i], seq[i],
+                        self._get_aa_at(self.germline, i),
+                        self._get_aa_at(seq, i))
             self.region_stats[region][mtype].append(mutation)
             self.region_stats['all'][mtype].append(mutation)
 
@@ -111,6 +113,9 @@ class Mutations(object):
         else:
             return MutationType.MUT_NONE
 
+    def _get_replacement(self, i, to):
+        return self.germline[:i] + to + self.germline[i+1:]
+
     def add_sequence(self, seq):
         """Calculates all mutation information for a sequence"""
         mut_str = ''
@@ -139,13 +144,25 @@ class Mutations(object):
                     count = len(filter(lambda e: e == mutation, stats))
                     mutation_type_cnts = \
                         final_region_stats[r]['mutations'][mtype]
-                    if (count, mutation) not in mutation_type_cnts:
-                        mutation_type_cnts.append((count, mutation))
+                    changed_aa = self._get_aa_at(
+                        self._get_replacement(mutation[0], mutation[2]),
+                        mutation[0]);
+
+                    entry = {
+                        'count': count,
+                        'position': mutation[0],
+                        'from': mutation[1],
+                        'to': mutation[2],
+                        'aa_from': mutation[3],
+                        'aa_to': mutation[4],
+                    }
+                    if entry not in mutation_type_cnts:
+                        mutation_type_cnts.append(entry)
 
         for r, region in final_region_stats.iteritems():
             for mtype, stats in region['mutations'].iteritems():
                 region['counts']['total'][mtype] = reduce(
-                    lambda a, b: a + b[0],
+                    lambda a, b: a + b['count'],
                     region['mutations'][mtype], 0)
                 region['counts']['unique'][mtype] = \
                     len(region['mutations'][mtype])
