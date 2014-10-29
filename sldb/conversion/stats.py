@@ -68,11 +68,12 @@ class Stats(object):
                         cf.unique_sequences += 1
                         cf.total_sequences += seq.copy_number_iden
                     else:
-                        cf = CloneFrequency(clone=seq.clone,
-                                            sample=seq.sample,
-                                            unique_sequences=1,
-                                            total_sequences=seq.copy_number_iden,
-                                            filter_type=s.filter_type)
+                        cf = CloneFrequency(
+                            clone=seq.clone,
+                            sample=seq.sample,
+                            unique_sequences=1,
+                            total_sequences=seq.copy_number_iden,
+                            filter_type=s.filter_type)
 
                     self.session.add(cf)
 

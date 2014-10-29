@@ -185,14 +185,14 @@ class DuplicateSequence(Base):
 class Subject(Base):
     __tablename__ = 'subjects'
     __table_args__ = (UniqueConstraint('study_id', 'identifier'),
-                      { 'mysql_engine': 'TokuDB' })
+                      {'mysql_engine': 'TokuDB'})
 
     id = Column(Integer, primary_key=True)
 
     identifier = Column(String(64))
     study_id = Column(Integer, ForeignKey('studies.id'))
     study = relationship('Study', backref=backref('subjects',
-                                          order_by=identifier))
+                         order_by=identifier))
 
 
 class Clone(Base):

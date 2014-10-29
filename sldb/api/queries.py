@@ -92,11 +92,12 @@ def compare_clones(session, uids):
 def get_clone_overlap(session, filter_type, samples, paging=None):
     """Gets a list of clones and the samples in `samples` which they appear"""
     res = []
-    q = session.query(CloneFrequency,
-                      func.sum(CloneFrequency.unique_sequences).label('unique_sequences'),
-                      func.sum(CloneFrequency.total_sequences).label('total_sequences'),
-                      func.group_concat(CloneFrequency.sample_id)
-                      .label('samples'))\
+    q = session.query(
+        CloneFrequency,
+        func.sum(CloneFrequency.unique_sequences).label('unique_sequences'),
+        func.sum(CloneFrequency.total_sequences).label('total_sequences'),
+        func.group_concat(CloneFrequency.sample_id)
+        .label('samples'))\
         .filter(CloneFrequency.sample_id.in_(samples))\
         .filter(CloneFrequency.filter_type == filter_type)\
         .group_by(CloneFrequency.clone_id)\

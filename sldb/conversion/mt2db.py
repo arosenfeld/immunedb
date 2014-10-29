@@ -21,7 +21,7 @@ _mt_remap_headers = {
 
 
 _mt_nomap = ['juncton_gap_length', 'subject', 'germline', 'cloneID',
-            'collapsedCloneID', 'withSinglecloneID']
+             'collapsedCloneID', 'withSinglecloneID']
 
 
 _cached_clones = {}
@@ -82,14 +82,12 @@ def _get_clone(session, seq, germline, min_similarity):
     # Otherwise, fuzzy match the CDR3
     c = None
     for clone in session.query(Clone).filter(
-        Clone.v_gene==seq.v_call,
-        Clone.j_gene==seq.j_call,
-        Clone.cdr3_num_nts==len(seq.junction_nt)):
+            Clone.v_gene == seq.v_call,
+            Clone.j_gene == seq.j_call,
+            Clone.cdr3_num_nts == len(seq.junction_nt)):
 
         if _similar_to_all(session.query(Sequence).filter(
-            Sequence.clone == clone),
-                           seq,
-                           min_similarity):
+                Sequence.clone == clone), seq, min_similarity):
             c = clone
             break
 
@@ -118,7 +116,7 @@ def _n_to_germline(seq, germline):
         if c.upper() == 'N':
             filled_seq += germline[i].upper()
         else:
-            filled_seq += c 
+            filled_seq += c
     return filled_seq
 
 
@@ -228,17 +226,18 @@ def _consensus(strings):
 def _process_all_clones(session):
     print 'Generating clone consensuses'
     for clone in session.query(Clone):
-        seqs = session.query(Sequence).filter(Sequence.clone_id==clone.id).all()
+        seqs = session.query(Sequence).filter(
+            Sequence.clone_id == clone.id).all()
 
         nt = _consensus(map(lambda e: e.junction_nt, seqs))
 
         aa = _consensus(map(lambda e: e.junction_aa, seqs))
 
         for col in session.query(Clone).filter(
-            Clone.v_gene == clone.v_gene,
-            Clone.j_gene == clone.j_gene,
-            Clone.cdr3_num_nts == len(nt),
-            Clone.cdr3_aa == aa):
+                Clone.v_gene == clone.v_gene,
+                Clone.j_gene == clone.j_gene,
+                Clone.cdr3_num_nts == len(nt),
+                Clone.cdr3_aa == aa):
             if col != clone:
                 print '> collision {} {}'.format(clone.id, col.id)
 
@@ -246,6 +245,7 @@ def _process_all_clones(session):
         clone.cdr3_aa = aa
 
     session.commit()
+
 
 def run_mt2db():
     parser = argparse.ArgumentParser(description='Parse master-table into \

@@ -4,6 +4,7 @@ def aas_from_nts(nts, ret_on_wrong=None):
         aas += aa_from_codon(nts[i:i+3], ret_on_wrong)
     return aas
 
+
 def aa_from_codon(codon, ret_on_wrong=None):
     """Looks up an amino acid from a codon, or returns None"""
     aa_lookup = {'TTT': 'F', 'TTC': 'F', 'TTA': 'L', 'TTG': 'L', 'TCT': 'S',
