@@ -40,6 +40,15 @@ def _split(ids, delim=','):
     return map(int, ids.split(delim))
 
 
+@app.route('/api/sequence/<sample_id>/<seq_id>')
+def sequence(sample_id, seq_id):
+    session = scoped_session(session_factory)()
+    seq = jsonify(sequence=queries.get_sequence(session, int(sample_id),
+                                                seq_id))
+    session.close()
+    return seq
+
+
 @app.route('/api/clones/', methods=['GET'])
 def clones():
     """Gets a list of all clones"""
@@ -54,7 +63,7 @@ def clone_compare(uids):
     """Compares clones by determining their mutations"""
     session = scoped_session(session_factory)()
     clones_and_samples = []
-    for u in uids.split():
+    for u in uids.split(','):
         clones_and_samples.append(_split(u, '_'))
     clones = queries.compare_clones(session, clones_and_samples)
     session.close()
@@ -175,7 +184,6 @@ def run_rest_service():
     manager.create_api(Study, methods=['GET'])
     manager.create_api(Sample, methods=['GET'], include_columns=[
                        'id', 'name', 'info', 'study'])
-    manager.create_api(Sequence, methods=['GET'])
     manager.create_api(SampleStats, methods=['GET'], collection_name='stats',
                        max_results_per_page=10000,
                        results_per_page=10000)

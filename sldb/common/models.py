@@ -198,8 +198,9 @@ class Subject(Base):
 class Clone(Base):
     """A clone which is dictated by V, J, CDR3."""
     __tablename__ = 'clones'
-    __table_args__ = (Index('clones_aa', 'v_gene', 'j_gene', 'cdr3_aa'),
-                      Index('clones_len', 'v_gene', 'j_gene',
+    __table_args__ = (Index('clones_aas', 'v_gene', 'j_gene', 'subject_id',
+                            'cdr3_aa'),
+                      Index('clones_len', 'v_gene', 'j_gene', 'subject_id',
                             'cdr3_num_nts'),
                       {'mysql_engine': 'TokuDB'})
 
@@ -210,6 +211,10 @@ class Clone(Base):
     cdr3_aa = Column(String(length=128))
     cdr3_nt = Column(String(length=512))
     cdr3_num_nts = Column(Integer)
+
+    subject_id = Column(Integer, ForeignKey('subjects.id'), index=True)
+    subject = relationship('Subject', backref=backref('clones',
+                           order_by=(v_gene, j_gene, cdr3_num_nts, cdr3_aa)))
 
     germline = Column(String(length=1024))
 

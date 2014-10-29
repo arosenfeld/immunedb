@@ -1,18 +1,48 @@
+import datetime
 import json
 import math
-from sqlalchemy import desc
+from sqlalchemy import desc, inspect
 from sqlalchemy.sql import func
+from sqlalchemy.ext.declarative import DeclarativeMeta
 
 import sldb.util.lookups as lookups
 from sldb.common.models import *
 from sldb.common.mutations import MutationType, Mutations
 
 
+def _clone_to_dict(clone):
+    return {
+        'id': clone.id,
+        'subject': {
+            'study': {
+                'id': clone.subject.study.id,
+                'name': clone.subject.study.name
+            },
+            'identifier': clone.subject.identifier,
+        },
+        'v_gene': clone.v_gene,
+        'j_gene': clone.j_gene,
+        'cdr3_aa': clone.cdr3_aa,
+        'cdr3_nt': clone.cdr3_nt,
+        'cdr3_num_nts': clone.cdr3_num_nts,
+        'germline': clone.germline
+    }
+
+def _model_to_dict(inst):
+    ret = {}
+    for c in inspect(inst).attrs:
+        if isinstance(c.value, (str, long, int, bool, type(None))):
+            ret[c.key] = c.value
+        if isinstance(c.value, datetime.date):
+            ret[c.key] = c.value.strftime('%Y-%m-%d')
+    return ret
+
+
 def get_all_clones(session, paging=None):
     """Gets a list of all clones"""
     res = []
     clone_q = session.query(Clone).order_by(Clone.v_gene, Clone.j_gene,
-                                            Clone.cdr3_aa)
+                                            Clone.cdr3_aa, Clone.subject_id)
 
     if paging is not None:
         page, per_page = paging
@@ -21,8 +51,8 @@ def get_all_clones(session, paging=None):
     for c in clone_q:
         stats_comb = []
         for stat in session.query(CloneFrequency)\
-                           .filter(CloneFrequency.clone_id == c.id)\
-                           .filter(CloneFrequency.filter_type == 'clones_all')\
+                           .filter(CloneFrequency.clone_id == c.id,
+                                   CloneFrequency.filter_type == 'clones_all')\
                            .order_by(desc(CloneFrequency.total_sequences)):
                 stats_comb.append({
                     'sample': {
@@ -33,14 +63,9 @@ def get_all_clones(session, paging=None):
                     'total_sequences': stat.total_sequences
                 })
 
-        res.append({
-            'id': c.id,
-            'v_gene': c.v_gene,
-            'j_gene': c.j_gene,
-            'cdr3_nt': c.cdr3_nt,
-            'cdr3_aa': c.cdr3_aa,
-            'stats': stats_comb
-        })
+        clone_json = _clone_to_dict(c)
+        clone_json['stats'] = stats_comb
+        res.append(clone_json)
 
     return res
 
@@ -54,23 +79,17 @@ def compare_clones(session, uids):
             clone.germline[309 + clone.cdr3_num_nts:]
         mutations = Mutations(germline, clone.cdr3_num_nts)
         if clone_id not in clones:
+            clone_json = _clone_to_dict(clone)
+            clone_json['germline'] = germline
             clones[clone_id] = {
-                'clone': {
-                    'id': clone.id,
-                    'v_gene': clone.v_gene,
-                    'j_gene': clone.j_gene,
-                    'cdr3_aa': clone.cdr3_aa,
-                    'cdr3_nt': clone.cdr3_nt,
-                    'cdr3_num_nts': clone.cdr3_num_nts,
-                    'germline': germline
-                },
+                'clone': clone_json,
                 'mutation_stats': {},
                 'seqs': []
             }
 
         for s in session.query(Sequence)\
-                        .filter(Sequence.sample_id == sample_id)\
-                        .filter(Sequence.clone_id == clone_id):
+                        .filter(Sequence.sample_id == sample_id,
+                                Sequence.clone_id == clone_id):
             clones[clone_id]['seqs'].append({
                 'seq_id': s.seq_id,
                 'sample': {
@@ -98,8 +117,8 @@ def get_clone_overlap(session, filter_type, samples, paging=None):
         func.sum(CloneFrequency.total_sequences).label('total_sequences'),
         func.group_concat(CloneFrequency.sample_id)
         .label('samples'))\
-        .filter(CloneFrequency.sample_id.in_(samples))\
-        .filter(CloneFrequency.filter_type == filter_type)\
+        .filter(CloneFrequency.sample_id.in_(samples),
+                CloneFrequency.filter_type == filter_type)\
         .group_by(CloneFrequency.clone_id)\
         .order_by(desc(func.sum(CloneFrequency.total_sequences)))
 
@@ -115,12 +134,7 @@ def get_clone_overlap(session, filter_type, samples, paging=None):
             'samples': samples,
             'unique_sequences': int(r.unique_sequences),
             'total_sequences': int(r.total_sequences),
-            'clone': {
-                'id': freq.clone.id,
-                'v_gene': freq.clone.v_gene,
-                'j_gene': freq.clone.j_gene,
-                'cdr3': freq.clone.cdr3_aa
-            },
+            'clone': _clone_to_dict(freq.clone)
         })
 
     if paging:
@@ -133,8 +147,8 @@ def get_v_usage(session, filter_type, samples):
     data = {}
     headers = []
     for s in session.query(SampleStats)\
-            .filter(SampleStats.filter_type == filter_type)\
-            .filter(SampleStats.sample_id.in_(samples)):
+            .filter(SampleStats.filter_type == filter_type,
+                    SampleStats.sample_id.in_(samples)):
         dist = json.loads(s.v_call_dist)
         data[s.sample.name] = {}
         total = 0
@@ -153,3 +167,27 @@ def get_v_usage(session, filter_type, samples):
             data[s.sample.name][name] = round(100 * occ / float(total), 2)
 
     return data, headers
+
+def get_sequence(session, sample_id, seq_id):
+    seq = session.query(Sequence).filter(Sequence.sample_id == sample_id,
+                                         Sequence.seq_id == seq_id).first()
+    
+    ret = _model_to_dict(seq)
+    ret['subject'] = {
+        'study': {
+            'id': seq.subject.study.id,
+            'name': seq.subject.study.name
+        },
+        'identifier': seq.subject.identifier,
+    }
+    ret['sample'] = {
+        'id': seq.sample.id,
+        'name': seq.sample.name,
+    }
+
+    if seq.clone == None:
+        ret['clone'] = None
+    else:
+        ret['clone'] = _clone_to_dict(seq.clone)
+
+    return ret

@@ -84,7 +84,8 @@ def _get_clone(session, seq, germline, min_similarity):
     for clone in session.query(Clone).filter(
             Clone.v_gene == seq.v_call,
             Clone.j_gene == seq.j_call,
-            Clone.cdr3_num_nts == len(seq.junction_nt)):
+            Clone.cdr3_num_nts == len(seq.junction_nt),
+            Clone.subject == seq.subject):
 
         if _similar_to_all(session.query(Sequence).filter(
                 Sequence.clone == clone), seq, min_similarity):
@@ -96,7 +97,8 @@ def _get_clone(session, seq, germline, min_similarity):
             v_gene=seq.v_call,
             j_gene=seq.j_call,
             cdr3_num_nts=len(seq.junction_nt),
-            germline=germline)
+            germline=germline,
+            subject=seq.subject)
         session.add(c)
 
     _cached_clones[key] = c
@@ -185,7 +187,8 @@ def _add_mt(session, path, study_name, sample_name, sample_date, interval,
                                                           row['germline'])
                 record.sample = sample
                 if record.copy_number_iden > 0:
-                    if record.junction_nt is not None:
+                    if record.junction_nt is not None and '*' not in \
+                            record.junction_aa:
                         clone = _get_clone(session, record, row['germline'],
                                            min_similarity)
                         if len(clone.germline) != len(row['germline']):
@@ -229,20 +232,8 @@ def _process_all_clones(session):
         seqs = session.query(Sequence).filter(
             Sequence.clone_id == clone.id).all()
 
-        nt = _consensus(map(lambda e: e.junction_nt, seqs))
-
-        aa = _consensus(map(lambda e: e.junction_aa, seqs))
-
-        for col in session.query(Clone).filter(
-                Clone.v_gene == clone.v_gene,
-                Clone.j_gene == clone.j_gene,
-                Clone.cdr3_num_nts == len(nt),
-                Clone.cdr3_aa == aa):
-            if col != clone:
-                print '> collision {} {}'.format(clone.id, col.id)
-
-        clone.cdr3_nt = nt
-        clone.cdr3_aa = aa
+        clone.cdr3_nt = _consensus(map(lambda e: e.junction_nt, seqs))
+        clone.cdr3_aa = lookups.aas_from_nts(clone.cdr3_nt, '')
 
     session.commit()
 
