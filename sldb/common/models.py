@@ -127,7 +127,10 @@ class Sequence(Base):
     junction_aa = Column(String(512))
     gap_method = Column(String(16))
 
-    subject = Column(String(128))
+    subject_id = Column(Integer, ForeignKey('subjects.id'), index=True)
+    subject = relationship('Subject', backref=backref('sequences',
+                           order_by=(sample_id, seq_id)))
+
     subset = Column(String(16))
 
     tissue = Column(String(16))
@@ -157,8 +160,10 @@ class DuplicateSequence(Base):
     """A sequence which is a duplicate of a Sequence class instance.  This is
     used to minimize the size of the sequences table."""
     __tablename__ = 'duplicate_sequences'
-    __table_args__ = (UniqueConstraint('sample_id', 'identity_seq_id',
-                                       'seq_id'), {'mysql_engine': 'TokuDB'})
+    __table_args__ = (UniqueConstraint('sample_id',
+                                       'identity_seq_id',
+                                       'seq_id'),
+                      {'mysql_engine': 'TokuDB'})
 
     sample_id = Column(Integer, ForeignKey('samples.id'),
                        primary_key=True)
@@ -177,12 +182,23 @@ class DuplicateSequence(Base):
     seq_id = Column(String(length=128), primary_key=True)
 
 
+class Subject(Base):
+    __tablename__ = 'subjects'
+    __table_args__ = (UniqueConstraint('study_id', 'identifier'),
+                      { 'mysql_engine': 'TokuDB' })
+
+    id = Column(Integer, primary_key=True)
+
+    identifier = Column(String(64))
+    study_id = Column(Integer, ForeignKey('studies.id'))
+    study = relationship('Study', backref=backref('subjects',
+                                          order_by=identifier))
+
+
 class Clone(Base):
     """A clone which is dictated by V, J, CDR3."""
     __tablename__ = 'clones'
-    __table_args__ = (UniqueConstraint('v_gene', 'j_gene', 'cdr3_aa',
-                                       'cdr3_num_nts'),
-                      Index('clones_aa', 'v_gene', 'j_gene', 'cdr3_aa'),
+    __table_args__ = (Index('clones_aa', 'v_gene', 'j_gene', 'cdr3_aa'),
                       Index('clones_len', 'v_gene', 'j_gene',
                             'cdr3_num_nts'),
                       {'mysql_engine': 'TokuDB'})

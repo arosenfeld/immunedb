@@ -1,5 +1,6 @@
 import argparse
 import sys
+import csv
 import datetime
 from os.path import basename
 from collections import Counter
@@ -13,38 +14,17 @@ from sldb.common.models import *
 from sldb.conversion.stats import Stats
 
 
-_mt_headers = ['order', 'seqID', 'functional', 'in-frame', 'stop',
-               'mutation_invariate', 'v_match', 'v_length', 'j_match',
-               'j_length', 'v_call', 'j_call', 'v_gap_length', 'j_gap_length',
-               'juncton_gap_length', 'junction_nt', 'junction_aa',
-               'gap_method', 'subject', 'subset', 'tissue', 'disease', 'date',
-               'lab', 'experimenter', 'copy_number_close', 'collapse_to_close',
-               'copy_number_iden', 'collapse_to_iden', 'sequence', 'germline',
-               'cloneID', 'collapsedCloneID', 'withSinglecloneID']
-
-
-_mt_field_map = {
+_mt_remap_headers = {
     'seqID': 'seq_id',
     'in-frame': 'in_frame',
-
-    'juncton_gap_length': None,
-
-    'germline': None,
-    'cloneID': None,
-    'collapsedCloneID': None,
-    'withSinglecloneID': None
 }
 
+
+_mt_nomap = ['juncton_gap_length', 'subject', 'germline', 'cloneID',
+            'collapsedCloneID', 'withSinglecloneID']
+
+
 _cached_clones = {}
-
-def _field_value(fields, key):
-    return fields[_mt_headers.index(key)]
-
-
-def _lookup_model_attrib(index):
-    if _mt_headers[index] in _mt_field_map:
-        return _mt_field_map[_mt_headers[index]]
-    return _mt_headers[index]
 
 
 def cast_to_type(table_type, field_name, value):
@@ -70,25 +50,13 @@ def _get_or_create(session, model, **kwargs):
         return instance, True
 
 
-def _create_record(l):
+def _create_sequence_record(row):
     ''' Creates a new sequences record that has proper information '''
     record = Sequence()
-    sp = map(lambda e: e.strip(), l.split('\t'))
-    for i, val in enumerate(sp):
-        if i < len(_mt_headers):
-            model_attrib = _lookup_model_attrib(i)
-            if model_attrib is not None and \
-                    val not in ('unknown', 'NaN', ''):
-                model_val = cast_to_type(Sequence, model_attrib, val)
-                setattr(record, model_attrib, model_val)
-    return record
+    for key, value in row.iteritems():
+        if key not in _mt_nomap and value not in ('unknown', 'NaN', ''):
+            setattr(record, key, cast_to_type(Sequence, key, value))
 
-
-def _create_noresult_record(l):
-    ''' Creates a record for sequences which could not be assigned a V or J '''
-    record = NoResult()
-    seq_id = l.split('\t')[1].strip()  # TODO: This shouldn't be hardcoded
-    record.seq_id = seq_id
     return record
 
 
@@ -108,11 +76,11 @@ def _get_clone(session, seq, germline, min_similarity):
     ''' Gets or creates a clone from a master table line '''
     # Check if this exact CDR3 has already been assigned a clone
     key = (seq.v_call, seq.j_call, len(seq.junction_nt), seq.junction_aa)
-    c = None
     if key in _cached_clones:
         return _cached_clones[key]
 
     # Otherwise, fuzzy match the CDR3
+    c = None
     for clone in session.query(Clone).filter(
         Clone.v_gene==seq.v_call,
         Clone.j_gene==seq.j_call,
@@ -154,6 +122,15 @@ def _n_to_germline(seq, germline):
     return filled_seq
 
 
+def _remap_headers(row):
+    if None in row:
+        del row[None]
+
+    for remap_from, remap_to in _mt_remap_headers.iteritems():
+        if remap_from in row:
+            row[remap_to] = row.pop(remap_from)
+
+
 def _add_mt(session, path, study_name, sample_name, sample_date, interval,
             force, min_similarity):
     ''' Processes the entire master table '''
@@ -188,36 +165,35 @@ def _add_mt(session, path, study_name, sample_name, sample_date, interval,
     session.commit()
 
     stats = Stats(session, sample.id)
-    order_to_seq = {}
     with open(path, 'rU') as fh:
-        fh.readline()
-        for i, l in enumerate(fh):
-            fields = l.split('\t')
-            order = int(_field_value(fields, 'order'))
-            seq = _field_value(fields, 'seqID')
-            order_to_seq[order] = seq
-        total = i
+        order_to_seq = {}
+        for row in csv.DictReader(fh, delimiter='\t'):
+            _remap_headers(row)
+            order_to_seq[int(row['order'])] = row['seq_id']
+        total = len(order_to_seq)
         fh.seek(0)
-        fh.readline()
 
-        for i, l in enumerate(fh):
-            if 'noresult' in l:
-                record = _create_noresult_record(l)
+        for i, row in enumerate(csv.DictReader(fh, delimiter='\t')):
+            _remap_headers(row)
+            if 'noresult' in row.values():
                 stats.base_cnts['no_result_cnt'] += 1
-                record.sample = sample
-                session.add(record)
+                session.add(NoResult(seq_id=row['seq_id'], sample=sample))
             else:
-                record = _create_record(l)
-                germline = _field_value(l.split('\t'), 'germline')
-                record.sequence_replaced = _n_to_germline(record, germline)
+                record = _create_sequence_record(row)
+                record.subject, _ = _get_or_create(session, Subject,
+                                                   study_id=study.id,
+                                                   identifier=row['subject'])
+                record.sequence_replaced = _n_to_germline(record,
+                                                          row['germline'])
                 record.sample = sample
                 if record.copy_number_iden > 0:
                     if record.junction_nt is not None:
-                        clone = _get_clone(session, record, germline,
+                        clone = _get_clone(session, record, row['germline'],
                                            min_similarity)
-                        if len(clone.germline) != len(germline):
+                        if len(clone.germline) != len(row['germline']):
                             clone = None
                         record.clone = clone
+
                     stats.process_sequence(record)
                 else:
                     record = DuplicateSequence(
@@ -233,8 +209,8 @@ def _add_mt(session, path, study_name, sample_name, sample_date, interval,
                     i,
                     total,
                     round(100 * i / float(total), 2))
-    session.commit()
 
+    session.commit()
     stats.add_and_commit()
 
     print 'Completed master table'
@@ -254,21 +230,20 @@ def _process_all_clones(session):
     for clone in session.query(Clone):
         seqs = session.query(Sequence).filter(Sequence.clone_id==clone.id).all()
 
-        clone.cdr3_nt = _consensus(
-            map(lambda e: e.junction_nt,
-            seqs))
+        nt = _consensus(map(lambda e: e.junction_nt, seqs))
 
-        clone.cdr3_aa = _consensus(
-            map(lambda e: e.junction_aa,
-            seqs))
+        aa = _consensus(map(lambda e: e.junction_aa, seqs))
 
         for col in session.query(Clone).filter(
             Clone.v_gene == clone.v_gene,
             Clone.j_gene == clone.j_gene,
-            Clone.cdr3_num_nts == clone.cdr3_num_nts,
-            Clone.cdr3_aa == clone.cdr3_aa):
+            Clone.cdr3_num_nts == len(nt),
+            Clone.cdr3_aa == aa):
             if col != clone:
                 print '> collision {} {}'.format(clone.id, col.id)
+
+        clone.cdr3_nt = nt
+        clone.cdr3_aa = aa
 
     session.commit()
 
