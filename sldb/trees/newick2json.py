@@ -23,7 +23,7 @@ def _traverse(node, seq_info):
         for e in ['subject', 'subset', 'tissue', 'disease']:
             node_inst['data'][e] = seq_info[node.name][e]
 
-    for child in node.get_descendants():
+    for child in node.children:
         node_inst['children'].append(_traverse(child, seq_info))
 
     return node_inst

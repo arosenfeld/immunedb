@@ -131,8 +131,6 @@ class FilterStats(object):
     def process(self, e):
         self.cnt_update('in_frame_cnt', e.in_frame, self.count_fn(e))
         self.cnt_update('stop_cnt', e.stop, self.count_fn(e))
-        self.cnt_update('mutation_inv_cnt', e.mutation_invariate,
-                        self.count_fn(e))
         self.cnt_update('sequence_cnt', True, self.count_fn(e))
 
         if e.junction_nt is not None:

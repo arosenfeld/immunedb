@@ -109,7 +109,7 @@ class Sequence(Base):
     functional = Column(Boolean)
     in_frame = Column(Boolean)
     stop = Column(Boolean)
-    mutation_invariate = Column(Boolean)  # TODO: Is this a typo?
+    single_gap = Column(Boolean)
 
     v_match = Column(Integer)
     v_length = Column(Integer)

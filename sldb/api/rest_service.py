@@ -49,6 +49,15 @@ def sequence(sample_id, seq_id):
     return seq
 
 
+@app.route('/api/subjects/', methods=['GET'])
+def subjects():
+    """Gets a list of all subjects"""
+    session = scoped_session(session_factory)()
+    subjects = queries.get_all_subjects(session, _get_paging())
+    session.close()
+    return jsonify(subjects=subjects)
+
+
 @app.route('/api/clones/', methods=['GET'])
 def clones():
     """Gets a list of all clones"""
@@ -74,10 +83,10 @@ def clone_compare(uids):
 def clone_overlap(filter_type, samples):
     """Gets clonal overlap between samples"""
     session = scoped_session(session_factory)()
-    items, num_pages = queries.get_clone_overlap(
+    items = queries.get_clone_overlap(
         session, filter_type, _split(samples), _get_paging())
     session.close()
-    return jsonify(items=items, num_pages=num_pages)
+    return jsonify(items=items)
 
 
 @app.route('/api/data/clone_overlap/<filter_type>/<samples>', methods=['GET'])
@@ -88,14 +97,20 @@ def download_clone_overlap(filter_type, samples):
     session.close()
 
     def _gen(data):
-        yield ','.join(['samples', 'copy_number', 'v_gene', 'j_gene',
-                       'cdr3']) + '\n'
+        yield ','.join(['samples', 'total_sequences', 'unique_sequences',
+        'subject', 'v_gene', 'j_gene', 'cdr3_len', 'cdr3_aa', 'cdr3_nt']) + \
+        '\n'
         for c in data:
             yield ','.join(map(str, [c['samples'].replace(',', ' '),
-                           c['copy_number'],
+                           c['total_sequences'],
+                           c['unique_sequences'],
+                           '{} ({})'.format(
+                               c['clone']['subject']['identifier'],
+                               c['clone']['subject']['study']['name']),
                            c['clone']['v_gene'],
                            c['clone']['j_gene'],
-                           c['clone']['cdr3']])) + '\n'
+                           c['clone']['cdr3_aa'],
+                           c['clone']['cdr3_nt']])) + '\n'
 
     return Response(_gen(data), headers={
         'Content-Disposition':

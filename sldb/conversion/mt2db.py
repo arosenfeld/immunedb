@@ -20,7 +20,7 @@ _mt_remap_headers = {
 }
 
 
-_mt_nomap = ['juncton_gap_length', 'subject', 'germline', 'cloneID',
+_mt_nomap = ['junction_gap_length', 'subject', 'germline', 'cloneID',
              'collapsedCloneID', 'withSinglecloneID']
 
 
@@ -75,7 +75,8 @@ def _similar_to_all(seqs, check, min_similarity):
 def _get_clone(session, seq, germline, min_similarity):
     ''' Gets or creates a clone from a master table line '''
     # Check if this exact CDR3 has already been assigned a clone
-    key = (seq.v_call, seq.j_call, len(seq.junction_nt), seq.junction_aa)
+    key = (seq.v_call, seq.j_call, len(seq.junction_nt), seq.subject_id,
+           seq.junction_aa)
     if key in _cached_clones:
         return _cached_clones[key]
 
@@ -180,29 +181,35 @@ def _add_mt(session, path, study_name, sample_name, sample_date, interval,
                 session.add(NoResult(seq_id=row['seq_id'], sample=sample))
             else:
                 record = _create_sequence_record(row)
-                record.subject, _ = _get_or_create(session, Subject,
-                                                   study_id=study.id,
-                                                   identifier=row['subject'])
-                record.sequence_replaced = _n_to_germline(record,
-                                                          row['germline'])
-                record.sample = sample
                 if record.copy_number_iden > 0:
+                    record.subject, _ = _get_or_create(session, Subject,
+                                                       study_id=study.id,
+                                                       identifier=row['subject'])
+                    record.sequence_replaced = _n_to_germline(record,
+                                                              row['germline'])
+                    record.sample = sample
+
                     if record.junction_nt is not None and '*' not in \
-                            record.junction_aa:
+                            record.junction_aa and record.copy_number_iden > 1:
                         clone = _get_clone(session, record, row['germline'],
                                            min_similarity)
                         if len(clone.germline) != len(row['germline']):
+                            print '***Mismatched germline length***'
+                            print 'Sample      :', sample.name
+                            print 'Sequence    :', record.seq_id
+                            print 'Length in DB:', len(clone.germline)
+                            print 'Length in MT:', len(row['germline'])
                             clone = None
                         record.clone = clone
 
+                    session.add(record)
                     stats.process_sequence(record)
                 else:
                     record = DuplicateSequence(
                         sample=sample,
                         identity_seq_id=order_to_seq[record.collapse_to_iden],
                         seq_id=record.seq_id)
-
-                session.add(record)
+                    session.add(record)
 
             if i > 0 and i % interval == 0:
                 session.commit()
@@ -218,26 +225,6 @@ def _add_mt(session, path, study_name, sample_name, sample_date, interval,
     return sample
 
 
-def _consensus(strings):
-    cons = []
-    for chars in zip(*strings):
-        cons.append(Counter(chars).most_common(1)[0][0])
-
-    return ''.join(cons)
-
-
-def _process_all_clones(session):
-    print 'Generating clone consensuses'
-    for clone in session.query(Clone):
-        seqs = session.query(Sequence).filter(
-            Sequence.clone_id == clone.id).all()
-
-        clone.cdr3_nt = _consensus(map(lambda e: e.junction_nt, seqs))
-        clone.cdr3_aa = lookups.aas_from_nts(clone.cdr3_nt, '')
-
-    session.commit()
-
-
 def run_mt2db():
     parser = argparse.ArgumentParser(description='Parse master-table into \
     database.')
@@ -251,10 +238,6 @@ def run_mt2db():
                         ' sequences to parse between commits')
     parser.add_argument('-f', action='store_true', default=False, help='Forces'
                         ' insertion if sample name already exists')
-    parser.add_argument('-m', action='store_true', default=False, help='Do '
-                        'not run master-table parsing.')
-    parser.add_argument('-l', action='store_true', default=False, help='Do '
-                        'not generate clone stats')
     parser.add_argument('mt_dir', help='Master table directory')
     args = parser.parse_args()
 
@@ -266,22 +249,18 @@ def run_mt2db():
     Base.metadata.bind = engine
     session = sessionmaker(bind=engine)()
 
-    if not args.m:
-        for l in sys.stdin:
-            study_name, sample_name, date, _ = map(lambda s: s.strip(),
-                                                   l.split('|'))
-            path = '{}/{}/{}/{}'.format(
-                args.mt_dir,  study_name, date, sample_name)
-            print study_name, sample_name, date, path
-            sample = _add_mt(
-                session=session,
-                path=path + '/master_table',
-                study_name=study_name,
-                sample_name=sample_name,
-                sample_date=date,
-                interval=args.c,
-                force=args.f,
-                min_similarity=args.s / 100.0)
-
-    if not args.l:
-        _process_all_clones(session)
+    for l in sys.stdin:
+        study_name, sample_name, date, _ = map(lambda s: s.strip(),
+                                               l.split('|'))
+        path = '{}/{}/{}/{}'.format(
+            args.mt_dir,  study_name, date, sample_name)
+        print study_name, sample_name, date, path
+        sample = _add_mt(
+            session=session,
+            path=path + '/master_table',
+            study_name=study_name,
+            sample_name=sample_name,
+            sample_date=date,
+            interval=args.c,
+            force=args.f,
+            min_similarity=args.s / 100.0)
