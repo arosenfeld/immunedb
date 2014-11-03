@@ -29,6 +29,7 @@ def _clone_to_dict(clone):
         'germline': clone.germline
     }
 
+
 def _model_to_dict(inst):
     ret = {}
     for c in inspect(inst).attrs:
@@ -114,7 +115,7 @@ def compare_clones(session, uids):
                 },
                 'junction_nt': s.junction_nt,
                 'sequence': s.sequence_replaced,
-#                'duplicates': duplicates,
+                # 'duplicates': duplicates,
                 'read_start': read_start,
                 'mutations': mutations.add_sequence(s.sequence),
             })
@@ -141,7 +142,7 @@ def get_clone_overlap(session, filter_type, samples, paging=None):
 
     if paging is not None:
         page, per_page = paging
-        #num_pages = math.ceil(len(q.all()) / per_page)
+        # num_pages = math.ceil(len(q.all()) / per_page)
         q = q.offset((page - 1) * per_page).limit(per_page)
 
     for r in q:

@@ -20,8 +20,9 @@ _mt_remap_headers = {
 }
 
 
-_mt_nomap = ['junction_gap_length', 'subject', 'germline', 'cloneID',
-             'collapsedCloneID', 'withSinglecloneID']
+_mt_nomap = ['junction_gap_length', 'juncton_gap_length', 'subject',
+             'germline', 'cloneID', 'collapsedCloneID', 'withSinglecloneID',
+             'mutation_invariate']
 
 
 _cached_clones = {}
@@ -189,8 +190,10 @@ def _add_mt(session, path, study_name, sample_name, sample_date, interval,
                                                               row['germline'])
                     record.sample = sample
 
-                    if record.junction_nt is not None and '*' not in \
-                            record.junction_aa and record.copy_number_iden > 1:
+                    if record.junction_nt is not None and \
+                        record.junction_aa is not None and \
+                        '*' not in record.junction_aa and \
+                        record.copy_number_iden > 1:
                         clone = _get_clone(session, record, row['germline'],
                                            min_similarity)
                         if len(clone.germline) != len(row['germline']):
