@@ -75,12 +75,13 @@ def get_all_clones(session, paging=None):
 def compare_clones(session, uids):
     """Compares sequences within clones by determining their mutations"""
     clones = {}
+    clone_muts = {}
     for clone_id, sample_id in uids:
         clone = session.query(Clone).filter(Clone.id == clone_id).first()
         germline = clone.germline[:309] + clone.cdr3_nt + \
             clone.germline[309 + clone.cdr3_num_nts:]
-        mutations = Mutations(germline, clone.cdr3_num_nts)
         if clone_id not in clones:
+            clone_muts[clone_id] = Mutations(germline, clone.cdr3_num_nts)
             clone_json = _clone_to_dict(clone)
             clone_json['germline'] = germline
             clones[clone_id] = {
@@ -88,6 +89,7 @@ def compare_clones(session, uids):
                 'mutation_stats': {},
                 'seqs': []
             }
+        mutations = clone_muts[clone_id]
 
         start_ptrn = re.compile('[N\-]*')
         for s in session.query(Sequence)\
@@ -212,6 +214,7 @@ def get_all_subjects(session, paging):
         for s in session.query(
                 distinct(Sequence.sample_id).label('sample_id'))\
                 .filter(Sequence.subject == subject):
+            print s.sample_id
             sample = session.query(Sample)\
                 .filter(Sample.id == s.sample_id).first()
             samples.append({
