@@ -40,15 +40,20 @@ def _model_to_dict(inst):
     return ret
 
 
-def get_all_clones(session, paging=None):
+def get_all_clones(session, filters, sort, paging=None):
     """Gets a list of all clones"""
     res = []
     clone_q = session.query(Clone).order_by(Clone.v_gene, Clone.j_gene,
                                             Clone.cdr3_aa, Clone.subject_id)
 
+    if filters is not None:
+        for key, value in filters.iteritems():
+            clone_q = clone_q.filter(getattr(Clone, key) == value)
+
     if paging is not None:
         page, per_page = paging
         clone_q = clone_q.offset((page - 1) * per_page).limit(per_page)
+
 
     for c in clone_q:
         stats_comb = []
@@ -102,13 +107,6 @@ def compare_clones(session, uids):
             else:
                 read_start = read_start.span()[1]
 
-            '''
-            duplicates = session.query(
-                func.count(Sequence.seq_id).label('ttl'))\
-                .filter(Sequence.clone == s.clone)\
-                .filter(Sequence.sequence_replaced == s.sequence_replaced)\
-                .first().ttl - 1
-            '''
             clones[clone_id]['seqs'].append({
                 'seq_id': s.seq_id,
                 'sample': {
@@ -117,7 +115,6 @@ def compare_clones(session, uids):
                 },
                 'junction_nt': s.junction_nt,
                 'sequence': s.sequence_replaced,
-                # 'duplicates': duplicates,
                 'read_start': read_start,
                 'mutations': mutations.add_sequence(s.sequence),
             })
@@ -151,7 +148,8 @@ def get_clone_overlap(session, filter_type, samples, paging=None):
         samples = ','.join(map(str, sorted(map(int, r.samples.split(',')))))
         freq = r.CloneFrequency
         unique_seqs = session.query(
-            func.count(distinct(Sequence.sequence_replaced)).label('us')).filter(
+            func.count(
+                distinct(Sequence.sequence_replaced)).label('us')).filter(
             Sequence.clone == freq.clone).first().us
         res.append({
             'samples': samples,
@@ -161,7 +159,7 @@ def get_clone_overlap(session, filter_type, samples, paging=None):
         })
 
     if paging:
-        return res#, num_pages
+        return res
     return res
 
 
@@ -201,28 +199,6 @@ def get_all_subjects(session, paging):
 
     subjects = []
     for subject in q:
-        # TODO: These counts are off for cross-samples
-        stats = session.query(
-#            func.sum(Sequence.copy_number_iden).label('total_seqs')
-            func.count(Sequence.seq_id).label('unique_seqs'))\
-            .filter(Sequence.subject == subject).first()
-
-        clone_stats = session.query(func.count(Clone.id).label('count'))\
-            .filter(Clone.subject == subject).first()
-
-        samples = []
-        for s in session.query(
-                distinct(Sequence.sample_id).label('sample_id'))\
-                .filter(Sequence.subject == subject):
-            print s.sample_id
-            sample = session.query(Sample)\
-                .filter(Sample.id == s.sample_id).first()
-            samples.append({
-                'id': sample.id,
-                'name': sample.name,
-                'date': sample.date.strftime('%Y-%m-%d')
-            })
-
         subjects.append({
             'id': subject.id,
             'identifier': subject.identifier,
@@ -230,13 +206,57 @@ def get_all_subjects(session, paging):
                 'id': subject.study.id,
                 'name': subject.study.name
             },
-            'samples': samples,
-            'unique_seqs': stats.unique_seqs,
-#            'total_seqs': stats.total_seqs,
-            'total_clones': clone_stats.count
+            'total_samples': session.query(
+                    func.count(distinct(Sequence.sample_id)).label('samples'))
+                .filter(Sequence.subject == subject).first().samples,
+            'unique_seqs': session.query(
+                    func.count(Sequence.seq_id).label('unique_seqs'))
+                .filter(Sequence.subject == subject).first().unique_seqs,
+            'total_clones': session.query(
+                    func.count(Clone.id).label('count'))
+                .filter(Clone.subject == subject).first().count
         })
 
     return subjects
+
+
+def get_subject(session, sid):
+    s = session.query(Subject).filter(Subject.id == sid).first()
+    samples = []
+
+    for seq in session.query(
+            distinct(Sequence.sample_id).label('sample_id'))\
+            .filter(Sequence.subject_id == s.id):
+        # TODO: This should be a join but that is really slow for some reason
+        sample = session.query(Sample).filter(
+            Sample.id == seq.sample_id).first()
+
+        samples.append({
+            'id': sample.id,
+            'name': sample.name,
+            'date': sample.date.strftime('%Y-%m-%d'),
+            'valid_cnt': sample.valid_cnt,
+            'no_result_cnt': sample.no_result_cnt,
+            'functional_cnt': sample.functional_cnt,
+        })
+
+    subject = {
+        'id': s.id,
+        'identifier': s.identifier,
+        'study': {
+            'id': s.study.id,
+            'name': s.study.name,
+        },
+        'samples': samples,
+        'unique_seqs': session.query(
+                func.count(Sequence.seq_id).label('unique_seqs'))
+            .filter(Sequence.subject_id == s.id).first().unique_seqs,
+        'total_clones': session.query(
+                func.count(Clone.id).label('count'))
+            .filter(Clone.subject_id == s.id).first().count,
+    }
+
+    return subject
 
 
 def get_sequence(session, sample_id, seq_id):

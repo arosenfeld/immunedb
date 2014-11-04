@@ -3,6 +3,7 @@ import json
 import math
 
 from flask import Flask, Response, request, jsonify
+from flask.json import loads
 import flask.ext.sqlalchemy
 import flask.ext.restless
 
@@ -58,11 +59,26 @@ def subjects():
     return jsonify(subjects=subjects)
 
 
+@app.route('/api/subject/<sid>', methods=['GET'])
+def subject(sid):
+    session = scoped_session(session_factory)()
+    subject = queries.get_subject(session, int(sid))
+    session.close()
+    return jsonify(subject=subject)
+
+
 @app.route('/api/clones/', methods=['GET'])
 def clones():
     """Gets a list of all clones"""
+    filters = request.args.get('filters') or None
+    sort = request.args.get('sort') or None
+
+    if filters is not None:
+        filters = loads(filters)
+    if sort is not None:
+        sort = loads(sort)
     session = scoped_session(session_factory)()
-    clones = queries.get_all_clones(session, _get_paging())
+    clones = queries.get_all_clones(session, filters, sort, _get_paging())
     session.close()
     return jsonify(objects=clones)
 
