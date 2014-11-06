@@ -25,6 +25,7 @@ def _run_sample(fh):
     avg_len = lengths_sum / float(len(vdjs))
     avg_mutation_frac = mutations_sum / float(len(vdjs))
     print 'len={}, mut={}'.format(avg_len, avg_mutation_frac)
+    print 'noresults={}'.format(no_result)
     v_ties = get_v_ties(avg_len, avg_mutation_frac)
 
     for vdj in vdjs:
