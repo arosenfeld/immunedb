@@ -2,23 +2,44 @@ import argparse
 from Bio import SeqIO
 
 from sldb.identification.vdj_sequence import VDJSequence
+from sldb.identification.v_ties import get_v_ties
+
 
 def _run_sample(fh):
-    mutation_fraction = []
+    lengths_sum = 0
+    mutations_sum = 0
+    vdjs = []
+
     no_result = 0
     for i, record in enumerate(SeqIO.parse(fh, 'fasta')):
         if i > 0 and i % 1000 == 0:
             print i
-            if i == 5000:
-                break
-        vdj = VDJSequence(record.seq)
+        vdj = VDJSequence(record.description, record.seq)
         if vdj.j_gene is not None and vdj.v_gene is not None:
-            mutation_fraction.append(vdj.mutation_fraction)
+            lengths_sum += vdj.v_anchor_pos
+            mutations_sum += vdj.mutation_fraction
+            vdjs.append(vdj)
         else:
             no_result += 1
-    print 'mutation', sum(mutation_fraction) / float(len(mutation_fraction))
-    print 'results', len(mutation_fraction)
-    print 'noresults', no_result
+
+    avg_len = lengths_sum / float(len(vdjs))
+    avg_mutation_frac = mutations_sum / float(len(vdjs))
+    print 'len={}, mut={}'.format(avg_len, avg_mutation_frac)
+    v_ties = get_v_ties(avg_len, avg_mutation_frac)
+
+    for vdj in vdjs:
+        new_vs = set([])
+        for v in vdj.v_gene:
+            if v in v_ties:
+                ties = v_ties[v].split('|')
+                new_vs = new_vs.union(set(ties))
+            else:
+                new_vs.add(v)
+        old_vs = vdj.v_gene[:]
+        vdj.v_gene = list(new_vs)
+        print vdj.id, vdj.v_gene, old_vs
+        print vdj.germline
+        print vdj.sequence
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -27,6 +48,3 @@ if __name__ == '__main__':
 
     with open(args.fasta_file) as fh:
         _run_sample(fh)
-#'M01651:98:000000000-A7TTB:1:1101:23634:8217 1:N:0:27': # DC
-#'M01651:98:000000000-A7TTB:1:1101:10142:17712 1:N:0:27': # YXC
-#'M01651:98:000000000-A7TTB:1:1101:11042:6786 1:N:0:27': # Ties

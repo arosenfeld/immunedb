@@ -1,30 +1,30 @@
 def get_v_ties(length, mutation_level):
     if 0 < mutation_level <= .05:
         if 0 < length <= 100:
-            return IGHV_100_5
+            return IGH_100_5
         if 100 < length <= 150:
-            return IGHV_150_5
+            return IGH_150_5
         if 150 < length <= 200:
-            return IGHV_200_5
-        return IGHV_full_5
+            return IGH_200_5
+        return IGH_full_5
 
     if .05 < mutation_level <= .15:
         if 0 < length <= 100:
-            return IGHV_100_15
+            return IGH_100_15
         if 100 < length <= 150:
-            return IGHV_150_15
+            return IGH_150_15
         if 150 < length <= 200:
-            return IGHV_200_15
-        return IGHV_full_15
+            return IGH_200_15
+        return IGH_full_15
 
     if .15 < mutation_level:
         if 0 < length <= 100:
-            return IGHV_100_30
+            return IGH_100_30
         if 100 < length <= 150:
-            return IGHV_150_30
+            return IGH_150_30
         if 150 < length <= 200:
-            return IGHV_200_30
-        return IGHV_full_30
+            return IGH_200_30
+        return IGH_full_30
 
 # 100 nucleotides with .05 mutation
 IGH_100_5 = {

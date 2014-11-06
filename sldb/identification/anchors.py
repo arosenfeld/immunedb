@@ -7,14 +7,18 @@ j_anchors = {
     'IGHJ6': Seq('CGGTCACCGTCTCCTCAG'),
 }
 
+
 v_regex = [
     'GAC.{15}TGT',
     'GAC.{15}TG',
 ]
 
+
 dc_final_aas = ['YY', 'YC', 'YH']
 
+
 germline_anchor = 'TGT'
+
 
 def all_j_anchors():
     max_size = max(map(len, j_anchors.values()))
