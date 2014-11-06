@@ -14,6 +14,8 @@ v_regex = [
 
 dc_final_aas = ['YY', 'YC', 'YH']
 
+germline_anchor = 'TGT'
+
 def all_j_anchors():
     max_size = max(map(len, j_anchors.values()))
     for trim in range(0, max_size, 3):
