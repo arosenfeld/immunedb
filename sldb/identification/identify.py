@@ -14,6 +14,7 @@ def _run_sample(fh):
     for i, record in enumerate(SeqIO.parse(fh, 'fasta')):
         if i > 0 and i % 1000 == 0:
             print i
+            break
         vdj = VDJSequence(record.description, record.seq)
         if vdj.j_gene is not None and vdj.v_gene is not None:
             lengths_sum += vdj.v_anchor_pos
@@ -42,7 +43,8 @@ def _run_sample(fh):
         print vdj.germline
         print vdj.sequence
 
-if __name__ == '__main__':
+
+def run_identify():
     parser = argparse.ArgumentParser()
     parser.add_argument('fasta_file')
     args = parser.parse_args()

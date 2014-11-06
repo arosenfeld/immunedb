@@ -1,4 +1,5 @@
 import re
+import distance
 
 from Bio.Seq import Seq
 import sldb.identification.anchors as anchors
@@ -6,10 +7,11 @@ import sldb.identification.germlines as germlines
 import sldb.util.lookups as lookups
 
 
+'''
 def _hamming_distance(s1, s2):
     assert len(s1) == len(s2)
     return sum(ch1 != ch2 for ch1, ch2 in zip(s1, s2))
-
+'''
 
 class VDJSequence(object):
     CDR3_OFFSET = 309
@@ -127,7 +129,7 @@ class VDJSequence(object):
             v_seq = germ[germ_pos - self.v_anchor_pos + 1:germ_pos + 1]
             s_seq = self.sequence[:self.v_anchor_pos]
             # Determine the distance between the germline and sequence
-            dist = _hamming_distance(str(v_seq), str(s_seq))
+            dist = distance.hamming(str(v_seq), str(s_seq))
             # Record this germline if it is has the lowest distance
             if v_score is None or dist < v_score:
                 v_best = [v]
