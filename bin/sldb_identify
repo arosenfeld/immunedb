@@ -1,0 +1,5 @@
+#!/usr/bin/env python2
+import sys
+from sldb.identification.identify import run_identify
+
+sys.exit(run_identify())
