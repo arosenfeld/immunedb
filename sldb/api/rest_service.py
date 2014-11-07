@@ -96,20 +96,24 @@ def clone_compare(uids):
 
 
 @app.route('/api/clone_overlap/<filter_type>/<samples>', methods=['GET'])
-def clone_overlap(filter_type, samples):
+@app.route('/api/subject_clones/<filter_type>/<subject>', methods=['GET'])
+def clone_overlap(filter_type, samples=None, subject=None):
     """Gets clonal overlap between samples"""
+    samples = _split(samples) if samples is not None else None
     session = scoped_session(session_factory)()
     items = queries.get_clone_overlap(
-        session, filter_type, _split(samples), _get_paging())
+        session, filter_type, samples, subject, _get_paging())
     session.close()
     return jsonify(items=items)
 
 
 @app.route('/api/data/clone_overlap/<filter_type>/<samples>', methods=['GET'])
-def download_clone_overlap(filter_type, samples):
+@app.route('/api/data/subject_clones/<filter_type>/<subject>', methods=['GET'])
+def download_clone_overlap(filter_type, samples=None, subject=None):
     """Downloads a CSV of the clonal overlap between samples"""
     session = scoped_session(session_factory)()
-    data = queries.get_clone_overlap(session, filter_type, _split(samples))
+    sample_ids = _split(samples) if samples is not None else None
+    data = queries.get_clone_overlap(session, filter_type, sample_ids, subject)
     session.close()
 
     def _gen(data):
@@ -128,11 +132,17 @@ def download_clone_overlap(filter_type, samples):
                            c['clone']['cdr3_aa'],
                            c['clone']['cdr3_nt']])) + '\n'
 
+    if samples is not None:
+        fn = 'overlap_{}_{}.csv'.format(
+                filter_type,
+                samples.replace(',', '-'))
+    else:
+        fn = 'subject_{}_{}.csv'.format(
+                filter_type,
+                subject)
     return Response(_gen(data), headers={
         'Content-Disposition':
-        'attachment;filename={}_{}.csv'.format(
-            filter_type,
-            samples.replace(',', '-'))})
+        'attachment;filename={}'.format(fn)})
 
 
 @app.route('/api/v_usage/<filter_type>/<samples>', methods=['GET'])
