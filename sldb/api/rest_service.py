@@ -145,6 +145,44 @@ def download_clone_overlap(filter_type, samples=None, subject=None):
         'attachment;filename={}'.format(fn)})
 
 
+@app.route(
+    '/api/data/sequences/<file_type>/<replace_germ>/<cid>/<params>',
+    methods=['GET'])
+def download_sequences(file_type, replace_germ, cid, params):
+    cid = int(cid)
+    replace_germ = True if replace_germ == 'true' else False
+    fn = '{}-{}'.format(cid, 'replaced' if replace_germ else 'original')
+
+    session = scoped_session(session_factory)()
+    sequences = []
+    for clone_and_sample in params.split(','):
+        clone_id, sample = _split(clone_and_sample, '_')
+        if clone_id != cid:
+            continue
+        fn += '_{}'.format(sample)
+        for s in session.query(Sequence)\
+            .filter(Sequence.sample_id == sample)\
+            .filter(Sequence.clone_id == cid):
+            sequences.append({
+                'sample_name': s.sample.name,
+                'seq_id': s.seq_id,
+                'sequence': s.sequence_replaced if replace_germ else s.sequence
+            })
+    session.close()
+
+    def _gen(sequences):
+        for seq in sequences:
+            if file_type == 'fasta':
+                yield '>{},{}\n{}\n\n'.format(
+                    seq['sample_name'],
+                    seq['seq_id'],
+                    seq['sequence'])
+
+    return Response(_gen(sequences), headers={
+        'Content-Disposition':
+        'attachment;filename={}.fasta'.format(fn)})
+
+
 @app.route('/api/v_usage/<filter_type>/<samples>', methods=['GET'])
 def v_usage(filter_type, samples):
     """Gets the V usage for samples in a heatmap-formatted array"""
