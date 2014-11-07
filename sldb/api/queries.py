@@ -126,7 +126,7 @@ def compare_clones(session, uids):
     return clones
 
 
-def get_clone_overlap(session, filter_type, samples, paging=None):
+def get_clone_overlap(session, filter_type, samples, subject=None, paging=None):
     """Gets a list of clones and the samples in `samples` which they appear"""
     res = []
     q = session.query(
@@ -134,9 +134,17 @@ def get_clone_overlap(session, filter_type, samples, paging=None):
         func.sum(CloneFrequency.total_sequences).label('total_sequences'),
         func.group_concat(CloneFrequency.sample_id)
         .label('samples'))\
-        .filter(CloneFrequency.sample_id.in_(samples),
-                CloneFrequency.filter_type == filter_type)\
-        .group_by(CloneFrequency.clone_id)\
+        .filter(CloneFrequency.filter_type == filter_type)
+
+    if samples is not None:
+        q = q.filter(CloneFrequency.sample_id.in_(samples))
+    elif subject is not None:
+        samples = map(lambda s: s.sample_id,
+            session.query(distinct(Sequence.sample_id).label('sample_id'))\
+            .filter(Sequence.subject_id == subject).all())
+        q = q.filter(CloneFrequency.sample_id.in_(samples))
+
+    q = q.group_by(CloneFrequency.clone_id)\
         .order_by(desc(func.sum(CloneFrequency.total_sequences)))
 
     if paging is not None:
@@ -251,9 +259,6 @@ def get_subject(session, sid):
         'unique_seqs': session.query(
                 func.count(Sequence.seq_id).label('unique_seqs'))
             .filter(Sequence.subject_id == s.id).first().unique_seqs,
-        'total_clones': session.query(
-                func.count(Clone.id).label('count'))
-            .filter(Clone.subject_id == s.id).first().count,
     }
 
     return subject

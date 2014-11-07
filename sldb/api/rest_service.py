@@ -96,20 +96,24 @@ def clone_compare(uids):
 
 
 @app.route('/api/clone_overlap/<filter_type>/<samples>', methods=['GET'])
-def clone_overlap(filter_type, samples):
+@app.route('/api/subject_clones/<filter_type>/<subject>', methods=['GET'])
+def clone_overlap(filter_type, samples=None, subject=None):
     """Gets clonal overlap between samples"""
+    samples = _split(samples) if samples is not None else None
     session = scoped_session(session_factory)()
     items = queries.get_clone_overlap(
-        session, filter_type, _split(samples), _get_paging())
+        session, filter_type, samples, subject, _get_paging())
     session.close()
     return jsonify(items=items)
 
 
 @app.route('/api/data/clone_overlap/<filter_type>/<samples>', methods=['GET'])
-def download_clone_overlap(filter_type, samples):
+@app.route('/api/data/subject_clones/<filter_type>/<subject>', methods=['GET'])
+def download_clone_overlap(filter_type, samples=None, subject=None):
     """Downloads a CSV of the clonal overlap between samples"""
     session = scoped_session(session_factory)()
-    data = queries.get_clone_overlap(session, filter_type, _split(samples))
+    sample_ids = _split(samples) if samples is not None else None
+    data = queries.get_clone_overlap(session, filter_type, sample_ids, subject)
     session.close()
 
     def _gen(data):
@@ -128,11 +132,55 @@ def download_clone_overlap(filter_type, samples):
                            c['clone']['cdr3_aa'],
                            c['clone']['cdr3_nt']])) + '\n'
 
+    if samples is not None:
+        fn = 'overlap_{}_{}.csv'.format(
+                filter_type,
+                samples.replace(',', '-'))
+    else:
+        fn = 'subject_{}_{}.csv'.format(
+                filter_type,
+                subject)
     return Response(_gen(data), headers={
         'Content-Disposition':
-        'attachment;filename={}_{}.csv'.format(
-            filter_type,
-            samples.replace(',', '-'))})
+        'attachment;filename={}'.format(fn)})
+
+
+@app.route(
+    '/api/data/sequences/<file_type>/<replace_germ>/<cid>/<params>',
+    methods=['GET'])
+def download_sequences(file_type, replace_germ, cid, params):
+    cid = int(cid)
+    replace_germ = True if replace_germ == 'true' else False
+    fn = '{}-{}'.format(cid, 'replaced' if replace_germ else 'original')
+
+    session = scoped_session(session_factory)()
+    sequences = []
+    for clone_and_sample in params.split(','):
+        clone_id, sample = _split(clone_and_sample, '_')
+        if clone_id != cid:
+            continue
+        fn += '_{}'.format(sample)
+        for s in session.query(Sequence)\
+            .filter(Sequence.sample_id == sample)\
+            .filter(Sequence.clone_id == cid):
+            sequences.append({
+                'sample_name': s.sample.name,
+                'seq_id': s.seq_id,
+                'sequence': s.sequence_replaced if replace_germ else s.sequence
+            })
+    session.close()
+
+    def _gen(sequences):
+        for seq in sequences:
+            if file_type == 'fasta':
+                yield '>{},{}\n{}\n\n'.format(
+                    seq['sample_name'],
+                    seq['seq_id'],
+                    seq['sequence'])
+
+    return Response(_gen(sequences), headers={
+        'Content-Disposition':
+        'attachment;filename={}.fasta'.format(fn)})
 
 
 @app.route('/api/v_usage/<filter_type>/<samples>', methods=['GET'])
