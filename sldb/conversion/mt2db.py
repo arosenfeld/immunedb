@@ -183,9 +183,9 @@ def _add_mt(session, path, study_name, sample_name, sample_date, interval,
             else:
                 record = _create_sequence_record(row)
                 if record.copy_number_iden > 0:
-                    record.subject, _ = _get_or_create(session, Subject,
-                                                       study_id=study.id,
-                                                       identifier=row['subject'])
+                    record.subject, _ = _get_or_create(
+                        session, Subject, study_id=study.id,
+                        identifier=row['subject'])
                     record.sequence_replaced = _n_to_germline(record,
                                                               row['germline'])
                     record.sample = sample
@@ -193,7 +193,7 @@ def _add_mt(session, path, study_name, sample_name, sample_date, interval,
                     if record.junction_nt is not None and \
                         record.junction_aa is not None and \
                         '*' not in record.junction_aa and \
-                        record.copy_number_iden > 1:
+                            record.copy_number_iden > 1:
                         clone = _get_clone(session, record, row['germline'],
                                            min_similarity)
                         if len(clone.germline) != len(row['germline']):

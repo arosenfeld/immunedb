@@ -44,8 +44,8 @@ def run_clones():
     parser.add_argument('pw', help='mySQL password')
     parser.add_argument('-c', type=int, default=1000, help='Number of'
                         ' clones to generate between commits')
-    parser.add_argument('--subjects', nargs='+', type=int, help='Limit generation to '
-                        'certain subjects')
+    parser.add_argument('--subjects', nargs='+', type=int,
+                        help='Limit generation to certain subjects')
 
     args = parser.parse_args()
 

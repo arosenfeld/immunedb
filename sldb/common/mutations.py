@@ -146,7 +146,7 @@ class Mutations(object):
                         final_region_stats[r]['mutations'][mtype]
                     changed_aa = self._get_aa_at(
                         self._get_replacement(mutation[0], mutation[2]),
-                        mutation[0]);
+                        mutation[0])
 
                     entry = {
                         'count': count,

@@ -113,9 +113,10 @@ def download_clone_overlap(filter_type, samples):
     session.close()
 
     def _gen(data):
-        yield ','.join(['samples', 'total_sequences', 'unique_sequences',
-        'subject', 'v_gene', 'j_gene', 'cdr3_len', 'cdr3_aa', 'cdr3_nt']) + \
-        '\n'
+        yield ','.join([
+            'samples', 'total_sequences', 'unique_sequences',
+            'subject', 'v_gene', 'j_gene', 'cdr3_len', 'cdr3_aa', 'cdr3_nt']) + \
+            '\n'
         for c in data:
             yield ','.join(map(str, [c['samples'].replace(',', ' '),
                            c['total_sequences'],

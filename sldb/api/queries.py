@@ -54,7 +54,6 @@ def get_all_clones(session, filters, sort, paging=None):
         page, per_page = paging
         clone_q = clone_q.offset((page - 1) * per_page).limit(per_page)
 
-
     for c in clone_q:
         stats_comb = []
         for stat in session.query(CloneFrequency)\
@@ -207,14 +206,14 @@ def get_all_subjects(session, paging):
                 'name': subject.study.name
             },
             'total_samples': session.query(
-                    func.count(distinct(Sequence.sample_id)).label('samples'))
-                .filter(Sequence.subject == subject).first().samples,
+                func.count(distinct(Sequence.sample_id)).label('samples'))
+            .filter(Sequence.subject == subject).first().samples,
             'unique_seqs': session.query(
-                    func.count(Sequence.seq_id).label('unique_seqs'))
-                .filter(Sequence.subject == subject).first().unique_seqs,
+                func.count(Sequence.seq_id).label('unique_seqs'))
+            .filter(Sequence.subject == subject).first().unique_seqs,
             'total_clones': session.query(
-                    func.count(Clone.id).label('count'))
-                .filter(Clone.subject == subject).first().count
+                func.count(Clone.id).label('count'))
+            .filter(Clone.subject == subject).first().count
         })
 
     return subjects
@@ -249,11 +248,11 @@ def get_subject(session, sid):
         },
         'samples': samples,
         'unique_seqs': session.query(
-                func.count(Sequence.seq_id).label('unique_seqs'))
-            .filter(Sequence.subject_id == s.id).first().unique_seqs,
+            func.count(Sequence.seq_id).label('unique_seqs'))
+        .filter(Sequence.subject_id == s.id).first().unique_seqs,
         'total_clones': session.query(
-                func.count(Clone.id).label('count'))
-            .filter(Clone.subject_id == s.id).first().count,
+            func.count(Clone.id).label('count'))
+        .filter(Clone.subject_id == s.id).first().count,
     }
 
     return subject
@@ -262,7 +261,6 @@ def get_subject(session, sid):
 def get_sequence(session, sample_id, seq_id):
     seq = session.query(Sequence).filter(Sequence.sample_id == sample_id,
                                          Sequence.seq_id == seq_id).first()
-    
     ret = _model_to_dict(seq)
     ret['subject'] = {
         'study': {
@@ -276,7 +274,7 @@ def get_sequence(session, sample_id, seq_id):
         'name': seq.sample.name,
     }
 
-    if seq.clone == None:
+    if seq.clone is None:
         ret['clone'] = None
     else:
         ret['clone'] = _clone_to_dict(seq.clone)

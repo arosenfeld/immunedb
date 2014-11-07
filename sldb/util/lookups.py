@@ -1,5 +1,6 @@
 import itertools
 
+
 def aas_from_nts(nts, ret_on_wrong=None):
     aas = ''
     for i in range(0, len(nts), 3):
@@ -19,6 +20,7 @@ def aa_to_all_nts(aas):
     for aa in aas:
         nts.append(_nt_lookup[aa])
     return map(lambda arr: ''.join(arr), itertools.product(*nts))
+
 
 def are_conserved_aas(aa1, aa2):
     """Determines if two amino acids are conserved based on the paper
@@ -48,6 +50,7 @@ _aa_lookup = {'TTT': 'F', 'TTC': 'F', 'TTA': 'L', 'TTG': 'L', 'TCT': 'S',
              'GTA': 'V', 'GTG': 'V', 'GCT': 'A', 'GCC': 'A', 'GCA': 'A',
              'GCG': 'A', 'GAT': 'D', 'GAC': 'D', 'GAA': 'E', 'GAG': 'E',
              'GGT': 'G', 'GGC': 'G', 'GGA': 'G', 'GGG': 'G'}
+
 
 _nt_lookup = {'A': ['GCA', 'GCC', 'GCG', 'GCT'], 'C': ['TGT', 'TGC'], 'E':
 ['GAG', 'GAA'], 'D': ['GAT', 'GAC'], 'G': ['GGT', 'GGG', 'GGA', 'GGC'], 'F':
