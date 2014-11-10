@@ -70,15 +70,13 @@ def subject(sid):
 @app.route('/api/clones/', methods=['GET'])
 def clones():
     """Gets a list of all clones"""
-    filters = request.args.get('filters') or None
-    sort = request.args.get('sort') or None
-
-    if filters is not None:
-        filters = loads(filters)
-    if sort is not None:
-        sort = loads(sort)
+    if request.args.get('filter') is not None and\
+        len(request.args.get('filter').strip()) > 0:
+        filters = loads(request.args.get('filter'))
+    else:
+        filters = None
     session = scoped_session(session_factory)()
-    clones = queries.get_all_clones(session, filters, sort, _get_paging())
+    clones = queries.get_all_clones(session, filters, _get_paging())
     session.close()
     return jsonify(objects=clones)
 
@@ -107,6 +105,14 @@ def clone_overlap(filter_type, samples=None, subject=None):
     return jsonify(items=items)
 
 
+@app.route('/api/clone_filters/', methods=['GET'])
+def clone_filters():
+    session = scoped_session(session_factory)()
+    filters = queries.get_clone_filters(session)
+    session.close()
+    return jsonify(filters=filters)
+
+
 @app.route('/api/data/clone_overlap/<filter_type>/<samples>', methods=['GET'])
 @app.route('/api/data/subject_clones/<filter_type>/<subject>', methods=['GET'])
 def download_clone_overlap(filter_type, samples=None, subject=None):
@@ -118,11 +124,12 @@ def download_clone_overlap(filter_type, samples=None, subject=None):
 
     def _gen(data):
         yield ','.join([
-            'samples', 'total_sequences', 'unique_sequences',
+            'clone_id', 'samples', 'total_sequences', 'unique_sequences',
             'subject', 'v_gene', 'j_gene', 'cdr3_len', 'cdr3_aa', 'cdr3_nt']) + \
             '\n'
         for c in data:
-            yield ','.join(map(str, [c['samples'].replace(',', ' '),
+            yield ','.join(map(str, [c['clone']['id'],
+                            c['samples'].replace(',', ' '),
                            c['total_sequences'],
                            c['unique_sequences'],
                            '{} ({})'.format(
@@ -135,12 +142,12 @@ def download_clone_overlap(filter_type, samples=None, subject=None):
 
     if samples is not None:
         fn = 'overlap_{}_{}.csv'.format(
-                filter_type,
-                samples.replace(',', '-'))
+            filter_type,
+            samples.replace(',', '-'))
     else:
         fn = 'subject_{}_{}.csv'.format(
-                filter_type,
-                subject)
+            filter_type,
+            subject)
     return Response(_gen(data), headers={
         'Content-Disposition':
         'attachment;filename={}'.format(fn)})

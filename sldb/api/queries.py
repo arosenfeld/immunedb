@@ -40,7 +40,7 @@ def _model_to_dict(inst):
     return ret
 
 
-def get_all_clones(session, filters, sort, paging=None):
+def get_all_clones(session, filters, paging=None):
     """Gets a list of all clones"""
     res = []
     clone_q = session.query(Clone).order_by(Clone.v_gene, Clone.j_gene,
@@ -48,7 +48,10 @@ def get_all_clones(session, filters, sort, paging=None):
 
     if filters is not None:
         for key, value in filters.iteritems():
-            clone_q = clone_q.filter(getattr(Clone, key) == value)
+            value = str(value)
+            if len(value) > 0:
+                clone_q = clone_q.filter(
+                    getattr(Clone, key).like(value.replace('*', '%')))
 
     if paging is not None:
         page, per_page = paging
@@ -125,7 +128,8 @@ def compare_clones(session, uids):
     return clones
 
 
-def get_clone_overlap(session, filter_type, samples, subject=None, paging=None):
+def get_clone_overlap(session, filter_type, samples, subject=None,
+                      paging=None):
     """Gets a list of clones and the samples in `samples` which they appear"""
     res = []
     q = session.query(
@@ -138,8 +142,9 @@ def get_clone_overlap(session, filter_type, samples, subject=None, paging=None):
     if samples is not None:
         q = q.filter(CloneFrequency.sample_id.in_(samples))
     elif subject is not None:
-        samples = map(lambda s: s.sample_id,
-            session.query(distinct(Sequence.sample_id).label('sample_id'))\
+        samples = map(
+            lambda s: s.sample_id,
+            session.query(distinct(Sequence.sample_id).label('sample_id'))
             .filter(Sequence.subject_id == subject).all())
         q = q.filter(CloneFrequency.sample_id.in_(samples))
 
@@ -256,8 +261,8 @@ def get_subject(session, sid):
         },
         'samples': samples,
         'unique_seqs': session.query(
-                func.count(Sequence.seq_id).label('unique_seqs'))
-            .filter(Sequence.subject_id == s.id).first().unique_seqs,
+            func.count(Sequence.seq_id).label('unique_seqs'))
+        .filter(Sequence.subject_id == s.id).first().unique_seqs,
     }
 
     return subject
@@ -285,3 +290,11 @@ def get_sequence(session, sample_id, seq_id):
         ret['clone'] = _clone_to_dict(seq.clone)
 
     return ret
+
+def get_clone_filters(session):
+    v_genes = map(lambda r: r.gene,
+                  session.query(distinct(Clone.v_gene).label('gene')).all())
+    j_genes = map(lambda r: r.gene,
+                  session.query(distinct(Clone.j_gene).label('gene')).all())
+
+    return { 'v_genes': v_genes, 'j_genes': j_genes }
