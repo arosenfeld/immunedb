@@ -40,18 +40,30 @@ def _model_to_dict(inst):
     return ret
 
 
-def get_all_clones(session, filters, paging=None):
+def get_all_clones(session, filters, order_field, order_dir, paging=None):
     """Gets a list of all clones"""
     res = []
-    clone_q = session.query(Clone).order_by(Clone.v_gene, Clone.j_gene,
-                                            Clone.cdr3_aa, Clone.subject_id)
+    clone_q = session.query(Clone)
 
     if filters is not None:
         for key, value in filters.iteritems():
-            value = str(value)
+            value = str(value).strip()
             if len(value) > 0:
+                print key, value
                 clone_q = clone_q.filter(
                     getattr(Clone, key).like(value.replace('*', '%')))
+
+    if order_field is not None:
+        order_field = getattr(Clone, order_field)
+    else:
+        order_field = Clone.id
+
+    if order_dir is None or order_dir == 'desc':
+        order_field = order_field.desc()
+    else:
+        order_field = order_field.asc()
+        
+    clone_q = clone_q.order_by(order_field)
 
     if paging is not None:
         page, per_page = paging
@@ -290,11 +302,3 @@ def get_sequence(session, sample_id, seq_id):
         ret['clone'] = _clone_to_dict(seq.clone)
 
     return ret
-
-def get_clone_filters(session):
-    v_genes = map(lambda r: r.gene,
-                  session.query(distinct(Clone.v_gene).label('gene')).all())
-    j_genes = map(lambda r: r.gene,
-                  session.query(distinct(Clone.j_gene).label('gene')).all())
-
-    return { 'v_genes': v_genes, 'j_genes': j_genes }

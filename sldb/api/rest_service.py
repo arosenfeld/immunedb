@@ -41,6 +41,13 @@ def _split(ids, delim=','):
     return map(int, ids.split(delim))
 
 
+def _get_arg(key, json=True):
+    req = request.args.get(key)
+    if req is None or len(req.strip()) == 0:
+        return None
+    return loads(req.strip()) if json else req.strip()
+
+
 @app.route('/api/sequence/<sample_id>/<seq_id>')
 def sequence(sample_id, seq_id):
     session = scoped_session(session_factory)()
@@ -70,13 +77,13 @@ def subject(sid):
 @app.route('/api/clones/', methods=['GET'])
 def clones():
     """Gets a list of all clones"""
-    if request.args.get('filter') is not None and\
-        len(request.args.get('filter').strip()) > 0:
-        filters = loads(request.args.get('filter'))
-    else:
-        filters = None
     session = scoped_session(session_factory)()
-    clones = queries.get_all_clones(session, filters, _get_paging())
+    clones = queries.get_all_clones(
+        session, 
+        _get_arg('filter'),
+        _get_arg('order_field', False) or 'id',
+        _get_arg('order_dir', False) or 'desc',
+        _get_paging())
     session.close()
     return jsonify(objects=clones)
 
@@ -103,14 +110,6 @@ def clone_overlap(filter_type, samples=None, subject=None):
         session, filter_type, samples, subject, _get_paging())
     session.close()
     return jsonify(items=items)
-
-
-@app.route('/api/clone_filters/', methods=['GET'])
-def clone_filters():
-    session = scoped_session(session_factory)()
-    filters = queries.get_clone_filters(session)
-    session.close()
-    return jsonify(filters=filters)
 
 
 @app.route('/api/data/clone_overlap/<filter_type>/<samples>', methods=['GET'])
