@@ -6,10 +6,11 @@ from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.dialects.mysql import TEXT, MEDIUMTEXT
 
 
-Base = declarative_base()
+BaseMaster = declarative_base()
+BaseData = declarative_base()
 
 
-class Study(Base):
+class Study(BaseMaster):
     """Represents a high-level study (e.g. Lupus)"""
     __tablename__ = 'studies'
     __table_args__ = {'mysql_engine': 'TokuDB'}
@@ -21,7 +22,20 @@ class Study(Base):
     info = Column(String(length=1024))
 
 
-class Sample(Base):
+class Subject(BaseMaster):
+    __tablename__ = 'subjects'
+    __table_args__ = (UniqueConstraint('study_id', 'identifier'),
+                      {'mysql_engine': 'TokuDB'})
+
+    id = Column(Integer, primary_key=True)
+
+    identifier = Column(String(64))
+    study_id = Column(Integer, ForeignKey(Study.id))
+    study = relationship(Study, backref=backref('subjects',
+                         order_by=identifier))
+
+
+class Sample(BaseMaster):
     """A sample from a study.  Generally this is from a single subject and
     tissue"""
     __tablename__ = 'samples'
@@ -38,28 +52,31 @@ class Sample(Base):
     date = Column(Date)
 
     # Reference to the study
-    study_id = Column(Integer, ForeignKey('studies.id'))
-    study = relationship('Study', backref=backref('samples', order_by=(date,
-                                                  name)))
+    study_id = Column(Integer, ForeignKey(Study.id))
+    study = relationship(Study, backref=backref('samples', order_by=(date,
+                                                name)))
 
-    # Number of valid sequences in the sample
-    valid_cnt = Column(Integer)
-    # Number of invalid sequences in the sample
-    no_result_cnt = Column(Integer)
-    # Number of functional sequences in the sample
-    functional_cnt = Column(Integer)
+    subject_id = Column(Integer, ForeignKey(Subject.id), index=True)
+    subject = relationship(Subject, backref=backref('samples',
+                           order_by=(id)))
+    subset = Column(String(16))
+    tissue = Column(String(16))
+    disease = Column(String(32))
+    date = Column(Date)
+    lab = Column(String(128))
+    experimenter = Column(String(128))
 
 
-class SampleStats(Base):
+class SampleStats(BaseData):
     """Aggregate statistics for a sample.  This exists to reduce the time
     queries take for a sample."""
     __tablename__ = 'sample_stats'
     __table_args__ = {'mysql_engine': 'TokuDB'}
 
     # Reference to the sample the stats are for
-    sample_id = Column(Integer, ForeignKey('samples.id'),
+    sample_id = Column(Integer, ForeignKey(Sample.id),
                        primary_key=True)
-    sample = relationship('Sample', backref=backref('sample_stats',
+    sample = relationship(Sample, backref=backref('sample_stats',
                           order_by=sample_id))
 
     # The filter type for the stats (e.g. unique, clones)
@@ -88,21 +105,52 @@ class SampleStats(Base):
     clone_dist = Column(MEDIUMTEXT)
 
     # Counts for different attributes of sequences
+    # Number of valid sequences in the sample
+    valid_cnt = Column(Integer)
+    # Number of invalid sequences in the sample
+    no_result_cnt = Column(Integer)
+    # Number of functional sequences in the sample
+    functional_cnt = Column(Integer)
+    # Number of in-frame sequences
     in_frame_cnt = Column(Integer)
+    # Number of sequences with a stop codon
     stop_cnt = Column(Integer)
-    mutation_inv_cnt = Column(Integer)
 
 
-class Sequence(Base):
+class Clone(BaseMaster):
+    """A clone which is dictated by V, J, CDR3."""
+    __tablename__ = 'clones'
+    __table_args__ = (Index('clones_aas', 'v_gene', 'j_gene', 'subject_id',
+                            'cdr3_aa'),
+                      Index('clones_len', 'v_gene', 'j_gene', 'subject_id',
+                            'cdr3_num_nts'),
+                      {'mysql_engine': 'TokuDB'})
+
+    id = Column(Integer, primary_key=True)
+
+    v_gene = Column(String(length=512))
+    j_gene = Column(String(length=128))
+    cdr3_aa = Column(String(length=128))
+    cdr3_nt = Column(String(length=512))
+    cdr3_num_nts = Column(Integer)
+
+    subject_id = Column(Integer, ForeignKey(Subject.id), index=True)
+    subject = relationship('Subject', backref=backref('clones',
+                           order_by=(v_gene, j_gene, cdr3_num_nts, cdr3_aa)))
+
+    germline = Column(String(length=1024))
+
+
+class Sequence(BaseData):
     """Represents a single unique sequence."""
     __tablename__ = 'sequences'
     __table_args__ = {'mysql_engine': 'TokuDB'}
 
     seq_id = Column(String(length=128), primary_key=True)
 
-    sample_id = Column(Integer, ForeignKey('samples.id'),
+    sample_id = Column(Integer, ForeignKey(Sample.id),
                        primary_key=True)
-    sample = relationship('Sample', backref=backref('sequences',
+    sample = relationship(Sample, backref=backref('sequences',
                           order_by=seq_id))
     order = Column(Integer)
 
@@ -127,21 +175,6 @@ class Sequence(Base):
     junction_aa = Column(String(512))
     gap_method = Column(String(16))
 
-    subject_id = Column(Integer, ForeignKey('subjects.id'), index=True)
-    subject = relationship('Subject', backref=backref('sequences',
-                           order_by=(sample_id, seq_id)))
-
-    subset = Column(String(16))
-
-    tissue = Column(String(16))
-
-    disease = Column(String(32))
-
-    date = Column(Date)
-
-    lab = Column(String(128))
-    experimenter = Column(String(128))
-
     copy_number_close = Column(Integer)
     collapse_to_close = Column(Integer)
     copy_number_iden = Column(Integer)
@@ -150,13 +183,13 @@ class Sequence(Base):
     sequence = Column(String(length=1024))
     sequence_replaced = Column(String(length=1024))
 
-    clone_id = Column(Integer, ForeignKey('clones.id'),
+    clone_id = Column(Integer, ForeignKey(Clone.id),
                       index=True)
-    clone = relationship('Clone', backref=backref('sequences',
+    clone = relationship(Clone, backref=backref('sequences',
                          order_by=seq_id))
 
 
-class DuplicateSequence(Base):
+class DuplicateSequence(BaseData):
     """A sequence which is a duplicate of a Sequence class instance.  This is
     used to minimize the size of the sequences table."""
     __tablename__ = 'duplicate_sequences'
@@ -165,74 +198,37 @@ class DuplicateSequence(Base):
                                        'seq_id'),
                       {'mysql_engine': 'TokuDB'})
 
-    sample_id = Column(Integer, ForeignKey('samples.id'),
+    sample_id = Column(Integer, ForeignKey(Sample.id),
                        primary_key=True)
-    sample = relationship('Sample', backref=backref('duplicate_sequences',
+    sample = relationship(Sample, backref=backref('duplicate_sequences',
                           order_by=sample_id))
 
     # The Sequence object of which this is a duplicate
     identity_seq_id = Column(String(length=128),
-                             ForeignKey('sequences.seq_id'),
+                             ForeignKey(Sequence.seq_id),
                              primary_key=True,
                              index=True)
-    identity = relationship('Sequence', backref=backref('duplicate_sequences',
+    identity = relationship(Sequence, backref=backref('duplicate_sequences',
                             order_by=identity_seq_id))
 
     # The ID of the sequence
     seq_id = Column(String(length=128), primary_key=True)
 
 
-class Subject(Base):
-    __tablename__ = 'subjects'
-    __table_args__ = (UniqueConstraint('study_id', 'identifier'),
-                      {'mysql_engine': 'TokuDB'})
-
-    id = Column(Integer, primary_key=True)
-
-    identifier = Column(String(64))
-    study_id = Column(Integer, ForeignKey('studies.id'))
-    study = relationship('Study', backref=backref('subjects',
-                         order_by=identifier))
-
-
-class Clone(Base):
-    """A clone which is dictated by V, J, CDR3."""
-    __tablename__ = 'clones'
-    __table_args__ = (Index('clones_aas', 'v_gene', 'j_gene', 'subject_id',
-                            'cdr3_aa'),
-                      Index('clones_len', 'v_gene', 'j_gene', 'subject_id',
-                            'cdr3_num_nts'),
-                      {'mysql_engine': 'TokuDB'})
-
-    id = Column(Integer, primary_key=True)
-
-    v_gene = Column(String(length=512))
-    j_gene = Column(String(length=128))
-    cdr3_aa = Column(String(length=128))
-    cdr3_nt = Column(String(length=512))
-    cdr3_num_nts = Column(Integer)
-
-    subject_id = Column(Integer, ForeignKey('subjects.id'), index=True)
-    subject = relationship('Subject', backref=backref('clones',
-                           order_by=(v_gene, j_gene, cdr3_num_nts, cdr3_aa)))
-
-    germline = Column(String(length=1024))
-
-
-class CloneFrequency(Base):
+class CloneFrequency(BaseData):
     """Frequency statistics for a clone with different filters."""
     __tablename__ = 'clone_frequencies'
     __table_args__ = {'mysql_engine': 'TokuDB'}
 
-    sample_id = Column(Integer, ForeignKey('samples.id'),
+    sample_id = Column(Integer, ForeignKey(Sample.id),
                        primary_key=True)
-    sample = relationship('Sample', backref=backref('clone_frequencies',
+    sample = relationship(Sample, backref=backref('clone_frequencies',
                           order_by=sample_id))
 
-    clone_id = Column(Integer, ForeignKey('clones.id'),
+    clone_id = Column(Integer, ForeignKey(Clone.id),
                       primary_key=True)
-    clone = relationship('Clone', backref=backref('clone_frequencies',
-                                                  order_by=sample_id))
+    clone = relationship(Clone, backref=backref('clone_frequencies',
+                                                order_by=sample_id))
 
     filter_type = Column(String(length=255), primary_key=True)
 
@@ -240,14 +236,14 @@ class CloneFrequency(Base):
     total_sequences = Column(Integer)
 
 
-class NoResult(Base):
+class NoResult(BaseData):
     """A sequence which could not be match with a V or J."""
     __tablename__ = 'noresults'
     __table_args__ = {'mysql_engine': 'TokuDB'}
 
     seq_id = Column(String(length=128), primary_key=True)
 
-    sample_id = Column(Integer, ForeignKey('samples.id'),
+    sample_id = Column(Integer, ForeignKey(Sample.id),
                        primary_key=True)
-    sample = relationship('Sample', backref=backref('noresults',
+    sample = relationship(Sample, backref=backref('noresults',
                           order_by=seq_id))
