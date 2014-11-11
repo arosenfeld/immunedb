@@ -4,7 +4,7 @@ import json
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 
-from models import *
+from sldb.common.models import *
 
 
 def _create_engine(config_path):
@@ -34,8 +34,7 @@ def get_base_arg_parser(desc):
     return parser
 
 
-def get_session(parser):
-    args = parser.parse_args()
+def get_session(args):
     master_engine = _create_engine(args.master_db_config)
     data_engine = _create_engine(args.data_db_config)
 
@@ -58,6 +57,3 @@ def get_session(parser):
     session = session()
 
     return session
-
-if __name__ == '__main__':
-    get_session(get_base_arg_parser('TEST'))

@@ -2,6 +2,8 @@ import argparse
 import sys
 import csv
 import datetime
+import distance
+
 from os.path import basename
 from collections import Counter
 
@@ -10,6 +12,7 @@ from sqlalchemy import create_engine, func
 from sqlalchemy.engine.reflection import Inspector
 
 import sldb.util.lookups as lookups
+import sldb.common.config as config
 from sldb.common.models import *
 from sldb.conversion.stats import Stats
 
@@ -68,7 +71,7 @@ def _similarity(seq1, seq2):
 
 def _similar_to_all(seqs, check, min_similarity):
     for seq in seqs:
-        if _similarity(check.junction_aa, seq.junction_aa) < min_similarity:
+        if distance.hamming(seq1, seq2) / float(len(seq1)) < min_similarity:
             return False
     return True
 
@@ -229,12 +232,7 @@ def _add_mt(session, path, study_name, sample_name, sample_date, interval,
 
 
 def run_mt2db():
-    parser = argparse.ArgumentParser(description='Parse master-table into \
-    database.')
-    parser.add_argument('host', help='mySQL host')
-    parser.add_argument('db', help='mySQL database')
-    parser.add_argument('user', help='mySQL user')
-    parser.add_argument('pw', help='mySQL password')
+    parser = config.get_base_arg_parser('Parse master-table into database.')
     parser.add_argument('-s', type=int, default=85, help='Minimum similarity '
                         'between clone sequences.')
     parser.add_argument('-c', type=int, default=1000, help='Number of'
@@ -244,13 +242,7 @@ def run_mt2db():
     parser.add_argument('mt_dir', help='Master table directory')
     args = parser.parse_args()
 
-    engine = create_engine(('mysql://{}:{}@{}/'
-                            '{}?charset=utf8&use_unicode=0').format(
-                                args.user, args.pw, args.host, args.db))
-
-    Base.metadata.create_all(engine)
-    Base.metadata.bind = engine
-    session = sessionmaker(bind=engine)()
+    session = config.get_session(args)
 
     for l in sys.stdin:
         study_name, sample_name, date, _ = map(lambda s: s.strip(),

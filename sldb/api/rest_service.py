@@ -2,18 +2,13 @@ import argparse
 import json
 import math
 
-from flask import Flask, Response, request, jsonify
-from flask.json import loads
-import flask.ext.sqlalchemy
-import flask.ext.restless
-
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 
+from bottle import route, run, template
+
 import sldb.api.queries as queries
 from sldb.common.models import *
-
-app = flask.Flask(__name__)
 
 
 def _add_cors_header(response):
@@ -48,7 +43,7 @@ def _get_arg(key, json=True):
     return loads(req.strip()) if json else req.strip()
 
 
-@app.route('/api/sequence/<sample_id>/<seq_id>')
+@route('/api/sequence/<sample_id>/<seq_id>')
 def sequence(sample_id, seq_id):
     session = scoped_session(session_factory)()
     seq = jsonify(sequence=queries.get_sequence(session, int(sample_id),
@@ -57,7 +52,7 @@ def sequence(sample_id, seq_id):
     return seq
 
 
-@app.route('/api/subjects/', methods=['GET'])
+@route('/api/subjects/', methods=['GET'])
 def subjects():
     """Gets a list of all subjects"""
     session = scoped_session(session_factory)()
@@ -66,7 +61,7 @@ def subjects():
     return jsonify(subjects=subjects)
 
 
-@app.route('/api/subject/<sid>', methods=['GET'])
+@route('/api/subject/<sid>', methods=['GET'])
 def subject(sid):
     session = scoped_session(session_factory)()
     subject = queries.get_subject(session, int(sid))
@@ -74,7 +69,7 @@ def subject(sid):
     return jsonify(subject=subject)
 
 
-@app.route('/api/clones/', methods=['GET'])
+@route('/api/clones/', methods=['GET'])
 def clones():
     """Gets a list of all clones"""
     session = scoped_session(session_factory)()
@@ -88,7 +83,7 @@ def clones():
     return jsonify(objects=clones)
 
 
-@app.route('/api/clone_compare/<uids>', methods=['GET'])
+@route('/api/clone_compare/<uids>', methods=['GET'])
 def clone_compare(uids):
     """Compares clones by determining their mutations"""
     session = scoped_session(session_factory)()
@@ -100,8 +95,8 @@ def clone_compare(uids):
     return jsonify(clones=clones)
 
 
-@app.route('/api/clone_overlap/<filter_type>/<samples>', methods=['GET'])
-@app.route('/api/subject_clones/<filter_type>/<subject>', methods=['GET'])
+@route('/api/clone_overlap/<filter_type>/<samples>', methods=['GET'])
+@route('/api/subject_clones/<filter_type>/<subject>', methods=['GET'])
 def clone_overlap(filter_type, samples=None, subject=None):
     """Gets clonal overlap between samples"""
     samples = _split(samples) if samples is not None else None
@@ -112,8 +107,8 @@ def clone_overlap(filter_type, samples=None, subject=None):
     return jsonify(items=items)
 
 
-@app.route('/api/data/clone_overlap/<filter_type>/<samples>', methods=['GET'])
-@app.route('/api/data/subject_clones/<filter_type>/<subject>', methods=['GET'])
+@route('/api/data/clone_overlap/<filter_type>/<samples>', methods=['GET'])
+@route('/api/data/subject_clones/<filter_type>/<subject>', methods=['GET'])
 def download_clone_overlap(filter_type, samples=None, subject=None):
     """Downloads a CSV of the clonal overlap between samples"""
     session = scoped_session(session_factory)()
@@ -152,7 +147,7 @@ def download_clone_overlap(filter_type, samples=None, subject=None):
         'attachment;filename={}'.format(fn)})
 
 
-@app.route(
+@route(
     '/api/data/sequences/<file_type>/<replace_germ>/<cid>/<params>',
     methods=['GET'])
 def download_sequences(file_type, replace_germ, cid, params):
@@ -190,7 +185,7 @@ def download_sequences(file_type, replace_germ, cid, params):
         'attachment;filename={}.fasta'.format(fn)})
 
 
-@app.route('/api/v_usage/<filter_type>/<samples>', methods=['GET'])
+@route('/api/v_usage/<filter_type>/<samples>', methods=['GET'])
 def v_usage(filter_type, samples):
     """Gets the V usage for samples in a heatmap-formatted array"""
     session = scoped_session(session_factory)()
@@ -213,7 +208,7 @@ def v_usage(filter_type, samples):
                    data=array)
 
 
-@app.route('/api/data/v_usage/<filter_type>/<samples>', methods=['GET'])
+@route('/api/data/v_usage/<filter_type>/<samples>', methods=['GET'])
 def download_v_usage(filter_type, samples):
     """Downloads a CSV of the V usage for samples"""
     session = scoped_session(session_factory)()
@@ -250,32 +245,13 @@ def init_db(host, user, pw, db):
 
 def run_rest_service():
     """Runs the rest service based on command line arguments"""
-    parser = argparse.ArgumentParser(
-        description='Provides a restless interface to the master table '
-                    'database')
-    parser.add_argument('host', help='mySQL host')
-    parser.add_argument('db', help='mySQL database')
-    parser.add_argument('user', help='mySQL user')
-    parser.add_argument('pw', help='mySQL password')
+    parser = config.get_base_arg_parser('Provides a restless interface to the'
+                                        'database')
     parser.add_argument('-p', default=5000, type=int, help='API offer port')
     args = parser.parse_args()
 
-    app.config['SQLALCHEMY_DATABASE_URI'] = (
-        'mysql://{}:{}@localhost/'
-        '{}?charset=utf8&use_unicode=0').format(args.user, args.pw, args.db)
-    db = flask.ext.sqlalchemy.SQLAlchemy(app)
-
-    manager = flask.ext.restless.APIManager(app, flask_sqlalchemy_db=db)
-
-    manager.create_api(Study, methods=['GET'])
-    manager.create_api(Sample, methods=['GET'], include_columns=[
-                       'id', 'name', 'info', 'study'])
-    manager.create_api(SampleStats, methods=['GET'], collection_name='stats',
-                       max_results_per_page=10000,
-                       results_per_page=10000)
-    manager.create_api(CloneFrequency, methods=['GET'],
-                       collection_name='clone_freqs',
-                       exclude_columns=['sample'])
+    session = config.get_session(args)
+    # Study, Sample [id, name, info, study], SampleStats, CloneFrequency
     init_db(args.host, args.user, args.pw, args.db)
 
     app.after_request(_add_cors_header)

@@ -36,25 +36,13 @@ def _process_clones(session, per_commit, limit_subjects=None):
 
 
 def run_clones():
-    parser = argparse.ArgumentParser(description='Generates consensus for'
-                                     ' clones')
-    parser.add_argument('host', help='mySQL host')
-    parser.add_argument('db', help='mySQL database')
-    parser.add_argument('user', help='mySQL user')
-    parser.add_argument('pw', help='mySQL password')
+    parser = config.get_base_arg_parser('Generates consensus for clones')
     parser.add_argument('-c', type=int, default=1000, help='Number of'
                         ' clones to generate between commits')
     parser.add_argument('--subjects', nargs='+', type=int,
                         help='Limit generation to certain subjects')
-
     args = parser.parse_args()
 
-    engine = create_engine(('mysql://{}:{}@{}/'
-                            '{}?charset=utf8&use_unicode=0').format(
-                                args.user, args.pw, args.host, args.db))
-
-    Base.metadata.create_all(engine)
-    Base.metadata.bind = engine
-    session = sessionmaker(bind=engine)()
+    session = config.get_session(args)
 
     _process_clones(session, args.c, args.subjects)
