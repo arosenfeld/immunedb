@@ -49,7 +49,6 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
         for key, value in filters.iteritems():
             value = str(value).strip()
             if len(value) > 0:
-                print key, value
                 clone_q = clone_q.filter(
                     getattr(Clone, key).like(value.replace('*', '%')))
 
