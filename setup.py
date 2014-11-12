@@ -6,6 +6,7 @@ setup(name='SLDB',
       author_email='ar374@drexel.edu',
       packages=[
           'sldb',
+          'sldb.aggregation',
           'sldb.api',
           'sldb.common',
           'sldb.conversion',

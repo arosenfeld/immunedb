@@ -4,8 +4,8 @@ from sldb.common.models import *
 
 
 _dist_fields = ['v_match', 'v_length', 'j_match', 'j_length', 'v_call',
-                'j_call', 'v_gap_length', 'j_gap_length', 'copy_number_close',
-                'collapse_to_close', 'copy_number_iden', 'collapse_to_iden']
+                'j_call', 'v_gap_length', 'j_gap_length', 'copy_number_iden',
+                'collapse_to_iden']
 
 
 class Stats(object):
@@ -55,13 +55,13 @@ class Stats(object):
             if s.filter_fn(seq):
                 s.process(seq)
 
-        if seq.clone is not None:
+        if seq.cluster is not None:
             for s in self.clone_stats:
                 if s.filter_fn(seq):
                     s.process(seq)
 
                     cf = self.session.query(CloneFrequency).filter(
-                        CloneFrequency.clone == seq.clone,
+                        CloneFrequency.cluster == seq.cluster,
                         CloneFrequency.sample == seq.sample,
                         CloneFrequency.filter_type == s.filter_type).first()
                     if cf is not None:
@@ -69,11 +69,11 @@ class Stats(object):
                         cf.total_sequences += seq.copy_number_iden
                     else:
                         cf = CloneFrequency(
-                            clone=seq.clone,
                             sample=seq.sample,
+                            cluster=seq.cluster,
+                            filter_type=s.filter_type,
                             unique_sequences=1,
-                            total_sequences=seq.copy_number_iden,
-                            filter_type=s.filter_type)
+                            total_sequences=seq.copy_number_iden)
 
                     self.session.add(cf)
 

@@ -249,12 +249,10 @@ class CloneFrequency(BaseData):
     sample = relationship(Sample, backref=backref('clone_frequencies',
                           order_by=sample_id))
 
-    clone_id = Column(Integer, ForeignKey(Clone.id),
-                      primary_key=True)
-    clone = relationship(Clone, backref=backref('clone_frequencies',
-                                                order_by=sample_id))
     cluster_id = Column(Integer, ForeignKey(Sequence.cluster_id),
                         primary_key=True)
+    cluster = relationship(Cluster, backref=backref('clone_frequencies',
+                                                    order_by=sample_id))
 
     filter_type = Column(String(length=255), primary_key=True)
 
