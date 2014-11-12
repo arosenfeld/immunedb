@@ -44,7 +44,7 @@ class Sample(BaseMaster):
     # Unique ID for the sample
     id = Column(Integer, primary_key=True)
     # A name for the sample
-    name = Column(String(128))
+    name = Column(String(128), unique=True)
     # Some arbitrary information if necessary
     info = Column(String(1024))
 
@@ -62,7 +62,6 @@ class Sample(BaseMaster):
     subset = Column(String(16))
     tissue = Column(String(16))
     disease = Column(String(32))
-    date = Column(Date)
     lab = Column(String(128))
     experimenter = Column(String(128))
 
@@ -124,6 +123,8 @@ class Clone(BaseMaster):
                             'cdr3_aa'),
                       Index('clones_len', 'v_gene', 'j_gene', 'subject_id',
                             'cdr3_num_nts'),
+                      UniqueConstraint('v_gene', 'j_gene', 'subject_id',
+                                       'cdr3_num_nts', 'cdr3_aa'),
                       {'mysql_engine': 'TokuDB'})
 
     id = Column(Integer, primary_key=True)
@@ -131,7 +132,6 @@ class Clone(BaseMaster):
     v_gene = Column(String(length=512))
     j_gene = Column(String(length=128))
     cdr3_aa = Column(String(length=128))
-    cdr3_nt = Column(String(length=512))
     cdr3_num_nts = Column(Integer)
 
     subject_id = Column(Integer, ForeignKey(Subject.id), index=True)
@@ -141,10 +141,35 @@ class Clone(BaseMaster):
     germline = Column(String(length=1024))
 
 
+class Cluster(BaseData):
+    """A cluster of sequences with an associated clone"""
+    __tablename__ = 'clusters'
+    __table_args__ = (Index('v_gene', 'j_gene', 'cdr3_num_nts', 'subject_id'),
+                      {'mysql_engine': 'TokuDB'})
+
+    id = Column(Integer, primary_key=True)
+    cdr3_nt = Column(String(length=512))
+
+    # These are necessary during creation of clusters, but will
+    # always be redundant with the associated clone after completion
+    v_gene = Column(String(length=512))
+    j_gene = Column(String(length=128))
+    cdr3_num_nts = Column(Integer)
+    subject_id = Column(Integer, ForeignKey(Subject.id))
+    #
+
+    clone_id = Column(Integer, ForeignKey(Clone.id),
+                      index=True)
+    clone = relationship(Clone, backref=backref('clusters',
+                         order_by=seq_id))
+
+
 class Sequence(BaseData):
     """Represents a single unique sequence."""
     __tablename__ = 'sequences'
-    __table_args__ = {'mysql_engine': 'TokuDB'}
+    __table_args__ = (Index('v_call', 'j_call',
+                            'subject_id', func.length('junction_nt'),),
+                      {'mysql_engine': 'TokuDB'})
 
     seq_id = Column(String(length=128), primary_key=True)
 
@@ -183,10 +208,9 @@ class Sequence(BaseData):
     sequence = Column(String(length=1024))
     sequence_replaced = Column(String(length=1024))
 
-    clone_id = Column(Integer, ForeignKey(Clone.id),
-                      index=True)
-    clone = relationship(Clone, backref=backref('sequences',
-                         order_by=seq_id))
+    cluster_id = Column(Integer, ForeignKey(Cluster.id), index=True)
+    cluster = relationship(Cluster, backref=backref('sequences',
+                           order_by=seq_id))
 
 
 class DuplicateSequence(BaseData):
@@ -229,6 +253,8 @@ class CloneFrequency(BaseData):
                       primary_key=True)
     clone = relationship(Clone, backref=backref('clone_frequencies',
                                                 order_by=sample_id))
+    cluster_id = Column(Integer, ForeignKey(Sequence.cluster_id),
+                        primary_key=True)
 
     filter_type = Column(String(length=255), primary_key=True)
 
