@@ -101,6 +101,11 @@ def run_clones():
 
     session = config.get_session(args)
 
-    for sid in args.subjects:
+    if args.subjects is None:
+        subjects = map(lambda s: s.id, session.query(Subject.id).all())
+    else:
+        subjects = args.subjects
+
+    for sid in subjects:
         _cluster_subject(session, sid, args.similarity)
         _assign_clones_to_subject(session, sid, commits)

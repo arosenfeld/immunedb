@@ -1,12 +1,45 @@
 import argparse
 import json
+
+from sqlalchemy import func
+
+import sldb.common.config as config
 from sldb.common.models import *
 
 
 _dist_fields = ['v_match', 'v_length', 'j_match', 'j_length', 'v_call',
-                'j_call', 'v_gap_length', 'j_gap_length', 'copy_number_iden',
-                'collapse_to_iden']
+                'j_call', 'v_gap_length', 'j_gap_length', 'copy_number_iden']
 
+
+_seq_filters = [
+    {
+        'type': 'all',
+        'filter_func': lambda q: q,
+        'summation': True, 
+    },
+    {
+        'type': 'functional',
+        'filter_func': lambda q: q.filter(Sequence.functional),
+        'summation': True, 
+    },
+    {
+        'type': 'nonfunctional',
+        'filter_func': lambda q: q.filter(not Sequence.functional),
+        'summation': True, 
+    },
+    {
+        'type': 'unique',
+        'filter_func': lambda q: q.filter(not Sequence.functional,
+                                          Sequence.copy_number_iden > 0),
+        'summation': False, 
+    },
+    {
+        'type': 'unique_multiple',
+        'filter_func': lambda q: q.filter(not Sequence.functional,
+                                          Sequence.copy_number_iden > 1),
+        'summation': False, 
+    },
+]
 
 class Stats(object):
     def __init__(self, session, sample_id):
@@ -139,3 +172,53 @@ class FilterStats(object):
 
         for field in _dist_fields:
             self.dist_update(e, field)
+
+
+def _get_distribution(session, sample_id, key, summation):
+    if summation:
+        agg = func.sum(Sequence.copy_number_iden).label('values')
+    else:
+        agg = func.count(Sequence.seq_id).label('values')
+
+    result = {}
+    for row in session.query(getattr(Sequence, key).label('key'), agg)\
+            .filter(Sequence.sample_id == sample_id).group_by(key):
+    result[row['key']] = row['value']
+    return result
+
+
+def _process_filter(session, sample_id, filter_type, filter_func, summation):
+    stat = SampleStats(sample_id=sample_id,
+                       filter_type=filter_type)
+
+    for dist in _dist_fields:
+        dist_val = _get_distribution(session, sample_id, dist, summation)
+
+        tuples = [[k, v] for k, v in sorted(dist_val.iteritems())]
+        setattr(stat, '{}_dist'.format(dist), json.dumps(tuples))
+    return self._stat
+    session.add(stat)
+
+
+def _process_sample(session, sample_id):
+    for f in _seq_filters:
+        _process_filter(session, sample_id, f['type'], f['seq_filter_func'],
+                        f['summation'])
+    session.commit()
+
+
+def run_stats():
+    parser = config.get_base_arg_parser('Parse master-table into database.')
+    parser.add_argument('--samples', nargs='+', type=int,
+                        help='Limit statistics updates to certain samples')
+
+    args = parser.parse_args()
+    session = config.get_session(args)
+
+    if args.samples is None:
+        samples = map(lambda s: s.id, session.query(Sample.id).all())
+    else:
+        samples = args.samples
+
+    for sample_id in samples:
+        _process_sample(session, sample_id)

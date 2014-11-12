@@ -65,6 +65,13 @@ class Sample(BaseMaster):
     lab = Column(String(128))
     experimenter = Column(String(128))
 
+    # Number of valid sequences in the sample
+    valid_cnt = Column(Integer)
+    # Number of invalid sequences in the sample
+    no_result_cnt = Column(Integer)
+    # Number of functional sequences in the sample
+    functional_cnt = Column(Integer)
+
 
 class SampleStats(BaseData):
     """Aggregate statistics for a sample.  This exists to reduce the time
@@ -80,9 +87,6 @@ class SampleStats(BaseData):
 
     # The filter type for the stats (e.g. unique, clones)
     filter_type = Column(String(length=255), primary_key=True)
-
-    # Total sequences with this filter
-    sequence_cnt = Column(Integer)
 
     # Distributions stored as JSON for a given field in the sample
     v_match_dist = Column(MEDIUMTEXT)
@@ -103,13 +107,6 @@ class SampleStats(BaseData):
 
     clone_dist = Column(MEDIUMTEXT)
 
-    # Counts for different attributes of sequences
-    # Number of valid sequences in the sample
-    valid_cnt = Column(Integer)
-    # Number of invalid sequences in the sample
-    no_result_cnt = Column(Integer)
-    # Number of functional sequences in the sample
-    functional_cnt = Column(Integer)
     # Number of in-frame sequences
     in_frame_cnt = Column(Integer)
     # Number of sequences with a stop codon
@@ -161,7 +158,7 @@ class Cluster(BaseData):
     clone_id = Column(Integer, ForeignKey(Clone.id),
                       index=True)
     clone = relationship(Clone, backref=backref('clusters',
-                         order_by=seq_id))
+                         order_by=id))
 
 
 class Sequence(BaseData):
@@ -177,9 +174,14 @@ class Sequence(BaseData):
                        primary_key=True)
     sample = relationship(Sample, backref=backref('sequences',
                           order_by=seq_id))
+
+    subject_id = Column(Integer, ForeignKey(Subject.id), index=True)
+    subject = relationship(Subject, backref=backref('samples',
+                           order_by=(id)))
+
     order = Column(Integer)
 
-    functional = Column(Boolean)
+    functional = Column(Boolean, index=True)
     in_frame = Column(Boolean)
     stop = Column(Boolean)
     single_gap = Column(Boolean)
@@ -202,7 +204,7 @@ class Sequence(BaseData):
 
     copy_number_close = Column(Integer)
     collapse_to_close = Column(Integer)
-    copy_number_iden = Column(Integer)
+    copy_number_iden = Column(Integer, index=True)
     collapse_to_iden = Column(Integer)
 
     sequence = Column(String(length=1024))

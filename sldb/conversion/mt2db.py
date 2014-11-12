@@ -5,6 +5,7 @@ import datetime
 
 import sldb.common.config as config
 from sldb.common.models import *
+from sldb.util.funcs import get_or_create
 
 
 _mt_remap_headers = {
@@ -29,17 +30,6 @@ def cast_to_type(table_type, field_name, value):
         month, day, year = map(int, value.split('/'))
         return datetime.datetime(year, month, day)
     return str(value)
-
-
-def _get_or_create(session, model, **kwargs):
-    ''' Gets or creates a record based on some kwargs search parameters '''
-    instance = session.query(model).filter_by(**kwargs).first()
-    if instance:
-        return instance, False
-    else:
-        instance = model(**kwargs)
-        session.add(instance)
-        return instance, True
 
 
 def _create_sequence_record(row):
@@ -69,7 +59,7 @@ def _remap_headers(row):
 
 
 def _populate_sample(session, sample, row):
-    sample.subject, _ = _get_or_create(
+    sample.subject, _ = get_or_create(
         session, Subject, study_id=study.id,
         identifier=row['subject'])
     sample.subset = row['subset']
@@ -98,14 +88,14 @@ def _fill_with_germ(seq, germline):
 
 def _add_mt(session, path, study_name, sample_name, interval):
     ''' Processes the entire master table '''
-    study, new = _get_or_create(session, Study, name=study_name)
+    study, new = get_or_create(session, Study, name=study_name)
     if new:
         print 'Created new study "{}"'.format(study.name)
     else:
         print 'Study "{}" already exists in MASTER'.format(study.name)
     session.commit()
 
-    sample, new = _get_or_create(session, Sample,
+    sample, new = get_or_create(session, Sample,
                                  name=sample_name,
                                  study=study)
     if new:
@@ -131,8 +121,8 @@ def _add_mt(session, path, study_name, sample_name, interval):
         for i, row in enumerate(csv.DictReader(fh, delimiter='\t')):
             _remap_headers(row)
             if 'noresult' in row.values():
-                stats.base_cnts['no_result_cnt'] += 1
                 session.add(NoResult(seq_id=row['seq_id'], sample=sample))
+                sample.no_result_cnt += 1
             else:
                 record = _create_sequence_record(row)
 
@@ -140,13 +130,15 @@ def _add_mt(session, path, study_name, sample_name, interval):
                 if sample.subject is None:
                     _populate_sample(session, sample, row)
 
+                sample.valid_cnt += record.copy_number_iden
+                if record.functional:
+                    sample.functional += record.copy_number_iden
                 if record.copy_number_iden > 0:
                     record.sample = sample
                     record.sequence_replaced = _fill_with_germ(record,
                                                                row['germline'])
 
                     session.add(record)
-                    stats.process_sequence(record)
                 else:
                     record = DuplicateSequence(
                         sample=sample,
@@ -162,7 +154,6 @@ def _add_mt(session, path, study_name, sample_name, interval):
                     round(100 * i / float(total), 2))
 
     session.commit()
-    stats.add_and_commit()
 
     print 'Completed master table'
     return sample
