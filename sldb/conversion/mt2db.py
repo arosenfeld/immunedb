@@ -58,7 +58,7 @@ def _remap_headers(row):
             row[remap_to] = row.pop(remap_from)
 
 
-def _populate_sample(session, sample, row):
+def _populate_sample(session, study, sample, row):
     sample.subject, _ = get_or_create(
         session, Subject, study_id=study.id,
         identifier=row['subject'])
@@ -103,8 +103,7 @@ def _add_mt(session, path, study_name, sample_name, interval):
         session.commit()
     else:
         # TODO: Verify the data for the existing sample matches this MT
-        exists = session.query(Sequence).filter(Sequence.sample ==
-                                                sample).first()
+        exists = session.query(Sequence).filter(Sequence.sample == sample).first()
         if exists is not None:
             print ('\tSample "{}" for study already exists in DATA.  '
                    'Skipping.').format(sample.name)
@@ -128,11 +127,11 @@ def _add_mt(session, path, study_name, sample_name, interval):
 
                 # Check if the sample needs to be populated
                 if sample.subject is None:
-                    _populate_sample(session, sample, row)
+                    _populate_sample(session, study, sample, row)
 
                 sample.valid_cnt += record.copy_number_iden
                 if record.functional:
-                    sample.functional += record.copy_number_iden
+                    sample.functional_cnt += record.copy_number_iden
                 if record.copy_number_iden > 0:
                     record.sample = sample
                     record.sequence_replaced = _fill_with_germ(record,
@@ -159,15 +158,7 @@ def _add_mt(session, path, study_name, sample_name, interval):
     return sample
 
 
-def run_mt2db():
-    parser = config.get_base_arg_parser('Parse master-table into database.')
-    parser.add_argument('-c', type=int, default=1000, help='Number of'
-                        ' sequences to parse between commits')
-    parser.add_argument('mt_dir', help='Master table directory')
-    args = parser.parse_args()
-
-    session = config.get_session(args)
-
+def run_mt2db(session, args):
     for l in sys.stdin:
         study_name, sample_name, date, _ = map(lambda s: s.strip(),
                                                l.split('|'))
@@ -180,3 +171,4 @@ def run_mt2db():
             study_name=study_name,
             sample_name=sample_name,
             interval=args.c)
+    session.close()

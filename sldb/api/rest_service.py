@@ -231,28 +231,9 @@ def download_v_usage(filter_type, samples):
             samples.replace(',', '-'))})
 
 
-def init_db(host, user, pw, db):
-    """Initializes the database session"""
-    engine = create_engine(('mysql://{}:{}@{}/'
-                            '{}?charset=utf8&use_unicode=0').format(
-                                user, pw, host, db))
-
-    Base.metadata.create_all(engine)
-    Base.metadata.bind = engine
-    global session_factory
-    session_factory = sessionmaker(bind=engine)
-
-
-def run_rest_service():
+def run_rest_service(session_maker, args):
     """Runs the rest service based on command line arguments"""
-    parser = config.get_base_arg_parser('Provides a restless interface to the'
-                                        'database')
-    parser.add_argument('-p', default=5000, type=int, help='API offer port')
-    args = parser.parse_args()
 
-    session = config.get_session(args)
-    # Study, Sample [id, name, info, study], SampleStats, CloneFrequency
-    init_db(args.host, args.user, args.pw, args.db)
-
+    session_factory = session_maker
     app.after_request(_add_cors_header)
     app.run(host='0.0.0.0', port=args.p, debug=True, threaded=True)

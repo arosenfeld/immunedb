@@ -1,4 +1,3 @@
-import argparse
 from Bio import SeqIO
 
 from sldb.identification.vdj_sequence import VDJSequence
@@ -44,10 +43,6 @@ def _run_sample(fh):
         print vdj.sequence
 
 
-def run_identify():
-    parser = argparse.ArgumentParser()
-    parser.add_argument('fasta_file')
-    args = parser.parse_args()
-
+def run_identify(args):
     with open(args.fasta_file) as fh:
         _run_sample(fh)

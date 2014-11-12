@@ -4,11 +4,15 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.dialects.mysql import TEXT, MEDIUMTEXT
+from sqlalchemy.schema import MetaData
 
+from sldb.common.settings import DATABASE_SETTINGS
+print DATABASE_SETTINGS
 
-BaseMaster = declarative_base()
-BaseData = declarative_base()
-
+BaseMaster = declarative_base(
+    metadata=MetaData(schema=DATABASE_SETTINGS['master_schema']))
+BaseData = declarative_base(
+    metadata=MetaData(schema=DATABASE_SETTINGS['data_schema']))
 
 class Study(BaseMaster):
     """Represents a high-level study (e.g. Lupus)"""
@@ -66,11 +70,11 @@ class Sample(BaseMaster):
     experimenter = Column(String(128))
 
     # Number of valid sequences in the sample
-    valid_cnt = Column(Integer)
+    valid_cnt = Column(Integer, default=0)
     # Number of invalid sequences in the sample
-    no_result_cnt = Column(Integer)
+    no_result_cnt = Column(Integer, default=0)
     # Number of functional sequences in the sample
-    functional_cnt = Column(Integer)
+    functional_cnt = Column(Integer, default=0)
 
 
 class SampleStats(BaseData):
@@ -132,7 +136,7 @@ class Clone(BaseMaster):
     cdr3_num_nts = Column(Integer)
 
     subject_id = Column(Integer, ForeignKey(Subject.id), index=True)
-    subject = relationship('Subject', backref=backref('clones',
+    subject = relationship(Subject, backref=backref('clones',
                            order_by=(v_gene, j_gene, cdr3_num_nts, cdr3_aa)))
 
     germline = Column(String(length=1024))
@@ -158,14 +162,13 @@ class Cluster(BaseData):
     clone_id = Column(Integer, ForeignKey(Clone.id),
                       index=True)
     clone = relationship(Clone, backref=backref('clusters',
-                         order_by=id))
+                         order_by=(id)))
 
 
 class Sequence(BaseData):
     """Represents a single unique sequence."""
     __tablename__ = 'sequences'
-    __table_args__ = (Index('v_call', 'j_call',
-                            'subject_id', func.length('junction_nt'),),
+    __table_args__ = (Index('v_call', 'j_call',),
                       {'mysql_engine': 'TokuDB'})
 
     seq_id = Column(String(length=128), primary_key=True)
@@ -174,10 +177,6 @@ class Sequence(BaseData):
                        primary_key=True)
     sample = relationship(Sample, backref=backref('sequences',
                           order_by=seq_id))
-
-    subject_id = Column(Integer, ForeignKey(Subject.id), index=True)
-    subject = relationship(Subject, backref=backref('samples',
-                           order_by=(id)))
 
     order = Column(Integer)
 
@@ -251,7 +250,7 @@ class CloneFrequency(BaseData):
     sample = relationship(Sample, backref=backref('clone_frequencies',
                           order_by=sample_id))
 
-    cluster_id = Column(Integer, ForeignKey(Sequence.cluster_id),
+    cluster_id = Column(Integer, ForeignKey(Cluster.id),
                         primary_key=True)
     cluster = relationship(Cluster, backref=backref('clone_frequencies',
                                                     order_by=sample_id))

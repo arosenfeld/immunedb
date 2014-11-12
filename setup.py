@@ -28,6 +28,7 @@ setup(name='SLDB',
           'bottle',
           'ete2 >= 2.2',
           'distance',
+          'tabulate',
       ],
       license='LICENSE.txt',
       description='Various utilities for Drexel\'s Systems Immunology Lab.')

@@ -1,4 +1,3 @@
-import argparse
 import re
 import sys
 import subprocess
@@ -44,15 +43,7 @@ def _make_table(paths, incl_remote):
     return tbl.strip()
 
 
-def run_generate_table():
-    parser = argparse.ArgumentParser(
-        description='Generates a study|sample|date or study|sample|date|path '
-        'table from a list of paths as formatted')
-    parser.add_argument('-p', action='store_true', default=False,
-                        help='Include remote path in table.')
-
-    args = parser.parse_args()
-
+def run_generate_table(args):
     paths = []
     paths = sys.stdin.readlines()
     print _make_table(paths, args.p)
