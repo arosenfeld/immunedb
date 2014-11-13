@@ -1,20 +1,10 @@
 import argparse
+import distance
 from collections import Counter
 
 import sldb.util.lookups as lookups
+from sldb.util.funcs import page_query
 from sldb.common.models import *
-
-
-def _page_query(q, per=10000):
-    offset = 0
-    while True:
-        r = False
-        for elem in q.limit(per).offset(offset):
-           r = True
-           yield elem
-        offset += per
-        if not r:
-            break
 
 
 def _consensus(strings):
@@ -25,63 +15,77 @@ def _consensus(strings):
     return ''.join(cons)
 
 
-def _similar_to_all(seq, cluster_query, min_similarity):
-    for comp_seq in cluster_query:
-        if distance.hamming(cid_seq.sequence, seq.sequence) < min_similarity:
+def _similar_to_all(seq, clone_query, min_similarity):
+    for comp_seq in clone_query:
+        if distance.hamming(comp_seq, seq) < min_similarity:
             return False
     return True
 
-def _cluster_subject(session, subject_id, min_similarity):
-    print Sample.__table_args__
-    for seq in _page_query(session.query(Sequence.sequence)\
+def _get_subject_clones(session, subject_id, min_similarity, per_commit):
+    clone_cache = {}
+    for i, seq in enumerate(session.query(Sequence)\
             .filter(Sequence.sample.has(subject_id=subject_id),
-                    Sequence.cluster_id.is_(None))):
-        # NOTE: Would a join be faster here?
-        for cluster in session.query(Cluster)\
-                .filter(Cluster.subject_id == subject_id,
-                        Cluster.v_gene == seq.v_call,
-                        Cluster.j_gene == seq.j_call,
-                        Cluster.cdr3_num_nts == len(seq.junction_nt)):
-            seqs_in_cluster = session.query(Sequence.sequence).filter(
-                                   Sequence.cluster == cluster)
-            if _similar_to_all(seq, seqs_in_cluster):
-                seq.cluster = cluster
+                    Sequence.copy_number_iden > 1,
+                    Sequence.clone_id.is_(None))):
+
+        # Key for cache has implicit subject_id due to function parameter
+        key = (seq.v_call, seq.j_call, seq.junction_aa)
+        if key in clone_cache:
+            seq.clone = clone_cache[key]
+            continue
+
+        for clone in session.query(Clone)\
+                .filter(Clone.subject_id == subject_id,
+                        Clone.v_gene == seq.v_call,
+                        Clone.j_gene == seq.j_call,
+                        Clone.cdr3_num_nts == len(seq.junction_nt)):
+            seqs_in_clone = map(lambda s: s.sequence,
+                                  session.query(Sequence.sequence).filter(
+                                    Sequence.clone == clone))
+            if _similar_to_all(seq.sequence, seqs_in_clone, min_similarity):
+                seq.clone = clone
                 break
 
-        if seq.cluster is None:
-            new_cluster = Cluster(subject_id=subject_id,
+        if seq.clone is None:
+            new_clone = Clone(subject_id=subject_id,
                                   v_gene=seq.v_call,
                                   j_gene=seq.j_call,
                                   cdr3_num_nts=len(seq.junction_nt))
-            session.add(new_cluster)
-            seq.cluster = new_cluster
+            session.add(new_clone)
+            seq.clone = new_clone
 
+        clone_cache[key] = seq.clone
 
-def _assign_clones_to_subject(session, subject_id, per_commit):
-    for i, cluster in enumerate(session.query(Cluster).filter(
-            Cluster.subject.has(id=subject_id))):
+        if i > 0 and i % per_commit == 0:
+            session.commit()
+            print 'Committed {}'.format(i)
+
+    session.commit()
+
+def _assign_clones_to_groups(session, subject_id, per_commit):
+    for i, clone in enumerate(session.query(Clone).filter(
+            Clone.subject_id == subject_id)):
         seqs = session.query(Sequence).filter(
-            Sequence.sample.has(subject_id=subject_id),
-            Sequence.cluster == cluster).all()
+            Sequence.clone == clone).all()
 
-        cdr3_nt = _consensus(map(lambda e: e.junction_nt, seqs))
+        clone.cdr3_nt = _consensus(map(lambda e: e.junction_nt, seqs))
         cdr3_aa = lookups.aas_from_nts(clone.cdr3_nt, '')
-        cluster.cdr3_nt = cdr3_nt
 
-        clone = session.query(Clone).filter(
-            Clone.subject_id == subject_id,
-            Clone.v_gene == Cluster.v_gene,
-            Clone.j_gene == Cluster.j_gene,
-            Clone.cdr3_num_nts == Cluster.cdr3_num_nts,
-            Clone.cdr3_aa == cdr3_aa).first()
+        group = session.query(CloneGroup).filter(
+            CloneGroup.subject_id == subject_id,
+            CloneGroup.v_gene == clone.v_gene,
+            CloneGroup.j_gene == clone.j_gene,
+            CloneGroup.cdr3_num_nts == clone.cdr3_num_nts,
+            CloneGroup.cdr3_aa == cdr3_aa).first()
 
-        if clone is None:
-            clone = Clone(v_gene=Cluster.v_gene,
-                          j_gene=Cluster.j_gene,
-                          cdr3_num_nts=Cluster.cdr3_num_nts,
-                          cdr3_aa=cdr3_aa)
-            session.add(clone)
-        cluster.clone = clone
+        if group is None:
+            group = CloneGroup(subject_id=subject_id,
+                               v_gene=clone.v_gene,
+                               j_gene=clone.j_gene,
+                               cdr3_num_nts=clone.cdr3_num_nts,
+                               cdr3_aa=cdr3_aa)
+            session.add(group)
+        clone.group = group
 
         if i > 0 and i % per_commit == 0:
             print 'Committed {}'.format(i)
@@ -97,5 +101,7 @@ def run_clones(session, args):
         subjects = args.subjects
 
     for sid in subjects:
-        _cluster_subject(session, sid, args.similarity)
-        _assign_clones_to_subject(session, sid, args.commits)
+        print 'Assigning clones to subject', sid
+        _get_subject_clones(session, sid, args.similarity / 100.0, args.commits)
+        print 'Assigning clones to groups'
+        _assign_clones_to_groups(session, sid, args.commits)

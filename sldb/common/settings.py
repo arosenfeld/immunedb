@@ -1,4 +1,4 @@
 DATABASE_SETTINGS = {
-    'master_schema': 'UNDEFINED',
-    'data_schema': 'UNDEFINED',
+    'master_metadata': None,
+    'data_metadata': None,
 }

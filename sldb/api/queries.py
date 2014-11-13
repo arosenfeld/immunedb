@@ -10,35 +10,57 @@ import sldb.util.lookups as lookups
 from sldb.common.models import *
 from sldb.common.mutations import MutationType, Mutations
 
+def _fields_to_dict(fields, row):
+    d = {}
+    for f in fields:
+        d[f] = getattr(row, f)
+    return d
 
-def _clone_to_dict(clone):
+
+def _subject_to_dict(subject):
     return {
-        'id': clone.id,
-        'subject': {
-            'study': {
-                'id': clone.subject.study.id,
-                'name': clone.subject.study.name
-            },
-            'identifier': clone.subject.identifier,
+        'study': {
+            'id': subject.study.id,
+            'name': subject.study.name
         },
-        'v_gene': clone.v_gene,
-        'j_gene': clone.j_gene,
-        'cdr3_aa': clone.cdr3_aa,
-        'cdr3_nt': clone.cdr3_nt,
-        'cdr3_num_nts': clone.cdr3_num_nts,
-        'germline': clone.germline
+        'identifier': subject.identifier
     }
 
+def _sample_to_dict(sample):
+    d = _fields_to_dict(['id', 'name', 'info', 'subset', 'tissue',
+                         'disease', 'lab', 'experimenter', 'valid_cnt',
+                         'no_result_cnt', 'functional_cnt'], sample)
+    d['date'] = sample.date.strftime('%Y-%m-%d')
+    d['subject'] = _subject_to_dict(sample.subject)
+    return d
 
-def _model_to_dict(inst):
-    ret = {}
-    for c in inspect(inst).attrs:
-        if isinstance(c.value, (str, long, int, bool, type(None))):
-            ret[c.key] = c.value
-        if isinstance(c.value, datetime.date):
-            ret[c.key] = c.value.strftime('%Y-%m-%d')
-    return ret
 
+def _clone_to_dict(clone):
+    d = _fields_to_dict(['id', 'cdr3_nt'], clone)
+    d['group'] = {
+        'subject': _subject_to_dict(clone.group.subject),
+        'v_gene': clone.group.v_gene,
+        'j_gene': clone.group.j_gene,
+        'cdr3_aa': clone.group.cdr3_aa,
+        'cdr3_num_nts': clone.group.cdr3_num_nts,
+        'germline': clone.group.germline,
+    }
+    return d
+
+
+def get_all_studies(session):
+    result = {}
+    for sample in session.query(Sample).order_by(Sample.date):
+        if sample.study.id not in result:
+            result[sample.study.id] = {
+                'id': sample.study.id,
+                'name': sample.study.name,
+                'info': sample.study.info,
+                'samples': []
+            }
+        result[sample.study.id]['samples'].append(_sample_to_dict(sample))
+
+    return result
 
 def get_all_clones(session, filters, order_field, order_dir, paging=None):
     """Gets a list of all clones"""
@@ -49,8 +71,13 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
         for key, value in filters.iteritems():
             value = str(value).strip()
             if len(value) > 0:
-                clone_q = clone_q.filter(
-                    getattr(Clone, key).like(value.replace('*', '%')))
+                if key == 'min_cdr3_num_nts':
+                    clone_q = clone_q.filter(Clone.cdr3_num_nts >= int(value))
+                elif key == 'max_cdr3_num_nts':
+                    clone_q = clone_q.filter(Clone.cdr3_num_nts <= int(value))
+                else:
+                    clone_q = clone_q.filter(
+                        getattr(Clone, key).like(value.replace('*', '%')))
 
     if order_field is not None:
         order_field = getattr(Clone, order_field)
@@ -229,15 +256,12 @@ def get_all_subjects(session, paging):
                 'id': subject.study.id,
                 'name': subject.study.name
             },
-            'total_samples': session.query(
-                func.count(distinct(Sequence.sample_id)).label('samples'))
-            .filter(Sequence.subject == subject).first().samples,
-            'unique_seqs': session.query(
-                func.count(Sequence.seq_id).label('unique_seqs'))
-            .filter(Sequence.subject == subject).first().unique_seqs,
-            'total_clones': session.query(
-                func.count(Clone.id).label('count'))
-            .filter(Clone.subject == subject).first().count
+            'total_samples': session.query(func.count(Sample.id)).filter(
+                Sample.subject == subject).scalar(),
+            'unique_seqs': session.query(func.count(Sequence.seq_id)).filter(
+                Sequence.sample.has(subject=subject)).scalar(),
+            'total_clones': session.query(func.count(Clone.id)).filter(
+                Clone.subject_id == subject.id).scalar()
         })
 
     return subjects

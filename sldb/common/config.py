@@ -2,8 +2,9 @@ import argparse
 import json
 import sys
 
-from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.schema import MetaData
 
 from sldb.common.settings import DATABASE_SETTINGS
 
@@ -28,25 +29,28 @@ def get_base_arg_parser(desc):
 
     return parser
 
+
 def init_db(master_db_config, data_db_config, as_maker=False):
     master_engine, master_name = _create_engine(master_db_config)
     data_engine, data_name = _create_engine(data_db_config)
 
-    DATABASE_SETTINGS['master_schema'] = master_name
-    DATABASE_SETTINGS['data_schema'] = data_name
+    DATABASE_SETTINGS['master_metadata'] = MetaData(schema=master_name)
+    DATABASE_SETTINGS['data_metadata']= MetaData(schema=data_name)
     from sldb.common.models import *
+    BaseMaster.metadata.create_all(master_engine)
+    BaseData.metadata.create_all(data_engine)
 
     model_map = {
         Study: master_engine,
         Sample: master_engine,
-        Clone: master_engine,
+        CloneGroup: master_engine,
         Subject: master_engine,
 
         SampleStats: data_engine,
         Sequence: data_engine,
         DuplicateSequence: data_engine,
         CloneFrequency: data_engine,
-        Cluster: data_engine,
+        Clone: data_engine,
         NoResult: data_engine,
     }
 

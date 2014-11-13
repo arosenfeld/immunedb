@@ -42,13 +42,6 @@ def _create_sequence_record(row):
     return record
 
 
-def _similar_to_all(seqs, check, min_similarity):
-    for seq in seqs:
-        if distance.hamming(seq1, seq2) / float(len(seq1)) < min_similarity:
-            return False
-    return True
-
-
 def _remap_headers(row):
     if None in row:
         del row[None]
@@ -62,6 +55,8 @@ def _populate_sample(session, study, sample, row):
     sample.subject, _ = get_or_create(
         session, Subject, study_id=study.id,
         identifier=row['subject'])
+    sample.date = datetime.datetime.strptime(
+        row['date'], '%m/%d/%Y').strftime('%Y-%m-%d')
     sample.subset = row['subset']
     sample.tissue = row['tissue']
     sample.disease = row['disease']

@@ -2,17 +2,19 @@ from sqlalchemy import Column, Boolean, Integer, String, Text, Date, \
     ForeignKey, UniqueConstraint, Index, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy.ext.declarative import declared_attr
 from sqlalchemy.dialects.mysql import TEXT, MEDIUMTEXT
-from sqlalchemy.schema import MetaData
 
 from sldb.common.settings import DATABASE_SETTINGS
-print DATABASE_SETTINGS
+
+assert DATABASE_SETTINGS['master_metadata'] is not None, ('Must specify master '
+    'metadata')
+assert DATABASE_SETTINGS['data_metadata'] is not None, ('Must specify data '
+    'metadata')
 
 BaseMaster = declarative_base(
-    metadata=MetaData(schema=DATABASE_SETTINGS['master_schema']))
+    metadata=DATABASE_SETTINGS['master_metadata'])
 BaseData = declarative_base(
-    metadata=MetaData(schema=DATABASE_SETTINGS['data_schema']))
+    metadata=DATABASE_SETTINGS['data_metadata'])
 
 class Study(BaseMaster):
     """Represents a high-level study (e.g. Lupus)"""
@@ -117,12 +119,12 @@ class SampleStats(BaseData):
     stop_cnt = Column(Integer)
 
 
-class Clone(BaseMaster):
+class CloneGroup(BaseMaster):
     """A clone which is dictated by V, J, CDR3."""
-    __tablename__ = 'clones'
-    __table_args__ = (Index('clones_aas', 'v_gene', 'j_gene', 'subject_id',
+    __tablename__ = 'clone_groups'
+    __table_args__ = (Index('grp_aas', 'v_gene', 'j_gene', 'subject_id',
                             'cdr3_aa'),
-                      Index('clones_len', 'v_gene', 'j_gene', 'subject_id',
+                      Index('grp_len', 'v_gene', 'j_gene', 'subject_id',
                             'cdr3_num_nts'),
                       UniqueConstraint('v_gene', 'j_gene', 'subject_id',
                                        'cdr3_num_nts', 'cdr3_aa'),
@@ -142,26 +144,26 @@ class Clone(BaseMaster):
     germline = Column(String(length=1024))
 
 
-class Cluster(BaseData):
-    """A cluster of sequences with an associated clone"""
-    __tablename__ = 'clusters'
+class Clone(BaseData):
+    """A group of sequences likely originating from the same germline"""
+    __tablename__ = 'clones'
     __table_args__ = (Index('v_gene', 'j_gene', 'cdr3_num_nts', 'subject_id'),
                       {'mysql_engine': 'TokuDB'})
 
     id = Column(Integer, primary_key=True)
     cdr3_nt = Column(String(length=512))
 
-    # These are necessary during creation of clusters, but will
-    # always be redundant with the associated clone after completion
+    # These are necessary during creation of clones, but will
+    # always be redundant with the associated grouping after completion
     v_gene = Column(String(length=512))
     j_gene = Column(String(length=128))
     cdr3_num_nts = Column(Integer)
     subject_id = Column(Integer, ForeignKey(Subject.id))
     #
 
-    clone_id = Column(Integer, ForeignKey(Clone.id),
+    group_id = Column(Integer, ForeignKey(CloneGroup.id),
                       index=True)
-    clone = relationship(Clone, backref=backref('clusters',
+    group = relationship(CloneGroup, backref=backref('clones',
                          order_by=(id)))
 
 
@@ -209,8 +211,8 @@ class Sequence(BaseData):
     sequence = Column(String(length=1024))
     sequence_replaced = Column(String(length=1024))
 
-    cluster_id = Column(Integer, ForeignKey(Cluster.id), index=True)
-    cluster = relationship(Cluster, backref=backref('sequences',
+    clone_id = Column(Integer, ForeignKey(Clone.id), index=True)
+    clone = relationship(Clone, backref=backref('sequences',
                            order_by=seq_id))
 
 
@@ -250,10 +252,10 @@ class CloneFrequency(BaseData):
     sample = relationship(Sample, backref=backref('clone_frequencies',
                           order_by=sample_id))
 
-    cluster_id = Column(Integer, ForeignKey(Cluster.id),
+    clone_id = Column(Integer, ForeignKey(Clone.id),
                         primary_key=True)
-    cluster = relationship(Cluster, backref=backref('clone_frequencies',
-                                                    order_by=sample_id))
+    clone = relationship(Clone, backref=backref('clone_frequencies',
+                         order_by=sample_id))
 
     filter_type = Column(String(length=255), primary_key=True)
 

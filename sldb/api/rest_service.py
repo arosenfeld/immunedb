@@ -5,27 +5,41 @@ import math
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
 
-from bottle import route, run, template
+import bottle
+from bottle import route, response, request, install, run
 
 import sldb.api.queries as queries
 from sldb.common.models import *
 
 
-def _add_cors_header(response):
-    """Add headers to allow cross-site requests"""
-    response.headers['Access-Control-Allow-Origin'] = '*'
-    response.headers['Access-Control-Allow-Methods'] = 'GET'
-    response.headers['Access-Control-Allow-Headers'] = (
-        'Origin, X-Requested-With, Content-Type, Accept')
-    response.headers['Access-Control-Allow-Credentials'] = 'true'
+class EnableCors(object):
+    name = 'enable_cors'
+    api = 2
 
-    return response
+    def apply(self, fn, context):
+        def _enable_cors(*args, **kwargs):
+            response.headers['Access-Control-Allow-Origin'] = '*'
+            response.headers['Access-Control-Allow-Methods'] = ('GET, POST')
+            response.headers['Access-Control-Allow-Headers'] = ('Origin,'
+                'Accept, Content-Type, X-Requested-With, X-CSRF-Token')
+
+            if bottle.request.method != 'OPTIONS':
+                return fn(*args, **kwargs)
+
+        return _enable_cors
+
+
+def _get_arg(key, is_json=True):
+    if key not in request.query or len(request.query[key].strip()) == 0:
+        return None
+    req = request.query[key].strip()
+    return json.loads(req) if is_json else req
 
 
 def _get_paging():
     """Handles paging based on a request's query string"""
-    page = request.args.get('page') or 1
-    per_page = request.args.get('per_page') or 10
+    page = _get_arg('page', False) or 1
+    per_page = _get_arg('per_page', False) or 10
     page = int(page)
     per_page = int(per_page)
     return page, per_page
@@ -36,40 +50,39 @@ def _split(ids, delim=','):
     return map(int, ids.split(delim))
 
 
-def _get_arg(key, json=True):
-    req = request.args.get(key)
-    if req is None or len(req.strip()) == 0:
-        return None
-    return loads(req.strip()) if json else req.strip()
-
-
 @route('/api/sequence/<sample_id>/<seq_id>')
 def sequence(sample_id, seq_id):
     session = scoped_session(session_factory)()
-    seq = jsonify(sequence=queries.get_sequence(session, int(sample_id),
-                                                seq_id))
+    seq = queries.get_sequence(session, int(sample_id), seq_id)
     session.close()
-    return seq
+    return json.dumps(sequence=seq)
 
 
-@route('/api/subjects/', methods=['GET'])
+@route('/api/studies')
+def studies():
+    session = scoped_session(session_factory)()
+    studies = queries.get_all_studies(session)
+    session.close()
+    return json.dumps({ 'studies': studies })
+
+@route('/api/subjects')
 def subjects():
     """Gets a list of all subjects"""
     session = scoped_session(session_factory)()
     subjects = queries.get_all_subjects(session, _get_paging())
     session.close()
-    return jsonify(subjects=subjects)
+    return json.dumps({'subjects': subjects})
 
 
-@route('/api/subject/<sid>', methods=['GET'])
+@route('/api/subject/<sid>')
 def subject(sid):
     session = scoped_session(session_factory)()
     subject = queries.get_subject(session, int(sid))
     session.close()
-    return jsonify(subject=subject)
+    return json.dumps({ 'subject': subject })
 
 
-@route('/api/clones/', methods=['GET'])
+@route('/api/clones/')
 def clones():
     """Gets a list of all clones"""
     session = scoped_session(session_factory)()
@@ -80,10 +93,10 @@ def clones():
         _get_arg('order_dir', False) or 'desc',
         _get_paging())
     session.close()
-    return jsonify(objects=clones)
+    return json.dumps({'clones': clones})
 
 
-@route('/api/clone_compare/<uids>', methods=['GET'])
+@route('/api/clone_compare/<uids>')
 def clone_compare(uids):
     """Compares clones by determining their mutations"""
     session = scoped_session(session_factory)()
@@ -92,11 +105,11 @@ def clone_compare(uids):
         clones_and_samples.append(_split(u, '_'))
     clones = queries.compare_clones(session, clones_and_samples)
     session.close()
-    return jsonify(clones=clones)
+    return json.dumps(clones=clones)
 
 
-@route('/api/clone_overlap/<filter_type>/<samples>', methods=['GET'])
-@route('/api/subject_clones/<filter_type>/<subject>', methods=['GET'])
+@route('/api/clone_overlap/<filter_type>/<samples>')
+@route('/api/subject_clones/<filter_type>/<subject>')
 def clone_overlap(filter_type, samples=None, subject=None):
     """Gets clonal overlap between samples"""
     samples = _split(samples) if samples is not None else None
@@ -104,11 +117,11 @@ def clone_overlap(filter_type, samples=None, subject=None):
     items = queries.get_clone_overlap(
         session, filter_type, samples, subject, _get_paging())
     session.close()
-    return jsonify(items=items)
+    return json.dumps(items=items)
 
 
-@route('/api/data/clone_overlap/<filter_type>/<samples>', methods=['GET'])
-@route('/api/data/subject_clones/<filter_type>/<subject>', methods=['GET'])
+@route('/api/data/clone_overlap/<filter_type>/<samples>')
+@route('/api/data/subject_clones/<filter_type>/<subject>')
 def download_clone_overlap(filter_type, samples=None, subject=None):
     """Downloads a CSV of the clonal overlap between samples"""
     session = scoped_session(session_factory)()
@@ -185,7 +198,7 @@ def download_sequences(file_type, replace_germ, cid, params):
         'attachment;filename={}.fasta'.format(fn)})
 
 
-@route('/api/v_usage/<filter_type>/<samples>', methods=['GET'])
+@route('/api/v_usage/<filter_type>/<samples>')
 def v_usage(filter_type, samples):
     """Gets the V usage for samples in a heatmap-formatted array"""
     session = scoped_session(session_factory)()
@@ -203,12 +216,12 @@ def v_usage(filter_type, samples):
             else:
                 array.append([i, j, 0])
 
-    return jsonify(x_categories=x_categories,
+    return json.dumps(x_categories=x_categories,
                    y_categories=y_categories,
                    data=array)
 
 
-@route('/api/data/v_usage/<filter_type>/<samples>', methods=['GET'])
+@route('/api/data/v_usage/<filter_type>/<samples>')
 def download_v_usage(filter_type, samples):
     """Downloads a CSV of the V usage for samples"""
     session = scoped_session(session_factory)()
@@ -233,7 +246,7 @@ def download_v_usage(filter_type, samples):
 
 def run_rest_service(session_maker, args):
     """Runs the rest service based on command line arguments"""
-
+    global session_factory
     session_factory = session_maker
-    app.after_request(_add_cors_header)
-    app.run(host='0.0.0.0', port=args.p, debug=True, threaded=True)
+    bottle.install(EnableCors())
+    bottle.run(host='0.0.0.0', port=args.port, debug=True)
