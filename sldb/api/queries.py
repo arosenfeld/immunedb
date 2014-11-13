@@ -70,7 +70,7 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
     if filters is not None:
         for key, value in filters.iteritems():
             value = str(value).strip()
-            if len(value) > 0:
+            if len(value) > 0 and value is not None:
                 if key == 'min_cdr3_num_nts':
                     clone_q = clone_q.filter(Clone.cdr3_num_nts >= int(value))
                 elif key == 'max_cdr3_num_nts':

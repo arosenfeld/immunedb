@@ -107,11 +107,8 @@ class SampleStats(BaseData):
     v_gap_length_dist = Column(MEDIUMTEXT)
     j_gap_length_dist = Column(MEDIUMTEXT)
 
-    copy_number_close_dist = Column(MEDIUMTEXT)
     copy_number_iden_dist = Column(MEDIUMTEXT)
-    cdr3_len_dist = Column(MEDIUMTEXT)
-
-    clone_dist = Column(MEDIUMTEXT)
+    cdr3_length_dist = Column(MEDIUMTEXT)
 
     # Number of in-frame sequences
     in_frame_cnt = Column(Integer)

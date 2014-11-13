@@ -17,7 +17,8 @@ def _consensus(strings):
 
 def _similar_to_all(seq, clone_query, min_similarity):
     for comp_seq in clone_query:
-        if distance.hamming(comp_seq, seq) < min_similarity:
+        if distance.hamming(comp_seq, seq) / float(len(comp_seq)) \
+                < min_similarity:
             return False
     return True
 

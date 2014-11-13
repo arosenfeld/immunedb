@@ -1,221 +1,136 @@
 import argparse
 import json
 
-from sqlalchemy import func
+from sqlalchemy import distinct, func
 
 import sldb.common.config as config
 from sldb.common.models import *
 
 
 _dist_fields = ['v_match', 'v_length', 'j_match', 'j_length', 'v_call',
-                'j_call', 'v_gap_length', 'j_gap_length', 'junction_length',
-                'copy_number_iden']
+                'j_call', 'v_gap_length', 'j_gap_length', 'copy_number_iden',
+                ('junction_nt', func.length, 'cdr3_length')]
 
 
 _seq_filters = [
     {
         'type': 'all',
         'filter_func': lambda q: q,
-        'summation': True, 
+        'summation_func': func.sum(Sequence.copy_number_iden),
     },
     {
         'type': 'functional',
         'filter_func': lambda q: q.filter(Sequence.functional),
-        'summation': True, 
+        'summation_func': func.sum(Sequence.copy_number_iden),
     },
     {
         'type': 'nonfunctional',
-        'filter_func': lambda q: q.filter(not Sequence.functional),
-        'summation': True, 
+        'filter_func': lambda q: q.filter(Sequence.functional == 0),
+        'summation_func': func.sum(Sequence.copy_number_iden),
     },
     {
         'type': 'unique',
-        'filter_func': lambda q: q.filter(not Sequence.functional,
+        'filter_func': lambda q: q.filter(Sequence.functional,
                                           Sequence.copy_number_iden > 0),
-        'summation': False, 
+        'summation_func': func.count(Sequence.seq_id),
     },
     {
         'type': 'unique_multiple',
-        'filter_func': lambda q: q.filter(not Sequence.functional,
+        'filter_func': lambda q: q.filter(Sequence.functional,
                                           Sequence.copy_number_iden > 1),
-        'summation': False, 
+        'summation_func': func.count(Sequence.seq_id),
     },
 ]
 
-class Stats(object):
-    def __init__(self, session, sample_id):
-        self.session = session
-        self.sample_id = sample_id
-        # Base statistics
-        self.base_cnts = {k: 0 for k in filter(lambda e: e.endswith('_cnt'),
-                                               dir(Sample))}
-        # Functional specific statistics
-        self.stats = [
-            FilterStats(sample_id, 'all',
-                        lambda e: True,
-                        lambda e: e.copy_number_iden),
-            FilterStats(sample_id, 'functional',
-                        lambda e: e.functional,
-                        lambda e: e.copy_number_iden),
-            FilterStats(sample_id, 'nonfunctional',
-                        lambda e: not e.functional,
-                        lambda e: e.copy_number_iden),
-            FilterStats(sample_id, 'unique',
-                        lambda e: e.copy_number_iden > 0 and e.functional,
-                        lambda e: 1),
-            FilterStats(sample_id, 'unique_multiple',
-                        lambda e: e.copy_number_iden > 1 and e.functional,
-                        lambda e: 1)
-        ]
-
-        self.clone_stats = [
-            FilterStats(sample_id, 'clones_all',
-                        lambda e: True,
-                        lambda e: 1),
-            FilterStats(sample_id, 'clones_functional',
-                        lambda e: e.functional,
-                        lambda e: 1),
-            FilterStats(sample_id, 'clones_nonfunctional',
-                        lambda e: not e.functional,
-                        lambda e: 1),
-        ]
-
-    def process_sequence(self, seq, size=None):
-        self.base_cnts['valid_cnt'] += seq.copy_number_iden
-        self.base_cnts['functional_cnt'] += \
-            seq.copy_number_iden if seq.functional else 0
-
-        for s in self.stats:
-            if s.filter_fn(seq):
-                s.process(seq)
-
-        if seq.clone is not None:
-            for s in self.clone_stats:
-                if s.filter_fn(seq):
-                    s.process(seq)
-
-                    cf = self.session.query(CloneFrequency).filter(
-                        CloneFrequency.clone == seq.clone,
-                        CloneFrequency.sample == seq.sample,
-                        CloneFrequency.filter_type == s.filter_type).first()
-                    if cf is not None:
-                        cf.unique_sequences += 1
-                        cf.total_sequences += seq.copy_number_iden
-                    else:
-                        cf = CloneFrequency(
-                            sample=seq.sample,
-                            clone=seq.clone,
-                            filter_type=s.filter_type,
-                            unique_sequences=1,
-                            total_sequences=seq.copy_number_iden)
-
-                    self.session.add(cf)
-
-    def add_and_commit(self):
-        self.session.query(Sample).filter_by(id=self.sample_id).update(
-            self.base_cnts)
-        for s in self.stats + self.clone_stats:
-            self.session.add(s.get_populated_stat())
-        self.session.commit()
+_clone_filters = [
+    {
+        'type': 'clones_all',
+        'filter_func': lambda q: q.filter(Sequence.clone_id.isnot(None)),
+        'summation_func': func.count(Sequence.seq_id),
+    },
+    {
+        'type': 'clones_functional',
+        'filter_func': lambda q: q.filter(Sequence.clone_id.isnot(None),
+                                          Sequence.functional),
+        'summation_func': func.count(Sequence.seq_id),
+    },
+    {
+        'type': 'clones_nonfunctional',
+        'filter_func': lambda q: q.filter(Sequence.clone_id.isnot(None),
+                                          Sequence.functional == 0),
+        'summation_func': func.count(Sequence.seq_id),
+    },
+]
 
 
-class FilterStats(object):
-    def __init__(self, sample_id, filter_type, filter_fn, count_fn):
-        self._cnts = {}
-        self._dists = {}
-        self._stat = SampleStats(sample_id=sample_id, filter_type=filter_type)
-        self.filter_type = filter_type
-        self.filter_fn = filter_fn
-        self.count_fn = count_fn
-
-    def cnt_update(self, k, predicate, count):
-        if k not in self._cnts:
-            self._cnts[k] = 0
-        if predicate:
-            self._cnts[k] += count
-
-    def dist_update(self, seq, stat):
-        # Make sure the value of the statistic from the sequence has a count
-        seq_val = getattr(seq, stat)
-        if isinstance(seq_val, (int, long)):
-            seq_val = int(seq_val)
-        elif isinstance(seq_val, str):
-            seq_val = seq_val.strip()
-        elif seq_val is None:
-            return
-
-        self.dist_update_func(stat, seq_val, self.count_fn(seq))
-
-    def dist_update_func(self, stat, value, count):
-        if stat not in self._dists:
-            self._dists[stat] = {}
-        if value not in self._dists[stat]:
-            self._dists[stat][value] = 0
-        self._dists[stat][value] += count
-
-    def get_populated_stat(self):
-        for attrib in self._cnts:
-            setattr(self._stat, attrib, self._cnts[attrib])
-        for attrib in self._dists:
-            tuples = [[k, v] for k, v in
-                      sorted(self._dists[attrib].iteritems())]
-            setattr(self._stat, '{}_dist'.format(attrib), json.dumps(tuples))
-        return self._stat
-
-    def process(self, e):
-        self.cnt_update('in_frame_cnt', e.in_frame, self.count_fn(e))
-        self.cnt_update('stop_cnt', e.stop, self.count_fn(e))
-        self.cnt_update('sequence_cnt', True, self.count_fn(e))
-
-        if e.junction_nt is not None:
-            self.dist_update_func('cdr3_len', len(e.junction_nt),
-                                  self.count_fn(e))
-
-        for field in _dist_fields:
-            self.dist_update(e, field)
-
-
-def _get_distribution(session, sample_id, key, summation):
-    if summation:
-        agg = func.sum(Sequence.copy_number_iden).label('values')
+def _get_distribution(session, sample_id, key, summation_func):
+    if isinstance(key, tuple):
+        key = key[1](getattr(Sequence, key[0]))
     else:
-        agg = func.count(Sequence.seq_id).label('values')
+        key = getattr(Sequence, key)
 
     result = {}
-    for row in session.query(getattr(Sequence, key).label('key'), agg)\
+    for row in session.query(key.label('key'), summation_func.label('values'))\
             .filter(Sequence.sample_id == sample_id).group_by(key):
-    result[row['key']] = row['value']
+        result[row.key] = int(row.values)
     return result
 
 
-def _process_filter(session, sample_id, filter_type, filter_func, summation):
+def _process_filter(session, sample_id, filter_type, filter_func, summation_func):
     stat = SampleStats(sample_id=sample_id,
                        filter_type=filter_type)
 
+    stat.in_frame_cnt = filter_func(
+        session.query(summation_func)\
+            .filter(Sequence.sample_id == sample_id,
+                    Sequence.in_frame)).scalar() or 0
+
+    stat.stop_cnt = filter_func(
+        session.query(summation_func)\
+            .filter(Sequence.sample_id == sample_id,
+                    Sequence.stop)).scalar() or 0
+
     for dist in _dist_fields:
-        dist_val = _get_distribution(session, sample_id, dist, summation)
+        dist_val = _get_distribution(session, sample_id, dist, summation_func)
 
         tuples = [[k, v] for k, v in sorted(dist_val.iteritems())]
+        if isinstance(dist, tuple):
+            dist = dist[2]
         setattr(stat, '{}_dist'.format(dist), json.dumps(tuples))
-    return self._stat
     session.add(stat)
 
 
 def _process_sample(session, sample_id):
-    for f in _seq_filters:
-        _process_filter(session, sample_id, f['type'], f['seq_filter_func'],
-                        f['summation'])
+    print 'Processing sample {}'.format(sample_id)
+    '''
+    for f in _seq_filters + _clone_filters:
+        print '\tGenerating sequence stats for filter "{}"'.format(f['type'])
+        _process_filter(session, sample_id, f['type'], f['filter_func'],
+                        f['summation_func'])
+
+    '''
+    for f in _clone_filters:
+        for clone_info in f['filter_func'](session.query(
+                Sequence.clone_id,
+                func.count(Sequence.seq_id).label('unique'),
+                func.sum(Sequence.copy_number_iden).label('total'))\
+                .filter(Sequence.sample_id == sample_id,
+                        Sequence.clone_id.isnot(None))\
+                .group_by(Sequence.clone_id)):
+            print '\tGenerating clone {} stats for filter "{}"'.format(
+                clone_info.clone_id, f['type'])
+
+            cf = CloneFrequency(
+                sample_id=sample_id,
+                clone_id=clone_info.clone_id,
+                filter_type=f['type'],
+                total_sequences=clone_info.total,
+                unique_sequences=clone_info.unique)
+            session.add(cf)
     session.commit()
 
 
-def run_stats():
-    parser = config.get_base_arg_parser('Parse master-table into database.')
-    parser.add_argument('--samples', nargs='+', type=int,
-                        help='Limit statistics updates to certain samples')
-
-    args = parser.parse_args()
-    session = config.get_session(args)
-
+def run_stats(session, args):
     if args.samples is None:
         samples = map(lambda s: s.id, session.query(Sample.id).all())
     else:
