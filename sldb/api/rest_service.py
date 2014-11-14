@@ -1,3 +1,4 @@
+from gevent import monkey; monkey.patch_all()
 import argparse
 import json
 import math
@@ -112,10 +113,14 @@ def clone_compare(uids):
 @route('/api/subject_clones/<filter_type>/<subject>')
 def clone_overlap(filter_type, samples=None, subject=None):
     """Gets clonal overlap between samples"""
-    samples = _split(samples) if samples is not None else None
     session = scoped_session(session_factory)()
+    if samples is not None:
+        cids = queries.get_clones_in_samples(session, _split(samples))
+    elif subject is not None:
+        cids = queries.get_clones_in_subject(session, subject)
+
     clones = queries.get_clone_overlap(
-        session, filter_type, samples, subject, _get_paging())
+        session, cids, filter_type, _get_paging())
     session.close()
     return json.dumps({'clones': clones})
 
@@ -264,4 +269,4 @@ def run_rest_service(session_maker, args):
     if args.debug:
         bottle.run(host='0.0.0.0', port=args.port, debug=True)
     else:
-        bottle.run(host='0.0.0.0', port=args.port, server='gunicorn', workers=4)
+        bottle.run(host='0.0.0.0', port=args.port, server='gevent')

@@ -20,7 +20,7 @@ _seq_filters = [
     },
     {
         'type': 'functional',
-        'filter_func': lambda q: q.filter(Sequence.functional),
+        'filter_func': lambda q: q.filter(Sequence.functional == 1),
         'summation_func': func.sum(Sequence.copy_number_iden),
     },
     {
@@ -30,13 +30,13 @@ _seq_filters = [
     },
     {
         'type': 'unique',
-        'filter_func': lambda q: q.filter(Sequence.functional,
-                                          Sequence.copy_number_iden > 0),
+        'filter_func': lambda q: q.filter(Sequence.functional == 1,
+                                          Sequence.copy_number_iden == 1),
         'summation_func': func.count(Sequence.seq_id),
     },
     {
         'type': 'unique_multiple',
-        'filter_func': lambda q: q.filter(Sequence.functional,
+        'filter_func': lambda q: q.filter(Sequence.functional == 1,
                                           Sequence.copy_number_iden > 1),
         'summation_func': func.count(Sequence.seq_id),
     },
@@ -51,7 +51,7 @@ _clone_filters = [
     {
         'type': 'clones_functional',
         'filter_func': lambda q: q.filter(Sequence.clone_id.isnot(None),
-                                          Sequence.functional),
+                                          Sequence.functional == 1),
         'summation_func': func.count(Sequence.seq_id),
     },
     {
@@ -63,20 +63,22 @@ _clone_filters = [
 ]
 
 
-def _get_distribution(session, sample_id, key, summation_func):
+def _get_distribution(session, sample_id, key, filter_func, summation_func):
     if isinstance(key, tuple):
         key = key[1](getattr(Sequence, key[0]))
     else:
         key = getattr(Sequence, key)
 
     result = {}
-    for row in session.query(key.label('key'), summation_func.label('values'))\
-            .filter(Sequence.sample_id == sample_id).group_by(key):
+    for row in filter_func(session.query(key.label('key'),
+                                         summation_func.label('values'))\
+            .filter(Sequence.sample_id == sample_id).group_by(key)):
         result[row.key] = int(row.values)
     return result
 
 
-def _process_filter(session, sample_id, filter_type, filter_func, summation_func):
+def _process_filter(session, sample_id, filter_type, filter_func,
+        summation_func):
     stat = SampleStats(sample_id=sample_id,
                        filter_type=filter_type)
 
@@ -95,7 +97,8 @@ def _process_filter(session, sample_id, filter_type, filter_func, summation_func
                     Sequence.stop)).scalar() or 0
 
     for dist in _dist_fields:
-        dist_val = _get_distribution(session, sample_id, dist, summation_func)
+        dist_val = _get_distribution(
+            session, sample_id, dist, filter_func, summation_func)
 
         tuples = [[k, v] for k, v in sorted(dist_val.iteritems())]
         if isinstance(dist, tuple):
@@ -104,8 +107,23 @@ def _process_filter(session, sample_id, filter_type, filter_func, summation_func
     session.add(stat)
 
 
-def _process_sample(session, sample_id):
+def _process_sample(session, sample_id, force):
     print 'Processing sample {}'.format(sample_id)
+
+    if force:
+        print '\tFORCING regeneration of stats'
+        session.query(SampleStats).filter(
+            SampleStats.sample_id == sample_id).delete()
+        session.query(CloneFrequency).filter(
+            CloneFrequency.sample_id == sample_id).delete()
+        session.commit()
+
+    existing = session.query(SampleStats).filter(
+        SampleStats.sample_id == sample_id).first()
+    if not force and existing is not None:
+        print ('\tSKIPPING stats since they already exists.'
+               '  Use the --force flag to force regeneration.')
+        return
     for f in _seq_filters + _clone_filters:
         print '\tGenerating sequence stats for filter "{}"'.format(f['type'])
         _process_filter(session, sample_id, f['type'], f['filter_func'],
@@ -139,4 +157,4 @@ def run_stats(session, args):
         samples = args.samples
 
     for sample_id in samples:
-        _process_sample(session, sample_id)
+        _process_sample(session, sample_id, args.force)

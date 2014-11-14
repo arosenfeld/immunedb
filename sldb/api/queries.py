@@ -167,8 +167,7 @@ def compare_clones(session, uids):
     return clones
 
 
-def get_clone_overlap(session, filter_type, samples, subject=None,
-                      paging=None):
+def get_clone_overlap(session, cids, filter_type, paging=None):
     """Gets a list of clones and the samples in `samples` which they appear"""
     res = []
     q = session.query(
@@ -176,22 +175,13 @@ def get_clone_overlap(session, filter_type, samples, subject=None,
         func.sum(CloneFrequency.total_sequences).label('total_sequences'),
         func.group_concat(CloneFrequency.sample_id)
         .label('samples'))\
-        .filter(CloneFrequency.filter_type == filter_type)
-
-    if samples is not None:
-        q = q.filter(CloneFrequency.sample_id.in_(samples))
-    elif subject is not None:
-        samples = map(
-            lambda s: s.sample_id,
-            session.query(distinct(Sequence.sample_id).label('sample_id'))
-            .filter(Sequence.sample.has(subject_id=subject)).all())
-
-    q = q.group_by(CloneFrequency.clone_id)\
+        .filter(CloneFrequency.filter_type == filter_type,
+                CloneFrequency.clone_id.in_(cids))\
+        .group_by(CloneFrequency.clone_id)\
         .order_by(desc(func.sum(CloneFrequency.total_sequences)))
 
     if paging is not None:
         page, per_page = paging
-        # num_pages = math.ceil(len(q.all()) / per_page)
         q = q.offset((page - 1) * per_page).limit(per_page)
 
     for r in q:
@@ -211,6 +201,18 @@ def get_clone_overlap(session, filter_type, samples, subject=None,
     if paging:
         return res
     return res
+
+
+def get_clones_in_samples(session, samples):
+    return map(lambda c: c.clone_id,
+               session.query(CloneFrequency.clone_id).filter(
+                   CloneFrequency.sample_id.in_(samples)))
+
+
+def get_clones_in_subject(session, subject_id):
+    return map(lambda c: c.clone_id,
+               session.query(CloneFrequency.clone_id).filter(
+                   CloneFrequency.clone.has(subject_id=subject_id)))
 
 
 def get_v_usage(session, filter_type, samples):
