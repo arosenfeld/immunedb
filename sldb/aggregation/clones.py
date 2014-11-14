@@ -2,10 +2,11 @@ import argparse
 import distance
 from collections import Counter
 
+import sldb.identification.germlines as germlines
+from sldb.identification.identify import VDJSequence
 import sldb.util.lookups as lookups
 from sldb.util.funcs import page_query
 from sldb.common.models import *
-
 
 def _consensus(strings):
     cons = []
@@ -27,6 +28,7 @@ def _get_subject_clones(session, subject_id, min_similarity, per_commit):
     for i, seq in enumerate(session.query(Sequence)\
             .filter(Sequence.sample.has(subject_id=subject_id),
                     Sequence.copy_number_iden > 1,
+                    Sequence.junction_aa.notlike('%*%'),
                     Sequence.clone_id.is_(None))):
 
         # Key for cache has implicit subject_id due to function parameter
@@ -80,11 +82,19 @@ def _assign_clones_to_groups(session, subject_id, per_commit):
             CloneGroup.cdr3_aa == cdr3_aa).first()
 
         if group is None:
+            # NOTE: This is for v-ties, and there may be a better way
+            v = clone.v_gene.split('|')[0]
+            germline = '{}{}{}'.format(
+                germlines.v[v][0:VDJSequence.CDR3_OFFSET],
+                '-' * clone.cdr3_num_nts,
+                germlines.j[clone.j_gene])
+
             group = CloneGroup(subject_id=subject_id,
                                v_gene=clone.v_gene,
                                j_gene=clone.j_gene,
                                cdr3_num_nts=clone.cdr3_num_nts,
-                               cdr3_aa=cdr3_aa)
+                               cdr3_aa=cdr3_aa,
+                               germline=germline)
             session.add(group)
         clone.group = group
 

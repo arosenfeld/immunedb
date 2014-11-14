@@ -38,6 +38,8 @@ def _create_sequence_record(row):
     for key, value in row.iteritems():
         if key not in _mt_nomap and value not in ('unknown', 'NaN', ''):
             setattr(record, key, cast_to_type(Sequence, key, value))
+    record.v_call = record.v_call.replace('/', '|')
+    record.j_call = record.j_call.replace('/', '|')
 
     return record
 

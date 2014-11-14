@@ -123,8 +123,9 @@ def compare_clones(session, uids):
     clone_muts = {}
     for clone_id, sample_id in uids:
         clone = session.query(Clone).filter(Clone.id == clone_id).first()
-        germline = clone.germline[:309] + clone.cdr3_nt + \
-            clone.germline[309 + clone.cdr3_num_nts:]
+        #germline = clone.group.germline[:309] + clone.cdr3_nt + \
+        #    clone.group.germline[309 + clone.cdr3_num_nts:]
+        germline = clone.group.germline
         if clone_id not in clones:
             clone_muts[clone_id] = Mutations(germline, clone.cdr3_num_nts)
             clone_json = _clone_to_dict(clone)
@@ -183,8 +184,7 @@ def get_clone_overlap(session, filter_type, samples, subject=None,
         samples = map(
             lambda s: s.sample_id,
             session.query(distinct(Sequence.sample_id).label('sample_id'))
-            .filter(Sequence.subject_id == subject).all())
-        q = q.filter(CloneFrequency.sample_id.in_(samples))
+            .filter(Sequence.sample.has(subject_id=subject)).all())
 
     q = q.group_by(CloneFrequency.clone_id)\
         .order_by(desc(func.sum(CloneFrequency.total_sequences)))
@@ -195,7 +195,7 @@ def get_clone_overlap(session, filter_type, samples, subject=None,
         q = q.offset((page - 1) * per_page).limit(per_page)
 
     for r in q:
-        samples = ','.join(map(str, sorted(map(int, r.samples.split(',')))))
+        samples = map(str, sorted(map(int, r.samples.split(','))))
         freq = r.CloneFrequency
         unique_seqs = session.query(
             func.count(
@@ -273,7 +273,7 @@ def get_subject(session, sid):
 
     for seq in session.query(
             distinct(Sequence.sample_id).label('sample_id'))\
-            .filter(Sequence.subject_id == s.id):
+            .filter(Sequence.sample.has(subject_id=s.id)):
         # TODO: This should be a join but that is really slow for some reason
         sample = session.query(Sample).filter(
             Sample.id == seq.sample_id).first()
@@ -296,12 +296,36 @@ def get_subject(session, sid):
         },
         'samples': samples,
         'unique_seqs': session.query(
-            func.count(Sequence.seq_id).label('unique_seqs'))
-        .filter(Sequence.subject_id == s.id).first().unique_seqs,
+            func.count(Sequence.seq_id))
+        .filter(Sequence.sample.has(subject_id=s.id)).scalar(),
     }
 
     return subject
 
+
+def get_stats(session, samples):
+    counts = {}
+    stats = {}
+    for stat in session.query(SampleStats).filter(
+            SampleStats.sample_id.in_(samples)):
+        if stat.sample_id not in stats:
+            stats[stat.sample_id] = {
+                'sample': _sample_to_dict(stat.sample),
+                'filters': {}
+            }
+        if stat.filter_type not in counts:
+            counts[stat.filter_type] = 0
+        flds = _fields_to_dict([
+            'v_match_dist', 'v_length_dist', 'j_match_dist',
+            'j_length_dist', 'v_call_dist', 'j_call_dist',
+            'v_gap_length_dist', 'j_gap_length_dist',
+            'copy_number_iden_dist', 'cdr3_length_dist', 'sequence_cnt',
+            'in_frame_cnt', 'stop_cnt'], stat)
+        stats[stat.sample_id]['filters'][stat.filter_type] = flds
+        counts[stat.filter_type] += stat.sequence_cnt
+
+    return {'counts': counts, 'stats': stats}
+        
 
 def get_sequence(session, sample_id, seq_id):
     seq = session.query(Sequence).filter(Sequence.sample_id == sample_id,

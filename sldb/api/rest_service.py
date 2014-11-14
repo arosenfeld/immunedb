@@ -55,7 +55,7 @@ def sequence(sample_id, seq_id):
     session = scoped_session(session_factory)()
     seq = queries.get_sequence(session, int(sample_id), seq_id)
     session.close()
-    return json.dumps(sequence=seq)
+    return json.dumps({'sequence': seq})
 
 
 @route('/api/studies')
@@ -63,7 +63,7 @@ def studies():
     session = scoped_session(session_factory)()
     studies = queries.get_all_studies(session)
     session.close()
-    return json.dumps({ 'studies': studies })
+    return json.dumps({'studies': studies})
 
 @route('/api/subjects')
 def subjects():
@@ -79,7 +79,7 @@ def subject(sid):
     session = scoped_session(session_factory)()
     subject = queries.get_subject(session, int(sid))
     session.close()
-    return json.dumps({ 'subject': subject })
+    return json.dumps({'subject': subject})
 
 
 @route('/api/clones/')
@@ -105,7 +105,7 @@ def clone_compare(uids):
         clones_and_samples.append(_split(u, '_'))
     clones = queries.compare_clones(session, clones_and_samples)
     session.close()
-    return json.dumps(clones=clones)
+    return json.dumps({'clones': clones})
 
 
 @route('/api/clone_overlap/<filter_type>/<samples>')
@@ -114,10 +114,17 @@ def clone_overlap(filter_type, samples=None, subject=None):
     """Gets clonal overlap between samples"""
     samples = _split(samples) if samples is not None else None
     session = scoped_session(session_factory)()
-    items = queries.get_clone_overlap(
+    clones = queries.get_clone_overlap(
         session, filter_type, samples, subject, _get_paging())
     session.close()
-    return json.dumps(items=items)
+    return json.dumps({'clones': clones})
+
+@route('/api/stats/<samples>')
+def stats(samples):
+    session = scoped_session(session_factory)()
+    stats = queries.get_stats(session, _split(samples))
+    session.close()
+    return json.dumps({'stats': stats})
 
 
 @route('/api/data/clone_overlap/<filter_type>/<samples>')
@@ -170,6 +177,7 @@ def download_sequences(file_type, replace_germ, cid, params):
 
     session = scoped_session(session_factory)()
     sequences = []
+    germline = None
     for clone_and_sample in params.split(','):
         clone_id, sample = _split(clone_and_sample, '_')
         if clone_id != cid:
@@ -178,6 +186,8 @@ def download_sequences(file_type, replace_germ, cid, params):
         for s in session.query(Sequence)\
             .filter(Sequence.sample_id == sample)\
             .filter(Sequence.clone_id == cid):
+            if germline is None:
+                germline = s.clone.group.germline
             sequences.append({
                 'sample_name': s.sample.name,
                 'seq_id': s.seq_id,
@@ -186,16 +196,16 @@ def download_sequences(file_type, replace_germ, cid, params):
     session.close()
 
     def _gen(sequences):
+        yield '>>germline\n{}\n\n'.format(germline)
         for seq in sequences:
             if file_type == 'fasta':
                 yield '>{},{}\n{}\n\n'.format(
                     seq['sample_name'],
                     seq['seq_id'],
                     seq['sequence'])
-
-    return Response(_gen(sequences), headers={
-        'Content-Disposition':
-        'attachment;filename={}.fasta'.format(fn)})
+    response.set_header('Content-Disposition',
+                        'attachment;filename={}.fasta'.format(fn))
+    return _gen(sequences)
 
 
 @route('/api/v_usage/<filter_type>/<samples>')
@@ -216,9 +226,11 @@ def v_usage(filter_type, samples):
             else:
                 array.append([i, j, 0])
 
-    return json.dumps(x_categories=x_categories,
-                   y_categories=y_categories,
-                   data=array)
+    return json.dumps({
+        'x_categories': x_categories,
+        'y_categories': y_categories,
+        'data': array
+    })
 
 
 @route('/api/data/v_usage/<filter_type>/<samples>')
@@ -249,4 +261,7 @@ def run_rest_service(session_maker, args):
     global session_factory
     session_factory = session_maker
     bottle.install(EnableCors())
-    bottle.run(host='0.0.0.0', port=args.port, debug=True)
+    if args.debug:
+        bottle.run(host='0.0.0.0', port=args.port, debug=True)
+    else:
+        bottle.run(host='0.0.0.0', port=args.port, server='gunicorn', workers=4)

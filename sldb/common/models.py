@@ -110,6 +110,8 @@ class SampleStats(BaseData):
     copy_number_iden_dist = Column(MEDIUMTEXT)
     cdr3_length_dist = Column(MEDIUMTEXT)
 
+    # Total sequences in filter
+    sequence_cnt = Column(Integer)
     # Number of in-frame sequences
     in_frame_cnt = Column(Integer)
     # Number of sequences with a stop codon

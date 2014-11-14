@@ -80,6 +80,10 @@ def _process_filter(session, sample_id, filter_type, filter_func, summation_func
     stat = SampleStats(sample_id=sample_id,
                        filter_type=filter_type)
 
+    stat.sequence_cnt = filter_func(
+        session.query(summation_func)\
+           .filter(Sequence.sample_id == sample_id)).scalar() or 0
+
     stat.in_frame_cnt = filter_func(
         session.query(summation_func)\
             .filter(Sequence.sample_id == sample_id,
@@ -102,13 +106,11 @@ def _process_filter(session, sample_id, filter_type, filter_func, summation_func
 
 def _process_sample(session, sample_id):
     print 'Processing sample {}'.format(sample_id)
-    '''
     for f in _seq_filters + _clone_filters:
         print '\tGenerating sequence stats for filter "{}"'.format(f['type'])
         _process_filter(session, sample_id, f['type'], f['filter_func'],
                         f['summation_func'])
 
-    '''
     for f in _clone_filters:
         for clone_info in f['filter_func'](session.query(
                 Sequence.clone_id,
