@@ -19,7 +19,7 @@ def _handle_read(base_path, base_name, read, new_path):
                                                      read))
     _normalize_names(
         '{}/{}_{}_001.trim.fasta'.format(base_path, base_name, read),
-        '{}/{}_{}_001.trim.sync.fasta'.format(new_path, base_name, read))
+        '{}/{}_{}_001.sync.fasta'.format(new_path, base_name, read))
 
 def run_align(args):
     print 'Starting alignment'
@@ -33,6 +33,11 @@ def run_align(args):
                 base_path = '/'.join([args.base_dir, study, date, 'raw'])
                 new_path = '/'.join([args.base_dir, study, date, 'processed'])
                 presto_path = '/'.join([args.base_dir, study, date, 'presto'])
+                if os.path.isfile('{}/{}.log'.format(presto_path, base_name)):
+                    print ('Skipping {} since it already '
+                           'exists.').format(base_name)
+                    continue
+
                 try:
                     os.makedirs(new_path)
                     os.makedirs(presto_path)
@@ -46,6 +51,7 @@ def run_align(args):
                     print '\t\t\t\tCan\'t find R2.  Using R1 alone.'
                 else:
                     _handle_read(base_path, base_name, 'R2', new_path)
+
                 os.remove('{}/{}_{}_001.trim.fasta'.format(base_path,
                           base_name, 'R1'))
                 os.remove('{}/{}_{}_001.trim.fasta'.format(base_path,
@@ -54,5 +60,3 @@ def run_align(args):
                        '-2 {0}/{1}_R2_001.sync.fasta '
                        '--rc tail --log {2}/{1}.log --outdir {2} --nproc '
                        '4').format(new_path, base_name, presto_path))
-                        
-                return

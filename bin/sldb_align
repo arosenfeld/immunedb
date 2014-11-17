@@ -1,0 +1,11 @@
+#!/usr/bin/env python2
+import sys
+import argparse
+from sldb.util.align import run_align
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description='Runs presto on a directory.')
+    parser.add_argument('base_dir',  help='Properly structured directory '
+                        'with FASTA R1 and R2 files.')
+
+    sys.exit(run_align(parser.parse_args()))

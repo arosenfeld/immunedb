@@ -12,6 +12,8 @@ class VDJSequence(object):
 
     def __init__(self, id, seq):
         self._id = id
+        if 'N' in seq:
+            raise
         self._seq = seq
         self._j = None
         self._j_anchor_pos = None
@@ -114,20 +116,24 @@ class VDJSequence(object):
         '''Finds the V gene closest to that of the sequence'''
         v_best = []
         v_score = None
+        v_overlap = None
         for v, germ in germlines.v.iteritems():
             # Strip the gaps
-            germ = Seq(germ.replace('.', ''))
+            germ = Seq(germ.replace('-', ''))
             # Get the last occurrence of 'TGT', the germline anchor
             germ_pos = germ.rfind(anchors.germline_anchor)
             # Align and cut the germline to match the sequence
             v_seq = germ[germ_pos - self.v_anchor_pos + 1:germ_pos + 1]
-            s_seq = self.sequence[:self.v_anchor_pos]
+            s_seq = self.sequence[self.v_anchor_pos - len(v_seq):self.v_anchor_pos]
+            if len(v_seq) == 0:
+                continue
             # Determine the distance between the germline and sequence
             dist = distance.hamming(str(v_seq), str(s_seq))
             # Record this germline if it is has the lowest distance
             if v_score is None or dist < v_score:
                 v_best = [v]
                 v_score = dist
+                v_overlap = len(s_seq)
             elif dist == v_score:
                 v_best.append(v)
 
@@ -136,14 +142,17 @@ class VDJSequence(object):
         # Determine pad length of the sequence to
         pad_len = germlines.v[v_best[0]].replace('-', '').rfind(
             anchors.germline_anchor) - self.v_anchor_pos + 1
-        self._seq = 'N' * pad_len + self._seq
+        self._germline = germlines.v[sorted(self._v)[0]][:self.CDR3_OFFSET]
+        if pad_len >= 0:
+            self._seq = 'N' * pad_len + self._seq
+        else:
+            self._seq = self._seq[-1 * pad_len:]
+
         # Mutation ratio is the distance divided by the length of overlap
-        self._mutation_frac = v_score / float(self.v_anchor_pos)
+        self._mutation_frac = v_score / float(v_overlap)
         self._j_anchor_pos += pad_len
         self._v_anchor_pos += pad_len
 
-        # Get the germline with gaps up to CDR3
-        self._germline = germlines.v[sorted(self._v)[0]][:self.CDR3_OFFSET]
         # Add germline gaps to sequence before CDR3 and update anchor positions
         for i, c in enumerate(self._germline):
             if c == '-':

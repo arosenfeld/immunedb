@@ -7,7 +7,10 @@ import sldb.common.config as config
 if __name__ == '__main__':
     parser = config.get_base_arg_parser('Provides a restless interface to the'
                                         'database')
-    parser.add_argument('-p', default=5000, type=int, help='API offer port')
+    parser.add_argument('-p', default=5000, type=int, dest='port',
+                        help='API offer port')
+    parser.add_argument('-d', action='store_true', default=False, dest='debug',
+                        help='Use debug mode')
     args = parser.parse_args()
 
     session_maker = config.init_db(args.master_db_config, 

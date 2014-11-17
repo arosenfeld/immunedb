@@ -5,7 +5,7 @@ from sldb.identification.identify import run_identify
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('fasta_file')
+    parser.add_argument('base_dir', help='Base directory for samples.')
     args = parser.parse_args()
 
     sys.exit(run_identify(args))
