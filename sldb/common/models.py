@@ -174,10 +174,6 @@ class Sequence(BaseData):
 
     seq_id = Column(String(length=128), primary_key=True)
 
-    functional = Column(Boolean, index=True)
-    in_frame = Column(Boolean)
-    stop = Column(Boolean)
-
     v_call = Column(String(512))
     j_call = Column(String(512))
 
@@ -185,8 +181,7 @@ class Sequence(BaseData):
     junction_aa = Column(String(512))
     gap_method = Column(String(16))
 
-    sequence = Column(String(length=1024))
-    sequence_replaced = Column(String(length=1024), unique=True)
+    sequence_replaced = Column(String(length=1024), unique=True, index=True)
 
     clone_id = Column(Integer, ForeignKey(Clone.id), index=True)
     clone = relationship(Clone, backref=backref('sequences',
@@ -195,14 +190,16 @@ class Sequence(BaseData):
 
 class SequenceMapping(BaseData):
     __tablename__ = 'sequence_mapping'
-    __table_args__ = {'mysql_engine': 'TokuDB'}
+    __table_args__ = (UniqueConstraint('seq_id', 'sample_id'),
+                      {'mysql_engine': 'TokuDB'})
 
-    identity_seq_id = Column(String(128), ForeignKey(Sequence.seq_id), index=True,
-                    unique=True)
+    identity_seq_id = Column(String(128), ForeignKey(Sequence.seq_id),
+                             primary_key=True)
     identity_seq = relationship(Sequence, backref=backref('mapping'))
 
-    seq_id = Column(String(128)
+    seq_id = Column(String(128))
     sample_id = Column(Integer, ForeignKey(Sample.id), index=True)
+    sample = relationship(Sample, backref=backref('mapping'))
 
     alignment = Column(String(length=6))
     copy_number = Column(Integer)
@@ -211,6 +208,12 @@ class SequenceMapping(BaseData):
     v_length = Column(Integer)
     j_match = Column(Integer)
     j_length = Column(Integer)
+
+    in_frame = Column(Boolean)
+    functional = Column(Boolean, index=True)
+    stop = Column(Boolean)
+
+    sequence = Column(String(length=1024))
 
 
 class CloneFrequency(BaseData):

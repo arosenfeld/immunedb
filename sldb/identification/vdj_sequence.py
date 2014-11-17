@@ -15,10 +15,16 @@ class VDJSequence(object):
         if 'N' in seq:
             raise
         self._seq = seq
+        self._seq_filled = None
+        
         self._j = None
         self._j_anchor_pos = None
+        self._j_match = None
+
         self._v = None
         self._v_anchor_pos = None
+        self._v_match = None
+        
         self._mutation_frac = None
         self._germline = None
         self._cdr3_len = 0
@@ -62,12 +68,56 @@ class VDJSequence(object):
         return self._seq
 
     @property
+    def sequence_filled(self):
+        if self._seq_filled is None:
+            self._seq_filled = ''
+            for i, c in enumerate(self.sequence):
+                if c.upper() == 'N':
+                    self._seq_filled += self.germline[i].upper()
+                else:
+                    self._seq_filled += c
+            else: 
+                self._seq_filled = self.sequence
+        return self._seq_filled
+
+    @property
     def germline(self):
         return self._germline
 
     @property
     def mutation_fraction(self):
         return self._mutation_frac
+
+    @property
+    def in_frame(self):
+        return len(self.sequence) % 3 == 0
+
+    @property
+    def stop(self):
+        for i in range(0, len(self.sequence), 3):
+            if self.sequence[i:i+3] in ['TAG', 'TAA', 'TGA']:
+                return True
+        return False
+
+    @property
+    def functional(self):
+        return not self.stop
+
+    @property
+    def j_length(self):
+        return self._j_length
+
+    @property
+    def j_match(self):
+        return self._j_match
+
+    @property
+    def v_length(self):
+        return self._v_length
+
+    @property
+    def v_match(self):
+        return self._v_match
 
     def _find_j(self):
         '''Finds the location and type of J gene'''
@@ -90,6 +140,8 @@ class VDJSequence(object):
                 else:
                     self._j_anchor_pos = len(self._seq) - i
                 self._j = j_gene
+                self._j_match = len(j_gene)
+                self._j_length = len(j_gene)
                 if rev_comp:
                     self._seq = self._seq.reverse_complement()
                 return
@@ -117,6 +169,8 @@ class VDJSequence(object):
         v_best = []
         v_score = None
         v_overlap = None
+        v_match = None
+
         for v, germ in germlines.v.iteritems():
             # Strip the gaps
             germ = Seq(germ.replace('-', ''))
@@ -134,10 +188,13 @@ class VDJSequence(object):
                 v_best = [v]
                 v_score = dist
                 v_overlap = len(s_seq)
+                v_match = len(s_seq) - dist
             elif dist == v_score:
                 v_best.append(v)
 
         self._v = v_best
+        self._v_match = v_match
+        self._v_length = v_overlap
         # TODO: is this padding correct for multiple v_bests
         # Determine pad length of the sequence to
         pad_len = germlines.v[v_best[0]].replace('-', '').rfind(

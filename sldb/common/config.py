@@ -48,7 +48,7 @@ def init_db(master_db_config, data_db_config, as_maker=False):
 
         SampleStats: data_engine,
         Sequence: data_engine,
-        DuplicateSequence: data_engine,
+        SequenceMapping: data_engine,
         CloneFrequency: data_engine,
         Clone: data_engine,
         NoResult: data_engine,
