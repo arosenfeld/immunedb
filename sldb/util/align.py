@@ -49,13 +49,17 @@ def run_align(args):
                 if not os.path.isfile(
                     '{}/{}_{}_001.trim.fasta.gz'.format(base_path, base_name, 'R2')):
                     print '\t\t\t\tCan\'t find R2.  Using R1 alone.'
+                    continue
                 else:
                     _handle_read(base_path, base_name, 'R2', new_path)
 
-                os.remove('{}/{}_{}_001.trim.fasta'.format(base_path,
-                          base_name, 'R1'))
-                os.remove('{}/{}_{}_001.trim.fasta'.format(base_path,
-                          base_name, 'R2'))
+                try:
+                    os.remove('{}/{}_{}_001.trim.fasta'.format(base_path,
+                              base_name, 'R1'))
+                    os.remove('{}/{}_{}_001.trim.fasta'.format(base_path,
+                              base_name, 'R2'))
+                except:
+                    pass
                 _run(('AssemblePairs.py align -1 {0}/{1}_R1_001.sync.fasta '
                        '-2 {0}/{1}_R2_001.sync.fasta '
                        '--rc tail --log {2}/{1}.log --outdir {2} --nproc '

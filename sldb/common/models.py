@@ -182,6 +182,7 @@ class Sequence(BaseData):
     gap_method = Column(String(16))
 
     sequence_replaced = Column(String(length=1024), unique=True, index=True)
+    germline = Column(String(length=1024))
 
     clone_id = Column(Integer, ForeignKey(Clone.id), index=True)
     clone = relationship(Clone, backref=backref('sequences',
@@ -197,12 +198,11 @@ class SequenceMapping(BaseData):
                              primary_key=True)
     identity_seq = relationship(Sequence, backref=backref('mapping'))
 
-    seq_id = Column(String(128))
+    seq_id = Column(String(128), primary_key=True)
     sample_id = Column(Integer, ForeignKey(Sample.id), index=True)
     sample = relationship(Sample, backref=backref('mapping'))
 
     alignment = Column(String(length=6))
-    copy_number = Column(Integer)
 
     v_match = Column(Integer)
     v_length = Column(Integer)
@@ -212,8 +212,27 @@ class SequenceMapping(BaseData):
     in_frame = Column(Boolean)
     functional = Column(Boolean, index=True)
     stop = Column(Boolean)
+    copy_number = Column(Integer)
 
     sequence = Column(String(length=1024))
+
+
+class DuplicateSequence(BaseData):
+    """A sequence which is a duplicate of a Sequence class instance.  This is
+    used to minimize the size of the sequences table."""
+    __tablename__ = 'duplicate_sequences'
+    __table_args__ = {'mysql_engine': 'TokuDB'}
+
+    # The Sequence object of which this is a duplicate
+    identity_seq_id = Column(String(length=128),
+                             ForeignKey('sequences.seq_id'),
+                             primary_key=True,
+                             index=True)
+    identity = relationship('Sequence', backref=backref('duplicate_sequences',
+                            order_by=identity_seq_id))
+
+    # The ID of the sequence
+    seq_id = Column(String(length=128), primary_key=True)
 
 
 class CloneFrequency(BaseData):

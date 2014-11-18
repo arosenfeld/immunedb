@@ -29,11 +29,13 @@ class VDJSequence(object):
         self._germline = None
         self._cdr3_len = 0
 
-        self._find_j()
-        if self._j is not None:
-            self._find_v_position()
-            if self.v_anchor_pos is not None:
-                self._find_v()
+        # If there are Ns in the sequence, ignore it
+        if 'N' not in self.sequence:
+            self._find_j()
+            if self._j is not None:
+                self._find_v_position()
+                if self.v_anchor_pos is not None:
+                    self._find_v()
 
     @property
     def id(self):
@@ -61,7 +63,8 @@ class VDJSequence(object):
 
     @property
     def cdr3(self):
-        return self.sequence[self.CDR3_OFFSET:self._cdr3_len]
+        return self.sequence[self.CDR3_OFFSET:
+            self.CDR3_OFFSET + self._cdr3_len]
 
     @property
     def sequence(self):
@@ -76,8 +79,6 @@ class VDJSequence(object):
                     self._seq_filled += self.germline[i].upper()
                 else:
                     self._seq_filled += c
-            else: 
-                self._seq_filled = self.sequence
         return self._seq_filled
 
     @property
@@ -90,7 +91,7 @@ class VDJSequence(object):
 
     @property
     def in_frame(self):
-        return len(self.sequence) % 3 == 0
+        return len(self.cdr3) % 3 == 0
 
     @property
     def stop(self):
@@ -101,7 +102,7 @@ class VDJSequence(object):
 
     @property
     def functional(self):
-        return not self.stop
+        return self.in_frame and not self.stop
 
     @property
     def j_length(self):
@@ -201,9 +202,9 @@ class VDJSequence(object):
             anchors.germline_anchor) - self.v_anchor_pos + 1
         self._germline = germlines.v[sorted(self._v)[0]][:self.CDR3_OFFSET]
         if pad_len >= 0:
-            self._seq = 'N' * pad_len + self._seq
+            self._seq = 'N' * pad_len + str(self._seq)
         else:
-            self._seq = self._seq[-1 * pad_len:]
+            self._seq = str(self._seq[-1 * pad_len:])
 
         # Mutation ratio is the distance divided by the length of overlap
         self._mutation_frac = v_score / float(v_overlap)

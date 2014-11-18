@@ -25,6 +25,7 @@ setup(name='SLDB',
           'bin/sldb_stats',
       ],
       install_requires=[
+          'sarge', 
           'sqlalchemy>=0.9.8',
           'biopython',
           'bottle',

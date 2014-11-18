@@ -2,6 +2,8 @@ import argparse
 import distance
 from collections import Counter
 
+from sqlalchemy.sql import func
+
 import sldb.identification.germlines as germlines
 from sldb.identification.identify import VDJSequence
 import sldb.util.lookups as lookups
@@ -26,10 +28,12 @@ def _similar_to_all(seq, clone_query, min_similarity):
 def _get_subject_clones(session, subject_id, min_similarity, per_commit):
     clone_cache = {}
     for i, seq in enumerate(session.query(Sequence)\
-            .filter(Sequence.sample.has(subject_id=subject_id),
-                    Sequence.copy_number_iden > 1,
-                    Sequence.junction_aa.notlike('%*%'),
-                    Sequence.clone_id.is_(None))):
+            .filter(Sequence.junction_aa.notlike('%*%'),
+                    Sequence.clone_id.is_(None))\
+            .join(SequenceMapping)\
+            .filter(SequenceMapping.sample.has(subject_id=subject_id))\
+            .group_by(SequenceMapping.identity_seq_id)
+            .having(func.count(SequenceMapping.identity_seq_id)>1)):
 
         # Key for cache has implicit subject_id due to function parameter
         key = (seq.v_call, seq.j_call, seq.junction_aa)

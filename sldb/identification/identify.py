@@ -16,31 +16,13 @@ def _get_from_meta(meta, sample_name, key):
         return meta['all'][key]
     return None
 
-def _add_to_db(session, alignment, sample, vdj):
-    assert alignment in ['R1', 'R2', 'Joined']
-    m = session.query(Sequence).filter(
-        Sequence.sequence_replaced == str(vdj.sequence_filled)).first()
-    if m is None:
-        m = Sequence(seq_id=vdj.id,
-                     v_call='|'.join(vdj.v_gene),
-                     j_call=vdj.j_gene,
-                     junction_nt=vdj.cdr3,
-                     junction_aa=lookups.aas_from_nts(vdj.cdr3, ''),
-                     gap_method='IMGT',
-                     sequence_replaced=str(vdj.sequence_filled))
-        session.add(m)
-    else:
-        for entry in m.mapping:
-            if entry.sample_id == sample.id:
-                entry.copy_number += 1
-                return
 
-    session.add(SequenceMapping(
-                identity_seq_id=vdj.id,
+def _create_mapping(session, identity_seq_id, alignment, sample, vdj):
+    return SequenceMapping(
+                identity_seq_id=identity_seq_id,
                 sample=sample,
                 seq_id=vdj.id,
                 alignment=alignment,
-                copy_number=1,
                 v_match=vdj.v_match,
                 v_length=vdj.v_length,
                 j_match=vdj.j_match,
@@ -48,9 +30,44 @@ def _add_to_db(session, alignment, sample, vdj):
 
                 in_frame=vdj.in_frame,
                 stop=vdj.stop,
+                copy_number=1,
                 functional=vdj.functional,
 
-                sequence=str(vdj.sequence)))
+                sequence=str(vdj.sequence))
+
+
+def _add_to_db(session, alignment, sample, vdj):
+    assert alignment in ['R1', 'R2', 'Joined']
+    # Check if a sequence with the exact same filled sequence exists
+    m = session.query(Sequence).filter(
+        Sequence.sequence_replaced == str(vdj.sequence_filled)).first()
+    if m is None:
+        # If not, add the sequence, and make the mapping
+        m = Sequence(seq_id=vdj.id,
+                     v_call='|'.join(vdj.v_gene),
+                     j_call=vdj.j_gene,
+                     junction_nt=str(vdj.cdr3),
+                     junction_aa=lookups.aas_from_nts(vdj.cdr3, ''),
+                     gap_method='IMGT',
+                     sequence_replaced=str(vdj.sequence_filled),
+                     germline=vdj.germline)
+        session.add(m)
+        session.add(_create_mapping(session, m.seq_id, alignment, sample, vdj))
+    else:
+        # If there is an identical sequence, check if its appeared in this
+        # sample.
+        existing = session.query(SequenceMapping).filter(
+            SequenceMapping.identity_seq_id == m.seq_id,
+            SequenceMapping.sample == sample).first()
+
+        if existing is not None:
+            # If so, bump the copy number and insert the duplicate sequence
+            existing.copy_number += 1
+            DuplicateSequence(identity_seq_id=m.seq_id, seq_id=vdj.id)
+        else:
+            # If not, add a new mapping from the existing sequence
+            session.add(_create_mapping(session, m.seq_id, alignment, sample,
+                                        vdj))
 
 
 def _identify_reads(session, meta, fn, name, alignment):
@@ -76,7 +93,9 @@ def _identify_reads(session, meta, fn, name, alignment):
         session.commit()
     else:
         # TODO: Verify the data for the existing sample matches
-        exists = session.query(SequenceMapping).filter(SequenceMapping.sample == sample).first()
+        exists = session.query(SequenceMapping).filter(
+            SequenceMapping.sample == sample,
+            SequenceMapping.alignment == alignment).first()
         if exists is not None:
             print ('\tSample "{}" for study already exists in DATA.  '
                    'Skipping.').format(sample.name)
@@ -143,9 +162,8 @@ def run_identify(session, args):
             if not os.path.isfile('{}.log'.format(base)):
                 print 'Skipping {} since no presto log exists.'.format(name)
                 continue
-            print 'Doing joined reads'
             _identify_reads(session, metadata, 
                             join, base.rsplit('/', 1)[1], 'Joined')
-            print 'Doing R1 reads'
             _identify_reads(session, metadata, 
                             r1, base.rsplit('/', 1)[1], 'R1')
+

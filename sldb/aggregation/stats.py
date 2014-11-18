@@ -7,103 +7,125 @@ import sldb.common.config as config
 from sldb.common.models import *
 
 
-_dist_fields = ['v_match', 'v_length', 'j_match', 'j_length', 'v_call',
-                'j_call', 'v_gap_length', 'j_gap_length', 'copy_number_iden',
-                ('junction_nt', func.length, 'cdr3_length')]
+_dist_fields = [
+    SequenceMapping.v_match,
+    SequenceMapping.v_length,
+    SequenceMapping.j_match,
+    SequenceMapping.j_length,
+    Sequence.v_call,
+    Sequence.j_call,
+    (func.count(SequenceMapping.identity_seq_id), 'copy_number'),
+    (func.length(Sequence.junction_nt), 'cdr3_length')
+]
 
 
 _seq_filters = [
     {
         'type': 'all',
         'filter_func': lambda q: q,
-        'summation_func': func.sum(Sequence.copy_number_iden),
+        'use_copy': True
     },
     {
         'type': 'functional',
-        'filter_func': lambda q: q.filter(Sequence.functional == 1),
-        'summation_func': func.sum(Sequence.copy_number_iden),
+        'filter_func': lambda q: q.filter(SequenceMapping.functional == 1),
+        'use_copy': True
     },
     {
         'type': 'nonfunctional',
-        'filter_func': lambda q: q.filter(Sequence.functional == 0),
-        'summation_func': func.sum(Sequence.copy_number_iden),
+        'filter_func': lambda q: q.filter(SequenceMapping.functional == 0),
+        'use_copy': True
     },
     {
         'type': 'unique',
-        'filter_func': lambda q: q.filter(Sequence.functional == 1,
-                                          Sequence.copy_number_iden == 1),
-        'summation_func': func.count(Sequence.seq_id),
+        'filter_func': lambda q: q.filter(SequenceMapping.functional == 1)\
+            .having(func.count(SequenceMapping.identity_seq_id) == 1),
+        'use_copy': False
     },
     {
         'type': 'unique_multiple',
-        'filter_func': lambda q: q.filter(Sequence.functional == 1,
-                                          Sequence.copy_number_iden > 1),
-        'summation_func': func.count(Sequence.seq_id),
+        'filter_func': lambda q: q.filter(
+            SequenceMapping.functional == 1,
+            func.count(SequenceMapping.identity_seq_id) > 1)
+            .having(func.count(SequenceMapping.identity_seq_id) > 1),
+        'use_copy': False
     },
 ]
 
 _clone_filters = [
     {
         'type': 'clones_all',
-        'filter_func': lambda q: q.filter(Sequence.clone_id.isnot(None)),
-        'summation_func': func.count(Sequence.seq_id),
+        'filter_func': lambda q: q.filter(
+            SequenceMapping.identity_seq.clone_id.isnot(None)),
+        'use_copy': False,
     },
     {
         'type': 'clones_functional',
-        'filter_func': lambda q: q.filter(Sequence.clone_id.isnot(None),
-                                          Sequence.functional == 1),
-        'summation_func': func.count(Sequence.seq_id),
+        'filter_func': lambda q: q.filter(
+            SequenceMapping.identity_seq.clone_id.isnot(None),
+            SequenceMapping.functional == 1),
+        'use_copy': False,
     },
     {
         'type': 'clones_nonfunctional',
-        'filter_func': lambda q: q.filter(Sequence.clone_id.isnot(None),
-                                          Sequence.functional == 0),
-        'summation_func': func.count(Sequence.seq_id),
+        'filter_func': lambda q: q.filter(
+            SequenceMapping.identity_seq.clone_id.isnot(None),
+            SequenceMapping.functional == 0),
+        'use_copy': False,
     },
 ]
 
 
-def _get_distribution(session, sample_id, key, filter_func, summation_func):
+def _get_distribution(session, sample_id, key, filter_func, use_copy):
     if isinstance(key, tuple):
-        key = key[1](getattr(Sequence, key[0]))
-    else:
-        key = getattr(Sequence, key)
+        key = key[0]
 
     result = {}
-    for row in filter_func(session.query(key.label('key'),
-                                         summation_func.label('values'))\
-            .filter(Sequence.sample_id == sample_id).group_by(key)):
+    q = filter_func(session.query(
+            func.count(SequenceMapping).label('copy_number'),
+            func.count(SequenceMapping).label('unique'))
+        .join(Sequence)
+        .filter(SequenceMapping.sample_id == sample_id))
+    q = q.group_by(SequenceMapping.identity_seq_id)
+        
+    for row in q:
         result[row.key] = int(row.values)
     return result
 
 
 def _process_filter(session, sample_id, filter_type, filter_func,
-        summation_func):
+        use_copy):
     stat = SampleStats(sample_id=sample_id,
                        filter_type=filter_type)
 
-    stat.sequence_cnt = filter_func(
-        session.query(summation_func)\
-           .filter(Sequence.sample_id == sample_id)).scalar() or 0
+    q = filter_func(session.query(
+            func.count(SequenceMapping).label('copy_number'),
+            func.count(SequenceMapping).label('unique'))
+        .filter(SequenceMapping.sample_id == sample_id))
+    q = q.group_by(SequenceMapping.identity_seq_id)
 
+    if q is None:
+        print 'Null stat for {}, {}'.format(sample_id, filter_type)
+        return
+    stat.sequence_cnt = q.first().copy_number if use_copy else q.first().unique
+    '''
     stat.in_frame_cnt = filter_func(
         session.query(summation_func)\
-            .filter(Sequence.sample_id == sample_id,
-                    Sequence.in_frame)).scalar() or 0
+            .filter(SequenceMapping.sample_id == sample_id,
+                    SequenceMapping.in_frame)).scalar() or 0
 
     stat.stop_cnt = filter_func(
         session.query(summation_func)\
-            .filter(Sequence.sample_id == sample_id,
-                    Sequence.stop)).scalar() or 0
-
+            .filter(SequenceMapping.sample_id == sample_id,
+                    SequenceMapping.stop)).scalar() or 0
     for dist in _dist_fields:
         dist_val = _get_distribution(
-            session, sample_id, dist, filter_func, summation_func)
+            session, sample_id, dist, filter_func, use_copy)
 
         tuples = [[k, v] for k, v in sorted(dist_val.iteritems())]
         if isinstance(dist, tuple):
-            dist = dist[2]
+            dist = dist[1]
         setattr(stat, '{}_dist'.format(dist), json.dumps(tuples))
+    '''
     session.add(stat)
 
 
@@ -127,7 +149,7 @@ def _process_sample(session, sample_id, force):
     for f in _seq_filters + _clone_filters:
         print '\tGenerating sequence stats for filter "{}"'.format(f['type'])
         _process_filter(session, sample_id, f['type'], f['filter_func'],
-                        f['summation_func'])
+                        f['use_copy'])
 
     for f in _clone_filters:
         for clone_info in f['filter_func'](session.query(
