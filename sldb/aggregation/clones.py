@@ -32,11 +32,14 @@ def _get_subject_clones(session, subject_id, min_similarity, per_commit):
                     Sequence.clone_id.is_(None))\
             .join(SequenceMapping)\
             .filter(SequenceMapping.sample.has(subject_id=subject_id))\
-            .group_by(SequenceMapping.identity_seq_id)
-            .having(func.count(SequenceMapping.identity_seq_id)>1)):
+            .filter(SequenceMapping.copy_number > 1)):
+
+        if i > 0 and i % per_commit == 0:
+            session.commit()
+            print 'Committed {}'.format(i)
 
         # Key for cache has implicit subject_id due to function parameter
-        key = (seq.v_call, seq.j_call, seq.junction_aa)
+        key = (seq.v_call, seq.j_call, len(seq.junction_nt), seq.junction_aa)
         if key in clone_cache:
             seq.clone = clone_cache[key]
             continue
@@ -46,10 +49,10 @@ def _get_subject_clones(session, subject_id, min_similarity, per_commit):
                         Clone.v_gene == seq.v_call,
                         Clone.j_gene == seq.j_call,
                         Clone.cdr3_num_nts == len(seq.junction_nt)):
-            seqs_in_clone = map(lambda s: s.sequence,
-                                  session.query(Sequence.sequence).filter(
+            seqs_in_clone = map(lambda s: s.junction_aa,
+                                session.query(Sequence.junction_aa).filter(
                                     Sequence.clone == clone))
-            if _similar_to_all(seq.sequence, seqs_in_clone, min_similarity):
+            if _similar_to_all(seq.junction_aa, seqs_in_clone, min_similarity):
                 seq.clone = clone
                 break
 
@@ -62,10 +65,6 @@ def _get_subject_clones(session, subject_id, min_similarity, per_commit):
             seq.clone = new_clone
 
         clone_cache[key] = seq.clone
-
-        if i > 0 and i % per_commit == 0:
-            session.commit()
-            print 'Committed {}'.format(i)
 
     session.commit()
 

@@ -174,8 +174,8 @@ class Sequence(BaseData):
 
     seq_id = Column(String(length=128), primary_key=True)
 
-    v_call = Column(String(512))
-    j_call = Column(String(512))
+    v_call = Column(String(512), index=True)
+    j_call = Column(String(512), index=True)
 
     junction_nt = Column(String(512))
     junction_aa = Column(String(512))
@@ -191,7 +191,7 @@ class Sequence(BaseData):
 
 class SequenceMapping(BaseData):
     __tablename__ = 'sequence_mapping'
-    __table_args__ = (UniqueConstraint('seq_id', 'sample_id'),
+    __table_args__ = (UniqueConstraint('identity_seq_id', 'sample_id'),
                       {'mysql_engine': 'TokuDB'})
 
     identity_seq_id = Column(String(128), ForeignKey(Sequence.seq_id),
@@ -212,7 +212,7 @@ class SequenceMapping(BaseData):
     in_frame = Column(Boolean)
     functional = Column(Boolean, index=True)
     stop = Column(Boolean)
-    copy_number = Column(Integer)
+    copy_number = Column(Integer, index=True)
 
     sequence = Column(String(length=1024))
 

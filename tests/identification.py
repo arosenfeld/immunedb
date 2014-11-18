@@ -13,6 +13,7 @@ if __name__ == '__main__':
                 print 'seq    :', vdj.sequence
                 print 'seq_rep:', vdj.sequence_filled
                 print 'cdr3   :', str(vdj.cdr3)
-                print 'func   :', vdj.functional
                 print 'cdr3_aa:', lookups.aas_from_nts(vdj.cdr3, '')
+                print 'v_gene :', vdj.v_gene
+                print 'j_gene :', vdj.j_gene
                 print ''

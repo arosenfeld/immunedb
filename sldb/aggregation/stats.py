@@ -14,7 +14,7 @@ _dist_fields = [
     SequenceMapping.j_length,
     Sequence.v_call,
     Sequence.j_call,
-    (func.count(SequenceMapping.identity_seq_id), 'copy_number'),
+    SequenceMapping.copy_number,
     (func.length(Sequence.junction_nt), 'cdr3_length')
 ]
 
@@ -37,38 +37,36 @@ _seq_filters = [
     },
     {
         'type': 'unique',
-        'filter_func': lambda q: q.filter(SequenceMapping.functional == 1)\
-            .having(func.count(SequenceMapping.identity_seq_id) == 1),
+        'filter_func': lambda q: q.filter(SequenceMapping.functional == 1),
         'use_copy': False
     },
     {
         'type': 'unique_multiple',
-        'filter_func': lambda q: q.filter(
-            SequenceMapping.functional == 1,
-            func.count(SequenceMapping.identity_seq_id) > 1)
-            .having(func.count(SequenceMapping.identity_seq_id) > 1),
+        'filter_func': lambda q: q.filter(SequenceMapping.functional == 1,
+                                          SequenceMapping.copy_number > 1),
         'use_copy': False
     },
 ]
+
 
 _clone_filters = [
     {
         'type': 'clones_all',
         'filter_func': lambda q: q.filter(
-            SequenceMapping.identity_seq.clone_id.isnot(None)),
+            SequenceMapping.identity_seq.has(Sequence.clone_id!=None)),
         'use_copy': False,
     },
     {
         'type': 'clones_functional',
         'filter_func': lambda q: q.filter(
-            SequenceMapping.identity_seq.clone_id.isnot(None),
+            SequenceMapping.identity_seq.has(Sequence.clone_id!=None),
             SequenceMapping.functional == 1),
         'use_copy': False,
     },
     {
         'type': 'clones_nonfunctional',
         'filter_func': lambda q: q.filter(
-            SequenceMapping.identity_seq.clone_id.isnot(None),
+            SequenceMapping.identity_seq.has(Sequence.clone_id!=None),
             SequenceMapping.functional == 0),
         'use_copy': False,
     },
@@ -76,56 +74,53 @@ _clone_filters = [
 
 
 def _get_distribution(session, sample_id, key, filter_func, use_copy):
+    result = {}
     if isinstance(key, tuple):
         key = key[0]
-
-    result = {}
-    q = filter_func(session.query(
-            func.count(SequenceMapping).label('copy_number'),
-            func.count(SequenceMapping).label('unique'))
-        .join(Sequence)
-        .filter(SequenceMapping.sample_id == sample_id))
-    q = q.group_by(SequenceMapping.identity_seq_id)
+    q = filter_func(session.query(SequenceMapping.identity_seq_id,
+            key.label('key'),
+            func.count(SequenceMapping.identity_seq_id).label('unique'),
+            func.sum(SequenceMapping.copy_number).label('copy_number'))
+        .filter(SequenceMapping.sample_id == sample_id))\
+        .join(Sequence)\
+        .group_by(key)
         
     for row in q:
-        result[row.key] = int(row.values)
+        result[row.key] = int(row.copy_number) if use_copy else \
+            int(row.unique)
     return result
 
 
 def _process_filter(session, sample_id, filter_type, filter_func,
         use_copy):
+    def base_query():
+        return filter_func(session.query(
+            func.count(SequenceMapping.identity_seq_id).label('unique'),
+            func.sum(SequenceMapping.copy_number).label('copy_number'))\
+            .filter(SequenceMapping.sample_id == sample_id))
+
     stat = SampleStats(sample_id=sample_id,
                        filter_type=filter_type)
 
-    q = filter_func(session.query(
-            func.count(SequenceMapping).label('copy_number'),
-            func.count(SequenceMapping).label('unique'))
-        .filter(SequenceMapping.sample_id == sample_id))
-    q = q.group_by(SequenceMapping.identity_seq_id)
+    q = base_query().first()
+    stat.sequence_cnt = q.copy_number if use_copy else q.unique
 
-    if q is None:
-        print 'Null stat for {}, {}'.format(sample_id, filter_type)
-        return
-    stat.sequence_cnt = q.first().copy_number if use_copy else q.first().unique
-    '''
-    stat.in_frame_cnt = filter_func(
-        session.query(summation_func)\
-            .filter(SequenceMapping.sample_id == sample_id,
-                    SequenceMapping.in_frame)).scalar() or 0
+    q = base_query().filter(SequenceMapping.in_frame == 1).first()
+    stat.in_frame_cnt = q.copy_number if use_copy else q.unique
 
-    stat.stop_cnt = filter_func(
-        session.query(summation_func)\
-            .filter(SequenceMapping.sample_id == sample_id,
-                    SequenceMapping.stop)).scalar() or 0
+    q = base_query().filter(SequenceMapping.stop == 1).first()
+    stat.stop = q.copy_number if use_copy else q.unique
+
     for dist in _dist_fields:
         dist_val = _get_distribution(
             session, sample_id, dist, filter_func, use_copy)
 
-        tuples = [[k, v] for k, v in sorted(dist_val.iteritems())]
         if isinstance(dist, tuple):
-            dist = dist[1]
-        setattr(stat, '{}_dist'.format(dist), json.dumps(tuples))
-    '''
+            name = dist[1]
+        else:
+            name = dist.name
+        tuples = [[k, v] for k, v in sorted(dist_val.iteritems())]
+        setattr(stat, '{}_dist'.format(name), json.dumps(tuples))
     session.add(stat)
 
 
@@ -146,19 +141,22 @@ def _process_sample(session, sample_id, force):
         print ('\tSKIPPING stats since they already exists.'
                '  Use the --force flag to force regeneration.')
         return
+
     for f in _seq_filters + _clone_filters:
         print '\tGenerating sequence stats for filter "{}"'.format(f['type'])
         _process_filter(session, sample_id, f['type'], f['filter_func'],
                         f['use_copy'])
+        session.commit()
 
     for f in _clone_filters:
-        for clone_info in f['filter_func'](session.query(
-                Sequence.clone_id,
-                func.count(Sequence.seq_id).label('unique'),
-                func.sum(Sequence.copy_number_iden).label('total'))\
-                .filter(Sequence.sample_id == sample_id,
-                        Sequence.clone_id.isnot(None))\
-                .group_by(Sequence.clone_id)):
+        filter_func = f['filter_func']
+        for clone_info in filter_func(session.query(
+            Sequence.clone_id,
+            func.count(SequenceMapping.seq_id).label('unique'),
+            func.sum(SequenceMapping.copy_number).label('total')))\
+            .join(SequenceMapping)\
+            .filter(SequenceMapping.sample_id == sample_id)\
+            .group_by(Sequence.clone_id):
             print '\tGenerating clone {} stats for filter "{}"'.format(
                 clone_info.clone_id, f['type'])
 
@@ -169,7 +167,7 @@ def _process_sample(session, sample_id, force):
                 total_sequences=clone_info.total,
                 unique_sequences=clone_info.unique)
             session.add(cf)
-    session.commit()
+        session.commit()
 
 
 def run_stats(session, args):
