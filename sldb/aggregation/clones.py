@@ -2,6 +2,7 @@ import argparse
 import distance
 from collections import Counter
 
+from sqlalchemy import distinct
 from sqlalchemy.sql import func
 
 import sldb.identification.germlines as germlines
@@ -27,54 +28,70 @@ def _similar_to_all(seq, clone_query, min_similarity):
 
 def _get_subject_clones(session, subject_id, min_similarity, per_commit):
     clone_cache = {}
-    for i, seq in enumerate(session.query(Sequence)\
-            .filter(Sequence.junction_aa.notlike('%*%'),
-                    Sequence.clone_id.is_(None))\
-            .join(SequenceMapping)\
-            .filter(SequenceMapping.sample.has(subject_id=subject_id))\
-            .filter(SequenceMapping.copy_number > 1)):
-
+    new_clones = 0
+    samples = map(lambda s: s.id, session.query(Sample).filter(
+        Sample.subject_id == subject_id))
+    for i, seq in enumerate(session.query(SequenceMapping).filter(
+                SequenceMapping.sample_id.in_(samples),
+                SequenceMapping.clone_id.is_(None),
+                SequenceMapping.copy_number > 1).limit(1000)):
         if i > 0 and i % per_commit == 0:
             session.commit()
-            print 'Committed {}'.format(i)
-
+            print 'Committed {} (new clones={})'.format(i, new_clones)
+        seq_iden = seq.identity_seq
+        if '*' in seq_iden.junction_aa:
+            continue
+        seq_clone = None
         # Key for cache has implicit subject_id due to function parameter
-        key = (seq.v_call, seq.j_call, len(seq.junction_nt), seq.junction_aa)
+        key = (seq_iden.v_call, seq_iden.j_call, len(seq_iden.junction_nt), 
+               seq_iden.junction_aa)
         if key in clone_cache:
             seq.clone = clone_cache[key]
             continue
 
         for clone in session.query(Clone)\
                 .filter(Clone.subject_id == subject_id,
-                        Clone.v_gene == seq.v_call,
-                        Clone.j_gene == seq.j_call,
-                        Clone.cdr3_num_nts == len(seq.junction_nt)):
-            seqs_in_clone = map(lambda s: s.junction_aa,
-                                session.query(Sequence.junction_aa).filter(
-                                    Sequence.clone == clone))
-            if _similar_to_all(seq.junction_aa, seqs_in_clone, min_similarity):
-                seq.clone = clone
+                        Clone.v_gene == seq_iden.v_call,
+                        Clone.j_gene == seq_iden.j_call,
+                        Clone.cdr3_num_nts == len(seq_iden.junction_nt)):
+            seqs_in_clone = map(lambda s: s.identity_seq.junction_aa,
+                                session.query(SequenceMapping)\
+                                    .filter(SequenceMapping.clone == clone))
+
+            if _similar_to_all(seq_iden.junction_aa, seqs_in_clone, min_similarity):
+                seq_clone = clone
                 break
 
-        if seq.clone is None:
+        if seq_clone is None:
             new_clone = Clone(subject_id=subject_id,
-                                  v_gene=seq.v_call,
-                                  j_gene=seq.j_call,
-                                  cdr3_num_nts=len(seq.junction_nt))
+                                  v_gene=seq_iden.v_call,
+                                  j_gene=seq_iden.j_call,
+                                  cdr3_num_nts=len(seq_iden.junction_nt))
+            new_clones += 1
             session.add(new_clone)
-            seq.clone = new_clone
+            session.flush()
+            seq_clone = new_clone
 
-        clone_cache[key] = seq.clone
+        session.query(SequenceMapping)\
+            .filter(SequenceMapping.identity_seq_id == seq.identity_seq_id,
+                    SequenceMapping.sample_id.in_(samples),
+                    SequenceMapping.copy_number > 1)\
+            .update({
+                'clone_id': seq_clone.id
+            }, synchronize_session='fetch')
+
+        clone_cache[key] = seq_clone
 
     session.commit()
 
 def _assign_clones_to_groups(session, subject_id, per_commit):
     for i, clone in enumerate(session.query(Clone).filter(
             Clone.subject_id == subject_id)):
-        seqs = session.query(Sequence).filter(
-            Sequence.clone == clone).all()
+        seqs = session.query(SequenceMapping).filter(
+            SequenceMapping.clone_id == clone.id).all()
 
-        clone.cdr3_nt = _consensus(map(lambda e: e.junction_nt, seqs))
+        clone.cdr3_nt = _consensus(map(lambda e: 
+                                   e.identity_seq.junction_nt, seqs))
         cdr3_aa = lookups.aas_from_nts(clone.cdr3_nt, '')
 
         group = session.query(CloneGroup).filter(

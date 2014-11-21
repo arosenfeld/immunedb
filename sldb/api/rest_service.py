@@ -101,9 +101,17 @@ def clones():
 def clone_compare(uids):
     """Compares clones by determining their mutations"""
     session = scoped_session(session_factory)()
-    clones_and_samples = []
+    clones_and_samples = {}
     for u in uids.split(','):
-        clones_and_samples.append(_split(u, '_'))
+        if u.find('_') < 0:
+            clone = int(u)
+            sample = None
+        else:
+            clone, sample = _split(u, '_')
+        if clone not in clones_and_samples:
+            clones_and_samples[clone] = set([])
+        clones_and_samples[clone].add(sample)
+
     clones = queries.compare_clones(session, clones_and_samples)
     session.close()
     return json.dumps({'clones': clones})
@@ -120,7 +128,7 @@ def clone_overlap(filter_type, samples=None, subject=None):
         cids = queries.get_clones_in_subject(session, subject)
 
     clones = queries.get_clone_overlap(
-        session, cids, filter_type, _get_paging())
+        session, filter_type, cids, _split(samples), _get_paging())
     session.close()
     return json.dumps({'clones': clones})
 

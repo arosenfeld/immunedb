@@ -10,6 +10,15 @@ import sldb.util.lookups as lookups
 from sldb.common.models import *
 from sldb.common.mutations import MutationType, Mutations
 
+
+_clone_filters = {
+    'clones_all': lambda q: q,
+    'clones_functional': lambda q: q.filter(
+        SequenceMapping.functional == 1),
+    'clones_nonfunctional': lambda q: q.filter(
+        SequenceMapping.functional == 0),
+}
+
 def _fields_to_dict(fields, row):
     d = {}
     for f in fields:
@@ -121,10 +130,8 @@ def compare_clones(session, uids):
     """Compares sequences within clones by determining their mutations"""
     clones = {}
     clone_muts = {}
-    for clone_id, sample_id in uids:
+    for clone_id, sample_ids in uids.iteritems():
         clone = session.query(Clone).filter(Clone.id == clone_id).first()
-        #germline = clone.group.germline[:309] + clone.cdr3_nt + \
-        #    clone.group.germline[309 + clone.cdr3_num_nts:]
         germline = clone.group.germline
         if clone_id not in clones:
             clone_muts[clone_id] = Mutations(germline, clone.cdr3_num_nts)
@@ -138,65 +145,76 @@ def compare_clones(session, uids):
         mutations = clone_muts[clone_id]
 
         start_ptrn = re.compile('[N\-]*')
-        for s in session.query(Sequence)\
-                        .filter(Sequence.sample_id == sample_id,
-                                Sequence.clone_id == clone_id)\
-                        .group_by(Sequence.sequence_replaced):
-            read_start = start_ptrn.match(s.sequence)
+
+        if None in sample_ids:
+            q = session.query(SequenceMapping)\
+                .join(Sequence)\
+                .filter(Sequence.clone_id == clone_id)\
+                .group_by(SequenceMapping.identity_seq_id)
+        else:
+            q = session.query(SequenceMapping)\
+                .join(Sequence)\
+                .filter(SequenceMapping.sample_id.in_(sample_ids),
+                        Sequence.clone_id == clone_id)\
+                .group_by(SequenceMapping.identity_seq_id)
+        for mapping in q:
+            read_start = start_ptrn.match(mapping.sequence)
             if read_start is None:
                 read_start = 0
             else:
                 read_start = read_start.span()[1]
 
             clones[clone_id]['seqs'].append({
-                'seq_id': s.seq_id,
-                'sample': {
-                    'id': s.sample.id,
-                    'name': s.sample.name
-                },
-                'junction_nt': s.junction_nt,
-                'sequence': s.sequence_replaced,
-                'read_start': read_start,
-                'mutations': mutations.add_sequence(s.sequence),
+                'seq_id': mapping.seq_id,
             })
+            '''
+            'sample': {
+                'id': mapping.sample.id,
+                'name': mapping.sample.name
+            },
+            'junction_nt': mapping.identity_seq.junction_nt,
+            'sequence': mapping.identity_seq.sequence_replaced,
+            'read_start': read_start,
+            'mutations': mutations.add_sequence(mapping.sequence),
+            '''
 
-        region_stats, pos_stats = mutations.get_aggregate()
-        clones[clone_id]['mutation_stats']['regions'] = region_stats
-        clones[clone_id]['mutation_stats']['positions'] = pos_stats
+        #region_stats, pos_stats = mutations.get_aggregate()
+        #clones[clone_id]['mutation_stats']['regions'] = region_stats
+        #clones[clone_id]['mutation_stats']['positions'] = pos_stats
 
     return clones
 
 
-def get_clone_overlap(session, cids, filter_type, paging=None):
+def get_clone_overlap(session, filter_type, cids, limit_sids=None,
+                      paging=None):
     """Gets a list of clones and the samples in `samples` which they appear"""
+    fltr = _clone_filters[filter_type]
     res = []
-    q = session.query(
-        CloneFrequency,
-        func.sum(CloneFrequency.total_sequences).label('total_sequences'),
-        func.group_concat(CloneFrequency.sample_id)
-        .label('samples'))\
-        .filter(CloneFrequency.filter_type == filter_type,
-                CloneFrequency.clone_id.in_(cids))\
-        .group_by(CloneFrequency.clone_id)\
-        .order_by(desc(func.sum(CloneFrequency.total_sequences)))
+    q = fltr(session.query(
+            SequenceMapping,
+            func.group_concat(distinct(SequenceMapping.sample_id)).label('samples'),
+            func.count(SequenceMapping.seq_id).label('unique'),
+            func.sum(SequenceMapping.copy_number).label('total'))
+            .filter(SequenceMapping.clone_id.in_(cids))
+            .join(Clone)
+            .order_by(desc('total'))
+            .group_by(SequenceMapping.clone_id))
+
+    if limit_sids is not None:
+        q = q.filter(SequenceMapping.sample_id.in_(limit_sids))
 
     if paging is not None:
         page, per_page = paging
         q = q.offset((page - 1) * per_page).limit(per_page)
 
-    for r in q:
-        samples = map(str, sorted(map(int, r.samples.split(','))))
-        freq = r.CloneFrequency
-        unique_seqs = session.query(
-            func.count(
-                distinct(Sequence.sequence_replaced)).label('us')).filter(
-            Sequence.clone == freq.clone).first().us
+    for clone in q:
         res.append({
-            'samples': samples,
-            'unique_sequences': unique_seqs,
-            'total_sequences': int(r.total_sequences),
-            'clone': _clone_to_dict(freq.clone)
+            'unique_sequences': int(clone.unique),
+            'total_sequences': int(clone.total),
+            'clone': _clone_to_dict(clone.SequenceMapping.clone),
+            'samples': map(str, clone.samples.split(',')),
         })
+        print map(int, clone.samples.split(','))
 
     if paging:
         return res
@@ -204,9 +222,10 @@ def get_clone_overlap(session, cids, filter_type, paging=None):
 
 
 def get_clones_in_samples(session, samples):
-    return map(lambda c: c.clone_id,
-               session.query(CloneFrequency.clone_id).filter(
-                   CloneFrequency.sample_id.in_(samples)))
+    return map(lambda e: e.id,
+               session.query(
+                   distinct(SequenceMapping.clone_id).label('id')).filter(
+                            SequenceMapping.sample_id.in_(samples)))
 
 
 def get_clones_in_subject(session, subject_id):

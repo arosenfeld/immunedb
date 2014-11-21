@@ -63,7 +63,8 @@ def _add_to_db(session, alignment, sample, vdj):
         if existing is not None:
             # If so, bump the copy number and insert the duplicate sequence
             existing.copy_number += 1
-            DuplicateSequence(identity_seq_id=m.seq_id, seq_id=vdj.id)
+            session.add(DuplicateSequence(identity_seq_id=m.seq_id,
+                        seq_id=vdj.id))
         else:
             # If not, add a new mapping from the existing sequence
             session.add(_create_mapping(session, m.seq_id, alignment, sample,
@@ -147,7 +148,11 @@ def _identify_reads(session, meta, fn, name, alignment):
 
 
 def run_identify(session, args):
-    with open('{}/metadata.json'.format(args.base_dir)) as fh:
+    meta_fn = '{}/metadata.json'.format(args.base_dir)
+    if not os.path.isfile(meta_fn):
+        print 'No metadata file found for this set of samples.'
+        return
+    with open(meta_fn) as fh:
         metadata = json.load(fh)
 
         names = set([])

@@ -12,8 +12,6 @@ class VDJSequence(object):
 
     def __init__(self, id, seq):
         self._id = id
-        if 'N' in seq:
-            raise
         self._seq = seq
         self._seq_filled = None
         

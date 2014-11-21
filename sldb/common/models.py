@@ -184,10 +184,6 @@ class Sequence(BaseData):
     sequence_replaced = Column(String(length=1024), unique=True, index=True)
     germline = Column(String(length=1024))
 
-    clone_id = Column(Integer, ForeignKey(Clone.id), index=True)
-    clone = relationship(Clone, backref=backref('sequences',
-                         order_by=seq_id))
-
 
 class SequenceMapping(BaseData):
     __tablename__ = 'sequence_mapping'
@@ -215,6 +211,10 @@ class SequenceMapping(BaseData):
     copy_number = Column(Integer, index=True)
 
     sequence = Column(String(length=1024))
+
+    clone_id = Column(Integer, ForeignKey(Clone.id), index=True)
+    clone = relationship(Clone, backref=backref('sequences',
+                         order_by=seq_id))
 
 
 class DuplicateSequence(BaseData):
