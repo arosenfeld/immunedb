@@ -74,42 +74,51 @@ def get_all_studies(session):
 def get_all_clones(session, filters, order_field, order_dir, paging=None):
     """Gets a list of all clones"""
     res = []
-    clone_q = session.query(Clone)
+    clone_q = session.query(SequenceMapping,
+            func.group_concat(distinct(SequenceMapping.sample_id)).label('samples'),
+            func.count(SequenceMapping.seq_id).label('unique'),
+            func.sum(SequenceMapping.copy_number).label('total'))\
+            .join(Clone)\
+
+    if order_field is not None:
+        order_field = getattr(Clone, order_field)
+    else:
+        order_field = Clone.id
+    clone_q = clone_q.order_by(order_field)
+
+    clone_q = clone_q.group_by(SequenceMapping.clone_id)
+
+    if paging is not None:
+        page, per_page = paging
+        clone_q = clone_q.offset((page - 1) * per_page).limit(per_page)
 
     if filters is not None:
         for key, value in filters.iteritems():
+            if value is None:
+                continue
             value = str(value).strip()
             if len(value) > 0 and value is not None:
                 if key == 'min_cdr3_num_nts':
                     clone_q = clone_q.filter(Clone.cdr3_num_nts >= int(value))
                 elif key == 'max_cdr3_num_nts':
                     clone_q = clone_q.filter(Clone.cdr3_num_nts <= int(value))
+                elif key == 'id':
+                    clone_q = clone_q.filter(Clone.id == int(value))
                 else:
                     clone_q = clone_q.filter(
-                        getattr(Clone, key).like(value.replace('*', '%')))
-
-    if order_field is not None:
-        order_field = getattr(Clone, order_field)
-    else:
-        order_field = Clone.id
+                        getattr(Clone.group, key).like(value.replace('*', '%')))
 
     if order_dir is None or order_dir == 'desc':
         order_field = order_field.desc()
     else:
         order_field = order_field.asc()
         
-    clone_q = clone_q.order_by(order_field)
-
-    if paging is not None:
-        page, per_page = paging
-        clone_q = clone_q.offset((page - 1) * per_page).limit(per_page)
-
     for c in clone_q:
+        '''
         stats_comb = []
-        for stat in session.query(CloneFrequency)\
-                           .filter(CloneFrequency.clone_id == c.id,
-                                   CloneFrequency.filter_type == 'clones_all')\
-                           .order_by(desc(CloneFrequency.total_sequences)):
+        for stat in session.query(
+                distinct(SequenceMapping.sample).label('sample'))\
+                .filter(SequenceMapping.clone_id == c.id:
                 stats_comb.append({
                     'sample': {
                         'id': stat.sample.id,
@@ -122,6 +131,8 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
         clone_json = _clone_to_dict(c)
         clone_json['stats'] = stats_comb
         res.append(clone_json)
+        '''
+        pass
 
     return res
 
@@ -214,7 +225,6 @@ def get_clone_overlap(session, filter_type, cids, limit_sids=None,
             'clone': _clone_to_dict(clone.SequenceMapping.clone),
             'samples': map(str, clone.samples.split(',')),
         })
-        print map(int, clone.samples.split(','))
 
     if paging:
         return res
@@ -229,9 +239,7 @@ def get_clones_in_samples(session, samples):
 
 
 def get_clones_in_subject(session, subject_id):
-    return map(lambda c: c.clone_id,
-               session.query(CloneFrequency.clone_id).filter(
-                   CloneFrequency.clone.has(subject_id=subject_id)))
+    raise 'NOT IMPLEMENTED'
 
 
 def get_v_usage(session, filter_type, samples):
