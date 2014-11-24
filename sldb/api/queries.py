@@ -80,18 +80,6 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
             func.sum(SequenceMapping.copy_number).label('total'))\
             .join(Clone)\
 
-    if order_field is not None:
-        order_field = getattr(Clone, order_field)
-    else:
-        order_field = Clone.id
-    clone_q = clone_q.order_by(order_field)
-
-    clone_q = clone_q.group_by(SequenceMapping.clone_id)
-
-    if paging is not None:
-        page, per_page = paging
-        clone_q = clone_q.offset((page - 1) * per_page).limit(per_page)
-
     if filters is not None:
         for key, value in filters.iteritems():
             if value is None:
@@ -108,31 +96,41 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
                     clone_q = clone_q.filter(
                         getattr(Clone.group, key).like(value.replace('*', '%')))
 
+    if order_field is not None:
+        order_field = getattr(Clone, order_field)
+    else:
+        order_field = Clone.id
+    clone_q = clone_q.order_by(order_field)
+
+    clone_q = clone_q.group_by(SequenceMapping.clone_id)
+    if paging is not None:
+        page, per_page = paging
+        clone_q = clone_q.offset((page - 1) * per_page).limit(per_page)
+
     if order_dir is None or order_dir == 'desc':
         order_field = order_field.desc()
     else:
         order_field = order_field.asc()
         
     for c in clone_q:
-        '''
         stats_comb = []
-        for stat in session.query(
-                distinct(SequenceMapping.sample).label('sample'))\
-                .filter(SequenceMapping.clone_id == c.id:
+        for stat in session.query(SequenceMapping,
+                    func.count(SequenceMapping.identity_seq_id).label('unique'),
+                    func.sum(SequenceMapping.copy_number).label('total'))\
+                    .filter(SequenceMapping.clone_id == c.SequenceMapping.clone.id)\
+                    .group_by(SequenceMapping.sample_id):
                 stats_comb.append({
                     'sample': {
-                        'id': stat.sample.id,
-                        'name': stat.sample.name
+                        'id': stat.SequenceMapping.sample.id,
+                        'name': stat.SequenceMapping.sample.name
                     },
-                    'unique_sequences': stat.unique_sequences,
-                    'total_sequences': stat.total_sequences
+                    'unique_sequences': int(stat.unique),
+                    'total_sequences': int(stat.total)
                 })
 
-        clone_json = _clone_to_dict(c)
+        clone_json = _clone_to_dict(stat.SequenceMapping.clone)
         clone_json['stats'] = stats_comb
         res.append(clone_json)
-        '''
-        pass
 
     return res
 
@@ -157,17 +155,13 @@ def compare_clones(session, uids):
 
         start_ptrn = re.compile('[N\-]*')
 
-        if None in sample_ids:
-            q = session.query(SequenceMapping)\
-                .join(Sequence)\
-                .filter(Sequence.clone_id == clone_id)\
-                .group_by(SequenceMapping.identity_seq_id)
-        else:
-            q = session.query(SequenceMapping)\
-                .join(Sequence)\
-                .filter(SequenceMapping.sample_id.in_(sample_ids),
-                        Sequence.clone_id == clone_id)\
-                .group_by(SequenceMapping.identity_seq_id)
+        q = session.query(SequenceMapping)\
+            .join(Sequence)\
+            .filter(SequenceMapping.clone_id == clone_id)
+        if None not in sample_ids:
+            q = q.filter(SequenceMapping.sample_id.in_(sample_ids))
+        q = q.group_by(SequenceMapping.identity_seq_id)
+
         for mapping in q:
             read_start = start_ptrn.match(mapping.sequence)
             if read_start is None:
@@ -177,21 +171,20 @@ def compare_clones(session, uids):
 
             clones[clone_id]['seqs'].append({
                 'seq_id': mapping.seq_id,
+                'sample': {
+                    'id': mapping.sample.id,
+                    'name': mapping.sample.name,
+                },
+                'junction_nt': mapping.identity_seq.junction_nt,
+                'sequence': mapping.identity_seq.sequence_replaced,
+                'read_start': read_start,
+                'copy_number': mapping.copy_number,
+                'mutations': mutations.add_sequence(mapping.sequence),
             })
-            '''
-            'sample': {
-                'id': mapping.sample.id,
-                'name': mapping.sample.name
-            },
-            'junction_nt': mapping.identity_seq.junction_nt,
-            'sequence': mapping.identity_seq.sequence_replaced,
-            'read_start': read_start,
-            'mutations': mutations.add_sequence(mapping.sequence),
-            '''
 
-        #region_stats, pos_stats = mutations.get_aggregate()
-        #clones[clone_id]['mutation_stats']['regions'] = region_stats
-        #clones[clone_id]['mutation_stats']['positions'] = pos_stats
+        region_stats, pos_stats = mutations.get_aggregate()
+        clones[clone_id]['mutation_stats']['regions'] = region_stats
+        clones[clone_id]['mutation_stats']['positions'] = pos_stats
 
     return clones
 
@@ -239,7 +232,11 @@ def get_clones_in_samples(session, samples):
 
 
 def get_clones_in_subject(session, subject_id):
-    raise 'NOT IMPLEMENTED'
+    return map(lambda e: e.id,
+               session.query(
+                   distinct(SequenceMapping.clone_id).label('id'))\
+                .join(Sample)\
+                .filter(Sample.subject_id == subject_id))
 
 
 def get_v_usage(session, filter_type, samples):
@@ -287,8 +284,8 @@ def get_all_subjects(session, paging):
             },
             'total_samples': session.query(func.count(Sample.id)).filter(
                 Sample.subject == subject).scalar(),
-            'unique_seqs': session.query(func.count(Sequence.seq_id)).filter(
-                Sequence.sample.has(subject=subject)).scalar(),
+            'unique_seqs': session.query(func.count(SequenceMapping.seq_id)).filter(
+                SequenceMapping.sample.has(subject=subject)).scalar(),
             'total_clones': session.query(func.count(Clone.id)).filter(
                 Clone.subject_id == subject.id).scalar()
         })
@@ -300,13 +297,7 @@ def get_subject(session, sid):
     s = session.query(Subject).filter(Subject.id == sid).first()
     samples = []
 
-    for seq in session.query(
-            distinct(Sequence.sample_id).label('sample_id'))\
-            .filter(Sequence.sample.has(subject_id=s.id)):
-        # TODO: This should be a join but that is really slow for some reason
-        sample = session.query(Sample).filter(
-            Sample.id == seq.sample_id).first()
-
+    for sample in session.query(Sample).filter(Sample.subject_id == sid):
         samples.append({
             'id': sample.id,
             'name': sample.name,
@@ -324,9 +315,8 @@ def get_subject(session, sid):
             'name': s.study.name,
         },
         'samples': samples,
-        'unique_seqs': session.query(
-            func.count(Sequence.seq_id))
-        .filter(Sequence.sample.has(subject_id=s.id)).scalar(),
+        'unique_seqs': session.query(func.count(SequenceMapping))\
+            .filter(SequenceMapping.sample.has(subject_id=sid)).scalar()
     }
 
     return subject
@@ -357,24 +347,44 @@ def get_stats(session, samples):
         
 
 def get_sequence(session, sample_id, seq_id):
-    seq = session.query(Sequence).filter(Sequence.sample_id == sample_id,
-                                         Sequence.seq_id == seq_id).first()
-    ret = _model_to_dict(seq)
-    ret['subject'] = {
-        'study': {
-            'id': seq.subject.study.id,
-            'name': seq.subject.study.name
-        },
-        'identifier': seq.subject.identifier,
-    }
-    ret['sample'] = {
-        'id': seq.sample.id,
-        'name': seq.sample.name,
-    }
+    seq = session.query(SequenceMapping)\
+        .filter(SequenceMapping.sample_id == sample_id,
+                SequenceMapping.seq_id == seq_id).first()
+    if seq is None:
+        seq = session.query(DuplicateSequence)\
+            .filter(DuplicateSequence.seq_id == seq_id).first()
+
+        seq = session.query(SequenceMapping)\
+            .filter(SequenceMapping.sample_id == sample_id,
+                    SequenceMapping.seq_id == seq.seq_id).first()
+
+    ret = _fields_to_dict(['seq_id', 'identity_seq_id', 'alignment', 'v_match',
+                          'j_match', 'v_length', 'j_length', 'in_frame',
+                          'functional', 'stop', 'copy_number', 'sequence'], 
+                          seq)
+    ret['sample'] = _sample_to_dict(seq.sample)
+
+    ret['v_call'] = seq.identity_seq.v_call
+    ret['j_call'] = seq.identity_seq.j_call
+    ret['junction_nt'] = seq.identity_seq.junction_nt
+    ret['junction_aa'] = seq.identity_seq.junction_aa
+    ret['germline'] = seq.identity_seq.germline
 
     if seq.clone is None:
         ret['clone'] = None
     else:
         ret['clone'] = _clone_to_dict(seq.clone)
+
+    ret['duplicates'] = []
+    for dup in session.query(SequenceMapping).filter(
+            SequenceMapping.identity_seq_id == seq.identity_seq_id,
+            SequenceMapping.seq_id != seq_id)\
+            .order_by(SequenceMapping.sample_id):
+        ret['duplicates'].append({
+            'seq_id': dup.seq_id,
+            'sample': _sample_to_dict(dup.sample),
+            'alignment': dup.alignment,
+            'copy_number': dup.copy_number,
+        })
 
     return ret

@@ -9,11 +9,13 @@ from sldb.common.models import *
 import sldb.util.funcs as funcs
 import sldb.util.lookups as lookups
 
-def _get_from_meta(meta, sample_name, key):
+def _get_from_meta(meta, sample_name, key, require):
     if sample_name in meta:
         return meta[sample_name][key]
     if key in meta['all']:
         return meta['all'][key]
+    if require:
+        raise 'Unknown key {} for sample {}'.format(key, sample_name)
     return None
 
 
@@ -89,7 +91,7 @@ def _identify_reads(session, meta, fn, name, alignment):
             setattr(sample, key, _get_from_meta(meta, name, key))
         subject, new = funcs.get_or_create(session, Subject, study=study,
                                            identifier=_get_from_meta(meta,
-                                           name, 'subject'))
+                                           name, 'subject', True))
         sample.subject = subject
         session.commit()
     else:

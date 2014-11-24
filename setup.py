@@ -26,6 +26,7 @@ setup(name='SLDB',
       ],
       install_requires=[
           'sarge', 
+          'gevent', 
           'sqlalchemy>=0.9.8',
           'biopython',
           'bottle',

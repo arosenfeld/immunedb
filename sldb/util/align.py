@@ -14,16 +14,20 @@ def _normalize_names(fn, fn_new):
                 fh_new.write('{}\n'.format(l))
 
 
-def _handle_read(base_path, base_name, read, new_path):
-    _run('gzip -k -d {}/{}_{}_001.trim.fasta.gz'.format(base_path, base_name, 
-                                                     read))
+def _handle_read(base_path, base_name, read, new_path, ext='.trim.fasta'):
+    _run('gzip -k -d {}/{}_{}_001{}.gz'.format(base_path, base_name, 
+                                                     read, ext))
     _normalize_names(
-        '{}/{}_{}_001.trim.fasta'.format(base_path, base_name, read),
-        '{}/{}_{}_001.sync.fasta'.format(new_path, base_name, read))
+        '{}/{}_{}_001{}'.format(base_path, base_name, read, ext),
+        '{}/{}_{}_001.sync{}'.format(new_path, base_name, read, ext))
 
 def run_align(args):
     print 'Starting alignment'
+    ext = args.ext
     for study in os.listdir(args.base_dir):
+        if args.studies is not None and study not in args.studies:
+            print 'SKIPPING {}'.format(study)
+            continue
         print '\tIn study {}'.format(study)
         for date in os.listdir('/'.join([args.base_dir, study])):
             print '\t\t{}'.format(date)
@@ -45,22 +49,22 @@ def run_align(args):
                     pass
 
                 print '\t\t\t{}'.format(base_name)
-                _handle_read(base_path, base_name, 'R1', new_path)
+                _handle_read(base_path, base_name, 'R1', new_path, ext)
                 if not os.path.isfile(
-                    '{}/{}_{}_001.trim.fasta.gz'.format(base_path, base_name, 'R2')):
+                    '{}/{}_{}_001{}.gz'.format(base_path, base_name, 'R2', ext)):
                     print '\t\t\t\tCan\'t find R2.  Using R1 alone.'
                     continue
                 else:
-                    _handle_read(base_path, base_name, 'R2', new_path)
+                    _handle_read(base_path, base_name, 'R2', new_path, ext)
 
                 try:
-                    os.remove('{}/{}_{}_001.trim.fasta'.format(base_path,
-                              base_name, 'R1'))
-                    os.remove('{}/{}_{}_001.trim.fasta'.format(base_path,
-                              base_name, 'R2'))
+                    os.remove('{}/{}_{}_001{}'.format(base_path,
+                              base_name, 'R1', ext))
+                    os.remove('{}/{}_{}_001'.format(base_path,
+                              base_name, 'R2', ext))
                 except:
                     pass
-                _run(('AssemblePairs.py align -1 {0}/{1}_R1_001.sync.fasta '
-                       '-2 {0}/{1}_R2_001.sync.fasta '
+                print _run(('AssemblePairs.py align -1 {0}/{1}_R1_001.sync{3} '
+                       '-2 {0}/{1}_R2_001.sync{3} --fasta '
                        '--rc tail --log {2}/{1}.log --outdir {2} --nproc '
-                       '4').format(new_path, base_name, presto_path))
+                       '4').format(new_path, base_name, presto_path, ext))
