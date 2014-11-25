@@ -116,7 +116,7 @@ def _identify_reads(session, meta, fn, name, alignment):
             session.commit()
         vdj = VDJSequence(record.description, record.seq)
         if vdj.j_gene is not None and vdj.v_gene is not None and \
-                len(vdj.cdr3) >= 3:
+                3 <= len(vdj.cdr3) < 100:
             lengths_sum += vdj.v_anchor_pos
             mutations_sum += vdj.mutation_fraction
             vdjs.append(vdj)
