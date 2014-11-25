@@ -1,3 +1,5 @@
+import hashlib
+
 def get_or_create(session, model, **kwargs):
     """Gets or creates a record based on some kwargs search parameters"""
     instance = session.query(model).filter_by(**kwargs).first()
@@ -24,3 +26,7 @@ def page_query(q, per=10000, updating=False):
         offset += per
         if not r:
             break
+
+def hash(seq_id, sample_id, sequence):
+    return hashlib.sha1('{}{}{}'.format(
+        seq_id, sample_id, sequence)).hexdigest()

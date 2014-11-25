@@ -27,6 +27,7 @@ def _create_mapping(session, identity_seq_id, alignment, sample, vdj):
                 alignment=alignment,
                 v_match=vdj.v_match,
                 v_length=vdj.v_length,
+                v_gapped_length=vdj.v_gapped_length,
                 j_match=vdj.j_match,
                 j_length=vdj.j_length,
 
@@ -39,7 +40,7 @@ def _create_mapping(session, identity_seq_id, alignment, sample, vdj):
 
 
 def _add_to_db(session, alignment, sample, vdj):
-    assert alignment in ['R1', 'R2', 'Joined']
+    assert alignment in ['R1', 'R2', 'pRESTO']
     # Check if a sequence with the exact same filled sequence exists
     m = session.query(Sequence).filter(
         Sequence.sequence_replaced == str(vdj.sequence_filled)).first()
@@ -59,8 +60,8 @@ def _add_to_db(session, alignment, sample, vdj):
         # If there is an identical sequence, check if its appeared in this
         # sample.
         existing = session.query(SequenceMapping).filter(
-            SequenceMapping.identity_seq_id == m.seq_id,
-            SequenceMapping.sample == sample).first()
+            SequenceMapping.unique_id ==
+                funcs.hash(m.seq_id, sample.id, vdj.sequence)).first()
 
         if existing is not None:
             # If so, bump the copy number and insert the duplicate sequence
@@ -171,7 +172,7 @@ def run_identify(session, args):
                 print 'Skipping {} since no presto log exists.'.format(name)
                 continue
             _identify_reads(session, metadata, 
-                            join, base.rsplit('/', 1)[1], 'Joined')
+                            join, base.rsplit('/', 1)[1], 'pRESTO')
             _identify_reads(session, metadata, 
                             r1, base.rsplit('/', 1)[1], 'R1')
 

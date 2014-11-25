@@ -106,6 +106,7 @@ class VDJSequence(object):
     def j_length(self):
         return self._j_length
 
+
     @property
     def j_match(self):
         return self._j_match
@@ -113,6 +114,11 @@ class VDJSequence(object):
     @property
     def v_length(self):
         return self._v_length
+
+    @property
+    def v_gapped_length(self):
+        return self.j_length +\
+            self.sequence_filled[:self.CDR3_OFFSET].count('-')
 
     @property
     def v_match(self):
@@ -154,14 +160,14 @@ class VDJSequence(object):
             # Make sure yz in ['YY', 'YC', 'YH']
             if str(dc_seq.translate()[-2:]) in anchors.dc_final_aas:
                 self._v_anchor = dc_seq
-                self._v_anchor_pos = dc.end() - 2
+                self._v_anchor_pos = dc.end() - 3
                 return
 
         # If DxxyzC isn't found, try to find 'YYC', 'YCC', or 'YHC'
         yxc = self._find_yxc()
         if yxc is not None:
             self._v_anchor = Seq(yxc.group(0))
-            self._v_anchor_pos = yxc.end() - 2
+            self._v_anchor_pos = yxc.end() - 3
 
     def _find_v(self):
         '''Finds the V gene closest to that of the sequence'''
@@ -176,10 +182,17 @@ class VDJSequence(object):
             # Get the last occurrence of 'TGT', the germline anchor
             germ_pos = germ.rfind(anchors.germline_anchor)
             # Align and cut the germline to match the sequence
-            v_seq = germ[germ_pos - self.v_anchor_pos + 1:germ_pos + 1]
-            s_seq = self.sequence[self.v_anchor_pos - len(v_seq):self.v_anchor_pos]
+            diff = abs(germ_pos - self.v_anchor_pos)
+            v_seq = germ[0:germ_pos]
+            s_seq = self.sequence[0:self.v_anchor_pos]
+            if germ_pos > self.v_anchor_pos:
+                v_seq = v_seq[diff:germ_pos]
+            else:
+                s_seq = s_seq[diff:self.v_anchor_pos]
+
             if len(v_seq) == 0:
                 continue
+
             # Determine the distance between the germline and sequence
             dist = distance.hamming(str(v_seq), str(s_seq))
             # Record this germline if it is has the lowest distance
@@ -197,7 +210,7 @@ class VDJSequence(object):
         # TODO: is this padding correct for multiple v_bests
         # Determine pad length of the sequence to
         pad_len = germlines.v[v_best[0]].replace('-', '').rfind(
-            anchors.germline_anchor) - self.v_anchor_pos + 1
+            anchors.germline_anchor) - self.v_anchor_pos
         self._germline = germlines.v[sorted(self._v)[0]][:self.CDR3_OFFSET]
         if pad_len >= 0:
             self._seq = 'N' * pad_len + str(self._seq)

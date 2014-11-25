@@ -2,8 +2,10 @@ from sqlalchemy import Column, Boolean, Integer, String, Text, Date, \
     ForeignKey, UniqueConstraint, Index, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm.interfaces import MapperExtension
 from sqlalchemy.dialects.mysql import TEXT, MEDIUMTEXT
 
+import sldb.util.funcs as funcs
 from sldb.common.settings import DATABASE_SETTINGS
 
 assert DATABASE_SETTINGS['master_metadata'] is not None, ('Must specify master '
@@ -185,11 +187,20 @@ class Sequence(BaseData):
     germline = Column(String(length=1024))
 
 
+class SHAExtension(MapperExtension):
+    def before_insert(self, mapper, connection, instance):
+        instance.unique_id = funcs.hash(instance.identity_seq_id,
+                                        instance.sample_id,
+                                        instance.sequence)
+
+
 class SequenceMapping(BaseData):
     __tablename__ = 'sequence_mapping'
-    __table_args__ = (UniqueConstraint('identity_seq_id', 'sample_id'),
-                      {'mysql_engine': 'TokuDB'})
+    __table_args__ = ({'mysql_engine': 'TokuDB'})
+    __mapper_args__ = {'extension': SHAExtension()}
 
+    # Key on identity_seq_id, sample, and sequence
+    unique_id = Column(String(40), unique=True)
     identity_seq_id = Column(String(128), ForeignKey(Sequence.seq_id),
                              primary_key=True)
     identity_seq = relationship(Sequence, backref=backref('mapping'))
@@ -205,12 +216,14 @@ class SequenceMapping(BaseData):
     j_match = Column(Integer)
     j_length = Column(Integer)
 
+    v_gapped_length = Column(Integer)
+
     in_frame = Column(Boolean)
     functional = Column(Boolean, index=True)
     stop = Column(Boolean)
     copy_number = Column(Integer, index=True)
 
-    sequence = Column(String(length=1024))
+    sequence = Column(String(length=1024), index=True)
 
     clone_id = Column(Integer, ForeignKey(Clone.id), index=True)
     clone = relationship(Clone, backref=backref('sequences',

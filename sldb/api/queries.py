@@ -378,6 +378,11 @@ def get_sequence(session, sample_id, seq_id):
     else:
         ret['clone'] = _clone_to_dict(seq.clone)
 
+
+    muts = Mutations(seq.identity_seq.germline,
+                     len(seq.identity_seq.junction_nt))
+    ret['mutations'] = muts.add_sequence(seq.sequence)
+
     ret['duplicates'] = []
     for dup in session.query(SequenceMapping).filter(
             SequenceMapping.identity_seq_id == seq.identity_seq_id,
@@ -405,7 +410,7 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
 
     if filters is not None:
         for key, value in filters.iteritems():
-            if value is None:
+            if value in [None, True, False]:
                 continue
             value = str(value).strip()
             if len(value) > 0 and value is not None:
@@ -416,6 +421,10 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
                 query = query.filter(get_field(key).like(value.replace('*', '%')))
 
 
+    if filters is None or 'show_r1' not in filters or not filters['show_r1']:
+        query = query.filter(SequenceMapping.alignment == 'pRESTO')
+
+
     if paging is not None:
         page, per_page = paging
         query = query.offset((page - 1) * per_page).limit(per_page)
@@ -423,8 +432,11 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
     for row in query:
         fields = _fields_to_dict(
             ['seq_id', 'alignment', 'v_match', 'j_match', 'v_length',
-             'j_length', 'in_frame', 'functional', 'stop', 
-             'copy_number'], row)
+             'j_length', 'in_frame', 'functional', 'stop'], row)
+
+        fields['copy_number'] = int(session.query(
+            func.sum(SequenceMapping.copy_number)).filter(
+                SequenceMapping.unique_id == row.unique_id).scalar())
         fields = dict(fields.items() + _fields_to_dict(['v_call', 'j_call',
             'junction_aa'], row.identity_seq).items())
 
