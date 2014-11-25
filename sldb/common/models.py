@@ -146,7 +146,7 @@ class CloneGroup(BaseMaster):
 class Clone(BaseData):
     """A group of sequences likely originating from the same germline"""
     __tablename__ = 'clones'
-    __table_args__ = (Index('v_gene', 'j_gene', 'cdr3_num_nts', 'subject_id'),
+    __table_args__ = (Index('bucket', 'v_gene', 'j_gene', 'cdr3_num_nts', 'subject_id'),
                       {'mysql_engine': 'TokuDB'})
 
     id = Column(Integer, primary_key=True)
@@ -169,13 +169,13 @@ class Clone(BaseData):
 class Sequence(BaseData):
     """Represents a single unique sequence."""
     __tablename__ = 'sequences'
-    __table_args__ = (Index('v_call', 'j_call',),
+    __table_args__ = (Index('call', 'v_call', 'j_call',),
                       {'mysql_engine': 'TokuDB'})
 
     seq_id = Column(String(length=128), primary_key=True)
 
-    v_call = Column(String(512), index=True)
-    j_call = Column(String(512), index=True)
+    v_call = Column(String(512))
+    j_call = Column(String(512))
 
     junction_nt = Column(String(512))
     junction_aa = Column(String(512))
@@ -233,27 +233,6 @@ class DuplicateSequence(BaseData):
 
     # The ID of the sequence
     seq_id = Column(String(length=128), primary_key=True)
-
-
-class CloneFrequency(BaseData):
-    """Frequency statistics for a clone with different filters."""
-    __tablename__ = 'clone_frequencies'
-    __table_args__ = {'mysql_engine': 'TokuDB'}
-
-    sample_id = Column(Integer, ForeignKey(Sample.id),
-                       primary_key=True)
-    sample = relationship(Sample, backref=backref('clone_frequencies',
-                          order_by=sample_id))
-
-    clone_id = Column(Integer, ForeignKey(Clone.id),
-                        primary_key=True)
-    clone = relationship(Clone, backref=backref('clone_frequencies',
-                         order_by=sample_id))
-
-    filter_type = Column(String(length=255), primary_key=True)
-
-    unique_sequences = Column(Integer)
-    total_sequences = Column(Integer)
 
 
 class NoResult(BaseData):

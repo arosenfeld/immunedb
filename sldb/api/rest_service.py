@@ -51,6 +51,19 @@ def _split(ids, delim=','):
     return map(int, ids.split(delim))
 
 
+@route('/api/sequences/')
+def sequences():
+    """Gets a list of all sequences"""
+    session = scoped_session(session_factory)()
+    sequences = queries.get_all_sequences(
+        session, 
+        _get_arg('filter'),
+        _get_arg('order_field', False) or 'seq_id',
+        _get_arg('order_dir', False) or 'desc',
+        _get_paging())
+    session.close()
+    return json.dumps({'sequences': sequences})
+
 @route('/api/sequence/<sample_id>/<seq_id>')
 def sequence(sample_id, seq_id):
     session = scoped_session(session_factory)()
@@ -128,7 +141,8 @@ def clone_overlap(filter_type, samples=None, subject=None):
         cids = queries.get_clones_in_subject(session, subject)
 
     clones = queries.get_clone_overlap(
-        session, filter_type, cids, _split(samples), _get_paging())
+        session, filter_type, cids, 
+        None if samples is None else _split(samples), _get_paging())
     session.close()
     return json.dumps({'clones': clones})
 

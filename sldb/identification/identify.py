@@ -10,7 +10,7 @@ import sldb.util.funcs as funcs
 import sldb.util.lookups as lookups
 
 def _get_from_meta(meta, sample_name, key, require):
-    if sample_name in meta:
+    if sample_name in meta and key in meta[sample_name]:
         return meta[sample_name][key]
     if key in meta['all']:
         return meta['all'][key]
@@ -88,7 +88,7 @@ def _identify_reads(session, meta, fn, name, alignment):
         print '\tCreated new sample "{}" in MASTER'.format(sample.name)
         for key in ['date', 'subset', 'tissue', 'disease', 'lab',
                 'experimenter']:
-            setattr(sample, key, _get_from_meta(meta, name, key))
+            setattr(sample, key, _get_from_meta(meta, name, key, False))
         subject, new = funcs.get_or_create(session, Subject, study=study,
                                            identifier=_get_from_meta(meta,
                                            name, 'subject', True))

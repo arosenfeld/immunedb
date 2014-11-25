@@ -34,7 +34,7 @@ def _get_subject_clones(session, subject_id, min_similarity, per_commit):
     for i, seq in enumerate(session.query(SequenceMapping).filter(
                 SequenceMapping.sample_id.in_(samples),
                 SequenceMapping.clone_id.is_(None),
-                SequenceMapping.copy_number > 1).limit(1000)):
+                SequenceMapping.copy_number > 1)):
         if i > 0 and i % per_commit == 0:
             session.commit()
             print 'Committed {} (new clones={})'.format(i, new_clones)

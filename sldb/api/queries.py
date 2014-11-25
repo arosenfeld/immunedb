@@ -8,6 +8,7 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 
 import sldb.util.lookups as lookups
 from sldb.common.models import *
+from sldb.identification.vdj_sequence import VDJSequence
 from sldb.common.mutations import MutationType, Mutations
 
 
@@ -32,7 +33,8 @@ def _subject_to_dict(subject):
             'id': subject.study.id,
             'name': subject.study.name
         },
-        'identifier': subject.identifier
+        'identifier': subject.identifier,
+        'id': subject.id
     }
 
 def _sample_to_dict(sample):
@@ -47,27 +49,32 @@ def _sample_to_dict(sample):
 def _clone_to_dict(clone):
     d = _fields_to_dict(['id', 'cdr3_nt'], clone)
     d['group'] = {
-        'subject': _subject_to_dict(clone.group.subject),
+        'id': clone.group.id,
         'v_gene': clone.group.v_gene,
         'j_gene': clone.group.j_gene,
         'cdr3_aa': clone.group.cdr3_aa,
         'cdr3_num_nts': clone.group.cdr3_num_nts,
-        'germline': clone.group.germline,
+        'subject': _subject_to_dict(clone.group.subject),
     }
+    d['germline'] = clone.group.germline[0:VDJSequence.CDR3_OFFSET] + \
+        clone.cdr3_nt + clone.group.germline[VDJSequence.CDR3_OFFSET + \
+        clone.group.cdr3_num_nts:]
     return d
 
 
 def get_all_studies(session):
     result = {}
     for sample in session.query(Sample).order_by(Sample.date):
-        if sample.study.id not in result:
-            result[sample.study.id] = {
-                'id': sample.study.id,
-                'name': sample.study.name,
-                'info': sample.study.info,
-                'samples': []
-            }
-        result[sample.study.id]['samples'].append(_sample_to_dict(sample))
+        if session.query(SequenceMapping).filter(SequenceMapping.sample == \
+            sample).first() is not None:
+            if sample.study.id not in result:
+                result[sample.study.id] = {
+                    'id': sample.study.id,
+                    'name': sample.study.name,
+                    'info': sample.study.info,
+                    'samples': []
+                }
+            result[sample.study.id]['samples'].append(_sample_to_dict(sample))
 
     return result
 
@@ -128,9 +135,9 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
                     'total_sequences': int(stat.total)
                 })
 
-        clone_json = _clone_to_dict(stat.SequenceMapping.clone)
-        clone_json['stats'] = stats_comb
-        res.append(clone_json)
+        clone_dict = _clone_to_dict(stat.SequenceMapping.clone)
+        clone_dict['stats'] = stats_comb
+        res.append(clone_dict)
 
     return res
 
@@ -144,10 +151,8 @@ def compare_clones(session, uids):
         germline = clone.group.germline
         if clone_id not in clones:
             clone_muts[clone_id] = Mutations(germline, clone.cdr3_num_nts)
-            clone_json = _clone_to_dict(clone)
-            clone_json['germline'] = germline
             clones[clone_id] = {
-                'clone': clone_json,
+                'clone': _clone_to_dict(clone),
                 'mutation_stats': {},
                 'seqs': []
             }
@@ -233,10 +238,8 @@ def get_clones_in_samples(session, samples):
 
 def get_clones_in_subject(session, subject_id):
     return map(lambda e: e.id,
-               session.query(
-                   distinct(SequenceMapping.clone_id).label('id'))\
-                .join(Sample)\
-                .filter(Sample.subject_id == subject_id))
+               session.query(Clone)\
+                .filter(Clone.subject_id == subject_id))
 
 
 def get_v_usage(session, filter_type, samples):
@@ -315,7 +318,7 @@ def get_subject(session, sid):
             'name': s.study.name,
         },
         'samples': samples,
-        'unique_seqs': session.query(func.count(SequenceMapping))\
+        'unique_seqs': session.query(func.count(SequenceMapping.seq_id))\
             .filter(SequenceMapping.sample.has(subject_id=sid)).scalar()
     }
 
@@ -388,3 +391,51 @@ def get_sequence(session, sample_id, seq_id):
         })
 
     return ret
+
+def get_all_sequences(session, filters, order_field, order_dir, paging=None):
+    """Gets a list of all clones"""
+    def get_field(key):
+        tbls = [SequenceMapping, Sequence, Subject, Clone]
+        for t in tbls:
+            if hasattr(t, key):
+                return getattr(t, key)
+
+    res = []
+    query = session.query(SequenceMapping).join(Sequence).join(Sample).outerjoin(Clone)
+
+    if filters is not None:
+        for key, value in filters.iteritems():
+            if value is None:
+                continue
+            value = str(value).strip()
+            if len(value) > 0 and value is not None:
+                if key == 'min_cdr3_num_nts':
+                    query = query.filter(func.length(Sequence.junction_nt) >= int(value))
+                elif key == 'max_cdr3_num_nts':
+                    query = query.filter(func.length(Sequence.junction_nt) <= int(value))
+                query = query.filter(get_field(key).like(value.replace('*', '%')))
+
+
+    if paging is not None:
+        page, per_page = paging
+        query = query.offset((page - 1) * per_page).limit(per_page)
+
+    for row in query:
+        fields = _fields_to_dict(
+            ['seq_id', 'alignment', 'v_match', 'j_match', 'v_length',
+             'j_length', 'in_frame', 'functional', 'stop', 
+             'copy_number'], row)
+        fields = dict(fields.items() + _fields_to_dict(['v_call', 'j_call',
+            'junction_aa'], row.identity_seq).items())
+
+        fields['sample'] = _sample_to_dict(row.sample)
+        fields['cdr3_length'] = len(row.identity_seq.junction_nt)
+        if row.clone is None:
+            fields['clone'] = None
+        else:
+            fields['clone'] = _clone_to_dict(row.clone)
+        res.append(fields)
+
+    return res
+
+
