@@ -136,13 +136,12 @@ def clone_overlap(filter_type, samples=None, subject=None):
     """Gets clonal overlap between samples"""
     session = scoped_session(session_factory)()
     if samples is not None:
-        cids = queries.get_clones_in_samples(session, _split(samples))
-    elif subject is not None:
-        cids = queries.get_clones_in_subject(session, subject)
+        sids = _split(samples)
+    ctype = 'samples' if samples is not None else 'subject'
 
     clones = queries.get_clone_overlap(
-        session, filter_type, cids, 
-        None if samples is None else _split(samples), _get_paging())
+        session, filter_type, ctype,
+        sids if samples is not None else subject, _get_paging())
     session.close()
     return json.dumps({'clones': clones})
 
@@ -206,13 +205,22 @@ def download_sequences(file_type, replace_germ, cid, params):
     sequences = []
     germline = None
     for clone_and_sample in params.split(','):
-        clone_id, sample = _split(clone_and_sample, '_')
+        if '_' in clone_and_sample:
+            clone_id, sample = _split(clone_and_sample, '_')
+        else:
+            clone_id = int(clone_and_sample)
+            sample = None
         if clone_id != cid:
             continue
-        fn += '_{}'.format(sample)
-        for s in session.query(Sequence)\
-            .filter(Sequence.sample_id == sample)\
-            .filter(Sequence.clone_id == cid):
+        if sample is not None:
+            fn += '_{}'.format(sample)
+        else:
+            fn += '_all'
+
+        query = session.query(SequenceMapping).filter(SequenceMapping.clone_id == cid)
+        if sample is not None:
+            query = query.filter(SequenceMapping.sample_id == sample)
+        for s in query:
             if germline is None:
                 germline = s.clone.group.germline
             sequences.append({

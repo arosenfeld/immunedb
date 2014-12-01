@@ -159,7 +159,7 @@ class Clone(BaseData):
     v_gene = Column(String(length=512))
     j_gene = Column(String(length=128))
     cdr3_num_nts = Column(Integer)
-    subject_id = Column(Integer, ForeignKey(Subject.id))
+    subject_id = Column(Integer, ForeignKey(Subject.id), index=True)
     #
 
     group_id = Column(Integer, ForeignKey(CloneGroup.id),

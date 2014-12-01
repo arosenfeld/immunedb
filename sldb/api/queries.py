@@ -95,6 +95,8 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
                     clone_q = clone_q.filter(Clone.cdr3_num_nts <= int(value))
                 elif key == 'id':
                     clone_q = clone_q.filter(Clone.id == int(value))
+                elif key == 'group_id':
+                    clone_q = clone_q.filter(Clone.group_id == int(value))
                 else:
                     clone_q = clone_q.filter(
                         getattr(Clone.group, key).like(value.replace('*', '%')))
@@ -171,6 +173,7 @@ def compare_clones(session, uids):
             else:
                 read_start = read_start.span()[1]
 
+            muts = mutations.add_sequence(mapping.identity_seq.sequence_replaced)
             clones[clone_id]['seqs'].append({
                 'seq_id': mapping.seq_id,
                 'sample': {
@@ -181,7 +184,7 @@ def compare_clones(session, uids):
                 'sequence': mapping.identity_seq.sequence_replaced,
                 'read_start': read_start,
                 'copy_number': mapping.copy_number,
-                'mutations': mutations.add_sequence(mapping.identity_seq.sequence_replaced),
+                'mutations': muts,
             })
 
         region_stats, pos_stats = mutations.get_aggregate()
@@ -191,7 +194,7 @@ def compare_clones(session, uids):
     return clones
 
 
-def get_clone_overlap(session, filter_type, cids, limit_sids=None,
+def get_clone_overlap(session, filter_type, ctype, limit,
                       paging=None):
     """Gets a list of clones and the samples in `samples` which they appear"""
     fltr = _clone_filters[filter_type]
@@ -201,13 +204,14 @@ def get_clone_overlap(session, filter_type, cids, limit_sids=None,
             func.group_concat(distinct(SequenceMapping.sample_id)).label('samples'),
             func.count(SequenceMapping.seq_id).label('unique'),
             func.sum(SequenceMapping.copy_number).label('total'))
-            .filter(SequenceMapping.clone_id.in_(cids))
             .join(Clone)
             .order_by(desc('total'))
             .group_by(SequenceMapping.clone_id))
 
-    if limit_sids is not None:
-        q = q.filter(SequenceMapping.sample_id.in_(limit_sids))
+    if ctype == 'samples':
+        q = q.filter(SequenceMapping.sample_id.in_(limit))
+    elif ctype == 'subject':
+        q = q.filter(SequenceMapping.sample.has(subject_id=limit))
 
     if paging is not None:
         page, per_page = paging
@@ -315,8 +319,6 @@ def get_subject(session, sid):
             'name': s.study.name,
         },
         'samples': samples,
-        'unique_seqs': session.query(func.count(SequenceMapping.seq_id))\
-            .filter(SequenceMapping.sample.has(subject_id=sid)).scalar()
     }
 
     return subject
@@ -417,7 +419,6 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
                     query = query.filter(func.length(Sequence.junction_nt) <= int(value))
                 else:
                     query = query.filter(get_field(key).like(value.replace('*', '%')))
-    print query
 
 
     if filters is None or 'show_r1' not in filters or not filters['show_r1']:

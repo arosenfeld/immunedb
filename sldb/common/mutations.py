@@ -64,7 +64,7 @@ class Mutations(object):
             if int_count:
                 rec[MutationType.get_readable(m)] = 0
             else:
-                rec[MutationType.get_readable(m)] = []
+                rec[MutationType.get_readable(m)] = {}
         return rec
 
     def _add_region_stat(self, i, seq):
@@ -79,8 +79,13 @@ class Mutations(object):
             mutation = (i, self.germline[i], seq[i],
                         self._get_aa_at(self.germline, i),
                         self._get_aa_at(seq, i))
-            self.region_stats[region][mtype].append(mutation)
-            self.region_stats['all'][mtype].append(mutation)
+            if mutation not in self.region_stats[region][mtype]:
+                self.region_stats[region][mtype][mutation] = 0
+            self.region_stats[region][mtype][mutation] += 1
+
+            if mutation not in self.region_stats['all'][mtype]:
+                self.region_stats['all'][mtype][mutation] = 0
+            self.region_stats['all'][mtype][mutation] += 1
 
     def _add_pos_stat(self, i, mtype, seq):
         """Adds mutations from `seq` at a given position to the position
@@ -88,7 +93,7 @@ class Mutations(object):
         mtype = self._get_mut_type(seq, i)
         if mtype not in (MutationType.MUT_NONE, MutationType.MUT_UNK):
             if i not in self.pos_stats:
-                self.pos_stats[i] = self._create_count_record(int_count=True)
+                self.pos_stats[i] = self._create_count_record(True)
             self.pos_stats[i][MutationType.get_readable(mtype)] += 1
 
     def _get_aa_at(self, seq, i):
@@ -128,9 +133,9 @@ class Mutations(object):
 
     def get_aggregate(self):
         """Aggregates all mutation information from added sequences"""
-        final_region_stats = {}
-        for r, regions in self.region_stats.iteritems():
-            final_region_stats[r] = {
+        region_stats = {}
+        for region, stats in self.region_stats.iteritems():
+            region_stats[region] = {
                 'counts': {
                     'unique': self._create_count_record(True),
                     'total': self._create_count_record(True)
@@ -138,38 +143,21 @@ class Mutations(object):
                 'mutations': {}
             }
 
-            for mtype, stats in regions.iteritems():
-                final_region_stats[r]['mutations'][mtype] = []
-                for mutation in stats:
-                    count = len(filter(lambda e: e == mutation, stats))
-                    mutation_type_cnts = \
-                        final_region_stats[r]['mutations'][mtype]
-                    changed_aa = self._get_aa_at(
-                        self._get_replacement(mutation[0], mutation[2]),
-                        mutation[0])
+            for mut_type, mutations in stats.iteritems():
+                region_stats[region]['counts']['total'][mut_type] = \
+                    sum(mutations.values())
+                region_stats[region]['counts']['unique'][mut_type] = \
+                    len(mutations)
 
-                    entry = {
+                region_stats[region]['mutations'][mut_type] = []
+                for mutation, count in mutations.iteritems():
+                    region_stats[region]['mutations'][mut_type].append({
                         'count': count,
                         'position': mutation[0],
                         'from': mutation[1],
                         'to': mutation[2],
                         'aa_from': mutation[3],
                         'aa_to': mutation[4],
-                    }
-                    if entry not in mutation_type_cnts:
-                        mutation_type_cnts.append(entry)
+                    })
 
-        for r, region in final_region_stats.iteritems():
-            for mtype, stats in region['mutations'].iteritems():
-                region['counts']['total'][mtype] = reduce(
-                    lambda a, b: a + b['count'],
-                    region['mutations'][mtype], 0)
-                region['counts']['unique'][mtype] = \
-                    len(region['mutations'][mtype])
-
-            region['counts']['total']['sum'] = \
-                sum(region['counts']['total'].values())
-            region['counts']['unique']['sum'] = \
-                sum(region['counts']['unique'].values())
-
-        return final_region_stats, self.pos_stats
+        return region_stats, self.pos_stats
