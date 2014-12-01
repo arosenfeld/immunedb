@@ -119,7 +119,7 @@ class Mutations(object):
     def add_sequence(self, seq):
         """Calculates all mutation information for a sequence"""
         mut_str = ''
-        for i in range(0, len(self.germline)):
+        for i in range(0, len(seq)):
             mut = self._get_mut_type(seq, i)
             mut_str += MutationType.get_symbol(mut)
             self._add_region_stat(i, seq)

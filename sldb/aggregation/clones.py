@@ -108,6 +108,7 @@ def _assign_clones_to_groups(session, subject_id, per_commit):
                 germlines.v[v][0:VDJSequence.CDR3_OFFSET],
                 '-' * clone.cdr3_num_nts,
                 germlines.j[clone.j_gene])
+            germline = germline[:len(seqs[0].identity_seq.sequence_replaced)]
 
             group = CloneGroup(subject_id=subject_id,
                                v_gene=clone.v_gene,
@@ -132,7 +133,7 @@ def run_clones(session, args):
         subjects = args.subjects
 
     for sid in subjects:
-        print 'Assigning clones to subject', sid
-        _get_subject_clones(session, sid, args.similarity / 100.0, args.commits)
+        #print 'Assigning clones to subject', sid
+        #_get_subject_clones(session, sid, args.similarity / 100.0, args.commits)
         print 'Assigning clones to groups'
         _assign_clones_to_groups(session, sid, args.commits)

@@ -81,11 +81,7 @@ def get_all_studies(session):
 def get_all_clones(session, filters, order_field, order_dir, paging=None):
     """Gets a list of all clones"""
     res = []
-    clone_q = session.query(SequenceMapping,
-            func.group_concat(distinct(SequenceMapping.sample_id)).label('samples'),
-            func.count(SequenceMapping.seq_id).label('unique'),
-            func.sum(SequenceMapping.copy_number).label('total'))\
-            .join(Clone)\
+    clone_q = session.query(Clone)
 
     if filters is not None:
         for key, value in filters.iteritems():
@@ -107,9 +103,8 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
         order_field = getattr(Clone, order_field)
     else:
         order_field = Clone.id
-    clone_q = clone_q.order_by(order_field)
+    #clone_q = clone_q.order_by(order_field)
 
-    clone_q = clone_q.group_by(SequenceMapping.clone_id)
     if paging is not None:
         page, per_page = paging
         clone_q = clone_q.offset((page - 1) * per_page).limit(per_page)
@@ -124,7 +119,10 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
         for stat in session.query(SequenceMapping,
                     func.count(SequenceMapping.identity_seq_id).label('unique'),
                     func.sum(SequenceMapping.copy_number).label('total'))\
-                    .filter(SequenceMapping.clone_id == c.SequenceMapping.clone.id)\
+                    .filter(SequenceMapping.clone_id == c.id)\
+                    .order_by(desc(
+                        func.count(
+                            SequenceMapping.identity_seq_id).label('unique')))\
                     .group_by(SequenceMapping.sample_id):
                 stats_comb.append({
                     'sample': {
@@ -134,8 +132,7 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
                     'unique_sequences': int(stat.unique),
                     'total_sequences': int(stat.total)
                 })
-
-        clone_dict = _clone_to_dict(stat.SequenceMapping.clone)
+        clone_dict = _clone_to_dict(c)
         clone_dict['stats'] = stats_comb
         res.append(clone_dict)
 
@@ -184,7 +181,7 @@ def compare_clones(session, uids):
                 'sequence': mapping.identity_seq.sequence_replaced,
                 'read_start': read_start,
                 'copy_number': mapping.copy_number,
-                'mutations': mutations.add_sequence(mapping.sequence),
+                'mutations': mutations.add_sequence(mapping.identity_seq.sequence_replaced),
             })
 
         region_stats, pos_stats = mutations.get_aggregate()
@@ -418,7 +415,9 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
                     query = query.filter(func.length(Sequence.junction_nt) >= int(value))
                 elif key == 'max_cdr3_num_nts':
                     query = query.filter(func.length(Sequence.junction_nt) <= int(value))
-                query = query.filter(get_field(key).like(value.replace('*', '%')))
+                else:
+                    query = query.filter(get_field(key).like(value.replace('*', '%')))
+    print query
 
 
     if filters is None or 'show_r1' not in filters or not filters['show_r1']:
