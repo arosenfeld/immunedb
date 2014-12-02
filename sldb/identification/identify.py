@@ -15,7 +15,7 @@ def _get_from_meta(meta, sample_name, key, require):
     if key in meta['all']:
         return meta['all'][key]
     if require:
-        raise 'Unknown key {} for sample {}'.format(key, sample_name)
+        raise Exception('Unknown key {} for sample {}'.format(key, sample_name))
     return None
 
 
