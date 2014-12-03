@@ -210,14 +210,15 @@ def get_clone_overlap(session, filter_type, ctype, limit,
             func.group_concat(distinct(SequenceMapping.sample_id)).label('samples'),
             func.count(SequenceMapping.seq_id).label('unique'),
             func.sum(SequenceMapping.copy_number).label('total'))
-            .join(Clone)
-            .order_by(desc('total'))
-            .group_by(SequenceMapping.clone_id))
+            .join(Clone))
 
     if ctype == 'samples':
         q = q.filter(SequenceMapping.sample_id.in_(limit))
     elif ctype == 'subject':
-        q = q.filter(SequenceMapping.sample.has(subject_id=limit))
+        q = q.join(Sample).filter(Sample.subject_id == limit)
+
+    
+    q = q.order_by(desc('total')).group_by(SequenceMapping.clone_id)
 
     if paging is not None:
         page, per_page = paging

@@ -1,4 +1,3 @@
-from gevent import monkey; monkey.patch_all()
 import argparse
 import json
 import math
