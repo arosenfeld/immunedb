@@ -156,40 +156,43 @@ def stats(samples):
 @route('/api/data/subject_clones/<filter_type>/<subject>')
 def download_clone_overlap(filter_type, samples=None, subject=None):
     """Downloads a CSV of the clonal overlap between samples"""
-    session = scoped_session(session_factory)()
-    sample_ids = _split(samples) if samples is not None else None
-    data = queries.get_clone_overlap(session, filter_type, sample_ids, subject)
-    session.close()
-
-    def _gen(data):
-        yield ','.join([
-            'clone_id', 'samples', 'total_sequences', 'unique_sequences',
-            'subject', 'v_gene', 'j_gene', 'cdr3_len', 'cdr3_aa', 'cdr3_nt']) + \
-            '\n'
-        for c in data:
-            yield ','.join(map(str, [c['clone']['id'],
-                            c['samples'].replace(',', ' '),
-                           c['total_sequences'],
-                           c['unique_sequences'],
-                           '{} ({})'.format(
-                               c['clone']['subject']['identifier'],
-                               c['clone']['subject']['study']['name']),
-                           c['clone']['v_gene'],
-                           c['clone']['j_gene'],
-                           c['clone']['cdr3_aa'],
-                           c['clone']['cdr3_nt']])) + '\n'
-
     if samples is not None:
+        ctype = 'samples'
+        limit = _split(samples) if samples is not None else None
         fn = 'overlap_{}_{}.csv'.format(
             filter_type,
             samples.replace(',', '-'))
     else:
+        ctype = 'subject'
+        limit = int(subject)
         fn = 'subject_{}_{}.csv'.format(
             filter_type,
             subject)
-    return Response(_gen(data), headers={
-        'Content-Disposition':
-        'attachment;filename={}'.format(fn)})
+
+    session = scoped_session(session_factory)()
+    data = queries.get_clone_overlap(session, filter_type, ctype, limit)
+    session.close()
+
+
+    response.headers['Content-Disposition'] = \
+        'attachment;filename={}'.format(fn)
+    yield ','.join([
+        'clone_id', 'samples', 'total_sequences', 'unique_sequences',
+        'subject', 'v_gene', 'j_gene', 'cdr3_len', 'cdr3_aa', 'cdr3_nt']) + \
+        '\n'
+    for c in data:
+        yield ','.join(map(str, [c['clone']['id'],
+                        ' '.join(c['samples']),
+                       c['total_sequences'],
+                       c['unique_sequences'],
+                       '{} ({})'.format(
+                           c['clone']['group']['subject']['identifier'],
+                           c['clone']['group']['subject']['study']['name']),
+                       c['clone']['group']['v_gene'],
+                       c['clone']['group']['j_gene'],
+                       c['clone']['group']['cdr3_aa'],
+                       c['clone']['cdr3_nt']])) + '\n'
+
 
 
 @route(
@@ -237,8 +240,8 @@ def download_sequences(file_type, replace_germ, cid, params):
                     seq['sample_name'],
                     seq['seq_id'],
                     seq['sequence'])
-    response.set_header('Content-Disposition',
-                        'attachment;filename={}.fasta'.format(fn))
+    response.headers['Content-Disposition'] = \
+        'attachment;filename={}.fasta'.format(fn)
     return _gen(sequences)
 
 
@@ -283,11 +286,11 @@ def download_v_usage(filter_type, samples):
                 row.append(0)
         ret += ','.join(map(str, row)) + '\n'
 
-    return Response(ret, headers={
-        'Content-Disposition':
+    response.headers['Content-Disposition'] = \
         'attachment;filename=v_usage-{}_{}.csv'.format(
             filter_type,
-            samples.replace(',', '-'))})
+            samples.replace(',', '-'))
+    return ret
 
 
 def run_rest_service(session_maker, args):

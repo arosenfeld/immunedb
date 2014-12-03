@@ -124,19 +124,19 @@ def _process_filter(session, sample_id, filter_type, filter_func,
     if q is None:
         stat.sequence_cnt = 0
     else:
-        stat.sequence_cnt = q.copy_number if use_copy else q.unique
+        stat.sequence_cnt = q.unique
 
     q = base_query().filter(SequenceMapping.in_frame == 1).first()
     if q is None:
         stat.in_frame_cnt = 0
     else:
-        stat.in_frame_cnt = q.copy_number if use_copy else q.unique
+        stat.in_frame_cnt = q.unique
 
     q = base_query().filter(SequenceMapping.stop == 1).first()
     if q is None:
         stat.stop_cnt = 0
     else:
-        stat.stop_cnt = q.copy_number if use_copy else q.unique
+        stat.stop_cnt = q.unique
 
     for dist in _dist_fields:
         dist_val = _get_distribution(
