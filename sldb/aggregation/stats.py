@@ -196,12 +196,12 @@ def _process_sample(session, sample_id, force):
 
 
     sample = session.query(Sample).filter(Sample.id == sample_id).first()
-    sample.valid_cnt = session.query(func.count(SequenceMapping))\
+    sample.valid_cnt = session.query(func.count(SequenceMapping.seq_id))\
         .filter(SequenceMapping.sample_id == sample_id).scalar()
-    sample.functional_cnt = session.query(func.count(SequenceMapping))\
+    sample.functional_cnt = session.query(func.count(SequenceMapping.seq_id))\
         .filter(SequenceMapping.sample_id == sample_id,
                 SequenceMapping.functional == 1).scalar()
-    sample.no_result_cnt = session.query(func.count(NoResult))\
+    sample.no_result_cnt = session.query(func.count(NoResult.seq_id))\
         .filter(NoResult.sample_id == sample_id).scalar()
     session.commit()
 

@@ -13,7 +13,7 @@ def _create_engine(config_path):
     with open(config_path) as fh:
         data = json.load(fh)
 
-    con_str = ('mysql://{}:{}@{}/{}?charset=utf8&use_unicode=0').format(
+    con_str = ('mysql+pymysql://{}:{}@{}/{}?charset=utf8&use_unicode=0').format(
         data['username'], data['password'],
         data['host'], data['database'])
     engine = create_engine(con_str)

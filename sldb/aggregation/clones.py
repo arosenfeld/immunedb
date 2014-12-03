@@ -133,7 +133,7 @@ def run_clones(session, args):
         subjects = args.subjects
 
     for sid in subjects:
-        #print 'Assigning clones to subject', sid
-        #_get_subject_clones(session, sid, args.similarity / 100.0, args.commits)
+        print 'Assigning clones to subject', sid
+        _get_subject_clones(session, sid, args.similarity / 100.0, args.commits)
         print 'Assigning clones to groups'
         _assign_clones_to_groups(session, sid, args.commits)

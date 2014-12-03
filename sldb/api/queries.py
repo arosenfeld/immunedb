@@ -2,6 +2,8 @@ import datetime
 import json
 import math
 import re
+import numpy as np
+
 from sqlalchemy import desc, inspect, distinct
 from sqlalchemy.sql import func
 from sqlalchemy.ext.declarative import DeclarativeMeta
@@ -98,8 +100,12 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
                 elif key == 'group_id':
                     clone_q = clone_q.filter(Clone.group_id == int(value))
                 else:
+                    if hasattr(Clone, key):
+                        c = Clone
+                    else:
+                        c = Clone.group
                     clone_q = clone_q.filter(
-                        getattr(Clone.group, key).like(value.replace('*', '%')))
+                        getattr(c, key).like(value.replace('*', '%')))
 
     if order_field is not None:
         order_field = getattr(Clone, order_field)
@@ -327,22 +333,36 @@ def get_subject(session, sid):
 def get_stats(session, samples):
     counts = {}
     stats = {}
+    dist_fields = [
+        'v_match_dist', 'v_length_dist', 'j_match_dist',
+        'j_length_dist', 'v_call_dist', 'j_call_dist',
+        'cdr3_length_dist']
+    cnt_fields = ['sequence_cnt',
+        'in_frame_cnt', 'stop_cnt']
     for stat in session.query(SampleStats).filter(
             SampleStats.sample_id.in_(samples)):
         if stat.sample_id not in stats:
             stats[stat.sample_id] = {
                 'sample': _sample_to_dict(stat.sample),
-                'filters': {}
+                'filters': {},
+                'outliers': {},
             }
         if stat.filter_type not in counts:
             counts[stat.filter_type] = 0
-        flds = _fields_to_dict([
-            'v_match_dist', 'v_length_dist', 'j_match_dist',
-            'j_length_dist', 'v_call_dist', 'j_call_dist',
-            'v_gap_length_dist', 'j_gap_length_dist',
-            'copy_number_iden_dist', 'cdr3_length_dist', 'sequence_cnt',
-            'in_frame_cnt', 'stop_cnt'], stat)
+
+        flds = _fields_to_dict(dist_fields + cnt_fields, stat)
         stats[stat.sample_id]['filters'][stat.filter_type] = flds
+        for dist in dist_fields:
+            points = json.loads(
+                stats[stat.sample_id]['filters'][stat.filter_type][dist])
+            q25, q75 = np.percentile(map(lambda e: e[1], points), [25, 75])
+            iqr = q75 - q25
+            if stat.filter_type not in stats[stat.sample_id]['outliers']:
+                stats[stat.sample_id]['outliers'][stat.filter_type] = {}
+            stats[stat.sample_id]['outliers'][stat.filter_type][dist] = {
+                'min': q25 - 1.5 * iqr,
+                'max': q75 + 1.5 * iqr,
+            }
         counts[stat.filter_type] += stat.sequence_cnt
 
     return {'counts': counts, 'stats': stats}
@@ -413,10 +433,9 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
                 continue
             value = str(value).strip()
             if len(value) > 0 and value is not None:
-                if key == 'min_cdr3_num_nts':
-                    query = query.filter(func.length(Sequence.junction_nt) >= int(value))
-                elif key == 'max_cdr3_num_nts':
-                    query = query.filter(func.length(Sequence.junction_nt) <= int(value))
+                if key == 'sample_id':
+                    query = query.filter(SequenceMapping.sample_id ==
+                                         int(value))
                 else:
                     query = query.filter(get_field(key).like(value.replace('*', '%')))
 
