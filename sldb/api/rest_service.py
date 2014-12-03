@@ -228,7 +228,7 @@ def download_sequences(file_type, replace_germ, cid, params):
             sequences.append({
                 'sample_name': s.sample.name,
                 'seq_id': s.seq_id,
-                'sequence': s.sequence_replaced if replace_germ else s.sequence
+                'sequence': s.identity_seq.sequence_replaced if replace_germ else s.sequence
             })
     session.close()
 

@@ -356,14 +356,15 @@ def get_stats(session, samples):
         for dist in dist_fields:
             points = json.loads(
                 stats[stat.sample_id]['filters'][stat.filter_type][dist])
-            q25, q75 = np.percentile(map(lambda e: e[1], points), [25, 75])
-            iqr = q75 - q25
             if stat.filter_type not in stats[stat.sample_id]['outliers']:
                 stats[stat.sample_id]['outliers'][stat.filter_type] = {}
-            stats[stat.sample_id]['outliers'][stat.filter_type][dist] = {
-                'min': q25 - 1.5 * iqr,
-                'max': q75 + 1.5 * iqr,
-            }
+            if len(points) > 1:
+                q25, q75 = np.percentile(map(lambda e: e[1], points), [25, 75])
+                iqr = q75 - q25
+                stats[stat.sample_id]['outliers'][stat.filter_type][dist] = {
+                    'min': q25 - 1.5 * iqr,
+                    'max': q75 + 1.5 * iqr,
+                }
         counts[stat.filter_type] += stat.sequence_cnt
 
     return {'counts': counts, 'stats': stats}
