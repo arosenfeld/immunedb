@@ -155,7 +155,7 @@ def compare_clones(session, uids):
         clone = session.query(Clone).filter(Clone.id == clone_id).first()
         germline = clone.group.germline
         if clone_id not in clones:
-            clone_muts[clone_id] = Mutations(germline, clone.cdr3_num_nts)
+            clone_muts[clone_id] = Mutations(germline, clone.cdr3_nt)
             clones[clone_id] = {
                 'clone': _clone_to_dict(clone),
                 'mutation_stats': {},

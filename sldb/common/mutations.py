@@ -28,15 +28,15 @@ class MutationType(object):
 
 class Mutations(object):
     """Keeps track of mutations for a given germline"""
-    def __init__(self, germline, cdr3_num_nts):
+    def __init__(self, germline, cdr3_nts):
         """Initializes the mutation statistics with a given germline & CDR3
         length."""
-        self.germline = germline
         self.region_stats = {}
         for region in ['all', 'CDR1', 'CDR2', 'CDR3', 'FR1', 'FR2', 'FR3']:
             self.region_stats[region] = self._create_count_record()
         self.pos_stats = {}
-        self.cdr3_num_nts = cdr3_num_nts
+        self.cdr3_nts = cdr3_nts
+        self.germline = germline[:309] + cdr3_nts + germline[309+len(cdr3_nts):]
 
     def _get_region(self, index):
         """Determines the gene region from an offset index"""
@@ -50,7 +50,7 @@ class Mutations(object):
             return 'CDR2'
         elif index <= 308:
             return 'FR3'
-        elif index <= 308 + self.cdr3_num_nts:
+        elif index <= 308 + len(self.cdr3_nts):
             return 'CDR3'
         return 'FR4'
 
