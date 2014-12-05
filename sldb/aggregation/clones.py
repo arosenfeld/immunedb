@@ -11,6 +11,7 @@ import sldb.util.lookups as lookups
 from sldb.util.funcs import page_query
 from sldb.common.models import *
 
+
 def _consensus(strings):
     cons = []
     for chars in zip(*strings):
@@ -26,15 +27,16 @@ def _similar_to_all(seq, clone_query, min_similarity):
             return False
     return True
 
+
 def _get_subject_clones(session, subject_id, min_similarity, per_commit):
     clone_cache = {}
     new_clones = 0
     samples = map(lambda s: s.id, session.query(Sample).filter(
         Sample.subject_id == subject_id))
     for i, seq in enumerate(session.query(SequenceMapping).filter(
-                SequenceMapping.sample_id.in_(samples),
-                SequenceMapping.clone_id.is_(None),
-                SequenceMapping.copy_number > 1)):
+            SequenceMapping.sample_id.in_(samples),
+            SequenceMapping.clone_id.is_(None),
+            SequenceMapping.copy_number > 1)):
         if i > 0 and i % per_commit == 0:
             session.commit()
             print 'Committed {} (new clones={})'.format(i, new_clones)
@@ -43,7 +45,7 @@ def _get_subject_clones(session, subject_id, min_similarity, per_commit):
             continue
         seq_clone = None
         # Key for cache has implicit subject_id due to function parameter
-        key = (seq_iden.v_call, seq_iden.j_call, len(seq_iden.junction_nt), 
+        key = (seq_iden.v_call, seq_iden.j_call, len(seq_iden.junction_nt),
                seq_iden.junction_aa)
         if key in clone_cache:
             seq.clone = clone_cache[key]
@@ -55,18 +57,19 @@ def _get_subject_clones(session, subject_id, min_similarity, per_commit):
                         Clone.j_gene == seq_iden.j_call,
                         Clone.cdr3_num_nts == len(seq_iden.junction_nt)):
             seqs_in_clone = map(lambda s: s.identity_seq.junction_aa,
-                                session.query(SequenceMapping)\
-                                    .filter(SequenceMapping.clone == clone))
+                                session.query(SequenceMapping)
+                                .filter(SequenceMapping.clone == clone))
 
-            if _similar_to_all(seq_iden.junction_aa, seqs_in_clone, min_similarity):
+            if _similar_to_all(seq_iden.junction_aa, seqs_in_clone,
+                               min_similarity):
                 seq_clone = clone
                 break
 
         if seq_clone is None:
             new_clone = Clone(subject_id=subject_id,
-                                  v_gene=seq_iden.v_call,
-                                  j_gene=seq_iden.j_call,
-                                  cdr3_num_nts=len(seq_iden.junction_nt))
+                              v_gene=seq_iden.v_call,
+                              j_gene=seq_iden.j_call,
+                              cdr3_num_nts=len(seq_iden.junction_nt))
             new_clones += 1
             session.add(new_clone)
             session.flush()
@@ -84,13 +87,14 @@ def _get_subject_clones(session, subject_id, min_similarity, per_commit):
 
     session.commit()
 
+
 def _assign_clones_to_groups(session, subject_id, per_commit):
     for i, clone in enumerate(session.query(Clone).filter(
             Clone.subject_id == subject_id)):
         seqs = session.query(SequenceMapping).filter(
             SequenceMapping.clone_id == clone.id).all()
 
-        clone.cdr3_nt = _consensus(map(lambda e: 
+        clone.cdr3_nt = _consensus(map(lambda e:
                                    e.identity_seq.junction_nt, seqs))
         cdr3_aa = lookups.aas_from_nts(clone.cdr3_nt, '')
 
@@ -134,6 +138,7 @@ def run_clones(session, args):
 
     for sid in subjects:
         print 'Assigning clones to subject', sid
-        _get_subject_clones(session, sid, args.similarity / 100.0, args.commits)
+        _get_subject_clones(session, sid, args.similarity / 100.0,
+                            args.commits)
         print 'Assigning clones to groups'
         _assign_clones_to_groups(session, sid, args.commits)

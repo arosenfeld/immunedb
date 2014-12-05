@@ -20,8 +20,10 @@ class EnableCors(object):
         def _enable_cors(*args, **kwargs):
             response.headers['Access-Control-Allow-Origin'] = '*'
             response.headers['Access-Control-Allow-Methods'] = ('GET, POST')
-            response.headers['Access-Control-Allow-Headers'] = ('Origin,'
-                'Accept, Content-Type, X-Requested-With, X-CSRF-Token')
+            response.headers['Access-Control-Allow-Headers'] = (
+                'Origin, '
+                'Accept, Content-Type, '
+                'X-Requested-With, X-CSRF-Token')
 
             if bottle.request.method != 'OPTIONS':
                 return fn(*args, **kwargs)
@@ -55,13 +57,14 @@ def sequences():
     """Gets a list of all sequences"""
     session = scoped_session(session_factory)()
     sequences = queries.get_all_sequences(
-        session, 
+        session,
         _get_arg('filter'),
         _get_arg('order_field', False) or 'seq_id',
         _get_arg('order_dir', False) or 'desc',
         _get_paging())
     session.close()
     return json.dumps({'sequences': sequences})
+
 
 @route('/api/sequence/<sample_id>/<seq_id>')
 def sequence(sample_id, seq_id):
@@ -77,6 +80,7 @@ def studies():
     studies = queries.get_all_studies(session)
     session.close()
     return json.dumps({'studies': studies})
+
 
 @route('/api/subjects')
 def subjects():
@@ -100,7 +104,7 @@ def clones():
     """Gets a list of all clones"""
     session = scoped_session(session_factory)()
     clones = queries.get_all_clones(
-        session, 
+        session,
         _get_arg('filter'),
         _get_arg('order_field', False) or 'id',
         _get_arg('order_dir', False) or 'desc',
@@ -144,6 +148,7 @@ def clone_overlap(filter_type, samples=None, subject=None):
     session.close()
     return json.dumps({'clones': clones})
 
+
 @route('/api/stats/<samples>')
 def stats(samples):
     session = scoped_session(session_factory)()
@@ -173,26 +178,28 @@ def download_clone_overlap(filter_type, samples=None, subject=None):
     data = queries.get_clone_overlap(session, filter_type, ctype, limit)
     session.close()
 
-
     response.headers['Content-Disposition'] = \
         'attachment;filename={}'.format(fn)
     yield ','.join([
         'clone_id', 'samples', 'total_sequences', 'unique_sequences',
         'subject', 'v_gene', 'j_gene', 'cdr3_len', 'cdr3_aa', 'cdr3_nt']) + \
         '\n'
-    for c in data:
-        yield ','.join(map(str, [c['clone']['id'],
-                        ' '.join(c['samples']),
-                       c['total_sequences'],
-                       c['unique_sequences'],
-                       '{} ({})'.format(
-                           c['clone']['group']['subject']['identifier'],
-                           c['clone']['group']['subject']['study']['name']),
-                       c['clone']['group']['v_gene'],
-                       c['clone']['group']['j_gene'],
-                       c['clone']['group']['cdr3_aa'],
-                       c['clone']['cdr3_nt']])) + '\n'
 
+    for c in data:
+        fields = [
+            c['clone']['id'],
+            ' '.join(c['samples']),
+            c['total_sequences'],
+            c['unique_sequences'],
+            '{} ({})'.format(
+                c['clone']['group']['subject']['identifier'],
+                c['clone']['group']['subject']['study']['name']),
+            c['clone']['group']['v_gene'],
+            c['clone']['group']['j_gene'],
+            c['clone']['group']['cdr3_aa'],
+            c['clone']['cdr3_nt']]
+
+        yield ','.join(map(str, fields)) + '\n'
 
 
 @route(
@@ -219,7 +226,8 @@ def download_sequences(file_type, replace_germ, cid, params):
         else:
             fn += '_all'
 
-        query = session.query(SequenceMapping).filter(SequenceMapping.clone_id == cid)
+        query = session.query(SequenceMapping).filter(
+            SequenceMapping.clone_id == cid)
         if sample is not None:
             query = query.filter(SequenceMapping.sample_id == sample)
         for s in query:
@@ -228,7 +236,8 @@ def download_sequences(file_type, replace_germ, cid, params):
             sequences.append({
                 'sample_name': s.sample.name,
                 'seq_id': s.seq_id,
-                'sequence': s.identity_seq.sequence_replaced if replace_germ else s.sequence
+                'sequence': s.identity_seq.sequence_replaced
+                if replace_germ else s.sequence
             })
     session.close()
 

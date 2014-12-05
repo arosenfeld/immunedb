@@ -1,5 +1,6 @@
 import hashlib
 
+
 def get_or_create(session, model, **kwargs):
     """Gets or creates a record based on some kwargs search parameters"""
     instance = session.query(model).filter_by(**kwargs).first()
@@ -9,6 +10,7 @@ def get_or_create(session, model, **kwargs):
         instance = model(**kwargs)
         session.add(instance)
         return instance, True
+
 
 def page_query(q, per=10000, updating=False):
     """Pages a query in case it's too large for memory.  Extreme caution needs
@@ -21,11 +23,12 @@ def page_query(q, per=10000, updating=False):
         if not updating:
             q = q.offset(offset)
         for elem in q:
-           r = True
-           yield elem
+            r = True
+            yield elem
         offset += per
         if not r:
             break
+
 
 def hash(seq_id, sample_id, sequence):
     return hashlib.sha1('{}{}{}'.format(

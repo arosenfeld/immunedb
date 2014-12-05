@@ -43,12 +43,12 @@ def _collapse_null_branches(node):
     # parent's name is 'NoName', that way we avoid removing named, and
     # thus possibly informative, nodes.
     if (node.dist == 0 and hasattr(node.up, 'name') and
-        node.up.name == 'NoName'):
+            node.up.name == 'NoName'):
         parent = node.up
         grandparent = parent.up
         # node.detach()
         for child in [child for child in parent.get_children() if
-                child != node]:
+                      child != node]:
             # Remove all children except the node whose branch length is
             # 0.
             # Ensure that the non-zero distances are preserved.

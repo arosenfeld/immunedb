@@ -8,15 +8,16 @@ from sqlalchemy.dialects.mysql import TEXT, MEDIUMTEXT
 import sldb.util.funcs as funcs
 from sldb.common.settings import DATABASE_SETTINGS
 
-assert DATABASE_SETTINGS['master_metadata'] is not None, ('Must specify master '
-    'metadata')
-assert DATABASE_SETTINGS['data_metadata'] is not None, ('Must specify data '
-    'metadata')
+assert DATABASE_SETTINGS['master_metadata'] is not None, (
+    'Must specify master metadata')
+assert DATABASE_SETTINGS['data_metadata'] is not None, (
+    'Must specify data metadata')
 
 BaseMaster = declarative_base(
     metadata=DATABASE_SETTINGS['master_metadata'])
 BaseData = declarative_base(
     metadata=DATABASE_SETTINGS['data_metadata'])
+
 
 class Study(BaseMaster):
     """Represents a high-level study (e.g. Lupus)"""
@@ -148,7 +149,8 @@ class CloneGroup(BaseMaster):
 class Clone(BaseData):
     """A group of sequences likely originating from the same germline"""
     __tablename__ = 'clones'
-    __table_args__ = (Index('bucket', 'v_gene', 'j_gene', 'cdr3_num_nts', 'subject_id'),
+    __table_args__ = (Index('bucket', 'v_gene', 'j_gene',
+                            'cdr3_num_nts', 'subject_id'),
                       {'mysql_engine': 'TokuDB'})
 
     id = Column(Integer, primary_key=True)

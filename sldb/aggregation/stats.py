@@ -78,15 +78,15 @@ def _get_clone_distribution(session, sample_id, key, filter_func, avg):
     if isinstance(key, tuple):
         key = key[0]
     q = filter_func(session.query(SequenceMapping.identity_seq_id,
-            func.avg(key).label('key') if avg else key.label('key')))\
+                    func.avg(key).label('key') if avg else key.label('key')))\
         .filter(SequenceMapping.sample_id == sample_id)\
         .join(Sequence)\
         .group_by(SequenceMapping.clone_id)
-        
+
     for clone in q:
         key = float(clone.key) if avg else clone.key
         if key not in result:
-            result[key] =0
+            result[key] = 0
         result[key] += 1
     return result
 
@@ -96,13 +96,15 @@ def _get_distribution(session, sample_id, key, filter_func, use_copy):
     if isinstance(key, tuple):
         key = key[0]
     q = filter_func(session.query(SequenceMapping.identity_seq_id,
-            key.label('key'),
-            func.count(SequenceMapping.identity_seq_id).label('unique'),
-            func.sum(SequenceMapping.copy_number).label('copy_number'))
-        .filter(SequenceMapping.sample_id == sample_id))\
+                    key.label('key'),
+                    func.count(
+                        SequenceMapping.identity_seq_id).label('unique'),
+                    func.sum(
+                        SequenceMapping.copy_number).label('copy_number'))
+                    .filter(SequenceMapping.sample_id == sample_id))\
         .join(Sequence)\
         .group_by(key)
-        
+
     for row in q:
         result[row.key] = int(row.copy_number) if use_copy else \
             int(row.unique)
@@ -110,11 +112,11 @@ def _get_distribution(session, sample_id, key, filter_func, use_copy):
 
 
 def _process_filter(session, sample_id, filter_type, filter_func,
-        use_copy):
+                    use_copy):
     def base_query():
         return filter_func(session.query(
             func.count(SequenceMapping.seq_id).label('unique'),
-            func.sum(SequenceMapping.copy_number).label('copy_number'))\
+            func.sum(SequenceMapping.copy_number).label('copy_number'))
             .filter(SequenceMapping.sample_id == sample_id))
 
     stat = SampleStats(sample_id=sample_id,
@@ -150,6 +152,7 @@ def _process_filter(session, sample_id, filter_type, filter_func,
         setattr(stat, '{}_dist'.format(name), json.dumps(tuples))
     session.add(stat)
 
+
 def _process_clone_filter(session, sample_id, filter_type, filter_func):
     def base_query():
         return filter_func(session.query(
@@ -160,10 +163,10 @@ def _process_clone_filter(session, sample_id, filter_type, filter_func):
     stat = SampleStats(sample_id=sample_id,
                        filter_type=filter_type)
     stat.sequence_cnt = len(base_query().all())
-    stat.in_frame_cnt = len(base_query()\
-        .filter(SequenceMapping.in_frame == 1).all())
-    stat.stop_cnt = len(base_query()\
-        .filter(SequenceMapping.stop == 1).all())
+    stat.in_frame_cnt = len(base_query().filter(
+        SequenceMapping.in_frame == 1).all())
+    stat.stop_cnt = len(base_query().filter(
+        SequenceMapping.stop == 1).all())
 
     for dist in _dist_fields:
         avg = dist not in [Sequence.v_call, Sequence.j_call]
@@ -177,6 +180,7 @@ def _process_clone_filter(session, sample_id, filter_type, filter_func):
         tuples = [[k, v] for k, v in sorted(dist_val.iteritems())]
         setattr(stat, '{}_dist'.format(name), json.dumps(tuples))
     session.add(stat)
+
 
 def _process_sample(session, sample_id, force):
     print 'Processing sample {}'.format(sample_id)
@@ -193,7 +197,6 @@ def _process_sample(session, sample_id, force):
         print ('\tSKIPPING stats since they already exists.'
                '  Use the --force flag to force regeneration.')
         return
-
 
     sample = session.query(Sample).filter(Sample.id == sample_id).first()
     sample.valid_cnt = session.query(func.count(SequenceMapping.seq_id))\

@@ -14,7 +14,7 @@ class VDJSequence(object):
         self._id = id
         self._seq = seq
         self._seq_filled = None
-        
+
         self._j = None
         self._j_anchor_pos = None
         self._j_match = None
@@ -22,7 +22,7 @@ class VDJSequence(object):
         self._v = None
         self._v_anchor_pos = None
         self._v_match = None
-        
+
         self._mutation_frac = None
         self._germline = None
         self._cdr3_len = 0
@@ -62,7 +62,7 @@ class VDJSequence(object):
     @property
     def cdr3(self):
         return self.sequence[self.CDR3_OFFSET:
-            self.CDR3_OFFSET + self._cdr3_len]
+                             self.CDR3_OFFSET + self._cdr3_len]
 
     @property
     def sequence(self):
@@ -105,7 +105,6 @@ class VDJSequence(object):
     @property
     def j_length(self):
         return self._j_length
-
 
     @property
     def j_match(self):

@@ -13,7 +13,8 @@ def _create_engine(config_path):
     with open(config_path) as fh:
         data = json.load(fh)
 
-    con_str = ('mysql+pymysql://{}:{}@{}/{}?charset=utf8&use_unicode=0').format(
+    con_str = ('mysql+pymysql://{}:{}@{}/{}'
+               '?charset=utf8&use_unicode=0').format(
         data['username'], data['password'],
         data['host'], data['database'])
     engine = create_engine(con_str)
@@ -35,7 +36,7 @@ def init_db(master_db_config, data_db_config, as_maker=False):
     data_engine, data_name = _create_engine(data_db_config)
 
     DATABASE_SETTINGS['master_metadata'] = MetaData(schema=master_name)
-    DATABASE_SETTINGS['data_metadata']= MetaData(schema=data_name)
+    DATABASE_SETTINGS['data_metadata'] = MetaData(schema=data_name)
     from sldb.common.models import *
     BaseMaster.metadata.create_all(master_engine)
     BaseData.metadata.create_all(data_engine)

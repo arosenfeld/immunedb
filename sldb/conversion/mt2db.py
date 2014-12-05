@@ -93,14 +93,15 @@ def _add_mt(session, path, study_name, sample_name, interval):
     session.commit()
 
     sample, new = get_or_create(session, Sample,
-                                 name=sample_name,
-                                 study=study)
+                                name=sample_name,
+                                study=study)
     if new:
         print '\tCreated new sample "{}" in MASTER'.format(sample.name)
         session.commit()
     else:
         # TODO: Verify the data for the existing sample matches this MT
-        exists = session.query(Sequence).filter(Sequence.sample == sample).first()
+        exists = session.query(Sequence).filter(
+            Sequence.sample == sample).first()
         if exists is not None:
             print ('\tSample "{}" for study already exists in DATA.  '
                    'Skipping.').format(sample.name)

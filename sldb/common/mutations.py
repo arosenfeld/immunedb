@@ -36,7 +36,8 @@ class Mutations(object):
             self.region_stats[region] = self._create_count_record()
         self.pos_stats = {}
         self.cdr3_nts = cdr3_nts
-        self.germline = germline[:309] + cdr3_nts + germline[309+len(cdr3_nts):]
+        self.germline = germline[:309] + cdr3_nts + \
+            germline[309+len(cdr3_nts):]
 
     def _get_region(self, index):
         """Determines the gene region from an offset index"""

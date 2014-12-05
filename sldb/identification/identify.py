@@ -9,34 +9,36 @@ from sldb.common.models import *
 import sldb.util.funcs as funcs
 import sldb.util.lookups as lookups
 
+
 def _get_from_meta(meta, sample_name, key, require):
     if sample_name in meta and key in meta[sample_name]:
         return meta[sample_name][key]
     if key in meta['all']:
         return meta['all'][key]
     if require:
-        raise Exception('Unknown key {} for sample {}'.format(key, sample_name))
+        raise Exception(('Unknown key {} '
+                        'for sample {}').format(key, sample_name))
     return None
 
 
 def _create_mapping(session, identity_seq_id, alignment, sample, vdj):
     return SequenceMapping(
-                identity_seq_id=identity_seq_id,
-                sample=sample,
-                seq_id=vdj.id,
-                alignment=alignment,
-                v_match=vdj.v_match,
-                v_length=vdj.v_length,
-                v_gapped_length=vdj.v_gapped_length,
-                j_match=vdj.j_match,
-                j_length=vdj.j_length,
+        identity_seq_id=identity_seq_id,
+        sample=sample,
+        seq_id=vdj.id,
+        alignment=alignment,
+        v_match=vdj.v_match,
+        v_length=vdj.v_length,
+        v_gapped_length=vdj.v_gapped_length,
+        j_match=vdj.j_match,
+        j_length=vdj.j_length,
 
-                in_frame=vdj.in_frame,
-                stop=vdj.stop,
-                copy_number=1,
-                functional=vdj.functional,
+        in_frame=vdj.in_frame,
+        stop=vdj.stop,
+        copy_number=1,
+        functional=vdj.functional,
 
-                sequence=str(vdj.sequence))
+        sequence=str(vdj.sequence))
 
 
 def _add_to_db(session, alignment, sample, vdj):
@@ -61,7 +63,7 @@ def _add_to_db(session, alignment, sample, vdj):
         # sample.
         existing = session.query(SequenceMapping).filter(
             SequenceMapping.unique_id ==
-                funcs.hash(m.seq_id, sample.id, vdj.sequence)).first()
+            funcs.hash(m.seq_id, sample.id, vdj.sequence)).first()
 
         if existing is not None:
             # If so, bump the copy number and insert the duplicate sequence
@@ -83,16 +85,15 @@ def _identify_reads(session, meta, fn, name, alignment):
     else:
         print 'Study "{}" already exists in MASTER'.format(study.name)
 
-
     sample, new = funcs.get_or_create(session, Sample, name=name, study=study)
     if new:
         print '\tCreated new sample "{}" in MASTER'.format(sample.name)
         for key in ['date', 'subset', 'tissue', 'disease', 'lab',
-                'experimenter']:
+                    'experimenter']:
             setattr(sample, key, _get_from_meta(meta, name, key, False))
-        subject, new = funcs.get_or_create(session, Subject, study=study,
-                                           identifier=_get_from_meta(meta,
-                                           name, 'subject', True))
+        subject, new = funcs.get_or_create(
+            session, Subject, study=study, identifier=_get_from_meta(
+                meta, name, 'subject', True))
         sample.subject = subject
         session.commit()
     else:
@@ -171,8 +172,7 @@ def run_identify(session, args):
             if not os.path.isfile('{}.log'.format(base)):
                 print 'Skipping {} since no presto log exists.'.format(name)
                 continue
-            _identify_reads(session, metadata, 
+            _identify_reads(session, metadata,
                             join, base.rsplit('/', 1)[1], 'pRESTO')
-            _identify_reads(session, metadata, 
+            _identify_reads(session, metadata,
                             r1, base.rsplit('/', 1)[1], 'R1')
-

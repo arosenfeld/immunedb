@@ -22,6 +22,7 @@ _clone_filters = {
         SequenceMapping.functional == 0),
 }
 
+
 def _fields_to_dict(fields, row):
     d = {}
     for f in fields:
@@ -38,6 +39,7 @@ def _subject_to_dict(subject):
         'identifier': subject.identifier,
         'id': subject.id
     }
+
 
 def _sample_to_dict(sample):
     d = _fields_to_dict(['id', 'name', 'info', 'subset', 'tissue',
@@ -59,16 +61,16 @@ def _clone_to_dict(clone):
         'subject': _subject_to_dict(clone.group.subject),
     }
     d['germline'] = clone.group.germline[0:VDJSequence.CDR3_OFFSET] + \
-        clone.cdr3_nt + clone.group.germline[VDJSequence.CDR3_OFFSET + \
-        clone.group.cdr3_num_nts:]
+        clone.cdr3_nt + clone.group.germline[VDJSequence.CDR3_OFFSET +
+                                             clone.group.cdr3_num_nts:]
     return d
 
 
 def get_all_studies(session):
     result = {}
     for sample in session.query(Sample).order_by(Sample.date):
-        if session.query(SequenceMapping).filter(SequenceMapping.sample == \
-            sample).first() is not None:
+        if session.query(SequenceMapping).filter(
+                SequenceMapping.sample == sample).first() is not None:
             if sample.study.id not in result:
                 result[sample.study.id] = {
                     'id': sample.study.id,
@@ -79,6 +81,7 @@ def get_all_studies(session):
             result[sample.study.id]['samples'].append(_sample_to_dict(sample))
 
     return result
+
 
 def get_all_clones(session, filters, order_field, order_dir, paging=None):
     """Gets a list of all clones"""
@@ -111,7 +114,7 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
         order_field = getattr(Clone, order_field)
     else:
         order_field = Clone.id
-    #clone_q = clone_q.order_by(order_field)
+    # clone_q = clone_q.order_by(order_field)
 
     if paging is not None:
         page, per_page = paging
@@ -121,17 +124,18 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
         order_field = order_field.desc()
     else:
         order_field = order_field.asc()
-        
+
     for c in clone_q:
         stats_comb = []
-        for stat in session.query(SequenceMapping,
-                    func.count(SequenceMapping.identity_seq_id).label('unique'),
-                    func.sum(SequenceMapping.copy_number).label('total'))\
-                    .filter(SequenceMapping.clone_id == c.id)\
-                    .order_by(desc(
-                        func.count(
-                            SequenceMapping.identity_seq_id).label('unique')))\
-                    .group_by(SequenceMapping.sample_id):
+        for stat in session.query(
+                SequenceMapping,
+                func.count(SequenceMapping.identity_seq_id).label('unique'),
+                func.sum(SequenceMapping.copy_number).label('total'))\
+            .filter(SequenceMapping.clone_id == c.id)\
+            .order_by(desc(func.count(
+                SequenceMapping.identity_seq_id).label('unique')))\
+                .group_by(SequenceMapping.sample_id):
+
                 stats_comb.append({
                     'sample': {
                         'id': stat.SequenceMapping.sample.id,
@@ -179,7 +183,8 @@ def compare_clones(session, uids):
             else:
                 read_start = read_start.span()[1]
 
-            muts = mutations.add_sequence(mapping.identity_seq.sequence_replaced)
+            muts = mutations.add_sequence(
+                mapping.identity_seq.sequence_replaced)
             clones[clone_id]['seqs'].append({
                 'seq_id': mapping.seq_id,
                 'sample': {
@@ -206,18 +211,18 @@ def get_clone_overlap(session, filter_type, ctype, limit,
     fltr = _clone_filters[filter_type]
     res = []
     q = fltr(session.query(
-            SequenceMapping,
-            func.group_concat(distinct(SequenceMapping.sample_id)).label('samples'),
-            func.count(SequenceMapping.seq_id).label('unique'),
-            func.sum(SequenceMapping.copy_number).label('total'))
-            .join(Clone))
+        SequenceMapping,
+        func.group_concat(
+            distinct(SequenceMapping.sample_id)).label('samples'),
+        func.count(SequenceMapping.seq_id).label('unique'),
+        func.sum(SequenceMapping.copy_number).label('total'))
+        .join(Clone))
 
     if ctype == 'samples':
         q = q.filter(SequenceMapping.sample_id.in_(limit))
     elif ctype == 'subject':
         q = q.join(Sample).filter(Sample.subject_id == limit)
 
-    
     q = q.order_by(desc('total')).group_by(SequenceMapping.clone_id)
 
     if paging is not None:
@@ -241,13 +246,12 @@ def get_clones_in_samples(session, samples):
     return map(lambda e: e.id,
                session.query(
                    distinct(SequenceMapping.clone_id).label('id')).filter(
-                            SequenceMapping.sample_id.in_(samples)))
+                   SequenceMapping.sample_id.in_(samples)))
 
 
 def get_clones_in_subject(session, subject_id):
-    return map(lambda e: e.id,
-               session.query(Clone)\
-                .filter(Clone.subject_id == subject_id))
+    return map(lambda e: e.id, session.query(Clone).filter(
+        Clone.subject_id == subject_id))
 
 
 def get_v_usage(session, filter_type, samples):
@@ -295,8 +299,9 @@ def get_all_subjects(session, paging):
             },
             'total_samples': session.query(func.count(Sample.id)).filter(
                 Sample.subject == subject).scalar(),
-            'unique_seqs': session.query(func.count(SequenceMapping.seq_id)).filter(
-                SequenceMapping.sample.has(subject=subject)).scalar(),
+            'unique_seqs': session.query(
+                func.count(SequenceMapping.seq_id))
+            .filter(SequenceMapping.sample.has(subject=subject)).scalar(),
             'total_clones': session.query(func.count(Clone.id)).filter(
                 Clone.subject_id == subject.id).scalar()
         })
@@ -338,8 +343,7 @@ def get_stats(session, samples):
         'v_match_dist', 'v_length_dist', 'j_match_dist',
         'j_length_dist', 'v_call_dist', 'j_call_dist',
         'cdr3_length_dist']
-    cnt_fields = ['sequence_cnt',
-        'in_frame_cnt', 'stop_cnt']
+    cnt_fields = ['sequence_cnt', 'in_frame_cnt', 'stop_cnt']
     all_data = {}
     for stat in session.query(SampleStats).filter(
             SampleStats.sample_id.in_(samples)):
@@ -380,9 +384,8 @@ def get_stats(session, samples):
                 'max': q75 + 1.5 * iqr,
             }
 
-
     return {'counts': counts, 'stats': stats, 'outliers': outliers}
-        
+
 
 def get_sequence(session, sample_id, seq_id):
     seq = session.query(SequenceMapping)\
@@ -397,8 +400,8 @@ def get_sequence(session, sample_id, seq_id):
                     SequenceMapping.seq_id == seq.seq_id).first()
 
     ret = _fields_to_dict(['seq_id', 'identity_seq_id', 'alignment', 'v_match',
-                          'j_match', 'v_length', 'j_length', 'in_frame',
-                          'functional', 'stop', 'copy_number', 'sequence'], 
+                           'j_match', 'v_length', 'j_length', 'in_frame',
+                           'functional', 'stop', 'copy_number', 'sequence'],
                           seq)
     ret['sample'] = _sample_to_dict(seq.sample)
 
@@ -412,7 +415,6 @@ def get_sequence(session, sample_id, seq_id):
         ret['clone'] = None
     else:
         ret['clone'] = _clone_to_dict(seq.clone)
-
 
     muts = Mutations(seq.identity_seq.germline,
                      seq.identity_seq.junction_nt)
@@ -432,6 +434,7 @@ def get_sequence(session, sample_id, seq_id):
 
     return ret
 
+
 def get_all_sequences(session, filters, order_field, order_dir, paging=None):
     """Gets a list of all clones"""
     def get_field(key):
@@ -441,7 +444,8 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
                 return getattr(t, key)
 
     res = []
-    query = session.query(SequenceMapping).join(Sequence).join(Sample).outerjoin(Clone)
+    query = session.query(SequenceMapping).join(Sequence).join(Sample)\
+        .outerjoin(Clone)
 
     if filters is not None:
         for key, value in filters.iteritems():
@@ -453,12 +457,11 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
                     query = query.filter(SequenceMapping.sample_id ==
                                          int(value))
                 else:
-                    query = query.filter(get_field(key).like(value.replace('*', '%')))
-
+                    query = query.filter(get_field(key).like(
+                        value.replace('*', '%')))
 
     if filters is None or 'show_r1' not in filters or not filters['show_r1']:
         query = query.filter(SequenceMapping.alignment == 'pRESTO')
-
 
     if paging is not None:
         page, per_page = paging
@@ -472,8 +475,8 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
         fields['copy_number'] = int(session.query(
             func.sum(SequenceMapping.copy_number)).filter(
                 SequenceMapping.unique_id == row.unique_id).scalar())
-        fields = dict(fields.items() + _fields_to_dict(['v_call', 'j_call',
-            'junction_aa'], row.identity_seq).items())
+        fields = dict(fields.items() + _fields_to_dict(
+            ['v_call', 'j_call', 'junction_aa'], row.identity_seq).items())
 
         fields['sample'] = _sample_to_dict(row.sample)
         fields['cdr3_length'] = len(row.identity_seq.junction_nt)
@@ -484,5 +487,3 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
         res.append(fields)
 
     return res
-
-
