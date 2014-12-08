@@ -10,9 +10,10 @@ import sldb.util.lookups as lookups
 class VDJSequence(object):
     CDR3_OFFSET = 309
 
-    def __init__(self, id, seq):
+    def __init__(self, id, seq, full_v):
         self._id = id
         self._seq = seq
+        self._full_v = full_v
         self._seq_filled = None
 
         self._j = None
@@ -115,13 +116,16 @@ class VDJSequence(object):
         return self._v_length
 
     @property
-    def v_gapped_length(self):
-        return self.j_length +\
-            self.sequence_filled[:self.CDR3_OFFSET].count('-')
-
-    @property
     def v_match(self):
         return self._v_match
+
+    @property
+    def to_cdr3_length(self):
+        return self._to_cdr3_length
+
+    @property
+    def to_cdr3_match(self):
+        return self._to_cdr3_match
 
     def _find_j(self):
         '''Finds the location and type of J gene'''
@@ -170,46 +174,47 @@ class VDJSequence(object):
 
     def _find_v(self):
         '''Finds the V gene closest to that of the sequence'''
-        v_best = []
-        v_score = None
-        v_overlap = None
-        v_match = None
+        self._v_score = None
 
         for v, germ in germlines.v.iteritems():
             # Strip the gaps
-            germ = Seq(germ.replace('-', ''))
+            v_seq = Seq(germ.replace('-', ''))
             # Get the last occurrence of 'TGT', the germline anchor
-            germ_pos = germ.rfind(anchors.germline_anchor)
-            # Align and cut the germline to match the sequence
+            germ_pos = v_seq.rfind(anchors.germline_anchor)
+            # Align the sequences for comparison
             diff = abs(germ_pos - self.v_anchor_pos)
-            v_seq = germ[0:germ_pos]
-            s_seq = self.sequence[0:self.v_anchor_pos]
+            s_seq = self.sequence
             if germ_pos > self.v_anchor_pos:
-                v_seq = v_seq[diff:germ_pos]
+                v_seq = v_seq[diff:]
             else:
-                s_seq = s_seq[diff:self.v_anchor_pos]
-
-            if len(v_seq) == 0:
-                continue
+                s_seq = s_seq[diff:]
+            s_seq = s_seq[:len(v_seq)]
 
             # Determine the distance between the germline and sequence
             dist = distance.hamming(str(v_seq), str(s_seq))
             # Record this germline if it is has the lowest distance
-            if v_score is None or dist < v_score:
-                v_best = [v]
-                v_score = dist
-                v_overlap = len(s_seq)
-                v_match = len(s_seq) - dist
-            elif dist == v_score:
-                v_best.append(v)
+            if self._v_score is None or dist < self._v_score:
+                self._v = [v]
+                self._v_score = dist
+                self._v_length = len(s_seq)
+                self._v_match = len(s_seq) - dist
+                self._to_cdr3_seq = s_seq[:self.v_anchor_pos]
+                self._to_cdr3_germ = v_seq[:germ_pos - diff]
+            elif dist == self._v_score:
+                self._v.append(v)
 
-        self._v = v_best
-        self._v_match = v_match
-        self._v_length = v_overlap
-        # TODO: is this padding correct for multiple v_bests
-        # Determine pad length of the sequence to
-        pad_len = germlines.v[v_best[0]].replace('-', '').rfind(
+        pad_len = germlines.v[self._v[0]].replace('-', '').rfind(
             anchors.germline_anchor) - self.v_anchor_pos
+
+        # If we need to pad with a full sequence, there is a misalignment
+        if self._full_v and pad_len > 0:
+            self._v = None
+            return
+
+        self._to_cdr3_length = len(self._to_cdr3_seq)
+        self._to_cdr3_match = self._to_cdr3_length - distance.hamming(
+            str(self._to_cdr3_seq), str(self._to_cdr3_germ))
+
         self._germline = germlines.v[sorted(self._v)[0]][:self.CDR3_OFFSET]
         if pad_len >= 0:
             self._seq = 'N' * pad_len + str(self._seq)
@@ -217,7 +222,7 @@ class VDJSequence(object):
             self._seq = str(self._seq[-1 * pad_len:])
 
         # Mutation ratio is the distance divided by the length of overlap
-        self._mutation_frac = v_score / float(v_overlap)
+        self._mutation_frac = self._v_score / float(self._v_length)
         self._j_anchor_pos += pad_len
         self._v_anchor_pos += pad_len
 
@@ -227,12 +232,14 @@ class VDJSequence(object):
                 self._seq = self._seq[:i] + '-' + self._seq[i:]
                 self._j_anchor_pos += 1
                 self._v_anchor_pos += 1
+
         # Find the J anchor in the germline J gene
         j_anchor_in_germline = germlines.j[self.j_gene].rfind(
             str(anchors.j_anchors[self.j_gene]))
         # Calculate the length of the CDR3
         self._cdr3_len = self.j_anchor_pos - self.CDR3_OFFSET - \
             j_anchor_in_germline
+        self._j_anchor_pos += self._cdr3_len
         # Fill germline CDR3 with gaps
         self._germline += '-' * self._cdr3_len
         self._germline += germlines.j[self.j_gene]
@@ -254,3 +261,24 @@ class VDJSequence(object):
                 if find is not None:
                     return find
         return None
+
+class Best(object):
+    def __init__(self, gene, score, match):
+        self._genes = set([gene])
+        self._score = score
+        self._match = match
+
+    @property
+    def score(self):
+        return self._score
+
+    @property
+    def genes(self):
+        return self._genes
+
+    @property
+    def match(self):
+        return self._match
+
+    def add_gene(self, seq):
+        self._genes.add(seq)

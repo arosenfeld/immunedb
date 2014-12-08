@@ -29,7 +29,6 @@ def _create_mapping(session, identity_seq_id, alignment, sample, vdj):
         alignment=alignment,
         v_match=vdj.v_match,
         v_length=vdj.v_length,
-        v_gapped_length=vdj.v_gapped_length,
         j_match=vdj.j_match,
         j_length=vdj.j_length,
 
@@ -115,10 +114,10 @@ def _identify_reads(session, meta, fn, name, alignment):
         if i > 0 and i % 1000 == 0:
             print '\tCommitted {}'.format(i)
             session.commit()
-        vdj = VDJSequence(record.description, record.seq)
-        if vdj.j_gene is not None and vdj.v_gene is not None and \
+        vdj = VDJSequence(record.description, record.seq, alignment=='pRESTO')
+        if vdj.j_gene is not None and vdj.j_gene is not None and \
                 3 <= len(vdj.cdr3) < 100:
-            lengths_sum += vdj.v_anchor_pos
+            lengths_sum += vdj.v_length
             mutations_sum += vdj.mutation_fraction
             vdjs.append(vdj)
             _add_to_db(session, alignment, sample, vdj)
