@@ -27,10 +27,16 @@ def _create_mapping(session, identity_seq_id, alignment, sample, vdj):
         sample=sample,
         seq_id=vdj.id,
         alignment=alignment,
+
         v_match=vdj.v_match,
         v_length=vdj.v_length,
         j_match=vdj.j_match,
         j_length=vdj.j_length,
+
+        pre_cdr3_length=vdj.pre_cdr3_length,
+        pre_cdr3_match=vdj.pre_cdr3_match,
+        post_cdr3_length=vdj.post_cdr3_length,
+        post_cdr3_match=vdj.post_cdr3_match,
 
         in_frame=vdj.in_frame,
         stop=vdj.stop,

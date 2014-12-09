@@ -158,9 +158,9 @@ class Clone(BaseData):
 
     # These are necessary during creation of clones, but will
     # always be redundant with the associated grouping after completion
-    v_gene = Column(String(length=512))
-    j_gene = Column(String(length=128))
-    cdr3_num_nts = Column(Integer)
+    v_gene = Column(String(length=512), index=True)
+    j_gene = Column(String(length=128), index=True)
+    cdr3_num_nts = Column(Integer, index=True)
     subject_id = Column(Integer, ForeignKey(Subject.id), index=True)
     #
 
@@ -178,8 +178,8 @@ class Sequence(BaseData):
 
     seq_id = Column(String(length=128), primary_key=True)
 
-    v_call = Column(String(512))
-    j_call = Column(String(512))
+    v_call = Column(String(512), index=True)
+    j_call = Column(String(512), index=True)
 
     junction_nt = Column(String(512))
     junction_aa = Column(String(512))
@@ -207,16 +207,21 @@ class SequenceMapping(BaseData):
                              primary_key=True)
     identity_seq = relationship(Sequence, backref=backref('mapping'))
 
-    seq_id = Column(String(128), primary_key=True)
+    seq_id = Column(String(128), primary_key=True, index=True)
     sample_id = Column(Integer, ForeignKey(Sample.id), index=True)
     sample = relationship(Sample, backref=backref('mapping'))
 
-    alignment = Column(String(length=6))
+    alignment = Column(String(length=6), index=True)
 
     v_match = Column(Integer)
     v_length = Column(Integer)
     j_match = Column(Integer)
     j_length = Column(Integer)
+
+    pre_cdr3_length = Column(Integer)
+    pre_cdr3_match = Column(Integer)
+    post_cdr3_length = Column(Integer)
+    post_cdr3_match = Column(Integer)
 
     in_frame = Column(Boolean)
     functional = Column(Boolean, index=True)
