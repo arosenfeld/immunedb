@@ -6,11 +6,12 @@ import sldb.util.lookups as lookups
 
 if __name__ == '__main__':
     for record in SeqIO.parse(sys.argv[1], 'fasta'):
-        if 'working' not in record.description:
-            continue
+#        if 'working' not in record.description:
+#            print 'skipping', record.description
+#            continue
+        print record.description
         vdj = VDJSequence(record.description, record.seq, 'presto' in
                           record.description)
-        print vdj.id
         if vdj.j_gene is not None and vdj.v_gene is not None:
             print 'v_gene     :', vdj.v_gene
             print 'j_gene     :', vdj.j_gene

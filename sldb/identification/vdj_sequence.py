@@ -219,8 +219,13 @@ class VDJSequence(object):
                 self._v_score = dist
                 self._v_length = len(s_seq)
                 self._v_match = len(s_seq) - dist
-                self._pre_cdr3_seq = s_seq[:self.v_anchor_pos]
-                self._pre_cdr3_germ = v_seq[:germ_pos - diff]
+                if germ_pos > self.v_anchor_pos:
+                    self._pre_cdr3_seq = s_seq[:self.v_anchor_pos]
+                    self._pre_cdr3_germ = v_seq[:germ_pos - diff]
+                else:
+                    self._pre_cdr3_seq = s_seq[:self.v_anchor_pos - diff]
+                    self._pre_cdr3_germ = v_seq[:germ_pos]
+
             elif dist == self._v_score:
                 self._v.append(v)
 
@@ -231,6 +236,7 @@ class VDJSequence(object):
         if self._full_v and pad_len > 0:
             self._v = None
             return
+
 
         self._pre_cdr3_length = len(self._pre_cdr3_seq)
         self._pre_cdr3_match = self._pre_cdr3_length - distance.hamming(
