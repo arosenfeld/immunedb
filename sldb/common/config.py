@@ -17,7 +17,7 @@ def _create_engine(config_path):
                '?charset=utf8&use_unicode=0').format(
         data['username'], data['password'],
         data['host'], data['database'])
-    engine = create_engine(con_str)
+    engine = create_engine(con_str, pool_recycle=3600)
 
     return engine, data['database']
 

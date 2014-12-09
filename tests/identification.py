@@ -6,14 +6,24 @@ import sldb.util.lookups as lookups
 
 if __name__ == '__main__':
     for record in SeqIO.parse(sys.argv[1], 'fasta'):
-        vdj = VDJSequence(record.description, record.seq)
+        if 'working' not in record.description:
+            continue
+        vdj = VDJSequence(record.description, record.seq, 'presto' in
+                          record.description)
+        print vdj.id
         if vdj.j_gene is not None and vdj.v_gene is not None:
-            if 'N' in vdj.sequence:
-                print 'germ   :', vdj.germline
-                print 'seq    :', vdj.sequence
-                print 'seq_rep:', vdj.sequence_filled
-                print 'cdr3   :', str(vdj.cdr3)
-                print 'cdr3_aa:', lookups.aas_from_nts(vdj.cdr3, '')
-                print 'v_gene :', vdj.v_gene
-                print 'j_gene :', vdj.j_gene
-                print ''
+            print 'v_gene     :', vdj.v_gene
+            print 'j_gene     :', vdj.j_gene
+            print 'germ       :', vdj.germline
+            print 'seq        :', vdj.sequence
+            print 'v_len      :', vdj.v_length
+            print 'v_match    :', vdj.v_match
+            print 'pre_cdr3_len:', vdj.pre_cdr3_length
+            print 'pre_cdr3_mth:', vdj.pre_cdr3_match
+            print 'j_len      :', vdj.j_length
+            print 'j_match    :', vdj.j_match
+            print 'post_cdr3_len:', vdj.post_cdr3_length
+            print 'post_cdr3_mth:', vdj.post_cdr3_match
+            print ''
+        else:
+            print 'No result'

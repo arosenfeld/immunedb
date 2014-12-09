@@ -218,8 +218,6 @@ class SequenceMapping(BaseData):
     j_match = Column(Integer)
     j_length = Column(Integer)
 
-    v_gapped_length = Column(Integer)
-
     in_frame = Column(Boolean)
     functional = Column(Boolean, index=True)
     stop = Column(Boolean)

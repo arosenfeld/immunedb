@@ -120,12 +120,20 @@ class VDJSequence(object):
         return self._v_match
 
     @property
-    def to_cdr3_length(self):
-        return self._to_cdr3_length
+    def pre_cdr3_length(self):
+        return self._pre_cdr3_length
 
     @property
-    def to_cdr3_match(self):
-        return self._to_cdr3_match
+    def pre_cdr3_match(self):
+        return self._pre_cdr3_match
+
+    @property
+    def post_cdr3_length(self):
+        return self._post_cdr3_length
+
+    @property
+    def post_cdr3_match(self):
+        return self._post_cdr3_match
 
     def _find_j(self):
         '''Finds the location and type of J gene'''
@@ -148,10 +156,23 @@ class VDJSequence(object):
                 else:
                     self._j_anchor_pos = len(self._seq) - i
                 self._j = j_gene
-                self._j_match = len(j_gene)
-                self._j_length = len(j_gene)
+                self._post_cdr3_match = len(j_gene)
+                self._post_cdr3_length = len(j_gene)
+
                 if rev_comp:
                     self._seq = self._seq.reverse_complement()
+
+                j_full = germlines.j[self.j_gene]
+                j_start = (self.j_anchor_pos + len(match) -
+                    len(anchors.j_anchors[self.j_gene])) -\
+                    (len(j_full) - len(match))
+                dist = distance.hamming(
+                    j_full,
+                    self.sequence[j_start:j_start+len(j_full)])
+
+                self._j_length = len(j_full)
+                self._j_match = self._j_length - dist
+
                 return
 
     def _find_v_position(self):
@@ -198,8 +219,8 @@ class VDJSequence(object):
                 self._v_score = dist
                 self._v_length = len(s_seq)
                 self._v_match = len(s_seq) - dist
-                self._to_cdr3_seq = s_seq[:self.v_anchor_pos]
-                self._to_cdr3_germ = v_seq[:germ_pos - diff]
+                self._pre_cdr3_seq = s_seq[:self.v_anchor_pos]
+                self._pre_cdr3_germ = v_seq[:germ_pos - diff]
             elif dist == self._v_score:
                 self._v.append(v)
 
@@ -211,9 +232,9 @@ class VDJSequence(object):
             self._v = None
             return
 
-        self._to_cdr3_length = len(self._to_cdr3_seq)
-        self._to_cdr3_match = self._to_cdr3_length - distance.hamming(
-            str(self._to_cdr3_seq), str(self._to_cdr3_germ))
+        self._pre_cdr3_length = len(self._pre_cdr3_seq)
+        self._pre_cdr3_match = self._pre_cdr3_length - distance.hamming(
+            str(self._pre_cdr3_seq), str(self._pre_cdr3_germ))
 
         self._germline = germlines.v[sorted(self._v)[0]][:self.CDR3_OFFSET]
         if pad_len >= 0:
