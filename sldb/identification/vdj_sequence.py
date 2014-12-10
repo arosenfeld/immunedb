@@ -152,15 +152,14 @@ class VDJSequence(object):
             i = seq.rfind(match, len(self._seq) // 2)
             if i >= 0:
                 if rev_comp:
-                    match_start = i
+                    self._j_anchor_pos = i
                 else:
-                    match_start = len(self._seq) - i
+                    self._j_anchor_pos = len(self._seq) - i
                 self._j = j_gene
 
                 if rev_comp:
                     self._seq = self._seq.reverse_complement()
 
-                self._j_anchor_pos = match_start - (len(full_anchor) - len(match))
                 j_full = germlines.j[self.j_gene]
                 j_start = self._j_anchor_pos - (len(j_full) - len(match))
 
@@ -177,14 +176,13 @@ class VDJSequence(object):
                 self._j_length = len(j_full)
                 self._j_match = self._j_length - dist
 
-                self._post_cdr3_length = match_start + len(match) - \
-                    self.j_anchor_pos
+                self._post_cdr3_length = len(full_anchor) - 3 
 
+                post_j = full_anchor[3:]
+                post_s = self.sequence[self.j_anchor_pos + 3:
+                            self.j_anchor_pos + 3 + self.post_cdr3_length]
                 self._post_cdr3_match = self._post_cdr3_length - \
-                    distance.hamming(
-                        j_full[-self.post_cdr3_length:],
-                        self.sequence[self.j_anchor_pos:
-                            self.j_anchor_pos + self.post_cdr3_length])
+                    distance.hamming(post_j, post_s)
                 return
 
     def _find_v_position(self):
@@ -258,12 +256,12 @@ class VDJSequence(object):
         if pad_len >= 0:
             self._seq = 'N' * pad_len + str(self._seq)
         else:
-            self._seq = str(self._seq[-1 * pad_len:])
+            self._seq = str(self._seq[-pad_len:])
+        self._j_anchor_pos += pad_len
+        self._v_anchor_pos += pad_len
 
         # Mutation ratio is the distance divided by the length of overlap
         self._mutation_frac = self._v_score / float(self._v_length)
-        self._j_anchor_pos += pad_len
-        self._v_anchor_pos += pad_len
 
         # Add germline gaps to sequence before CDR3 and update anchor positions
         for i, c in enumerate(self._germline):
@@ -272,16 +270,12 @@ class VDJSequence(object):
                 self._j_anchor_pos += 1
                 self._v_anchor_pos += 1
 
-        # Find the J anchor in the germline J gene
-        j_anchor_in_germline = germlines.j[self.j_gene].rfind(
-            str(anchors.j_anchors[self.j_gene]))
         # Calculate the length of the CDR3
-        self._cdr3_len = self.j_anchor_pos - self.CDR3_OFFSET - \
-            j_anchor_in_germline
+        self._cdr3_len = self.j_anchor_pos - self.CDR3_OFFSET + 3
         self._j_anchor_pos += self._cdr3_len
         # Fill germline CDR3 with gaps
         self._germline += '-' * self._cdr3_len
-        self._germline += germlines.j[self.j_gene]
+        self._germline += anchors.j_anchors[self.j_gene][3:]
         self._seq = self._seq[:len(self._germline)]
 
     def _find_dc(self):
