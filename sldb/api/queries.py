@@ -401,7 +401,9 @@ def get_sequence(session, sample_id, seq_id):
 
     ret = _fields_to_dict(['seq_id', 'identity_seq_id', 'alignment', 'v_match',
                            'j_match', 'v_length', 'j_length', 'in_frame',
-                           'functional', 'stop', 'copy_number', 'sequence'],
+                           'functional', 'stop', 'copy_number', 'sequence',
+                           'pre_cdr3_length', 'pre_cdr3_match',
+                           'post_cdr3_length', 'post_cdr3_match'],
                           seq)
     ret['sample'] = _sample_to_dict(seq.sample)
 

@@ -27,4 +27,4 @@ def all_j_anchors():
         for j, f in j_anchors.iteritems():
             new_f = f[0:len(f) - trim]
             if len(new_f) >= 12:
-                yield new_f, j
+                yield new_f, f, j

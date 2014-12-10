@@ -148,24 +148,28 @@ class VDJSequence(object):
         else:
             seq = self._seq
 
-        for match, j_gene in anchors.all_j_anchors():
-            i = seq.find(match)
+        for match, full_anchor, j_gene in anchors.all_j_anchors():
+            i = seq.rfind(match, len(self._seq) // 2)
             if i >= 0:
                 if rev_comp:
-                    self._j_anchor_pos = i
+                    match_start = i
                 else:
-                    self._j_anchor_pos = len(self._seq) - i
+                    match_start = len(self._seq) - i
                 self._j = j_gene
-                self._post_cdr3_match = len(j_gene)
-                self._post_cdr3_length = len(j_gene)
 
                 if rev_comp:
                     self._seq = self._seq.reverse_complement()
 
+                self._j_anchor_pos = match_start - (len(full_anchor) - len(match))
                 j_full = germlines.j[self.j_gene]
-                j_start = (self.j_anchor_pos + len(match) -
-                    len(anchors.j_anchors[self.j_gene])) -\
-                    (len(j_full) - len(match))
+                j_start = self._j_anchor_pos - (len(j_full) - len(match))
+
+                if len(j_full) != len(
+                        self.sequence[j_start:j_start+len(j_full)]):
+                    self._j = None
+                    self._j_anchor_pos = None
+                    return
+
                 dist = distance.hamming(
                     j_full,
                     self.sequence[j_start:j_start+len(j_full)])
@@ -173,6 +177,14 @@ class VDJSequence(object):
                 self._j_length = len(j_full)
                 self._j_match = self._j_length - dist
 
+                self._post_cdr3_length = match_start + len(match) - \
+                    self.j_anchor_pos
+
+                self._post_cdr3_match = self._post_cdr3_length - \
+                    distance.hamming(
+                        j_full[-self.post_cdr3_length:],
+                        self.sequence[self.j_anchor_pos:
+                            self.j_anchor_pos + self.post_cdr3_length])
                 return
 
     def _find_v_position(self):
