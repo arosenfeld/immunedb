@@ -25,8 +25,8 @@ if __name__ == '__main__':
             print 'pre_cdr3_mth:', vdj.pre_cdr3_match
             print 'j_len      :', vdj.j_length
             print 'j_match    :', vdj.j_match
-            #print 'post_cdr3_len:', vdj.post_cdr3_length
-            #print 'post_cdr3_mth:', vdj.post_cdr3_match
+            print 'post_cdr3_len:', vdj.post_cdr3_length
+            print 'post_cdr3_mth:', vdj.post_cdr3_match
             print ''
         else:
             print 'No result'

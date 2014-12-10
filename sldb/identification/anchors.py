@@ -7,8 +7,6 @@ j_anchors = {
     'IGHJ3': 'TGGTCACCGTCTCTTCAG',
     'IGHJ6': 'CGGTCACCGTCTCCTCAG',
 }
-# The offset into the germline J where the anchors occur
-j_offset = 31
 
 
 v_regex = [

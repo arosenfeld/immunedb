@@ -269,17 +269,32 @@ class VDJSequence(object):
             str(anchors.j_anchors[self.j_gene]))
         # Calculate the length of the CDR3
         self._cdr3_len = (self.j_anchor_pos + \
-            len(anchors.j_anchors[self.j_gene]) - anchors.j_offset) - self.v_anchor_pos
+            len(anchors.j_anchors[self.j_gene]) - germlines.j_offset) - self.v_anchor_pos
+
+        if self._cdr3_len <= 0:
+            self._v = None
+            return
+
         self._j_anchor_pos += self._cdr3_len
         # Fill germline CDR3 with gaps
         self._germline += '-' * self._cdr3_len
-        self._germline += j_germ[-anchors.j_offset:]
+        self._germline += j_germ[-germlines.j_offset:]
         self._seq = self._seq[:len(self._germline)]
 
-        self._post_cdr3_length = len(j_germ[len(j_germ) - anchors.j_offset:])
+        # Get the length of J after the CDR3
+        self._post_cdr3_length = germlines.j_offset
+        # Get the sequence and germline sequences after CDR3
+        post_j = j_germ[-self.post_cdr3_length:]
+        post_s = self.sequence[self.CDR3_OFFSET+len(self.cdr3):]
+
+        # If they are unequal length, there is an alignment error
+        if len(post_j) != len(post_s):
+            self._v = None
+            return
+
+        # Calculate their match count
         self._post_cdr3_match = self.post_cdr3_length - distance.hamming(
-            j_germ[len(j_germ) - 31:],
-            self.sequence[self.CDR3_OFFSET+len(self.cdr3):])
+            post_j, post_s)
 
     def _find_dc(self):
         '''Finds the first occurrence of the amino-acid sequence DxxxxxC'''

@@ -130,9 +130,9 @@ def _identify_reads(session, meta, fn, name, alignment):
         if i > 0 and i % 1000 == 0:
             print '\tCommitted {}'.format(i)
             session.commit()
-        vdj = VDJSequence(record.description, record.seq, alignment=='pRESTO')
-        if vdj.j_gene is not None and vdj.j_gene is not None and \
-                3 <= len(vdj.cdr3) < 100:
+
+        vdj = VDJSequence(record.description, record.seq, alignment == 'pRESTO')
+        if vdj.v_gene is not None and vdj.j_gene is not None:
             lengths_sum += vdj.v_length
             mutations_sum += vdj.mutation_fraction
             vdjs.append(vdj)
