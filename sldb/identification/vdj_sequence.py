@@ -263,17 +263,23 @@ class VDJSequence(object):
                 self._j_anchor_pos += 1
                 self._v_anchor_pos += 1
 
+        j_germ = germlines.j[self.j_gene]
         # Find the J anchor in the germline J gene
-        j_anchor_in_germline = germlines.j[self.j_gene].rfind(
-                    str(anchors.j_anchors[self.j_gene]))
+        j_anchor_in_germline = j_germ.rfind(
+            str(anchors.j_anchors[self.j_gene]))
         # Calculate the length of the CDR3
         self._cdr3_len = (self.j_anchor_pos + \
-            len(anchors.j_anchors[self.j_gene]) - 31) - self.v_anchor_pos
+            len(anchors.j_anchors[self.j_gene]) - anchors.j_offset) - self.v_anchor_pos
         self._j_anchor_pos += self._cdr3_len
         # Fill germline CDR3 with gaps
         self._germline += '-' * self._cdr3_len
-        self._germline += germlines.j[self.j_gene][-31:]
+        self._germline += j_germ[-anchors.j_offset:]
         self._seq = self._seq[:len(self._germline)]
+
+        self._post_cdr3_length = len(j_germ[len(j_germ) - anchors.j_offset:])
+        self._post_cdr3_match = self.post_cdr3_length - distance.hamming(
+            j_germ[len(j_germ) - 31:],
+            self.sequence[self.CDR3_OFFSET+len(self.cdr3):])
 
     def _find_dc(self):
         '''Finds the first occurrence of the amino-acid sequence DxxxxxC'''
