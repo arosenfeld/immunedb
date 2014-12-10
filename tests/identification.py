@@ -15,6 +15,7 @@ if __name__ == '__main__':
         if vdj.j_gene is not None and vdj.v_gene is not None:
             print 'v_gene     :', vdj.v_gene
             print 'j_gene     :', vdj.j_gene
+            print 'cdr3 len   :', len(vdj.cdr3)
             print 'germ       :', vdj.germline
             print 'seq        :', vdj.sequence
             print 'v_len      :', vdj.v_length
