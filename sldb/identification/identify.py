@@ -1,3 +1,4 @@
+import distance
 import json
 import os
 import re
@@ -22,11 +23,20 @@ def _get_from_meta(meta, sample_name, key, require):
 
 
 def _create_mapping(session, identity_seq_id, alignment, sample, vdj):
+    if vdj.v_match / float(vdj.v_length) < .6:
+        seq = vdj.sequence.lstrip('N')
+        germ = vdj.germline[len(vdj.sequence) - len(seq):]
+        lev_dist = distance.levenshtein(germ, seq)
+    else:
+        lev_dist = None
+
     return SequenceMapping(
         identity_seq_id=identity_seq_id,
         sample=sample,
         seq_id=vdj.id,
+
         alignment=alignment,
+        levenshtein_dist=lev_dist,
 
         v_match=vdj.v_match,
         v_length=vdj.v_length,

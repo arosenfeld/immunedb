@@ -176,13 +176,6 @@ class VDJSequence(object):
                 self._j_length = len(j_full)
                 self._j_match = self._j_length - dist
 
-                self._post_cdr3_length = len(full_anchor) - 3 
-
-                post_j = full_anchor[3:]
-                post_s = self.sequence[self.j_anchor_pos + 3:
-                            self.j_anchor_pos + 3 + self.post_cdr3_length]
-                self._post_cdr3_match = self._post_cdr3_length - \
-                    distance.hamming(post_j, post_s)
                 return
 
     def _find_v_position(self):
@@ -270,12 +263,16 @@ class VDJSequence(object):
                 self._j_anchor_pos += 1
                 self._v_anchor_pos += 1
 
+        # Find the J anchor in the germline J gene
+        j_anchor_in_germline = germlines.j[self.j_gene].rfind(
+                    str(anchors.j_anchors[self.j_gene]))
         # Calculate the length of the CDR3
-        self._cdr3_len = self.j_anchor_pos - self.CDR3_OFFSET + 3
+        self._cdr3_len = (self.j_anchor_pos + \
+            len(anchors.j_anchors[self.j_gene]) - 31) - self.v_anchor_pos
         self._j_anchor_pos += self._cdr3_len
         # Fill germline CDR3 with gaps
         self._germline += '-' * self._cdr3_len
-        self._germline += anchors.j_anchors[self.j_gene][3:]
+        self._germline += germlines.j[self.j_gene][-31:]
         self._seq = self._seq[:len(self._germline)]
 
     def _find_dc(self):

@@ -212,6 +212,7 @@ class SequenceMapping(BaseData):
     sample = relationship(Sample, backref=backref('mapping'))
 
     alignment = Column(String(length=6), index=True)
+    levenshtein_dist = Column(Integer, index=True)
 
     v_match = Column(Integer)
     v_length = Column(Integer)
