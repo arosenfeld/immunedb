@@ -167,27 +167,29 @@ def _identify_reads(session, meta, fn, name, alignment):
 
 
 def run_identify(session, args):
-    meta_fn = '{}/metadata.json'.format(args.base_dir)
-    if not os.path.isfile(meta_fn):
-        print 'No metadata file found for this set of samples.'
-        return
-    with open(meta_fn) as fh:
-        metadata = json.load(fh)
+    for base_dir in args.base_dirs: 
+        print 'Parsing {}'.format(base_dir)
+        meta_fn = '{}/metadata.json'.format(base_dir)
+        if not os.path.isfile(meta_fn):
+            print 'No metadata file found for this set of samples.'
+            return
+        with open(meta_fn) as fh:
+            metadata = json.load(fh)
 
-        names = set([])
-        for fn in os.listdir('{}/processed'.format(args.base_dir)):
-            name = fn.split('.')[0].rsplit('_', 2)[0]
-            names.add(name)
+            names = set([])
+            for fn in os.listdir('{}/processed'.format(base_dir)):
+                name = fn.split('.')[0].rsplit('_', 2)[0]
+                names.add(name)
 
-        for name in names:
-            base = '{}/presto/{}'.format(args.base_dir, name)
-            r1 = '{}_R1_001.sync_assemble-fail.fasta'.format(base)
-            r2 = '{}_R2_001.sync_assemble-fail.fasta'.format(base)
-            join = '{}_R1_001.sync_assemble-pass.fasta'.format(base)
-            if not os.path.isfile('{}.log'.format(base)):
-                print 'Skipping {} since no presto log exists.'.format(name)
-                continue
-            _identify_reads(session, metadata,
-                            join, base.rsplit('/', 1)[1], 'pRESTO')
-            _identify_reads(session, metadata,
-                            r1, base.rsplit('/', 1)[1], 'R1')
+            for name in names:
+                base = '{}/presto/{}'.format(base_dir, name)
+                r1 = '{}_R1_001.sync_assemble-fail.fasta'.format(base)
+                r2 = '{}_R2_001.sync_assemble-fail.fasta'.format(base)
+                join = '{}_R1_001.sync_assemble-pass.fasta'.format(base)
+                if not os.path.isfile('{}.log'.format(base)):
+                    print 'Skipping {} since no presto log exists.'.format(name)
+                    continue
+                _identify_reads(session, metadata,
+                                join, base.rsplit('/', 1)[1], 'pRESTO')
+                _identify_reads(session, metadata,
+                                r1, base.rsplit('/', 1)[1], 'R1')

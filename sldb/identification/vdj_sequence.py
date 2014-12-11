@@ -32,7 +32,7 @@ class VDJSequence(object):
         if 'N' not in self.sequence:
             self._find_j()
             if self._j is not None:
-                self._find_v_position()
+                self._v_anchor_pos = self._find_v_position(self.sequence)
                 if self.v_anchor_pos is not None:
                     self._find_v()
 
@@ -151,14 +151,10 @@ class VDJSequence(object):
         for match, full_anchor, j_gene in anchors.all_j_anchors():
             i = seq.rfind(match, len(self._seq) // 2)
             if i >= 0:
-                if rev_comp:
-                    self._j_anchor_pos = i
-                else:
-                    self._j_anchor_pos = len(self._seq) - i
-                self._j = j_gene
-
+                self._j_anchor_pos = i
                 if rev_comp:
                     self._seq = self._seq.reverse_complement()
+                self._j = j_gene
 
                 j_full = germlines.j[self.j_gene]
                 j_start = self._j_anchor_pos - (len(j_full) - len(match))
@@ -178,23 +174,14 @@ class VDJSequence(object):
 
                 return
 
-    def _find_v_position(self):
+    def _find_v_position(self, sequence):
         '''Tries to find the end of the V gene region'''
         # Try to find DxxxyzC
-        dc = self._find_dc()
-        if dc is not None:
-            dc_seq = Seq(dc.group(0))
-            # Make sure yz in ['YY', 'YC', 'YH']
-            if str(dc_seq.translate()[-2:]) in anchors.dc_final_aas:
-                self._v_anchor = dc_seq
-                self._v_anchor_pos = dc.end() - 3
-                return
-
-        # If DxxyzC isn't found, try to find 'YYC', 'YCC', or 'YHC'
-        yxc = self._find_yxc()
-        if yxc is not None:
-            self._v_anchor = Seq(yxc.group(0))
-            self._v_anchor_pos = yxc.end() - 3
+        found = self._find_dc(sequence)
+        if found is None:
+            # If DxxyzC isn't found, try to find 'YYC', 'YCC', or 'YHC'
+            found = self._find_yxc(sequence)
+        return found
 
     def _find_v(self):
         '''Finds the V gene closest to that of the sequence'''
@@ -203,8 +190,7 @@ class VDJSequence(object):
         for v, germ in germlines.v.iteritems():
             # Strip the gaps
             v_seq = Seq(germ.replace('-', ''))
-            # Get the last occurrence of 'TGT', the germline anchor
-            germ_pos = v_seq.rfind(anchors.germline_anchor)
+            germ_pos = self._find_v_position(v_seq)
             # Align the sequences for comparison
             diff = abs(germ_pos - self.v_anchor_pos)
             s_seq = self.sequence
@@ -222,6 +208,7 @@ class VDJSequence(object):
                 self._v_score = dist
                 self._v_length = len(s_seq)
                 self._v_match = len(s_seq) - dist
+                self._germ_pos = germ_pos
                 if germ_pos > self.v_anchor_pos:
                     self._pre_cdr3_seq = s_seq[:self.v_anchor_pos]
                     self._pre_cdr3_germ = v_seq[:germ_pos - diff]
@@ -232,14 +219,12 @@ class VDJSequence(object):
             elif dist == self._v_score:
                 self._v.append(v)
 
-        pad_len = germlines.v[self._v[0]].replace('-', '').rfind(
-            anchors.germline_anchor) - self.v_anchor_pos
+        pad_len = self._germ_pos - self.v_anchor_pos
 
         # If we need to pad with a full sequence, there is a misalignment
         if self._full_v and pad_len > 0:
             self._v = None
             return
-
 
         self._pre_cdr3_length = len(self._pre_cdr3_seq)
         self._pre_cdr3_match = self._pre_cdr3_length - distance.hamming(
@@ -269,8 +254,9 @@ class VDJSequence(object):
             str(anchors.j_anchors[self.j_gene]))
         # Calculate the length of the CDR3
         self._cdr3_len = (self.j_anchor_pos + \
-            len(anchors.j_anchors[self.j_gene]) - germlines.j_offset) - self.v_anchor_pos
-
+            len(anchors.j_anchors[self.j_gene]) - germlines.j_offset) - \
+            self.v_anchor_pos
+        
         if self._cdr3_len <= 0:
             self._v = None
             return
@@ -296,40 +282,18 @@ class VDJSequence(object):
         self._post_cdr3_match = self.post_cdr3_length - distance.hamming(
             post_j, post_s)
 
-    def _find_dc(self):
-        '''Finds the first occurrence of the amino-acid sequence DxxxxxC'''
-        for d in lookups.aa_to_all_nts('D'):
-            for c in lookups.aa_to_all_nts('C'):
-                find = re.search(d + '([ATCG]{15})' + c, str(self.sequence))
-                if find is not None:
-                    return find
+    def _find_dc(self, sequence):
+        return self._find_with_frameshifts(sequence, 'D(.{3}((YY)|(YC)|(YH)))C')
+
+    def _find_yxc(self, sequence):
+        return self._find_with_frameshifts(sequence, 'Y([YHC])C')
+
+    def _find_with_frameshifts(self, sequence, regex):
+        for shift in range(0, 3):
+            seq = sequence[shift:]
+            seq = seq[:len(seq) - len(seq) % 3]
+            aas = str(seq.translate())
+            res = re.search('Y([YHC])C', aas)
+            if res is not None:
+                return (res.end() - 1) * 3 + shift
         return None
-
-    def _find_yxc(self):
-        for aas in ['YYC', 'YCC', 'YHC']:
-            for nts in lookups.aa_to_all_nts(aas):
-                find = re.search(nts, str(self.sequence))
-                if find is not None:
-                    return find
-        return None
-
-class Best(object):
-    def __init__(self, gene, score, match):
-        self._genes = set([gene])
-        self._score = score
-        self._match = match
-
-    @property
-    def score(self):
-        return self._score
-
-    @property
-    def genes(self):
-        return self._genes
-
-    @property
-    def match(self):
-        return self._match
-
-    def add_gene(self, seq):
-        self._genes.add(seq)

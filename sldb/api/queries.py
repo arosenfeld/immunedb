@@ -458,6 +458,9 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
                 if key == 'sample_id':
                     query = query.filter(SequenceMapping.sample_id ==
                                          int(value))
+                elif key == 'in_frame':
+                    query = query.filter(
+                        SequenceMapping.in_frame == int(value))
                 else:
                     query = query.filter(get_field(key).like(
                         value.replace('*', '%')))
