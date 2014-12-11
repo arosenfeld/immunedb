@@ -16,13 +16,6 @@ def aa_from_codon(codon, ret_on_wrong=None):
     return ret_on_wrong
 
 
-def aa_to_all_nts(aas):
-    nts = []
-    for aa in aas:
-        nts.append(_nt_lookup[aa])
-    return map(lambda arr: ''.join(arr), itertools.product(*nts))
-
-
 def are_conserved_aas(aa1, aa2):
     """Determines if two amino acids are conserved based on the paper
     'Structural Determinants in the Sequences of Immunoglobulin Variable

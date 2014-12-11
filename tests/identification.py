@@ -21,6 +21,7 @@ if __name__ == '__main__':
             print 'seq        :', vdj.sequence
             print 'v_len      :', vdj.v_length
             print 'v_match    :', vdj.v_match
+            print 'v_perc     :', vdj.v_match / float(vdj.v_length)
             print 'pre_cdr3_len:', vdj.pre_cdr3_length
             print 'pre_cdr3_mth:', vdj.pre_cdr3_match
             print 'j_len      :', vdj.j_length

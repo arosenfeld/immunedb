@@ -149,7 +149,7 @@ class VDJSequence(object):
             seq = self._seq
 
         for match, full_anchor, j_gene in anchors.all_j_anchors():
-            i = seq.rfind(match, len(self._seq) // 2)
+            i = seq.rfind(match)
             if i >= 0:
                 self._j_anchor_pos = i
                 if rev_comp:
@@ -265,18 +265,18 @@ class VDJSequence(object):
         # Fill germline CDR3 with gaps
         self._germline += '-' * self._cdr3_len
         self._germline += j_germ[-germlines.j_offset:]
-        self._seq = self._seq[:len(self._germline)]
+        if len(self.sequence) > len(self.germline):
+            self._seq = self._seq[:len(self._germline)]
+            self.probable_deletion = False
+        else:
+            self._seq += 'N' * (len(self.germline) - len(self.sequence))
+            self.probable_deletion = True
 
         # Get the length of J after the CDR3
         self._post_cdr3_length = germlines.j_offset
         # Get the sequence and germline sequences after CDR3
         post_j = j_germ[-self.post_cdr3_length:]
         post_s = self.sequence[self.CDR3_OFFSET+len(self.cdr3):]
-
-        # If they are unequal length, there is an alignment error
-        if len(post_j) != len(post_s):
-            self._v = None
-            return
 
         # Calculate their match count
         self._post_cdr3_match = self.post_cdr3_length - distance.hamming(
@@ -293,7 +293,7 @@ class VDJSequence(object):
             seq = sequence[shift:]
             seq = seq[:len(seq) - len(seq) % 3]
             aas = str(seq.translate())
-            res = re.search('Y([YHC])C', aas)
+            res = re.search(regex, aas)
             if res is not None:
                 return (res.end() - 1) * 3 + shift
         return None
