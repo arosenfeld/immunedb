@@ -1,6 +1,8 @@
 import argparse
 import json
 
+import numpy as np
+
 from sqlalchemy import distinct, func
 
 import sldb.common.config as config
@@ -9,7 +11,7 @@ from sldb.common.models import *
 
 _dist_fields = [
     SequenceMapping.v_match,
-    SequenceMapping.v_length,
+    (SequenceMapping.v_length + SequenceMapping.num_gaps, 'v_length'),
     SequenceMapping.j_match,
     SequenceMapping.j_length,
     Sequence.v_call,
@@ -73,6 +75,19 @@ _clone_filters = [
 ]
 
 
+def _get_cdr3_bounds(session, filter_func):
+    cdr3_fld = func.length(Sequence.junction_nt)
+    cdr3s = []
+    for seq in filter_func(session.query(
+            func.sum(SequenceMapping.copy_number).label('copy_number'),
+            cdr3_fld.label('cdr3_len'))
+            .join(Sequence)
+            .group_by(cdr3_fld)):
+        cdr3s += [seq.cdr3_len] * int(seq.copy_number)
+    q25, q75 = np.percentile(cdr3s, [25, 75])
+    iqr = q75 - q25
+    return float(q25 - 1.5 * iqr), float(q75 + 1.5 * iqr)
+
 def _get_clone_distribution(session, sample_id, key, filter_func, avg):
     result = {}
     if isinstance(key, tuple):
@@ -91,7 +106,8 @@ def _get_clone_distribution(session, sample_id, key, filter_func, avg):
     return result
 
 
-def _get_distribution(session, sample_id, key, filter_func, use_copy):
+def _get_distribution(session, sample_id, key, filter_func, use_copy,
+                      cdr3_bounds=None):
     result = {}
     if isinstance(key, tuple):
         key = key[0]
@@ -102,8 +118,11 @@ def _get_distribution(session, sample_id, key, filter_func, use_copy):
                     func.sum(
                         SequenceMapping.copy_number).label('copy_number'))
                     .filter(SequenceMapping.sample_id == sample_id))\
-        .join(Sequence)\
-        .group_by(key)
+        .join(Sequence)
+    if cdr3_bounds is not None:
+        q = q.filter(func.length(Sequence.junction_nt) >= cdr3_bounds[0],
+                     func.length(Sequence.junction_nt) <= cdr3_bounds[1])
+    q = q.group_by(key)
 
     for row in q:
         result[row.key] = int(row.copy_number) if use_copy else \
@@ -112,15 +131,24 @@ def _get_distribution(session, sample_id, key, filter_func, use_copy):
 
 
 def _process_filter(session, sample_id, filter_type, filter_func,
-                    use_copy):
+                    use_copy, include_outliers):
+    if not include_outliers:
+        min_cdr3, max_cdr3 = _get_cdr3_bounds(session, filter_func)
     def base_query():
-        return filter_func(session.query(
+        q = filter_func(session.query(
             func.count(SequenceMapping.seq_id).label('unique'),
             func.sum(SequenceMapping.copy_number).label('copy_number'))
             .filter(SequenceMapping.sample_id == sample_id))
+        if not include_outliers:
+            q = q.join(Sequence).filter(
+                func.length(Sequence.junction_nt) >= min_cdr3,
+                func.length(Sequence.junction_nt) <= max_cdr3)
+        return q
 
     stat = SampleStats(sample_id=sample_id,
-                       filter_type=filter_type)
+                       filter_type=filter_type,
+                       outliers=include_outliers)
+
 
     q = base_query().first()
     if q is None:
@@ -142,7 +170,8 @@ def _process_filter(session, sample_id, filter_type, filter_func,
 
     for dist in _dist_fields:
         dist_val = _get_distribution(
-            session, sample_id, dist, filter_func, use_copy)
+            session, sample_id, dist, filter_func, use_copy,
+            (min_cdr3, max_cdr3) if not include_outliers else None)
 
         if isinstance(dist, tuple):
             name = dist[1]
@@ -153,7 +182,8 @@ def _process_filter(session, sample_id, filter_type, filter_func,
     session.add(stat)
 
 
-def _process_clone_filter(session, sample_id, filter_type, filter_func):
+def _process_clone_filter(session, sample_id, filter_type, filter_func,
+                          include_outliers):
     def base_query():
         return filter_func(session.query(
             func.count(SequenceMapping.seq_id).label('unique'))
@@ -161,7 +191,8 @@ def _process_clone_filter(session, sample_id, filter_type, filter_func):
             .group_by(SequenceMapping.clone_id)
 
     stat = SampleStats(sample_id=sample_id,
-                       filter_type=filter_type)
+                       filter_type=filter_type,
+                       outliers=include_outliers)
     stat.sequence_cnt = len(base_query().all())
     stat.in_frame_cnt = len(base_query().filter(
         SequenceMapping.in_frame == 1).all())
@@ -208,16 +239,19 @@ def _process_sample(session, sample_id, force):
         .filter(NoResult.sample_id == sample_id).scalar()
     session.commit()
 
-    for f in _seq_filters:
-        print '\tGenerating sequence stats for filter "{}"'.format(f['type'])
-        _process_filter(session, sample_id, f['type'], f['filter_func'],
-                        f['use_copy'])
-        session.commit()
+    for include_outliers in [False, True]:
+        print '\tOutliers={}'.format(include_outliers);
+        for f in _seq_filters:
+            print '\t\tGenerating sequence stats for filter "{}"'.format(f['type'])
+            _process_filter(session, sample_id, f['type'], f['filter_func'],
+                            f['use_copy'], include_outliers)
+            session.commit()
 
-    for f in _clone_filters:
-        print '\tGenerating sequence stats for filter "{}"'.format(f['type'])
-        _process_clone_filter(session, sample_id, f['type'], f['filter_func'])
-        session.commit()
+        for f in _clone_filters:
+            print '\t\tGenerating sequence stats for filter "{}"'.format(f['type'])
+            _process_clone_filter(session, sample_id, f['type'],
+            f['filter_func'], include_outliers)
+            session.commit()
 
 
 def run_stats(session, args):

@@ -31,6 +31,5 @@ if __name__ == '__main__':
             print 'post_cdr3_len:', vdj.post_cdr3_length
             print 'post_cdr3_mth:', vdj.post_cdr3_match
             print ''
-            assert vdj.num_gaps + vdj.pre_cdr3_length + vdj.pad_length == 309
         else:
             print 'No result'

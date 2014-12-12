@@ -96,6 +96,8 @@ class SampleStats(BaseData):
 
     # The filter type for the stats (e.g. unique, clones)
     filter_type = Column(String(length=255), primary_key=True)
+    # If outliers are included in these stats
+    outliers = Column(Boolean, primary_key=True)
 
     # Distributions stored as JSON for a given field in the sample
     v_match_dist = Column(MEDIUMTEXT)
@@ -107,7 +109,7 @@ class SampleStats(BaseData):
     v_call_dist = Column(MEDIUMTEXT)
     j_call_dist = Column(MEDIUMTEXT)
 
-    copy_number_iden_dist = Column(MEDIUMTEXT)
+    copy_number_dist = Column(MEDIUMTEXT)
     cdr3_length_dist = Column(MEDIUMTEXT)
 
     # Total sequences in filter

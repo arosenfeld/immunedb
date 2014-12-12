@@ -152,9 +152,10 @@ def clone_overlap(filter_type, samples=None, subject=None):
 @route('/api/stats/<samples>')
 def stats(samples):
     session = scoped_session(session_factory)()
-    stats = queries.get_stats(session, _split(samples))
+    stats = queries.get_stats(session, _split(samples), False)
+    outliers = queries.get_stats(session, _split(samples), True)
     session.close()
-    return json.dumps({'stats': stats})
+    return json.dumps({'no_outliers': stats, 'with_outliers': outliers})
 
 
 @route('/api/data/clone_overlap/<filter_type>/<samples>')

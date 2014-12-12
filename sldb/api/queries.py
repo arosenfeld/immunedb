@@ -336,7 +336,7 @@ def get_subject(session, sid):
     return subject
 
 
-def get_stats(session, samples):
+def get_stats(session, samples, include_outliers):
     counts = {}
     stats = {}
     dist_fields = [
@@ -344,9 +344,9 @@ def get_stats(session, samples):
         'j_length_dist', 'v_call_dist', 'j_call_dist',
         'cdr3_length_dist']
     cnt_fields = ['sequence_cnt', 'in_frame_cnt', 'stop_cnt']
-    all_data = {}
     for stat in session.query(SampleStats).filter(
-            SampleStats.sample_id.in_(samples)):
+            SampleStats.sample_id.in_(samples),
+            SampleStats.outliers == include_outliers):
         if stat.sample_id not in stats:
             stats[stat.sample_id] = {
                 'sample': _sample_to_dict(stat.sample),
@@ -357,34 +357,9 @@ def get_stats(session, samples):
 
         flds = _fields_to_dict(dist_fields + cnt_fields, stat)
         stats[stat.sample_id]['filters'][stat.filter_type] = flds
-        for dist in dist_fields:
-            if 'call' in dist:
-                continue
-            points = json.loads(
-                stats[stat.sample_id]['filters'][stat.filter_type][dist])
-            if len(points) > 1:
-                if stat.filter_type not in all_data:
-                    all_data[stat.filter_type] = {}
-                if dist not in all_data[stat.filter_type]:
-                    all_data[stat.filter_type][dist] = []
-                for d in points:
-                    x, y = d
-                    all_data[stat.filter_type][dist] += [x] * y
         counts[stat.filter_type] += stat.sequence_cnt
 
-    outliers = {}
-    for filter_type, dists in all_data.iteritems():
-        if filter_type not in outliers:
-            outliers[filter_type] = {}
-        for dist in dists:
-            q25, q75 = np.percentile(all_data[filter_type][dist], [25, 75])
-            iqr = q75 - q25
-            outliers[filter_type][dist] = {
-                'min': q25 - 1.5 * iqr,
-                'max': q75 + 1.5 * iqr,
-            }
-
-    return {'counts': counts, 'stats': stats, 'outliers': outliers}
+    return {'counts': counts, 'stats': stats }
 
 
 def get_sequence(session, sample_id, seq_id):
