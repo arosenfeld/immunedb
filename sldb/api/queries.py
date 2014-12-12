@@ -403,7 +403,8 @@ def get_sequence(session, sample_id, seq_id):
                            'j_match', 'v_length', 'j_length', 'in_frame',
                            'functional', 'stop', 'copy_number', 'sequence',
                            'pre_cdr3_length', 'pre_cdr3_match',
-                           'post_cdr3_length', 'post_cdr3_match'],
+                           'post_cdr3_length', 'post_cdr3_match', 'pad_length',
+                           'num_gaps'],
                           seq)
     ret['sample'] = _sample_to_dict(seq.sample)
 

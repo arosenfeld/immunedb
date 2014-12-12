@@ -171,18 +171,13 @@ class VDJSequence(object):
                 j_in_cdr3 = j_full[:len(j_full) - germlines.j_offset]
                 cdr3_end = self._j_anchor_pos + len(match) - germlines.j_offset
                 cdr3_segment = self.sequence[cdr3_end - len(j_in_cdr3):cdr3_end]
-                j_full = j_full[self._find_streak_position(reversed(j_in_cdr3),
-                                           reversed(cdr3_segment)):]
-                streak = 0
-                for i, (g, s) in enumerate(zip(reversed(j_in_cdr3),
-                                               reversed(cdr3_segment))):
-                    if g == s:
-                        streak = 0
-                    else:
-                        streak += 1
-                    if streak >= self.MISMATCH_THRESHOLD:
-                        j_full = j_full[i:]
-                        break
+                if len(j_in_cdr3) == 0 or len(cdr3_segment) == 0:
+                    self._j = None
+                    return
+                streak = self._find_streak_position(reversed(j_in_cdr3),
+                                           reversed(cdr3_segment))
+                if streak is not None:
+                    j_full = j_full[streak:]
 
                 self._j_start = self._j_anchor_pos + len(match) - len(j_full)
 
@@ -242,9 +237,16 @@ class VDJSequence(object):
             if len(v_cdr3) == 0 or len(s_cdr3) == 0:
                 self._v = None
                 return
+
             # Find the extent of the sequence's V into the CDR3
-            max_index = cdr3_offset_in_v + (self._find_streak_position(
-                v_cdr3, s_cdr3) - self.MISMATCH_THRESHOLD)
+            streak = self._find_streak_position(v_cdr3, s_cdr3)
+            if streak is not None:
+                # If there is a streak of mismatches, cut after the streak
+                max_index = cdr3_offset_in_v + (streak - self.MISMATCH_THRESHOLD)
+            else:
+                # Unlikely: the CDR3 in the sequence exactly matches the
+                # germline.  Use the smaller sequence length (full match)
+                max_index = cdr3_offset_in_v + min(len(v_cdr3), len(s_cdr3))
             # Compare to the end of V
             v_seq = v_seq[:max_index]
             s_seq = s_seq[:max_index]
@@ -317,7 +319,8 @@ class VDJSequence(object):
             self._seq += 'N' * (len(self.germline) - len(self.sequence))
             self.probable_deletion = True
 
-        self._num_gaps = self.sequence[:self.CDR3_OFFSET].count('-')
+        seq_start = re.match('[-N]*', self.sequence[:self.CDR3_OFFSET]).end()
+        self._num_gaps = self.sequence[seq_start:self.CDR3_OFFSET].count('-')
 
         pre_cdr3_germ = self.germline[:self.CDR3_OFFSET].replace('-', '')
         pre_cdr3_seq = self.sequence[:self.CDR3_OFFSET].replace('-', '')
@@ -360,5 +363,5 @@ class VDJSequence(object):
         for i, (c1, c2) in enumerate(zip(s1, s2)):
             streak = streak + 1 if c1 != c2 else 0
             if streak >= self.MISMATCH_THRESHOLD:
-                break
-        return i
+                return i
+        return None
