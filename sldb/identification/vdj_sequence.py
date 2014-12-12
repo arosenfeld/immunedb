@@ -148,45 +148,67 @@ class VDJSequence(object):
 
     def _find_j(self):
         '''Finds the location and type of J gene'''
+        # Try the sequence first
         self._compare(False)
+        # If no J is found, try the reverse complement
         if self._j is None:
             self._compare(True)
 
     def _compare(self, rev_comp):
         '''Finds an exact J gene anchor match at the amino acid level'''
+        # If looking at the reverse complement, flip and translate the sequence
         if rev_comp:
             seq = self._seq.reverse_complement()
         else:
             seq = self._seq
 
+        # Iterate over every possible J anchor.  For each germline, try its full
+        # sequence, then exclude the beginning 3 characters at a time until
+        # there are only 12 nucleotides remaining.
+        #
+        # For example, the order for one germline:
+        # CTGGGGCCAGGGCACCCTGGTCACCGTCTCCTCAG
+        #    GGGCCAGGGCACCCTGGTCACCGTCTCCTCAG
+        #       CCAGGGCACCCTGGTCACCGTCTCCTCAG
         for match, full_anchor, j_gene in anchors.all_j_anchors():
             i = seq.rfind(match)
             if i >= 0:
+                # If a match is found, record its location and gene
                 self._j_anchor_pos = i
                 if rev_comp:
+                    # If found in the reverse complement, flip and translate the
+                    # actual sequence for the rest of the analysis
                     self._seq = self._seq.reverse_complement()
                 self._j = j_gene
 
+                # Get the full germline J gene
                 j_full = germlines.j[self.j_gene]
+                # Get the portion of J in the CDR3
                 j_in_cdr3 = j_full[:len(j_full) - germlines.j_offset]
                 cdr3_end = self._j_anchor_pos + len(match) - germlines.j_offset
                 cdr3_segment = self.sequence[cdr3_end - len(j_in_cdr3):cdr3_end]
                 if len(j_in_cdr3) == 0 or len(cdr3_segment) == 0:
                     self._j = None
                     return
+                # Get the extent of the J in the CDR3
                 streak = self._find_streak_position(reversed(j_in_cdr3),
                                            reversed(cdr3_segment))
+                # Trim the J gene based on the extent in the CDR3
                 if streak is not None:
                     j_full = j_full[streak:]
 
+                # Find where the full J starts
                 self._j_start = self._j_anchor_pos + len(match) - len(j_full)
 
+                # If the trimmed germline J extends past the end of the
+                # sequence, there is a misalignment
                 if len(j_full) != len(
                         self.sequence[self._j_start:self._j_start+len(j_full)]):
                     self._j = None
                     self._j_anchor_pos = None
                     return
 
+                # Get the full-J distance
                 dist = distance.hamming(
                     j_full,
                     self.sequence[self._j_start:self._j_start+len(j_full)])
@@ -312,22 +334,31 @@ class VDJSequence(object):
         # Fill germline CDR3 with gaps
         self._germline += '-' * self._cdr3_len
         self._germline += j_germ[-germlines.j_offset:]
+        # If the sequence is longer than the germline, trim it
         if len(self.sequence) > len(self.germline):
             self._seq = self._seq[:len(self._germline)]
             self.probable_deletion = False
         else:
+            # If the germline is longer than the sequence, there was probably a
+            # deletion, so flag it as such
             self._seq += 'N' * (len(self.germline) - len(self.sequence))
             self.probable_deletion = True
 
+        # Determine where the read starts (for one-sided reads)
         seq_start = re.match('[-N]*', self.sequence[:self.CDR3_OFFSET]).end()
+        # Get the number of gaps after the sequence begins
         self._num_gaps = self.sequence[seq_start:self.CDR3_OFFSET].count('-')
 
+        # Get the pre-CDR3 germline and sequence stripped of gaps
         pre_cdr3_germ = self.germline[:self.CDR3_OFFSET].replace('-', '')
         pre_cdr3_seq = self.sequence[:self.CDR3_OFFSET].replace('-', '')
+        # If there is padding, get rid of it in the sequence and align the
+        # germline
         if self._pad_len > 0:
             pre_cdr3_germ = pre_cdr3_germ[self._pad_len:]
             pre_cdr3_seq = pre_cdr3_seq[self._pad_len:]
 
+        # Calculate the pre-CDR3 length and distance
         self._pre_cdr3_length = len(pre_cdr3_seq)
         self._pre_cdr3_match = self._pre_cdr3_length - distance.hamming(
             str(pre_cdr3_seq), str(pre_cdr3_germ))
@@ -359,6 +390,14 @@ class VDJSequence(object):
         return None
 
     def _find_streak_position(self, s1, s2):
+        ''' Finds the first streak of MISMATCH_THRESHOLD characters where s1
+        does not equal s2.
+
+        For example if MISMATCH_THRESHOLD is 3:
+            ATCGATCGATCGATCG
+            ATCGATCGATCTTACG
+                         ^--- Returned index
+        '''
         streak = 0
         for i, (c1, c2) in enumerate(zip(s1, s2)):
             streak = streak + 1 if c1 != c2 else 0
