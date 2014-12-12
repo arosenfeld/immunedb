@@ -36,6 +36,8 @@ class VDJSequence(object):
                 self._v_anchor_pos = self._find_v_position(self.sequence)
                 if self.v_anchor_pos is not None:
                     self._find_v()
+                    if self.v_gene is not None:
+                        self._calculate_stats()
 
     @property
     def id(self):
@@ -169,6 +171,8 @@ class VDJSequence(object):
                 j_in_cdr3 = j_full[:len(j_full) - germlines.j_offset]
                 cdr3_end = self._j_anchor_pos + len(match) - germlines.j_offset
                 cdr3_segment = self.sequence[cdr3_end - len(j_in_cdr3):cdr3_end]
+                j_full = j_full[self._find_streak_position(reversed(j_in_cdr3),
+                                           reversed(cdr3_segment)):]
                 streak = 0
                 for i, (g, s) in enumerate(zip(reversed(j_in_cdr3),
                                                reversed(cdr3_segment))):
@@ -213,10 +217,14 @@ class VDJSequence(object):
         for v, germ in germlines.v.iteritems():
             # Strip the gaps
             v_seq = Seq(germ.replace('-', ''))
+            # Find V anchor in germline
             germ_pos = self._find_v_position(v_seq)
-            # Align the sequences for comparison
+            # Determine the gap between the two anchors
             diff = abs(germ_pos - self.v_anchor_pos)
             s_seq = self.sequence
+
+            # Trim the sequence which has the maximal anchor position, and
+            # determine the CDR3 start position without gaps
             if germ_pos > self.v_anchor_pos:
                 v_seq = v_seq[diff:]
                 cdr3_offset_in_v = self.CDR3_OFFSET - germ[diff:].count('-') - \
@@ -224,20 +232,15 @@ class VDJSequence(object):
             else:
                 s_seq = s_seq[diff:]
                 cdr3_offset_in_v = self.CDR3_OFFSET - germ.count('-')
+            # Only compare to the start of J
             v_seq = v_seq[:self._j_start]
             s_seq = s_seq[:self._j_start]
 
             streak = 0
             v_cdr3 = v_seq[cdr3_offset_in_v:]
             s_cdr3 = s_seq[cdr3_offset_in_v:]
-            for i, (g, s) in enumerate(zip(v_cdr3, s_cdr3)):
-                if g == s:
-                    streak = 0
-                else:
-                    streak += 1
-                if streak >= self.MISMATCH_THRESHOLD:
-                    break
-            max_index = cdr3_offset_in_v + (i - self.MISMATCH_THRESHOLD)
+            max_index = cdr3_offset_in_v + (self._find_streak_position(
+                v_cdr3, s_cdr3) - self.MISMATCH_THRESHOLD)
             v_seq = v_seq[:max_index]
             s_seq = s_seq[:max_index]
 
@@ -260,6 +263,7 @@ class VDJSequence(object):
             self._v = None
             return
 
+    def _calculate_stats(self):
         self._germline = germlines.v[sorted(self._v)[0]][:self.CDR3_OFFSET]
         if self._pad_len >= 0:
             self._seq = 'N' * self._pad_len + str(self._seq)
@@ -339,3 +343,11 @@ class VDJSequence(object):
             if res is not None:
                 return (res.end() - 1) * 3 + shift
         return None
+
+    def _find_streak_position(self, s1, s2):
+        streak = 0
+        for i, (c1, c2) in enumerate(zip(s1, s2)):
+            streak = streak + 1 if c1 != c2 else 0
+            if streak >= self.MISMATCH_THRESHOLD:
+                break
+        return i
