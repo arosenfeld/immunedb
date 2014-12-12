@@ -236,11 +236,16 @@ class VDJSequence(object):
             v_seq = v_seq[:self._j_start]
             s_seq = s_seq[:self._j_start]
 
-            streak = 0
+            # Determine the CDR3 in the germline and sequence
             v_cdr3 = v_seq[cdr3_offset_in_v:]
             s_cdr3 = s_seq[cdr3_offset_in_v:]
+            if len(v_cdr3) == 0 or len(s_cdr3) == 0:
+                self._v = None
+                return
+            # Find the extent of the sequence's V into the CDR3
             max_index = cdr3_offset_in_v + (self._find_streak_position(
                 v_cdr3, s_cdr3) - self.MISMATCH_THRESHOLD)
+            # Compare to the end of V
             v_seq = v_seq[:max_index]
             s_seq = s_seq[:max_index]
 
@@ -254,8 +259,10 @@ class VDJSequence(object):
                 self._v_match = len(s_seq) - dist
                 self._germ_pos = germ_pos
             elif dist == self._v_score:
+                # Add the V-tie
                 self._v.append(v)
 
+        # Determine the pad length
         self._pad_len = self._germ_pos - self.v_anchor_pos
 
         # If we need to pad with a full sequence, there is a misalignment
@@ -264,11 +271,15 @@ class VDJSequence(object):
             return
 
     def _calculate_stats(self):
+        # Set the germline to the V gene up to the CDR3
         self._germline = germlines.v[sorted(self._v)[0]][:self.CDR3_OFFSET]
+        # If we need to pad the sequence, do so, otherwise trim the sequence to
+        # the germline length
         if self._pad_len >= 0:
             self._seq = 'N' * self._pad_len + str(self._seq)
         else:
             self._seq = str(self._seq[-self._pad_len:])
+        # Update the anchor positions after adding padding / trimming
         self._j_anchor_pos += self._pad_len
         self._v_anchor_pos += self._pad_len
 
