@@ -9,6 +9,7 @@ import sldb.util.lookups as lookups
 
 class VDJSequence(object):
     CDR3_OFFSET = 309
+    MISMATCH_THRESHOLD = 3
 
     def __init__(self, id, seq, full_v):
         self._id = id
@@ -89,6 +90,14 @@ class VDJSequence(object):
         return self._mutation_frac
 
     @property
+    def num_gaps(self):
+        return self._num_gaps
+
+    @property
+    def pad_length(self):
+        return self._pad_len if self._pad_len >=0 else 0
+
+    @property
     def in_frame(self):
         return len(self.cdr3) % 3 == 0
 
@@ -157,17 +166,31 @@ class VDJSequence(object):
                 self._j = j_gene
 
                 j_full = germlines.j[self.j_gene]
-                j_start = self._j_anchor_pos - (len(j_full) - len(match))
+                j_in_cdr3 = j_full[:len(j_full) - germlines.j_offset]
+                cdr3_end = self._j_anchor_pos + len(match) - germlines.j_offset
+                cdr3_segment = self.sequence[cdr3_end - len(j_in_cdr3):cdr3_end]
+                streak = 0
+                for i, (g, s) in enumerate(zip(reversed(j_in_cdr3),
+                                               reversed(cdr3_segment))):
+                    if g == s:
+                        streak = 0
+                    else:
+                        streak += 1
+                    if streak >= self.MISMATCH_THRESHOLD:
+                        j_full = j_full[i:]
+                        break
+
+                self._j_start = self._j_anchor_pos + len(match) - len(j_full)
 
                 if len(j_full) != len(
-                        self.sequence[j_start:j_start+len(j_full)]):
+                        self.sequence[self._j_start:self._j_start+len(j_full)]):
                     self._j = None
                     self._j_anchor_pos = None
                     return
 
                 dist = distance.hamming(
                     j_full,
-                    self.sequence[j_start:j_start+len(j_full)])
+                    self.sequence[self._j_start:self._j_start+len(j_full)])
 
                 self._j_length = len(j_full)
                 self._j_match = self._j_length - dist
@@ -196,9 +219,27 @@ class VDJSequence(object):
             s_seq = self.sequence
             if germ_pos > self.v_anchor_pos:
                 v_seq = v_seq[diff:]
+                cdr3_offset_in_v = self.CDR3_OFFSET - germ[diff:].count('-') - \
+                    diff
             else:
                 s_seq = s_seq[diff:]
-            s_seq = s_seq[:len(v_seq)]
+                cdr3_offset_in_v = self.CDR3_OFFSET - germ.count('-')
+            v_seq = v_seq[:self._j_start]
+            s_seq = s_seq[:self._j_start]
+
+            streak = 0
+            v_cdr3 = v_seq[cdr3_offset_in_v:]
+            s_cdr3 = s_seq[cdr3_offset_in_v:]
+            for i, (g, s) in enumerate(zip(v_cdr3, s_cdr3)):
+                if g == s:
+                    streak = 0
+                else:
+                    streak += 1
+                if streak >= self.MISMATCH_THRESHOLD:
+                    break
+            max_index = cdr3_offset_in_v + (i - self.MISMATCH_THRESHOLD)
+            v_seq = v_seq[:max_index]
+            s_seq = s_seq[:max_index]
 
             # Determine the distance between the germline and sequence
             dist = distance.hamming(str(v_seq), str(s_seq))
@@ -209,34 +250,23 @@ class VDJSequence(object):
                 self._v_length = len(s_seq)
                 self._v_match = len(s_seq) - dist
                 self._germ_pos = germ_pos
-                if germ_pos > self.v_anchor_pos:
-                    self._pre_cdr3_seq = s_seq[:self.v_anchor_pos]
-                    self._pre_cdr3_germ = v_seq[:germ_pos - diff]
-                else:
-                    self._pre_cdr3_seq = s_seq[:self.v_anchor_pos - diff]
-                    self._pre_cdr3_germ = v_seq[:germ_pos]
-
             elif dist == self._v_score:
                 self._v.append(v)
 
-        pad_len = self._germ_pos - self.v_anchor_pos
+        self._pad_len = self._germ_pos - self.v_anchor_pos
 
         # If we need to pad with a full sequence, there is a misalignment
-        if self._full_v and pad_len > 0:
+        if self._full_v and self._pad_len > 0:
             self._v = None
             return
 
-        self._pre_cdr3_length = len(self._pre_cdr3_seq)
-        self._pre_cdr3_match = self._pre_cdr3_length - distance.hamming(
-            str(self._pre_cdr3_seq), str(self._pre_cdr3_germ))
-
         self._germline = germlines.v[sorted(self._v)[0]][:self.CDR3_OFFSET]
-        if pad_len >= 0:
-            self._seq = 'N' * pad_len + str(self._seq)
+        if self._pad_len >= 0:
+            self._seq = 'N' * self._pad_len + str(self._seq)
         else:
-            self._seq = str(self._seq[-pad_len:])
-        self._j_anchor_pos += pad_len
-        self._v_anchor_pos += pad_len
+            self._seq = str(self._seq[-self._pad_len:])
+        self._j_anchor_pos += self._pad_len
+        self._v_anchor_pos += self._pad_len
 
         # Mutation ratio is the distance divided by the length of overlap
         self._mutation_frac = self._v_score / float(self._v_length)
@@ -271,6 +301,18 @@ class VDJSequence(object):
         else:
             self._seq += 'N' * (len(self.germline) - len(self.sequence))
             self.probable_deletion = True
+
+        self._num_gaps = self.sequence[:self.CDR3_OFFSET].count('-')
+
+        pre_cdr3_germ = self.germline[:self.CDR3_OFFSET].replace('-', '')
+        pre_cdr3_seq = self.sequence[:self.CDR3_OFFSET].replace('-', '')
+        if self._pad_len > 0:
+            pre_cdr3_germ = pre_cdr3_germ[self._pad_len:]
+            pre_cdr3_seq = pre_cdr3_seq[self._pad_len:]
+
+        self._pre_cdr3_length = len(pre_cdr3_seq)
+        self._pre_cdr3_match = self._pre_cdr3_length - distance.hamming(
+            str(pre_cdr3_seq), str(pre_cdr3_germ))
 
         # Get the length of J after the CDR3
         self._post_cdr3_length = germlines.j_offset

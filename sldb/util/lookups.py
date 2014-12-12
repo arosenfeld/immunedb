@@ -30,6 +30,12 @@ def are_conserved_aas(aa1, aa2):
             return True
     return False
 
+def aa_to_all_nts(aas):
+    nts = []
+    for aa in aas:
+        nts.append(_nt_lookup[aa])
+    return map(lambda arr: ''.join(arr), itertools.product(*nts))
+
 
 _aa_lookup = {'TTT': 'F', 'TTC': 'F', 'TTA': 'L', 'TTG': 'L', 'TCT': 'S',
              'TCC': 'S', 'TCA': 'S', 'TCG': 'S', 'TAT': 'Y', 'TAC': 'Y',

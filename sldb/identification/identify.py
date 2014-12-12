@@ -23,7 +23,7 @@ def _get_from_meta(meta, sample_name, key, require):
 
 
 def _create_mapping(session, identity_seq_id, alignment, sample, vdj):
-    if vdj.probable_deletion or vdj.v_match / float(vdj.v_length) < .7:
+    if vdj.probable_deletion or vdj.v_match / float(vdj.v_length) < .6:
         seq = vdj.sequence.lstrip('N')
         germ = vdj.germline[len(vdj.sequence) - len(seq):]
         lev_dist = distance.levenshtein(germ, seq)
@@ -37,6 +37,9 @@ def _create_mapping(session, identity_seq_id, alignment, sample, vdj):
 
         alignment=alignment,
         levenshtein_dist=lev_dist,
+
+        num_gaps=vdj.num_gaps,
+        pad_length=vdj.pad_length,
 
         v_match=vdj.v_match,
         v_length=vdj.v_length,

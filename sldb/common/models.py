@@ -107,9 +107,6 @@ class SampleStats(BaseData):
     v_call_dist = Column(MEDIUMTEXT)
     j_call_dist = Column(MEDIUMTEXT)
 
-    v_gap_length_dist = Column(MEDIUMTEXT)
-    j_gap_length_dist = Column(MEDIUMTEXT)
-
     copy_number_iden_dist = Column(MEDIUMTEXT)
     cdr3_length_dist = Column(MEDIUMTEXT)
 
@@ -213,6 +210,9 @@ class SequenceMapping(BaseData):
 
     alignment = Column(String(length=6), index=True)
     levenshtein_dist = Column(Integer, index=True)
+
+    num_gaps = Column(Integer)
+    pad_length = Column(Integer)
 
     v_match = Column(Integer)
     v_length = Column(Integer)
