@@ -8,6 +8,8 @@ if __name__ == '__main__':
 
     parser = config.get_base_arg_parser('Generates JSON trees for clones')
     parser.add_argument('tree_prog', help='Path to tree creation program')
+    parser.add_argument('--force', action='store_true', default=False,
+                        help='Force updating of trees')
     parser.add_argument('--clone_ids', nargs='+', type=int,
                         help='ID of clone from which to make a tree')
     parser.add_argument('--temp', default='/tmp', help='Path for temporary'

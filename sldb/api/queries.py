@@ -219,6 +219,10 @@ def compare_clones(session, uids):
     return clones
 
 
+def get_clone_tree(session, clone_id):
+    return session.query(Clone.tree).filter(Clone.id == clone_id).first()
+
+
 def get_clone_overlap(session, filter_type, ctype, limit,
                       paging=None):
     """Gets a list of clones and the samples in `samples` which they appear"""

@@ -111,7 +111,7 @@ def _assign_clones_to_groups(session, subject_id, per_commit):
             germline = '{}{}{}'.format(
                 germlines.v[v][0:VDJSequence.CDR3_OFFSET],
                 '-' * clone.cdr3_num_nts,
-                germlines.j[clone.j_gene])
+                germlines.j[clone.j_gene][:-germlines.j_offset])
             germline = germline[:len(seqs[0].identity_seq.sequence_replaced)]
 
             group = CloneGroup(subject_id=subject_id,

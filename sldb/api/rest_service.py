@@ -133,6 +133,14 @@ def clone_compare(uids):
     return json.dumps({'clones': clones})
 
 
+@route('/api/clone_tree/<cid>')
+def clone_tree(cid):
+    session = scoped_session(session_factory)()
+    tree = queries.get_clone_tree(session, cid)
+    session.close()
+    return tree
+
+
 @route('/api/clone_overlap/<filter_type>/<samples>')
 @route('/api/subject_clones/<filter_type>/<subject>')
 def clone_overlap(filter_type, samples=None, subject=None):
@@ -197,6 +205,7 @@ def download_clone_overlap(filter_type, samples=None, subject=None):
                 c['clone']['group']['subject']['study']['name']),
             c['clone']['group']['v_gene'],
             c['clone']['group']['j_gene'],
+            len(c['clone']['cdr3_nt']),
             c['clone']['group']['cdr3_aa'],
             c['clone']['cdr3_nt']]
 
@@ -246,7 +255,7 @@ def download_sequences(file_type, replace_germ, cid, params):
         yield '>>germline\n{}\n\n'.format(germline)
         for seq in sequences:
             if file_type == 'fasta':
-                yield '>{},{}\n{}\n\n'.format(
+                yield '>{}|{}\n{}\n\n'.format(
                     seq['sample_name'],
                     seq['seq_id'],
                     seq['sequence'])
