@@ -43,8 +43,7 @@ def _subject_to_dict(subject):
 
 def _sample_to_dict(sample):
     d = _fields_to_dict(['id', 'name', 'info', 'subset', 'tissue',
-                         'disease', 'lab', 'experimenter', 'valid_cnt',
-                         'no_result_cnt', 'functional_cnt'], sample)
+                         'disease', 'lab', 'experimenter'], sample)
     d['date'] = sample.date.strftime('%Y-%m-%d')
     d['subject'] = _subject_to_dict(sample.subject)
     return d
@@ -78,7 +77,22 @@ def get_all_studies(session):
                     'info': sample.study.info,
                     'samples': []
                 }
-            result[sample.study.id]['samples'].append(_sample_to_dict(sample))
+            sample_dict = _sample_to_dict(sample)
+            stats = session.query(SampleStats.sequence_cnt,
+                                  SampleStats.in_frame_cnt,
+                                  SampleStats.stop_cnt,
+                                  SampleStats.functional_cnt,
+                                  SampleStats.no_result_cnt).filter(
+                SampleStats.sample_id == sample.id,
+                SampleStats.outliers == 0,
+                SampleStats.filter_type == 'all').first()
+            if stats is not None:
+                sample_dict['sequence_cnt'] = stats.sequence_cnt
+                sample_dict['in_frame_cnt'] = stats.in_frame_cnt
+                sample_dict['stop_cnt'] = stats.stop_cnt
+                sample_dict['functional_cnt'] = stats.functional_cnt
+                sample_dict['no_result_cnt'] = stats.no_result_cnt
+            result[sample.study.id]['samples'].append(sample_dict)
 
     return result
 
@@ -342,8 +356,9 @@ def get_stats(session, samples, include_outliers):
     dist_fields = [
         'v_match_dist', 'v_length_dist', 'j_match_dist',
         'j_length_dist', 'v_call_dist', 'j_call_dist',
-        'cdr3_length_dist']
-    cnt_fields = ['sequence_cnt', 'in_frame_cnt', 'stop_cnt']
+        'cdr3_length_dist', 'copy_number_dist']
+    cnt_fields = ['sequence_cnt', 'in_frame_cnt', 'stop_cnt', 'functional_cnt',
+                 'no_result_cnt']
     for stat in session.query(SampleStats).filter(
             SampleStats.sample_id.in_(samples),
             SampleStats.outliers == include_outliers):

@@ -74,13 +74,6 @@ class Sample(BaseMaster):
     lab = Column(String(128))
     experimenter = Column(String(128))
 
-    # Number of valid sequences in the sample
-    valid_cnt = Column(Integer, default=0)
-    # Number of invalid sequences in the sample
-    no_result_cnt = Column(Integer, default=0)
-    # Number of functional sequences in the sample
-    functional_cnt = Column(Integer, default=0)
-
 
 class SampleStats(BaseData):
     """Aggregate statistics for a sample.  This exists to reduce the time
@@ -118,6 +111,10 @@ class SampleStats(BaseData):
     in_frame_cnt = Column(Integer)
     # Number of sequences with a stop codon
     stop_cnt = Column(Integer)
+    # Number of functional sequences
+    functional_cnt = Column(Integer)
+    # Number of invalid sequences
+    no_result_cnt = Column(Integer)
 
 
 class CloneGroup(BaseMaster):
@@ -167,6 +164,7 @@ class Clone(BaseData):
                       index=True)
     group = relationship(CloneGroup, backref=backref('clones',
                          order_by=(id)))
+    tree = Column(MEDIUMTEXT)
 
 
 class Sequence(BaseData):

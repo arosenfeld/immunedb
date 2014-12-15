@@ -149,7 +149,6 @@ def _process_filter(session, sample_id, filter_type, filter_func,
                        filter_type=filter_type,
                        outliers=include_outliers)
 
-
     q = base_query().first()
     if q is None:
         stat.sequence_cnt = 0
@@ -167,6 +166,16 @@ def _process_filter(session, sample_id, filter_type, filter_func,
         stat.stop_cnt = 0
     else:
         stat.stop_cnt = q.unique
+
+    q = base_query().filter(SequenceMapping.functional == 1).first()
+    if q is None:
+        stat.functional_cnt = 0
+    else:
+        stat.functional_cnt = q.unique
+
+
+    stat.no_result_cnt = session.query(func.count(NoResult.seq_id))\
+            .filter(NoResult.sample_id == sample_id).scalar()
 
     for dist in _dist_fields:
         dist_val = _get_distribution(
@@ -228,16 +237,6 @@ def _process_sample(session, sample_id, force):
         print ('\tSKIPPING stats since they already exists.'
                '  Use the --force flag to force regeneration.')
         return
-
-    sample = session.query(Sample).filter(Sample.id == sample_id).first()
-    sample.valid_cnt = session.query(func.count(SequenceMapping.seq_id))\
-        .filter(SequenceMapping.sample_id == sample_id).scalar()
-    sample.functional_cnt = session.query(func.count(SequenceMapping.seq_id))\
-        .filter(SequenceMapping.sample_id == sample_id,
-                SequenceMapping.functional == 1).scalar()
-    sample.no_result_cnt = session.query(func.count(NoResult.seq_id))\
-        .filter(NoResult.sample_id == sample_id).scalar()
-    session.commit()
 
     for include_outliers in [False, True]:
         print '\tOutliers={}'.format(include_outliers);

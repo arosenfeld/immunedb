@@ -17,6 +17,7 @@ setup(name='SLDB',
       scripts=[
           'bin/sldb_align',
           'bin/sldb_clones',
+          'bin/sldb_clone_tree',
           'bin/sldb_conv_table',
           'bin/sldb_identify',
           'bin/sldb_mt2db',
