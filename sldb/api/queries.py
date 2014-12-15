@@ -332,14 +332,20 @@ def get_subject(session, sid):
     samples = []
 
     for sample in session.query(Sample).filter(Sample.subject_id == sid):
-        samples.append({
+        stats = session.query(SampleStats).filter(
+            SampleStats.filter_type == 'all',
+            SampleStats.sample_id == sample.id,
+            SampleStats.outliers == True).first()
+        sample_dict = {
             'id': sample.id,
             'name': sample.name,
             'date': sample.date.strftime('%Y-%m-%d'),
-            'valid_cnt': sample.valid_cnt,
-            'no_result_cnt': sample.no_result_cnt,
-            'functional_cnt': sample.functional_cnt,
-        })
+        }
+        if stats is not None:
+            sample_dict['valid_cnt'] = stats.sequence_cnt
+            sample_dict['no_result_cnt'] = stats.no_result_cnt
+            sample_dict['functional_cnt'] = stats.functional_cnt
+        samples.append(sample_dict)
 
     subject = {
         'id': s.id,
