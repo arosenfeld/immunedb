@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='SLDB',
-      version='1.0.5',
+      version='3.0.5',
       author='Aaron M. Rosenfeld',
       author_email='ar374@drexel.edu',
       packages=[
@@ -26,7 +26,6 @@ setup(name='SLDB',
           'bin/sldb_stats',
       ],
       install_requires=[
-          'sarge', 
           'gevent', 
           'sqlalchemy>=0.9.8',
           'biopython',

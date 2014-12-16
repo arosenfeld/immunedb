@@ -210,6 +210,9 @@ def compare_clones(session, uids):
                 'read_start': read_start,
                 'copy_number': mapping.copy_number,
                 'mutations': muts,
+                'v_length': mapping.v_length + \
+                    mapping.num_gaps + mapping.pad_length,
+                'j_length': mapping.j_length,
             })
 
         region_stats, pos_stats = mutations.get_aggregate()
@@ -404,7 +407,7 @@ def get_sequence(session, sample_id, seq_id):
                            'functional', 'stop', 'copy_number', 'sequence',
                            'pre_cdr3_length', 'pre_cdr3_match',
                            'post_cdr3_length', 'post_cdr3_match', 'pad_length',
-                           'num_gaps'],
+                           'num_gaps', 'levenshtein_dist'],
                           seq)
     ret['sample'] = _sample_to_dict(seq.sample)
 
@@ -462,12 +465,17 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
                 elif key == 'in_frame':
                     query = query.filter(
                         SequenceMapping.in_frame == int(value))
+                elif key == 'copy_number':
+                    query = query.filter(
+                        SequenceMapping.copy_number >= int(value))
                 else:
                     query = query.filter(get_field(key).like(
                         value.replace('*', '%')))
 
     if filters is None or 'show_r1' not in filters or not filters['show_r1']:
         query = query.filter(SequenceMapping.alignment == 'pRESTO')
+    if filters is None or 'show_indel' not in filters or not filters['show_indel']:
+        query = query.filter(SequenceMapping.levenshtein_dist.is_(None))
 
     if paging is not None:
         page, per_page = paging
@@ -476,7 +484,8 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
     for row in query:
         fields = _fields_to_dict(
             ['seq_id', 'alignment', 'v_match', 'j_match', 'v_length',
-             'j_length', 'in_frame', 'functional', 'stop'], row)
+             'j_length', 'in_frame', 'functional', 'stop',
+             'levenshtein_dist'], row)
 
         fields['copy_number'] = int(session.query(
             func.sum(SequenceMapping.copy_number)).filter(
