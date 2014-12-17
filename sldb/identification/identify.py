@@ -86,8 +86,11 @@ def _add_to_db(session, alignment, sample, vdj):
         if existing is not None:
             # If so, bump the copy number and insert the duplicate sequence
             existing.copy_number += 1
-            session.add(DuplicateSequence(identity_seq_id=m.seq_id,
-                        seq_id=vdj.id))
+            if session.query(DuplicateSequence).filter(
+                    DuplicateSequence.identity_seq_id== m.seq_id,
+                    DuplicateSequence.seq_id == vdj.id).first() == None:
+                session.add(DuplicateSequence(identity_seq_id=m.seq_id,
+                                              seq_id=vdj.id))
         else:
             # If not, add a new mapping from the existing sequence
             session.add(_create_mapping(session, m.seq_id, alignment, sample,

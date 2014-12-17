@@ -87,14 +87,18 @@ def run_haskell2json(session, args):
                 'germline',
                 session.query(CloneGroup.germline).filter(
                     CloneGroup.id == clone_inst.group_id).first().germline))
-            for seq in session.query(SequenceMapping.seq_id,
-                                     SequenceMapping.copy_number,
-                                     SequenceMapping.sequence).filter(
-                    SequenceMapping.clone_id == clone):
+            for seq in session.query(
+                    func.sum(SequenceMapping.copy_number).label('copy_number'),
+                    SequenceMapping.seq_id,
+                    SequenceMapping.sequence,
+                    Sequence.sequence_replaced).filter(
+                        SequenceMapping.clone_id == clone)\
+                    .group_by(SequenceMapping.identity_seq_id)\
+                    .join(Sequence):
                 fh.write('>{}|{}\n{}\n'.format(
                     seq.seq_id,
                     seq.copy_number,
-                    seq.sequence))
+                    seq.sequence_replaced))
 
         # Run the tree program
         proc = subprocess.Popen(shlex.split('{} -i {} -o {} -c -C 2'.format(

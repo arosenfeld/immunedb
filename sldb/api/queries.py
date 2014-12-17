@@ -145,7 +145,8 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
                 SequenceMapping,
                 func.count(SequenceMapping.identity_seq_id).label('unique'),
                 func.sum(SequenceMapping.copy_number).label('total'))\
-            .filter(SequenceMapping.clone_id == c.id)\
+            .filter(SequenceMapping.clone_id == c.id,
+                    SequenceMapping.sample.has(subject_id=c.subject_id))\
             .order_by(desc(func.count(
                 SequenceMapping.identity_seq_id).label('unique')))\
                 .group_by(SequenceMapping.sample_id):
@@ -197,6 +198,11 @@ def compare_clones(session, uids):
             else:
                 read_start = read_start.span()[1]
 
+            cn = session.query(
+                func.sum(SequenceMapping.copy_number))\
+                .filter(
+                    SequenceMapping.identity_seq_id \
+                        == mapping.identity_seq_id).scalar()
             muts = mutations.add_sequence(
                 mapping.identity_seq.sequence_replaced)
             clones[clone_id]['seqs'].append({
@@ -208,7 +214,7 @@ def compare_clones(session, uids):
                 'junction_nt': mapping.identity_seq.junction_nt,
                 'sequence': mapping.identity_seq.sequence_replaced,
                 'read_start': read_start,
-                'copy_number': mapping.copy_number,
+                'copy_number': int(cn),
                 'mutations': muts,
                 'v_length': mapping.v_length + \
                     mapping.num_gaps + mapping.pad_length,
@@ -427,8 +433,10 @@ def get_sequence(session, sample_id, seq_id):
     ret['mutations'] = muts.add_sequence(seq.sequence)
 
     ret['duplicates'] = []
+    ret['total_copy_number'] = ret['copy_number']
     for dup in session.query(SequenceMapping).filter(
             SequenceMapping.identity_seq_id == seq.identity_seq_id,
+            SequenceMapping.sample.has(subject_id=seq.sample.subject_id),
             SequenceMapping.seq_id != seq_id)\
             .order_by(SequenceMapping.sample_id):
         ret['duplicates'].append({
@@ -437,6 +445,7 @@ def get_sequence(session, sample_id, seq_id):
             'alignment': dup.alignment,
             'copy_number': dup.copy_number,
         })
+        ret['total_copy_number'] += dup.copy_number
 
     return ret
 

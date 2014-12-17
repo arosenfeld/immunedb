@@ -28,18 +28,32 @@ def _similar_to_all(seq, clone_query, min_similarity):
     return True
 
 
+def _assign_all_identity_clones(session, identity_seq_id, samples, clone_id):
+    session.query(SequenceMapping)\
+        .filter(SequenceMapping.identity_seq_id == identity_seq_id,
+                SequenceMapping.sample_id.in_(samples))\
+        .update({
+            'clone_id': clone_id
+        }, synchronize_session=False)
+
 def _get_subject_clones(session, subject_id, min_similarity, per_commit):
     clone_cache = {}
     new_clones = 0
+    duplicates = 0
     samples = map(lambda s: s.id, session.query(Sample).filter(
         Sample.subject_id == subject_id))
-    for i, seq in enumerate(session.query(SequenceMapping).filter(
-            SequenceMapping.sample_id.in_(samples),
-            SequenceMapping.clone_id.is_(None),
-            SequenceMapping.copy_number > 1)):
+    for i, seqr in enumerate(session.query(
+            SequenceMapping,
+            func.count(SequenceMapping.seq_id).label('cn')).filter(
+                SequenceMapping.sample_id.in_(samples),
+                SequenceMapping.clone_id.is_(None))
+            .group_by(SequenceMapping.identity_seq_id)
+            .having(func.sum(SequenceMapping.copy_number) > 1)):
         if i > 0 and i % per_commit == 0:
             session.commit()
-            print 'Committed {} (new clones={})'.format(i, new_clones)
+            print 'Committed {} (new clones={}, duplicates={})'.format(
+                i, new_clones, duplicates)
+        seq = seqr.SequenceMapping
         seq_iden = seq.identity_seq
         if '*' in seq_iden.junction_aa:
             continue
@@ -49,6 +63,8 @@ def _get_subject_clones(session, subject_id, min_similarity, per_commit):
                seq_iden.junction_aa)
         if key in clone_cache:
             seq.clone = clone_cache[key]
+            _assign_all_identity_clones(session, seq.identity_seq_id, samples,
+                                        clone_cache[key].id)
             continue
 
         for clone in session.query(Clone)\
@@ -56,8 +72,10 @@ def _get_subject_clones(session, subject_id, min_similarity, per_commit):
                         Clone.v_gene == seq_iden.v_call,
                         Clone.j_gene == seq_iden.j_call,
                         Clone.cdr3_num_nts == len(seq_iden.junction_nt)):
-            seqs_in_clone = map(lambda s: s.identity_seq.junction_aa,
-                                session.query(SequenceMapping)
+            seqs_in_clone = map(lambda s: s.junction_aa,
+                                session.query(SequenceMapping.identity_seq_id,
+                                              Sequence.junction_aa)
+                                .join(Sequence)
                                 .filter(SequenceMapping.clone == clone))
 
             if _similar_to_all(seq_iden.junction_aa, seqs_in_clone,
@@ -75,13 +93,12 @@ def _get_subject_clones(session, subject_id, min_similarity, per_commit):
             session.flush()
             seq_clone = new_clone
 
-        session.query(SequenceMapping)\
-            .filter(SequenceMapping.identity_seq_id == seq.identity_seq_id,
-                    SequenceMapping.sample_id.in_(samples),
-                    SequenceMapping.copy_number > 1)\
-            .update({
-                'clone_id': seq_clone.id
-            }, synchronize_session='fetch')
+        seq.clone = seq_clone
+
+        if seqr.cn > 1:
+            duplicates += (seqr.cn - 1)
+            _assign_all_identity_clones(session, seq.identity_seq_id, samples,
+                                        seq_clone.id)
 
         clone_cache[key] = seq_clone
 
