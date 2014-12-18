@@ -216,7 +216,7 @@ def compare_clones(session, uids):
                 'read_start': read_start,
                 'copy_number': int(cn),
                 'mutations': muts,
-                'v_length': mapping.v_length + \
+                'v_extent': mapping.v_length + \
                     mapping.num_gaps + mapping.pad_length,
                 'j_length': mapping.j_length,
             })
@@ -422,6 +422,7 @@ def get_sequence(session, sample_id, seq_id):
     ret['junction_nt'] = seq.identity_seq.junction_nt
     ret['junction_aa'] = seq.identity_seq.junction_aa
     ret['germline'] = seq.identity_seq.germline
+    ret['v_extent'] = ret['v_length'] + ret['num_gaps'] + ret['pad_length']
 
     if seq.clone is None:
         ret['clone'] = None
@@ -474,9 +475,12 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
                 elif key == 'in_frame':
                     query = query.filter(
                         SequenceMapping.in_frame == int(value))
-                elif key == 'copy_number':
+                elif key == 'min_copy_number':
                     query = query.filter(
                         SequenceMapping.copy_number >= int(value))
+                elif key == 'max_copy_number':
+                    query = query.filter(
+                        SequenceMapping.copy_number <= int(value))
                 else:
                     query = query.filter(get_field(key).like(
                         value.replace('*', '%')))
