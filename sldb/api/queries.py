@@ -124,20 +124,9 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
                     clone_q = clone_q.filter(
                         getattr(c, key).like(value.replace('*', '%')))
 
-    if order_field is not None:
-        order_field = getattr(Clone, order_field)
-    else:
-        order_field = Clone.id
-    # clone_q = clone_q.order_by(order_field)
-
     if paging is not None:
         page, per_page = paging
         clone_q = clone_q.offset((page - 1) * per_page).limit(per_page)
-
-    if order_dir is None or order_dir == 'desc':
-        order_field = order_field.desc()
-    else:
-        order_field = order_field.asc()
 
     for c in clone_q:
         stats_comb = []

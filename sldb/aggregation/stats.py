@@ -112,13 +112,15 @@ def _get_distribution(session, sample_id, key, filter_func, use_copy,
     if isinstance(key, tuple):
         key = key[0]
     q = filter_func(session.query(SequenceMapping.identity_seq_id,
-                    key.label('key'),
-                    func.count(
-                        SequenceMapping.identity_seq_id).label('unique'),
-                    func.sum(
-                        SequenceMapping.copy_number).label('copy_number'))
+                    key.label('key'))
                     .filter(SequenceMapping.sample_id == sample_id))\
         .join(Sequence)
+    if use_copy:
+        q = q.add_columns(func.sum(
+            SequenceMapping.copy_number).label('copy_number'))
+    else:
+        q = q.add_columns(func.count(
+            SequenceMapping.identity_seq_id).label('unique'))
     if cdr3_bounds is not None:
         q = q.filter(func.length(Sequence.junction_nt) >= cdr3_bounds[0],
                      func.length(Sequence.junction_nt) <= cdr3_bounds[1])
@@ -136,8 +138,7 @@ def _process_filter(session, sample_id, filter_type, filter_func,
         min_cdr3, max_cdr3 = _get_cdr3_bounds(session, filter_func)
     def base_query():
         q = filter_func(session.query(
-            func.count(SequenceMapping.seq_id).label('unique'),
-            func.sum(SequenceMapping.copy_number).label('copy_number'))
+            func.count(SequenceMapping.seq_id).label('unique'))
             .filter(SequenceMapping.sample_id == sample_id))
         if not include_outliers:
             q = q.join(Sequence).filter(
@@ -238,7 +239,7 @@ def _process_sample(session, sample_id, force):
                '  Use the --force flag to force regeneration.')
         return
 
-    for include_outliers in [False, True]:
+    for include_outliers in [True, False]:
         print '\tOutliers={}'.format(include_outliers);
         for f in _seq_filters:
             print '\t\tGenerating sequence stats for filter "{}"'.format(f['type'])
