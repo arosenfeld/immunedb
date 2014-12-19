@@ -312,6 +312,24 @@ def download_v_usage(filter_type, samples):
     return ret
 
 
+@route('/api/data/master_table/<rtype>/<rid>')
+@route('/api/data/master_table/<rtype>/<rid>/')
+def download_master_table(rtype, rid):
+    assert rtype in ('sample', 'clone')
+    session = scoped_session(session_factory)()
+
+    response.headers['Content-Disposition'] = \
+        'attachment;filename=master_table_{}_{}.csv'.format(
+            rtype, rid)
+
+    seqs = session.query(SequenceMapping).filter(
+        getattr(SequenceMapping, '{}_id'.format(rtype)) == int(rid))
+    for row in queries.get_master_table(
+            session, seqs, _get_arg('fields', False).split(',')):
+        yield row
+    session.close()
+
+
 def run_rest_service(session_maker, args):
     """Runs the rest service based on command line arguments"""
     global session_factory

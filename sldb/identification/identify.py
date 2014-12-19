@@ -80,8 +80,8 @@ def _add_to_db(session, alignment, sample, vdj):
         # If there is an identical sequence, check if its appeared in this
         # sample.
         existing = session.query(SequenceMapping).filter(
-            SequenceMapping.unique_id ==
-            funcs.hash(m.seq_id, sample.id, vdj.sequence)).first()
+            SequenceMapping.unique_id == \
+                funcs.hash(m.seq_id, sample.id, vdj.sequence)).first()
 
         if existing is not None:
             # If so, bump the copy number and insert the duplicate sequence
@@ -147,6 +147,10 @@ def _identify_reads(session, meta, fn, name, alignment):
             session.add(NoResult(sample=sample, seq_id=vdj.id))
             no_result += 1
     cnt = i
+
+    if len(vdjs) == 0:
+        print '\tNo sequences identified'
+        return
 
     avg_len = lengths_sum / float(len(vdjs))
     avg_mutation_frac = mutations_sum / float(len(vdjs))

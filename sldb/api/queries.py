@@ -515,3 +515,80 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
         res.append(fields)
 
     return res
+
+
+def get_master_table(session, seq_query, selected_fields, sep='\t'):
+    fields = [
+        'seq_id',
+        ('subject_id', lambda seq: seq.sample.subject.id),
+        ('subject_identifier', lambda seq: seq.sample.subject.identifier),
+        ('subset', lambda seq: seq.sample.subset),
+        ('tissue', lambda seq: seq.sample.tissue),
+        ('disease', lambda seq: seq.sample.disease),
+        ('lab', lambda seq: seq.sample.lab),
+        ('experimenter', lambda seq: seq.sample.experimenter),
+        ('date', lambda seq: seq.sample.date),
+        
+        'sample_id',
+        ('sample_name', lambda seq: seq.sample.name),
+        ('study_id', lambda seq: seq.sample.study.id),
+        ('study_name', lambda seq: seq.sample.study.name),
+
+        'alignment',
+        'levenshtein_dist',
+
+        'num_gaps',
+        'pad_length',
+        
+        'v_match',
+        'v_length',
+        'j_match',
+        'j_length',
+
+        'pre_cdr3_match',
+        'pre_cdr3_length',
+        'post_cdr3_match',
+        'post_cdr3_length',
+
+        'in_frame',
+        'functional',
+        'stop',
+        'copy_number',
+        
+        'sequence',
+        ('sequence_filled', lambda seq: seq.identity_seq.sequence_replaced),
+        ('germline', lambda seq: seq.identity_seq.germline),
+
+        ('v_call', lambda seq: seq.identity_seq.v_call),
+        ('j_call', lambda seq: seq.identity_seq.j_call),
+        ('cdr3_nt', lambda seq: seq.identity_seq.junction_nt),
+        ('cdr3_aa', lambda seq: seq.identity_seq.junction_aa),
+        ('gap_method', lambda seq: seq.identity_seq.gap_method),
+
+        'clone_id',
+        ('clone_group_id', lambda seq: seq.clone.group.id),
+        ('clone_cdr3_nt', lambda seq: seq.clone.cdr3_nt),
+        ('clone_cdr3_aa', lambda seq: seq.clone.group.cdr3_aa),
+        ('clone_json_tree', lambda seq: seq.clone.tree),
+    ]
+
+    def _name_and_field(e):
+        if type(e) == str:
+            return e, lambda seq: getattr(seq, e)
+        return e
+
+    headers = []
+    for field in fields:
+        n, f = _name_and_field(field)
+        if n in selected_fields:
+            headers.append(n)
+
+    yield '{}\n'.format(sep.join(headers))
+    for seq in seq_query:
+        row = []
+        for field in fields:
+            n, f = _name_and_field(field)
+            if n in selected_fields:
+                if 'clone' not in n or (seq.clone is not None):
+                    row.append(f(seq))
+        yield '{}\n'.format(sep.join(map(str, row)))
