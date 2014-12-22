@@ -69,6 +69,7 @@ def _add_to_db(session, alignment, sample, vdj):
         m = Sequence(seq_id=vdj.id,
                      v_call='|'.join(vdj.v_gene),
                      j_call=vdj.j_gene,
+                     junction_num_nts=len(vdj.cdr3),
                      junction_nt=str(vdj.cdr3),
                      junction_aa=lookups.aas_from_nts(vdj.cdr3, ''),
                      gap_method='IMGT',
@@ -98,6 +99,10 @@ def _add_to_db(session, alignment, sample, vdj):
 
 
 def _identify_reads(session, meta, fn, name, alignment):
+    if not os.path.isfile(fn):
+        print fn
+        print 'Skipping {} alignment'.format(alignment)
+        return
     print 'Starting {}'.format(fn)
     study, new = funcs.get_or_create(session, Study, name=meta['all']['study'])
     if new:
@@ -146,6 +151,7 @@ def _identify_reads(session, meta, fn, name, alignment):
         else:
             session.add(NoResult(sample=sample, seq_id=vdj.id))
             no_result += 1
+    session.commit()
     cnt = i
 
     if len(vdjs) == 0:
@@ -174,6 +180,7 @@ def _identify_reads(session, meta, fn, name, alignment):
     print '\tlen={}'.format(avg_len)
     print '\tmut={}'.format(avg_mutation_frac)
     print '\tnoresults={}'.format(no_result)
+    session.commit()
 
 
 def run_identify(session, args):

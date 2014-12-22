@@ -2,6 +2,11 @@ import os
 import shlex
 import subprocess
 
+def _run(cmd):
+    proc = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
+    return proc.communicate()
+
 
 def _normalize_names(fn, fn_new):
     with open(fn) as fh:
@@ -12,8 +17,8 @@ def _normalize_names(fn, fn_new):
 
 
 def _handle_read(base_path, base_name, read, new_path, ext='.trim.fasta'):
-    _run('gzip -k -d {}/{}_{}_001{}.gz'.format(base_path, base_name,
-                                               read, ext))
+    fn = '{}/{}_{}_001{}'.format(base_path, base_name, read, ext)
+    _run('gzip -f -k -d {}.gz'.format(fn))
     _normalize_names(
         '{}/{}_{}_001{}'.format(base_path, base_name, read, ext),
         '{}/{}_{}_001.sync{}'.format(new_path, base_name, read, ext))
@@ -62,11 +67,8 @@ def run_align(args):
                               base_name, 'R2', ext))
                 except:
                     pass
-                cmd = shlex.split(('AssemblePairs.py align -1 {0}/{1}_R1_001.sync{3} '
+                stdout, stderr = _run(('AssemblePairs.py align -1 {0}/{1}_R1_001.sync{3} '
                             '-2 {0}/{1}_R2_001.sync{3} --fasta '
                             '--rc tail --log {2}/{1}.log --outdir {2} --nproc '
                             '4').format(new_path, base_name, presto_path, ext))
-                proc = subprocess.Popen(cmd, stdout=subprocess.PIPE,
-                                        stderr=subprocess.PIPE)
-                stdout, stderr = proc.communicate()
                 print stdout

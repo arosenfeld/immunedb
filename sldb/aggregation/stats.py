@@ -17,9 +17,14 @@ _dist_fields = [
     Sequence.v_call,
     Sequence.j_call,
     SequenceMapping.copy_number,
-    (func.length(Sequence.junction_nt), 'cdr3_length')
+    (Sequence.junction_num_nts, 'cdr3_length')
 ]
 
+_do_join = [
+    Sequence.v_call,
+    Sequence.j_call,
+    Sequence.junction_num_nts,
+]
 
 _seq_filters = [
     {
@@ -75,18 +80,22 @@ _clone_filters = [
 ]
 
 
-def _get_cdr3_bounds(session, filter_func):
-    cdr3_fld = func.length(Sequence.junction_nt)
+def _get_cdr3_bounds(session, filter_func, sample_id):
+    cdr3_fld = Sequence.junction_num_nts
     cdr3s = []
     for seq in filter_func(session.query(
             func.sum(SequenceMapping.copy_number).label('copy_number'),
             cdr3_fld.label('cdr3_len'))
+            .filter(SequenceMapping.sample_id == sample_id)
             .join(Sequence)
             .group_by(cdr3_fld)):
         cdr3s += [seq.cdr3_len] * int(seq.copy_number)
+    if len(cdr3s) == 0:
+        return None, None
     q25, q75 = np.percentile(cdr3s, [25, 75])
     iqr = q75 - q25
     return float(q25 - 1.5 * iqr), float(q75 + 1.5 * iqr)
+
 
 def _get_clone_distribution(session, sample_id, key, filter_func, avg):
     result = {}
@@ -111,10 +120,14 @@ def _get_distribution(session, sample_id, key, filter_func, use_copy,
     result = {}
     if isinstance(key, tuple):
         key = key[0]
+
     q = filter_func(session.query(SequenceMapping.identity_seq_id,
                     key.label('key'))
-                    .filter(SequenceMapping.sample_id == sample_id))\
-        .join(Sequence)
+                    .filter(SequenceMapping.sample_id == sample_id))
+
+    if key in _do_join or cdr3_bounds is not None:
+        q = q.join(Sequence)
+
     if use_copy:
         q = q.add_columns(func.sum(
             SequenceMapping.copy_number).label('copy_number'))
@@ -122,8 +135,8 @@ def _get_distribution(session, sample_id, key, filter_func, use_copy,
         q = q.add_columns(func.count(
             SequenceMapping.identity_seq_id).label('unique'))
     if cdr3_bounds is not None:
-        q = q.filter(func.length(Sequence.junction_nt) >= cdr3_bounds[0],
-                     func.length(Sequence.junction_nt) <= cdr3_bounds[1])
+        q = q.filter(Sequence.junction_num_nts >= cdr3_bounds[0],
+                     Sequence.junction_num_nts <= cdr3_bounds[1])
     q = q.group_by(key)
 
     for row in q:
@@ -135,15 +148,15 @@ def _get_distribution(session, sample_id, key, filter_func, use_copy,
 def _process_filter(session, sample_id, filter_type, filter_func,
                     use_copy, include_outliers):
     if not include_outliers:
-        min_cdr3, max_cdr3 = _get_cdr3_bounds(session, filter_func)
+        min_cdr3, max_cdr3 = _get_cdr3_bounds(session, filter_func, sample_id)
     def base_query():
         q = filter_func(session.query(
             func.count(SequenceMapping.seq_id).label('unique'))
             .filter(SequenceMapping.sample_id == sample_id))
-        if not include_outliers:
+        if not include_outliers and min_cdr3 is not None:
             q = q.join(Sequence).filter(
-                func.length(Sequence.junction_nt) >= min_cdr3,
-                func.length(Sequence.junction_nt) <= max_cdr3)
+                Sequence.junction_num_nts >= min_cdr3,
+                Sequence.junction_num_nts <= max_cdr3)
         return q
 
     stat = SampleStats(sample_id=sample_id,
@@ -181,7 +194,8 @@ def _process_filter(session, sample_id, filter_type, filter_func,
     for dist in _dist_fields:
         dist_val = _get_distribution(
             session, sample_id, dist, filter_func, use_copy,
-            (min_cdr3, max_cdr3) if not include_outliers else None)
+            (min_cdr3, max_cdr3) if not include_outliers and min_cdr3 \
+                is not None else None)
 
         if isinstance(dist, tuple):
             name = dist[1]

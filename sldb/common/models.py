@@ -178,8 +178,12 @@ class Sequence(BaseData):
     v_call = Column(String(512), index=True)
     j_call = Column(String(512), index=True)
 
+    # This is just length(junction_nt) but is included for fast statistics
+    # generation over the index
+    junction_num_nts = Column(Integer)
+
     junction_nt = Column(String(512))
-    junction_aa = Column(String(512))
+    junction_aa = Column(String(512), index=True)
     gap_method = Column(String(16))
 
     sequence_replaced = Column(String(length=1024), unique=True, index=True)

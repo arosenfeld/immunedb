@@ -230,6 +230,7 @@ class VDJSequence(object):
     def _find_v(self):
         '''Finds the V gene closest to that of the sequence'''
         self._v_score = None
+        self._v = None
 
         for v, germ in germlines.v.iteritems():
             # Strip the gaps
@@ -244,21 +245,22 @@ class VDJSequence(object):
             # determine the CDR3 start position without gaps
             if germ_pos > self.v_anchor_pos:
                 v_seq = v_seq[diff:]
-                cdr3_offset_in_v = self.CDR3_OFFSET - germ[diff:].count('-') - \
-                    diff
+                cdr3_offset_in_v = germ_pos - diff
             else:
                 s_seq = s_seq[diff:]
-                cdr3_offset_in_v = self.CDR3_OFFSET - germ.count('-')
+                cdr3_offset_in_v = germ_pos
+
             # Only compare to the start of J
             v_seq = v_seq[:self._j_start]
             s_seq = s_seq[:self._j_start]
-
             # Determine the CDR3 in the germline and sequence
             v_cdr3 = v_seq[cdr3_offset_in_v:]
             s_cdr3 = s_seq[cdr3_offset_in_v:]
+            v_cdr3 = v_cdr3[:min(len(v_cdr3), len(s_cdr3))]
+            s_cdr3 = s_cdr3[:min(len(v_cdr3), len(s_cdr3))]
             if len(v_cdr3) == 0 or len(s_cdr3) == 0:
                 self._v = None
-                return
+                continue
 
             # Find the extent of the sequence's V into the CDR3
             streak = self._find_streak_position(v_cdr3, s_cdr3)
@@ -286,6 +288,8 @@ class VDJSequence(object):
                 # Add the V-tie
                 self._v.append(v)
 
+        if self._v is None:
+            return
         # Determine the pad length
         self._pad_len = self._germ_pos - self.v_anchor_pos
 
