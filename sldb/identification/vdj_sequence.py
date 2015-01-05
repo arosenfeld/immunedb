@@ -348,10 +348,8 @@ class VDJSequence(object):
             self._seq += 'N' * (len(self.germline) - len(self.sequence))
             self.probable_deletion = True
 
-        # Determine where the read starts (for one-sided reads)
-        seq_start = re.match('[-N]*', self.sequence[:self.CDR3_OFFSET]).end()
-        # Get the number of gaps after the sequence begins
-        self._num_gaps = self.sequence[seq_start:self.CDR3_OFFSET].count('-')
+        # Get the number of gaps
+        self._num_gaps = self.sequence[:self.CDR3_OFFSET].count('-')
 
         # Get the pre-CDR3 germline and sequence stripped of gaps
         pre_cdr3_germ = self.germline[:self.CDR3_OFFSET].replace('-', '')

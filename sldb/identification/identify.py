@@ -67,7 +67,7 @@ def _add_to_db(session, alignment, sample, vdj):
     if m is None:
         # If not, add the sequence, and make the mapping
         m = Sequence(seq_id=vdj.id,
-                     v_call='|'.join(vdj.v_gene),
+                     v_call='|'.join(sorted(vdj.v_gene)),
                      j_call=vdj.j_gene,
                      junction_num_nts=len(vdj.cdr3),
                      junction_nt=str(vdj.cdr3),

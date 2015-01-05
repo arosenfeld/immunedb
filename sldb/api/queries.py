@@ -134,8 +134,7 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
                 SequenceMapping,
                 func.count(SequenceMapping.identity_seq_id).label('unique'),
                 func.sum(SequenceMapping.copy_number).label('total'))\
-            .filter(SequenceMapping.clone_id == c.id,
-                    SequenceMapping.sample.has(subject_id=c.subject_id))\
+            .filter(SequenceMapping.clone_id == c.id)\
             .order_by(desc(func.count(
                 SequenceMapping.identity_seq_id).label('unique')))\
                 .group_by(SequenceMapping.sample_id):

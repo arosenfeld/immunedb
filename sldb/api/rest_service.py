@@ -336,6 +336,7 @@ def run_rest_service(session_maker, args):
     session_factory = session_maker
     bottle.install(EnableCors())
     if args.debug:
-        bottle.run(host='0.0.0.0', port=args.port, debug=True)
+        bottle.run(host='0.0.0.0', port=args.port, server='gevent',
+                   debug=True)
     else:
         bottle.run(host='0.0.0.0', port=args.port, server='gevent')
