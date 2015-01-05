@@ -8,10 +8,10 @@ from sqlalchemy.dialects.mysql import TEXT, MEDIUMTEXT
 import sldb.util.funcs as funcs
 from sldb.common.settings import DATABASE_SETTINGS
 
-assert DATABASE_SETTINGS['master_metadata'] is not None, (
-    'Must specify master metadata')
-assert DATABASE_SETTINGS['data_metadata'] is not None, (
-    'Must specify data metadata')
+if DATABASE_SETTINGS['master_metadata'] is None:
+    print 'WARNING: Most master metadata specified'
+if DATABASE_SETTINGS['data_metadata'] is None:
+    print 'WARNING: Most data metadata specified'
 
 BaseMaster = declarative_base(
     metadata=DATABASE_SETTINGS['master_metadata'])
@@ -20,7 +20,13 @@ BaseData = declarative_base(
 
 
 class Study(BaseMaster):
-    """Represents a high-level study (e.g. Lupus)"""
+    """A high-level study such as one studying Lupus.
+    
+    :param int id: An auto-assigned unique identifier for the study
+    :param str name: A unique name for the study
+    :param str info: Optional information about the study
+
+    """
     __tablename__ = 'studies'
     __table_args__ = {'mysql_engine': 'TokuDB'}
 
@@ -32,6 +38,17 @@ class Study(BaseMaster):
 
 
 class Subject(BaseMaster):
+    """A subject which was sampled for a study.
+
+    :param int id: An auto-assigned unique identifier for the subject
+    :param str identifier: An identifier for the subject as defined by \
+        the experimenter
+    :param int study_id: The ID of the study under which the subject was \
+        sampled
+    :param Relationship study: Reference to the associated :py:class:`Study` \
+        instance
+
+    """
     __tablename__ = 'subjects'
     __table_args__ = (UniqueConstraint('study_id', 'identifier'),
                       {'mysql_engine': 'TokuDB'})
@@ -45,22 +62,41 @@ class Subject(BaseMaster):
 
 
 class Sample(BaseMaster):
-    """A sample from a study.  Generally this is from a single subject and
-    tissue"""
+    """A sample taken from a single subject, tissue, and subset.
+    
+    :param int id: An auto-assigned unique identifier for the sample
+    :param str name: A unique name for the sample as defined by the \
+        experimenter
+    :param str info: Optional information about the sample
+    :param date date: The date the sample was taken
+
+    :param int study_id: The ID of the study under which the subject was \
+        sampled
+    :param Relationship study: Reference to the associated :py:class:`Study` \
+        instance
+
+    :param int subject_id: The ID of the subject from which the sample was \
+        taken
+    :param Relationship subject: Reference to the associated \
+        :py:class:`Subject` instance
+
+
+    :param str tissue: The tissue of the sample
+    :param str subset: The tissue subset of the sample
+    :param str disease: The known disease(s) present in the sample
+    :param str lab: The lab which acquired the sample
+    :param str experimenter: The experimenters name who took the sample
+
+    """
     __tablename__ = 'samples'
     __table_args__ = {'mysql_engine': 'TokuDB'}
 
-    # Unique ID for the sample
     id = Column(Integer, primary_key=True)
-    # A name for the sample
     name = Column(String(128), unique=True)
-    # Some arbitrary information if necessary
     info = Column(String(1024))
 
-    # The date the sample was taken
     date = Column(Date)
 
-    # Reference to the study
     study_id = Column(Integer, ForeignKey(Study.id))
     study = relationship(Study, backref=backref('samples', order_by=(date,
                                                 name)))
@@ -77,22 +113,42 @@ class Sample(BaseMaster):
 
 class SampleStats(BaseData):
     """Aggregate statistics for a sample.  This exists to reduce the time
-    queries take for a sample."""
+    queries take for a sample.
+    
+    :param int sample_id: The ID of the sample for which the statistics were \
+        generated
+    :param Relationship sample: Reference to the associated \
+        :py:class:`Sample` instance 
+
+    :param str filter_type: The type of filter for the statistics (e.g. functional)
+    :param bool outliers: If outliers were included in the statistics
+    :param str v_match_dist: Distribution of V gene match count
+    :param str v_length_dist: Distribution of V gene total length
+    :param str j_match_dist: Distribution of J gene match count
+    :param str j_length_dist: Distribution of J gene total length
+    :param str v_call_dist: Distribution of V-gene assignments
+    :param str j_call_dist: Distribution of J-gene assignments
+    :param str copy_number_dist: Distribution of copy number
+    :param str cdr3_length_dist: Distribution of CDR3 lengths
+
+    :param int sequence_cnt: The total number of sequences
+    :param int in_frame_cnt: The number of in-frame sequences
+    :param int stop_cnt: The number of sequences containing a stop codon
+    :param int functional_cnt: The number of functional sequences
+    :param int no_result_cnt: The number of invalid sequences
+    
+    """
     __tablename__ = 'sample_stats'
     __table_args__ = {'mysql_engine': 'TokuDB'}
 
-    # Reference to the sample the stats are for
     sample_id = Column(Integer, ForeignKey(Sample.id),
                        primary_key=True)
     sample = relationship(Sample, backref=backref('sample_stats',
                           order_by=sample_id))
 
-    # The filter type for the stats (e.g. unique, clones)
     filter_type = Column(String(length=255), primary_key=True)
-    # If outliers are included in these stats
     outliers = Column(Boolean, primary_key=True)
 
-    # Distributions stored as JSON for a given field in the sample
     v_match_dist = Column(MEDIUMTEXT)
     v_length_dist = Column(MEDIUMTEXT)
 
@@ -105,20 +161,30 @@ class SampleStats(BaseData):
     copy_number_dist = Column(MEDIUMTEXT)
     cdr3_length_dist = Column(MEDIUMTEXT)
 
-    # Total sequences in filter
     sequence_cnt = Column(Integer)
-    # Number of in-frame sequences
     in_frame_cnt = Column(Integer)
-    # Number of sequences with a stop codon
     stop_cnt = Column(Integer)
-    # Number of functional sequences
     functional_cnt = Column(Integer)
-    # Number of invalid sequences
     no_result_cnt = Column(Integer)
 
 
 class CloneGroup(BaseMaster):
-    """A clone which is dictated by V, J, CDR3."""
+    """A group of clones which share the same V, J, and CDR3 amino-acids.  This
+    is used to correlate identical or similar clones across database versions
+    when their ID may change.
+    
+    :param int id: An auto-assigned unique identifier for the group
+    :param str v_gene: The V-gene assigned to the sequence
+    :param str j_gene: The J-gene assigned to the sequence
+    :param cdr3_aa: The amino-acid sequence of the group's CDR3
+    :param cdr3_num_nts: The number of nucleotides in the group's CDR3
+    :param int subject_id: The ID of the subject from which the sample was \
+        taken
+    :param Relationship subject: Reference to the associated \
+        :py:class:`Subject` instance
+    :param str germline: The germline sequence for this sequence
+
+    """
     __tablename__ = 'clone_groups'
     __table_args__ = (Index('grp_aas', 'v_gene', 'j_gene', 'subject_id',
                             'cdr3_aa'),
@@ -143,12 +209,22 @@ class CloneGroup(BaseMaster):
 
 
 class Clone(BaseData):
-    """A group of sequences likely originating from the same germline"""
+    """A group of sequences likely originating from the same germline
+    
+    :param int id: An auto-assigned unique identifier for the clone
+    :param str cdr3_nt: The consensus nucleotides for the clone
+    :param int group_id: The group ID for the clone to correlate clones \
+        across database versions
+
+    :param Relationship group: Reference to the associated \
+        :py:class:`CloneGroup` instance
+    :param str tree: The textual representation of the clone's lineage tree
+
+    """
     __tablename__ = 'clones'
     __table_args__ = (Index('bucket', 'v_gene', 'j_gene',
                             'cdr3_num_nts', 'subject_id'),
                       {'mysql_engine': 'TokuDB'})
-
     id = Column(Integer, primary_key=True)
     cdr3_nt = Column(String(length=512))
 
@@ -168,7 +244,23 @@ class Clone(BaseData):
 
 
 class Sequence(BaseData):
-    """Represents a single unique sequence."""
+    """Represents a single unique sequence.  :py:class:`SequenceMapping` \
+    instances relate an actual read to these by filling in the aligned read \
+    with the germline.
+
+    :param str seq_id: A unique identifier for the sequence as output by the \
+        sequencer
+    :param str v_call: The V-gene assigned to the sequence
+    :param str j_call: The J-gene assigned to the sequence
+    :param int junction_num_nts: The number of nucleotides in the CDR3
+    :param str junction_nt: The nucleotides comprising the CDR3
+    :param str junction_aa: The amino-acids comprising the CDR3
+    :param str gap_method: The method used to gap the sequence (e.g. IGMT)
+    :param str sequence_replaced: The full sequence after being filled in with \
+        the germline
+    :param str germline: The germline sequence for this sequence
+    
+    """
     __tablename__ = 'sequences'
     __table_args__ = (Index('call', 'v_call', 'j_call',),
                       {'mysql_engine': 'TokuDB'})
@@ -191,6 +283,8 @@ class Sequence(BaseData):
 
 
 class SHAExtension(MapperExtension):
+    """An extension for SQLAlchemy to provide a primary key across fields that
+    would initially be too long."""
     def before_insert(self, mapper, connection, instance):
         instance.unique_id = funcs.hash(instance.identity_seq_id,
                                         instance.sample_id,
@@ -198,11 +292,62 @@ class SHAExtension(MapperExtension):
 
 
 class SequenceMapping(BaseData):
+    """A read with possible padding that is mapped to a :py:class:`Sequence` 
+    instance by filling in the padding with germline nucleotides.
+    
+    :param str unique_id: A key over ``identity_seq_id``, ``sample_id``, and \
+        ``sequence`` so the tuple can be maintained unique
+    :param str identity_seq_id: The identifier to :py:class:`Sequence` with \
+        the same filled in germline as this read
+    :param Relationship identity_seq: Reference to the associated identity \
+        :py:class:`Sequence` instance
+
+    :param str seq_id: A unique identifier for the sequence as output by the \
+        sequencer
+    :param int sample_id: The ID of the sample from which this sequence came
+    :param Relationship sample: Reference to the associated \
+        :py:class:`Sample` instance
+    :param str alignment: Alignment type (e.g. R1 or pRESTO)
+    :param int levenshtein_dist: The optional Levenshtein distance of the \
+        sequence to its germline.  Used to identify possible indels and \
+        misalignments.
+    :param int num_gaps: Number of inserted gaps
+    :param int pad_length: The number of pad nucleotides added to the V end of \
+        the sequence
+    :param int v_match: The number of V-gene nucleotides matching the germline
+    :param int v_length: The length of the V-gene segment prior to a streak of \
+        mismatches in the CDR3
+
+    :param int j_match: The number of J-gene nucleotides matching the germline
+    :param int j_length: The length of the J-gene segment after a streak of \
+        mismatches in the CDR3
+
+    :param int pre_cdr3_length: The length of the V-gene prior to the CDR3
+    :param int pre_cdr3_match: The number of V-gene nucleotides matching the \
+        germline prior to the CDR3
+
+    :param int post_cdr3_length: The length of the J-gene after to the CDR3
+    :param int post_cdr3_match: The number of J-gene nucleotides matching the \
+        germline after to the CDR3
+
+    :param bool in_frame: If the sequence's CDR3 has a length divisible by 3
+    :param bool functional: If the sequence is in-frame and contains no stop \
+        codons
+
+    :param bool stop: If the sequence contains a stop codon
+    :param int copy_number: Number of reads identical to the sequence in the \
+        same sample
+    :param str sequence: The (possibly-padded) sequence
+
+    :param int clone_id: The clone ID to which this sequence belongs
+    :param Relationship clone: Reference to the associated :py:class:`Clone` \
+        instance
+
+    """
     __tablename__ = 'sequence_mapping'
     __table_args__ = ({'mysql_engine': 'TokuDB'})
     __mapper_args__ = {'extension': SHAExtension()}
 
-    # Key on identity_seq_id, sample, and sequence
     unique_id = Column(String(40), unique=True)
     identity_seq_id = Column(String(128), ForeignKey(Sequence.seq_id),
                              primary_key=True)
@@ -241,8 +386,19 @@ class SequenceMapping(BaseData):
 
 
 class DuplicateSequence(BaseData):
-    """A sequence which is a duplicate of a Sequence class instance.  This is
-    used to minimize the size of the sequences table."""
+    """A sequence which is a duplicate of a :py:class:`SequenceMapping`.  This is
+    used to minimize the size of the sequences table.  The ``copy_number``
+    attribute of :py:class:`SequenceMapping` instances is equal to the number of
+    its duplicate sequences plus one.
+    
+    :param str identity_seq_id: The identifier to :py:class:`Sequence` with \
+        the same filled in germline as this read
+    :param Relationship identity_seq: Reference to the associated identity \
+        :py:class:`Sequence` instance
+    :param str seq_id: A unique identifier for the sequence as output by the \
+        sequencer
+
+    """
     __tablename__ = 'duplicate_sequences'
     __table_args__ = {'mysql_engine': 'TokuDB'}
 
@@ -259,7 +415,15 @@ class DuplicateSequence(BaseData):
 
 
 class NoResult(BaseData):
-    """A sequence which could not be match with a V or J."""
+    """A sequence which could not be match with a V or J.
+    
+    :param str seq_id: A unique identifier for the sequence as output by the \
+        sequencer
+    :param int sample_id: The ID of the sample from which this sequence came
+    :param Relationship sample: Reference to the associated \
+        :py:class:`Sample` instance
+
+    """
     __tablename__ = 'noresults'
     __table_args__ = {'mysql_engine': 'TokuDB'}
 
