@@ -23,6 +23,15 @@ def _create_engine(config_path):
 
 
 def get_base_arg_parser(desc):
+    """Gets a base argument parser which requires a master and data
+    configuration.
+
+    :param str desc: The description provided by the argument parser
+
+    :return: The argument parser object
+    :rtype: ArgumentParser
+
+    """
     parser = argparse.ArgumentParser(description=desc)
     parser.add_argument('master_db_config', help='Path to master database'
                         'config')
@@ -32,6 +41,16 @@ def get_base_arg_parser(desc):
 
 
 def init_db(master_db_config, data_db_config, as_maker=False):
+    """Initializes a session with the specified database database.
+
+    :param str master_db_config: Path to master database config file
+    :param str data_db_config: Path to data database config file
+    :param bool as_maker: If ``True``, the returned object will be a session
+        maker rather than an session
+
+    :returns: A ``session`` or, if ``as_maker`` is set, a ``session_maker``
+
+    """
     master_engine, master_name = _create_engine(master_db_config)
     data_engine, data_name = _create_engine(data_db_config)
 

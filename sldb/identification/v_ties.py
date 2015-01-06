@@ -25,6 +25,7 @@ def get_v_ties(length, mutation_level):
         if 150 < length <= 200:
             return IGH_200_30
         return IGH_full_30
+    return {}
 
 # 100 nucleotides with .05 mutation
 IGH_100_5 = {

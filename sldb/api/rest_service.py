@@ -1,6 +1,7 @@
 import argparse
 import json
 import math
+import time
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -312,21 +313,54 @@ def download_v_usage(filter_type, samples):
     return ret
 
 
-@route('/api/data/master_table/<rtype>/<rid>')
-@route('/api/data/master_table/<rtype>/<rid>/')
-def download_master_table(rtype, rid):
+@route('/api/data/master_table/<rtype>/<rids>')
+@route('/api/data/master_table/<rtype>/<rids>/')
+def download_master_table(rtype, rids):
     assert rtype in ('sample', 'clone')
     session = scoped_session(session_factory)()
+    name = 'master_table_{}_{}.csv'.format(
+        rtype, time.strftime('%Y-%m-%d-%H-%M'))
 
-    response.headers['Content-Disposition'] = \
-        'attachment;filename=master_table_{}_{}.csv'.format(
-            rtype, rid)
+    response.headers['Content-Disposition'] = 'attachment;filename={}'.format(
+        name)
+    rids = _split(rids)
 
     seqs = session.query(SequenceMapping).filter(
-        getattr(SequenceMapping, '{}_id'.format(rtype)) == int(rid))
+        getattr(SequenceMapping, '{}_id'.format(rtype)).in_(rids))
     for row in queries.get_master_table(
             session, seqs, _get_arg('fields', False).split(',')):
         yield row
+    session.close()
+
+
+@route('/api/data/fasta/<file_type>/<rtype>/<rids>/<smpl_filter>',
+       methods=['GET'])
+@route('/api/data/fasta/<file_type>/<rtype>/<rids>', methods=['GET'])
+@route('/api/data/fasta/<file_type>/<rtype>/<rids>/<smpl_filter>/',
+       methods=['GET'])
+@route('/api/data/fasta/<file_type>/<rtype>/<rids>/', methods=['GET'])
+def download_fasta(file_type, rtype, rids, smpl_filter=None):
+    assert file_type in ('fill', 'orig', 'clip')
+    assert rtype in ('sample', 'clone')
+    session = scoped_session(session_factory)()
+
+    name = '{}_{}_{}.fasta'.format(
+        rtype, file_type, time.strftime('%Y-%m-%d-%H-%M'))
+
+    response.headers['Content-Disposition'] = 'attachment;filename={}'.format(
+        name)
+
+    seqs = session.query(SequenceMapping).filter(
+        getattr(SequenceMapping, '{}_id'.format(rtype)).in_(rids))
+
+    if rtype == 'clone' and smpl_filter is not None:
+        seqs = seqs.filter(SequenceMapping.sample_id.in_(smpl_filter))
+    if file_type == 'clip':
+        seqs = seqs.order_by(SequenceMapping.identity_seq_id)
+
+    for entry in queries.get_fasta(session, seqs, file_type):
+        yield entry
+
     session.close()
 
 

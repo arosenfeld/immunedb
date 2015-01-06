@@ -580,3 +580,36 @@ def get_master_table(session, seq_query, selected_fields, sep='\t'):
                 if 'clone' not in n or (seq.clone is not None):
                     row.append(f(seq))
         yield '{}\n'.format(sep.join(map(str, row)))
+
+
+def get_fasta(session, seq_query, file_type):
+    def _fasta_header(*args, **kwargs):
+        no_key = '|'.join(args)
+        return '>{}{}{}\n'.format(
+            '|'.join(args),
+            '|' if len(args) > 0 else '',
+            '|'.join(map(lambda (k, v): '{}={}'.format(k, v),
+                     kwargs.iteritems())))
+    last_iden = None
+    for seq in seq_query:
+        if file_type == 'clip' and last_iden != seq.identity_seq_id:
+            last_iden = seq.identity_seq_id
+            yield _fasta_header(
+                '>Germline',
+                v_gene=seq.identity_seq.v_call,
+                j_gene=seq.identity_seq.j_call,
+                cdr3_aa=seq.identity_seq.junction_aa,
+                cdr3_len=seq.identity_seq.junction_num_nts,
+            )
+            yield '{}\n'.format(seq.identity_seq.germline)
+
+        yield _fasta_header(
+            seq.seq_id,
+            seq.sample.name,
+            copy_number=seq.copy_number,
+            clone_id=(seq.clone_id or 'None')
+        )
+        if file_type == 'fill':
+            yield '{}\n'.format(seq.identity_seq.sequence_replaced)
+        else:
+            yield '{}\n'.format(seq.sequence)

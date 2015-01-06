@@ -172,7 +172,7 @@ def _identify_reads(session, meta, fn, name, alignment):
             else:
                 new_vs.add(v)
         old_vs = vdj.v_gene[:]
-        vdj.v_gene = list(new_vs)
+        vdj.v_gene = list(sorted(new_vs))
         if len(vdj.v_gene) > 1:
             v_tie_cnt += 1
     print '\ttotal_seqs={}'.format(cnt)
@@ -204,8 +204,12 @@ def run_identify(session, args):
                 r2 = '{}_R2_001.sync_assemble-fail.fasta'.format(base)
                 join = '{}_R1_001.sync_assemble-pass.fasta'.format(base)
                 if not os.path.isfile('{}.log'.format(base)):
-                    print 'Skipping {} since no presto log exists.'.format(name)
-                    continue
+                    if not args.force:
+                        print 'Skipping {} since no presto log exists.'.format(name)
+                        continue
+                    else:
+                        print 'FORCING {}'.format(name)
+
                 _identify_reads(session, metadata,
                                 join, base.rsplit('/', 1)[1], 'pRESTO')
                 _identify_reads(session, metadata,

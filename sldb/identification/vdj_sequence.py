@@ -29,8 +29,11 @@ class VDJSequence(object):
         self._germline = None
         self._cdr3_len = 0
 
-        # If there are Ns in the sequence, ignore it
-        if 'N' not in self.sequence:
+        self.probable_deletion = False
+
+        # If there are invalid characters in the sequence, ignore it 
+        stripped = filter(lambda s: s in 'ATCG', self.sequence)
+        if len(stripped) == len(self.sequence):
             self._find_j()
             if self._j is not None:
                 self._v_anchor_pos = self._find_v_position(self.sequence)
@@ -232,61 +235,19 @@ class VDJSequence(object):
         self._v_score = None
         self._v = None
 
-        for v, germ in germlines.v.iteritems():
-            # Strip the gaps
-            v_seq = Seq(germ.replace('-', ''))
-            # Find V anchor in germline
-            germ_pos = self._find_v_position(v_seq)
-            # Determine the gap between the two anchors
-            diff = abs(germ_pos - self.v_anchor_pos)
-            s_seq = self.sequence
-
-            # Trim the sequence which has the maximal anchor position, and
-            # determine the CDR3 start position without gaps
-            if germ_pos > self.v_anchor_pos:
-                v_seq = v_seq[diff:]
-                cdr3_offset_in_v = germ_pos - diff
-            else:
-                s_seq = s_seq[diff:]
-                cdr3_offset_in_v = germ_pos
-
-            # Only compare to the start of J
-            v_seq = v_seq[:self._j_start]
-            s_seq = s_seq[:self._j_start]
-            # Determine the CDR3 in the germline and sequence
-            v_cdr3 = v_seq[cdr3_offset_in_v:]
-            s_cdr3 = s_seq[cdr3_offset_in_v:]
-            v_cdr3 = v_cdr3[:min(len(v_cdr3), len(s_cdr3))]
-            s_cdr3 = s_cdr3[:min(len(v_cdr3), len(s_cdr3))]
-            if len(v_cdr3) == 0 or len(s_cdr3) == 0:
-                self._v = None
-                continue
-
-            # Find the extent of the sequence's V into the CDR3
-            streak = self._find_streak_position(v_cdr3, s_cdr3)
-            if streak is not None:
-                # If there is a streak of mismatches, cut after the streak
-                max_index = cdr3_offset_in_v + (streak - self.MISMATCH_THRESHOLD)
-            else:
-                # Unlikely: the CDR3 in the sequence exactly matches the
-                # germline.  Use the smaller sequence length (full match)
-                max_index = cdr3_offset_in_v + min(len(v_cdr3), len(s_cdr3))
-            # Compare to the end of V
-            v_seq = v_seq[:max_index]
-            s_seq = s_seq[:max_index]
-
-            # Determine the distance between the germline and sequence
-            dist = distance.hamming(str(v_seq), str(s_seq))
-            # Record this germline if it is has the lowest distance
-            if self._v_score is None or dist < self._v_score:
-                self._v = [v]
-                self._v_score = dist
-                self._v_length = len(s_seq)
-                self._v_match = len(s_seq) - dist
-                self._germ_pos = germ_pos
-            elif dist == self._v_score:
-                # Add the V-tie
-                self._v.append(v)
+        for v, germ in sorted(germlines.v.iteritems()):
+            germ_pos, dist, s_seq = self._compare_to_germline(germ)
+            if germ_pos is not None:
+                # Record this germline if it is has the lowest distance
+                if self._v_score is None or dist < self._v_score:
+                    self._v = [v]
+                    self._v_score = dist
+                    self._v_length = len(s_seq)
+                    self._v_match = len(s_seq) - dist
+                    self._germ_pos = germ_pos
+                elif dist == self._v_score:
+                    # Add the V-tie
+                    self._v.append(v)
 
         if self._v is None:
             return
@@ -297,6 +258,53 @@ class VDJSequence(object):
         if self._full_v and self._pad_len > 0:
             self._v = None
             return
+
+    def _compare_to_germline(self, germ):
+        # Strip the gaps
+        v_seq = Seq(germ.replace('-', ''))
+        # Find V anchor in germline
+        germ_pos = self._find_v_position(v_seq)
+        # Determine the gap between the two anchors
+        diff = abs(germ_pos - self.v_anchor_pos)
+        s_seq = self.sequence
+
+        # Trim the sequence which has the maximal anchor position, and
+        # determine the CDR3 start position without gaps
+        if germ_pos > self.v_anchor_pos:
+            v_seq = v_seq[diff:]
+            cdr3_offset_in_v = germ_pos - diff
+        else:
+            s_seq = s_seq[diff:]
+            cdr3_offset_in_v = germ_pos
+
+        # Only compare to the start of J
+        v_seq = v_seq[:self._j_start]
+        s_seq = s_seq[:self._j_start]
+        # Determine the CDR3 in the germline and sequence
+        v_cdr3 = v_seq[cdr3_offset_in_v:]
+        s_cdr3 = s_seq[cdr3_offset_in_v:]
+        v_cdr3 = v_cdr3[:min(len(v_cdr3), len(s_cdr3))]
+        s_cdr3 = s_cdr3[:min(len(v_cdr3), len(s_cdr3))]
+        if len(v_cdr3) == 0 or len(s_cdr3) == 0:
+            return None, None, None
+
+        # Find the extent of the sequence's V into the CDR3
+        streak = self._find_streak_position(v_cdr3, s_cdr3)
+        if streak is not None:
+            # If there is a streak of mismatches, cut after the streak
+            max_index = cdr3_offset_in_v + (streak - self.MISMATCH_THRESHOLD)
+        else:
+            # Unlikely: the CDR3 in the sequence exactly matches the
+            # germline.  Use the smaller sequence length (full match)
+            max_index = cdr3_offset_in_v + min(len(v_cdr3), len(s_cdr3))
+        # Compare to the end of V
+        v_seq = v_seq[:max_index]
+        s_seq = s_seq[:max_index]
+
+        # Determine the distance between the germline and sequence
+        dist = distance.hamming(str(v_seq), str(s_seq))
+
+        return germ_pos, dist, s_seq
 
     def _calculate_stats(self):
         # Set the germline to the V gene up to the CDR3
@@ -341,8 +349,7 @@ class VDJSequence(object):
         # If the sequence is longer than the germline, trim it
         if len(self.sequence) > len(self.germline):
             self._seq = self._seq[:len(self._germline)]
-            self.probable_deletion = False
-        else:
+        elif len(self.sequence) < len(self.germline):
             # If the germline is longer than the sequence, there was probably a
             # deletion, so flag it as such
             self._seq += 'N' * (len(self.germline) - len(self.sequence))
