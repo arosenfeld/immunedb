@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='SLDB',
-      version='3.0.5',
+      version='4.0.0',
       author='Aaron M. Rosenfeld',
       author_email='ar374@drexel.edu',
       packages=[
@@ -30,7 +30,7 @@ setup(name='SLDB',
           'sqlalchemy>=0.9.8',
           'biopython',
           'bottle',
-          'ete2 >= 2.2',
+          'ete2>=2.2',
           'distance',
           'numpy',
           'tabulate',
