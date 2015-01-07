@@ -364,6 +364,42 @@ def download_fasta(file_type, rtype, rids, smpl_filter=None):
     session.close()
 
 
+@route('/api/data/export/<eformat>/<rtype>/<rids>', methods=['GET'])
+@route('/api/data/export/<eformat>/<rtype>/<rids>/', methods=['GET'])
+def export(eformat, rtype, rids):
+    assert eformat in ('tab', 'fill', 'orig', 'clip')
+    assert rtype in ('sample', 'clone')
+        
+    session = scoped_session(session_factory)()
+
+    fields = _get_arg('fields', False).split(',')
+
+    if eformat == 'tab':
+        name = '{}_{}.tab'.format(
+            rtype,
+            time.strftime('%Y-%m-%d-%H-%M'))
+    else:
+        if 'seq_id' in fields:
+            fields.remove('seq_id')
+        name = '{}_{}_{}.fasta'.format(
+            rtype,
+            eformat,
+            time.strftime('%Y-%m-%d-%H-%M'))
+
+    response.headers['Content-Disposition'] = 'attachment;filename={}'.format(
+        name)
+
+    for lines in queries.export_seqs(
+            session, eformat, rtype, rids,
+            fields,
+            _get_arg('duplicates', False) or False,
+            _get_arg('noresults', False) or False):
+        for line in lines:
+            yield line
+
+    session.close()
+
+
 def run_rest_service(session_maker, args):
     """Runs the rest service based on command line arguments"""
     global session_factory
