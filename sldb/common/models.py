@@ -350,11 +350,12 @@ class SequenceMapping(BaseData):
 
     unique_id = Column(String(40), unique=True)
     identity_seq_id = Column(String(128), ForeignKey(Sequence.seq_id),
-                             primary_key=True)
+                             index=True)
     identity_seq = relationship(Sequence, backref=backref('mapping'))
 
     seq_id = Column(String(128), primary_key=True, index=True)
-    sample_id = Column(Integer, ForeignKey(Sample.id), index=True)
+    sample_id = Column(Integer, ForeignKey(Sample.id), primary_key=True,
+                       index=True)
     sample = relationship(Sample, backref=backref('mapping'))
 
     alignment = Column(String(length=6), index=True)
@@ -391,10 +392,15 @@ class DuplicateSequence(BaseData):
     attribute of :py:class:`SequenceMapping` instances is equal to the number of
     its duplicate sequences plus one.
     
-    :param str identity_seq_id: The identifier to :py:class:`Sequence` with \
-        the same filled in germline as this read
-    :param Relationship identity_seq: Reference to the associated identity \
-        :py:class:`Sequence` instance
+    :param str duplicate_seq_id: The identifier of the sequence in the same \
+        sample with the same sequence
+    :param Relationship duplicate_seq: Reference to the associated \
+        :py:class:`SequenceMapping` instance of which this is a duplicate
+
+    :param int sample_id: The ID of the sample from which this sequence came
+    :param Relationship sample: Reference to the associated \
+        :py:class:`Sample` instance
+
     :param str seq_id: A unique identifier for the sequence as output by the \
         sequencer
 
@@ -402,16 +408,20 @@ class DuplicateSequence(BaseData):
     __tablename__ = 'duplicate_sequences'
     __table_args__ = {'mysql_engine': 'TokuDB'}
 
-    # The Sequence object of which this is a duplicate
-    identity_seq_id = Column(String(length=128),
-                             ForeignKey('sequences.seq_id'),
+    seq_id = Column(String(length=128), primary_key=True)
+
+    duplicate_seq_id = Column(String(length=128),
+                             ForeignKey('sequence_mapping.seq_id'),
                              primary_key=True,
                              index=True)
-    identity = relationship('Sequence', backref=backref('duplicate_sequences',
-                            order_by=identity_seq_id))
+    duplicate_seq = relationship(SequenceMapping,
+                            backref=backref('duplicate_sequences',
+                            order_by=duplicate_seq_id))
 
-    # The ID of the sequence
-    seq_id = Column(String(length=128), primary_key=True)
+    sample_id = Column(Integer, ForeignKey(Sample.id),
+                       primary_key=True)
+    sample = relationship(Sample, backref=backref('duplicate_sequences',
+                          order_by=seq_id))
 
 
 class NoResult(BaseData):
@@ -422,6 +432,7 @@ class NoResult(BaseData):
     :param int sample_id: The ID of the sample from which this sequence came
     :param Relationship sample: Reference to the associated \
         :py:class:`Sample` instance
+    :param str sequence: The sequence of the non-identifiable input
 
     """
     __tablename__ = 'noresults'
@@ -433,3 +444,5 @@ class NoResult(BaseData):
                        primary_key=True)
     sample = relationship(Sample, backref=backref('noresults',
                           order_by=seq_id))
+
+    sequence = Column(String(length=1024))

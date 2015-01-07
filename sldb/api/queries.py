@@ -575,53 +575,91 @@ def _name_and_field(e):
     return e
 
 
-def _fasta_header(no_key, keys):
-    return '>{}{}{}\n'.format(
+def _fasta_row(no_key, keys, sequence):
+    return '>{}{}{}\n{}\n'.format(
         no_key,
         '|' if len(no_key) > 0 and len(keys) > 0 else '',
-        '|'.join(map(lambda (k, v): '{}={}'.format(k, v), keys)))
+        '|'.join(map(lambda (k, v): '{}={}'.format(k, v), keys)),
+        sequence)
 
+
+def _tab_row(data):
+    return '{}\n'.format('\t'.join(map(lambda s: str(s[1]), 
+                                      data)))
+
+def _get_selected_data(selected_fields, seq):
+    data = []
+    for field in _export_fields:
+        n, f = _name_and_field(field)
+        if n in selected_fields:
+            if 'clone' not in n or (seq.clone is not None):
+                data.append((n, f(seq)))
+            else:
+                data.append((n, 'NA'))
+    return data
 
 def export_seqs(session, eformat, rtype, rids, selected_fields,
                 duplicates, noresults):
+    # Get the matching sequences for the export
     seqs = session.query(SequenceMapping).filter(
         getattr(SequenceMapping, '{}_id'.format(rtype)).in_(rids))
+
+    # If it's a CLIP file, order by identity_seq_id to minimize
+    # repetition of germline entries
     if eformat == 'clip':
         seqs = seqs.order_by(SequenceMapping.identity_seq_id)
 
+    # If it's a tab file, add the headers based on selected fields
     if eformat == 'tab':
         headers = []
         for field in _export_fields:
             n, f = _name_and_field(field)
             if n in selected_fields:
                 headers.append(n)
-
         yield '{}\n'.format('\t'.join(headers))
 
+    # For CLIP files to check if the germline needs to be output
     last_iden = None
+    # Iterate over all matching sequences
     for seq in seqs:
-        data = []
-        for field in _export_fields:
-            n, f = _name_and_field(field)
-            if n in selected_fields:
-                if 'clone' not in n or (seq.clone is not None):
-                    data.append((n, f(seq)))
-                else:
-                    data.append((n, 'NA'))
+        # Get the selected data from the sequence entry
+        data = _get_selected_data(selected_fields, seq)
 
+        # If it's a tab file, output the row
         if eformat == 'tab':
-            yield '{}\n'.format('\t'.join(map(lambda s: str(s[1]), 
-                                              data)))
+            yield _tab_row(data)
+
+            # Output rows for any duplicate sequences
+            if duplicates and seq.copy_number > 1:
+                for dup in session.query(DuplicateSequence).filter(
+                        DuplicateSequence.duplicate_seq == seq):
+                    yield _tab_row(_get_selected_data(selected_fields, dup))
         else:
+            # If it's a CLIP file and there has been a germline change
+            # output the new germline with metadata in the header
             if eformat == 'clip' and last_iden != seq.identity_seq_id:
                 last_iden = seq.identity_seq_id
-                yield _fasta_header(
+                yield _fasta_row(
                     '>Germline',
                     (('v_gene', seq.identity_seq.v_call),
                      ('j_gene', seq.identity_seq.j_call),
                      ('cdr3_aa', seq.identity_seq.junction_aa),
-                     ('cdr3_len', seq.identity_seq.junction_num_nts)))
+                     ('cdr3_len', seq.identity_seq.junction_num_nts)),
+                    seq.sequence)
+            
+            # Output the FASTA row
+            yield _fasta_row(
+                seq.seq_id,
+                data,
+                seq.identity_seq.sequence_replaced if eformat == 'fill' \
+                    else seq.sequence)
 
-            yield _fasta_header(seq.seq_id, data)
-            yield '{}\n'.format(seq.identity_seq.sequence_replaced \
-                if eformat == 'fill' else seq.sequence)
+            # Output rows for any duplicate sequences
+            if duplicates and seq.copy_number > 1:
+                for dup in session.query(DuplicateSequence).filter(
+                        DuplicateSequence.duplicate_seq == seq):
+                    yield _fasta_row(
+                        dup.seq_id,
+                        _get_selected_data(selected_fields, seq),
+                        seq.identity_seq.sequence_replaced \
+                            if eformat == 'fill' else seq.sequence)
