@@ -70,6 +70,14 @@ def get_all_studies(session):
     for sample in session.query(Sample).order_by(Sample.date):
         if session.query(SequenceMapping).filter(
                 SequenceMapping.sample == sample).first() is not None:
+            status = 'reads'
+        elif session.query(NoResult).filter(
+                NoResult.sample == sample).first() is not None:
+            status = 'noreads'
+        else:
+            status = 'unprocessed'
+
+        if status in ('reads', 'noreads'):
             if sample.study.id not in result:
                 result[sample.study.id] = {
                     'id': sample.study.id,
@@ -87,6 +95,7 @@ def get_all_studies(session):
                 SampleStats.outliers == 0,
                 SampleStats.filter_type == 'all').first()
             if stats is not None:
+                sample_dict['status'] = status
                 sample_dict['sequence_cnt'] = stats.sequence_cnt
                 sample_dict['in_frame_cnt'] = stats.in_frame_cnt
                 sample_dict['stop_cnt'] = stats.stop_cnt
@@ -577,6 +586,8 @@ def export_seqs(session, eformat, rtype, rids, selected_fields,
                 duplicates, noresults):
     seqs = session.query(SequenceMapping).filter(
         getattr(SequenceMapping, '{}_id'.format(rtype)).in_(rids))
+    if eformat == 'clip':
+        seqs = seqs.order_by(SequenceMapping.identity_seq_id)
 
     if eformat == 'tab':
         headers = []
@@ -587,6 +598,7 @@ def export_seqs(session, eformat, rtype, rids, selected_fields,
 
         yield '{}\n'.format('\t'.join(headers))
 
+    last_iden = None
     for seq in seqs:
         data = []
         for field in _export_fields:
@@ -599,9 +611,10 @@ def export_seqs(session, eformat, rtype, rids, selected_fields,
 
         if eformat == 'tab':
             yield '{}\n'.format('\t'.join(map(lambda s: str(s[1]), 
-                                              data.values())))
+                                              data)))
         else:
-            if eformat == 'clip':
+            if eformat == 'clip' and last_iden != seq.identity_seq_id:
+                last_iden = seq.identity_seq_id
                 yield _fasta_header(
                     '>Germline',
                     (('v_gene', seq.identity_seq.v_call),

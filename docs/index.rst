@@ -5,6 +5,7 @@ SLDB Documentation
     :maxdepth: 2
 
     common
+    models
 
 Indices and tables
 ==================

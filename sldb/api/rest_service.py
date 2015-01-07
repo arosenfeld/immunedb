@@ -390,7 +390,7 @@ def export(eformat, rtype, rids):
         name)
 
     for lines in queries.export_seqs(
-            session, eformat, rtype, rids,
+            session, eformat, rtype, _split(rids),
             fields,
             _get_arg('duplicates', False) or False,
             _get_arg('noresults', False) or False):
