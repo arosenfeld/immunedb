@@ -1,3 +1,4 @@
+import sldb.util.funcs as funcs
 from sldb.common.models import DuplicateSequence, NoResult, SequenceMapping
 
 class SequenceExport(object):
@@ -146,7 +147,8 @@ class SequenceExport(object):
 
         # For CLIP files to check if the germline needs to be output
         last_iden = None
-        for seq in page_query(seqs):
+        # TODO: Change this to .yield_per?
+        for seq in funcs.page_query(seqs):
             # Get the selected data for the sequence
             data = self._get_selected_data(seq)
             if self.eformat == 'fill':
