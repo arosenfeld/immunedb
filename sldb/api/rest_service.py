@@ -9,6 +9,7 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 import bottle
 from bottle import route, response, request, install, run
 
+from sldb.api.export import SequenceExport
 import sldb.api.queries as queries
 from sldb.common.models import *
 
@@ -389,13 +390,12 @@ def export(eformat, rtype, rids):
     response.headers['Content-Disposition'] = 'attachment;filename={}'.format(
         name)
 
-    for lines in queries.export_seqs(
-            session, eformat, rtype, _split(rids),
-            fields,
-            _get_arg('duplicates', False) == 'true',
-            _get_arg('noresults', False) == 'true'):
-        for line in lines:
-            yield line
+    export = SequenceExport(
+        session, eformat, rtype, rids, fields,
+        _get_arg('duplicates', False) == 'true',
+        _get_arg('noresults', False) == 'true')
+    for line in export.get_data():
+        yield line
 
     session.close()
 
