@@ -119,27 +119,34 @@ class SequenceExport(object):
         return data
 
     def get_data(self):
+        # Get all the sequences matching the request
         seqs = self.session.query(SequenceMapping).filter(
             getattr(
                 SequenceMapping, '{}_id'.format(self.rtype)
             ).in_(self.rids))
 
+        # If it's a CLIP file, order by identity_seq_id to minimize
+        # repetition of germline entries
         if self.eformat == 'clip':
-            # If it's a CLIP file, order by identity_seq_id to minimize
-            # repetition of germline entries
             seqs = seqs.order_by(SequenceMapping.clone_id)
-        elif self.eformat == 'tab':
+        else:
+            # This probably isn't necessary but is a safe guard since we
+            # page_query is used and order may not be deterministic on all
+            # storage engines
+            seqs = seqs.order_by(SequenceMapping.seq_id)
+
             # If it's a tab file, add the headers based on selected fields
-            headers = []
-            for field in self.export_fields:
-                n, f = self._name_and_field(field)
-                if n in self.selected_fields:
-                    headers.append(n)
-            yield '{}\n'.format('\t'.join(headers))
+            if self.eformat == 'tab':
+                headers = []
+                for field in self.export_fields:
+                    n, f = self._name_and_field(field)
+                    if n in self.selected_fields:
+                        headers.append(n)
+                yield '{}\n'.format('\t'.join(headers))
 
         # For CLIP files to check if the germline needs to be output
         last_iden = None
-        for seq in seqs:
+        for seq in page_query(seqs):
             # Get the selected data for the sequence
             data = self._get_selected_data(seq)
             if self.eformat == 'fill':
