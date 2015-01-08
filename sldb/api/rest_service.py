@@ -391,7 +391,7 @@ def export(eformat, rtype, rids):
         name)
 
     export = SequenceExport(
-        session, eformat, rtype, rids, fields,
+        session, eformat, rtype, _split(rids), fields,
         _get_arg('duplicates', False) == 'true',
         _get_arg('noresults', False) == 'true')
     for line in export.get_data():
