@@ -2,7 +2,7 @@ import sldb.util.funcs as funcs
 from sldb.common.models import DuplicateSequence, NoResult, SequenceMapping
 
 class SequenceExport(object):
-    '''A class to handle exporting sequences in various formats.
+    """A class to handle exporting sequences in various formats.
 
     :param Session session: A handle to a database session
     :param str eformat: The export format to use.  Currently "tab", "orig", and
@@ -17,7 +17,7 @@ class SequenceExport(object):
     :param bool noresults: If sequences which could not be assigned a V or J
         should be included in the output
 
-    '''
+    """
     _export_fields = [
         'seq_id',
         'identity_seq_id',
@@ -86,14 +86,44 @@ class SequenceExport(object):
 
     @property
     def export_fields(self):
+        """Gets a list of all valid export fields.
+
+        :returns: List of all valid export fields
+        :rtype: list
+
+        """
         return self._export_fields
 
     def _name_and_field(self, e):
+        """Gets the name and field for export field entry ``e``.
+
+        :param tuple e: Input field to split into name and field.
+        
+        :return: Name and field for export field ``e``
+        :rtype: (name, field)
+
+        """
         if type(e) == str:
             return e, lambda seq: getattr(seq, e)
         return e
 
     def _fasta_entry(self, seq_id, keys, sequence):
+        """Gets the entry for a sequence in FASTA format with ``keys`` separated
+        in the header by pipe symbols.
+
+        :param str seq_id: The sequence identifier
+        :param list keys: A list of ``(name, value)`` tuples to include in the
+            header
+        :param str sequence: The sequence for the entry
+
+        :returns: The FASTA entry like
+
+            >seq_id|hdr_key1=hdr_val1|hdr_key2=hdr_val2|...
+            ATCGATCG...
+
+        :rtype: str
+
+        """
         return '>{}{}{}\n{}\n'.format(
             seq_id, 
             '|' if len(keys) > 0 else '',
@@ -101,9 +131,25 @@ class SequenceExport(object):
             sequence)
 
     def _tab_entry(self, data):
+        """Gets the sequence in a tab delimited format.
+
+        :param list data: A list of ``(name, value)`` tuples to include in the
+            header
+
+        """
         return '{}\n'.format('\t'.join(map(lambda s: str(s[1]), data)))
 
     def _get_selected_data(self, seq, **overrides):
+        """Gets the data specified by ``selected_fields`` for the sequence
+        ``seq`` while overriding values in ``overrides`` if they exist.
+
+        :param SequenceMapping seq: The sequence from which to gather fields
+        :param kwargs overrides: Fields to override
+
+        :returns A list of ``(name, value)`` tuples with the selected data
+        :rtype: list
+
+        """
         data = []
         for field in self.export_fields:
             n, f = self._name_and_field(field)
@@ -120,6 +166,14 @@ class SequenceExport(object):
         return data
 
     def get_data(self):
+        """Gets the output data for this export instance.  This could be export
+        to a file, over a socket, etc. as it's simply a string or could be
+        treated as a byte string.
+
+        :returns: Lines of output for the selected sequences in ``eformat``
+        :rtype: str
+
+        """
         # Get all the sequences matching the request
         seqs = self.session.query(SequenceMapping).filter(
             getattr(
@@ -146,7 +200,7 @@ class SequenceExport(object):
                 yield '{}\n'.format('\t'.join(headers))
 
         # For CLIP files to check if the germline needs to be output
-        last_iden = None
+        last_cid = ''
         # TODO: Change this to .yield_per?
         for seq in funcs.page_query(seqs):
             # Get the selected data for the sequence
@@ -162,8 +216,8 @@ class SequenceExport(object):
             else:
                 # If it's a CLIP file and there has been a germline change
                 # output the new germline with metadata in the header
-                if self.eformat == 'clip' and last_iden != seq.identity_seq_id:
-                    last_iden = seq.identity_seq_id
+                if self.eformat == 'clip' and last_cid != seq.clone_id:
+                    last_cid = seq.clone_id
                     yield self._fasta_entry(
                         '>Germline',
                         (('v_gene', seq.identity_seq.v_call),
