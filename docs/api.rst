@@ -43,7 +43,7 @@ with:
     rids = [1,2]
     selected_fields = ['seq_id', 'sample_name', 'sequence']
     export = SequenceExport(session, eformat, rtype, rids, selected_fields,
-                            duplicates=True, noresults=False)
+                            min_copy=5, duplicates=True, noresults=False)
 
     for line in export.get_data():
         print line
@@ -51,7 +51,7 @@ with:
 This will print the sequences from samples 1 and 2 as a tab-delimited file with
 fields ``seq_id``, ``sample_name``, and ``sequence`` including duplicate
 sequences but excluding those which could not be identified with a V- and
-J-gene.
+J-gene.  Further, sequences output must have a copy number of at least 5.
 
 .. automodule:: sldb.api.export
     :members:

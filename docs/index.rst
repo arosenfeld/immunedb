@@ -2,7 +2,7 @@ SLDB Documentation
 ==================
 The SimLab Database (SLDB) package is a Python module that facilitate efficient
 storage and analysis of high-throughput B- and T-cell sequence data.  It's
-primary goals are:
+primary goals are to:
 
 - **Reduce ad-hoc scripting:** Analysis is often done on an ad-hoc basis as
   the need for data is realized, requiring specialized scripts to be written.
@@ -10,20 +10,19 @@ primary goals are:
   specialized analysis, robust export functionality.
 
 - **Minimize flat-files:** Flat files are currently the standard method of
-  exchanging data in the biological sciences.  There are a myriad of drawbacks for
-  these including a lack of `referential integrity
+  exchanging data in the biological sciences.  There are a myriad of drawbacks
+  when using these including a lack of `referential integrity
   <http://en.wikipedia.org/wiki/Referential_integrity>`_, unclear `provenance
-  <http://en.wikipedia.org/wiki/Provenance#Data_provenance>`_, and formats not
-  having standardization.
+  <http://en.wikipedia.org/wiki/Provenance#Data_provenance>`_, and
+  non-standardized formats.
   
   SLDB eliminates these through the use of an industry-leading database, MySQL,
   and strong data guarantees.  When data must be exchanged as a flat-file, many
   export options, including FASTA and tab-delineation, are available.
 
-- **Provide a generic API:** The REST API provided by SLDB allows other
-  application and websites (via AJAX) to interact with the underlying database
-  without needing to know the specifics of the storage format.  Using HTTP GET and
-  POST requests, other systems may query SLDB for information.
+- **Provide a generic API:** SLDB provides both a REST API for language-agnostic
+  database querying as well as a suite of Python classes for interacting directly
+  with the database for customized querying.
 
 SLDB has three primary components:
 
@@ -35,10 +34,14 @@ SLDB has three primary components:
   This includes mutation analysis, gene utilization breakdowns, and feature
   distributions  (e.g. CDR3 length, V-gene utilization).
 
-- **REST API:** An interface to all SLDB data which can be accessed simply by HTTP
-  requests and returns JSON formatted responses.  Generally this can be used to
-  write web applications for visualizing data, but could also be integrated into
-  applications which further analyze data.
+- **API:**  SLDB includes two APIs.  First, the REST
+  API allows other application and websites (via AJAX) to interact with the
+  underlying database without writing any database specific code.  Further, the
+  REST API is language agnostic, using HTTP to exchange data.
+
+  Second is the Python API which implements the data models and querying
+  functionality.  This allows developers to write customized queries directly
+  interacting with the database.
 
 Each of the components can be used independently so long as the underlying
 database is properly populated.  For example, custom clonal identification can

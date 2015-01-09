@@ -408,6 +408,8 @@ def export(eformat, rtype, rids):
     session = scoped_session(session_factory)()
 
     fields = _get_arg('fields', False).split(',')
+    min_copy = _get_arg('min_copy_number', False)
+    min_copy = int(min_copy) if min_copy is not None else 1
 
     if eformat == 'tab':
         name = '{}_{}.tab'.format(
@@ -426,8 +428,9 @@ def export(eformat, rtype, rids):
 
     export = SequenceExport(
         session, eformat, rtype, _split(rids), fields,
-        _get_arg('duplicates', False) == 'true',
-        _get_arg('noresults', False) == 'true')
+        min_copy=min_copy,
+        duplicates=_get_arg('duplicates', False) == 'true',
+        noresults=_get_arg('noresults', False) == 'true')
     for line in export.get_data():
         yield line
 

@@ -12,6 +12,7 @@ class SequenceExport(object):
         either "sample" or "clone"
     :param int-array rids: A list of IDs of ``rtype`` to export
     :param str-array selected_fields: A list of fields to export
+    :param bool min_copy: Minimum copy number of sequences to include
     :param bool duplicates: If duplicate sequences should be included in the
         output
     :param bool noresults: If sequences which could not be assigned a V or J
@@ -75,12 +76,13 @@ class SequenceExport(object):
     ]
 
     def __init__(self, session, eformat, rtype, rids, selected_fields,
-                 duplicates, noresults):
+                 min_copy, duplicates, noresults):
         self.session = session
         self.eformat = eformat
         self.rtype = rtype
         self.rids = rids
         self.selected_fields = selected_fields
+        self.min_copy = min_copy
         self.duplicates = duplicates
         self.noresults = noresults
 
@@ -178,7 +180,8 @@ class SequenceExport(object):
         seqs = self.session.query(SequenceMapping).filter(
             getattr(
                 SequenceMapping, '{}_id'.format(self.rtype)
-            ).in_(self.rids))
+            ).in_(self.rids),
+            SequenceMapping.copy_number >= self.min_copy)
 
         # If it's a CLIP file, order by identity_seq_id to minimize
         # repetition of germline entries
