@@ -116,7 +116,7 @@ def _get_clone_distribution(session, sample_id, key, filter_func, avg):
 
 
 def _get_distribution(session, sample_id, key, filter_func, use_copy,
-                      cdr3_bounds=None):
+                      cdr3_bounds, full_reads):
     result = {}
     if isinstance(key, tuple):
         key = key[0]
@@ -124,6 +124,9 @@ def _get_distribution(session, sample_id, key, filter_func, use_copy,
     q = filter_func(session.query(SequenceMapping.identity_seq_id,
                     key.label('key'))
                     .filter(SequenceMapping.sample_id == sample_id))
+
+    if full_reads:
+        q = q.filter(SequenceMapping.alignment == 'pRESTO')
 
     if key in _do_join or cdr3_bounds is not None:
         q = q.join(Sequence)
@@ -146,7 +149,7 @@ def _get_distribution(session, sample_id, key, filter_func, use_copy,
 
 
 def _process_filter(session, sample_id, filter_type, filter_func,
-                    use_copy, include_outliers):
+                    use_copy, include_outliers, full_reads):
     if not include_outliers:
         min_cdr3, max_cdr3 = _get_cdr3_bounds(session, filter_func, sample_id)
     def base_query():
@@ -157,11 +160,14 @@ def _process_filter(session, sample_id, filter_type, filter_func,
             q = q.join(Sequence).filter(
                 Sequence.junction_num_nts >= min_cdr3,
                 Sequence.junction_num_nts <= max_cdr3)
+        if full_reads:
+            q = q.filter(SequenceMapping.alignment == 'pRESTO')
         return q
 
     stat = SampleStats(sample_id=sample_id,
                        filter_type=filter_type,
-                       outliers=include_outliers)
+                       outliers=include_outliers,
+                       full_reads=full_reads)
 
     q = base_query().first()
     if q is None:
@@ -195,7 +201,7 @@ def _process_filter(session, sample_id, filter_type, filter_func,
         dist_val = _get_distribution(
             session, sample_id, dist, filter_func, use_copy,
             (min_cdr3, max_cdr3) if not include_outliers and min_cdr3 \
-                is not None else None)
+                is not None else None, full_reads)
 
         if isinstance(dist, tuple):
             name = dist[1]
@@ -207,16 +213,20 @@ def _process_filter(session, sample_id, filter_type, filter_func,
 
 
 def _process_clone_filter(session, sample_id, filter_type, filter_func,
-                          include_outliers):
+                          include_outliers, full_reads):
     def base_query():
-        return filter_func(session.query(
+        q = filter_func(session.query(
             func.count(SequenceMapping.seq_id).label('unique'))
             .filter(SequenceMapping.sample_id == sample_id))\
             .group_by(SequenceMapping.clone_id)
+        if full_reads:
+            q = q.filter(SequenceMapping.alignment == 'pRESTO')
+        return q
 
     stat = SampleStats(sample_id=sample_id,
                        filter_type=filter_type,
-                       outliers=include_outliers)
+                       outliers=include_outliers,
+                       full_reads=full_reads)
     stat.sequence_cnt = len(base_query().all())
     stat.in_frame_cnt = len(base_query().filter(
         SequenceMapping.in_frame == 1).all())
@@ -255,17 +265,21 @@ def _process_sample(session, sample_id, force):
 
     for include_outliers in [True, False]:
         print '\tOutliers={}'.format(include_outliers);
-        for f in _seq_filters:
-            print '\t\tGenerating sequence stats for filter "{}"'.format(f['type'])
-            _process_filter(session, sample_id, f['type'], f['filter_func'],
-                            f['use_copy'], include_outliers)
-            session.commit()
+        for full_reads in [True, False]:
+            print '\t\tFull Reads={}'.format(full_reads);
+            for f in _seq_filters:
+                print '\t\t\tGenerating sequence stats for filter "{}"'.format(f['type'])
+                _process_filter(session, sample_id, f['type'], f['filter_func'],
+                                f['use_copy'], include_outliers,
+                                full_reads)
+                session.commit()
 
-        for f in _clone_filters:
-            print '\t\tGenerating sequence stats for filter "{}"'.format(f['type'])
-            _process_clone_filter(session, sample_id, f['type'],
-            f['filter_func'], include_outliers)
-            session.commit()
+            for f in _clone_filters:
+                print '\t\t\tGenerating sequence stats for filter "{}"'.format(f['type'])
+                _process_clone_filter(session, sample_id, f['type'],
+                                      f['filter_func'], include_outliers,
+                                      full_reads)
+                session.commit()
 
 
 def run_stats(session, args):

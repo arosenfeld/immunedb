@@ -122,6 +122,7 @@ class SampleStats(BaseData):
 
     :param str filter_type: The type of filter for the statistics (e.g. functional)
     :param bool outliers: If outliers were included in the statistics
+    :param bool full_reads: If only full reads were included in the statistics
     :param str v_match_dist: Distribution of V gene match count
     :param str v_length_dist: Distribution of V gene total length
     :param str j_match_dist: Distribution of J gene match count
@@ -148,6 +149,7 @@ class SampleStats(BaseData):
 
     filter_type = Column(String(length=255), primary_key=True)
     outliers = Column(Boolean, primary_key=True)
+    full_reads = Column(Boolean, primary_key=True)
 
     v_match_dist = Column(MEDIUMTEXT)
     v_length_dist = Column(MEDIUMTEXT)

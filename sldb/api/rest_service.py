@@ -249,10 +249,27 @@ def stats(samples):
 
     """
     session = scoped_session(session_factory)()
-    stats = queries.get_stats(session, _split(samples), False)
-    outliers = queries.get_stats(session, _split(samples), True)
+    samples = _split(samples)
+    ret = json.dumps({
+        'outliers': {
+            'all_reads': queries.get_stats(session, samples,
+                                           include_outliers=True,
+                                           full_reads=False),
+            'full_reads': queries.get_stats(session, samples,
+                                            include_outliers=True,
+                                            full_reads=True),
+        },
+        'no_outliers': {
+            'all_reads': queries.get_stats(session, samples,
+                                           include_outliers=False,
+                                           full_reads=False),
+            'full_reads': queries.get_stats(session, samples,
+                                            include_outliers=False,
+                                            full_reads=True),
+        }
+    })
     session.close()
-    return json.dumps({'no_outliers': stats, 'with_outliers': outliers})
+    return ret
 
 
 @route('/api/data/clone_overlap/<filter_type>/<samples>')
@@ -319,8 +336,8 @@ def download_clone_overlap(filter_type, samples=None, subject=None):
         yield ','.join(map(str, fields)) + '\n'
 
 
-@route('/api/v_usage/<filter_type>/<samples>')
-def v_usage(filter_type, samples):
+@route('/api/v_usage/<filter_type>/<outliers>/<full_reads>/<samples>')
+def v_usage(filter_type, outliers, full_reads, samples):
     """Gets the V usage for samples in a heatmap-formatted array.
     
     :param str filter_type: The filter type of sequences for the v_usage
@@ -332,7 +349,9 @@ def v_usage(filter_type, samples):
     
     """
     session = scoped_session(session_factory)()
-    data, headers = queries.get_v_usage(session, filter_type, _split(samples))
+    data, headers = queries.get_v_usage(
+        session, _split(samples), filter_type,
+        outliers == 'true', full_reads == 'true')
     session.close()
     x_categories = headers
     y_categories = data.keys()

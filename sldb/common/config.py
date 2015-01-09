@@ -56,6 +56,7 @@ def init_db(master_db_config, data_db_config, as_maker=False):
 
     DATABASE_SETTINGS['master_metadata'] = MetaData(schema=master_name)
     DATABASE_SETTINGS['data_metadata'] = MetaData(schema=data_name)
+
     from sldb.common.models import *
     BaseMaster.metadata.create_all(master_engine)
     BaseData.metadata.create_all(data_engine)

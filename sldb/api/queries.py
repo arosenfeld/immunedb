@@ -92,7 +92,8 @@ def get_all_studies(session):
                                   SampleStats.functional_cnt,
                                   SampleStats.no_result_cnt).filter(
                 SampleStats.sample_id == sample.id,
-                SampleStats.outliers == 1,
+                SampleStats.outliers == True,
+                SampleStats.full_reads == False,
                 SampleStats.filter_type == 'all').first()
             if stats is not None:
                 sample_dict['status'] = status
@@ -101,6 +102,8 @@ def get_all_studies(session):
                 sample_dict['stop_cnt'] = stats.stop_cnt
                 sample_dict['functional_cnt'] = stats.functional_cnt
                 sample_dict['no_result_cnt'] = stats.no_result_cnt
+            else:
+                sample_dict['status'] = 'processing'
             result[sample.study.id]['samples'].append(sample_dict)
 
     return result
@@ -278,12 +281,14 @@ def get_clones_in_subject(session, subject_id):
         Clone.subject_id == subject_id))
 
 
-def get_v_usage(session, filter_type, samples):
+def get_v_usage(session, samples, filter_type, outliers, full_reads):
     """Gets the V-Gene usage percentages for samples"""
     data = {}
     headers = []
     for s in session.query(SampleStats)\
             .filter(SampleStats.filter_type == filter_type,
+                    SampleStats.outliers == outliers,
+                    SampleStats.full_reads == full_reads,
                     SampleStats.sample_id.in_(samples)):
         dist = json.loads(s.v_call_dist)
         data[s.sample.name] = {}
@@ -293,10 +298,8 @@ def get_v_usage(session, filter_type, samples):
 
         for v in dist:
             name, occ = v
-            if name in lookups.v_gene_ties:
-                name = lookups.v_gene_ties[name]
-            else:
-                name = name.replace('/', '|').split('|')[0]
+            # TODO: Don't think this is needed
+            name = name.split('|')[0]
             if name not in headers:
                 headers.append(name)
 
@@ -341,7 +344,8 @@ def get_subject(session, sid):
         stats = session.query(SampleStats).filter(
             SampleStats.filter_type == 'all',
             SampleStats.sample_id == sample.id,
-            SampleStats.outliers == True).first()
+            SampleStats.outliers == True,
+            SampleStats.full_reads == False).first()
         sample_dict = {
             'id': sample.id,
             'name': sample.name,
@@ -366,7 +370,7 @@ def get_subject(session, sid):
     return subject
 
 
-def get_stats(session, samples, include_outliers):
+def get_stats(session, samples, include_outliers, full_reads):
     counts = {}
     stats = {}
     dist_fields = [
@@ -377,7 +381,8 @@ def get_stats(session, samples, include_outliers):
                  'no_result_cnt']
     for stat in session.query(SampleStats).filter(
             SampleStats.sample_id.in_(samples),
-            SampleStats.outliers == include_outliers):
+            SampleStats.outliers == include_outliers,
+            SampleStats.full_reads == full_reads):
         if stat.sample_id not in stats:
             stats[stat.sample_id] = {
                 'sample': _sample_to_dict(stat.sample),
