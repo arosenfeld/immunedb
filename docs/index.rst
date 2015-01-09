@@ -16,16 +16,16 @@ primary goals are:
   <http://en.wikipedia.org/wiki/Provenance#Data_provenance>`_, and formats not
   having standardization.
   
-  SLDB eliminates these through the use of ab industry-leading database, MySQL,
+  SLDB eliminates these through the use of an industry-leading database, MySQL,
   and strong data guarantees.  When data must be exchanged as a flat-file, many
-  export options including FASTA and tab-delineation are available.
+  export options, including FASTA and tab-delineation, are available.
 
 - **Provide a generic API:** The REST API provided by SLDB allows other
   application and websites (via AJAX) to interact with the underlying database
   without needing to know the specifics of the storage format.  Using HTTP GET and
-  POST request, other systems may query SLDB for various information.
+  POST requests, other systems may query SLDB for information.
 
-It has three primary components:
+SLDB has three primary components:
 
 - **Clonal identification pipeline:** A series of steps which take as input raw
   sequences in FASTA format, identifies V- and J-genes (as well as many other
@@ -44,11 +44,12 @@ Each of the components can be used independently so long as the underlying
 database is properly populated.  For example, custom clonal identification can
 be used prior to analysis if desired.
 
-The underlying technologies that facilitate this are:
+Underlying Technologies
+-----------------------
 
 - `MySQL <http://www.mysql.com>`_: The database (agnostic
   of implementation like `MariaDB <https://mariadb.org>`_) which enforces rigorous
-  data guarantees, indexes the data for fast retrieval, and guarantees atomicity
+  data guarantees, indexes the data for fast retrieval, and enforces atomicity
   of operations
 
 - `TokuDB <http://www.tokutek.com/tokudb-for-mysql>`_: The storage engine which
