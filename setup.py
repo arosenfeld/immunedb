@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='SLDB',
-      version='4.0.0',
+      version='4.0.3',
       author='Aaron M. Rosenfeld',
       author_email='ar374@drexel.edu',
       packages=[
