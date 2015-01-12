@@ -1,18 +1,22 @@
 import argparse
 import json
+import pkg_resources
 import sys
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.schema import MetaData
 
+from Bio import SeqIO
+
 from sldb.common.settings import DATABASE_SETTINGS
 
 
-def _create_engine(config_path):
-    with open(config_path) as fh:
-        data = json.load(fh)
+class ConfigurationException(Exception):
+    pass
 
+
+def _create_engine(data):
     con_str = ('mysql+pymysql://{}:{}@{}/{}'
                '?charset=utf8&use_unicode=0').format(
         data['username'], data['password'],
@@ -20,6 +24,25 @@ def _create_engine(config_path):
     engine = create_engine(con_str, pool_recycle=3600)
 
     return engine, data['database']
+
+
+def _get_germlines(path):
+    if path.startswith('!'):
+        try:
+            path = pkg_resources.resource_filename(
+                'sldb', 'data/germlines/imgt_human.fasta')
+        except:
+            raise ConfigurationException('Unknown built-in germline {}'.format(
+                path[1:]))
+
+    germs = {}
+    try: 
+        for record in SeqIO.parse(path, 'fasta'):
+            germs[record.id] = str(record.seq)
+    except:
+        raise ConfigurationException('Unable to read V germlines at {}'.format(
+            path))
+    return germs
 
 
 def get_base_arg_parser(desc):
@@ -51,11 +74,21 @@ def init_db(master_db_config, data_db_config, as_maker=False):
     :returns: A ``session`` or, if ``as_maker`` is set, a ``session_maker``
 
     """
-    master_engine, master_name = _create_engine(master_db_config)
-    data_engine, data_name = _create_engine(data_db_config)
+    with open(master_db_config) as fh:
+        master_config = json.load(fh)
+    with open(data_db_config) as fh:
+        data_config = json.load(fh)
+
+    master_engine, master_name = _create_engine(master_config)
+    data_engine, data_name = _create_engine(data_config)
 
     DATABASE_SETTINGS['master_metadata'] = MetaData(schema=master_name)
     DATABASE_SETTINGS['data_metadata'] = MetaData(schema=data_name)
+
+    if 'v_germlines' not in data_config:
+        raise ConfigurationException('No V germlines specified')
+    DATABASE_SETTINGS['v_germlines'] = _get_germlines(
+        data_config.get('v_germlines'))
 
     from sldb.common.models import *
     BaseMaster.metadata.create_all(master_engine)
