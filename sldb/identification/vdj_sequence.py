@@ -34,16 +34,15 @@ class VDJSequence(object):
 
         self.probable_deletion = False
 
+        self._try_rev = False
+
         # If there are invalid characters in the sequence, ignore it 
-        stripped = filter(lambda s: s in 'ATCG', self.sequence)
+        stripped = filter(lambda s: s in 'ATCGN', self.sequence)
         if len(stripped) == len(self.sequence):
             self._find_j()
             if self._j is not None:
-                self._v_anchor_pos = self._find_v_position(self.sequence)
-                if self.v_anchor_pos is not None:
-                    self._find_v()
-                    if self.v_gene is not None:
-                        self._calculate_stats()
+                self._get_v()
+
 
     @property
     def id(self):
@@ -221,6 +220,16 @@ class VDJSequence(object):
 
             return
 
+    def _get_v(self):
+        self._v_anchor_pos = self._find_v_position(self.sequence)
+        if self.v_anchor_pos is not None:
+            self._find_v()
+            if self.v_gene is not None:
+                self._calculate_stats()
+            elif not self._try_rev:
+                self._try_rev = True
+                self._get_v()
+
     def _find_v_position(self, sequence):
         '''Tries to find the end of the V gene region'''
         # Try to find DxxxyzC
@@ -230,24 +239,19 @@ class VDJSequence(object):
             found = self._find_yxc(sequence)
         return found
 
-
-    def _get_diffs(self, s1, s2):
-        diffs = ''
-        for c1, c2 in zip(s1, s2):
-            diffs += ' ' if c1 == c2 else '*'
-        return diffs
-
     def _find_v(self):
         '''Finds the V gene closest to that of the sequence'''
         self._v_score = None
         self._v = None
 
         for v, germ in sorted(self.v_germlines.iteritems()):
+            print ''
+            print v
             germ_pos, dist, s_seq = self._compare_to_germline(germ)
             if germ_pos is not None:
                 # Record this germline if it is has the lowest distance
                 if self._v_score is None or dist < self._v_score:
-                    self._v = [v.split('*')[0]]
+                    self._v = [v]
                     self._v_score = dist
                     self._v_length = len(s_seq)
                     self._v_match = len(s_seq) - dist
@@ -265,6 +269,7 @@ class VDJSequence(object):
         if self._full_v and self._pad_len > 0:
             self._v = None
             return
+        self._v = list(set(map(lambda v: v.split('*')[0], self._v)))
 
     def _compare_to_germline(self, germ):
         # Strip the gaps
@@ -277,6 +282,11 @@ class VDJSequence(object):
         diff = abs(germ_pos - self.v_anchor_pos)
         s_seq = self.sequence
 
+        print v_seq
+        print ' ' * germ_pos + '^'
+        print s_seq
+        print ' ' * self.v_anchor_pos + '^'
+        print 'DIFF'
         # Trim the sequence which has the maximal anchor position, and
         # determine the CDR3 start position without gaps
         if germ_pos > self.v_anchor_pos:
@@ -285,10 +295,16 @@ class VDJSequence(object):
         else:
             s_seq = s_seq[diff:]
             cdr3_offset_in_v = germ_pos
+        print v_seq
+        print s_seq
+        #v_seq = v_seq[:min(len(v_seq), len(s_seq))]
+        #s_seq = s_seq[:min(len(v_seq), len(s_seq))]
+        print '-' * 100
 
         # Only compare to the start of J
         v_seq = v_seq[:self._j_start]
         s_seq = s_seq[:self._j_start]
+
         # Determine the CDR3 in the germline and sequence
         v_cdr3 = v_seq[cdr3_offset_in_v:]
         s_cdr3 = s_seq[cdr3_offset_in_v:]
@@ -398,7 +414,11 @@ class VDJSequence(object):
         return self._find_with_frameshifts(sequence, 'Y([YHC])C')
 
     def _find_with_frameshifts(self, sequence, regex):
-        for shift in range(0, 3):
+        if not self._try_rev:
+            r = range(0, 3)
+        else:
+            r = range(2, -1, -1)
+        for shift in r:
             seq = sequence[shift:]
             seq = seq[:len(seq) - len(seq) % 3]
             aas = str(seq.translate())

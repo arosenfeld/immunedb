@@ -1,17 +1,20 @@
 import sys
 from Bio import SeqIO
 from sldb.identification.vdj_sequence import VDJSequence
+import sldb.identification.v_ties as v_ties
 import sldb.util.lookups as lookups
 
 
 if __name__ == '__main__':
-    for record in SeqIO.parse(sys.argv[1], 'fasta'):
-#        if 'working' not in record.description:
-#            print 'skipping', record.description
-#            continue
+    v_germlines = {}
+    with open(sys.argv[1]) as fh:
+        for vr in SeqIO.parse(fh, 'fasta'):
+            v_germlines[vr.id] = str(vr.seq).upper()
+
+    for record in SeqIO.parse(sys.argv[2], 'fasta'):
         print record.description
         vdj = VDJSequence(record.description, record.seq, 'presto' in
-                          record.description)
+                          record.description, v_germlines)
         if vdj.j_gene is not None and vdj.v_gene is not None:
             print 'v_gene     :', vdj.v_gene
             print 'j_gene     :', vdj.j_gene
