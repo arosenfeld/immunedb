@@ -59,6 +59,13 @@ def _create_mapping(session, identity_seq_id, alignment, sample, vdj):
         sequence=str(vdj.sequence))
 
 
+def _format_ties(ties, name):
+    if ties is None:
+        return None
+    ties = map(lambda e: e.replace(name, ''), ties)
+    return '{}{}'.format(name, '|'.join(sorted(ties)))
+
+
 def _add_to_db(session, alignment, sample, vdj):
     assert alignment in ['R1', 'R2', 'pRESTO']
     # Check if a sequence with the exact same filled sequence exists
@@ -67,8 +74,8 @@ def _add_to_db(session, alignment, sample, vdj):
     if m is None:
         # If not, add the sequence, and make the mapping
         m = Sequence(seq_id=vdj.id,
-                     v_call='|'.join(sorted(vdj.v_gene)),
-                     j_call=vdj.j_gene,
+                     v_call=_format_ties(vdj.v_gene, 'IGHV'),
+                     j_call=_format_ties(vdj.j_gene, 'IGHJ'),
                      junction_num_nts=len(vdj.cdr3),
                      junction_nt=str(vdj.cdr3),
                      junction_aa=lookups.aas_from_nts(vdj.cdr3, ''),
@@ -96,7 +103,7 @@ def _add_to_db(session, alignment, sample, vdj):
                                         vdj))
 
 
-def _identify_reads(session, meta, fn, name, alignment):
+def _identify_reads(session, meta, fn, name, alignment, v_germlines):
     if not os.path.isfile(fn):
         print fn
         print 'Skipping {} alignment'.format(alignment)
@@ -140,7 +147,10 @@ def _identify_reads(session, meta, fn, name, alignment):
             print '\tCommitted {}'.format(i)
             session.commit()
 
-        vdj = VDJSequence(record.description, record.seq, alignment == 'pRESTO')
+        vdj = VDJSequence(record.description, 
+                          record.seq,
+                          alignment == 'pRESTO',
+                          v_germlines)
         if vdj.v_gene is not None and vdj.j_gene is not None:
             lengths_sum += vdj.v_length
             mutations_sum += vdj.mutation_fraction
@@ -172,7 +182,8 @@ def _identify_reads(session, meta, fn, name, alignment):
             else:
                 new_vs.add(v)
         old_vs = vdj.v_gene[:]
-        vdj.v_gene = list(sorted(new_vs))
+        vdj.v_gene = new_vs
+
         if len(vdj.v_gene) > 1:
             v_tie_cnt += 1
     print '\ttotal_seqs={}'.format(cnt)
@@ -190,6 +201,12 @@ def run_identify(session, args):
         if not os.path.isfile(meta_fn):
             print 'No metadata file found for this set of samples.'
             return
+
+        v_germlines = {}
+        with open(args.v_germlines) as fh:
+            for record in SeqIO.parse(fh, 'fasta'):
+                v_germlines[record.id] = str(record.seq).upper()
+
         with open(meta_fn) as fh:
             metadata = json.load(fh)
 
@@ -211,6 +228,12 @@ def run_identify(session, args):
                         print 'FORCING {}'.format(name)
 
                 _identify_reads(session, metadata,
-                                join, base.rsplit('/', 1)[1], 'pRESTO')
+                                join,
+                                base.rsplit('/', 1)[1],
+                                'pRESTO',
+                                v_germlines)
                 _identify_reads(session, metadata,
-                                r1, base.rsplit('/', 1)[1], 'R1')
+                                r1,
+                                base.rsplit('/', 1)[1],
+                                'R1',
+                                v_germlines)

@@ -249,6 +249,13 @@ def _process_clone_filter(session, sample_id, filter_type, filter_func,
 
 def _process_sample(session, sample_id, force):
     print 'Processing sample {}'.format(sample_id)
+    existing_seq = session.query(SequenceMapping).filter(
+        SequenceMapping.sample_id == sample_id)
+    existing_nores = session.query(NoResult).filter(
+        NoResult.sample_id == sample_id)
+    if existing_seq.first() is None and existing_nores.first() is None:
+        print '\tSKIPPING since there are no sequences in this DB version'
+        return
 
     if force:
         print '\tFORCING regeneration of stats'
