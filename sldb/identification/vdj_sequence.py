@@ -186,7 +186,10 @@ class VDJSequence(object):
             j_full = germlines.j[self.j_gene[0]]
             # Get the portion of J in the CDR3
             j_in_cdr3 = j_full[:len(j_full) - germlines.j_offset]
-            cdr3_end = self._j_anchor_pos + 2
+            cdr3_end = (self._j_anchor_pos) - germlines.j_offset +\
+                len(match)
+            #print self.sequence
+            #print self.sequence[:cdr3_end]
             cdr3_segment = self.sequence[cdr3_end - len(j_in_cdr3):cdr3_end]
             if len(j_in_cdr3) == 0 or len(cdr3_segment) == 0:
                 self._j = None
@@ -245,8 +248,6 @@ class VDJSequence(object):
         self._v = None
 
         for v, germ in sorted(self.v_germlines.iteritems()):
-            print ''
-            print v
             germ_pos, dist, s_seq = self._compare_to_germline(germ)
             if germ_pos is not None:
                 # Record this germline if it is has the lowest distance
@@ -282,11 +283,6 @@ class VDJSequence(object):
         diff = abs(germ_pos - self.v_anchor_pos)
         s_seq = self.sequence
 
-        print v_seq
-        print ' ' * germ_pos + '^'
-        print s_seq
-        print ' ' * self.v_anchor_pos + '^'
-        print 'DIFF'
         # Trim the sequence which has the maximal anchor position, and
         # determine the CDR3 start position without gaps
         if germ_pos > self.v_anchor_pos:
@@ -295,11 +291,6 @@ class VDJSequence(object):
         else:
             s_seq = s_seq[diff:]
             cdr3_offset_in_v = germ_pos
-        print v_seq
-        print s_seq
-        #v_seq = v_seq[:min(len(v_seq), len(s_seq))]
-        #s_seq = s_seq[:min(len(v_seq), len(s_seq))]
-        print '-' * 100
 
         # Only compare to the start of J
         v_seq = v_seq[:self._j_start]
