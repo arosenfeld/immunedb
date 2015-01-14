@@ -488,7 +488,7 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
                         value.replace('*', '%')))
 
     if filters is None or 'show_r1' not in filters or not filters['show_r1']:
-        query = query.filter(SequenceMapping.alignment == 'pRESTO')
+        query = query.filter(SequenceMapping.alignment == 'R1+R2')
     if filters is None or 'show_indel' not in filters or not filters['show_indel']:
         query = query.filter(SequenceMapping.levenshtein_dist.is_(None))
 

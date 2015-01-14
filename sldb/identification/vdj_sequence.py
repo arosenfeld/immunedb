@@ -6,6 +6,38 @@ import sldb.identification.anchors as anchors
 import sldb.identification.germlines as germlines
 import sldb.util.lookups as lookups
 
+def find_v_position(sequence, reverse):
+    '''Tries to find the end of the V gene region'''
+    loc = sequence.rfind('TATTACTGT')
+    if loc >= 0:
+        return loc + 6
+    # Try to find DxxxyzC
+    found = find_dc(sequence, reverse)
+    if found is None:
+        # If DxxyzC isn't found, try to find 'YYC', 'YCC', or 'YHC'
+        found = find_yxc(sequence, reverse)
+    return found
+
+def find_dc(sequence, reverse):
+    return find_with_frameshifts(sequence, 'D(.{3}((YY)|(YC)|(YH)))C', reverse)
+
+def find_yxc(sequence, reverse):
+    return find_with_frameshifts(sequence, 'Y([YHC])C', reverse)
+
+def find_with_frameshifts(sequence, regex, reverse):
+    r = range(2, -1, -1)
+    if reverse:
+        r = reversed(r)
+
+    for shift in r:
+        seq = sequence[shift:]
+        seq = seq[:len(seq) - len(seq) % 3]
+        aas = str(seq.translate())
+        res = re.search(regex, aas)
+        if res is not None:
+            return (res.end() - 1) * 3 + shift
+    return None
+
 
 class VDJSequence(object):
     CDR3_OFFSET = 309
@@ -34,14 +66,12 @@ class VDJSequence(object):
 
         self.probable_deletion = False
 
-        self._try_rev = False
-
         # If there are invalid characters in the sequence, ignore it 
         stripped = filter(lambda s: s in 'ATCGN', self.sequence)
         if len(stripped) == len(self.sequence):
             self._find_j()
             if self._j is not None:
-                self._get_v()
+                self._get_v(reverse=False)
 
 
     @property
@@ -220,34 +250,24 @@ class VDJSequence(object):
         self._j_length = len(j_full)
         self._j_match = self._j_length - dist
 
-    def _get_v(self):
-        self._v_anchor_pos = self._find_v_position(self.sequence)
+    def _get_v(self, reverse):
+        self._v_anchor_pos = find_v_position(self.sequence, reverse)
         if self.v_anchor_pos is not None:
             self._find_v()
             if self.v_gene is not None:
                 self._calculate_stats()
-            elif not self._try_rev:
-                self._try_rev = True
-                self._get_v()
-
-    def _find_v_position(self, sequence):
-        '''Tries to find the end of the V gene region'''
-        # Try to find DxxxyzC
-        found = self._find_dc(sequence)
-        if found is None:
-            # If DxxyzC isn't found, try to find 'YYC', 'YCC', or 'YHC'
-            found = self._find_yxc(sequence)
-        return found
+            elif not reverse:
+                self._get_v(True)
 
     def _find_v(self):
         '''Finds the V gene closest to that of the sequence'''
         self._v_score = None
         self._v = None
 
-        for v, germ in sorted(self.v_germlines.iteritems()):
-            germ_pos, dist, s_seq = self._compare_to_germline(germ)
-            if germ_pos is not None:
-                # Record this germline if it is has the lowest distance
+        for v, (germ, germ_pos) in sorted(self.v_germlines.iteritems()):
+            dist, s_seq = self._compare_to_germline(germ, germ_pos)
+            # Record this germline if it is has the lowest distance
+            if dist is not None:
                 if self._v_score is None or dist < self._v_score:
                     self._v = [v]
                     self._v_score = dist
@@ -269,13 +289,12 @@ class VDJSequence(object):
             return
         self._v = list(set(map(lambda v: v.split('*')[0], self._v)))
 
-    def _compare_to_germline(self, germ):
+    def _compare_to_germline(self, germ, germ_pos):
         # Strip the gaps
         v_seq = Seq(germ.replace('-', ''))
         # Find V anchor in germline
-        germ_pos = self._find_v_position(v_seq)
         if germ_pos is None:
-            return None, None, None
+            return None, None
         # Determine the gap between the two anchors
         diff = abs(germ_pos - self.v_anchor_pos)
         s_seq = self.sequence
@@ -299,7 +318,7 @@ class VDJSequence(object):
         v_cdr3 = v_cdr3[:min(len(v_cdr3), len(s_cdr3))]
         s_cdr3 = s_cdr3[:min(len(v_cdr3), len(s_cdr3))]
         if len(v_cdr3) == 0 or len(s_cdr3) == 0:
-            return None, None, None
+            return None, None
 
         # Find the extent of the sequence's V into the CDR3
         streak = self._find_streak_position(v_cdr3, s_cdr3)
@@ -317,11 +336,12 @@ class VDJSequence(object):
         # Determine the distance between the germline and sequence
         dist = distance.hamming(str(v_seq), str(s_seq))
 
-        return germ_pos, dist, s_seq
+        return dist, s_seq
 
     def _calculate_stats(self):
         # Set the germline to the V gene up to the CDR3
-        self._germline = self.v_germlines[sorted(self._v)[0] + '*01'][:self.CDR3_OFFSET]
+        self._germline = self.v_germlines[sorted(self._v)[0] +
+            '*01'][0][:self.CDR3_OFFSET]
         # If we need to pad the sequence, do so, otherwise trim the sequence to
         # the germline length
         if self._pad_len >= 0:
@@ -394,26 +414,6 @@ class VDJSequence(object):
         # Calculate their match count
         self._post_cdr3_match = self.post_cdr3_length - distance.hamming(
             post_j, post_s)
-
-    def _find_dc(self, sequence):
-        return self._find_with_frameshifts(sequence, 'D(.{3}((YY)|(YC)|(YH)))C')
-
-    def _find_yxc(self, sequence):
-        return self._find_with_frameshifts(sequence, 'Y([YHC])C')
-
-    def _find_with_frameshifts(self, sequence, regex):
-        if not self._try_rev:
-            r = range(0, 3)
-        else:
-            r = range(2, -1, -1)
-        for shift in r:
-            seq = sequence[shift:]
-            seq = seq[:len(seq) - len(seq) % 3]
-            aas = str(seq.translate())
-            res = re.search(regex, aas)
-            if res is not None:
-                return (res.end() - 1) * 3 + shift
-        return None
 
     def _find_streak_position(self, s1, s2):
         ''' Finds the first streak of MISMATCH_THRESHOLD characters where s1

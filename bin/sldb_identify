@@ -9,9 +9,6 @@ if __name__ == '__main__':
     parser.add_argument('base_dirs', nargs='+', help='Base directories for samples.')
     parser.add_argument('v_germlines', help='FASTA file with IMGT gapped '
                         'V-gene germlines')
-    parser.add_argument('--force', action='store_true', help='Force processing'
-                        ' without pRESTO log.  Useful for non-traditional file'
-                        ' structures.')
     args = parser.parse_args()
 
     session = config.init_db(args.master_db_config, args.data_db_config)

@@ -126,7 +126,7 @@ def _get_distribution(session, sample_id, key, filter_func, use_copy,
                     .filter(SequenceMapping.sample_id == sample_id))
 
     if full_reads:
-        q = q.filter(SequenceMapping.alignment == 'pRESTO')
+        q = q.filter(SequenceMapping.alignment == 'R1+R2')
 
     if key in _do_join or cdr3_bounds is not None:
         q = q.join(Sequence)
@@ -161,7 +161,7 @@ def _process_filter(session, sample_id, filter_type, filter_func,
                 Sequence.junction_num_nts >= min_cdr3,
                 Sequence.junction_num_nts <= max_cdr3)
         if full_reads:
-            q = q.filter(SequenceMapping.alignment == 'pRESTO')
+            q = q.filter(SequenceMapping.alignment == 'R1+R2')
         return q
 
     stat = SampleStats(sample_id=sample_id,
@@ -220,7 +220,7 @@ def _process_clone_filter(session, sample_id, filter_type, filter_func,
             .filter(SequenceMapping.sample_id == sample_id))\
             .group_by(SequenceMapping.clone_id)
         if full_reads:
-            q = q.filter(SequenceMapping.alignment == 'pRESTO')
+            q = q.filter(SequenceMapping.alignment == 'R1+R2')
         return q
 
     stat = SampleStats(sample_id=sample_id,
