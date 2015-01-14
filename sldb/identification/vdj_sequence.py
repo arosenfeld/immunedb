@@ -167,61 +167,58 @@ class VDJSequence(object):
         # TGGTCACCGTCT
         for match, full_anchor, j_gene in anchors.all_j_anchors(
                 self.MIN_J_ANCHOR_LEN):
-            rev_comp = False
             i = self._seq.rfind(match)
-            if i < 0:
-                rev_comp = True
-                i = self._seq.reverse_complement().rfind(match)
-                if i < 0:
-                    continue
-            # If a match is found, record its location and gene
-            self._j_anchor_pos = i
-            if rev_comp:
+            if i >= 0:
+                return self._found_j(i, j_gene, match, full_anchor)
+
+            i = self._seq.reverse_complement().rfind(match)
+            if i >= 0:
                 # If found in the reverse complement, flip and translate the
                 # actual sequence for the rest of the analysis
                 self._seq = self._seq.reverse_complement()
-            self._j = [j_gene]
+                return self._found_j(i, j_gene, match, full_anchor)
 
-            # Get the full germline J gene
-            j_full = germlines.j[self.j_gene[0]]
-            # Get the portion of J in the CDR3
-            j_in_cdr3 = j_full[:len(j_full) - germlines.j_offset]
-            cdr3_end = (self._j_anchor_pos) - germlines.j_offset +\
-                len(match)
-            #print self.sequence
-            #print self.sequence[:cdr3_end]
-            cdr3_segment = self.sequence[cdr3_end - len(j_in_cdr3):cdr3_end]
-            if len(j_in_cdr3) == 0 or len(cdr3_segment) == 0:
-                self._j = None
-                return
-            # Get the extent of the J in the CDR3
-            streak = self._find_streak_position(reversed(j_in_cdr3),
-                                       reversed(cdr3_segment))
-            # Trim the J gene based on the extent in the CDR3
-            if streak is not None:
-                j_full = j_full[streak:]
+    def _found_j(self, i, j_gene, match, full_anchor):
+        # If a match is found, record its location and gene
+        self._j_anchor_pos = i
+        self._j = [j_gene]
 
-            # Find where the full J starts
-            self._j_start = self._j_anchor_pos + len(match) - len(j_full)
-
-            # If the trimmed germline J extends past the end of the
-            # sequence, there is a misalignment
-            if len(j_full) != len(
-                    self.sequence[self._j_start:self._j_start+len(j_full)]):
-                self._j = None
-                self._j_anchor_pos = None
-                return
-
-            # Get the full-J distance
-            dist = distance.hamming(
-                j_full,
-                self.sequence[self._j_start:self._j_start+len(j_full)])
-
-            self._j = anchors.get_j_ties(self.j_gene[0], match)
-            self._j_length = len(j_full)
-            self._j_match = self._j_length - dist
-
+        # Get the full germline J gene
+        j_full = germlines.j[self.j_gene[0]]
+        # Get the portion of J in the CDR3
+        j_in_cdr3 = j_full[:len(j_full) - germlines.j_offset]
+        cdr3_end = (self._j_anchor_pos) - germlines.j_offset +\
+            len(match)
+        cdr3_segment = self.sequence[cdr3_end - len(j_in_cdr3):cdr3_end]
+        if len(j_in_cdr3) == 0 or len(cdr3_segment) == 0:
+            self._j = None
             return
+        # Get the extent of the J in the CDR3
+        streak = self._find_streak_position(reversed(j_in_cdr3),
+                                   reversed(cdr3_segment))
+        # Trim the J gene based on the extent in the CDR3
+        if streak is not None:
+            j_full = j_full[streak:]
+
+        # Find where the full J starts
+        self._j_start = self._j_anchor_pos + len(match) - len(j_full)
+
+        # If the trimmed germline J extends past the end of the
+        # sequence, there is a misalignment
+        if len(j_full) != len(
+                self.sequence[self._j_start:self._j_start+len(j_full)]):
+            self._j = None
+            self._j_anchor_pos = None
+            return
+
+        # Get the full-J distance
+        dist = distance.hamming(
+            j_full,
+            self.sequence[self._j_start:self._j_start+len(j_full)])
+
+        self._j = anchors.get_j_ties(self.j_gene[0], match)
+        self._j_length = len(j_full)
+        self._j_match = self._j_length - dist
 
     def _get_v(self):
         self._v_anchor_pos = self._find_v_position(self.sequence)

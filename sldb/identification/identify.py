@@ -205,7 +205,9 @@ def run_identify(session, args):
         v_germlines = {}
         with open(args.v_germlines) as fh:
             for record in SeqIO.parse(fh, 'fasta'):
-                v_germlines[record.id] = str(record.seq).upper()
+                # Discard oddly-aligned alleles
+                if not str(record.seq).startswith('-'):
+                    v_germlines[record.id] = str(record.seq).upper()
 
         with open(meta_fn) as fh:
             metadata = json.load(fh)

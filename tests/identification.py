@@ -9,7 +9,8 @@ if __name__ == '__main__':
     v_germlines = {}
     with open(sys.argv[1]) as fh:
         for vr in SeqIO.parse(fh, 'fasta'):
-            v_germlines[vr.id] = str(vr.seq).upper()
+            if not str(vr.seq).startswith('-'):
+                v_germlines[vr.id] = str(vr.seq).upper()
 
     for record in SeqIO.parse(sys.argv[2], 'fasta'):
         print record.description
