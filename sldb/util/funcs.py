@@ -33,3 +33,19 @@ def page_query(q, per=10000, updating=False):
 def hash(seq_id, sample_id, sequence):
     return hashlib.sha1('{}{}{}'.format(
         seq_id, sample_id, sequence)).hexdigest()
+
+def find_streak_position(s1, s2, max_streak):
+    '''Finds the first streak of max_streak characters where s1 does not equal
+    s2
+
+    For example if max_streak is 3:
+        ATCGATCGATCGATCG
+        ATCGATCGATCTTACG
+                     ^--- Returned index
+    '''
+    streak = 0
+    for i, (c1, c2) in enumerate(zip(s1, s2)):
+        streak = streak + 1 if c1 != c2 else 0
+        if streak >= max_streak:
+            return i
+    return None

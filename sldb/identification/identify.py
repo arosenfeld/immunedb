@@ -7,8 +7,8 @@ from Bio import SeqIO
 from Bio.Seq import Seq
 
 from sldb.common.config import allowed_read_types
-from sldb.identification.vdj_sequence import VDJSequence, find_v_position
-from sldb.identification.v_ties import get_v_ties
+from sldb.identification.vdj_sequence import VDJSequence
+from sldb.identification.v_genes import VGermlines
 from sldb.common.models import *
 import sldb.util.funcs as funcs
 import sldb.util.lookups as lookups
@@ -28,7 +28,7 @@ class SampleMetadata(object):
 
 
 def _create_mapping(session, identity_seq_id, alignment, sample, vdj):
-    if vdj.probable_deletion or vdj.v_match / float(vdj.v_length) < .6:
+    if vdj.possible_indel:
         seq = vdj.sequence.lstrip('N')
         germ = vdj.germline[len(vdj.sequence) - len(seq):]
         lev_dist = distance.levenshtein(germ, seq)
@@ -107,7 +107,7 @@ def _add_to_db(session, alignment, sample, vdj):
                                         vdj))
 
 
-def _identify_reads(session, path, fn, meta, v_germlines):
+def _identify_reads(session, path, fn, meta, v_germlines, full_only):
     print 'Starting {}'.format(fn)
     study, new = funcs.get_or_create(
         session, Study, name=meta.get('study_name'))
@@ -117,6 +117,11 @@ def _identify_reads(session, path, fn, meta, v_germlines):
         raise Exception(('Invalid read type {}.  Must be'
                          'one of {}').format(
                             read_type, ','.join(allowed_read_types)))
+    if read_type == 'R1+R2' and full_only:
+        print ('Skpping {} since it contains partial reads and read_type '
+               'is "R1+R2"'.format(sample.name))
+        return
+
     if new:
         print 'Created new study "{}"'.format(study.name)
         session.commit()
@@ -162,6 +167,8 @@ def _identify_reads(session, path, fn, meta, v_germlines):
         if vdj.v_gene is not None and vdj.j_gene is not None:
             lengths_sum += vdj.v_length
             mutations_sum += vdj.mutation_fraction
+            vdj.align_to_germline(v_germlines.get_ties(
+                vdj.v_gene, vdj.v_length, vdj.mutation_fraction))
             vdjs.append(vdj)
             _add_to_db(session, read_type, sample, vdj)
         else:
@@ -176,6 +183,7 @@ def _identify_reads(session, path, fn, meta, v_germlines):
         print '\tNo sequences identified'
         return
 
+    '''
     avg_len = lengths_sum / float(len(vdjs))
     avg_mutation_frac = mutations_sum / float(len(vdjs))
     v_ties = get_v_ties(avg_len, avg_mutation_frac)
@@ -194,25 +202,17 @@ def _identify_reads(session, path, fn, meta, v_germlines):
 
         if len(vdj.v_gene) > 1:
             v_tie_cnt += 1
+    '''
     print '\ttotal_seqs={}'.format(cnt)
-    print '\tvties={}'.format(v_tie_cnt)
-    print '\tlen={}'.format(avg_len)
-    print '\tmut={}'.format(avg_mutation_frac)
+    #print '\tvties={}'.format(v_tie_cnt)
+    #print '\tlen={}'.format(avg_len)
+    #print '\tmut={}'.format(avg_mutation_frac)
     print '\tnoresults={}'.format(no_result)
     session.commit()
 
 
 def run_identify(session, args):
-    v_germlines = {}
-    with open(args.v_germlines) as fh:
-        for record in SeqIO.parse(fh, 'fasta'):
-            # Discard oddly-aligned alleles
-            if not str(record.seq).startswith('-'):
-                seq = str(record.seq).upper()
-                pos = find_v_position(Seq(seq.replace('-', '')),
-                                          reverse=False)
-                if pos is not None:
-                    v_germlines[record.id] = (seq, pos)
+    v_germlines = VGermlines(args.v_germlines)
 
     for base_dir in args.base_dirs: 
         print 'Descending into {}'.format(base_dir)
@@ -231,4 +231,5 @@ def run_identify(session, args):
                     base_dir,
                     fn,
                     SampleMetadata(metadata[fn], metadata['all']),
-                    v_germlines)
+                    v_germlines,
+                    args.only_full)
