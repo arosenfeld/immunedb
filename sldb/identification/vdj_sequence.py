@@ -200,6 +200,7 @@ class VDJSequence(object):
         if len(j_in_cdr3) == 0 or len(cdr3_segment) == 0:
             self._j = None
             return
+
         # Get the extent of the J in the CDR3
         streak = find_streak_position(
             reversed(j_in_cdr3),
@@ -233,9 +234,7 @@ class VDJSequence(object):
         self._v_anchor_pos = anchors.find_v_position(self.sequence, reverse)
         if self.v_anchor_pos is not None:
             self._find_v()
-            if self.v_gene is not None:
-                self._align_to_germline()
-            elif not reverse:
+            if self.v_gene is None and not reverse:
                 self._get_v(True)
 
     def _find_v(self):
@@ -273,9 +272,8 @@ class VDJSequence(object):
             self._v = None
             return
 
-    def _align_to_germline(self):
-        self._v = self.v_germlines.get_ties(self.v_gene, self.v_length,
-                                       self.mutation_fraction)
+    def align_to_germline(self, avg_len, avg_mut):
+        self._v = self.v_germlines.get_ties(self.v_gene, avg_len, avg_mut)
         # Set the germline to the V gene up to the CDR3
         self._germline = get_common_seq(
             [self.v_germlines[v].sequence for v in self._v]
@@ -306,7 +304,7 @@ class VDJSequence(object):
         self._cdr3_len = (self.j_anchor_pos + \
             len(anchors.j_anchors[self.j_gene[0]]) - germlines.j_offset) - \
             self.v_anchor_pos
-        
+
         if self._cdr3_len <= 0:
             self._v = None
             return

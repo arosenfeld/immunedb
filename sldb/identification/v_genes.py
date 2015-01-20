@@ -155,10 +155,9 @@ class VGermlines(object):
             for name, v in self._germlines.iteritems():
                 s_2 = v.sequence_ungapped
                 K = distance.hamming(s_1[-length:], s_2[-length:])
-                p = 0
                 dist = hypergeom(length, K, np.ceil(length * mutation))
                 p = np.sum(
-                    [dist.pmf(k) * .33**k for k in range(int(np.ceil(K/2)), K)]
+                    [dist.pmf(k) * np.power(.33, k) for k in range(int(np.ceil(K/2)), K)]
                 )
                 if p >= self._prob_threshold:
                     self._ties[key][gene].add(name)

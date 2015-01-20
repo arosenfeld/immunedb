@@ -167,10 +167,7 @@ def _identify_reads(session, path, fn, meta, v_germlines, full_only):
         if vdj.v_gene is not None and vdj.j_gene is not None:
             lengths_sum += vdj.v_length
             mutations_sum += vdj.mutation_fraction
-            vdj.align_to_germline(v_germlines.get_ties(
-                vdj.v_gene, vdj.v_length, vdj.mutation_fraction))
             vdjs.append(vdj)
-            _add_to_db(session, read_type, sample, vdj)
         else:
             session.add(NoResult(sample=sample,
                                  seq_id=vdj.id,
@@ -183,30 +180,15 @@ def _identify_reads(session, path, fn, meta, v_germlines, full_only):
         print '\tNo sequences identified'
         return
 
-    '''
     avg_len = lengths_sum / float(len(vdjs))
-    avg_mutation_frac = mutations_sum / float(len(vdjs))
-    v_ties = get_v_ties(avg_len, avg_mutation_frac)
+    avg_mut = mutations_sum / float(len(vdjs))
 
-    v_tie_cnt = 0
     for vdj in vdjs:
-        new_vs = set([])
-        for v in vdj.v_gene:
-            if v in v_ties:
-                ties = v_ties[v].split('|')
-                new_vs = new_vs.union(set(ties))
-            else:
-                new_vs.add(v)
-        old_vs = vdj.v_gene[:]
-        vdj.v_gene = new_vs
+        vdj.align_to_germline(avg_len, avg_mut)
+        _add_to_db(session, read_type, sample, vdj)
 
-        if len(vdj.v_gene) > 1:
-            v_tie_cnt += 1
-    '''
-    print '\ttotal_seqs={}'.format(cnt)
-    #print '\tvties={}'.format(v_tie_cnt)
-    #print '\tlen={}'.format(avg_len)
-    #print '\tmut={}'.format(avg_mutation_frac)
+    print '\tlen={}'.format(avg_len)
+    print '\tmut={}'.format(avg_mut)
     print '\tnoresults={}'.format(no_result)
     session.commit()
 
