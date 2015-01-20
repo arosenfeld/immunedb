@@ -298,8 +298,10 @@ def get_v_usage(session, samples, filter_type, outliers, full_reads):
 
         for v in dist:
             name, occ = v
+            name = '|'.join(
+                sorted(set(map(lambda s: s.split('*')[0], name.split('|')))))
             # TODO: Don't think this is needed
-            name = name.split('|')[0]
+            #name = name.split('|')[0]
             if name not in headers:
                 headers.append(name)
 

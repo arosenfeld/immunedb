@@ -244,9 +244,12 @@ class VDJSequence(object):
 
         self._aligned_v = VGene(self.sequence)
         for v, germ in sorted(self.v_germlines.iteritems()):
-            dist, total_length = germ.compare(self._aligned_v,
-                                              self._j_anchor_pos,
-                                              self.MISMATCH_THRESHOLD)
+            try:
+                dist, total_length = germ.compare(self._aligned_v,
+                                                  self._j_anchor_pos,
+                                                  self.MISMATCH_THRESHOLD)
+            except:
+                continue
             # Record this germline if it is has the lowest distance
             if dist is not None:
                 if self._v_score is None or dist < self._v_score:

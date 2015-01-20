@@ -103,6 +103,8 @@ class VGene(object):
         this_seq = this_seq[:max_index]
         other_seq = other_seq[:max_index]
 
+        if len(this_seq) != len(other_seq):
+            raise AlignmentException('Unequal sequences after alignment')
         # Determine the distance between the germline and sequence
         dist = distance.hamming(this_seq, other_seq)
 

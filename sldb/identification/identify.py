@@ -117,9 +117,9 @@ def _identify_reads(session, path, fn, meta, v_germlines, full_only):
         raise Exception(('Invalid read type {}.  Must be'
                          'one of {}').format(
                             read_type, ','.join(allowed_read_types)))
-    if read_type == 'R1+R2' and full_only:
-        print ('Skpping {} since it contains partial reads and read_type '
-               'is "R1+R2"'.format(sample.name))
+    if read_type != 'R1+R2' and full_only:
+        print ('Skpping since it contains partial reads and read_type '
+               'is "R1+R2"')
         return
 
     if new:
@@ -155,6 +155,7 @@ def _identify_reads(session, path, fn, meta, v_germlines, full_only):
     vdjs = []
     no_result = 0
 
+    print 'Identifying V and J, committing No Results'
     for i, record in enumerate(SeqIO.parse(os.path.join(path, fn), 'fasta')):
         if i > 0 and i % 1000 == 0:
             print '\tCommitted {}'.format(i)
@@ -180,10 +181,13 @@ def _identify_reads(session, path, fn, meta, v_germlines, full_only):
         print '\tNo sequences identified'
         return
 
+    print 'Calculating V-ties'
     avg_len = lengths_sum / float(len(vdjs))
     avg_mut = mutations_sum / float(len(vdjs))
 
-    for vdj in vdjs:
+    for i, vdj in enumerate(vdjs):
+        if i > 0 and i % 1000 == 0:
+            print '\tCommitted {}'.format(i)
         vdj.align_to_germline(avg_len, avg_mut)
         _add_to_db(session, read_type, sample, vdj)
 
