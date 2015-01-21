@@ -158,10 +158,6 @@ class VDJSequence(object):
     def post_cdr3_match(self):
         return self._post_cdr3_match
 
-    @property
-    def possible_indel(self):
-        return self._possible_indel
-
     def _find_j(self):
         '''Finds the location and type of J gene'''
         # Iterate over every possible J anchor.  For each germline, try its full
@@ -356,6 +352,9 @@ class VDJSequence(object):
     def has_possible_indel(self):
         # Start comparison on first full AA to the INDEL_WINDOW or CDR3,
         # whichever comes first 
+        if self._possible_indel:
+            return True
+
         start = re.search('[ATCG]', self.sequence).start()
         end = VGene.CDR3_OFFSET
         germ = self.germline[start:end]

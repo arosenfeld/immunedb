@@ -28,7 +28,7 @@ class SampleMetadata(object):
 
 
 def _create_mapping(session, identity_seq_id, alignment, sample, vdj):
-    if vdj.possible_indel:
+    if vdj.has_possible_indel:
         seq = vdj.sequence.lstrip('N')
         germ = vdj.germline[len(vdj.sequence) - len(seq):]
         lev_dist = distance.levenshtein(germ, seq)

@@ -24,17 +24,6 @@ if __name__ == '__main__':
             print 'germ       :', vdj.germline
             print 'seq        :', vdj.sequence
             print 'indels     :', vdj.has_possible_indel
-            #print 'v_len      :', vdj.v_length
-            #print 'v_match    :', vdj.v_match
-            #print 'v_perc     :', vdj.v_match / float(vdj.v_length)
-            #print 'gaps       :', vdj.num_gaps
-            #print 'pads       :', vdj.pad_length
-            #print 'pre_cdr3_len:', vdj.pre_cdr3_length
-            #print 'pre_cdr3_mth:', vdj.pre_cdr3_match
-            #print 'j_len      :', vdj.j_length
-            #print 'j_match    :', vdj.j_match
-            #print 'post_cdr3_len:', vdj.post_cdr3_length
-            #print 'post_cdr3_mth:', vdj.post_cdr3_match
             print ''
         else:
             print 'No result'
