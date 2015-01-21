@@ -23,7 +23,11 @@ if __name__ == '__main__':
             print 'cdr3_aa    :', lookups.aas_from_nts(vdj.cdr3, '')
             print 'germ       :', vdj.germline
             print 'seq        :', vdj.sequence
-            print 'indels     :', vdj.has_possible_indel
+            print 'v_length   :', vdj.v_length
+            print 'v_match    :', vdj.v_match
+            print 'pre_length :', vdj.pre_cdr3_length
+            print 'pre_match  :', vdj.pre_cdr3_match
+            print '            ', (vdj.pad_length + vdj.v_length + vdj.num_gaps) * '-'
             print ''
         else:
             print 'No result'

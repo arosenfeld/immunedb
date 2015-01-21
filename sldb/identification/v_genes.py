@@ -63,7 +63,7 @@ class VGene(object):
             cdr3_start = self.ungapped_anchor_pos - diff
         else:
             other_seq = other_seq[diff:]
-            cdr3_start = diff
+            cdr3_start = other_v.ungapped_anchor_pos - diff
 
         return {
             'base': this_seq,

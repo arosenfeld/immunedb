@@ -1,5 +1,6 @@
 import distance
 import re
+import numpy as np
 
 from Bio.Seq import Seq
 
@@ -363,7 +364,11 @@ class VDJSequence(object):
         for i in range(0, len(germ) - self.INDEL_WINDOW + 1):
             g = germ[i:i+self.INDEL_WINDOW]
             s = seq[i:i+self.INDEL_WINDOW]
-            dist = distance.hamming(g, s)
+            if 'N' in g:
+                dist = np.sum(
+                    [0 if gs == 'N' or gs==ss else 1 for gs,ss in zip(g, s)])
+            else:
+                dist = distance.hamming(g, s)
             if dist >= self.INDEL_MISMATCH_THRESHOLD * self.INDEL_WINDOW:
                 return True
 
