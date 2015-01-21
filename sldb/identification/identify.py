@@ -58,7 +58,7 @@ def _create_mapping(session, identity_seq_id, alignment, sample, vdj):
 
         in_frame=vdj.in_frame,
         stop=vdj.stop,
-        copy_number=1,
+        copy_number=vdj.copy_number,
         functional=vdj.functional,
 
         sequence=str(vdj.sequence))
@@ -152,7 +152,7 @@ def _identify_reads(session, path, fn, meta, v_germlines, full_only):
 
     lengths_sum = 0
     mutations_sum = 0
-    vdjs = []
+    vdjs = {}
     no_result = 0
 
     print 'Identifying V and J, committing No Results'
@@ -160,20 +160,27 @@ def _identify_reads(session, path, fn, meta, v_germlines, full_only):
         if i > 0 and i % 1000 == 0:
             print '\tCommitted {}'.format(i)
             session.commit()
+        key = str(record.seq)
 
-        vdj = VDJSequence(record.description, 
-                          record.seq,
-                          read_type == 'R1+R2',
-                          v_germlines)
-        if vdj.v_gene is not None and vdj.j_gene is not None:
-            lengths_sum += vdj.v_length
-            mutations_sum += vdj.mutation_fraction
-            vdjs.append(vdj)
+        if key in vdjs:
+            vdjs[key].copy_number += 1
+            session.add(DuplicateSequence(duplicate_seq_id=vdjs[key].id,
+                                          sample_id=sample.id,
+                                          seq_id=record.description)
         else:
-            session.add(NoResult(sample=sample,
-                                 seq_id=vdj.id,
-                                 sequence=str(vdj.sequence)))
-            no_result += 1
+            vdj = VDJSequence(record.description, 
+                              record.seq,
+                              read_type == 'R1+R2',
+                              v_germlines)
+            if vdj.v_gene is not None and vdj.j_gene is not None:
+                lengths_sum += vdj.v_length
+                mutations_sum += vdj.mutation_fraction
+                vdjs[key] = vdj
+            else:
+                session.add(NoResult(sample=sample,
+                                     seq_id=vdj.id,
+                                     sequence=str(vdj.sequence)))
+                no_result += 1
     session.commit()
     cnt = i
 

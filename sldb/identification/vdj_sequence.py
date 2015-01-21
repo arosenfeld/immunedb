@@ -37,6 +37,8 @@ class VDJSequence(object):
 
         self._possible_indel = False
 
+        self.copy_number = 1
+
         # If there are invalid characters in the sequence, ignore it 
         stripped = filter(lambda s: s in 'ATCGN', self.sequence)
         if len(stripped) == len(self.sequence):
