@@ -189,7 +189,8 @@ def _identify_reads(session, path, fn, meta, v_germlines, full_only):
         if i > 0 and i % 1000 == 0:
             print '\tCommitted {}'.format(i)
         vdj.align_to_germline(avg_len, avg_mut)
-        _add_to_db(session, read_type, sample, vdj)
+        if vdj.v_gene is not None and vdj.j_gene is not None:
+            _add_to_db(session, read_type, sample, vdj)
 
     print '\tlen={}'.format(avg_len)
     print '\tmut={}'.format(avg_mut)
