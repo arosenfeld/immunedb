@@ -2,7 +2,6 @@ from sqlalchemy import Column, Boolean, Integer, String, Text, Date, \
     ForeignKey, UniqueConstraint, Index, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
-from sqlalchemy.orm.interfaces import MapperExtension
 from sqlalchemy.dialects.mysql import TEXT, MEDIUMTEXT
 
 import sldb.util.funcs as funcs
@@ -246,64 +245,8 @@ class Clone(BaseData):
 
 
 class Sequence(BaseData):
-    """Represents a single unique sequence.  :py:class:`SequenceMapping` \
-    instances relate an actual read to these by filling in the aligned read \
-    with the germline.
-
-    :param str seq_id: A unique identifier for the sequence as output by the \
-        sequencer
-    :param str v_call: The V-gene assigned to the sequence
-    :param str j_call: The J-gene assigned to the sequence
-    :param int junction_num_nts: The number of nucleotides in the CDR3
-    :param str junction_nt: The nucleotides comprising the CDR3
-    :param str junction_aa: The amino-acids comprising the CDR3
-    :param str gap_method: The method used to gap the sequence (e.g. IGMT)
-    :param str sequence_replaced: The full sequence after being filled in with \
-        the germline
-    :param str germline: The germline sequence for this sequence
+    """Represents a single unique sequence.
     
-    """
-    __tablename__ = 'sequences'
-    __table_args__ = (Index('call', 'v_call', 'j_call',),
-                      {'mysql_engine': 'TokuDB'})
-
-    seq_id = Column(String(length=128), primary_key=True)
-
-    v_call = Column(String(512), index=True)
-    j_call = Column(String(512), index=True)
-
-    # This is just length(junction_nt) but is included for fast statistics
-    # generation over the index
-    junction_num_nts = Column(Integer)
-
-    junction_nt = Column(String(512))
-    junction_aa = Column(String(512), index=True)
-    gap_method = Column(String(16))
-
-    sequence_replaced = Column(String(length=1024), unique=True, index=True)
-    germline = Column(String(length=1024))
-
-
-class SHAExtension(MapperExtension):
-    """An extension for SQLAlchemy to provide a primary key across fields that
-    would initially be too long."""
-    def before_insert(self, mapper, connection, instance):
-        instance.unique_id = funcs.hash(instance.identity_seq_id,
-                                        instance.sample_id,
-                                        instance.sequence)
-
-
-class SequenceMapping(BaseData):
-    """A read with possible padding that is mapped to a :py:class:`Sequence` 
-    instance by filling in the padding with germline nucleotides.
-    
-    :param str unique_id: A key over ``identity_seq_id``, ``sample_id``, and \
-        ``sequence`` so the tuple can be maintained unique
-    :param str identity_seq_id: The identifier to :py:class:`Sequence` with \
-        the same filled in germline as this read
-    :param Relationship identity_seq: Reference to the associated identity \
-        :py:class:`Sequence` instance
-
     :param str seq_id: A unique identifier for the sequence as output by the \
         sequencer
     :param int sample_id: The ID of the sample from which this sequence came
@@ -345,23 +288,32 @@ class SequenceMapping(BaseData):
     :param Relationship clone: Reference to the associated :py:class:`Clone` \
         instance
 
+    :param str v_call: The V-gene assigned to the sequence
+    :param str j_call: The J-gene assigned to the sequence
+    :param int junction_num_nts: The number of nucleotides in the CDR3
+    :param str junction_nt: The nucleotides comprising the CDR3
+    :param str junction_aa: The amino-acids comprising the CDR3
+    :param str gap_method: The method used to gap the sequence (e.g. IGMT)
+    :param str sequence_replaced: The full sequence after being filled in with \
+        the germline
+    :param str germline: The germline sequence for this sequence
+    
     """
-    __tablename__ = 'sequence_mapping'
-    __table_args__ = ({'mysql_engine': 'TokuDB'})
-    __mapper_args__ = {'extension': SHAExtension()}
+    __tablename__ = 'sequences'
+    __table_args__ = (Index('call', 'v_call', 'j_call',),
+                      {'mysql_engine': 'TokuDB'})
 
-    unique_id = Column(String(40), unique=True)
-    identity_seq_id = Column(String(128), ForeignKey(Sequence.seq_id),
-                             index=True)
-    identity_seq = relationship(Sequence, backref=backref('mapping'))
 
     seq_id = Column(String(128), primary_key=True, index=True)
     sample_id = Column(Integer, ForeignKey(Sample.id), primary_key=True,
                        index=True)
-    sample = relationship(Sample, backref=backref('mapping'))
+    sample = relationship(Sample, backref=backref('sequences'))
 
     alignment = Column(String(length=6), index=True)
-    levenshtein_dist = Column(Integer, index=True)
+    probable_indel_or_misalign = Column(Boolean, index=True)
+
+    v_call = Column(String(512), index=True)
+    j_call = Column(String(512), index=True)
 
     num_gaps = Column(Integer)
     pad_length = Column(Integer)
@@ -381,7 +333,18 @@ class SequenceMapping(BaseData):
     stop = Column(Boolean)
     copy_number = Column(Integer, index=True)
 
+    # This is just length(junction_nt) but is included for fast statistics
+    # generation over the index
+    junction_num_nts = Column(Integer, index=True)
+
+    junction_nt = Column(String(512))
+    junction_aa = Column(String(512), index=True)
+    gap_method = Column(String(16))
+
     sequence = Column(String(length=1024), index=True)
+    sequence_replaced = Column(String(length=1024), unique=True, index=True)
+
+    germline = Column(String(length=1024))
 
     clone_id = Column(Integer, ForeignKey(Clone.id), index=True)
     clone = relationship(Clone, backref=backref('sequences',
@@ -389,15 +352,15 @@ class SequenceMapping(BaseData):
 
 
 class DuplicateSequence(BaseData):
-    """A sequence which is a duplicate of a :py:class:`SequenceMapping`.  This is
+    """A sequence which is a duplicate of a :py:class:`Sequence`.  This is
     used to minimize the size of the sequences table.  The ``copy_number``
-    attribute of :py:class:`SequenceMapping` instances is equal to the number of
+    attribute of :py:class:`Sequence` instances is equal to the number of
     its duplicate sequences plus one.
     
     :param str duplicate_seq_id: The identifier of the sequence in the same \
         sample with the same sequence
     :param Relationship duplicate_seq: Reference to the associated \
-        :py:class:`SequenceMapping` instance of which this is a duplicate
+        :py:class:`Sequence` instance of which this is a duplicate
 
     :param int sample_id: The ID of the sample from which this sequence came
     :param Relationship sample: Reference to the associated \
@@ -413,10 +376,10 @@ class DuplicateSequence(BaseData):
     seq_id = Column(String(length=128), primary_key=True)
 
     duplicate_seq_id = Column(String(length=128),
-                             ForeignKey('sequence_mapping.seq_id'),
+                             ForeignKey('sequences.seq_id'),
                              primary_key=True,
                              index=True)
-    duplicate_seq = relationship(SequenceMapping,
+    duplicate_seq = relationship(Sequence,
                             backref=backref('duplicate_sequences',
                             order_by=duplicate_seq_id))
 
