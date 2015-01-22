@@ -212,7 +212,13 @@ def _identify_reads(session, path, fn, meta, v_germlines, full_only):
                                  seq_id=vdj.id,
                                  sequence=str(vdj.sequence)))
             if vdj.id in dups:
+                for dup in dups[vdj.id]:
+                    session.add(NoResult(
+                        sample=sample,
+                        seq_id=dup.seq_id,
+                        sequence=vdj.sequence.replace('-').strip('N')))
                 del dups[vdj.id]
+    session.commit()
 
     print '\tAdding duplicates'
     for i, dup_seqs in enumerate(dups.values()):
@@ -220,12 +226,13 @@ def _identify_reads(session, path, fn, meta, v_germlines, full_only):
             print '\t\tCommitted {}'.format(i)
             session.commit()
         session.add_all(dup_seqs)
+    session.commit()
+
     print '\t\tCumulative time: {} sec'.format(round(time.time() - start))
 
     print '\tlen={}'.format(avg_len)
     print '\tmut={}'.format(avg_mut)
     print '\tnoresults={}'.format(no_result)
-    session.commit()
 
 
 def run_identify(session, args):
