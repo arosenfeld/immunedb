@@ -2,28 +2,34 @@ import distance
 import json
 import os
 import re
-from Bio import SeqIO
+import time
 
+from Bio import SeqIO
+from Bio.Seq import Seq
+
+from sldb.common.config import allowed_read_types
 from sldb.identification.vdj_sequence import VDJSequence
-from sldb.identification.v_ties import get_v_ties
+from sldb.identification.v_genes import VGermlines
 from sldb.common.models import *
 import sldb.util.funcs as funcs
 import sldb.util.lookups as lookups
 
+class SampleMetadata(object):
+    def __init__(self, global_config, specific_config):
+        self._global = global_config
+        self._specific = specific_config
 
-def _get_from_meta(meta, sample_name, key, require):
-    if sample_name in meta and key in meta[sample_name]:
-        return meta[sample_name][key]
-    if key in meta['all']:
-        return meta['all'][key]
-    if require:
-        raise Exception(('Unknown key {} '
-                        'for sample {}').format(key, sample_name))
-    return None
+    def get(self, key, require=True):
+        if key in self._specific:
+            return self._specific[key]
+        if key in self._global:
+            return self._global[key]
+        if require:
+            raise Exception(('Could not find metadata for key {}'.format(key)))
 
 
 def _create_mapping(session, identity_seq_id, alignment, sample, vdj):
-    if vdj.probable_deletion or vdj.v_match / float(vdj.v_length) < .6:
+    if vdj.has_possible_indel:
         seq = vdj.sequence.lstrip('N')
         germ = vdj.germline[len(vdj.sequence) - len(seq):]
         lev_dist = distance.levenshtein(germ, seq)
@@ -53,22 +59,28 @@ def _create_mapping(session, identity_seq_id, alignment, sample, vdj):
 
         in_frame=vdj.in_frame,
         stop=vdj.stop,
-        copy_number=1,
+        copy_number=vdj.copy_number,
         functional=vdj.functional,
 
         sequence=str(vdj.sequence))
 
 
+def _format_ties(ties, name):
+    if ties is None:
+        return None
+    ties = map(lambda e: e.replace(name, ''), ties)
+    return '{}{}'.format(name, '|'.join(sorted(ties)))
+
+
 def _add_to_db(session, alignment, sample, vdj):
-    assert alignment in ['R1', 'R2', 'pRESTO']
     # Check if a sequence with the exact same filled sequence exists
     m = session.query(Sequence).filter(
         Sequence.sequence_replaced == str(vdj.sequence_filled)).first()
     if m is None:
         # If not, add the sequence, and make the mapping
         m = Sequence(seq_id=vdj.id,
-                     v_call='|'.join(sorted(vdj.v_gene)),
-                     j_call=vdj.j_gene,
+                     v_call=_format_ties(vdj.v_gene, 'IGHV'),
+                     j_call=_format_ties(vdj.j_gene, 'IGHJ'),
                      junction_num_nts=len(vdj.cdr3),
                      junction_nt=str(vdj.cdr3),
                      junction_aa=lookups.aas_from_nts(vdj.cdr3, ''),
@@ -96,35 +108,44 @@ def _add_to_db(session, alignment, sample, vdj):
                                         vdj))
 
 
-def _identify_reads(session, meta, fn, name, alignment):
-    if not os.path.isfile(fn):
-        print fn
-        print 'Skipping {} alignment'.format(alignment)
-        return
+def _identify_reads(session, path, fn, meta, v_germlines, full_only):
     print 'Starting {}'.format(fn)
-    study, new = funcs.get_or_create(session, Study, name=meta['all']['study'])
+    study, new = funcs.get_or_create(
+        session, Study, name=meta.get('study_name'))
+
+    read_type = meta.get('read_type')
+    if read_type not in allowed_read_types:
+        raise Exception(('Invalid read type {}.  Must be'
+                         'one of {}').format(
+                            read_type, ','.join(allowed_read_types)))
+    if read_type != 'R1+R2' and full_only:
+        print ('Skpping since it contains partial reads and read_type '
+               'is "R1+R2"')
+        return
+
     if new:
         print 'Created new study "{}"'.format(study.name)
         session.commit()
     else:
         print 'Study "{}" already exists in MASTER'.format(study.name)
 
-    sample, new = funcs.get_or_create(session, Sample, name=name, study=study)
+    sample, new = funcs.get_or_create(
+        session, Sample, name=meta.get('sample_name', require=False) or
+            fn.split('.', 1)[0], study=study)
     if new:
         print '\tCreated new sample "{}" in MASTER'.format(sample.name)
-        for key in ['date', 'subset', 'tissue', 'disease', 'lab',
-                    'experimenter']:
-            setattr(sample, key, _get_from_meta(meta, name, key, False))
+        for key in ('date', 'subset', 'tissue', 'disease', 'lab',
+                    'experimenter'):
+            setattr(sample, key, meta.get(key, require=False))
         subject, new = funcs.get_or_create(
-            session, Subject, study=study, identifier=_get_from_meta(
-                meta, name, 'subject', True))
+            session, Subject, study=study, identifier=meta.get('subject'))
         sample.subject = subject
         session.commit()
     else:
         # TODO: Verify the data for the existing sample matches
         exists = session.query(SequenceMapping).filter(
             SequenceMapping.sample == sample,
-            SequenceMapping.alignment == alignment).first()
+            SequenceMapping.alignment == read_type).first()
         if exists is not None:
             print ('\tSample "{}" for study already exists in DATA.  '
                    'Skipping.').format(sample.name)
@@ -132,85 +153,107 @@ def _identify_reads(session, meta, fn, name, alignment):
 
     lengths_sum = 0
     mutations_sum = 0
-    vdjs = []
+    vdjs = {}
+    dups = {}
     no_result = 0
 
-    for i, record in enumerate(SeqIO.parse(fn, 'fasta')):
+    start = time.time()
+    print '\tIdentifying V and J, committing No Results'
+    for i, record in enumerate(SeqIO.parse(os.path.join(path, fn), 'fasta')):
         if i > 0 and i % 1000 == 0:
-            print '\tCommitted {}'.format(i)
+            print '\t\tCommitted {}'.format(i)
+            session.commit()
+        key = str(record.seq)
+
+        if key in vdjs:
+            vdj = vdjs[key]
+            vdj.copy_number += 1
+            if vdj.id not in dups:
+                dups[vdj.id] = []
+            dups[vdj.id].append(DuplicateSequence(duplicate_seq_id=vdjs[key].id,
+                                          sample_id=sample.id,
+                                          seq_id=record.description))
+        else:
+            vdj = VDJSequence(record.description, 
+                              record.seq,
+                              read_type == 'R1+R2',
+                              v_germlines)
+            if vdj.v_gene is not None and vdj.j_gene is not None:
+                lengths_sum += vdj.v_length
+                mutations_sum += vdj.mutation_fraction
+                vdjs[key] = vdj
+            else:
+                session.add(NoResult(sample=sample,
+                                     seq_id=vdj.id,
+                                     sequence=str(vdj.sequence)))
+                no_result += 1
+    session.commit()
+    print '\t\tCumulative time: {} sec'.format(round(time.time() - start))
+
+    if len(vdjs) == 0:
+        print '\t\tNo sequences identified'
+        return
+
+    print '\tCalculating V-ties'
+    avg_len = lengths_sum / float(len(vdjs))
+    avg_mut = mutations_sum / float(len(vdjs))
+
+    for i, (_, vdj) in enumerate(vdjs.iteritems()):
+        if i > 0 and i % 1000 == 0:
+            print '\t\tCommitted {}'.format(i)
             session.commit()
 
-        vdj = VDJSequence(record.description, record.seq, alignment == 'pRESTO')
+        vdj.align_to_germline(avg_len, avg_mut)
         if vdj.v_gene is not None and vdj.j_gene is not None:
-            lengths_sum += vdj.v_length
-            mutations_sum += vdj.mutation_fraction
-            vdjs.append(vdj)
-            _add_to_db(session, alignment, sample, vdj)
+            _add_to_db(session, read_type, sample, vdj)
         else:
+            no_result += 1
             session.add(NoResult(sample=sample,
                                  seq_id=vdj.id,
                                  sequence=str(vdj.sequence)))
-            no_result += 1
+            if vdj.id in dups:
+                for dup in dups[vdj.id]:
+                    session.add(NoResult(
+                        sample=sample,
+                        seq_id=dup.seq_id,
+                        sequence=vdj.sequence.replace('-').strip('N')))
+                del dups[vdj.id]
     session.commit()
-    cnt = i
 
-    if len(vdjs) == 0:
-        print '\tNo sequences identified'
-        return
+    print '\tAdding duplicates'
+    for i, dup_seqs in enumerate(dups.values()):
+        if i > 0 and i % 1000 == 0:
+            print '\t\tCommitted {}'.format(i)
+            session.commit()
+        session.add_all(dup_seqs)
+    session.commit()
 
-    avg_len = lengths_sum / float(len(vdjs))
-    avg_mutation_frac = mutations_sum / float(len(vdjs))
-    v_ties = get_v_ties(avg_len, avg_mutation_frac)
+    print '\t\tCumulative time: {} sec'.format(round(time.time() - start))
 
-    v_tie_cnt = 0
-    for vdj in vdjs:
-        new_vs = set([])
-        for v in vdj.v_gene:
-            if v in v_ties:
-                ties = v_ties[v].split('|')
-                new_vs = new_vs.union(set(ties))
-            else:
-                new_vs.add(v)
-        old_vs = vdj.v_gene[:]
-        vdj.v_gene = list(sorted(new_vs))
-        if len(vdj.v_gene) > 1:
-            v_tie_cnt += 1
-    print '\ttotal_seqs={}'.format(cnt)
-    print '\tvties={}'.format(v_tie_cnt)
     print '\tlen={}'.format(avg_len)
-    print '\tmut={}'.format(avg_mutation_frac)
+    print '\tmut={}'.format(avg_mut)
     print '\tnoresults={}'.format(no_result)
-    session.commit()
 
 
 def run_identify(session, args):
+    v_germlines = VGermlines(args.v_germlines)
+
     for base_dir in args.base_dirs: 
-        print 'Parsing {}'.format(base_dir)
+        print 'Descending into {}'.format(base_dir)
         meta_fn = '{}/metadata.json'.format(base_dir)
         if not os.path.isfile(meta_fn):
-            print 'No metadata file found for this set of samples.'
+            print '\tNo metadata file found for this set of samples.'
             return
+
         with open(meta_fn) as fh:
             metadata = json.load(fh)
-
-            names = set([])
-            for fn in os.listdir('{}/processed'.format(base_dir)):
-                name = fn.split('.')[0].rsplit('_', 2)[0]
-                names.add(name)
-
-            for name in names:
-                base = '{}/presto/{}'.format(base_dir, name)
-                r1 = '{}_R1_001.sync_assemble-fail.fasta'.format(base)
-                r2 = '{}_R2_001.sync_assemble-fail.fasta'.format(base)
-                join = '{}_R1_001.sync_assemble-pass.fasta'.format(base)
-                if not os.path.isfile('{}.log'.format(base)):
-                    if not args.force:
-                        print 'Skipping {} since no presto log exists.'.format(name)
-                        continue
-                    else:
-                        print 'FORCING {}'.format(name)
-
-                _identify_reads(session, metadata,
-                                join, base.rsplit('/', 1)[1], 'pRESTO')
-                _identify_reads(session, metadata,
-                                r1, base.rsplit('/', 1)[1], 'R1')
+            for fn in os.listdir(base_dir):
+                if fn == 'metadata.json':
+                    continue
+                _identify_reads(
+                    session,
+                    base_dir,
+                    fn,
+                    SampleMetadata(metadata[fn], metadata['all']),
+                    v_germlines,
+                    args.only_full)

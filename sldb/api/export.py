@@ -226,6 +226,7 @@ class SequenceExport(object):
                         (('v_gene', seq.identity_seq.v_call),
                          ('j_gene', seq.identity_seq.j_call),
                          ('cdr3_aa', seq.identity_seq.junction_aa),
+                         ('cdr3_nt', seq.identity_seq.junction_nt),
                          ('cdr3_len', seq.identity_seq.junction_num_nts)),
                         seq.identity_seq.germline)
 

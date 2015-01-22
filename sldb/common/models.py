@@ -309,7 +309,7 @@ class SequenceMapping(BaseData):
     :param int sample_id: The ID of the sample from which this sequence came
     :param Relationship sample: Reference to the associated \
         :py:class:`Sample` instance
-    :param str alignment: Alignment type (e.g. R1 or pRESTO)
+    :param str alignment: Alignment type (e.g. R1, R2, or R1+R2)
     :param int levenshtein_dist: The optional Levenshtein distance of the \
         sequence to its germline.  Used to identify possible indels and \
         misalignments.

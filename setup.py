@@ -1,7 +1,7 @@
 from setuptools import setup
 
 setup(name='SLDB',
-      version='4.0.3',
+      version='5.0.0',
       author='Aaron M. Rosenfeld',
       author_email='ar374@drexel.edu',
       packages=[
@@ -33,8 +33,10 @@ setup(name='SLDB',
           'ete2>=2.2',
           'distance',
           'numpy',
+          'scipy',
           'tabulate',
           'PyMySQL',
       ],
+      package_data = { 'sldb': ['data/germlines/*'] },
       license='LICENSE.txt',
       description='Various utilities for Drexel\'s Systems Immunology Lab.')

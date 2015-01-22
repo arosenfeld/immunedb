@@ -1,13 +1,17 @@
 import argparse
 import json
+import pkg_resources
 import sys
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.schema import MetaData
 
+from Bio import SeqIO
+
 from sldb.common.settings import DATABASE_SETTINGS
 
+allowed_read_types = ('R1', 'R2', 'R1+R2')
 
 def _create_engine(config_path):
     with open(config_path) as fh:

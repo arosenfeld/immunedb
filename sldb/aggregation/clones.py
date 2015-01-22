@@ -5,7 +5,6 @@ from collections import Counter
 from sqlalchemy import distinct
 from sqlalchemy.sql import func
 
-import sldb.identification.germlines as germlines
 from sldb.identification.identify import VDJSequence
 import sldb.util.lookups as lookups
 from sldb.util.funcs import page_query
@@ -123,13 +122,7 @@ def _assign_clones_to_groups(session, subject_id, per_commit):
             CloneGroup.cdr3_aa == cdr3_aa).first()
 
         if group is None:
-            # NOTE: This is for v-ties, and there may be a better way
-            v = clone.v_gene.split('|')[0]
-            germline = '{}{}{}'.format(
-                germlines.v[v][0:VDJSequence.CDR3_OFFSET],
-                '-' * clone.cdr3_num_nts,
-                germlines.j[clone.j_gene][-germlines.j_offset:])
-            germline = germline[:len(seqs[0].identity_seq.sequence_replaced)]
+            germline = seqs[0].identity_seq.germline
 
             group = CloneGroup(subject_id=subject_id,
                                v_gene=clone.v_gene,
