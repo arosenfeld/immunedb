@@ -2,7 +2,6 @@ import distance
 import json
 import os
 import re
-import time
 
 from Bio import SeqIO
 from Bio.Seq import Seq
@@ -13,24 +12,6 @@ from sldb.identification.v_genes import VGermlines
 from sldb.common.models import *
 import sldb.util.funcs as funcs
 import sldb.util.lookups as lookups
-
-class BulkInserts(object):
-    def __init__(self):
-        self.reset()
-
-    def reset(self):
-        self._inserts = {}
-
-    def add(self, model, values):
-        if model not in self._inserts:
-            self._inserts[model] = []
-        self._inserts[model].append(values)
-
-    def commit_all(self, session):
-        for model, rows in self._inserts.iteritems():
-            session.execute(model.__table__.insert(), rows)
-            self._inserts[model] = []
-        session.commit()
 
 class SampleMetadata(object):
     def __init__(self, global_config, specific_config):
@@ -46,7 +27,7 @@ class SampleMetadata(object):
             raise Exception(('Could not find metadata for key {}'.format(key)))
 
 
-def _create_mapping(identity_seq_id, alignment, sample, vdj):
+def _create_mapping(session, identity_seq_id, alignment, sample, vdj):
     if vdj.has_possible_indel:
         seq = vdj.sequence.lstrip('N')
         germ = vdj.germline[len(vdj.sequence) - len(seq):]
@@ -54,34 +35,33 @@ def _create_mapping(identity_seq_id, alignment, sample, vdj):
     else:
         lev_dist = None
 
-    return {
-        'identity_seq_id': identity_seq_id,
-        'sample_id': sample.id,
-        'seq_id': vdj.id,
+    return SequenceMapping(
+        identity_seq_id=identity_seq_id,
+        sample=sample,
+        seq_id=vdj.id,
 
-        'alignment': alignment,
-        'levenshtein_dist': lev_dist,
+        alignment=alignment,
+        levenshtein_dist=lev_dist,
 
-        'num_gaps': vdj.num_gaps,
-        'pad_length': vdj.pad_length,
+        num_gaps=vdj.num_gaps,
+        pad_length=vdj.pad_length,
 
-        'v_match': vdj.v_match,
-        'v_length': vdj.v_length,
-        'j_match': vdj.j_match,
-        'j_length': vdj.j_length,
+        v_match=vdj.v_match,
+        v_length=vdj.v_length,
+        j_match=vdj.j_match,
+        j_length=vdj.j_length,
 
-        'pre_cdr3_length': vdj.pre_cdr3_length,
-        'pre_cdr3_match': vdj.pre_cdr3_match,
-        'post_cdr3_length': vdj.post_cdr3_length,
-        'post_cdr3_match': vdj.post_cdr3_match,
+        pre_cdr3_length=vdj.pre_cdr3_length,
+        pre_cdr3_match=vdj.pre_cdr3_match,
+        post_cdr3_length=vdj.post_cdr3_length,
+        post_cdr3_match=vdj.post_cdr3_match,
 
-        'in_frame': vdj.in_frame,
-        'stop': vdj.stop,
-        'copy_number': vdj.copy_number,
-        'functional': vdj.functional,
+        in_frame=vdj.in_frame,
+        stop=vdj.stop,
+        copy_number=vdj.copy_number,
+        functional=vdj.functional,
 
-        'sequence': str(vdj.sequence)
-    }
+        sequence=str(vdj.sequence))
 
 
 def _format_ties(ties, name):
@@ -91,25 +71,23 @@ def _format_ties(ties, name):
     return '{}{}'.format(name, '|'.join(sorted(ties)))
 
 
-def _add_to_db(session, inserts, alignment, sample, vdj):
+def _add_to_db(session, alignment, sample, vdj):
     # Check if a sequence with the exact same filled sequence exists
     m = session.query(Sequence).filter(
         Sequence.sequence_replaced == str(vdj.sequence_filled)).first()
     if m is None:
         # If not, add the sequence, and make the mapping
-        inserts.add(Sequence, {
-            'seq_id': vdj.id,
-            'v_call': _format_ties(vdj.v_gene, 'IGHV'),
-            'j_call': _format_ties(vdj.j_gene, 'IGHJ'),
-            'junction_num_nts': len(vdj.cdr3),
-            'junction_nt': str(vdj.cdr3),
-            'junction_aa': lookups.aas_from_nts(vdj.cdr3, ''),
-            'gap_method': 'IMGT',
-            'sequence_replaced': str(vdj.sequence_filled),
-            'germline': vdj.germline
-        })
-        inserts.add(SequenceMapping,
-                    _create_mapping(m.seq_id, alignment, sample, vdj))
+        m = Sequence(seq_id=vdj.id,
+                     v_call=_format_ties(vdj.v_gene, 'IGHV'),
+                     j_call=_format_ties(vdj.j_gene, 'IGHJ'),
+                     junction_num_nts=len(vdj.cdr3),
+                     junction_nt=str(vdj.cdr3),
+                     junction_aa=lookups.aas_from_nts(vdj.cdr3, ''),
+                     gap_method='IMGT',
+                     sequence_replaced=str(vdj.sequence_filled),
+                     germline=vdj.germline)
+        session.add(m)
+        session.add(_create_mapping(session, m.seq_id, alignment, sample, vdj))
     else:
         # If there is an identical sequence, check if its appeared in this
         # sample.
@@ -120,15 +98,12 @@ def _add_to_db(session, inserts, alignment, sample, vdj):
         if existing is not None:
             # If so, bump the copy number and insert the duplicate sequence
             existing.copy_number += 1
-            inserts.add(DuplicateSequence, {
-                'duplicate_seq_id': existing.seq_id,
-                'sample_id': sample.id,
-                'seq_id': vdj.id
-            })
+            session.add(DuplicateSequence(duplicate_seq_id=existing.seq_id,
+                                          sample_id=sample.id,
+                                          seq_id=vdj.id))
         else:
             # If not, add a new mapping from the existing sequence
-            inserts.add(SequenceMapping,
-                        _create_mapping(session, m.seq_id, alignment, sample,
+            session.add(_create_mapping(session, m.seq_id, alignment, sample,
                                         vdj))
 
 
@@ -166,6 +141,7 @@ def _identify_reads(session, path, fn, meta, v_germlines, full_only):
         sample.subject = subject
         session.commit()
     else:
+        # TODO: Verify the data for the existing sample matches
         exists = session.query(SequenceMapping).filter(
             SequenceMapping.sample == sample,
             SequenceMapping.alignment == read_type).first()
@@ -178,23 +154,19 @@ def _identify_reads(session, path, fn, meta, v_germlines, full_only):
     mutations_sum = 0
     vdjs = {}
     no_result = 0
-    inserts = BulkInserts() 
 
     print 'Identifying V and J, committing No Results'
-    start = time.time()
     for i, record in enumerate(SeqIO.parse(os.path.join(path, fn), 'fasta')):
         if i > 0 and i % 1000 == 0:
             print '\tCommitted {}'.format(i)
-            inserts.commit_all(session)
+            session.commit()
         key = str(record.seq)
 
         if key in vdjs:
             vdjs[key].copy_number += 1
-            inserts.add(DuplicateSequence, {
-                'duplicate_seq_id': vdjs[key].id,
-                'sample_id': sample.id,
-                'seq_id': record.description,
-            })
+            session.add(DuplicateSequence(duplicate_seq_id=vdjs[key].id,
+                                          sample_id=sample.id,
+                                          seq_id=record.description))
         else:
             vdj = VDJSequence(record.description, 
                               record.seq,
@@ -205,15 +177,11 @@ def _identify_reads(session, path, fn, meta, v_germlines, full_only):
                 mutations_sum += vdj.mutation_fraction
                 vdjs[key] = vdj
             else:
-                inserts.add(NoResult, {
-                    'sample_id': sample.id,
-                    'seq_id': vdj.id,
-                    'sequence': str(vdj.sequence)
-                })
+                session.add(NoResult(sample=sample,
+                                     seq_id=vdj.id,
+                                     sequence=str(vdj.sequence)))
                 no_result += 1
-
-    inserts.commit_all(session)
-    print '\tIdentification took {} sec.'.format(round(time.time() - start, 2))
+    session.commit()
     cnt = i
 
     if len(vdjs) == 0:
@@ -224,27 +192,22 @@ def _identify_reads(session, path, fn, meta, v_germlines, full_only):
     avg_len = lengths_sum / float(len(vdjs))
     avg_mut = mutations_sum / float(len(vdjs))
 
-    inserts.reset()
-
-    for i, vdj in enumerate(vdjs):
+    for i, (_, vdj) in enumerate(vdjs.iteritems()):
         if i > 0 and i % 1000 == 0:
             print '\tCommitted {}'.format(i)
-            inserts.commit_all()
+            session.commit()
 
         vdj.align_to_germline(avg_len, avg_mut)
         if vdj.v_gene is not None and vdj.j_gene is not None:
             _add_to_db(session, read_type, sample, vdj)
         else:
-            session.delete(DuplicateSequence).filter(
-                DuplicateSequence.sample_id == sample.id,
-                DuplicateSequence.duplicate_seq_id == vdj.id)
             no_result += 1
 
-    inserts.commit_all()
     print '\tlen={}'.format(avg_len)
     print '\tmut={}'.format(avg_mut)
     print '\tnoresults={}'.format(no_result)
-    print '\tEntire sample took {} sec.'.format(round(time.time() - start, 2))
+    session.commit()
+
 
 def run_identify(session, args):
     v_germlines = VGermlines(args.v_germlines)
