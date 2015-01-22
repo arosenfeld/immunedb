@@ -159,10 +159,11 @@ class VGermlines(object):
                 K = distance.hamming(s_1[-length:], s_2[-length:])
                 dist = hypergeom(length, K, np.ceil(length * mutation))
                 p = np.sum(
-                    [dist.pmf(k) * np.power(.33, k) for k in range(int(np.ceil(K/2)), K)]
+                    [dist.pmf(k) * np.power(.33, k) for k in xrange(int(np.ceil(K/2)), K)]
                 )
                 if p >= self._prob_threshold:
                     self._ties[key][gene].add(name)
+
         return self._ties[key][gene]
 
     def _length_bucket(self, length):

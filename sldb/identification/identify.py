@@ -2,6 +2,7 @@ import distance
 import json
 import os
 import re
+import time
 
 from Bio import SeqIO
 from Bio.Seq import Seq
@@ -153,18 +154,23 @@ def _identify_reads(session, path, fn, meta, v_germlines, full_only):
     lengths_sum = 0
     mutations_sum = 0
     vdjs = {}
+    dups = {}
     no_result = 0
 
-    print 'Identifying V and J, committing No Results'
+    start = time.time()
+    print '\tIdentifying V and J, committing No Results'
     for i, record in enumerate(SeqIO.parse(os.path.join(path, fn), 'fasta')):
         if i > 0 and i % 1000 == 0:
-            print '\tCommitted {}'.format(i)
+            print '\t\tCommitted {}'.format(i)
             session.commit()
         key = str(record.seq)
 
         if key in vdjs:
-            vdjs[key].copy_number += 1
-            session.add(DuplicateSequence(duplicate_seq_id=vdjs[key].id,
+            vdj = vdjs[key]
+            vdj.copy_number += 1
+            if vdj.id not in dups:
+                dups[vdj.id] = []
+            dups[vdj.id].append(DuplicateSequence(duplicate_seq_id=vdjs[key].id,
                                           sample_id=sample.id,
                                           seq_id=record.description))
         else:
@@ -182,19 +188,19 @@ def _identify_reads(session, path, fn, meta, v_germlines, full_only):
                                      sequence=str(vdj.sequence)))
                 no_result += 1
     session.commit()
-    cnt = i
+    print '\t\tCumulative time: {} sec'.format(round(time.time() - start))
 
     if len(vdjs) == 0:
-        print '\tNo sequences identified'
+        print '\t\tNo sequences identified'
         return
 
-    print 'Calculating V-ties'
+    print '\tCalculating V-ties'
     avg_len = lengths_sum / float(len(vdjs))
     avg_mut = mutations_sum / float(len(vdjs))
 
     for i, (_, vdj) in enumerate(vdjs.iteritems()):
         if i > 0 and i % 1000 == 0:
-            print '\tCommitted {}'.format(i)
+            print '\t\tCommitted {}'.format(i)
             session.commit()
 
         vdj.align_to_germline(avg_len, avg_mut)
@@ -202,6 +208,19 @@ def _identify_reads(session, path, fn, meta, v_germlines, full_only):
             _add_to_db(session, read_type, sample, vdj)
         else:
             no_result += 1
+            session.add(NoResult(sample=sample,
+                                 seq_id=vdj.id,
+                                 sequence=str(vdj.sequence)))
+            if vdj.id in dups:
+                del dups[vdj.id]
+
+    print '\tAdding duplicates'
+    for i, dup_seqs in enumerate(dups.values()):
+        if i > 0 and i % 1000 == 0:
+            print '\t\tCommitted {}'.format(i)
+            session.commit()
+        session.add_all(dup_seqs)
+    print '\t\tCumulative time: {} sec'.format(round(time.time() - start))
 
     print '\tlen={}'.format(avg_len)
     print '\tmut={}'.format(avg_mut)
