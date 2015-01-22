@@ -342,7 +342,7 @@ class Sequence(BaseData):
     gap_method = Column(String(16))
 
     sequence = Column(String(length=1024), index=True)
-    sequence_replaced = Column(String(length=1024), unique=True, index=True)
+    sequence_replaced = Column(String(length=1024), index=True)
 
     germline = Column(String(length=1024))
 

@@ -45,41 +45,40 @@ def _add_to_db(session, alignment, sample, vdj):
                                       sample_id=sample.id,
                                       seq_id=vdj.id))
     else:
-    session.add(Sequence(
-        seq_id=vdj.id,
-        sample=sample,
+        session.add(Sequence(
+            seq_id=vdj.id,
+            sample=sample,
 
-        alignment=alignment,
-        probable_indel_or_misalign=vdj.has_possible_indel,
+            alignment=alignment,
+            probable_indel_or_misalign=vdj.has_possible_indel,
 
-        num_gaps=vdj.num_gaps,
-        pad_length=vdj.pad_length,
+            num_gaps=vdj.num_gaps,
+            pad_length=vdj.pad_length,
 
-        v_match=vdj.v_match,
-        v_length=vdj.v_length,
-        j_match=vdj.j_match,
-        j_length=vdj.j_length,
+            v_match=vdj.v_match,
+            v_length=vdj.v_length,
+            j_match=vdj.j_match,
+            j_length=vdj.j_length,
 
-        pre_cdr3_length=vdj.pre_cdr3_length,
-        pre_cdr3_match=vdj.pre_cdr3_match,
-        post_cdr3_length=vdj.post_cdr3_length,
-        post_cdr3_match=vdj.post_cdr3_match,
+            pre_cdr3_length=vdj.pre_cdr3_length,
+            pre_cdr3_match=vdj.pre_cdr3_match,
+            post_cdr3_length=vdj.post_cdr3_length,
+            post_cdr3_match=vdj.post_cdr3_match,
 
-        in_frame=vdj.in_frame,
-        functional=vdj.functional,
-        stop=vdj.stop,
-        copy_number=vdj.copy_number,
+            in_frame=vdj.in_frame,
+            functional=vdj.functional,
+            stop=vdj.stop,
+            copy_number=vdj.copy_number,
 
-        junction_num_nts=len(vdj.cdr3),
-        junction_nt=vdj.cdr3,
-        junction_aa=lookups.aas_from_nts(vdj.cdr3, ''),
-        gap_method='IMGT',
+            junction_num_nts=len(vdj.cdr3),
+            junction_nt=vdj.cdr3,
+            junction_aa=lookups.aas_from_nts(vdj.cdr3, ''),
+            gap_method='IMGT',
 
-        sequence=str(vdj.sequence),
-        sequence_replaced=vdj.sequence_filled,
+            sequence=str(vdj.sequence),
+            sequence_replaced=vdj.sequence_filled,
 
-        germline=vdj.germline))
-
+            germline=vdj.germline))
 
 
 def _identify_reads(session, path, fn, meta, v_germlines, full_only):
@@ -117,9 +116,9 @@ def _identify_reads(session, path, fn, meta, v_germlines, full_only):
         session.commit()
     else:
         # TODO: Verify the data for the existing sample matches
-        exists = session.query(SequenceMapping).filter(
-            SequenceMapping.sample == sample,
-            SequenceMapping.alignment == read_type).first()
+        exists = session.query(Sequence).filter(
+            Sequence.sample == sample,
+            Sequence.alignment == read_type).first()
         if exists is not None:
             print ('\tSample "{}" for study already exists in DATA.  '
                    'Skipping.').format(sample.name)
