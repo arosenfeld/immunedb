@@ -216,7 +216,7 @@ def _identify_reads(session, path, fn, meta, v_germlines, full_only):
                     session.add(NoResult(
                         sample=sample,
                         seq_id=dup.seq_id,
-                        sequence=vdj.sequence.replace('-').strip('N')))
+                        sequence=vdj.sequence.replace('-', '').strip('N')))
                 del dups[vdj.id]
     session.commit()
 
