@@ -189,7 +189,8 @@ def compare_clones(session, uids):
             .filter(Sequence.clone_id == clone_id)
         if None not in sample_ids:
             q = q.filter(Sequence.sample_id.in_(sample_ids))
-        q = q.group_by(Sequence.sequence_replaced)
+        q = q.order_by(desc('copy_number')).group_by(
+            Sequence.sequence_replaced)
 
         for seqr in q:
             seq = seqr.Sequence
