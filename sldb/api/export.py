@@ -37,7 +37,7 @@ class SequenceExport(object):
         ('study_name', lambda seq: seq.sample.study.name),
 
         'alignment',
-        'possible_indel_or_misalign',
+        'probable_indel_or_misalign',
 
         'num_gaps',
         'pad_length',
@@ -61,8 +61,8 @@ class SequenceExport(object):
         'sequence_filled',
         'germline',
 
-        'v_call',
-        'j_call',
+        'v_gene',
+        'j_gene',
         'cdr3_nt',
         'cdr3_aa',
         'gap_method',
@@ -81,6 +81,7 @@ class SequenceExport(object):
         self.rtype = rtype
         self.rids = rids
         self.selected_fields = selected_fields
+        print selected_fields
         self.min_copy = min_copy
         self.duplicates = duplicates
         self.noresults = noresults
@@ -222,8 +223,8 @@ class SequenceExport(object):
                     last_cid = seq.clone_id
                     yield self._fasta_entry(
                         '>Germline',
-                        (('v_gene', seq.v_call),
-                         ('j_gene', seq.j_call),
+                        (('v_gene', seq.v_gene),
+                         ('j_gene', seq.j_gene),
                          ('cdr3_aa', seq.junction_aa),
                          ('cdr3_nt', seq.junction_nt),
                          ('cdr3_len', seq.junction_num_nts)),
