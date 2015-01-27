@@ -1,5 +1,5 @@
 import sldb.util.funcs as funcs
-from sldb.common.models import DuplicateSequence, NoResult, SequenceMapping
+from sldb.common.models import DuplicateSequence, NoResult, Sequence
 
 class SequenceExport(object):
     """A class to handle exporting sequences in various formats.
@@ -21,7 +21,6 @@ class SequenceExport(object):
     """
     _export_fields = [
         'seq_id',
-        'identity_seq_id',
         ('duplicate_of_seq_id', lambda seq: None),
         ('subject_id', lambda seq: seq.sample.subject.id),
         ('subject_identifier', lambda seq: seq.sample.subject.identifier),
@@ -38,7 +37,7 @@ class SequenceExport(object):
         ('study_name', lambda seq: seq.sample.study.name),
 
         'alignment',
-        'levenshtein_dist',
+        'possible_indel_or_misalign',
 
         'num_gaps',
         'pad_length',
@@ -59,14 +58,14 @@ class SequenceExport(object):
         'copy_number',
         
         'sequence',
-        ('sequence_filled', lambda seq: seq.identity_seq.sequence_replaced),
-        ('germline', lambda seq: seq.identity_seq.germline),
+        'sequence_filled',
+        'germline',
 
-        ('v_call', lambda seq: seq.identity_seq.v_call),
-        ('j_call', lambda seq: seq.identity_seq.j_call),
-        ('cdr3_nt', lambda seq: seq.identity_seq.junction_nt),
-        ('cdr3_aa', lambda seq: seq.identity_seq.junction_aa),
-        ('gap_method', lambda seq: seq.identity_seq.gap_method),
+        'v_call',
+        'j_call',
+        'cdr3_nt',
+        'cdr3_aa',
+        'gap_method',
 
         'clone_id',
         ('clone_group_id', lambda seq: seq.clone.group.id),
@@ -145,7 +144,7 @@ class SequenceExport(object):
         """Gets the data specified by ``selected_fields`` for the sequence
         ``seq`` while overriding values in ``overrides`` if they exist.
 
-        :param SequenceMapping seq: The sequence from which to gather fields
+        :param Sequence seq: The sequence from which to gather fields
         :param kwargs overrides: Fields to override
 
         :returns A list of ``(name, value)`` tuples with the selected data
@@ -177,21 +176,21 @@ class SequenceExport(object):
 
         """
         # Get all the sequences matching the request
-        seqs = self.session.query(SequenceMapping).filter(
+        seqs = self.session.query(Sequence).filter(
             getattr(
-                SequenceMapping, '{}_id'.format(self.rtype)
+                Sequence, '{}_id'.format(self.rtype)
             ).in_(self.rids),
-            SequenceMapping.copy_number >= self.min_copy)
+            Sequence.copy_number >= self.min_copy)
 
-        # If it's a CLIP file, order by identity_seq_id to minimize
+        # If it's a CLIP file, order by clone_id to minimize
         # repetition of germline entries
         if self.eformat == 'clip':
-            seqs = seqs.order_by(SequenceMapping.clone_id)
+            seqs = seqs.order_by(Sequence.clone_id)
         else:
             # This probably isn't necessary but is a safe guard since we
             # page_query is used and order may not be deterministic on all
             # storage engines
-            seqs = seqs.order_by(SequenceMapping.seq_id)
+            seqs = seqs.order_by(Sequence.seq_id)
 
             # If it's a tab file, add the headers based on selected fields
             if self.eformat == 'tab':
@@ -209,7 +208,7 @@ class SequenceExport(object):
             # Get the selected data for the sequence
             data = self._get_selected_data(seq)
             if self.eformat == 'fill':
-                seq_nts = seq.identity_seq.sequence_replaced
+                seq_nts = seq.sequence_replaced
             else:
                 seq_nts = seq.sequence
 
@@ -223,12 +222,12 @@ class SequenceExport(object):
                     last_cid = seq.clone_id
                     yield self._fasta_entry(
                         '>Germline',
-                        (('v_gene', seq.identity_seq.v_call),
-                         ('j_gene', seq.identity_seq.j_call),
-                         ('cdr3_aa', seq.identity_seq.junction_aa),
-                         ('cdr3_nt', seq.identity_seq.junction_nt),
-                         ('cdr3_len', seq.identity_seq.junction_num_nts)),
-                        seq.identity_seq.germline)
+                        (('v_gene', seq.v_call),
+                         ('j_gene', seq.j_call),
+                         ('cdr3_aa', seq.junction_aa),
+                         ('cdr3_nt', seq.junction_nt),
+                         ('cdr3_len', seq.junction_num_nts)),
+                        seq.germline)
 
                 # Output the FASTA row
                 yield self._fasta_entry(seq.seq_id, data, seq_nts)

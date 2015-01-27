@@ -2,6 +2,7 @@ from sqlalchemy import Column, Boolean, Integer, String, Text, Date, \
     ForeignKey, UniqueConstraint, Index, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm.interfaces import MapperExtension
 from sqlalchemy.dialects.mysql import TEXT, MEDIUMTEXT
 
 import sldb.util.funcs as funcs
@@ -126,8 +127,8 @@ class SampleStats(BaseData):
     :param str v_length_dist: Distribution of V gene total length
     :param str j_match_dist: Distribution of J gene match count
     :param str j_length_dist: Distribution of J gene total length
-    :param str v_call_dist: Distribution of V-gene assignments
-    :param str j_call_dist: Distribution of J-gene assignments
+    :param str v_gene_dist: Distribution of V-gene assignments
+    :param str j_gene_dist: Distribution of J-gene assignments
     :param str copy_number_dist: Distribution of copy number
     :param str cdr3_length_dist: Distribution of CDR3 lengths
 
@@ -156,8 +157,8 @@ class SampleStats(BaseData):
     j_match_dist = Column(MEDIUMTEXT)
     j_length_dist = Column(MEDIUMTEXT)
 
-    v_call_dist = Column(MEDIUMTEXT)
-    j_call_dist = Column(MEDIUMTEXT)
+    v_gene_dist = Column(MEDIUMTEXT)
+    j_gene_dist = Column(MEDIUMTEXT)
 
     copy_number_dist = Column(MEDIUMTEXT)
     cdr3_length_dist = Column(MEDIUMTEXT)
@@ -244,9 +245,18 @@ class Clone(BaseData):
     tree = Column(MEDIUMTEXT)
 
 
+class SequenceExtension(MapperExtension):
+    def before_insert(self, mapper, connection, instance):
+        instance.unique_id = funcs.hash(instance.sample_id,
+                                        instance.sequence)
+        instance.junction_num_nts = len(instance.junction_nt)
+
+
 class Sequence(BaseData):
     """Represents a single unique sequence.
     
+    :param str unique_id: A key over ``sample_id`` and ``sequence`` so the \
+        tuple can be maintained unique
     :param str seq_id: A unique identifier for the sequence as output by the \
         sequencer
     :param int sample_id: The ID of the sample from which this sequence came
@@ -284,12 +294,9 @@ class Sequence(BaseData):
         same sample
     :param str sequence: The (possibly-padded) sequence
 
-    :param int clone_id: The clone ID to which this sequence belongs
-    :param Relationship clone: Reference to the associated :py:class:`Clone` \
-        instance
 
-    :param str v_call: The V-gene assigned to the sequence
-    :param str j_call: The J-gene assigned to the sequence
+    :param str v_gene: The V-gene assigned to the sequence
+    :param str j_gene: The J-gene assigned to the sequence
     :param int junction_num_nts: The number of nucleotides in the CDR3
     :param str junction_nt: The nucleotides comprising the CDR3
     :param str junction_aa: The amino-acids comprising the CDR3
@@ -297,12 +304,18 @@ class Sequence(BaseData):
     :param str sequence_replaced: The full sequence after being filled in with \
         the germline
     :param str germline: The germline sequence for this sequence
+
+    :param int clone_id: The clone ID to which this sequence belongs
+    :param Relationship clone: Reference to the associated :py:class:`Clone` \
+        instance
     
     """
     __tablename__ = 'sequences'
-    __table_args__ = (Index('call', 'v_call', 'j_call',),
+    __table_args__ = (Index('genes', 'v_gene', 'j_gene',),
                       {'mysql_engine': 'TokuDB'})
+    __mapper_args__ = {'extension': SequenceExtension()}
 
+    unique_id = Column(String(40), unique=True)
 
     seq_id = Column(String(128), primary_key=True, index=True)
     sample_id = Column(Integer, ForeignKey(Sample.id), primary_key=True,
@@ -312,8 +325,8 @@ class Sequence(BaseData):
     alignment = Column(String(length=6), index=True)
     probable_indel_or_misalign = Column(Boolean, index=True)
 
-    v_call = Column(String(512), index=True)
-    j_call = Column(String(512), index=True)
+    v_gene = Column(String(512), index=True)
+    j_gene = Column(String(512), index=True)
 
     num_gaps = Column(Integer)
     pad_length = Column(Integer)

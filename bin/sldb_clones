@@ -11,6 +11,9 @@ if __name__ == '__main__':
                         help='Minimum similarity between clone sequences.')
     parser.add_argument('--subjects', nargs='+', type=int,
                         help='Limit generation to certain subjects')
+    parser.add_argument('--limit-alignments', nargs='+', default=('R1+R2'),
+                        help='Read types to process (R1, R2, and/or '
+                        'R1+R2).  Default: R1+R2')
     args = parser.parse_args()
 
     session = config.init_db(args.master_db_config, args.data_db_config)

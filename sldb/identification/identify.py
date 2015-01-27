@@ -52,6 +52,9 @@ def _add_to_db(session, alignment, sample, vdj):
             alignment=alignment,
             probable_indel_or_misalign=vdj.has_possible_indel,
 
+            v_gene=_format_ties(vdj.v_gene, 'IGHV'),
+            j_gene=_format_ties(vdj.j_gene, 'IGHJ'),
+
             num_gaps=vdj.num_gaps,
             pad_length=vdj.pad_length,
 
@@ -70,7 +73,6 @@ def _add_to_db(session, alignment, sample, vdj):
             stop=vdj.stop,
             copy_number=vdj.copy_number,
 
-            junction_num_nts=len(vdj.cdr3),
             junction_nt=vdj.cdr3,
             junction_aa=lookups.aas_from_nts(vdj.cdr3, ''),
             gap_method='IMGT',
@@ -81,7 +83,7 @@ def _add_to_db(session, alignment, sample, vdj):
             germline=vdj.germline))
 
 
-def _identify_reads(session, path, fn, meta, v_germlines, full_only):
+def _identify_reads(session, path, fn, meta, v_germlines, limit_alignments):
     print 'Starting {}'.format(fn)
     study, new = funcs.get_or_create(
         session, Study, name=meta.get('study_name'))
@@ -91,9 +93,9 @@ def _identify_reads(session, path, fn, meta, v_germlines, full_only):
         raise Exception(('Invalid read type {}.  Must be'
                          'one of {}').format(
                             read_type, ','.join(allowed_read_types)))
-    if read_type != 'R1+R2' and full_only:
-        print ('Skpping since it contains partial reads and read_type '
-               'is "R1+R2"')
+    if read_type not in limit_alignments:
+        print ('Skipping since read type is {} and identification '
+               'limited to {}').format(read_type, ','.join(limit_alignments))
         return
 
     if new:
@@ -208,7 +210,7 @@ def _identify_reads(session, path, fn, meta, v_germlines, full_only):
                     session.add(NoResult(
                         sample=sample,
                         seq_id=dup.seq_id,
-                        sequence=vdj.sequence.replace('-').strip('N')))
+                        sequence=vdj.sequence.replace('-', '').strip('N')))
                                          
                 del dups[vdj.id]
     session.commit()
@@ -250,4 +252,4 @@ def run_identify(session, args):
                     fn,
                     SampleMetadata(metadata[fn], metadata['all']),
                     v_germlines,
-                    args.only_full)
+                    args.limit_alignments)
