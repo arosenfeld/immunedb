@@ -147,7 +147,7 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
                 func.count(Sequence.seq_id).label('unique'),
                 func.sum(Sequence.copy_number).label('total'))\
             .filter(Sequence.clone_id == c.id)\
-            .order_by('`unique`')\
+            .order_by(desc('`unique`'))\
             .group_by(Sequence.sample_id):
 
                 stats_comb.append({
@@ -252,11 +252,26 @@ def get_clone_overlap(session, filter_type, ctype, limit,
         q = q.offset((page - 1) * per_page).limit(per_page)
 
     for clone in q:
+        selected_samples = []
+        other_samples = []
+        for sample in session.query(
+                    Sequence.sample_id,
+                    Sample.name
+                ).join(Sample).filter(
+                    Sequence.clone_id == clone.Sequence.clone_id,
+                ).group_by(Sequence.sample_id).order_by(Sequence.sample_id)\
+                .order_by(Sequence.sample_id):
+            if sample.sample_id in limit:
+                selected_samples.append((sample.sample_id, sample.name))
+            else:
+                other_samples.append((sample.sample_id, sample.name))
+
         res.append({
             'unique_sequences': int(clone.unique),
             'total_sequences': int(clone.total),
             'clone': _clone_to_dict(clone.Sequence.clone),
-            'samples': map(str, clone.samples.split(',')),
+            'selected_samples': selected_samples,
+            'other_samples': other_samples,
         })
 
     if paging:
