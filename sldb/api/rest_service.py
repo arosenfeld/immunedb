@@ -9,7 +9,7 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 import bottle
 from bottle import route, response, request, install, run
 
-from sldb.api.export import SequenceExport
+from sldb.api.export import CloneExport, SequenceExport
 import sldb.api.queries as queries
 from sldb.common.models import *
 
@@ -308,9 +308,44 @@ def v_usage(filter_type, outliers, full_reads, samples):
     })
 
 
-@route('/api/data/export/<eformat>/<rtype>/<rids>', methods=['GET'])
-@route('/api/data/export/<eformat>/<rtype>/<rids>/', methods=['GET'])
-def export(eformat, rtype, rids):
+@route('/api/data/export_clones/<rtype>/<rids>', methods=['GET'])
+@route('/api/data/export_clones/<rtype>/<rids>/', methods=['GET'])
+def export_clones(rtype, rids):
+    """Downloads a tab-delimited file of clones.
+
+    :param str rtype: The type of record to filter the query on.  Currently
+        either "sample" or "clone"
+    :param str rids: A comma-separated list of IDs of ``rtype`` to export
+
+    :returns: The properly formatted export data
+    :rtype: str
+
+    """
+    assert rtype in ('sample', 'clone')
+
+    session = scoped_session(session_factory)()
+    fields = _get_arg('fields', False).split(',')
+    min_size = _get_arg('min_size', False)
+    min_size = int(min_size) if min_size is not None else 1
+
+    name = '{}_{}.tab'.format(
+        rtype,
+        time.strftime('%Y-%m-%d-%H-%M'))
+
+    response.headers['Content-Disposition'] = 'attachment;filename={}'.format(
+        name)
+
+    export = CloneExport(session, rtype, _split(rids), fields,
+                         min_size=min_size)
+    for line in export.get_data():
+        yield line
+
+    session.close()
+
+
+@route('/api/data/export_sequences/<eformat>/<rtype>/<rids>', methods=['GET'])
+@route('/api/data/export_sequences/<eformat>/<rtype>/<rids>/', methods=['GET'])
+def export_sequences(eformat, rtype, rids):
     """Downloads an exported format of specified sequences.
 
     :param str eformat: The export format to use.  Currently "tab", "orig", and

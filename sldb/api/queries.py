@@ -3,15 +3,16 @@ import json
 import math
 import re
 import numpy as np
-
-from sqlalchemy import desc, inspect, distinct
+from sqlalchemy.sql.expression import false, true
+from sqlalchemy import desc, distinct, inspect
 from sqlalchemy.sql import func
+from sqlalchemy.sql.expression import false
 from sqlalchemy.ext.declarative import DeclarativeMeta
 
 import sldb.util.lookups as lookups
 from sldb.common.models import *
 from sldb.identification.v_genes import VGene
-from sldb.common.mutations import MutationType, Mutations
+from sldb.common.mutations import Mutations, MutationType
 
 
 _clone_filters = {
@@ -92,8 +93,8 @@ def get_all_studies(session):
                                   SampleStats.functional_cnt,
                                   SampleStats.no_result_cnt).filter(
                 SampleStats.sample_id == sample.id,
-                SampleStats.outliers.is_(True),
-                SampleStats.full_reads.is_(False),
+                SampleStats.outliers == true(),
+                SampleStats.full_reads == false(),
                 SampleStats.filter_type == 'all').first()
             if stats is not None:
                 sample_dict['status'] = status
@@ -331,8 +332,8 @@ def get_all_subjects(session, paging):
             .filter(
                 SampleStats.sample.has(subject=subject),
                 SampleStats.filter_type == 'all',
-                SampleStats.outliers.is_(True),
-                SampleStats.full_reads.is_(False)).scalar()
+                SampleStats.outliers == true(),
+                SampleStats.full_reads == false()).scalar()
         if seqs is None:
             continue
 
@@ -361,8 +362,8 @@ def get_subject(session, sid):
         stats = session.query(SampleStats).filter(
             SampleStats.filter_type == 'all',
             SampleStats.sample_id == sample.id,
-            SampleStats.outliers.is_(True),
-            SampleStats.full_reads.is_(False)).first()
+            SampleStats.outliers == true(),
+            SampleStats.full_reads == false()).first()
         sample_dict = {
             'id': sample.id,
             'name': sample.name,
