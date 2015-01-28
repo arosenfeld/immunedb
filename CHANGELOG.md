@@ -14,6 +14,7 @@
 * Fixed case where duplicate sequences were incorrectly inserted.
 
 ## v5.0.0
+* **First stable release**
 * Duplicate sequences are now detected during identification and not
 re-identified.
 * Metadata fallthrough to "all" block properly during identification.
@@ -21,8 +22,8 @@ re-identified.
 * Insertion/deletion check based on sliding window.
 * V and J ties now calculated on a per-sample basis.
 * Major changes and fixes to V/J identification:
-  * V gene alleles can now be identified and must be separated with a * (e.g.
-  * IGHV4-34*01).
+  * V gene alleles can now be identified and must be separated with an asterisk
+    (e.g.  IGHV4-34*01).
   * Anchors are now found using reversed frame-shifting if forward
   * frame-shifting yields a no-result.
   * V and J genes now match into the CDR3 based on sliding window.
