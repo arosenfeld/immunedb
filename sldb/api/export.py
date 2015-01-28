@@ -1,6 +1,7 @@
 import sldb.util.funcs as funcs
 from sldb.common.models import DuplicateSequence, NoResult, Sequence
 
+
 class SequenceExport(object):
     """A class to handle exporting sequences in various formats.
 
@@ -30,7 +31,7 @@ class SequenceExport(object):
         ('lab', lambda seq: seq.sample.lab),
         ('experimenter', lambda seq: seq.sample.experimenter),
         ('date', lambda seq: seq.sample.date),
-        
+
         'sample_id',
         ('sample_name', lambda seq: seq.sample.name),
         ('study_id', lambda seq: seq.sample.study.id),
@@ -41,7 +42,7 @@ class SequenceExport(object):
 
         'num_gaps',
         'pad_length',
-        
+
         'v_match',
         'v_length',
         'j_match',
@@ -56,7 +57,7 @@ class SequenceExport(object):
         'functional',
         'stop',
         'copy_number',
-        
+
         'sequence',
         'sequence_filled',
         'germline',
@@ -81,7 +82,6 @@ class SequenceExport(object):
         self.rtype = rtype
         self.rids = rids
         self.selected_fields = selected_fields
-        print selected_fields
         self.min_copy = min_copy
         self.duplicates = duplicates
         self.noresults = noresults
@@ -100,7 +100,7 @@ class SequenceExport(object):
         """Gets the name and field for export field entry ``e``.
 
         :param tuple e: Input field to split into name and field.
-        
+
         :return: Name and field for export field ``e``
         :rtype: (name, field)
 
@@ -127,7 +127,7 @@ class SequenceExport(object):
 
         """
         return '>{}{}{}\n{}\n'.format(
-            seq_id, 
+            seq_id,
             '|' if len(keys) > 0 else '',
             '|'.join(map(lambda (k, v): '{}={}'.format(k, v), keys)),
             sequence)
@@ -249,12 +249,13 @@ class SequenceExport(object):
                     if self.eformat == 'tab':
                         yield self._tab_entry(data)
                     else:
-                        # Output the FASTA row.  Note we don't need to re-output
-                        # a germline since these are duplicates and will share
-                        # the same as its primary sequence
+                        # Output the FASTA row.  Note we don't need to
+                        # re-output a germline since these are duplicates
+                        # and will share the same as its primary sequence
                         yield self._fasta_entry(dup.seq_id, data, seq_nts)
 
-        # Regardless of the output type, output noresults if desired for samples
+        # Regardless of the output type, output noresults if desired for
+        # samples
         if self.rtype == 'sample' and self.noresults:
             no_res = self.session.query(NoResult).filter(
                 NoResult.sample_id.in_(self.rids))

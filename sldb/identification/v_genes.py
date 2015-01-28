@@ -10,6 +10,7 @@ from Bio import SeqIO
 import sldb.identification.anchors as anchors
 from sldb.util.funcs import find_streak_position
 
+
 def get_common_seq(seqs):
     v_gene = []
     for nts in itertools.izip_longest(*seqs, fillvalue='N'):
@@ -17,8 +18,10 @@ def get_common_seq(seqs):
     v_gene = ''.join(v_gene)
     return v_gene[:VGene.CDR3_OFFSET]
 
+
 class AlignmentException(Exception):
     pass
+
 
 class VGene(object):
     CDR3_OFFSET = 309
@@ -159,7 +162,8 @@ class VGermlines(object):
                 K = distance.hamming(s_1[-length:], s_2[-length:])
                 dist = hypergeom(length, K, np.ceil(length * mutation))
                 p = np.sum(
-                    [dist.pmf(k) * np.power(.33, k) for k in xrange(int(np.ceil(K/2)), K)]
+                    [dist.pmf(k) * np.power(.33, k)
+                        for k in xrange(int(np.ceil(K/2)), K)]
                 )
                 if p >= self._prob_threshold:
                     self._ties[key][gene].add(name)

@@ -140,6 +140,7 @@ def _process_filter(session, sample_id, filter_type, filter_func,
                     use_copy, include_outliers, full_reads):
     if not include_outliers:
         min_cdr3, max_cdr3 = _get_cdr3_bounds(session, filter_func, sample_id)
+
     def base_query():
         q = filter_func(session.query(
             func.count(Sequence.seq_id).label('unique'))
@@ -180,15 +181,14 @@ def _process_filter(session, sample_id, filter_type, filter_func,
     else:
         stat.functional_cnt = q.unique
 
-
-    stat.no_result_cnt = session.query(func.count(NoResult.seq_id))\
-            .filter(NoResult.sample_id == sample_id).scalar()
+    stat.no_result_cnt = (session.query(func.count(NoResult.seq_id))
+                          .filter(NoResult.sample_id == sample_id).scalar())
 
     for dist in _dist_fields:
         dist_val = _get_distribution(
             session, sample_id, dist, filter_func, use_copy,
-            (min_cdr3, max_cdr3) if not include_outliers and min_cdr3 \
-                is not None else None, full_reads)
+            ((min_cdr3, max_cdr3) if not include_outliers and min_cdr3
+                is not None else None, full_reads))
 
         if isinstance(dist, tuple):
             name = dist[1]
@@ -256,18 +256,20 @@ def _process_sample(session, sample_id, force):
         return
 
     for include_outliers in [True, False]:
-        print '\tOutliers={}'.format(include_outliers);
+        print '\tOutliers={}'.format(include_outliers)
         for full_reads in [True, False]:
-            print '\t\tFull Reads={}'.format(full_reads);
+            print '\t\tFull Reads={}'.format(full_reads)
             for f in _seq_filters:
-                print '\t\t\tGenerating sequence stats for filter "{}"'.format(f['type'])
-                _process_filter(session, sample_id, f['type'], f['filter_func'],
-                                f['use_copy'], include_outliers,
-                                full_reads)
+                print '\t\t\tGenerating sequence stats for filter "{}"'.format(
+                    f['type'])
+                _process_filter(session, sample_id, f['type'],
+                                f['filter_func'], f['use_copy'],
+                                include_outliers, full_reads)
                 session.commit()
 
             for f in _clone_filters:
-                print '\t\t\tGenerating sequence stats for filter "{}"'.format(f['type'])
+                print '\t\t\tGenerating sequence stats for filter "{}"'.format(
+                    f['type'])
                 _process_clone_filter(session, sample_id, f['type'],
                                       f['filter_func'], include_outliers,
                                       full_reads)

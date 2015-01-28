@@ -6,6 +6,7 @@ from sldb.identification.vdj_sequence import VDJSequence
 from sldb.identification.v_genes import VGermlines
 import sldb.util.lookups as lookups
 
+
 def test_full_seq():
     germs = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                          'imgt_human_alleles.fasta')
@@ -35,9 +36,3 @@ def test_full_seq():
     assert vdj.v_match == 264
     assert vdj.pre_cdr3_length == 282
     assert vdj.pre_cdr3_match == 251
-'''
-v_length   : 293
-v_match    : 264
-pre_length : 282
-pre_match  : 251
-'''

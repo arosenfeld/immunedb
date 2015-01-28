@@ -1,0 +1,15 @@
+#!/usr/bin/env python2
+import sys
+import argparse
+import sldb.common.config as config
+
+if __name__ == '__main__':
+    parser = config.get_base_arg_parser('Generates statistics for clones')
+    parser.add_argument('--force', action='store_true', help='Force '
+                        'regeneration of stats even if they already exist')
+    args = parser.parse_args()
+
+    session = config.init_db(args.master_db_config, args.data_db_config)
+
+    from sldb.aggregation.clone_stats import run_clone_stats
+    sys.exit(run_clone_stats(session, args))

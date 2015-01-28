@@ -31,7 +31,7 @@ def traverse(session, root, start=False):
                 lambda s: s['printFastaHeader'].split('|')[0], seqs)))
         info = info.all()
         tissues = ','.join(sorted(set(map(lambda s: s.sample.tissue, info))))
-        subsets = ','.join(sorted(set(map(lambda s: s.sample.subset   
+        subsets = ','.join(sorted(set(map(lambda s: s.sample.subset
                                           if s.sample.subset else '', info))))
     else:
         tissues = ''
@@ -42,7 +42,8 @@ def traverse(session, root, start=False):
             'copy_number': cn,
             'tissues': tissues,
             'subsets': subsets,
-            'seq_ids': map(lambda s: s['printFastaHeader'].split('|')[0], seqs),
+            'seq_ids': map(lambda s: s['printFastaHeader'].split('|')[0],
+                           seqs),
             'sequence': data['nodeSequence'],
         },
         'children': []

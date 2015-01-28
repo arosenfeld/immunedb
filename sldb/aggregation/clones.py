@@ -42,8 +42,8 @@ def _get_subject_clones(session, subject_id, min_similarity, limit_alignments,
     new_clones = 0
     duplicates = 0
     for i, seqr in enumerate(session.query(
-                Sequence,
-                func.count(Sequence.seq_id).label('cn')
+            Sequence,
+            func.count(Sequence.seq_id).label('cn')
             ).filter(
                 Sequence.sample.has(subject_id=subject_id),
                 Sequence.clone_id.is_(None)

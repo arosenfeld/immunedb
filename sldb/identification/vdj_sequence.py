@@ -9,6 +9,7 @@ import sldb.identification.germlines as germlines
 from sldb.util.funcs import find_streak_position
 from sldb.identification.v_genes import VGene, get_common_seq
 
+
 class VDJSequence(object):
     MISMATCH_THRESHOLD = 3
     MIN_J_ANCHOR_LEN = 12
@@ -39,7 +40,7 @@ class VDJSequence(object):
 
         self.copy_number = 1
 
-        # If there are invalid characters in the sequence, ignore it 
+        # If there are invalid characters in the sequence, ignore it
         stripped = filter(lambda s: s in 'ATCGN', self.sequence)
         if len(stripped) == len(self.sequence):
             self._find_j()
@@ -163,8 +164,8 @@ class VDJSequence(object):
 
     def _find_j(self):
         '''Finds the location and type of J gene'''
-        # Iterate over every possible J anchor.  For each germline, try its full
-        # sequence, then exclude the final 3 characters at a time until
+        # Iterate over every possible J anchor.  For each germline, try its
+        # full sequence, then exclude the final 3 characters at a time until
         # there are only MIN_J_ANCHOR_LEN nucleotides remaining.
         #
         # For example, the order for one germline:
@@ -254,7 +255,7 @@ class VDJSequence(object):
                 if self._v_score is None or dist < self._v_score:
                     self._v = [v]
                     self._v_score = dist
-                    self._v_length = total_length 
+                    self._v_length = total_length
                     self._v_match = total_length - dist
                     self._germ_pos = germ.ungapped_anchor_pos
                 elif dist == self._v_score:
@@ -280,7 +281,8 @@ class VDJSequence(object):
         self._germline = get_common_seq(
             [self.v_germlines[v].sequence for v in self._v]
         )[:VGene.CDR3_OFFSET]
-        self._pad_len = len(self._germline.replace('-', '')) - self.v_anchor_pos
+        self._pad_len = (len(self._germline.replace('-', ''))
+                         - self.v_anchor_pos)
         # If we need to pad the sequence, do so, otherwise trim the sequence to
         # the germline length
         if self._pad_len >= 0:
@@ -303,9 +305,9 @@ class VDJSequence(object):
         j_anchor_in_germline = j_germ.rfind(
             str(anchors.j_anchors[self.j_gene[0]]))
         # Calculate the length of the CDR3
-        self._cdr3_len = (self.j_anchor_pos + \
-            len(anchors.j_anchors[self.j_gene[0]]) - germlines.j_offset) - \
-            self.v_anchor_pos
+        self._cdr3_len = (
+            (self.j_anchor_pos + len(anchors.j_anchors[self.j_gene[0]])
+                - germlines.j_offset) - self.v_anchor_pos)
 
         if self._cdr3_len <= 0:
             self._v = None
@@ -354,7 +356,7 @@ class VDJSequence(object):
     @property
     def has_possible_indel(self):
         # Start comparison on first full AA to the INDEL_WINDOW or CDR3,
-        # whichever comes first 
+        # whichever comes first
         if self._possible_indel:
             return True
 
@@ -367,8 +369,8 @@ class VDJSequence(object):
             g = germ[i:i+self.INDEL_WINDOW]
             s = seq[i:i+self.INDEL_WINDOW]
             if 'N' in g:
-                dist = np.sum(
-                    [0 if gs == 'N' or gs==ss else 1 for gs,ss in zip(g, s)])
+                dist = np.sum([
+                    0 if gs == 'N' or gs == ss else 1 for gs, ss in zip(g, s)])
             else:
                 dist = distance.hamming(g, s)
             if dist >= self.INDEL_MISMATCH_THRESHOLD * self.INDEL_WINDOW:

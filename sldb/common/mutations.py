@@ -12,12 +12,12 @@ class MutationType(object):
     @classmethod
     def get_symbol(cls, mtype):
         """Gets the single-character symbol for a mutation
-        
+
         :param str mtype: The upper-case mutation type
-        
+
         :returns: The symbol for the mutation type
         :rtype: str
-        
+
         """
         return mtype[0]
 
@@ -26,10 +26,10 @@ class MutationType(object):
         """Gets the readable text for a mutation
 
         :param str mtype: The upper-case mutation type
-        
+
         :returns: The readable string for the mutation type
         :rtype: str
-        
+
         """
         return mtype[1]
 
@@ -42,7 +42,7 @@ class MutationType(object):
 
 class Mutations(object):
     """Keeps track of mutations for a given germline.
-    
+
     :param str germline: The germline sequence to base mutations on
     :param str cdr3_nts: The nucleotides comprising the CDR3
 
@@ -58,12 +58,12 @@ class Mutations(object):
 
     def _get_region(self, index):
         """Determines the gene region from an offset index
-        
+
         :param int index: Nucleotide position
-        
+
         :returns: The region which contains ``index``
         :rtype: int
-        
+
         """
         if index <= 77:
             return 'FR1'
@@ -81,14 +81,14 @@ class Mutations(object):
 
     def _create_count_record(self, int_count=False):
         """Creates a statistics record for a region or position.  If
-        ``int_count`` is True, only the counts will be maintained, otherwise all
-        values will be stored.
-        
+        ``int_count`` is True, only the counts will be maintained, otherwise
+        all values will be stored.
+
         :param bool int_count: If only counts should be maintained
-        
+
         :returns: The mutation count record
         :rtype: dict
-        
+
         """
         rec = {}
         for m in (MutationType.MUT_SYN, MutationType.MUT_CONS,
@@ -101,10 +101,10 @@ class Mutations(object):
 
     def _add_region_stat(self, i, seq):
         """Adds mutations from ``seq`` at a given position to the region stats.
-        
+
         :param int i: Index of nucleotide
         :param str seq: The sequence
-        
+
         """
         mtype = self._get_mut_type(seq, i)
         if mtype not in (MutationType.MUT_NONE, MutationType.MUT_UNK):
@@ -131,7 +131,7 @@ class Mutations(object):
         :param int i: Index of nucleotide
         :param tuple mtype: The mutation type to add
         :param str seq: The sequence
-        
+
         """
         mtype = self._get_mut_type(seq, i)
         if mtype not in (MutationType.MUT_NONE, MutationType.MUT_UNK):
@@ -141,7 +141,7 @@ class Mutations(object):
 
     def _get_aa_at(self, seq, i):
         """Gets the amino acid that is partially encoded by position ``i``
-        
+
         :param str seq: The sequence
         :param int i: Index of nucleotide
 
@@ -160,7 +160,7 @@ class Mutations(object):
 
         :returns: The mutation type in ``seq`` at ``i``
         :rtype: tuple
-        
+
         """
         if self.germline[i] != seq[i]:
             grm_aa = self._get_aa_at(self.germline, i)
@@ -179,12 +179,12 @@ class Mutations(object):
 
     def add_sequence(self, seq):
         """Calculates all mutation information for a sequence
-        
+
         :param str seq: The sequence
-        
+
         :returns: The mutation string
         :rtype: str
-        
+
         """
         mut_str = ''
         for i in range(0, len(seq)):
@@ -196,7 +196,7 @@ class Mutations(object):
 
     def get_aggregate(self):
         """Aggregates all mutation information from added sequences
-        
+
         :returns: Mutation statistics for regions and positions
         :rtype: tuple ``(region_stats, position_stats)``
 

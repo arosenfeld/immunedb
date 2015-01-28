@@ -2,6 +2,7 @@ import os
 import shlex
 import subprocess
 
+
 def _run(cmd):
     proc = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE)
@@ -67,8 +68,9 @@ def run_align(args):
                               base_name, 'R2', ext))
                 except:
                     pass
-                stdout, stderr = _run(('AssemblePairs.py align -1 {0}/{1}_R1_001.sync{3} '
-                            '-2 {0}/{1}_R2_001.sync{3} --fasta '
-                            '--rc tail --log {2}/{1}.log --outdir {2} --nproc '
-                            '4').format(new_path, base_name, presto_path, ext))
+                stdout, stderr = _run(
+                    ('AssemblePairs.py align -1 {0}/{1}_R1_001.sync{3} '
+                     '-2 {0}/{1}_R2_001.sync{3} --fasta '
+                     '--rc tail --log {2}/{1}.log --outdir {2} --nproc 4'
+                     ).format(new_path, base_name, presto_path, ext))
                 print stdout

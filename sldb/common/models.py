@@ -21,7 +21,7 @@ BaseData = declarative_base(
 
 class Study(BaseMaster):
     """A high-level study such as one studying Lupus.
-    
+
     :param int id: An auto-assigned unique identifier for the study
     :param str name: A unique name for the study
     :param str info: Optional information about the study
@@ -63,7 +63,7 @@ class Subject(BaseMaster):
 
 class Sample(BaseMaster):
     """A sample taken from a single subject, tissue, and subset.
-    
+
     :param int id: An auto-assigned unique identifier for the sample
     :param str name: A unique name for the sample as defined by the \
         experimenter
@@ -114,13 +114,14 @@ class Sample(BaseMaster):
 class SampleStats(BaseData):
     """Aggregate statistics for a sample.  This exists to reduce the time
     queries take for a sample.
-    
+
     :param int sample_id: The ID of the sample for which the statistics were \
         generated
     :param Relationship sample: Reference to the associated \
-        :py:class:`Sample` instance 
+        :py:class:`Sample` instance
 
-    :param str filter_type: The type of filter for the statistics (e.g. functional)
+    :param str filter_type: The type of filter for the statistics
+        (e.g. functional)
     :param bool outliers: If outliers were included in the statistics
     :param bool full_reads: If only full reads were included in the statistics
     :param str v_match_dist: Distribution of V gene match count
@@ -137,7 +138,7 @@ class SampleStats(BaseData):
     :param int stop_cnt: The number of sequences containing a stop codon
     :param int functional_cnt: The number of functional sequences
     :param int no_result_cnt: The number of invalid sequences
-    
+
     """
     __tablename__ = 'sample_stats'
     __table_args__ = {'mysql_engine': 'TokuDB'}
@@ -174,7 +175,7 @@ class CloneGroup(BaseMaster):
     """A group of clones which share the same V, J, and CDR3 amino-acids.  This
     is used to correlate identical or similar clones across database versions
     when their ID may change.
-    
+
     :param int id: An auto-assigned unique identifier for the group
     :param str v_gene: The V-gene assigned to the sequence
     :param str j_gene: The J-gene assigned to the sequence
@@ -212,7 +213,7 @@ class CloneGroup(BaseMaster):
 
 class Clone(BaseData):
     """A group of sequences likely originating from the same germline
-    
+
     :param int id: An auto-assigned unique identifier for the clone
     :param str cdr3_nt: The consensus nucleotides for the clone
     :param int group_id: The group ID for the clone to correlate clones \
@@ -245,6 +246,20 @@ class Clone(BaseData):
     tree = Column(MEDIUMTEXT)
 
 
+class CloneStats(BaseData):
+    __tablename__ = 'clone_stats'
+    __table_args__ = {'mysql_engine': 'TokuDB'}
+
+    clone_id = Column(Integer, ForeignKey(Clone.id), primary_key=True)
+    clone = relationship(Clone)
+
+    sample_id = Column(Integer, ForeignKey(Sample.id), primary_key=True)
+    sample = relationship(Sample, backref=backref('clone_stats'))
+
+    unique_cnt = Column(Integer)
+    total_cnt = Column(Integer)
+
+
 class SequenceExtension(MapperExtension):
     def before_insert(self, mapper, connection, instance):
         instance.unique_id = funcs.hash(instance.sample_id,
@@ -254,7 +269,7 @@ class SequenceExtension(MapperExtension):
 
 class Sequence(BaseData):
     """Represents a single unique sequence.
-    
+
     :param str unique_id: A key over ``sample_id`` and ``sequence`` so the \
         tuple can be maintained unique
     :param str seq_id: A unique identifier for the sequence as output by the \
@@ -267,11 +282,11 @@ class Sequence(BaseData):
         sequence to its germline.  Used to identify possible indels and \
         misalignments.
     :param int num_gaps: Number of inserted gaps
-    :param int pad_length: The number of pad nucleotides added to the V end of \
-        the sequence
+    :param int pad_length: The number of pad nucleotides added to the V end \
+        of the sequence
     :param int v_match: The number of V-gene nucleotides matching the germline
-    :param int v_length: The length of the V-gene segment prior to a streak of \
-        mismatches in the CDR3
+    :param int v_length: The length of the V-gene segment prior to a streak \
+        of mismatches in the CDR3
 
     :param int j_match: The number of J-gene nucleotides matching the germline
     :param int j_length: The length of the J-gene segment after a streak of \
@@ -301,14 +316,14 @@ class Sequence(BaseData):
     :param str junction_nt: The nucleotides comprising the CDR3
     :param str junction_aa: The amino-acids comprising the CDR3
     :param str gap_method: The method used to gap the sequence (e.g. IGMT)
-    :param str sequence_replaced: The full sequence after being filled in with \
-        the germline
+    :param str sequence_replaced: The full sequence after being filled in \
+        with the germline
     :param str germline: The germline sequence for this sequence
 
     :param int clone_id: The clone ID to which this sequence belongs
     :param Relationship clone: Reference to the associated :py:class:`Clone` \
         instance
-    
+
     """
     __tablename__ = 'sequences'
     __table_args__ = (Index('genes', 'v_gene', 'j_gene',),
@@ -369,7 +384,7 @@ class DuplicateSequence(BaseData):
     used to minimize the size of the sequences table.  The ``copy_number``
     attribute of :py:class:`Sequence` instances is equal to the number of
     its duplicate sequences plus one.
-    
+
     :param str duplicate_seq_id: The identifier of the sequence in the same \
         sample with the same sequence
     :param Relationship duplicate_seq: Reference to the associated \
@@ -389,12 +404,12 @@ class DuplicateSequence(BaseData):
     seq_id = Column(String(length=128), primary_key=True)
 
     duplicate_seq_id = Column(String(length=128),
-                             ForeignKey('sequences.seq_id'),
-                             primary_key=True,
-                             index=True)
+                              ForeignKey('sequences.seq_id'),
+                              primary_key=True,
+                              index=True)
     duplicate_seq = relationship(Sequence,
-                            backref=backref('duplicate_sequences',
-                            order_by=duplicate_seq_id))
+                                 backref=backref('duplicate_sequences',
+                                                 order_by=duplicate_seq_id))
 
     sample_id = Column(Integer, ForeignKey(Sample.id),
                        primary_key=True)
@@ -404,7 +419,7 @@ class DuplicateSequence(BaseData):
 
 class NoResult(BaseData):
     """A sequence which could not be match with a V or J.
-    
+
     :param str seq_id: A unique identifier for the sequence as output by the \
         sequencer
     :param int sample_id: The ID of the sample from which this sequence came

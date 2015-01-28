@@ -14,6 +14,7 @@ from sldb.common.models import *
 import sldb.util.funcs as funcs
 import sldb.util.lookups as lookups
 
+
 class SampleMetadata(object):
     def __init__(self, global_config, specific_config):
         self._global = global_config
@@ -92,7 +93,7 @@ def _identify_reads(session, path, fn, meta, v_germlines, limit_alignments):
     if read_type not in allowed_read_types:
         raise Exception(('Invalid read type {}.  Must be'
                          'one of {}').format(
-                            read_type, ','.join(allowed_read_types)))
+                        read_type, ','.join(allowed_read_types)))
     if read_type not in limit_alignments:
         print ('Skipping since read type is {} and identification '
                'limited to {}').format(read_type, ','.join(limit_alignments))
@@ -106,7 +107,7 @@ def _identify_reads(session, path, fn, meta, v_germlines, limit_alignments):
 
     sample, new = funcs.get_or_create(
         session, Sample, name=meta.get('sample_name', require=False) or
-            fn.split('.', 1)[0], study=study)
+        fn.split('.', 1)[0], study=study)
     if new:
         print '\tCreated new sample "{}" in MASTER'.format(sample.name)
         for key in ('date', 'subset', 'tissue', 'disease', 'lab',
@@ -145,20 +146,21 @@ def _identify_reads(session, path, fn, meta, v_germlines, limit_alignments):
         # Key the vdjs dictionary by the unmodified sequence
         key = str(record.seq)
         if key in vdjs:
-            # If this exact sequence, without padding or gaps, has been assigned a V
-            # and J, bump the copy number of that VDJSequence instance and add this
-            # seq_id as a duplicate.
+            # If this exact sequence, without padding or gaps, has been
+            # assigned a V and J, bump the copy number of that
+            # VDJSequence instance and add this seq_id as a duplicate.
             vdj = vdjs[key]
             vdj.copy_number += 1
             if vdj.id not in dups:
                 dups[vdj.id] = []
-            dups[vdj.id].append(DuplicateSequence(duplicate_seq_id=vdjs[key].id,
-                                          sample_id=sample.id,
-                                          seq_id=record.description))
+            dups[vdj.id].append(DuplicateSequence(
+                duplicate_seq_id=vdjs[key].id,
+                sample_id=sample.id,
+                seq_id=record.description))
         else:
-            # This is the first instance of this exact sequence, so align it and
-            # identify it's V and J
-            vdj = VDJSequence(record.description, 
+            # This is the first instance of this exact sequence, so align it
+            # and identify it's V and J
+            vdj = VDJSequence(record.description,
                               record.seq,
                               read_type == 'R1+R2',
                               v_germlines)
@@ -211,7 +213,7 @@ def _identify_reads(session, path, fn, meta, v_germlines, limit_alignments):
                         sample=sample,
                         seq_id=dup.seq_id,
                         sequence=vdj.sequence.replace('-', '').strip('N')))
-                                         
+
                 del dups[vdj.id]
     session.commit()
 
@@ -234,7 +236,7 @@ def _identify_reads(session, path, fn, meta, v_germlines, limit_alignments):
 def run_identify(session, args):
     v_germlines = VGermlines(args.v_germlines)
 
-    for base_dir in args.base_dirs: 
+    for base_dir in args.base_dirs:
         print 'Descending into {}'.format(base_dir)
         meta_fn = '{}/metadata.json'.format(base_dir)
         if not os.path.isfile(meta_fn):
@@ -244,7 +246,7 @@ def run_identify(session, args):
         with open(meta_fn) as fh:
             metadata = json.load(fh)
             for fn in os.listdir(base_dir):
-                if fn == 'metadata.json':
+                if fn == 'metadata.json' or fn not in metadata:
                     continue
                 _identify_reads(
                     session,
