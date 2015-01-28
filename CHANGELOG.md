@@ -5,7 +5,6 @@
  * Consolidated `SequenceMapping` to `Sequence` model to reduce joining.
  * `SampleStatistics` changed to match updated `Sequence` model.
  * Added `CloneStats` model to reduce API query time.
-
 * Added runnable `sldb_clone_stats` to populate `CloneStats` models.
 * Renamed `aggregation/stats.py` to `aggregation/sample_stats.py` and
 `sldb_stats` runnable to `sldb_sample_stats` for new clone statistics scripts.
