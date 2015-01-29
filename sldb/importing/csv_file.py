@@ -3,7 +3,9 @@ import re
 
 from Bio.Seq import Seq
 
-from sldb.common.models import Sample, Study, Subject, Sequence
+from sldb.common.models import (DuplicateSequence, NoResult, Sample, Study,
+                                Subject, Sequence)
+import sldb.identification.identify as identify
 from sldb.identification.v_genes import VGermlines
 from sldb.identification.vdj_sequence import VDJSequence
 import sldb.util.funcs as funcs
@@ -54,15 +56,19 @@ def _process_file(session, sample, reader, germlines, id_col, read_type, v_col,
     vdjs = {}
     # All probable duplicates based on keys of vdjs dictionary
     dups = {}
+    no_result = 0
 
     for i, record in enumerate(reader):
-        seq_id = record[id_col]
-        identity = float(record[identity_col])
-        sequence = Seq(record[seq_col].upper())
-
         if record[v_col] is None or record[j_col] is None:
             session.add(NoResult(
-                seq_id=seq_id, sample=sample, sequence=sequence)
+                seq_id=seq_id, sample=sample, sequence=''))
+            no_result += 1
+            continue
+        sequence = Seq(record[seq_col].upper())
+
+        seq_id = record[id_col]
+        identity = float(record[identity_col])
+
         v_gene = map(lambda g: 'IGHV{}'.format(g[0]),
                      re.findall('(\d+-\d+(\*\d+)?)', record[v_col]))
         j_gene = map(lambda g: 'IGHJ{}'.format(g[0]),
@@ -70,10 +76,12 @@ def _process_file(session, sample, reader, germlines, id_col, read_type, v_col,
         v_gene = filter(lambda v: v in germlines, v_gene)
         if len(v_gene) == 0 or len(j_gene) == 0:
             session.add(NoResult(
-                seq_id=seq_id, sample=sample, sequence=sequence)
+                seq_id=seq_id, sample=sample, sequence=sequence))
+            no_result += 1
+            continue
 
         # Key the vdjs dictionary by the unmodified sequence
-        key = str(record.seq)
+        key = str(sequence)
         if key in vdjs:
             # If this exact sequence, without padding or gaps, has been
             # assigned a V and J, bump the copy number of that
@@ -85,16 +93,78 @@ def _process_file(session, sample, reader, germlines, id_col, read_type, v_col,
             dups[vdj.id].append(DuplicateSequence(
                 duplicate_seq_id=vdjs[key].id,
                 sample_id=sample.id,
-                seq_id=record.description))
+                seq_id=seq_id))
         else:
-            # This is the first instance of this exact sequence, so align it
-            # and identify it's V and J
+            # This is the first instance of this exact sequence
             vdj = VDJSequence(seq_id, sequence, read_type == 'R1+R2',
                               germlines, force_vs=v_gene)
-
-
-        if i >= 10000:
+            if vdj.v_gene is not None and vdj.j_gene is not None:
+                # If the V and J are found, add it to the vdjs dictionary to
+                # prevent future exact copies from being aligned
+                lengths_sum += vdj.v_length
+                mutations_sum += vdj.mutation_fraction
+                vdjs[key] = vdj
+                print 'SUCCESS'
+            else:
+                if vdj.v_gene is None:
+                    print 'NO V'
+                elif vdj.j_gene is None:
+                    print 'NO J'
+                # The V or J could not be found, so add it as a noresult
+                session.add(NoResult(sample=sample,
+                                     seq_id=seq_id,
+                                     sequence=str(vdj.sequence)))
+                no_result += 1
+        if i > 10000:
             break
+
+    '''
+    if len(vdjs) == 0:
+        print '\t\tNo sequences identified'
+        return
+
+    print '\tCalculating V-ties'
+    avg_len = lengths_sum / float(len(vdjs))
+    avg_mut = mutations_sum / float(len(vdjs))
+
+    for i, (_, vdj) in enumerate(vdjs.iteritems()):
+        if i > 0 and i % 1000 == 0:
+            print '\t\tCommitted {}'.format(i)
+            session.commit()
+        # Align the sequence to a germline based on v_ties
+        vdj.align_to_germline(avg_len, avg_mut)
+        if vdj.v_gene is not None and vdj.j_gene is not None:
+            # Add the sequence to the database
+            identify.add_to_db(session, read_type, sample, vdj)
+        else:
+            # This is a rare condition, but some sequence after aligning to
+            # V-ties the CDR3 becomes non-existent, and it is thrown out
+            no_result += 1
+            session.add(NoResult(sample=sample,
+                                 seq_id=vdj.id,
+                                 sequence=str(vdj.sequence)))
+            if vdj.id in dups:
+                # It's duplicate sequences must be added as noresults also
+                for dup in dups[vdj.id]:
+                    # Restore the original sequence by removing padding and
+                    # gaps
+                    session.add(NoResult(
+                        sample=sample,
+                        seq_id=dup.seq_id,
+                        sequence=vdj.sequence.replace('-', '').strip('N')))
+
+                del dups[vdj.id]
+    session.commit()
+    '''
+
+    # Add the true duplicates to the database
+    print '\tAdding duplicates'
+    for i, dup_seqs in enumerate(dups.values()):
+        if i > 0 and i % 1000 == 0:
+            print '\t\tCommitted {}'.format(i)
+            session.commit()
+        session.add_all(dup_seqs)
+    session.commit()
 
 
 def run_csv_import(session, args):
