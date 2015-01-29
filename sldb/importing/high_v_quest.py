@@ -1,4 +1,5 @@
 import csv
+import distance
 import re
 
 from sldb.common.models import (DuplicateSequence, NoResult, Sample, Study,
@@ -28,6 +29,10 @@ def _get_value(line, key):
         'gapped_sequence': 'V-D-J-REGION',
     }
     return line[_HEADERS.get(key)]
+
+
+def _match(s1, s2):
+    return len(s1), len(s1) - distance.hamming(s1, s2)
 
 
 class ImportException(Exception):
@@ -68,14 +73,19 @@ def _setup_import(session, args):
 def _split_info(line):
     return map(int, line.split(' ')[0].split('/'))
 
+
 def _pad_replace(seq):
     return seq.upper().replace('.', '-')
 
-def _read_summary(summary_reader, read_type, sample):
+
+def _read_summary(session, summary_reader, read_type, sample):
+    print 'Reading Summary'
     reads = {}
     for i, line in enumerate(summary_reader):
         if _get_value(line, 'sequence') is None:
             continue
+        if i > 0 and i % 1000 == 0:
+            print '\tRead {}'.format(i)
         seq_id = _get_value(line, 'seq_id')
 
         v_gene = map(lambda g: g[0],
@@ -92,11 +102,13 @@ def _read_summary(summary_reader, read_type, sample):
             j_match, j_length = _split_info(_get_value(line, 'j_info'))
             v_match, v_length = _split_info(_get_value(line, 'v_info'))
         except:
-            # TODO: Add noresult
+            session.add(NoResult(
+                seq_id=seq_id,
+                sample=sample))
             continue
         reads[seq_id] = Sequence(
             seq_id=seq_id,
-            sample=sample,
+            sample_id=sample.id,
 
             alignment=read_type,
             probable_indel_or_misalign=len(_get_value(line, 'indel')) > 0,
@@ -110,34 +122,43 @@ def _read_summary(summary_reader, read_type, sample):
             j_length=j_length,
 
             in_frame=_get_value(line, 'in_frame') == 'in-frame',
-            functional=_get_value(line, 'functional') == 'productive',
+            functional=_get_value(line, 'functional').startswith('productive'),
             stop='stop codons' in _get_value(line, 'functional_comment'),
             copy_number=1,
 
             gap_method='IGMT',
         )
-        if i > 1000:
-            print 'BREAKING'
-            break
     return reads
 
 
-def _read_gapped(reads, gapped_reader, germlines):
-    for line in gapped_reader:
+def _read_gapped(session, reads, gapped_reader, germlines, sample):
+    print 'Reading Gapped'
+    for i, line in enumerate(gapped_reader):
+        if i > 0 and i % 1000 == 0:
+            print '\tCommitted {}'.format(i)
+            session.commit()
         seq_id = _get_value(line, 'seq_id')
         sequence = _get_value(line, 'gapped_sequence')
         if seq_id not in reads or sequence is None:
             continue
         sequence = _pad_replace(sequence)
         v_region = _pad_replace(_get_value(line, 'v_region'))
-        read = reads[seq_id]
-        read.pad_len = re.match('-', v_region)
-        read.num_gaps = v_region[read.pad_len:].count('-')
         junction = _get_value(line, 'junction')
+        read = reads[seq_id]
+
+        pad = re.match('-*', v_region)
+        if pad is None:
+            read.pad_length = 0
+        else:
+            read.pad_length = pad.end()
+        read.num_gaps = v_region[read.pad_length:].count('-')
+
         read.junction_num_nts = len(junction)
         read.junction_nt = junction
         read.junction_aa = lookups.aas_from_nts(read.junction_nt, '')
-        read.sequence = sequence
+
+        read.sequence = 'N' * read.pad_length + sequence[read.pad_length:]
+
         try:
             read.germline = get_common_seq(
                 [germlines['IGHV{}'.format(v)].sequence
@@ -146,13 +167,39 @@ def _read_gapped(reads, gapped_reader, germlines):
             read.germline += '-' * read.junction_num_nts
             read.germline += j_germlines.j['IGHJ{}'.format(
                 read.j_gene[0])][-j_germlines.j_offset:]
-            print read.germline
+            read.germline = read.germline[:len(read.sequence)]
         except:
-            # TODO: Add noresult
+            session.add(NoResult(
+                seq_id=read.seq_id,
+                sample=sample))
             continue
         read.v_gene = funcs.format_ties(read.v_gene, 'IGHV')
         read.j_gene = funcs.format_ties(read.j_gene, 'IGHJ')
 
+        read.sequence_replaced = ''.join(
+            [g if s == 'N' else s for s, g in zip(
+                read.sequence, read.germline)])
+
+        read.pre_cdr3_length, read.pre_cdr3_match = _match(
+            sequence[:VGene.CDR3_OFFSET],
+            read.germline[:VGene.CDR3_OFFSET]
+        )
+        read.post_cdr3_length, read.post_cdr3_match = _match(
+            sequence[VGene.CDR3_OFFSET + read.junction_num_nts:],
+            read.germline[VGene.CDR3_OFFSET + read.junction_num_nts:]
+        )
+
+        existing = session.query(Sequence).filter(
+            Sequence.sequence == read.sequence,
+            Sequence.sample == sample).first()
+        if existing is not None:
+            existing.copy_number += 1
+            session.add(DuplicateSequence(duplicate_seq_id=existing.seq_id,
+                                          sample_id=sample.id,
+                                          seq_id=vdj.id))
+        else:
+            session.add(read)
+    session.commit()
 
 def run_high_v_quest_import(session, args):
     try:
@@ -162,11 +209,17 @@ def run_high_v_quest_import(session, args):
             ex.message)
         return
     with open(args.summary_file) as summary_fh:
-        reads = _read_summary(csv.DictReader(summary_fh, delimiter='\t'),
-                  args.read_type,
-                  sample)
+        reads = _read_summary(
+            session,
+            csv.DictReader(summary_fh, delimiter='\t'),
+            args.read_type,
+            sample)
 
     germlines = VGermlines(args.v_germlines, include_prepadded=True)
     with open(args.gapped_nt_file) as gapped_fh:
-        _read_gapped(reads, csv.DictReader(gapped_fh, delimiter='\t'),
-                     germlines)
+        _read_gapped(
+            session,
+            reads,
+            csv.DictReader(gapped_fh, delimiter='\t'),
+            germlines,
+            sample)

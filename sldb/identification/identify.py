@@ -103,8 +103,9 @@ def _identify_reads(session, path, fn, meta, v_germlines, limit_alignments):
         session, Sample, name=meta.get('sample_name', require=False) or
         fn.split('.', 1)[0], study=study)
     if new:
+        sample.date = meta.get('date')
         print '\tCreated new sample "{}" in MASTER'.format(sample.name)
-        for key in ('date', 'subset', 'tissue', 'disease', 'lab',
+        for key in ('subset', 'tissue', 'disease', 'lab',
                     'experimenter'):
             setattr(sample, key, meta.get(key, require=False))
         subject, new = funcs.get_or_create(

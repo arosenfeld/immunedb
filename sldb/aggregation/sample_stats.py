@@ -188,7 +188,7 @@ def _process_filter(session, sample_id, filter_type, filter_func,
         dist_val = _get_distribution(
             session, sample_id, dist, filter_func, use_copy,
             ((min_cdr3, max_cdr3) if not include_outliers and min_cdr3
-                is not None else None, full_reads))
+                is not None else None), full_reads)
 
         if isinstance(dist, tuple):
             name = dist[1]
@@ -276,7 +276,7 @@ def _process_sample(session, sample_id, force):
                 session.commit()
 
 
-def run_stats(session, args):
+def run_sample_stats(session, args):
     if args.samples is None:
         samples = map(lambda s: s.id, session.query(Sample.id).all())
     else:
