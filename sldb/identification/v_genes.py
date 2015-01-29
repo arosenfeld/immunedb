@@ -120,7 +120,8 @@ class VGene(object):
 
 
 class VGermlines(object):
-    def __init__(self, path_to_germlines, ties_prob_threshold=.01):
+    def __init__(self, path_to_germlines, ties_prob_threshold=.01,
+                 include_prepadded=False):
         self._germlines = {}
         self._prob_threshold = ties_prob_threshold
         self._ties = {}
@@ -128,7 +129,7 @@ class VGermlines(object):
 
         with open(path_to_germlines) as fh:
             for record in SeqIO.parse(fh, 'fasta'):
-                if record.seq.startswith('-'):
+                if record.seq.startswith('-') and not include_prepadded:
                     continue
                 try:
                     v = VGene(str(record.seq))

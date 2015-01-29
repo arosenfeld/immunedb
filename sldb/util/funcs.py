@@ -49,3 +49,11 @@ def find_streak_position(s1, s2, max_streak):
         if streak >= max_streak:
             return i
     return None
+
+
+def format_ties(ties, name):
+    if ties is None:
+        return None
+    ties = map(lambda e: e.replace(name, ''), ties)
+    return '{}{}'.format(name, '|'.join(sorted(ties)))
+

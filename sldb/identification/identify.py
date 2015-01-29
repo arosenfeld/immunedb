@@ -29,12 +29,6 @@ class SampleMetadata(object):
             raise Exception(('Could not find metadata for key {}'.format(key)))
 
 
-def _format_ties(ties, name):
-    if ties is None:
-        return None
-    ties = map(lambda e: e.replace(name, ''), ties)
-    return '{}{}'.format(name, '|'.join(sorted(ties)))
-
 
 def add_to_db(session, alignment, sample, vdj):
     existing = session.query(Sequence).filter(
@@ -53,8 +47,8 @@ def add_to_db(session, alignment, sample, vdj):
             alignment=alignment,
             probable_indel_or_misalign=vdj.has_possible_indel,
 
-            v_gene=_format_ties(vdj.v_gene, 'IGHV'),
-            j_gene=_format_ties(vdj.j_gene, 'IGHJ'),
+            v_gene=funcs.format_ties(vdj.v_gene, 'IGHV'),
+            j_gene=funcs.format_ties(vdj.j_gene, 'IGHJ'),
 
             num_gaps=vdj.num_gaps,
             pad_length=vdj.pad_length,
