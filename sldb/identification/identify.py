@@ -36,7 +36,7 @@ def _format_ties(ties, name):
     return '{}{}'.format(name, '|'.join(sorted(ties)))
 
 
-def _add_to_db(session, alignment, sample, vdj):
+def add_to_db(session, alignment, sample, vdj):
     existing = session.query(Sequence).filter(
         Sequence.sequence == vdj.sequence,
         Sequence.sample == sample).first()
@@ -196,7 +196,7 @@ def _identify_reads(session, path, fn, meta, v_germlines, limit_alignments):
         vdj.align_to_germline(avg_len, avg_mut)
         if vdj.v_gene is not None and vdj.j_gene is not None:
             # Add the sequence to the database
-            _add_to_db(session, read_type, sample, vdj)
+            add_to_db(session, read_type, sample, vdj)
         else:
             # This is a rare condition, but some sequence after aligning to
             # V-ties the CDR3 becomes non-existent, and it is thrown out

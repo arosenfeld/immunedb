@@ -22,14 +22,16 @@ class VDJSequence(object):
         self._seq = seq
         self._is_full_v = is_full_v
         self.v_germlines = v_germlines
+        self._force_vs = force_vs
+        self._force_j = force_j
 
         self._seq_filled = None
 
-        self._j = force_j
+        self._j = None
         self._j_anchor_pos = None
         self._j_match = None
 
-        self._v = force_vs
+        self._v = None
         self._v_anchor_pos = None
         self._v_match = None
 
@@ -175,8 +177,8 @@ class VDJSequence(object):
         # TGGTCACCGTCT
 
         # If forcing a J, set the dictionary, otherwise try all
-        if self._j is not None:
-            j_anchors = {self._j: anchors.j_anchors[self._j]}
+        if self._force_j is not None:
+            j_anchors = {self._j: anchors.j_anchors[self._force_j]}
         else:
             j_anchors = anchors.j_anchors
 
@@ -192,7 +194,6 @@ class VDJSequence(object):
                 # actual sequence for the rest of the analysis
                 self._seq = self._seq.reverse_complement()
                 return self._found_j(i, j_gene, match, full_anchor)
-        self._j = None
 
     def _found_j(self, i, j_gene, match, full_anchor):
         # If a match is found, record its location and gene
@@ -250,8 +251,8 @@ class VDJSequence(object):
         '''Finds the V gene closest to that of the sequence'''
         self._v_score = None
         self._aligned_v = VGene(self.sequence)
-        if self._v:
-            germlines = {vg: self.v_germlines[vg] for vg in self._v}
+        if self._force_vs is not None:
+            germlines = {vg: self.v_germlines[vg] for vg in self._force_vs}
         else:
             germlines = self.v_germlines
 

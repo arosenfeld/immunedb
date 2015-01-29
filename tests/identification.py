@@ -4,7 +4,6 @@ from Bio.Seq import Seq
 
 from sldb.identification.vdj_sequence import VDJSequence
 from sldb.identification.v_genes import VGene, VGermlines
-import sldb.identification.v_ties as v_ties
 import sldb.util.lookups as lookups
 
 
@@ -12,7 +11,7 @@ if __name__ == '__main__':
     v_germlines = VGermlines(sys.argv[1])
     for record in SeqIO.parse(sys.argv[2], 'fasta'):
         print record.description
-        vdj = VDJSequence(record.description, record.seq, 'presto' in
+        vdj = VDJSequence(record.description, Seq(str(record.seq).upper()), 'presto' in
                           record.description, v_germlines)
         vdj.align_to_germline(vdj.v_length, vdj.mutation_fraction)
         if vdj.j_gene is not None and vdj.v_gene is not None:
