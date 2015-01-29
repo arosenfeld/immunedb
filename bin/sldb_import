@@ -1,0 +1,44 @@
+#!/usr/bin/env python2 -u
+import argparse
+import sys
+import sldb.common.config as config
+
+if __name__ == '__main__':
+    parser = config.get_base_arg_parser(
+        'Imports V/J identifications from a CSV-style file into database. '
+        'Defaults to HighV-Quest parameters')
+    parser.add_argument('csv_file', help='Delimited file')
+    parser.add_argument('v_germlines', help='FASTA file with IMGT gapped '
+                        'V-gene germlines')
+    parser.add_argument('study_name', help='Name of study')
+    parser.add_argument('sample_name', help='Name of sample')
+    parser.add_argument('read_type', help='Type of read (R1, R2, or R1+R2)')
+    parser.add_argument('subject', help='Subject identifier')
+
+    for key in ('date', 'subset', 'tissue', 'disease', 'lab',
+                'experimenter'):
+        help = 'Metadata for {}'.format(key)
+        if key == 'date':
+            help += ' (YYYY-MM-DD)'
+        parser.add_argument('--{}'.format(key), default=None,
+                            help=help)
+
+    parser.add_argument('--id-col', default='Sequence ID', help='Header '
+                        'for sequence ID (default: "Sequence ID")')
+    parser.add_argument('--v-col', default='V-GENE and allele', help='Header '
+                        'for V-gene column (default: "V-GENE and allele")')
+    parser.add_argument('--j-col', default='J-GENE and allele', help='Header '
+                        'for J-gene column (default: "J-GENE and allele")')
+    parser.add_argument('--identity-col', default='V-REGION identity %',
+                        help='Header identity percentage column (default: '
+                        '"V-REGION identity %")')
+    parser.add_argument('--seq-col', default='Sequence', help='Header '
+                        'for sequence column (default: "Sequence")')
+    parser.add_argument('--delim', default='\t', help='Column delimiter '
+                        ' (default: \\t)')
+    args = parser.parse_args()
+
+    session = config.init_db(args.master_db_config, args.data_db_config)
+
+    from sldb.importing.csv_file import run_csv_import
+    sys.exit(run_csv_import(session, args))

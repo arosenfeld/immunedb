@@ -12,10 +12,12 @@ j_anchors = {
 }
 
 
-def all_j_anchors(min_length):
-    max_size = max(map(len, j_anchors.values()))
+def all_j_anchors(min_length, anchors=None):
+    if anchors is None:
+        anchors = j_anchors
+    max_size = max(map(len, anchors.values()))
     for trim in range(0, max_size, 3):
-        for j, f in j_anchors.iteritems():
+        for j, f in anchors.iteritems():
             new_f = f[:len(f) - trim]
             if len(new_f) >= min_length:
                 yield new_f, f, j

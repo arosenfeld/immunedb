@@ -16,7 +16,8 @@ class VDJSequence(object):
     INDEL_WINDOW = 30
     INDEL_MISMATCH_THRESHOLD = .6
 
-    def __init__(self, id, seq, is_full_v, v_germlines):
+    def __init__(self, id, seq, is_full_v, v_germlines, force_vs=None,
+                 force_j=None):
         self._id = id
         self._seq = seq
         self._is_full_v = is_full_v
@@ -24,11 +25,11 @@ class VDJSequence(object):
 
         self._seq_filled = None
 
-        self._j = None
+        self._j = force_j
         self._j_anchor_pos = None
         self._j_match = None
 
-        self._v = None
+        self._v = force_vs
         self._v_anchor_pos = None
         self._v_match = None
 
@@ -172,8 +173,15 @@ class VDJSequence(object):
         # TGGTCACCGTCTCCTCAG
         # TGGTCACCGTCTCCT
         # TGGTCACCGTCT
+
+        # If forcing a J, set the dictionary, otherwise try all
+        if self._j is not None:
+            j_anchors = {self._j: anchors.j_anchors[self._j]}
+        else:
+            j_anchors = anchors.j_anchors
+
         for match, full_anchor, j_gene in anchors.all_j_anchors(
-                self.MIN_J_ANCHOR_LEN):
+                self.MIN_J_ANCHOR_LEN, anchors=j_anchors):
             i = self._seq.rfind(match)
             if i >= 0:
                 return self._found_j(i, j_gene, match, full_anchor)
@@ -184,6 +192,7 @@ class VDJSequence(object):
                 # actual sequence for the rest of the analysis
                 self._seq = self._seq.reverse_complement()
                 return self._found_j(i, j_gene, match, full_anchor)
+        self._j = None
 
     def _found_j(self, i, j_gene, match, full_anchor):
         # If a match is found, record its location and gene
@@ -240,10 +249,13 @@ class VDJSequence(object):
     def _find_v(self):
         '''Finds the V gene closest to that of the sequence'''
         self._v_score = None
-        self._v = None
-
         self._aligned_v = VGene(self.sequence)
-        for v, germ in sorted(self.v_germlines.iteritems()):
+        if self._v:
+            germlines = {vg: self.v_germlines[vg] for vg in self._v}
+        else:
+            germlines = self.v_germlines
+
+        for v, germ in sorted(germlines.iteritems()):
             try:
                 dist, total_length = germ.compare(self._aligned_v,
                                                   self._j_anchor_pos,
