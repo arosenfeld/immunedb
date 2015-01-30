@@ -1,6 +1,7 @@
 # CHANGELOG
 
 ## v6.0.0
+* V gene usage API tweak to allow for exporting via website.
 * Mutation frequency is now calculated for various thresholds.
 * HighV-Quest output can now be imported with the `sldb_hvquest` binary.
  * Optionally, V-ties can be calculated in addition to the Vs specified
