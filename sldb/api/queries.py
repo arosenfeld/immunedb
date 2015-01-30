@@ -422,8 +422,11 @@ def get_sequence(session, sample_id, seq_id):
         .filter(Sequence.sample_id == sample_id,
                 Sequence.seq_id == seq_id).first()
     if seq is None:
-        seq = session.query(DuplicateSequence)\
+        dup_seq = session.query(DuplicateSequence.duplicate_seq_id)\
             .filter(DuplicateSequence.seq_id == seq_id).first()
+        seq = session.query(Sequence)\
+            .filter(Sequence.sample_id == sample_id,
+                    Sequence.seq_id == dup_seq.duplicate_seq_id).first()
 
     ret = _fields_to_dict([
         'seq_id', 'alignment', 'v_gene', 'j_gene',
@@ -444,16 +447,19 @@ def get_sequence(session, sample_id, seq_id):
     muts = Mutations(seq.germline, seq.junction_nt)
     ret['mutations'] = muts.add_sequence(seq.sequence)
 
-    ret['duplicates'] = []
+    ret['possible_duplicates'] = []
     ret['total_copy_number'] = ret['copy_number']
     for dup in session.query(Sequence).filter(
             Sequence.sequence == seq.sequence,
             Sequence.sample.has(subject_id=seq.sample.subject_id),
-            Sequence.seq_id != seq_id)\
+            Sequence.seq_id != seq.seq_id)\
             .order_by(Sequence.sample_id):
-        ret['duplicates'].append({
+        ret['possible_duplicates'].append({
             'seq_id': dup.seq_id,
-            'sample': _sample_to_dict(dup.sample),
+            'sample': {
+                'id': dup.sample.id,
+                'name': dup.sample.name,
+            },
             'alignment': dup.alignment,
             'copy_number': dup.copy_number,
         })
