@@ -52,6 +52,7 @@ class Mutations(object):
         for region in ['all', 'CDR1', 'CDR2', 'CDR3', 'FR1', 'FR2', 'FR3']:
             self.region_stats[region] = self._create_count_record()
         self.pos_stats = {}
+        self.total_seqs = 0
         self.cdr3_nts = cdr3_nts
         self.germline = germline[:309] + cdr3_nts + \
             germline[309+len(cdr3_nts):]
@@ -186,6 +187,7 @@ class Mutations(object):
         :rtype: str
 
         """
+        self.total_seqs += 1
         mut_str = ''
         for i in range(0, len(seq)):
             mut = self._get_mut_type(seq, i)
@@ -201,31 +203,37 @@ class Mutations(object):
         :rtype: tuple ``(region_stats, position_stats)``
 
         """
-        region_stats = {}
-        for region, stats in self.region_stats.iteritems():
-            region_stats[region] = {
-                'counts': {
-                    'unique': self._create_count_record(True),
-                    'total': self._create_count_record(True)
-                },
-                'mutations': {}
-            }
+        thresholds = [1, .8, .5, .2, 0]
 
-            for mut_type, mutations in stats.iteritems():
-                region_stats[region]['counts']['total'][mut_type] = \
-                    sum(mutations.values())
-                region_stats[region]['counts']['unique'][mut_type] = \
-                    len(mutations)
+        threshold_region_stats = {}
+        for threshold in thresholds:
+            region_stats = {}
+            for region, stats in self.region_stats.iteritems():
+                region_stats[region] = {
+                    'counts': {
+                        'unique': self._create_count_record(True),
+                        'total': self._create_count_record(True)
+                    },
+                    'mutations': {}
+                }
 
-                region_stats[region]['mutations'][mut_type] = []
-                for mutation, count in mutations.iteritems():
-                    region_stats[region]['mutations'][mut_type].append({
-                        'count': count,
-                        'position': mutation[0],
-                        'from': mutation[1],
-                        'to': mutation[2],
-                        'aa_from': mutation[3],
-                        'aa_to': mutation[4],
-                    })
+                for mut_type, mutations in stats.iteritems():
+                    region_stats[region]['counts']['total'][mut_type] = 0
+                    region_stats[region]['counts']['unique'][mut_type] = 0
+                    region_stats[region]['mutations'][mut_type] = []
+                    for mutation, count in mutations.iteritems():
+                        if count >= threshold * self.total_seqs:
+                            region_stats[region]['counts']['total'][mut_type] += count
+                            region_stats[region]['counts']['unique'][mut_type] += 1
+                            region_stats[region]['mutations'][mut_type].append({
+                                'count': count,
+                                'position': mutation[0],
+                                'from': mutation[1],
+                                'to': mutation[2],
+                                'aa_from': mutation[3],
+                                'aa_to': mutation[4],
+                            })
 
-        return region_stats, self.pos_stats
+                threshold_region_stats[int(threshold * 100)] = region_stats
+
+        return threshold_region_stats, self.pos_stats
