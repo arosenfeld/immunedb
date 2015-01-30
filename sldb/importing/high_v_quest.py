@@ -81,6 +81,8 @@ def _pad_replace(seq):
 def _read_summary(session, summary_reader, read_type, sample):
     print 'Reading Summary'
     reads = {}
+    avg_mutations = 0
+    avg_length = 0
     for i, line in enumerate(summary_reader):
         if _get_value(line, 'sequence') is None:
             continue
@@ -128,10 +130,15 @@ def _read_summary(session, summary_reader, read_type, sample):
 
             gap_method='IGMT',
         )
-    return reads
+        avg_length += reads[seq_id].v_length
+        avg_mutations += 1 - reads[seq_id].v_match / float(
+            reads[seq_id].v_length)
+
+    return reads, avg_mutations / float(len(reads)), avg_length / float(len(reads))
 
 
-def _read_gapped(session, reads, gapped_reader, germlines, sample):
+def _read_gapped(session, reads, gapped_reader, germlines, sample, use_v_ties,
+                 muts, lens):
     print 'Reading Gapped'
     for i, line in enumerate(gapped_reader):
         if i > 0 and i % 1000 == 0:
@@ -142,6 +149,16 @@ def _read_gapped(session, reads, gapped_reader, germlines, sample):
         if seq_id not in reads or sequence is None:
             continue
         sequence = _pad_replace(sequence)
+        existing = session.query(Sequence).filter(
+            Sequence.sequence == sequence,
+            Sequence.sample == sample).first()
+        if existing is not None:
+            existing.copy_number += 1
+            session.add(DuplicateSequence(duplicate_seq_id=existing.seq_id,
+                                          sample_id=sample.id,
+                                          seq_id=seq_id))
+            continue
+
         v_region = _pad_replace(_get_value(line, 'v_region'))
         junction = _get_value(line, 'junction')
         read = reads[seq_id]
@@ -154,16 +171,17 @@ def _read_gapped(session, reads, gapped_reader, germlines, sample):
         read.num_gaps = v_region[read.pad_length:].count('-')
 
         read.junction_num_nts = len(junction)
-        read.junction_nt = junction
+        read.junction_nt = junction.upper()
         read.junction_aa = lookups.aas_from_nts(read.junction_nt, '')
 
         read.sequence = 'N' * read.pad_length + sequence[read.pad_length:]
 
         try:
-            read.germline = get_common_seq(
-                [germlines['IGHV{}'.format(v)].sequence
+            if use_v_ties:
+                read.v_gene = germlines.get_ties(read.v_gene, lens, muts)
+            vs = [germlines['IGHV{}'.format(v)].sequence
                     for v in read.v_gene][:VGene.CDR3_OFFSET]
-            )
+            read.germline = get_common_seq(vs)
             read.germline += '-' * read.junction_num_nts
             read.germline += j_germlines.j['IGHJ{}'.format(
                 read.j_gene[0])][-j_germlines.j_offset:]
@@ -180,25 +198,24 @@ def _read_gapped(session, reads, gapped_reader, germlines, sample):
             [g if s == 'N' else s for s, g in zip(
                 read.sequence, read.germline)])
 
-        read.pre_cdr3_length, read.pre_cdr3_match = _match(
-            sequence[:VGene.CDR3_OFFSET],
-            read.germline[:VGene.CDR3_OFFSET]
-        )
-        read.post_cdr3_length, read.post_cdr3_match = _match(
-            sequence[VGene.CDR3_OFFSET + read.junction_num_nts:],
-            read.germline[VGene.CDR3_OFFSET + read.junction_num_nts:]
-        )
+        try:
+            read.pre_cdr3_length, read.pre_cdr3_match = _match(
+                sequence[:VGene.CDR3_OFFSET],
+                read.germline[:VGene.CDR3_OFFSET]
+            )
+            read.pre_cdr3_length -= read.pad_length
+            read.post_cdr3_length, read.post_cdr3_match = _match(
+                sequence[
+                    VGene.CDR3_OFFSET + read.junction_num_nts:],
+                read.germline[
+                    VGene.CDR3_OFFSET + read.junction_num_nts:]
+            )
+        except:
+            session.add(NoResult(
+                seq_id=read.seq_id,
+                sample=sample))
 
-        existing = session.query(Sequence).filter(
-            Sequence.sequence == read.sequence,
-            Sequence.sample == sample).first()
-        if existing is not None:
-            existing.copy_number += 1
-            session.add(DuplicateSequence(duplicate_seq_id=existing.seq_id,
-                                          sample_id=sample.id,
-                                          seq_id=vdj.id))
-        else:
-            session.add(read)
+        session.add(read)
     session.commit()
 
 def run_high_v_quest_import(session, args):
@@ -209,7 +226,7 @@ def run_high_v_quest_import(session, args):
             ex.message)
         return
     with open(args.summary_file) as summary_fh:
-        reads = _read_summary(
+        reads, muts, lens = _read_summary(
             session,
             csv.DictReader(summary_fh, delimiter='\t'),
             args.read_type,
@@ -222,4 +239,7 @@ def run_high_v_quest_import(session, args):
             reads,
             csv.DictReader(gapped_fh, delimiter='\t'),
             germlines,
-            sample)
+            sample,
+            args.v_ties,
+            muts,
+            lens)

@@ -21,6 +21,8 @@ if __name__ == '__main__':
         parser.add_argument('--{}'.format(key), default=None,
                             help='Metadata for {}'.format(key))
 
+    parser.add_argument('--v-ties', action='store_true', default=False,
+                        help='If V-ties should be calculated for V genes')
     args = parser.parse_args()
 
     session = config.init_db(args.master_db_config, args.data_db_config)

@@ -154,6 +154,9 @@ class VGermlines(object):
         if key not in self._ties:
             self._ties[key] = {}
 
+        if gene not in self._germlines:
+            return set([gene])
+
         if gene not in self._ties[key]:
             s_1 = self._germlines[gene].sequence_ungapped
             self._ties[key][gene] = set([gene])
