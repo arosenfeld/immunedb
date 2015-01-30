@@ -36,6 +36,5 @@ setup(name='SLDB',
           'tabulate',
           'PyMySQL',
       ],
-      package_data={'sldb': ['data/germlines/*']},
       license='LICENSE.txt',
       description='Various utilities for Drexel\'s Systems Immunology Lab.')

@@ -1,13 +1,18 @@
 # CHANGELOG
 
 ## v6.0.0
+* HighV-Quest output can now be imported with the `sldb_hvquest` binary.
+ * Optionally, V-ties can be calculated in addition to the Vs specified
+* Sequences with probable indels or misalignments are excluded from clonal
+  assignment by default.  Override this behavior in `sldb_clones` with
+  `--include-indels`.
 * Major data-model changes:
  * Consolidated `SequenceMapping` to `Sequence` model to reduce joining.
  * `SampleStatistics` changed to match updated `Sequence` model.
  * Added `CloneStats` model to reduce API query time.
-* Added runnable `sldb_clone_stats` to populate `CloneStats` models.
+* Added binary `sldb_clone_stats` to populate `CloneStats` models.
 * Renamed `aggregation/stats.py` to `aggregation/sample_stats.py` and
-`sldb_stats` runnable to `sldb_sample_stats` for new clone statistics scripts.
+`sldb_stats` binary to `sldb_sample_stats` for new clone statistics scripts.
 * Can now export both sequences and clones.  Re-architected exporting classes.
 
 ## v5.0.1
