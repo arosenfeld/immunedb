@@ -317,6 +317,10 @@ def get_v_usage(session, samples, filter_type, outliers, full_reads):
 
             data[s.sample.name][name] = round(100 * occ / float(total), 2)
 
+    for s, vs in data.iteritems():
+        for header in headers:
+            if header not in vs:
+                vs[header] = 'none'
     return data, headers
 
 
