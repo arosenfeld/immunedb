@@ -37,19 +37,24 @@ def _assign_identical_sequences(session, replaced_seq, subject_id, clone_id):
 
 
 def _get_subject_clones(session, subject_id, min_similarity, limit_alignments,
-                        per_commit):
+                        include_indels, per_commit):
     clone_cache = {}
     new_clones = 0
     duplicates = 0
-    for i, seqr in enumerate(session.query(
+    query = session.query(
             Sequence,
             func.count(Sequence.seq_id).label('cn')
             ).filter(
                 Sequence.sample.has(subject_id=subject_id),
                 Sequence.clone_id.is_(None)
             )
-            .group_by(Sequence.sequence_replaced)
-            .having(func.sum(Sequence.copy_number) > 1)):
+    if not include_indels:
+        query = query.filter(
+            Sequence.probable_indel_or_misalign == 0)
+
+    query = query.group_by(Sequence.sequence_replaced)
+            .having(func.sum(Sequence.copy_number) > 1))
+    for i, seqr in enumerate(query):
         if i > 0 and i % per_commit == 0:
             session.commit()
             print 'Committed {} (new clones={}, duplicates={})'.format(
@@ -151,6 +156,7 @@ def run_clones(session, args):
     for sid in subjects:
         print 'Assigning clones to subject', sid
         _get_subject_clones(session, sid, args.similarity / 100.0,
-                            args.limit_alignments, args.commits)
+                            args.limit_alignments, args.include_indels,
+                            args.commits)
         print 'Assigning clones to groups'
         _assign_clones_to_groups(session, sid, args.commits)

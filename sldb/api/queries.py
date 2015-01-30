@@ -490,7 +490,9 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
                     query = query.filter(get_field(key).like(
                         value.replace('*', '%')))
 
-    if filters is None or 'show_r1' not in filters or not filters['show_r1']:
+    if (filters is None
+            or 'show_partials' not in filters
+            or not filters['show_partials']):
         query = query.filter(Sequence.alignment == 'R1+R2')
     if (filters is None or 'show_indel' not in filters
             or not filters['show_indel']):
