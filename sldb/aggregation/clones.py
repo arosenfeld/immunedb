@@ -52,8 +52,8 @@ def _get_subject_clones(session, subject_id, min_similarity, limit_alignments,
         query = query.filter(
             Sequence.probable_indel_or_misalign == 0)
 
-    query = query.group_by(Sequence.sequence_replaced)
-            .having(func.sum(Sequence.copy_number) > 1))
+    query = query.group_by(Sequence.sequence_replaced).having(
+        func.sum(Sequence.copy_number) > 1)
     for i, seqr in enumerate(query):
         if i > 0 and i % per_commit == 0:
             session.commit()
