@@ -2,7 +2,7 @@ import argparse
 import distance
 from collections import Counter
 
-from sqlalchemy import distinct
+from sqlalchemy import desc, distinct
 from sqlalchemy.sql import func
 
 from sldb.identification.identify import VDJSequence
@@ -51,6 +51,7 @@ def _get_subject_clones(session, subject_id, min_similarity, limit_alignments,
     if not include_indels:
         query = query.filter(
             Sequence.probable_indel_or_misalign == 0)
+    query = query.order_by(desc(Sequence.copy_number))
 
     query = query.group_by(Sequence.sequence_replaced).having(
         func.sum(Sequence.copy_number) > 1)
