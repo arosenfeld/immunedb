@@ -21,8 +21,11 @@ def _consensus(strings):
 
 def _similar_to_all(seq, clone_query, min_similarity):
     for comp_seq in clone_query:
-        if (1 - distance.hamming(comp_seq, seq) / float(len(comp_seq))) < \
-                min_similarity:
+        try:
+            if (1 - distance.hamming(comp_seq, seq) / float(len(comp_seq))) < \
+                    min_similarity:
+                return False
+        except:
             return False
     return True
 
@@ -42,12 +45,12 @@ def _get_subject_clones(session, subject_id, min_similarity, limit_alignments,
     new_clones = 0
     duplicates = 0
     query = session.query(
-        Sequence,
-        func.count(Sequence.seq_id).label('cn')
-    ).filter(
-        Sequence.sample.has(subject_id=subject_id),
-        Sequence.clone_id.is_(None)
-    )
+            Sequence,
+            func.count(Sequence.seq_id).label('others')
+            ).filter(
+                Sequence.sample.has(subject_id=subject_id),
+                Sequence.clone_id.is_(None),
+            )
     if not include_indels:
         query = query.filter(
             Sequence.probable_indel_or_misalign == 0)
@@ -101,8 +104,8 @@ def _get_subject_clones(session, subject_id, min_similarity, limit_alignments,
 
         seq.clone = seq_clone
 
-        if seqr.cn > 1:
-            duplicates += (seqr.cn - 1)
+        if seqr.others > 1:
+            duplicates += (seqr.others - 1)
             _assign_identical_sequences(session, seq.sequence_replaced,
                                         subject_id, seq_clone.id)
 
