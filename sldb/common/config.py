@@ -7,11 +7,14 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.schema import MetaData
 
+from pymysql.cursors import SSCursor
+
 from Bio import SeqIO
 
 from sldb.common.settings import DATABASE_SETTINGS
 
 allowed_read_types = ('R1', 'R2', 'R1+R2')
+
 
 def _create_engine(config_path):
     with open(config_path) as fh:
@@ -21,7 +24,9 @@ def _create_engine(config_path):
                '?charset=utf8&use_unicode=0').format(
         data['username'], data['password'],
         data['host'], data['database'])
-    engine = create_engine(con_str, pool_recycle=3600)
+    engine = create_engine(
+        con_str, pool_recycle=3600, connect_args={
+            'cursorclass': SSCursor})
 
     return engine, data['database']
 
@@ -72,8 +77,8 @@ def init_db(master_db_config, data_db_config, as_maker=False):
         Subject: master_engine,
 
         SampleStats: data_engine,
+        CloneStats: data_engine,
         Sequence: data_engine,
-        SequenceMapping: data_engine,
         DuplicateSequence: data_engine,
         Clone: data_engine,
         NoResult: data_engine,

@@ -26,12 +26,12 @@ def traverse(session, root, start=False):
         cn += int(s['printFastaHeader'].split('|')[1])
 
     if len(seqs) > 0:
-        info = session.query(SequenceMapping).join(Sample).filter(
-            SequenceMapping.seq_id.in_(map(
+        info = session.query(Sequence).join(Sample).filter(
+            Sequence.seq_id.in_(map(
                 lambda s: s['printFastaHeader'].split('|')[0], seqs)))
         info = info.all()
         tissues = ','.join(sorted(set(map(lambda s: s.sample.tissue, info))))
-        subsets = ','.join(sorted(set(map(lambda s: s.sample.subset   
+        subsets = ','.join(sorted(set(map(lambda s: s.sample.subset
                                           if s.sample.subset else '', info))))
     else:
         tissues = ''
@@ -42,7 +42,8 @@ def traverse(session, root, start=False):
             'copy_number': cn,
             'tissues': tissues,
             'subsets': subsets,
-            'seq_ids': map(lambda s: s['printFastaHeader'].split('|')[0], seqs),
+            'seq_ids': map(lambda s: s['printFastaHeader'].split('|')[0],
+                           seqs),
             'sequence': data['nodeSequence'],
         },
         'children': []
@@ -88,13 +89,12 @@ def run_haskell2json(session, args):
                 session.query(CloneGroup.germline).filter(
                     CloneGroup.id == clone_inst.group_id).first().germline))
             for seq in session.query(
-                    func.sum(SequenceMapping.copy_number).label('copy_number'),
-                    SequenceMapping.seq_id,
-                    SequenceMapping.sequence,
+                    func.sum(Sequence.copy_number).label('copy_number'),
+                    Sequence.seq_id,
+                    Sequence.sequence,
                     Sequence.sequence_replaced).filter(
-                        SequenceMapping.clone_id == clone)\
-                    .group_by(SequenceMapping.identity_seq_id)\
-                    .join(Sequence):
+                        Sequence.clone_id == clone)\
+                    .group_by(Sequence.sequence_replaced):
                 fh.write('>{}|{}\n{}\n'.format(
                     seq.seq_id,
                     seq.copy_number,

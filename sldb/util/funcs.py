@@ -30,9 +30,9 @@ def page_query(q, per=10000, updating=False):
             break
 
 
-def hash(seq_id, sample_id, sequence):
-    return hashlib.sha1('{}{}{}'.format(
-        seq_id, sample_id, sequence)).hexdigest()
+def hash(sample_id, sequence):
+    return hashlib.sha1('{}{}'.format(sample_id, sequence)).hexdigest()
+
 
 def find_streak_position(s1, s2, max_streak):
     '''Finds the first streak of max_streak characters where s1 does not equal
@@ -49,3 +49,10 @@ def find_streak_position(s1, s2, max_streak):
         if streak >= max_streak:
             return i
     return None
+
+
+def format_ties(ties, name):
+    if ties is None:
+        return None
+    ties = map(lambda e: e.replace(name, ''), ties)
+    return '{}{}'.format(name, '|'.join(sorted(ties)))

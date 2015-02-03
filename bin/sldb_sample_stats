@@ -13,5 +13,5 @@ if __name__ == '__main__':
 
     session = config.init_db(args.master_db_config, args.data_db_config)
 
-    from sldb.aggregation.stats import run_stats
-    sys.exit(run_stats(session, args))
+    from sldb.aggregation.sample_stats import run_sample_stats
+    sys.exit(run_sample_stats(session, args))

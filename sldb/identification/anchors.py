@@ -11,13 +11,17 @@ j_anchors = {
     'IGHJ6': 'CGGTCACCGTCTCCTCAG',
 }
 
-def all_j_anchors(min_length):
-    max_size = max(map(len, j_anchors.values()))
+
+def all_j_anchors(min_length, anchors=None):
+    if anchors is None:
+        anchors = j_anchors
+    max_size = max(map(len, anchors.values()))
     for trim in range(0, max_size, 3):
-        for j, f in j_anchors.iteritems():
+        for j, f in anchors.iteritems():
             new_f = f[:len(f) - trim]
             if len(new_f) >= min_length:
                 yield new_f, f, j
+
 
 def get_j_ties(j_name, j_seq):
     tied = set([j_name])
@@ -29,6 +33,7 @@ def get_j_ties(j_name, j_seq):
             tied.add(j)
 
     return tied
+
 
 def find_v_position(sequence, reverse=False):
     '''Tries to find the end of the V gene region'''
@@ -51,7 +56,8 @@ def find_v_position(sequence, reverse=False):
 
 
 def _find_dc(sequence, reverse):
-    return _find_with_frameshifts(sequence, 'D(.{3}((YY)|(YC)|(YH)))C', reverse)
+    return _find_with_frameshifts(sequence, 'D(.{3}((YY)|(YC)|(YH)))C',
+                                  reverse)
 
 
 def _find_yxc(sequence, reverse):

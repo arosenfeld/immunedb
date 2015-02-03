@@ -30,6 +30,7 @@ def are_conserved_aas(aa1, aa2):
             return True
     return False
 
+
 def aa_to_all_nts(aas):
     nts = []
     for aa in aas:
@@ -38,25 +39,40 @@ def aa_to_all_nts(aas):
 
 
 _aa_lookup = {'TTT': 'F', 'TTC': 'F', 'TTA': 'L', 'TTG': 'L', 'TCT': 'S',
-             'TCC': 'S', 'TCA': 'S', 'TCG': 'S', 'TAT': 'Y', 'TAC': 'Y',
-             'TAA': '*', 'TAG': '*', 'TGT': 'C', 'TGC': 'C', 'TGA': '*',
-             'TGG': 'W', 'CTT': 'L', 'CTC': 'L', 'CTA': 'L', 'CTG': 'L',
-             'CCT': 'P', 'CCC': 'P', 'CCA': 'P', 'CCG': 'P', 'CAT': 'H',
-             'CAC': 'H', 'CAA': 'Q', 'CAG': 'Q', 'CGT': 'R', 'CGC': 'R',
-             'CGA': 'R', 'CGG': 'R', 'ATT': 'I', 'ATC': 'I', 'ATA': 'I',
-             'ATG': 'M', 'ACT': 'T', 'ACC': 'T', 'ACA': 'T', 'ACG': 'T',
-             'AAT': 'N', 'AAC': 'N', 'AAA': 'K', 'AAG': 'K', 'AGT': 'S',
-             'AGC': 'S', 'AGA': 'R', 'AGG': 'R', 'GTT': 'V', 'GTC': 'V',
-             'GTA': 'V', 'GTG': 'V', 'GCT': 'A', 'GCC': 'A', 'GCA': 'A',
-             'GCG': 'A', 'GAT': 'D', 'GAC': 'D', 'GAA': 'E', 'GAG': 'E',
-             'GGT': 'G', 'GGC': 'G', 'GGA': 'G', 'GGG': 'G'}
+              'TCC': 'S', 'TCA': 'S', 'TCG': 'S', 'TAT': 'Y', 'TAC': 'Y',
+              'TAA': '*', 'TAG': '*', 'TGT': 'C', 'TGC': 'C', 'TGA': '*',
+              'TGG': 'W', 'CTT': 'L', 'CTC': 'L', 'CTA': 'L', 'CTG': 'L',
+              'CCT': 'P', 'CCC': 'P', 'CCA': 'P', 'CCG': 'P', 'CAT': 'H',
+              'CAC': 'H', 'CAA': 'Q', 'CAG': 'Q', 'CGT': 'R', 'CGC': 'R',
+              'CGA': 'R', 'CGG': 'R', 'ATT': 'I', 'ATC': 'I', 'ATA': 'I',
+              'ATG': 'M', 'ACT': 'T', 'ACC': 'T', 'ACA': 'T', 'ACG': 'T',
+              'AAT': 'N', 'AAC': 'N', 'AAA': 'K', 'AAG': 'K', 'AGT': 'S',
+              'AGC': 'S', 'AGA': 'R', 'AGG': 'R', 'GTT': 'V', 'GTC': 'V',
+              'GTA': 'V', 'GTG': 'V', 'GCT': 'A', 'GCC': 'A', 'GCA': 'A',
+              'GCG': 'A', 'GAT': 'D', 'GAC': 'D', 'GAA': 'E', 'GAG': 'E',
+              'GGT': 'G', 'GGC': 'G', 'GGA': 'G', 'GGG': 'G'}
 
 
-_nt_lookup = {'A': ['GCA', 'GCC', 'GCG', 'GCT'], 'C': ['TGT', 'TGC'], 'E':
-['GAG', 'GAA'], 'D': ['GAT', 'GAC'], 'G': ['GGT', 'GGG', 'GGA', 'GGC'], 'F':
-['TTT', 'TTC'], 'I': ['ATC', 'ATA', 'ATT'], 'H': ['CAT', 'CAC'], 'K': ['AAG',
-'AAA'], '*': ['TAG', 'TAA', 'TGA'], 'M': ['ATG'], 'L': ['CTT', 'CTG', 'CTA',
-'CTC', 'TTA', 'TTG'], 'N': ['AAC', 'AAT'], 'Q': ['CAA', 'CAG'], 'P': ['CCT',
-'CCG', 'CCA', 'CCC'], 'S': ['AGC', 'AGT', 'TCT', 'TCG', 'TCC', 'TCA'], 'R':
-['AGG', 'AGA', 'CGA', 'CGG', 'CGT', 'CGC'], 'T': ['ACA', 'ACG', 'ACT', 'ACC'],
-'W': ['TGG'], 'V': ['GTA', 'GTC', 'GTG', 'GTT'], 'Y': ['TAT', 'TAC']}
+_nt_lookup = {
+    'A': ['GCA', 'GCC', 'GCG', 'GCT'],
+    'C': ['TGT', 'TGC'],
+    'E': ['GAG', 'GAA'],
+    'D': ['GAT', 'GAC'],
+    'G': ['GGT', 'GGG', 'GGA', 'GGC'],
+    'F': ['TTT', 'TTC'],
+    'I': ['ATC', 'ATA', 'ATT'],
+    'H': ['CAT', 'CAC'],
+    'K': ['AAG', 'AAA'],
+    '*': ['TAG', 'TAA', 'TGA'],
+    'M': ['ATG'],
+    'L': ['CTT', 'CTG', 'CTA', 'CTC', 'TTA', 'TTG'],
+    'N': ['AAC', 'AAT'],
+    'Q': ['CAA', 'CAG'],
+    'P': ['CCT', 'CCG', 'CCA', 'CCC'],
+    'S': ['AGC', 'AGT', 'TCT', 'TCG', 'TCC', 'TCA'],
+    'R': ['AGG', 'AGA', 'CGA', 'CGG', 'CGT', 'CGC'],
+    'T': ['ACA', 'ACG', 'ACT', 'ACC'],
+    'W': ['TGG'],
+    'V': ['GTA', 'GTC', 'GTG', 'GTT'],
+    'Y': ['TAT', 'TAC']
+}

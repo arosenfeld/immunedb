@@ -21,7 +21,7 @@ BaseData = declarative_base(
 
 class Study(BaseMaster):
     """A high-level study such as one studying Lupus.
-    
+
     :param int id: An auto-assigned unique identifier for the study
     :param str name: A unique name for the study
     :param str info: Optional information about the study
@@ -63,7 +63,7 @@ class Subject(BaseMaster):
 
 class Sample(BaseMaster):
     """A sample taken from a single subject, tissue, and subset.
-    
+
     :param int id: An auto-assigned unique identifier for the sample
     :param str name: A unique name for the sample as defined by the \
         experimenter
@@ -114,21 +114,22 @@ class Sample(BaseMaster):
 class SampleStats(BaseData):
     """Aggregate statistics for a sample.  This exists to reduce the time
     queries take for a sample.
-    
+
     :param int sample_id: The ID of the sample for which the statistics were \
         generated
     :param Relationship sample: Reference to the associated \
-        :py:class:`Sample` instance 
+        :py:class:`Sample` instance
 
-    :param str filter_type: The type of filter for the statistics (e.g. functional)
+    :param str filter_type: The type of filter for the statistics
+        (e.g. functional)
     :param bool outliers: If outliers were included in the statistics
     :param bool full_reads: If only full reads were included in the statistics
     :param str v_match_dist: Distribution of V gene match count
     :param str v_length_dist: Distribution of V gene total length
     :param str j_match_dist: Distribution of J gene match count
     :param str j_length_dist: Distribution of J gene total length
-    :param str v_call_dist: Distribution of V-gene assignments
-    :param str j_call_dist: Distribution of J-gene assignments
+    :param str v_gene_dist: Distribution of V-gene assignments
+    :param str j_gene_dist: Distribution of J-gene assignments
     :param str copy_number_dist: Distribution of copy number
     :param str cdr3_length_dist: Distribution of CDR3 lengths
 
@@ -137,7 +138,7 @@ class SampleStats(BaseData):
     :param int stop_cnt: The number of sequences containing a stop codon
     :param int functional_cnt: The number of functional sequences
     :param int no_result_cnt: The number of invalid sequences
-    
+
     """
     __tablename__ = 'sample_stats'
     __table_args__ = {'mysql_engine': 'TokuDB'}
@@ -157,8 +158,8 @@ class SampleStats(BaseData):
     j_match_dist = Column(MEDIUMTEXT)
     j_length_dist = Column(MEDIUMTEXT)
 
-    v_call_dist = Column(MEDIUMTEXT)
-    j_call_dist = Column(MEDIUMTEXT)
+    v_gene_dist = Column(MEDIUMTEXT)
+    j_gene_dist = Column(MEDIUMTEXT)
 
     copy_number_dist = Column(MEDIUMTEXT)
     cdr3_length_dist = Column(MEDIUMTEXT)
@@ -174,7 +175,7 @@ class CloneGroup(BaseMaster):
     """A group of clones which share the same V, J, and CDR3 amino-acids.  This
     is used to correlate identical or similar clones across database versions
     when their ID may change.
-    
+
     :param int id: An auto-assigned unique identifier for the group
     :param str v_gene: The V-gene assigned to the sequence
     :param str j_gene: The J-gene assigned to the sequence
@@ -212,7 +213,7 @@ class CloneGroup(BaseMaster):
 
 class Clone(BaseData):
     """A group of sequences likely originating from the same germline
-    
+
     :param int id: An auto-assigned unique identifier for the clone
     :param str cdr3_nt: The consensus nucleotides for the clone
     :param int group_id: The group ID for the clone to correlate clones \
@@ -245,65 +246,32 @@ class Clone(BaseData):
     tree = Column(MEDIUMTEXT)
 
 
-class Sequence(BaseData):
-    """Represents a single unique sequence.  :py:class:`SequenceMapping` \
-    instances relate an actual read to these by filling in the aligned read \
-    with the germline.
+class CloneStats(BaseData):
+    __tablename__ = 'clone_stats'
+    __table_args__ = {'mysql_engine': 'TokuDB'}
 
-    :param str seq_id: A unique identifier for the sequence as output by the \
-        sequencer
-    :param str v_call: The V-gene assigned to the sequence
-    :param str j_call: The J-gene assigned to the sequence
-    :param int junction_num_nts: The number of nucleotides in the CDR3
-    :param str junction_nt: The nucleotides comprising the CDR3
-    :param str junction_aa: The amino-acids comprising the CDR3
-    :param str gap_method: The method used to gap the sequence (e.g. IGMT)
-    :param str sequence_replaced: The full sequence after being filled in with \
-        the germline
-    :param str germline: The germline sequence for this sequence
-    
-    """
-    __tablename__ = 'sequences'
-    __table_args__ = (Index('call', 'v_call', 'j_call',),
-                      {'mysql_engine': 'TokuDB'})
+    clone_id = Column(Integer, ForeignKey(Clone.id), primary_key=True)
+    clone = relationship(Clone)
 
-    seq_id = Column(String(length=128), primary_key=True)
+    sample_id = Column(Integer, ForeignKey(Sample.id), primary_key=True)
+    sample = relationship(Sample, backref=backref('clone_stats'))
 
-    v_call = Column(String(512), index=True)
-    j_call = Column(String(512), index=True)
-
-    # This is just length(junction_nt) but is included for fast statistics
-    # generation over the index
-    junction_num_nts = Column(Integer)
-
-    junction_nt = Column(String(512))
-    junction_aa = Column(String(512), index=True)
-    gap_method = Column(String(16))
-
-    sequence_replaced = Column(String(length=1024), unique=True, index=True)
-    germline = Column(String(length=1024))
+    unique_cnt = Column(Integer)
+    total_cnt = Column(Integer)
 
 
-class SHAExtension(MapperExtension):
-    """An extension for SQLAlchemy to provide a primary key across fields that
-    would initially be too long."""
+class SequenceExtension(MapperExtension):
     def before_insert(self, mapper, connection, instance):
-        instance.unique_id = funcs.hash(instance.identity_seq_id,
-                                        instance.sample_id,
+        instance.unique_id = funcs.hash(instance.sample_id,
                                         instance.sequence)
+        instance.junction_num_nts = len(instance.junction_nt)
 
 
-class SequenceMapping(BaseData):
-    """A read with possible padding that is mapped to a :py:class:`Sequence` 
-    instance by filling in the padding with germline nucleotides.
-    
-    :param str unique_id: A key over ``identity_seq_id``, ``sample_id``, and \
-        ``sequence`` so the tuple can be maintained unique
-    :param str identity_seq_id: The identifier to :py:class:`Sequence` with \
-        the same filled in germline as this read
-    :param Relationship identity_seq: Reference to the associated identity \
-        :py:class:`Sequence` instance
+class Sequence(BaseData):
+    """Represents a single unique sequence.
 
+    :param str unique_id: A key over ``sample_id`` and ``sequence`` so the \
+        tuple can be maintained unique
     :param str seq_id: A unique identifier for the sequence as output by the \
         sequencer
     :param int sample_id: The ID of the sample from which this sequence came
@@ -314,11 +282,11 @@ class SequenceMapping(BaseData):
         sequence to its germline.  Used to identify possible indels and \
         misalignments.
     :param int num_gaps: Number of inserted gaps
-    :param int pad_length: The number of pad nucleotides added to the V end of \
-        the sequence
+    :param int pad_length: The number of pad nucleotides added to the V end \
+        of the sequence
     :param int v_match: The number of V-gene nucleotides matching the germline
-    :param int v_length: The length of the V-gene segment prior to a streak of \
-        mismatches in the CDR3
+    :param int v_length: The length of the V-gene segment prior to a streak \
+        of mismatches in the CDR3
 
     :param int j_match: The number of J-gene nucleotides matching the germline
     :param int j_length: The length of the J-gene segment after a streak of \
@@ -341,27 +309,39 @@ class SequenceMapping(BaseData):
         same sample
     :param str sequence: The (possibly-padded) sequence
 
+
+    :param str v_gene: The V-gene assigned to the sequence
+    :param str j_gene: The J-gene assigned to the sequence
+    :param int junction_num_nts: The number of nucleotides in the CDR3
+    :param str junction_nt: The nucleotides comprising the CDR3
+    :param str junction_aa: The amino-acids comprising the CDR3
+    :param str gap_method: The method used to gap the sequence (e.g. IGMT)
+    :param str sequence_replaced: The full sequence after being filled in \
+        with the germline
+    :param str germline: The germline sequence for this sequence
+
     :param int clone_id: The clone ID to which this sequence belongs
     :param Relationship clone: Reference to the associated :py:class:`Clone` \
         instance
 
     """
-    __tablename__ = 'sequence_mapping'
-    __table_args__ = ({'mysql_engine': 'TokuDB'})
-    __mapper_args__ = {'extension': SHAExtension()}
+    __tablename__ = 'sequences'
+    __table_args__ = (Index('genes', 'v_gene', 'j_gene',),
+                      {'mysql_engine': 'TokuDB'})
+    __mapper_args__ = {'extension': SequenceExtension()}
 
     unique_id = Column(String(40), unique=True)
-    identity_seq_id = Column(String(128), ForeignKey(Sequence.seq_id),
-                             index=True)
-    identity_seq = relationship(Sequence, backref=backref('mapping'))
 
     seq_id = Column(String(128), primary_key=True, index=True)
     sample_id = Column(Integer, ForeignKey(Sample.id), primary_key=True,
                        index=True)
-    sample = relationship(Sample, backref=backref('mapping'))
+    sample = relationship(Sample, backref=backref('sequences'))
 
     alignment = Column(String(length=6), index=True)
-    levenshtein_dist = Column(Integer, index=True)
+    probable_indel_or_misalign = Column(Boolean, index=True)
+
+    v_gene = Column(String(512), index=True)
+    j_gene = Column(String(512), index=True)
 
     num_gaps = Column(Integer)
     pad_length = Column(Integer)
@@ -381,7 +361,18 @@ class SequenceMapping(BaseData):
     stop = Column(Boolean)
     copy_number = Column(Integer, index=True)
 
+    # This is just length(junction_nt) but is included for fast statistics
+    # generation over the index
+    junction_num_nts = Column(Integer, index=True)
+
+    junction_nt = Column(String(512))
+    junction_aa = Column(String(512), index=True)
+    gap_method = Column(String(16))
+
     sequence = Column(String(length=1024), index=True)
+    sequence_replaced = Column(String(length=1024), index=True)
+
+    germline = Column(String(length=1024))
 
     clone_id = Column(Integer, ForeignKey(Clone.id), index=True)
     clone = relationship(Clone, backref=backref('sequences',
@@ -389,15 +380,15 @@ class SequenceMapping(BaseData):
 
 
 class DuplicateSequence(BaseData):
-    """A sequence which is a duplicate of a :py:class:`SequenceMapping`.  This is
+    """A sequence which is a duplicate of a :py:class:`Sequence`.  This is
     used to minimize the size of the sequences table.  The ``copy_number``
-    attribute of :py:class:`SequenceMapping` instances is equal to the number of
+    attribute of :py:class:`Sequence` instances is equal to the number of
     its duplicate sequences plus one.
-    
+
     :param str duplicate_seq_id: The identifier of the sequence in the same \
         sample with the same sequence
     :param Relationship duplicate_seq: Reference to the associated \
-        :py:class:`SequenceMapping` instance of which this is a duplicate
+        :py:class:`Sequence` instance of which this is a duplicate
 
     :param int sample_id: The ID of the sample from which this sequence came
     :param Relationship sample: Reference to the associated \
@@ -413,12 +404,12 @@ class DuplicateSequence(BaseData):
     seq_id = Column(String(length=128), primary_key=True)
 
     duplicate_seq_id = Column(String(length=128),
-                             ForeignKey('sequence_mapping.seq_id'),
-                             primary_key=True,
-                             index=True)
-    duplicate_seq = relationship(SequenceMapping,
-                            backref=backref('duplicate_sequences',
-                            order_by=duplicate_seq_id))
+                              ForeignKey('sequences.seq_id'),
+                              primary_key=True,
+                              index=True)
+    duplicate_seq = relationship(Sequence,
+                                 backref=backref('duplicate_sequences',
+                                                 order_by=duplicate_seq_id))
 
     sample_id = Column(Integer, ForeignKey(Sample.id),
                        primary_key=True)
@@ -428,7 +419,7 @@ class DuplicateSequence(BaseData):
 
 class NoResult(BaseData):
     """A sequence which could not be match with a V or J.
-    
+
     :param str seq_id: A unique identifier for the sequence as output by the \
         sequencer
     :param int sample_id: The ID of the sample from which this sequence came

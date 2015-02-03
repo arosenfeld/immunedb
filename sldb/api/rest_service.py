@@ -9,7 +9,7 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 import bottle
 from bottle import route, response, request, install, run
 
-from sldb.api.export import SequenceExport
+from sldb.api.export import CloneExport, SequenceExport
 import sldb.api.queries as queries
 from sldb.common.models import *
 
@@ -61,10 +61,10 @@ def _split(ids, delim=','):
 @route('/api/sequences/')
 def sequences():
     """Gets a list of all sequences.
-    
+
     :returns: A list of all sequences
     :rtype: str
-    
+
     """
     session = scoped_session(session_factory)()
     sequences = queries.get_all_sequences(
@@ -112,10 +112,10 @@ def studies():
 @route('/api/subjects')
 def subjects():
     """Gets a list of all subjects.
-    
+
     :returns: A list of all subjects
     :rtype: str
-    
+
     """
     session = scoped_session(session_factory)()
     subjects = queries.get_all_subjects(session, _get_paging())
@@ -142,10 +142,10 @@ def subject(sid):
 @route('/api/clones/')
 def clones():
     """Gets a list of all clones.
-    
+
     :returns: A list of all clones
     :rtype: str
-    
+
     """
     session = scoped_session(session_factory)()
     clones = queries.get_all_clones(
@@ -162,13 +162,13 @@ def clones():
 def clone_compare(uids):
     """Compares clones, outputting their mutations and other pertinent
     information.
-    
+
     :param str uids: A list of clones to compare either as just their IDs or \
     ``ID_SAMPLE`` to limit that clone to a given sample
-    
+
     :returns: A clone comparison between ``uids``
     :rtype: str
-    
+
     """
     session = scoped_session(session_factory)()
     clones_and_samples = {}
@@ -212,11 +212,11 @@ def clone_overlap(filter_type, samples=None, subject=None):
     returned.
 
     :param str filter_type: The filter for the clones to apply.  This can \
-    currently be ``clones_all`` for all clones, ``clones_functional`` for only \
-    functional clones, or ``clones_nonfunctional`` for only non-functional \
-    clones.
-    :param str samples: A comma-separated sequences of sample IDs if comparing \
-    specific samples.  Otherwise, ``None``.
+    currently be ``clones_all`` for all clones, ``clones_functional`` for \
+    only    functional clones, or ``clones_nonfunctional`` for only \
+    non-functional clones.
+    :param str samples: A comma-separated sequences of sample IDs if \
+    comparing specific samples.  Otherwise, ``None``.
     :param int subject: The subject ID to use for clonal overlap.  If \
     specified, all samples from the subject are compared.
 
@@ -272,81 +272,17 @@ def stats(samples):
     return ret
 
 
-@route('/api/data/clone_overlap/<filter_type>/<samples>')
-@route('/api/data/subject_clones/<filter_type>/<subject>')
-def download_clone_overlap(filter_type, samples=None, subject=None):
-    """Downloads the clones that overlap between a set of samples. If
-    ``samples`` is supplied, the overlap of clones between those is returned.
-    If ``samples`` is not supplied, the clonal overlap for all samples from
-    ``subject`` is returned.
-
-    :param str filter_type: The filter for the clones to apply.  This can \
-    currently be ``clones_all`` for all clones, ``clones_functional`` for only \
-    functional clones, or ``clones_nonfunctional`` for only non-functional \
-    clones.
-    :param str samples: A comma-separated sequences of sample IDs if comparing \
-    specific samples.  Otherwise, ``None``.
-    :param int subject: The subject ID to use for clonal overlap.  If \
-    specified, all samples from the subject are compared.
-
-    :returns: The overlap of clones in the specified sample or subjects
-    :rtype: str
-
-    """
-
-    if samples is not None:
-        ctype = 'samples'
-        limit = _split(samples) if samples is not None else None
-        fn = 'overlap_{}_{}.csv'.format(
-            filter_type,
-            samples.replace(',', '-'))
-    else:
-        ctype = 'subject'
-        limit = int(subject)
-        fn = 'subject_{}_{}.csv'.format(
-            filter_type,
-            subject)
-
-    session = scoped_session(session_factory)()
-    data = queries.get_clone_overlap(session, filter_type, ctype, limit)
-    session.close()
-
-    response.headers['Content-Disposition'] = \
-        'attachment;filename={}'.format(fn)
-    yield ','.join([
-        'clone_id', 'samples', 'total_sequences', 'unique_sequences',
-        'subject', 'v_gene', 'j_gene', 'cdr3_len', 'cdr3_aa', 'cdr3_nt']) + \
-        '\n'
-
-    for c in data:
-        fields = [
-            c['clone']['id'],
-            ' '.join(c['samples']),
-            c['total_sequences'],
-            c['unique_sequences'],
-            '{} ({})'.format(
-                c['clone']['group']['subject']['identifier'],
-                c['clone']['group']['subject']['study']['name']),
-            c['clone']['group']['v_gene'],
-            c['clone']['group']['j_gene'],
-            len(c['clone']['cdr3_nt']),
-            c['clone']['group']['cdr3_aa'],
-            c['clone']['cdr3_nt']]
-
-        yield ','.join(map(str, fields)) + '\n'
-
-
 @route('/api/v_usage/<filter_type>/<outliers>/<full_reads>/<samples>')
 def v_usage(filter_type, outliers, full_reads, samples):
     """Gets the V usage for samples in a heatmap-formatted array.
-    
+
     :param str filter_type: The filter type of sequences for the v_usage
     :param str samples: A comma-separated string of sample IDs for v_usage
-    
+
     :returns: The V usage as an [(x,y)...] JSON array along with x and y
     categories
     :rtype: str
-    
+
     """
     session = scoped_session(session_factory)()
     data, headers = queries.get_v_usage(
@@ -372,41 +308,44 @@ def v_usage(filter_type, outliers, full_reads, samples):
     })
 
 
-@route('/api/data/v_usage/<filter_type>/<samples>')
-def download_v_usage(filter_type, samples):
-    """Downloads the V usage for samples in a heatmap-formatted array.
-    
-    :param str filter_type: The filter type of sequences for the v_usage
-    :param str samples: A comma-separated string of sample IDs for v_usage
-    
-    :returns: The V usage as an [(x,y)...] JSON array along with x and y
-    categories
+@route('/api/data/export_clones/<rtype>/<rids>', methods=['GET'])
+@route('/api/data/export_clones/<rtype>/<rids>/', methods=['GET'])
+def export_clones(rtype, rids):
+    """Downloads a tab-delimited file of clones.
+
+    :param str rtype: The type of record to filter the query on.  Currently
+        either "sample" or "clone"
+    :param str rids: A comma-separated list of IDs of ``rtype`` to export
+
+    :returns: The properly formatted export data
     :rtype: str
 
     """
+    assert rtype in ('sample', 'clone')
+
     session = scoped_session(session_factory)()
-    data, headers = queries.get_v_usage(session, filter_type, _split(samples))
+    fields = _get_arg('fields', False).split(',')
+    min_size = _get_arg('min_size', False)
+    min_size = int(min_size) if min_size is not None else 1
+
+    name = '{}_{}.tab'.format(
+        rtype,
+        time.strftime('%Y-%m-%d-%H-%M'))
+
+    response.headers['Content-Disposition'] = 'attachment;filename={}'.format(
+        name)
+
+    export = CloneExport(session, rtype, _split(rids), fields,
+                         min_size=min_size)
+    for line in export.get_data():
+        yield line
+
     session.close()
-    ret = 'sample,' + ','.join(headers) + '\n'
-    for sample, dist in data.iteritems():
-        row = [sample]
-        for gene in headers:
-            if gene in dist:
-                row.append(dist[gene])
-            else:
-                row.append(0)
-        ret += ','.join(map(str, row)) + '\n'
-
-    response.headers['Content-Disposition'] = \
-        'attachment;filename=v_usage-{}_{}.csv'.format(
-            filter_type,
-            samples.replace(',', '-'))
-    return ret
 
 
-@route('/api/data/export/<eformat>/<rtype>/<rids>', methods=['GET'])
-@route('/api/data/export/<eformat>/<rtype>/<rids>/', methods=['GET'])
-def export(eformat, rtype, rids):
+@route('/api/data/export_sequences/<eformat>/<rtype>/<rids>', methods=['GET'])
+@route('/api/data/export_sequences/<eformat>/<rtype>/<rids>/', methods=['GET'])
+def export_sequences(eformat, rtype, rids):
     """Downloads an exported format of specified sequences.
 
     :param str eformat: The export format to use.  Currently "tab", "orig", and
@@ -423,7 +362,7 @@ def export(eformat, rtype, rids):
 
     assert eformat in ('tab', 'fill', 'orig', 'clip')
     assert rtype in ('sample', 'clone')
-        
+
     session = scoped_session(session_factory)()
 
     fields = _get_arg('fields', False).split(',')
