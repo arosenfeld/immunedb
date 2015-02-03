@@ -223,9 +223,10 @@ class Mutations(object):
                     region_stats[region]['mutations'][mut_type] = []
                     for mutation, count in mutations.iteritems():
                         if count >= threshold * self.total_seqs:
-                            region_stats[region]['counts']['total'][mut_type] += count
-                            region_stats[region]['counts']['unique'][mut_type] += 1
-                            region_stats[region]['mutations'][mut_type].append({
+                            st = region_stats[region]
+                            st['counts']['total'][mut_type] += count
+                            st['counts']['unique'][mut_type] += 1
+                            st['mutations'][mut_type].append({
                                 'count': count,
                                 'position': mutation[0],
                                 'from': mutation[1],

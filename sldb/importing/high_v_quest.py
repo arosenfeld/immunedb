@@ -70,6 +70,7 @@ def _setup_import(session, args):
 
     return sample
 
+
 def _split_info(line):
     return map(int, line.split(' ')[0].split('/'))
 
@@ -90,15 +91,15 @@ def _read_summary(session, summary_reader, read_type, sample):
             print '\tRead {}'.format(i)
         seq_id = _get_value(line, 'seq_id')
 
-        v_gene = map(lambda g: g[0],
-                re.findall(
-                    '(\d+-\d+((-\d)+)?(\*\d+)?)',
-                    _get_value(line, 'v_gene')))
+        v_gene = map(
+            lambda g: g[0],
+            re.findall('(\d+-\d+((-\d)+)?(\*\d+)?)',
+                       _get_value(line, 'v_gene')))
 
-        j_gene = map(lambda g: g[0],
-                re.findall(
-                    '(\d+)(\*\d+)?',
-                    _get_value(line, 'j_gene')))
+        j_gene = map(
+            lambda g: g[0],
+            re.findall('(\d+)(\*\d+)?',
+                       _get_value(line, 'j_gene')))
 
         try:
             j_match, j_length = _split_info(_get_value(line, 'j_info'))
@@ -134,7 +135,8 @@ def _read_summary(session, summary_reader, read_type, sample):
         avg_mutations += 1 - reads[seq_id].v_match / float(
             reads[seq_id].v_length)
 
-    return reads, avg_mutations / float(len(reads)), avg_length / float(len(reads))
+    return reads, avg_mutations / float(len(reads)), avg_length / float(len(
+        reads))
 
 
 def _read_gapped(session, reads, gapped_reader, germlines, sample, use_v_ties,
@@ -180,7 +182,7 @@ def _read_gapped(session, reads, gapped_reader, germlines, sample, use_v_ties,
             if use_v_ties:
                 read.v_gene = germlines.get_ties(read.v_gene, lens, muts)
             vs = [germlines['IGHV{}'.format(v)].sequence
-                    for v in read.v_gene][:VGene.CDR3_OFFSET]
+                  for v in read.v_gene][:VGene.CDR3_OFFSET]
             read.germline = get_common_seq(vs)
             read.germline += '-' * read.junction_num_nts
             read.germline += j_germlines.j['IGHJ{}'.format(
@@ -217,6 +219,7 @@ def _read_gapped(session, reads, gapped_reader, germlines, sample, use_v_ties,
 
         session.add(read)
     session.commit()
+
 
 def run_high_v_quest_import(session, args):
     try:

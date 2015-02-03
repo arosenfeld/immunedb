@@ -56,4 +56,3 @@ def format_ties(ties, name):
         return None
     ties = map(lambda e: e.replace(name, ''), ties)
     return '{}{}'.format(name, '|'.join(sorted(ties)))
-

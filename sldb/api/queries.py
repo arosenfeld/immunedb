@@ -147,7 +147,7 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
         stats_comb = []
         for stat in session.query(CloneStats).filter(
                 CloneStats.clone_id == c.id
-            ).order_by(desc(CloneStats.unique_cnt)):
+                ).order_by(desc(CloneStats.unique_cnt)):
             stats_comb.append({
                 'sample': {
                     'id': stat.sample.id,

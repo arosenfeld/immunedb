@@ -62,7 +62,7 @@ class Exporter(object):
 
 class CloneExport(Exporter):
     _forced_fields = ['clone_id', 'sample_id', 'unique_sequences',
-                    'total_sequences']
+                      'total_sequences']
 
     _allowed_fields = [
         'clone_id',

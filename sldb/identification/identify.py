@@ -29,7 +29,6 @@ class SampleMetadata(object):
             raise Exception(('Could not find metadata for key {}'.format(key)))
 
 
-
 def add_to_db(session, alignment, sample, vdj):
     existing = session.query(Sequence).filter(
         Sequence.sequence == vdj.sequence,
