@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## v6.0.2
+* Rows summing total/unique sequences cross all samples can be included in clone
+ exports.
+* Neighbor joining now added as a method of lineage tree creation.
+* Fixed incorrect unique sequence count in clone comparison.
+
 ## v6.0.0
 * V gene usage API tweak to allow for exporting via website.
 * Mutation frequency is now calculated for various thresholds.
