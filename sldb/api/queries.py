@@ -236,7 +236,7 @@ def get_clone_overlap(session, filter_type, ctype, limit,
     res = []
     q = fltr(session.query(
         CloneStats,
-        func.count(CloneStats.unique_cnt).label('unique'),
+        func.sum(CloneStats.unique_cnt).label('unique'),
         func.sum(CloneStats.total_cnt).label('total'),
     ).join(Clone))
 
