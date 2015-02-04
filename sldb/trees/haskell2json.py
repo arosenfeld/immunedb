@@ -74,9 +74,9 @@ def run_haskell2json(session, args):
             return
 
         if clone_inst.tree is not None and not args.force:
-            print ('Not regenerating tree for clone {}.  Use --force to'
+            print ('Not regenerating tree for clone {}.  Use --force to '
                    'override.').format(clone)
-            return
+           continue
 
         # Path for FASTA file and haskell output tree
         fasta_path = '{}/clone_{}.fasta'.format(args.temp, clone)

@@ -6,6 +6,7 @@ import sldb.common.config as config
 
 if __name__ == '__main__':
     parser = config.get_base_arg_parser('Generates JSON trees for clones')
+    parser.add_argument('method', help='Method of tree creation.')
     parser.add_argument('tree_prog', help='Path to tree creation program')
     parser.add_argument('--force', action='store_true', default=False,
                         help='Force updating of trees')
@@ -14,8 +15,12 @@ if __name__ == '__main__':
     parser.add_argument('--temp', default='/tmp', help='Path for temporary'
                         'files')
     args = parser.parse_args()
- 
+
     session = config.init_db(args.master_db_config, args.data_db_config)
 
-    from sldb.trees.haskell2json import run_haskell2json
-    sys.exit(run_haskell2json(session, args))
+    if args.method == 'haskell':
+        from sldb.trees.haskell2json import run_haskell2json
+        sys.exit(run_haskell2json(session, args))
+    elif args.method == 'nj':
+        from sldb.trees.nj import run_nj
+        sys.exit(run_nj(session, args))
