@@ -325,8 +325,7 @@ def export_clones(rtype, rids):
 
     session = scoped_session(session_factory)()
     fields = _get_arg('fields', False).split(',')
-    min_size = _get_arg('min_size', False)
-    min_size = int(min_size) if min_size is not None else 1
+    include_total_row = _get_arg('include_total_row', False) == 'true' or False
 
     name = '{}_{}.tab'.format(
         rtype,
@@ -336,7 +335,7 @@ def export_clones(rtype, rids):
         name)
 
     export = CloneExport(session, rtype, _split(rids), fields,
-                         min_size=min_size)
+                         include_total_row)
     for line in export.get_data():
         yield line
 

@@ -90,10 +90,11 @@ class CloneExport(Exporter):
     ]
 
     def __init__(self, session, rtype, rids, selected_fields,
-                 min_size):
+                 include_total_row):
         super(CloneExport, self).__init__(
             session, rtype, rids, CloneExport._allowed_fields,
             selected_fields)
+        self._include_total_row = include_total_row
 
     def get_data(self):
         query = self.session.query(CloneStats).filter(
@@ -103,6 +104,7 @@ class CloneExport(Exporter):
         )
         if len(self.selected_fields) > 0:
             query = query.join(Clone).join(Sample)
+        query = query.order_by(CloneStats.clone_id)
 
         headers = []
         for field in self.export_fields:
@@ -111,7 +113,27 @@ class CloneExport(Exporter):
                 headers.append(n)
         yield '{}\n'.format('\t'.join(headers))
 
+        last_cid = None
+        overall_unique = 0
+        overall_total = 0
         for record in query:
+            if self._include_total_row:
+                if last_cid is None:
+                    last_cid = record.clone_id
+                elif last_cid != record.clone_id:
+                    total_row = [
+                        ('clone_id', last_cid),
+                        ('sample_id', 'TOTAL'),
+                        ('unique_sequences', overall_unique),
+                        ('unique_total', overall_total)]
+                    for n in headers[3:]:
+                        total_row.append((n, ''))
+                    yield self.tab_entry(total_row)
+                    last_cid = record.clone_id
+                    overall_unique = 0
+                    overall_total = 0
+                overall_unique += record.unique_cnt
+                overall_total += record.total_cnt
             yield self.tab_entry(self.get_selected_data(record))
 
 
