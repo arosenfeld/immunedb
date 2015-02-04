@@ -80,7 +80,7 @@ def _get_tree(session, newick, germline_seq):
     return tree
 
 
-def _get_json(tree):
+def _get_json(tree, root=True):
     muts = []
     for mut in tree.mutations:
         muts.append({
@@ -99,9 +99,20 @@ def _get_json(tree):
         'children': []
     }
     for child in tree.children:
-        node['children'].append(_get_json(child))
+        node['children'].append(_get_json(child, root=False))
 
-    return node
+    if not root:
+        return node
+    return {
+        'data': {
+            'seq_ids': [],
+            'copy_number': 0,
+            'tissues': '',
+            'subsets': '',
+            'mutations': [],
+        },
+        'children': [node]
+    }
 
 
 def _push_common_mutations_up(tree):
@@ -122,7 +133,7 @@ def _push_common_mutations_up(tree):
 
 def _remove_parent_mutations(tree):
     for node in tree.traverse(strategy='postorder'):
-        if node.up is not None:
+        if node.up is not None and node.up.name != 'germline':
             node.mutations = node.mutations.difference(node.up.mutations)
 
 def _remove_null_nodes(tree):
