@@ -1,5 +1,7 @@
-from sqlalchemy import Column, Boolean, Integer, String, Text, Date, \
-    ForeignKey, UniqueConstraint, Index, func
+import datetime
+
+from sqlalchemy import (Column, Boolean, Integer, String, Text, Date, DateTime,
+    ForeignKey, UniqueConstraint, Index, func)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.orm.interfaces import MapperExtension
@@ -439,3 +441,14 @@ class NoResult(BaseData):
                           order_by=seq_id))
 
     sequence = Column(String(length=1024))
+
+
+class ModificationLog(BaseData):
+    __tablename__ = 'modification_logs'
+    __table_args__ = {'mysql_engine': 'TokuDB'}
+
+    id = Column(Integer, primary_key=True)
+    datetime = Column(DateTime, default=datetime.datetime.utcnow)
+
+    action_type = Column(String(length=128))
+    info = Column(String(length=1024))

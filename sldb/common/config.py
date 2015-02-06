@@ -82,6 +82,7 @@ def init_db(master_db_config, data_db_config, as_maker=False):
         DuplicateSequence: data_engine,
         Clone: data_engine,
         NoResult: data_engine,
+        ModificationLog: data_engine,
     }
 
     session = sessionmaker(twophase=True)

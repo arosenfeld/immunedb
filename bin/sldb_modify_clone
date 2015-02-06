@@ -1,0 +1,28 @@
+#!/usr/bin/env python2
+import sys
+import argparse
+import sldb.common.config as config
+
+if __name__ == '__main__':
+    parser = config.get_base_arg_parser(
+        'Modifies a clone in specified ways.  This is used to correct for '
+        'indels or poor V gene assignment.')
+    parser.add_argument('clone_id', help='Clone ID to change')
+    parser.add_argument('--v-name', help='New V-gene name')
+    parser.add_argument('--v-seq', help='Sequence of new germline.  The V '
+                        'name must be new or the sequence must match the '
+                        'existing germline sequence.')
+    parser.add_argument('--seq-gaps', nargs='+', help='Pairs of gap '
+                        'position and length to insert into sequences '
+                        'For example "190,2 205,3" will insert 2 gaps at '
+                        'position 190 and 3 gaps at position 205. All '
+                        'positions must are before gapping.')
+    args = parser.parse_args()
+
+    session = config.init_db(args.master_db_config, args.data_db_config)
+
+    if args.v_seq and not args.v_name:
+        parser.error('--v-seq can only be specified with a --v-name')
+
+    from sldb.identification.modify_clone import run_modify_clone
+    sys.exit(run_modify_clone(session, args))

@@ -272,6 +272,21 @@ def stats(samples):
     return ret
 
 
+@route('/api/modification_log')
+def modification_log():
+    session = scoped_session(session_factory)()
+    logs = []
+    for log in session.query(ModificationLog).order_by(
+            ModificationLog.datetime):
+        logs.append({
+            'datetime': log.datetime.strftime('%Y-%m-%d %H:%M:%S'),
+            'action_type': log.action_type,
+            'info': json.loads(log.info),
+        })
+    session.close()
+    return json.dumps({'logs': logs})
+
+
 @route('/api/v_usage/<filter_type>/<outliers>/<full_reads>/<samples>')
 def v_usage(filter_type, outliers, full_reads, samples):
     """Gets the V usage for samples in a heatmap-formatted array.

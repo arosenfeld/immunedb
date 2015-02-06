@@ -38,43 +38,44 @@ def add_to_db(session, alignment, sample, vdj):
         session.add(DuplicateSequence(duplicate_seq_id=existing.seq_id,
                                       sample_id=sample.id,
                                       seq_id=vdj.id))
-    else:
-        session.add(Sequence(
-            seq_id=vdj.id,
-            sample=sample,
+        return existing.seq_id
+    session.add(Sequence(
+        seq_id=vdj.id,
+        sample=sample,
 
-            alignment=alignment,
-            probable_indel_or_misalign=vdj.has_possible_indel,
+        alignment=alignment,
+        probable_indel_or_misalign=vdj.has_possible_indel,
 
-            v_gene=funcs.format_ties(vdj.v_gene, 'IGHV'),
-            j_gene=funcs.format_ties(vdj.j_gene, 'IGHJ'),
+        v_gene=funcs.format_ties(vdj.v_gene, 'IGHV'),
+        j_gene=funcs.format_ties(vdj.j_gene, 'IGHJ'),
 
-            num_gaps=vdj.num_gaps,
-            pad_length=vdj.pad_length,
+        num_gaps=vdj.num_gaps,
+        pad_length=vdj.pad_length,
 
-            v_match=vdj.v_match,
-            v_length=vdj.v_length,
-            j_match=vdj.j_match,
-            j_length=vdj.j_length,
+        v_match=vdj.v_match,
+        v_length=vdj.v_length,
+        j_match=vdj.j_match,
+        j_length=vdj.j_length,
 
-            pre_cdr3_length=vdj.pre_cdr3_length,
-            pre_cdr3_match=vdj.pre_cdr3_match,
-            post_cdr3_length=vdj.post_cdr3_length,
-            post_cdr3_match=vdj.post_cdr3_match,
+        pre_cdr3_length=vdj.pre_cdr3_length,
+        pre_cdr3_match=vdj.pre_cdr3_match,
+        post_cdr3_length=vdj.post_cdr3_length,
+        post_cdr3_match=vdj.post_cdr3_match,
 
-            in_frame=vdj.in_frame,
-            functional=vdj.functional,
-            stop=vdj.stop,
-            copy_number=vdj.copy_number,
+        in_frame=vdj.in_frame,
+        functional=vdj.functional,
+        stop=vdj.stop,
+        copy_number=vdj.copy_number,
 
-            junction_nt=vdj.cdr3,
-            junction_aa=lookups.aas_from_nts(vdj.cdr3, ''),
-            gap_method='IMGT',
+        junction_nt=vdj.cdr3,
+        junction_aa=lookups.aas_from_nts(vdj.cdr3, ''),
+        gap_method='IMGT',
 
-            sequence=str(vdj.sequence),
-            sequence_replaced=vdj.sequence_filled,
+        sequence=str(vdj.sequence),
+        sequence_replaced=vdj.sequence_filled,
 
-            germline=vdj.germline))
+        germline=vdj.germline))
+    return vdj.id
 
 
 def _identify_reads(session, path, fn, meta, v_germlines, limit_alignments):
@@ -190,7 +191,13 @@ def _identify_reads(session, path, fn, meta, v_germlines, limit_alignments):
         vdj.align_to_germline(avg_len, avg_mut)
         if vdj.v_gene is not None and vdj.j_gene is not None:
             # Add the sequence to the database
-            add_to_db(session, read_type, sample, vdj)
+            final_seq_id = add_to_db(session, read_type, sample, vdj)
+            # If a duplicate was found, and vdj was added as a duplicate,
+            # update the associated duplicates' duplicate_seq_ids
+            if final_seq_id != vdj.id:
+                if vdj.id in dups:
+                    for dup in dups[vdj.id]:
+                        dup.duplicate_seq_id = final_seq_id
         else:
             # This is a rare condition, but some sequence after aligning to
             # V-ties the CDR3 becomes non-existent, and it is thrown out
