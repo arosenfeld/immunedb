@@ -39,12 +39,14 @@ def add_to_db(session, alignment, sample, vdj):
                                       sample_id=sample.id,
                                       seq_id=vdj.id))
         return existing.seq_id
+    indel = vdj.has_possible_indel or (
+        (vdj.v_match / float(vdj.v_length)) < .6)
     session.add(Sequence(
         seq_id=vdj.id,
         sample=sample,
 
         alignment=alignment,
-        probable_indel_or_misalign=vdj.has_possible_indel,
+        probable_indel_or_misalign=indel,
 
         v_gene=funcs.format_ties(vdj.v_gene, 'IGHV'),
         j_gene=funcs.format_ties(vdj.j_gene, 'IGHJ'),
