@@ -3,7 +3,7 @@ import json
 import math
 import time
 
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, desc
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 import bottle
@@ -275,9 +275,15 @@ def stats(samples):
 @route('/api/modification_log')
 def modification_log():
     session = scoped_session(session_factory)()
+    q = session.query(ModificationLog).order_by(desc(ModificationLog.datetime))
+
+    paging = _get_paging()
+    if paging is not None:
+        page, per_page = paging
+        q = q.offset((page - 1) * per_page).limit(per_page)
+
     logs = []
-    for log in session.query(ModificationLog).order_by(
-            ModificationLog.datetime):
+    for log in q:
         logs.append({
             'datetime': log.datetime.strftime('%Y-%m-%d %H:%M:%S'),
             'action_type': log.action_type,
