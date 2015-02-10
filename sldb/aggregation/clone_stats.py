@@ -16,8 +16,8 @@ def clone_stats(session, clone_id, force):
             CloneStats.sample_id == cstat.sample_id).first() is not None
         if existing:
             if force:
-                session.delete(CloneStats).filter(
-                    CloneStats.clone_id == clone_id)
+                session.query(CloneStats).filter(
+                    CloneStats.clone_id == clone_id).delete()
             else:
                 print '\tSkipping clone {} for sample {}.'.format(
                     clone_id, cstat.sample_id)
