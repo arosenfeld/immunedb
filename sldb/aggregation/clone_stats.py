@@ -3,7 +3,7 @@ from sqlalchemy import func
 from sldb.common.models import Clone, CloneStats, Sequence
 
 
-def sample_stats(session, clone_id, force):
+def clone_stats(session, clone_id, force):
     for cstat in session.query(
             Sequence.sample_id,
             func.count(Sequence.seq_id).label('unique'),
@@ -31,9 +31,15 @@ def sample_stats(session, clone_id, force):
 
 
 def run_clone_stats(session, args):
-    for i, cid in enumerate(session.query(Clone.id)):
-        sample_stats(session, cid.id, args.force)
+    if args.clone_ids is None:
+        clones = map(lambda c: c.id, session.query(Clone.id).all())
+    else:
+        clones = args.clone_ids
+
+    for i, cid in enumerate(clones):
+        clone_stats(session, cid, args.force)
 
         if i > 0 and i % 1000 == 0:
             print 'Committing {}'.format(i)
             session.commit()
+    session.commit()

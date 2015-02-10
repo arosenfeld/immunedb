@@ -10,7 +10,6 @@ from sqlalchemy.sql import func
 from sldb.common.models import Clone, CloneGroup, Sample, Sequence
 
 import ete2
-import networkx as nx
 
 
 def _get_fasta_input(session, germline_seq, clone_id):
@@ -65,6 +64,7 @@ def _get_tree(session, newick, germline_seq):
             tissues = set(map(lambda s: s.sample.tissue, sample_info))
             subsets = set(map(lambda s: s.sample.subset, sample_info))
             node.add_feature('seq_ids', seq_ids)
+            node.add_feature('copy_number', seq.copy_number)
             node.add_feature('tissues',
                              ','.join(map(str, tissues)))
             node.add_feature('subsets',
@@ -73,6 +73,7 @@ def _get_tree(session, newick, germline_seq):
                 germline_seq, seq.sequence_replaced))
         else:
             node.add_feature('seq_ids', [])
+            node.add_feature('copy_number', 0)
             node.add_feature('sequence', None)
             node.add_feature('tissues', [])
             node.add_feature('subsets', [])
@@ -91,7 +92,7 @@ def _get_json(tree, root=True):
     node = {
         'data': {
             'seq_ids': tree.seq_ids,
-            'copy_number': 5,
+            'copy_number': tree.copy_number,
             'tissues': tree.tissues,
             'subsets': tree.subsets,
             'mutations': muts,
