@@ -232,7 +232,7 @@ def _process_clone_filter(session, sample_id, filter_type, filter_func,
     session.add(stat)
 
 
-def _process_sample(session, sample_id, force):
+def _process_sample(session, sample_id, force, clones_only):
     print 'Processing sample {}'.format(sample_id)
     existing_seq = session.query(Sequence).filter(
         Sequence.sample_id == sample_id)
@@ -244,8 +244,14 @@ def _process_sample(session, sample_id, force):
 
     if force:
         print '\tFORCING regeneration of stats'
-        session.query(SampleStats).filter(
-            SampleStats.sample_id == sample_id).delete()
+        if not clones_only:
+            session.query(SampleStats).filter(
+                SampleStats.sample_id == sample_id).delete()
+        else:
+            session.query(SampleStats).filter(
+                SampleStats.sample_id == sample_id,
+                SampleStats.filter_type.like('clones%')
+            ).delete(synchronize_session='fetch')
         session.commit()
 
     existing = session.query(SampleStats).filter(
@@ -259,13 +265,14 @@ def _process_sample(session, sample_id, force):
         print '\tOutliers={}'.format(include_outliers)
         for full_reads in [True, False]:
             print '\t\tFull Reads={}'.format(full_reads)
-            for f in _seq_filters:
-                print '\t\t\tGenerating sequence stats for filter "{}"'.format(
-                    f['type'])
-                _process_filter(session, sample_id, f['type'],
-                                f['filter_func'], f['use_copy'],
-                                include_outliers, full_reads)
-                session.commit()
+            if not clones_only:
+                for f in _seq_filters:
+                    print '\t\t\tGenerating sequence stats for filter "{}"'.format(
+                        f['type'])
+                    _process_filter(session, sample_id, f['type'],
+                                    f['filter_func'], f['use_copy'],
+                                    include_outliers, full_reads)
+                    session.commit()
 
             for f in _clone_filters:
                 print '\t\t\tGenerating sequence stats for filter "{}"'.format(
@@ -283,4 +290,4 @@ def run_sample_stats(session, args):
         samples = args.samples
 
     for sample_id in samples:
-        _process_sample(session, sample_id, args.force)
+        _process_sample(session, sample_id, args.force, args.clones_only)

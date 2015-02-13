@@ -199,8 +199,9 @@ class SequenceExport(Exporter):
 
         'v_gene',
         'j_gene',
-        'cdr3_nt',
-        'cdr3_aa',
+        ('cdr3_nt', lambda seq: seq.junction_nt),
+        ('cdr3_aa', lambda seq: seq.junction_aa),
+        ('cdr3_num_nts', lambda seq: seq.junction_num_nts),
         'gap_method',
 
         'clone_id',

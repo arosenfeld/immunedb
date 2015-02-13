@@ -17,7 +17,9 @@ def _get_fasta_input(session, germline_seq, clone_id):
     for i, seq in enumerate(session.query(
             Sequence.seq_id,
             Sequence.sequence_replaced).filter(
-                Sequence.clone_id == clone_id)
+                Sequence.clone_id == clone_id,
+                Sequence.probable_indel_or_misalign == 0,
+                Sequence.v_match / Sequence.v_length >= .6)
             .order_by(desc('copy_number'))
             .group_by(Sequence.sequence_replaced)):
 
@@ -102,7 +104,7 @@ def _get_json(tree, root=True):
     for child in tree.children:
         node['children'].append(_get_json(child, root=False))
 
-    if not root:
+    if not root or len(tree.mutations) == 0:
         return node
     return {
         'data': {
