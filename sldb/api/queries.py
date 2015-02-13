@@ -321,13 +321,17 @@ def get_v_usage(session, samples, filter_type, include_outliers,
         for v in dist:
             name, occ = v
             name = '|'.join(
-                sorted(set(map(lambda s: s.split('*')[0], name.split('|')))))
-            if name not in headers:
-                headers.append(name)
+                sorted(set(map(
+                    lambda s: s.split('*')[0].replace('IGHV', ''),name.split('|')
+                    )))
+            )
 
             if name not in data[s.sample.name]:
                 data[s.sample.name][name] = 0
             data[s.sample.name][name] += round(100 * occ / float(total), 2)
+
+            if data[s.sample.name][name] >= 1.0 and name not in headers:
+                headers.append(name)
 
     for s, vs in data.iteritems():
         for header in headers:
@@ -337,10 +341,10 @@ def get_v_usage(session, samples, filter_type, include_outliers,
     keys = []
     lookup = {}
     for i, (group, members) in enumerate(groups.iteritems()):
-        for member in members:
+        for member in sorted(members):
             keys.append(member)
             lookup[member] = i
-    return data, headers, keys, lookup
+    return data, sorted(headers), keys, lookup
 
 
 def get_all_subjects(session, paging):

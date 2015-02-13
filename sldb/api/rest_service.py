@@ -297,9 +297,10 @@ def v_usage(samples, filter_type, include_outliers, include_partials,
         include_partials=='true', grouping)
     session.close()
 
+    x_categories.sort()
     array = []
-    for j, y in enumerate(y_categories):
-        for i, x in enumerate(x_categories):
+    for i, x in enumerate(x_categories):
+        for j, y in enumerate(y_categories):
             usage_for_y = data[y]
             if x in usage_for_y:
                 array.append([i, j, usage_for_y[x]])
