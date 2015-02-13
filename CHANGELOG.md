@@ -1,4 +1,10 @@
 # CHANGELOG
+## v6.0.3
+* All duplicate sequences are now properly assigned an entry in the `Sequences` table, removing cycles from `DuplicateSequences`.
+* Clones can now have a different V gene assigned or gaps added manually via the `sldb_modify_clone` command.
+  * Modifications via `sldb_modify_clone` are recorded and can be fetched with the `modification_log` API call.  Other manual modification should make use of the `ModificationLog` model.
+* Neighbor joining now properly calculates copy number.
+* `sldb_clone_stats` can now be limited by clone ID.
 
 ## v6.0.2
 * Rows summing total/unique sequences cross all samples can be included in clone
