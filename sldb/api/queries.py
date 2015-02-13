@@ -393,32 +393,70 @@ def get_subject(session, sid):
     return subject
 
 
-def get_stats(session, samples, include_outliers, full_reads):
+def get_stats(session, samples, include_outliers, include_partials, grouping):
     counts = {}
     stats = {}
+    sample_info = {}
     dist_fields = [
         'v_match_dist', 'v_length_dist', 'j_match_dist',
         'j_length_dist', 'v_gene_dist', 'j_gene_dist',
-        'cdr3_length_dist', 'copy_number_dist']
-    cnt_fields = ['sequence_cnt', 'in_frame_cnt', 'stop_cnt', 'functional_cnt',
-                  'no_result_cnt']
+        'cdr3_length_dist', 'copy_number_dist'
+    ]
+    cnt_fields = [
+        'sequence_cnt', 'in_frame_cnt', 'stop_cnt', 'functional_cnt',
+        'no_result_cnt'
+    ]
+
     for stat in session.query(SampleStats).filter(
             SampleStats.sample_id.in_(samples),
             SampleStats.outliers == include_outliers,
-            SampleStats.full_reads == full_reads):
-        if stat.sample_id not in stats:
-            stats[stat.sample_id] = {
-                'sample': _sample_to_dict(stat.sample),
-                'filters': {},
-            }
+            SampleStats.full_reads != include_partials):
+        if grouping == 'subject':
+            group_key = stat.sample.subject.identifier
+        else:
+            group_key = getattr(stat.sample, grouping)
+
+        if group_key not in stats:
+            stats[group_key] = {}
+
+        if stat.sample.id not in sample_info:
+            sample_info[stat.sample.id] = _sample_to_dict(stat.sample)
+
         if stat.filter_type not in counts:
-            counts[stat.filter_type] = 0
+            counts[stat.filter_type] = {'total': 0}
+        if stat.sample.id not in counts[stat.filter_type]:
+            counts[stat.filter_type][stat.sample.id] = 0
+        counts[stat.filter_type][stat.sample.id] = stat.sequence_cnt
+        counts[stat.filter_type]['total'] += stat.sequence_cnt
 
-        flds = _fields_to_dict(dist_fields + cnt_fields, stat)
-        stats[stat.sample_id]['filters'][stat.filter_type] = flds
-        counts[stat.filter_type] += stat.sequence_cnt
+        fields = _fields_to_dict(dist_fields + cnt_fields, stat)
+        if stat.filter_type not in stats[group_key]:
+            stats[group_key][stat.filter_type] = {}
 
-    return {'counts': counts, 'stats': stats}
+        for field, values in fields.iteritems():
+            if field.endswith('cnt'):
+                if stat.filter_type == 'all':
+                    sample_info[stat.sample.id][field] = values
+                continue
+            if field not in stats[group_key][stat.filter_type]:
+                stats[group_key][stat.filter_type][field] = {}
+
+            for (x, freq) in json.loads(values):
+                if x not in stats[group_key][stat.filter_type][field]:
+                    stats[group_key][stat.filter_type][field][x] = 0
+                stats[group_key][stat.filter_type][field][x] += freq
+
+
+    for group, filter_dict in stats.iteritems():
+        for filter_name, key_dict in filter_dict.iteritems():
+            for key, vals in key_dict.iteritems():
+                reduced = []
+                for x in sorted(vals.keys()):
+                    reduced.append((x, vals[x]))
+                key_dict[key] = reduced
+
+
+    return {'samples': sample_info, 'counts': counts, 'stats': stats}
 
 
 def get_sequence(session, sample_id, seq_id):
