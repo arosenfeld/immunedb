@@ -236,8 +236,8 @@ def clone_overlap(filter_type, samples=None, subject=None):
     return json.dumps({'clones': clones})
 
 
-@route('/api/stats/<samples>')
-def stats(samples):
+@route('/api/stats/<samples>/<include_outliers>/<include_partials>/<grouping>')
+def stats(samples, include_outliers, include_partials, grouping):
     """Gets the statistics for a given set of samples both including and
     excluding outliers.
 
@@ -250,26 +250,10 @@ def stats(samples):
     """
     session = scoped_session(session_factory)()
     samples = _split(samples)
-    ret = json.dumps({
-        'outliers': {
-            'all_reads': queries.get_stats(session, samples,
-                                           include_outliers=True,
-                                           full_reads=False),
-            'full_reads': queries.get_stats(session, samples,
-                                            include_outliers=True,
-                                            full_reads=True),
-        },
-        'no_outliers': {
-            'all_reads': queries.get_stats(session, samples,
-                                           include_outliers=False,
-                                           full_reads=False),
-            'full_reads': queries.get_stats(session, samples,
-                                            include_outliers=False,
-                                            full_reads=True),
-        }
-    })
+    ret = queries.get_stats(session, samples, include_outliers == 'true',
+                            include_partials == 'true', grouping)
     session.close()
-    return ret
+    return json.dumps(ret)
 
 
 @route('/api/modification_log')
@@ -293,8 +277,10 @@ def modification_log():
     return json.dumps({'logs': logs})
 
 
-@route('/api/v_usage/<filter_type>/<outliers>/<full_reads>/<samples>')
-def v_usage(filter_type, outliers, full_reads, samples):
+@route('/api/v_usage/<samples>/<filter_type>/<include_outliers>/'
+       '<include_partials>/<grouping>')
+def v_usage(samples, filter_type, include_outliers, include_partials,
+            grouping):
     """Gets the V usage for samples in a heatmap-formatted array.
 
     :param str filter_type: The filter type of sequences for the v_usage
@@ -306,12 +292,10 @@ def v_usage(filter_type, outliers, full_reads, samples):
 
     """
     session = scoped_session(session_factory)()
-    data, headers = queries.get_v_usage(
-        session, _split(samples), filter_type,
-        outliers == 'true', full_reads == 'true')
+    data, x_categories, y_categories, lookup = queries.get_v_usage(
+        session, _split(samples), filter_type, include_outliers=='true',
+        include_partials=='true', grouping)
     session.close()
-    x_categories = headers
-    y_categories = data.keys()
 
     array = []
     for j, y in enumerate(y_categories):
@@ -325,7 +309,8 @@ def v_usage(filter_type, outliers, full_reads, samples):
     return json.dumps({
         'x_categories': x_categories,
         'y_categories': y_categories,
-        'data': array
+        'data': array,
+        'lookup': lookup
     })
 
 
