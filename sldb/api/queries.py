@@ -293,16 +293,26 @@ def get_clones_in_subject(session, subject_id):
         Clone.subject_id == subject_id))
 
 
-def get_v_usage(session, samples, filter_type, outliers, full_reads):
+def get_v_usage(session, samples, filter_type, include_outliers,
+                include_partials, grouping):
     """Gets the V-Gene usage percentages for samples"""
     data = {}
+    groups = {}
     headers = []
     for s in session.query(SampleStats)\
             .filter(SampleStats.filter_type == filter_type,
-                    SampleStats.outliers == outliers,
-                    SampleStats.full_reads == full_reads,
+                    SampleStats.outliers == include_outliers,
+                    SampleStats.full_reads != include_partials,
                     SampleStats.sample_id.in_(samples)):
         dist = json.loads(s.v_gene_dist)
+        if grouping == 'subject':
+            group_key = s.sample.subject.identifier
+        else:
+            group_key = getattr(s.sample, grouping)
+        if group_key not in groups:
+            groups[group_key] = []
+        groups[group_key].append(s.sample.name)
+
         data[s.sample.name] = {}
         total = 0
         for v in dist:
@@ -315,13 +325,22 @@ def get_v_usage(session, samples, filter_type, outliers, full_reads):
             if name not in headers:
                 headers.append(name)
 
-            data[s.sample.name][name] = round(100 * occ / float(total), 2)
+            if name not in data[s.sample.name]:
+                data[s.sample.name][name] = 0
+            data[s.sample.name][name] += round(100 * occ / float(total), 2)
 
     for s, vs in data.iteritems():
         for header in headers:
             if header not in vs:
                 vs[header] = 'none'
-    return data, headers
+
+    keys = []
+    lookup = {}
+    for i, (group, members) in enumerate(groups.iteritems()):
+        for member in members:
+            keys.append(member)
+            lookup[member] = i
+    return data, headers, keys, lookup
 
 
 def get_all_subjects(session, paging):

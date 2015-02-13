@@ -277,8 +277,10 @@ def modification_log():
     return json.dumps({'logs': logs})
 
 
-@route('/api/v_usage/<filter_type>/<outliers>/<full_reads>/<samples>')
-def v_usage(filter_type, outliers, full_reads, samples):
+@route('/api/v_usage/<samples>/<filter_type>/<include_outliers>/'
+       '<include_partials>/<grouping>')
+def v_usage(samples, filter_type, include_outliers, include_partials,
+            grouping):
     """Gets the V usage for samples in a heatmap-formatted array.
 
     :param str filter_type: The filter type of sequences for the v_usage
@@ -290,12 +292,10 @@ def v_usage(filter_type, outliers, full_reads, samples):
 
     """
     session = scoped_session(session_factory)()
-    data, headers = queries.get_v_usage(
-        session, _split(samples), filter_type,
-        outliers == 'true', full_reads == 'true')
+    data, x_categories, y_categories, lookup = queries.get_v_usage(
+        session, _split(samples), filter_type, include_outliers=='true',
+        include_partials=='true', grouping)
     session.close()
-    x_categories = headers
-    y_categories = data.keys()
 
     array = []
     for j, y in enumerate(y_categories):
@@ -309,7 +309,8 @@ def v_usage(filter_type, outliers, full_reads, samples):
     return json.dumps({
         'x_categories': x_categories,
         'y_categories': y_categories,
-        'data': array
+        'data': array,
+        'lookup': lookup
     })
 
 
