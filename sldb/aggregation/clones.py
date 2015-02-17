@@ -40,7 +40,7 @@ def _assign_identical_sequences(session, replaced_seq, subject_id, clone_id):
 
 
 def _get_subject_clones(session, subject_id, min_similarity, limit_alignments,
-                        include_indels, per_commit):
+                        include_indels, order):
     clone_cache = {}
     new_clones = 0
     duplicates = 0
@@ -54,12 +54,13 @@ def _get_subject_clones(session, subject_id, min_similarity, limit_alignments,
     if not include_indels:
         query = query.filter(
             Sequence.probable_indel_or_misalign == 0)
-    query = query.order_by(desc(Sequence.copy_number))
+    if order:
+        query = query.order_by(desc(Sequence.copy_number))
 
     query = query.group_by(Sequence.sequence_replaced).having(
         func.sum(Sequence.copy_number) > 1)
     for i, seqr in enumerate(query):
-        if i > 0 and i % per_commit == 0:
+        if i > 0 and i % 1000 == 0:
             session.commit()
             print 'Committed {} (new clones={}, duplicates={})'.format(
                 i, new_clones, duplicates)
@@ -114,7 +115,7 @@ def _get_subject_clones(session, subject_id, min_similarity, limit_alignments,
     session.commit()
 
 
-def _assign_clones_to_groups(session, subject_id, per_commit):
+def _assign_clones_to_groups(session, subject_id):
     for i, clone in enumerate(session.query(Clone).filter(
             Clone.subject_id == subject_id)):
         seqs = session.query(
@@ -144,7 +145,7 @@ def _assign_clones_to_groups(session, subject_id, per_commit):
             session.add(group)
         clone.group = group
 
-        if i > 0 and i % per_commit == 0:
+        if i > 0 and i % 1000 == 0:
             print 'Committed {}'.format(i)
             session.commit()
 
@@ -161,6 +162,6 @@ def run_clones(session, args):
         print 'Assigning clones to subject', sid
         _get_subject_clones(session, sid, args.similarity / 100.0,
                             args.limit_alignments, args.include_indels,
-                            args.commits)
+                            args.order)
         print 'Assigning clones to groups'
-        _assign_clones_to_groups(session, sid, args.commits)
+        _assign_clones_to_groups(session, sid)
