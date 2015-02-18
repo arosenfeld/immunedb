@@ -278,9 +278,9 @@ def modification_log():
 
 
 @route('/api/v_usage/<samples>/<filter_type>/<include_outliers>/'
-       '<include_partials>/<grouping>')
+       '<include_partials>/<grouping>/<by_family>')
 def v_usage(samples, filter_type, include_outliers, include_partials,
-            grouping):
+            grouping, by_family):
     """Gets the V usage for samples in a heatmap-formatted array.
 
     :param str filter_type: The filter type of sequences for the v_usage
@@ -294,7 +294,7 @@ def v_usage(samples, filter_type, include_outliers, include_partials,
     session = scoped_session(session_factory)()
     data, x_categories = queries.get_v_usage(
         session, _split(samples), filter_type, include_outliers == 'true',
-        include_partials == 'true', grouping)
+        include_partials == 'true', grouping, by_family == 'true')
     session.close()
 
     x_categories.sort()
@@ -314,6 +314,35 @@ def v_usage(samples, filter_type, include_outliers, include_partials,
         'data': array,
     })
 
+@route('/api/data/v_usage/<samples>/<filter_type>/<include_outliers>/'
+       '<include_partials>/<grouping>/<by_family>')
+@route('/api/data/v_usage/<samples>/<filter_type>/<include_outliers>/'
+       '<include_partials>/<grouping>/<by_family>/')
+def export_v_usage(samples, filter_type, include_outliers, include_partials,
+            grouping, by_family):
+    """Gets the V usage for samples in tab format.
+
+    :param str filter_type: The filter type of sequences for the v_usage
+    :param str samples: A comma-separated string of sample IDs for v_usage
+
+    :returns: The V usage as a CSV
+    :rtype: str
+
+    """
+    session = scoped_session(session_factory)()
+    data, x_categories = queries.get_v_usage(
+        session, _split(samples), filter_type, include_outliers == 'true',
+        include_partials == 'true', grouping, by_family == 'true')
+    session.close()
+
+    x_categories.sort()
+    y_categories = sorted(data.keys())
+
+    yield '{}\tIGHV'.format(grouping) + '\tIGHV'.join(x_categories) + '\n'
+    for group in sorted(data.keys()):
+        yield group
+        yield ('\t'.join(map(str, [data[group][v] for v in x_categories])) +
+               '\n')
 
 @route('/api/data/export_clones/<rtype>/<rids>', methods=['GET'])
 @route('/api/data/export_clones/<rtype>/<rids>/', methods=['GET'])

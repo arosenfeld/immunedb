@@ -294,7 +294,13 @@ def get_clones_in_subject(session, subject_id):
 
 
 def get_v_usage(session, samples, filter_type, include_outliers,
-                include_partials, grouping):
+                include_partials, grouping, by_family):
+    if by_family:
+        name_func = lambda s: s.split('*')[0].split('-', 1)[0].replace(
+                        'IGHV', '')
+    else:
+        name_func = lambda s: s.split('*')[0].replace(
+                        'IGHV', '')
     """Gets the V-Gene usage percentages for samples"""
     data = {}
     headers = []
@@ -319,10 +325,7 @@ def get_v_usage(session, samples, filter_type, include_outliers,
 
         for v in dist:
             name, occ = v
-            name = '|'.join(
-                sorted(set(map(
-                    lambda s: s.split('*')[0].replace(
-                        'IGHV', ''), name.split('|')))))
+            name = '|'.join(sorted(set(map(name_func, name.split('|')))))
 
             if name not in data[group_key]:
                 data[group_key][name] = 0
@@ -334,7 +337,7 @@ def get_v_usage(session, samples, filter_type, include_outliers,
     for s, vs in data.iteritems():
         for header in headers:
             if header not in vs:
-                vs[header] = 'none'
+                vs[header] = 0
 
     return data, sorted(headers)
 
