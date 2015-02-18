@@ -154,6 +154,8 @@ class SampleStats(BaseData):
     outliers = Column(Boolean, primary_key=True)
     full_reads = Column(Boolean, primary_key=True)
 
+    v_identity_dist = Column(MEDIUMTEXT)
+
     v_match_dist = Column(MEDIUMTEXT)
     v_length_dist = Column(MEDIUMTEXT)
 

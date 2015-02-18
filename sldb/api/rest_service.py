@@ -292,12 +292,13 @@ def v_usage(samples, filter_type, include_outliers, include_partials,
 
     """
     session = scoped_session(session_factory)()
-    data, x_categories, y_categories, lookup = queries.get_v_usage(
+    data, x_categories = queries.get_v_usage(
         session, _split(samples), filter_type, include_outliers == 'true',
         include_partials == 'true', grouping)
     session.close()
 
     x_categories.sort()
+    y_categories = sorted(data.keys())
     array = []
     for i, x in enumerate(x_categories):
         for j, y in enumerate(y_categories):
@@ -311,7 +312,6 @@ def v_usage(samples, filter_type, include_outliers, include_partials,
         'x_categories': x_categories,
         'y_categories': y_categories,
         'data': array,
-        'lookup': lookup
     })
 
 

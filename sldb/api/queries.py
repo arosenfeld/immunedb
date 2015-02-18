@@ -297,6 +297,52 @@ def get_v_usage(session, samples, filter_type, include_outliers,
                 include_partials, grouping):
     """Gets the V-Gene usage percentages for samples"""
     data = {}
+    headers = []
+    for s in session.query(SampleStats)\
+            .filter(SampleStats.filter_type == filter_type,
+                    SampleStats.outliers == include_outliers,
+                    SampleStats.full_reads != include_partials,
+                    SampleStats.sample_id.in_(samples)):
+        dist = json.loads(s.v_gene_dist)
+        if grouping == 'subject':
+            group_key = s.sample.subject.identifier
+        else:
+            group_key = getattr(s.sample, grouping)
+
+        if group_key is None:
+            group_key = 'None'
+
+        data[group_key] = {}
+        total = 0
+        for v in dist:
+            total += v[1]
+
+        for v in dist:
+            name, occ = v
+            name = '|'.join(
+                sorted(set(map(
+                    lambda s: s.split('*')[0].replace(
+                        'IGHV', ''), name.split('|')))))
+
+            if name not in data[group_key]:
+                data[group_key][name] = 0
+            data[group_key][name] += round(100 * occ / float(total), 2)
+
+            if data[group_key][name] >= 1.0 and name not in headers:
+                headers.append(name)
+
+    for s, vs in data.iteritems():
+        for header in headers:
+            if header not in vs:
+                vs[header] = 'none'
+
+    return data, sorted(headers)
+
+
+def get_v_usage_grouped(session, samples, filter_type, include_outliers,
+                include_partials, grouping):
+    """Gets the V-Gene usage percentages for samples"""
+    data = {}
     groups = {}
     headers = []
     for s in session.query(SampleStats)\

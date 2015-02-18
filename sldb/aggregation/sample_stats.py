@@ -12,6 +12,7 @@ from sldb.common.models import *
 _dist_fields = [
     Sequence.v_match,
     (Sequence.v_length + Sequence.num_gaps, 'v_length'),
+#    (func.ceil(Sequence.v_match / Sequence.v_length), 'v_identity_dist'),
     Sequence.j_match,
     Sequence.j_length,
     Sequence.v_gene,
