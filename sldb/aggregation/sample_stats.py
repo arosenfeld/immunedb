@@ -267,7 +267,8 @@ def _process_sample(session, sample_id, force, clones_only):
             print '\t\tFull Reads={}'.format(full_reads)
             if not clones_only:
                 for f in _seq_filters:
-                    print '\t\t\tGenerating sequence stats for filter "{}"'.format(
+                    print ('\t\t\tGenerating sequence stats '
+                           'for filter "{}"').format(
                         f['type'])
                     _process_filter(session, sample_id, f['type'],
                                     f['filter_func'], f['use_copy'],

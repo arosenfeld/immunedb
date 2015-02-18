@@ -19,8 +19,6 @@ def clone_stats(session, clone_id, force):
                 session.query(CloneStats).filter(
                     CloneStats.clone_id == clone_id).delete()
             else:
-                print '\tSkipping clone {} for sample {}.'.format(
-                    clone_id, cstat.sample_id)
                 continue
 
         session.add(CloneStats(

@@ -322,9 +322,8 @@ def get_v_usage(session, samples, filter_type, include_outliers,
             name, occ = v
             name = '|'.join(
                 sorted(set(map(
-                    lambda s: s.split('*')[0].replace('IGHV', ''),name.split('|')
-                    )))
-            )
+                    lambda s: s.split('*')[0].replace(
+                        'IGHV', ''), name.split('|')))))
 
             if name not in data[s.sample.name]:
                 data[s.sample.name][name] = 0
@@ -469,7 +468,6 @@ def get_stats(session, samples, include_outliers, include_partials, grouping):
                     stats[group_key][stat.filter_type][field][x] = 0
                 stats[group_key][stat.filter_type][field][x] += freq
 
-
     for group, filter_dict in stats.iteritems():
         for filter_name, key_dict in filter_dict.iteritems():
             for key, vals in key_dict.iteritems():
@@ -477,7 +475,6 @@ def get_stats(session, samples, include_outliers, include_partials, grouping):
                 for x in sorted(vals.keys()):
                     reduced.append((x, vals[x]))
                 key_dict[key] = reduced
-
 
     return {'samples': sample_info, 'counts': counts, 'stats': stats}
 
