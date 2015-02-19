@@ -203,7 +203,17 @@ class Mutations(object):
         :rtype: tuple ``(region_stats, position_stats)``
 
         """
-        thresholds = [1, .8, .5, .2, 0]
+        thresholds = [
+            ('percent', 1),
+            ('percent', .8),
+            ('percent', .5),
+            ('percent', .2),
+            ('percent', 0),
+            ('seqs', 2),
+            ('seqs', 5),
+            ('seqs', 10),
+            ('seqs', 25),
+        ]
 
         threshold_region_stats = {}
         for threshold in thresholds:
@@ -222,7 +232,10 @@ class Mutations(object):
                     region_stats[region]['counts']['unique'][mut_type] = 0
                     region_stats[region]['mutations'][mut_type] = []
                     for mutation, count in mutations.iteritems():
-                        if count >= threshold * self.total_seqs:
+                        minimum = threshold[1]
+                        if threshold[0] == 'percent':
+                            minimum *= self.total_seqs
+                        if count >= minimum:
                             st = region_stats[region]
                             st['counts']['total'][mut_type] += count
                             st['counts']['unique'][mut_type] += 1
@@ -235,6 +248,11 @@ class Mutations(object):
                                 'aa_to': mutation[4],
                             })
 
-                threshold_region_stats[int(threshold * 100)] = region_stats
+
+                if threshold[0] == 'percent':
+                    label = 'percent_{}'.format(int(threshold[1] * 100))
+                else:
+                    label = 'seqs_{}'.format(threshold[1])
+                threshold_region_stats[label] = region_stats
 
         return threshold_region_stats, self.pos_stats
