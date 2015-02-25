@@ -10,7 +10,7 @@ Most programs using SLDB will start with code similar to:
 
 .. code-block:: python
 
-    
+
     import sldb.common.config as config
     parser = config.get_base_arg_parser('Some description of the program')
     # ... add any additional arguments to the parser ...
@@ -24,12 +24,35 @@ manually specify the paths with simply:
 
 .. code-block:: python
 
-    
+
     import sldb.common.config as config
     session = config.init_db('path/to/master/config', 'path/to/data/config')
 
-Either will return a ``Session`` object which can be used to interact with the
-database. 
+To avoid using a configuration file, the ``from_dict`` argument can be set to
+``True``, and the configurations will be read from dictionaries:
+
+.. code-block:: python
+
+
+    import sldb.common.config as config
+    session = config.init_db({
+        'host': '...',
+        'database': '...',
+        'usertname': '...',
+        'password': '...',
+    }, {
+        'host': '...',
+        'database': '...',
+        'usertname': '...',
+        'password': '...',
+    }, from_dict=True)
+
+All will return a ``Session`` object which can be used to interact with the
+database.
+
+.. WARNING::
+    ``config.init_db`` must be called prior to importing any SLDB models from
+    the ``sldb.common.models`` package.
 
 .. automodule:: sldb.common.config
     :members:

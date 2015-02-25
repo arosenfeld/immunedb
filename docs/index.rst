@@ -15,7 +15,7 @@ primary goals are to:
   <http://en.wikipedia.org/wiki/Referential_integrity>`_, unclear `provenance
   <http://en.wikipedia.org/wiki/Provenance#Data_provenance>`_, and
   non-standardized formats.
-  
+
   SLDB eliminates these through the use of an industry-leading database, MySQL,
   and strong data guarantees.  When data must be exchanged as a flat-file, many
   export options, including FASTA and tab-delineation, are available.
@@ -46,6 +46,14 @@ SLDB has three primary components:
 Each of the components can be used independently so long as the underlying
 database is properly populated.  For example, custom clonal identification can
 be used prior to analysis if desired.
+
+Getting Started
+---------------
+.. toctree::
+    :maxdepth: 2
+
+    install
+    pipeline
 
 Underlying Technologies
 -----------------------
