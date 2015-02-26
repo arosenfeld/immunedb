@@ -384,7 +384,6 @@ def format_rarefaction_output(s):
     Convert rarefaction output to a format for plotting
     """
 
-    print(s.split('\n'))
     formatted = [[float(row.split(',')[4]), float(row.split(',')[5])]
                  for i, row in enumerate(s.split('\n')) if row != '' and i != 0]
 
