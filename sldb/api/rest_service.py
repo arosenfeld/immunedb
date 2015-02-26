@@ -379,10 +379,22 @@ def export_clones(rtype, rids):
     session.close()
 
 
+def format_rarefaction_output(s):
+    """
+    Convert rarefaction output to a format for plotting
+    """
+
+    print(s.split('\n'))
+    formatted = [[float(row.split(',')[4]), float(row.split(',')[5])]
+                 for i, row in enumerate(s.split('\n')) if row != '' and i != 0]
+
+    return(formatted)
+
+
 @route('/api/rarefaction/<sample_ids>', methods=['GET'])
 def rarefaction(sample_ids):
     """
-    lkasjdflkajsflaskdjfj
+    Return the rarefaction curve in json format from a list of sample ids
     """
 
     session = scoped_session(session_factory)()
@@ -416,11 +428,11 @@ def rarefaction(sample_ids):
 
     output = proc.communicate(cid_string)
 
-    result_string = output[0]
+    result_list = format_rarefaction_output(output[0])
 
     session.close()
 
-    return(result_string)
+    return json.dumps({'rarefaction': result_list})
 
 
 @route('/api/data/export_sequences/<eformat>/<rtype>/<rids>', methods=['GET'])
