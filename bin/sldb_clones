@@ -5,15 +5,19 @@ import sldb.common.config as config
 
 if __name__ == '__main__':
     parser = config.get_base_arg_parser('Clusters sequences into clones')
-    parser.add_argument('-s', type=int, default=85, dest='similarity',
-                        help='Minimum similarity between clone sequences.')
+    parser.add_argument('--similarity', type=int, default=85,
+                        dest='similarity', help='Minimum similarity between '
+                        'clone sequences. (Default: 85)')
     parser.add_argument('--order', action='store_true', default=False,
                         help='Order clonal assignment by copy number')
     parser.add_argument('--subjects', nargs='+', type=int,
                         help='Limit generation to certain subjects')
     parser.add_argument('--include-indels', action='store_true', default=False,
                         help='If specified, includes indels (or poorly aligned '
-                        'sequences in clones')
+                        'sequences in clones.')
+    parser.add_argument('--min-identity', type=int, default=0,
+                        help='Minimum V identity of sequences to germline '
+                        'required for inclusion in clones. (Default: 0)')
     parser.add_argument('--limit-alignments', nargs='+', default=('R1+R2'),
                         help='Read types to process (R1, R2, and/or '
                         'R1+R2).  Default: R1+R2')

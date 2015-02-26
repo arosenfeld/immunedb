@@ -12,7 +12,7 @@ from sldb.common.models import *
 _dist_fields = [
     Sequence.v_match,
     (Sequence.v_length + Sequence.num_gaps, 'v_length'),
-#    (func.ceil(Sequence.v_match / Sequence.v_length), 'v_identity_dist'),
+    (func.ceil(100 * Sequence.v_match / Sequence.v_length), 'v_identity'),
     Sequence.j_match,
     Sequence.j_length,
     Sequence.v_gene,
@@ -117,7 +117,6 @@ def _get_distribution(session, sample_id, key, filter_func, use_copy,
     q = filter_func(session.query(Sequence.seq_id,
                     key.label('key'))
                     .filter(Sequence.sample_id == sample_id))
-
     if full_reads:
         q = q.filter(Sequence.alignment == 'R1+R2')
 

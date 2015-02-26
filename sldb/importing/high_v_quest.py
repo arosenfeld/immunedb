@@ -151,15 +151,6 @@ def _read_gapped(session, reads, gapped_reader, germlines, sample, use_v_ties,
         if seq_id not in reads or sequence is None:
             continue
         sequence = _pad_replace(sequence)
-        existing = session.query(Sequence).filter(
-            Sequence.sequence == sequence,
-            Sequence.sample == sample).first()
-        if existing is not None:
-            existing.copy_number += 1
-            session.add(DuplicateSequence(duplicate_seq_id=existing.seq_id,
-                                          sample_id=sample.id,
-                                          seq_id=seq_id))
-            continue
 
         v_region = _pad_replace(_get_value(line, 'v_region'))
         junction = _get_value(line, 'junction')
@@ -177,6 +168,17 @@ def _read_gapped(session, reads, gapped_reader, germlines, sample, use_v_ties,
         read.junction_aa = lookups.aas_from_nts(read.junction_nt, '')
 
         read.sequence = 'N' * read.pad_length + sequence[read.pad_length:]
+
+        existing = session.query(Sequence).filter(
+            Sequence.sequence == read.sequence,
+            Sequence.sample == sample).first()
+
+        if existing is not None:
+            existing.copy_number += 1
+            session.add(DuplicateSequence(duplicate_seq_id=existing.seq_id,
+                                          sample_id=sample.id,
+                                          seq_id=seq_id))
+            continue
 
         try:
             if use_v_ties:
