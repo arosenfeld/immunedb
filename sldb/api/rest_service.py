@@ -2,8 +2,9 @@ import argparse
 import json
 import math
 import time
+import subprocess
 
-from sqlalchemy import create_engine, desc
+from sqlalchemy import create_engine, desc, distinct
 from sqlalchemy.orm import sessionmaker, scoped_session
 
 import bottle
@@ -376,6 +377,50 @@ def export_clones(rtype, rids):
         yield line
 
     session.close()
+
+
+@route('/api/rarefaction/<sample_ids>', methods=['GET'])
+def rarefaction(sample_ids):
+    """
+    lkasjdflkajsflaskdjfj
+    """
+
+    session = scoped_session(session_factory)()
+
+    sample_id_list = map(int, sample_ids.split(','))
+    clone_id_iter = session.query(
+            distinct(CloneStats.clone_id).label("clone_id"),
+            func.sum(CloneStats.unique_cnt)
+        ).filter(CloneStats.sample_id.in_(sample_id_list))
+
+
+    cids = session.query(CloneStats.clone_id,
+                         func.sum(CloneStats.unique_cnt).label('cnt')
+                        ).filter(
+                            CloneStats.sample_id.in_(sample_id_list)
+                        ).group_by(CloneStats.clone_id)
+
+    cid_string = ""
+
+    for cid in cids:
+        cid_string += '\n'.join([str(cid.clone_id) for _ in range(0, cid.cnt)]) + '\n'
+
+    proc = subprocess.Popen(["/home/gw/haskell/diversity/.cabal-sandbox/bin/diversity",
+                             "-L",
+                             "-a",
+                             "-d",
+                             "-c", "hi",
+                             "-t"],
+                            stdin=subprocess.PIPE,
+                            stdout=subprocess.PIPE)
+
+    output = proc.communicate(cid_string)
+
+    result_string = output[0]
+
+    session.close()
+
+    return(result_string)
 
 
 @route('/api/data/export_sequences/<eformat>/<rtype>/<rids>', methods=['GET'])
