@@ -476,6 +476,8 @@ def rarefaction(order, window, sample_ids):
         cid_string += '\n'.join([(">\n" + str(seq.sequence)) for _ in range(0, seq.cnt)]) + '\n'
 
     command = ["/home/gw/haskell/diversity/.cabal-sandbox/bin/diversity",
+                "-o", str(order),
+                "-w", str(window),
                 "-o", "hi",
                 "-t"]
 
