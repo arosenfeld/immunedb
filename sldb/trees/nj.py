@@ -46,7 +46,7 @@ def _get_newick(session, tree_prog, clone_id):
 def _get_mutations(s1, s2):
     muts = set([])
     for i, (c1, c2) in enumerate(zip(s1, s2)):
-        if (c1 != c2 and c1 != 'N' and c1 != '-'):
+        if (c1 != c2 and c1 != 'N' and c1 != '-' and c2 != '-'):
             muts.add((i + 1, c1, c2))
     return muts
 
@@ -166,8 +166,11 @@ def run_nj(session, args):
         germline_seq = session.query(CloneGroup.germline).filter(
             CloneGroup.id == clone_inst.group_id
         ).first().germline
-
-        tree = _get_tree(session, newick, germline_seq)
+        try:
+            tree = _get_tree(session, newick, germline_seq)
+        except:
+            print '[ERROR] Could not get tree for {}'.format(clone)
+            continue
         tree.set_outgroup('germline')
         tree.search_nodes(name='germline')[0].delete()
         _push_common_mutations_up(tree)

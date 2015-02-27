@@ -16,10 +16,7 @@ from sldb.common.settings import DATABASE_SETTINGS
 allowed_read_types = ('R1', 'R2', 'R1+R2')
 
 
-def _create_engine(config_path):
-    with open(config_path) as fh:
-        data = json.load(fh)
-
+def _create_engine(data):
     con_str = ('mysql+pymysql://{}:{}@{}/{}'
                '?charset=utf8&use_unicode=0').format(
         data['username'], data['password'],
@@ -49,17 +46,26 @@ def get_base_arg_parser(desc):
     return parser
 
 
-def init_db(master_db_config, data_db_config, as_maker=False):
+def init_db(master_db_config, data_db_config, as_maker=False, from_dict=False):
     """Initializes a session with the specified database database.
 
-    :param str master_db_config: Path to master database config file
-    :param str data_db_config: Path to data database config file
+    :param str master_db_config: If ``from_dict`` is ``False``, the path to
+        master database config file, otherwise a database config dictionary
+    :param str data_db_config: If ``from_dict`` is ``False``, the path to
+        data database config file, otherwise a database config dictionary
     :param bool as_maker: If ``True``, the returned object will be a session
         maker rather than an session
 
     :returns: A ``session`` or, if ``as_maker`` is set, a ``session_maker``
 
     """
+
+    if not from_dict:
+        with open(master_db_config) as fh:
+            master_db_config = json.load(fh)
+        with open(data_db_config) as fh:
+            data_db_config = json.load(fh)
+
     master_engine, master_name = _create_engine(master_db_config)
     data_engine, data_name = _create_engine(data_db_config)
 

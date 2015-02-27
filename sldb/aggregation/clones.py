@@ -40,7 +40,7 @@ def _assign_identical_sequences(session, replaced_seq, subject_id, clone_id):
 
 
 def _get_subject_clones(session, subject_id, min_similarity, limit_alignments,
-                        include_indels, order):
+                        include_indels, min_identity, order):
     clone_cache = {}
     new_clones = 0
     duplicates = 0
@@ -49,6 +49,7 @@ def _get_subject_clones(session, subject_id, min_similarity, limit_alignments,
         func.count(Sequence.seq_id).label('others')
         ).filter(
             Sequence.sample.has(subject_id=subject_id),
+            Sequence.v_match / Sequence.v_length >= min_identity,
             Sequence.clone_id.is_(None),
         )
     if not include_indels:
@@ -162,6 +163,6 @@ def run_clones(session, args):
         print 'Assigning clones to subject', sid
         _get_subject_clones(session, sid, args.similarity / 100.0,
                             args.limit_alignments, args.include_indels,
-                            args.order)
+                            args.min_identity / 100.0, args.order)
         print 'Assigning clones to groups'
         _assign_clones_to_groups(session, sid)
