@@ -195,7 +195,6 @@ def run_nj(session, args):
             _push_common_mutations_up(tree, cnt == None)
             _remove_parent_mutations(tree)
             cnt = _remove_null_nodes(tree)
-            break
             if not cnt:
                 break
 
