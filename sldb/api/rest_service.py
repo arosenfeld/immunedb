@@ -315,69 +315,6 @@ def v_usage(samples, filter_type, include_outliers, include_partials,
         'data': array,
     })
 
-@route('/api/data/v_usage/<samples>/<filter_type>/<include_outliers>/'
-       '<include_partials>/<grouping>/<by_family>')
-@route('/api/data/v_usage/<samples>/<filter_type>/<include_outliers>/'
-       '<include_partials>/<grouping>/<by_family>/')
-def export_v_usage(samples, filter_type, include_outliers, include_partials,
-            grouping, by_family):
-    """Gets the V usage for samples in tab format.
-
-    :param str filter_type: The filter type of sequences for the v_usage
-    :param str samples: A comma-separated string of sample IDs for v_usage
-
-    :returns: The V usage as a CSV
-    :rtype: str
-
-    """
-    session = scoped_session(session_factory)()
-    data, x_categories = queries.get_v_usage(
-        session, _split(samples), filter_type, include_outliers == 'true',
-        include_partials == 'true', grouping, by_family == 'true')
-    session.close()
-
-    x_categories.sort()
-    y_categories = sorted(data.keys())
-
-    yield '{}\tIGHV'.format(grouping) + '\tIGHV'.join(x_categories) + '\n'
-    for group in sorted(data.keys()):
-        yield group
-        yield ('\t'.join(map(str, [data[group][v] for v in x_categories])) +
-               '\n')
-
-@route('/api/data/export_clones/<rtype>/<rids>', methods=['GET'])
-@route('/api/data/export_clones/<rtype>/<rids>/', methods=['GET'])
-def export_clones(rtype, rids):
-    """Downloads a tab-delimited file of clones.
-
-    :param str rtype: The type of record to filter the query on.  Currently
-        either "sample" or "clone"
-    :param str rids: A comma-separated list of IDs of ``rtype`` to export
-
-    :returns: The properly formatted export data
-    :rtype: str
-
-    """
-    assert rtype in ('sample', 'clone')
-
-    session = scoped_session(session_factory)()
-    fields = _get_arg('fields', False).split(',')
-    include_total_row = _get_arg('include_total_row', False) == 'true' or False
-
-    name = '{}_{}.tab'.format(
-        rtype,
-        time.strftime('%Y-%m-%d-%H-%M'))
-
-    response.headers['Content-Disposition'] = 'attachment;filename={}'.format(
-        name)
-
-    export = CloneExport(session, rtype, _split(rids), fields,
-                         include_total_row)
-    for line in export.get_data():
-        yield line
-
-    session.close()
-
 
 def format_diversity_csv_output(x, y, s):
     """
@@ -391,11 +328,14 @@ def format_diversity_csv_output(x, y, s):
     return(formatted)
 
 
-@route('/api/rarefaction/<sample_ids>', methods=['GET'])
-def rarefaction(sample_based, sample_ids):
+@route('/api/rarefaction/<sample_ids>/<sample_bool>/<fast_bool>', methods=['GET'])
+def rarefaction(sample_ids, sample_bool, fast_bool):
     """
     Return the rarefaction curve in json format from a list of sample ids
     """
+
+    sample_bool = sample_bool == "true"
+    fast_bool = fast_bool == "true"
 
     session = scoped_session(session_factory)()
 
@@ -406,34 +346,34 @@ def rarefaction(sample_based, sample_ids):
         ).filter(CloneStats.sample_id.in_(sample_id_list))
 
 
-    cids = session.query(CloneStats.clone_id,
-                         func.sum(CloneStats.unique_cnt).label('cnt')
-                        ).filter(
-                            CloneStats.sample_id.in_(sample_id_list)
-                        ).group_by(CloneStats.clone_id)
+    if sample_bool:
+        cids = session.query(CloneStats.clone_id,
+                                CloneStats.sample_id
+                            ).filter(
+                                CloneStats.sample_id.in_(sample_id_list)
+                            )
+    else:
+        cids = session.query(CloneStats.clone_id,
+                            func.sum(CloneStats.unique_cnt).label('cnt')
+                            ).filter(
+                                CloneStats.sample_id.in_(sample_id_list)
+                            ).group_by(CloneStats.clone_id)
 
     cid_string = ""
 
     for cid in cids:
-        if sample_based:
-            cid_string += '\n'.join([(">" + str(cid.sample_id) + "\n" + str(cid.clone_id)) for _ in range(0, cid.cnt)]) + '\n'
+        if sample_bool:
+            cid_string += ">" + str(cid.sample_id) + '\n' + str(cid.clone_id) + '\n'
         else:
             cid_string += '\n'.join([str(cid.clone_id) for _ in range(0, cid.cnt)]) + '\n'
 
-    if sample_based:
-        command = ["/home/gw/haskell/diversity/.cabal-sandbox/bin/diversity",
-                   "-L",
-                   "-a",
-                   "-d",
-                   "-c", "hi",
-                   "-t"]
+    command = [rf_bin, "-a", "-d", "-c", "hi", "-t"]
+    if sample_bool:
+        command += ["-L"]
     else:
-        command = ["/home/gw/haskell/diversity/.cabal-sandbox/bin/diversity",
-                   "-a",
-                   "-d",
-                   "-c", "hi",
-                   "-S", "1",
-                   "-t"]
+        command += ["-S", "1"]
+    if fast_bool:
+        command += ["-f"]
 
     proc = subprocess.Popen(command,
                             stdin=subprocess.PIPE,
@@ -495,6 +435,76 @@ def rarefaction(order, window, sample_ids):
 """
 
 
+@route('/api/data/v_usage/<samples>/<filter_type>/<include_outliers>/'
+       '<include_partials>/<grouping>/<by_family>')
+@route('/api/data/v_usage/<samples>/<filter_type>/<include_outliers>/'
+       '<include_partials>/<grouping>/<by_family>/')
+def export_v_usage(samples, filter_type, include_outliers, include_partials,
+                   grouping, by_family):
+    """Gets the V usage for samples in tab format.
+
+    :param str filter_type: The filter type of sequences for the v_usage
+    :param str samples: A comma-separated string of sample IDs for v_usage
+
+    :returns: The V usage as a CSV
+    :rtype: str
+
+    """
+    session = scoped_session(session_factory)()
+    data, x_categories = queries.get_v_usage(
+        session, _split(samples), filter_type, include_outliers == 'true',
+        include_partials == 'true', grouping, by_family == 'true')
+    session.close()
+
+    x_categories.sort()
+    y_categories = sorted(data.keys())
+
+    yield '{}\tIGHV'.format(grouping) + '\tIGHV'.join(x_categories) + '\n'
+    for group in sorted(data.keys()):
+        yield group
+        yield ('\t'.join(map(str, [data[group][v] for v in x_categories])) +
+               '\n')
+
+
+@route('/api/data/export_clones/<rtype>/<rids>', methods=['GET'])
+@route('/api/data/export_clones/<rtype>/<rids>/', methods=['GET'])
+def export_clones(rtype, rids):
+    """Downloads a tab-delimited file of clones.
+
+    :param str rtype: The type of record to filter the query on.  Currently
+        either "sample" or "clone"
+    :param str rids: A comma-separated list of IDs of ``rtype`` to export
+
+    :returns: The properly formatted export data
+    :rtype: str
+
+    """
+    assert rtype in ('sample', 'clone')
+
+    session = scoped_session(session_factory)()
+    fields = _get_arg('fields', False).split(',')
+    include_total_row = _get_arg('include_total_row', False) == 'true' or False
+
+    name = '{}_{}.tab'.format(
+        rtype,
+        time.strftime('%Y-%m-%d-%H-%M'))
+
+    response.headers['Content-Disposition'] = 'attachment;filename={}'.format(
+        name)
+
+    export = CloneExport(session, rtype, _split(rids), fields,
+                         include_total_row)
+    for line in export.get_data():
+        yield line
+
+    session.close()
+
+
+<<<<<<< HEAD
+
+
+=======
+>>>>>>> 4c61fc71ecf0c1d25b92ebc6efd4f6c66f2d98ea
 @route('/api/data/export_sequences/<eformat>/<rtype>/<rids>', methods=['GET'])
 @route('/api/data/export_sequences/<eformat>/<rtype>/<rids>/', methods=['GET'])
 def export_sequences(eformat, rtype, rids):
@@ -549,8 +559,10 @@ def export_sequences(eformat, rtype, rids):
 
 def run_rest_service(session_maker, args):
     """Runs the rest service based on command line arguments"""
-    global session_factory
+    global session_factory, rf_bin
     session_factory = session_maker
+    rf_bin = args.rarefaction_bin
+
     bottle.install(EnableCors())
     if args.debug:
         bottle.run(host='0.0.0.0', port=args.port, server='gevent',

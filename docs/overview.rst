@@ -62,13 +62,18 @@ installed, get it with:
 
     $ pip install virtualenv
 
-Then install SLDB:
+The create and activate a new virtual environment:
 
 .. code-block:: bash
 
     $ virtualenv sldb-venv
     $ cd sldb-venv
     $ source bin/activate
+
+Finally, get and install SLDB:
+
+.. code-block:: bash
+
     $ git clone https://github.com/arosenfeld/sldb.git
     $ cd sldb
     $ pip install numpy scipy
