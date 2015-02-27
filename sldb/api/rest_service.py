@@ -315,12 +315,62 @@ def v_usage(samples, filter_type, include_outliers, include_partials,
         'data': array,
     })
 
+
+def format_rarefaction_output(s):
+    """
+    Convert rarefaction output to a format for plotting
+    """
+
+    formatted = [[
+        float(row.split(',')[4]), float(row.split(',')[5])]
+        for i, row in enumerate(s.split('\n')) if row != '' and i != 0]
+
+    return(formatted)
+
+
+@route('/api/rarefaction/<sample_ids>', methods=['GET'])
+def rarefaction(sample_ids):
+    """
+    Return the rarefaction curve in json format from a list of sample IDs
+    """
+
+    session = scoped_session(session_factory)()
+
+    cids = session.query(
+        CloneStats.clone_id,
+        func.sum(CloneStats.unique_cnt).label('cnt')
+        ).filter(
+        CloneStats.sample_id.in_(_split(sample_ids))
+        ).group_by(CloneStats.clone_id)
+
+    cid_string = ''
+    for cid in cids:
+        cid_string += '\n'.join(
+            [str(cid.clone_id) for _ in range(0, cid.cnt)]) + '\n'
+
+    proc = subprocess.Popen([
+        rf_bin,
+        '-L',
+        '-a',
+        '-d',
+        '-c', 'null',
+        '-t'],
+        stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+
+    output = proc.communicate(cid_string)
+    result_list = format_rarefaction_output(output[0])
+
+    session.close()
+
+    return json.dumps({'rarefaction': result_list})
+
+
 @route('/api/data/v_usage/<samples>/<filter_type>/<include_outliers>/'
        '<include_partials>/<grouping>/<by_family>')
 @route('/api/data/v_usage/<samples>/<filter_type>/<include_outliers>/'
        '<include_partials>/<grouping>/<by_family>/')
 def export_v_usage(samples, filter_type, include_outliers, include_partials,
-            grouping, by_family):
+                   grouping, by_family):
     """Gets the V usage for samples in tab format.
 
     :param str filter_type: The filter type of sequences for the v_usage
@@ -344,6 +394,7 @@ def export_v_usage(samples, filter_type, include_outliers, include_partials,
         yield group
         yield ('\t'.join(map(str, [data[group][v] for v in x_categories])) +
                '\n')
+
 
 @route('/api/data/export_clones/<rtype>/<rids>', methods=['GET'])
 @route('/api/data/export_clones/<rtype>/<rids>/', methods=['GET'])
@@ -377,61 +428,6 @@ def export_clones(rtype, rids):
         yield line
 
     session.close()
-
-
-def format_rarefaction_output(s):
-    """
-    Convert rarefaction output to a format for plotting
-    """
-
-    formatted = [[float(row.split(',')[4]), float(row.split(',')[5])]
-                 for i, row in enumerate(s.split('\n')) if row != '' and i != 0]
-
-    return(formatted)
-
-
-@route('/api/rarefaction/<sample_ids>', methods=['GET'])
-def rarefaction(sample_ids):
-    """
-    Return the rarefaction curve in json format from a list of sample ids
-    """
-
-    session = scoped_session(session_factory)()
-
-    sample_id_list = map(int, sample_ids.split(','))
-    clone_id_iter = session.query(
-            distinct(CloneStats.clone_id).label("clone_id"),
-            func.sum(CloneStats.unique_cnt)
-        ).filter(CloneStats.sample_id.in_(sample_id_list))
-
-
-    cids = session.query(CloneStats.clone_id,
-                         func.sum(CloneStats.unique_cnt).label('cnt')
-                        ).filter(
-                            CloneStats.sample_id.in_(sample_id_list)
-                        ).group_by(CloneStats.clone_id)
-
-    cid_string = ""
-
-    for cid in cids:
-        cid_string += '\n'.join([str(cid.clone_id) for _ in range(0, cid.cnt)]) + '\n'
-
-    proc = subprocess.Popen(["/home/gw/haskell/diversity/.cabal-sandbox/bin/diversity",
-                             "-L",
-                             "-a",
-                             "-d",
-                             "-c", "hi",
-                             "-t"],
-                            stdin=subprocess.PIPE,
-                            stdout=subprocess.PIPE)
-
-    output = proc.communicate(cid_string)
-
-    result_list = format_rarefaction_output(output[0])
-
-    session.close()
-
-    return json.dumps({'rarefaction': result_list})
 
 
 @route('/api/data/export_sequences/<eformat>/<rtype>/<rids>', methods=['GET'])
@@ -488,8 +484,10 @@ def export_sequences(eformat, rtype, rids):
 
 def run_rest_service(session_maker, args):
     """Runs the rest service based on command line arguments"""
-    global session_factory
+    global session_factory, rf_bin
     session_factory = session_maker
+    rf_bin = args.rarefaction_bin
+
     bottle.install(EnableCors())
     if args.debug:
         bottle.run(host='0.0.0.0', port=args.port, server='gevent',
