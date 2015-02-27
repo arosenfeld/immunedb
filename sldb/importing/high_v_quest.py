@@ -164,6 +164,8 @@ def _read_gapped(session, reads, gapped_reader, germlines, sample, use_v_ties,
         read.num_gaps = v_region[read.pad_length:].count('-')
 
         read.junction_num_nts = len(junction)
+        if len(junction) == 0:
+            continue
         read.junction_nt = junction.upper()
         read.junction_aa = lookups.aas_from_nts(read.junction_nt, '')
 

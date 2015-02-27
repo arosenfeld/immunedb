@@ -8,6 +8,7 @@ from sqlalchemy import desc, distinct
 from sqlalchemy.sql import func
 
 from sldb.common.models import Clone, CloneGroup, Sample, Sequence
+from sldb.identification.v_genes import VGene
 
 import ete2
 
@@ -17,9 +18,7 @@ def _get_fasta_input(session, germline_seq, clone_id):
     for i, seq in enumerate(session.query(
             Sequence.seq_id,
             Sequence.sequence_replaced).filter(
-                Sequence.clone_id == clone_id,
-                Sequence.probable_indel_or_misalign == 0,
-                Sequence.v_match / Sequence.v_length >= .6)
+                Sequence.clone_id == clone_id)
             .order_by(desc('copy_number'))
             .group_by(Sequence.sequence_replaced)):
 
@@ -67,10 +66,8 @@ def _get_tree(session, newick, germline_seq):
             subsets = set(map(lambda s: s.sample.subset, sample_info))
             node.add_feature('seq_ids', seq_ids)
             node.add_feature('copy_number', seq.copy_number)
-            node.add_feature('tissues',
-                             ','.join(map(str, tissues)))
-            node.add_feature('subsets',
-                             ','.join(map(str, subsets)))
+            node.add_feature('tissues', map(str, tissues))
+            node.add_feature('subsets', map(str, subsets))
             node.add_feature('mutations', _get_mutations(
                 germline_seq, seq.sequence_replaced))
         else:
@@ -93,10 +90,10 @@ def _get_json(tree, root=True):
         })
     node = {
         'data': {
-            'seq_ids': tree.seq_ids,
+            'seq_ids': sorted(set(tree.seq_ids)),
             'copy_number': tree.copy_number,
-            'tissues': tree.tissues,
-            'subsets': tree.subsets,
+            'tissues': ','.join(sorted(set(tree.tissues))),
+            'subsets': ','.join(sorted(set(tree.subsets))),
             'mutations': muts,
         },
         'children': []
@@ -106,6 +103,7 @@ def _get_json(tree, root=True):
 
     if not root or len(tree.mutations) == 0:
         return node
+
     return {
         'data': {
             'seq_ids': [],
@@ -118,20 +116,27 @@ def _get_json(tree, root=True):
     }
 
 
-def _push_common_mutations_up(tree):
+def _push_common_mutations_up(tree, first):
     if tree.is_leaf():
         return tree.mutations
+
+    dbg = (38, 'A', 'T') in tree.mutations
     common_muts = None
-    rest = False
     for child in tree.children:
-        child_muts = copy.copy(_push_common_mutations_up(child))
+        child_muts = copy.copy(_push_common_mutations_up(child, first))
+        if len(child_muts) == 0:
+            continue
         if common_muts is None:
             common_muts = child_muts
         else:
             common_muts = common_muts.intersection(child_muts)
 
-    tree.mutations = common_muts
-    return common_muts
+    if first:
+        tree.mutations = common_muts or tree.mutations
+    else:
+        tree.mutations = common_muts.union(tree.mutations)
+
+    return tree.mutations
 
 
 def _remove_parent_mutations(tree):
@@ -139,10 +144,17 @@ def _remove_parent_mutations(tree):
         if node.up is not None and node.up.name != 'germline':
             node.mutations = node.mutations.difference(node.up.mutations)
 
+
 def _remove_null_nodes(tree):
+    deleted = False
     for node in tree.traverse():
-        if len(node.mutations) == 0:
+        if node.up is not None and len(node.mutations) == 0:
+            node.up.tissues.extend(node.tissues)
+            node.up.subsets.extend(node.subsets)
+            node.up.seq_ids.extend(node.seq_ids)
             node.delete()
+            deleted = True
+    return deleted
 
 
 def run_nj(session, args):
@@ -166,6 +178,10 @@ def run_nj(session, args):
         germline_seq = session.query(CloneGroup.germline).filter(
             CloneGroup.id == clone_inst.group_id
         ).first().germline
+        germline_seq = (germline_seq[VGene.CDR3_OFFSET:] +
+                        clone_inst.cdr3_nt +
+                        germline_seq[VGene.CDR3_OFFSET +
+                                     clone_inst.cdr3_num_nts:])
         try:
             tree = _get_tree(session, newick, germline_seq)
         except:
@@ -173,9 +189,15 @@ def run_nj(session, args):
             continue
         tree.set_outgroup('germline')
         tree.search_nodes(name='germline')[0].delete()
-        _push_common_mutations_up(tree)
-        _remove_parent_mutations(tree)
-        _remove_null_nodes(tree)
+
+        cnt = None
+        while True:
+            _push_common_mutations_up(tree, cnt == None)
+            _remove_parent_mutations(tree)
+            cnt = _remove_null_nodes(tree)
+            break
+            if not cnt:
+                break
 
         clone_inst.tree = json.dumps(_get_json(tree))
         session.commit()
