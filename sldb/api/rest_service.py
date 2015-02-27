@@ -369,9 +369,9 @@ def rarefaction(sample_ids, sample_bool, fast_bool):
 
     command = [rf_bin, "-a", "-d", "-c", "hi", "-t"]
     if sample_bool:
-        command += ["-L"]
+        command += ["-s", "-S", "1"]
     else:
-        command += ["-S", "1"]
+        command += ["-L"]
     if fast_bool:
         command += ["-f"]
 
@@ -381,7 +381,7 @@ def rarefaction(sample_ids, sample_bool, fast_bool):
 
     output = proc.communicate(cid_string)
 
-    result_list = format_rarefaction_output(4, 5, output[0])
+    result_list = format_diversity_csv_output(4, 5, output[0])
 
     session.close()
 
@@ -390,10 +390,8 @@ def rarefaction(sample_ids, sample_bool, fast_bool):
 
 """
 @route('/api/diversity/<sample_ids>', methods=['GET'])
-def rarefaction(order, window, sample_ids):
-    """
+def diversity(order, window, sample_ids):
     #Return the diversity values in json format from a list of sample ids
-    """
 
     session = scoped_session(session_factory)()
 
@@ -500,11 +498,6 @@ def export_clones(rtype, rids):
     session.close()
 
 
-<<<<<<< HEAD
-
-
-=======
->>>>>>> 4c61fc71ecf0c1d25b92ebc6efd4f6c66f2d98ea
 @route('/api/data/export_sequences/<eformat>/<rtype>/<rids>', methods=['GET'])
 @route('/api/data/export_sequences/<eformat>/<rtype>/<rids>/', methods=['GET'])
 def export_sequences(eformat, rtype, rids):
