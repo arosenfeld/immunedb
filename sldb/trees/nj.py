@@ -27,13 +27,9 @@ def _get_fasta_input(session, germline_seq, clone_id):
     return in_data
 
 
-def _get_newick(session, tree_prog, clone_id):
+def _get_newick(session, tree_prog, clone_id, germline_seq):
     clone_inst = session.query(Clone).filter(
         Clone.id == clone_id).first()
-
-    germline_seq = session.query(CloneGroup.germline).filter(
-        CloneGroup.id == clone_inst.group_id
-    ).first().germline
 
     stdin = _get_fasta_input(session, germline_seq, clone_id)
 
@@ -173,15 +169,16 @@ def run_nj(session, args):
             print ('Not regenerating tree for clone {}.  Use --force to '
                    'override.').format(clone)
             continue
-        newick = _get_newick(session, args.tree_prog, clone)
-
         germline_seq = session.query(CloneGroup.germline).filter(
             CloneGroup.id == clone_inst.group_id
         ).first().germline
-        germline_seq = (germline_seq[VGene.CDR3_OFFSET:] +
+
+        germline_seq = (germline_seq[:VGene.CDR3_OFFSET] +
                         clone_inst.cdr3_nt +
                         germline_seq[VGene.CDR3_OFFSET +
                                      clone_inst.cdr3_num_nts:])
+
+        newick = _get_newick(session, args.tree_prog, clone, germline_seq)
         try:
             tree = _get_tree(session, newick, germline_seq)
         except:
