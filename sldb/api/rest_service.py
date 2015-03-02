@@ -328,8 +328,8 @@ def format_diversity_csv_output(x, y, s):
     return(formatted)
 
 
-@route('/api/rarefaction/<sample_ids>/<sample_bool>/<fast_bool>', methods=['GET'])
-def rarefaction(sample_ids, sample_bool, fast_bool):
+@route('/api/rarefaction/<sample_ids>/<sample_bool>/<fast_bool>/<start>/<interval>', methods=['GET'])
+def rarefaction(sample_ids, sample_bool, fast_bool, start, interval):
     """
     Return the rarefaction curve in json format from a list of sample ids
     """
@@ -340,11 +340,6 @@ def rarefaction(sample_ids, sample_bool, fast_bool):
     session = scoped_session(session_factory)()
 
     sample_id_list = map(int, sample_ids.split(','))
-    clone_id_iter = session.query(
-            distinct(CloneStats.clone_id).label("clone_id"),
-            func.sum(CloneStats.unique_cnt)
-        ).filter(CloneStats.sample_id.in_(sample_id_list))
-
 
     if sample_bool:
         cids = session.query(CloneStats.clone_id,
@@ -367,7 +362,15 @@ def rarefaction(sample_ids, sample_bool, fast_bool):
         else:
             cid_string += '\n'.join([str(cid.clone_id) for _ in range(0, cid.cnt)]) + '\n'
 
-    command = [rf_bin, "-a", "-d", "-c", "hi", "-t"]
+    x_axis = '"' + str(start) + " " + str(interval) + '"'
+    command = [rf_bin,
+               "-a",
+               "-d",
+               "-c",
+               "hi",
+               "-t",
+               "-I",
+               str(start) + " " + str(interval)]
     if sample_bool:
         command += ["-s", "-S", "1"]
     else:
