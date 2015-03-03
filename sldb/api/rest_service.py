@@ -361,7 +361,6 @@ def rarefaction(sample_ids, sample_bool, fast_bool, start, interval):
             cid_string += '\n'.join(
                 [str(cid.clone_id) for _ in range(0, cid.cnt)]) + '\n'
 
-    x_axis = '"' + str(start) + ' ' + str(interval) + '"'
     command = [rf_bin,
                '-a',
                '-d',
@@ -390,51 +389,6 @@ def rarefaction(sample_ids, sample_bool, fast_bool, start, interval):
     session.close()
 
     return json.dumps({'rarefaction': result_list})
-
-
-"""
-@route('/api/diversity/<sample_ids>', methods=['GET'])
-def diversity(order, window, sample_ids):
-    #Return the diversity values in json format from a list of sample ids
-
-    session = scoped_session(session_factory)()
-
-    sample_id_list = map(int, sample_ids.split(','))
-    clone_id_iter = session.query(
-            distinct(CloneStats.clone_id).label("clone_id"),
-            func.sum(CloneStats.unique_cnt)
-        ).filter(CloneStats.sample_id.in_(sample_id_list))
-
-    # Get sequences here
-    seqs = session.query(CloneStats.clone_id,
-                         func.sum(CloneStats.unique_cnt).label('cnt')
-                        ).filter(
-                            CloneStats.sample_id.in_(sample_id_list)
-                        ).group_by(CloneStats.clone_id)
-
-    seq_string = ""
-
-    for seq in seqs:
-        cid_string += '\n'.join([(">\n" + str(seq.sequence)) for _ in range(0, seq.cnt)]) + '\n'
-
-    command = ["/home/gw/haskell/diversity/.cabal-sandbox/bin/diversity",
-                "-o", str(order),
-                "-w", str(window),
-                "-o", "hi",
-                "-t"]
-
-    proc = subprocess.Popen(command,
-                            stdin=subprocess.PIPE,
-                            stdout=subprocess.PIPE)
-
-    output = proc.communicate(seq_string)
-
-    result_list = format_rarefaction_output(3, 5, output[0])
-
-    session.close()
-
-    return json.dumps({"diversity": result_list})
-"""
 
 
 @route('/api/data/v_usage/<samples>/<filter_type>/<include_outliers>/'
