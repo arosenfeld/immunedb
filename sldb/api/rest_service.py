@@ -356,14 +356,18 @@ def rarefaction(sample_ids, sample_bool, fast_bool, start, num_points):
     cid_string = ''
     total_num = 0
 
+    samples = set([])
     for cid in cids:
         if sample_bool:
             cid_string += '>{}\n{}\n'.format(cid.sample_id, cid.clone_id)
-            total_num += 1
+            samples.add(cid.sample_id)
         else:
             cid_string += '\n'.join(
                 [str(cid.clone_id) for _ in range(0, cid.cnt)]) + '\n'
             total_num += cid.cnt
+
+    if sample_bool:
+        total_num = len(samples)
 
     interval = min(
         max(total_num // int(num_points), 1),
