@@ -3,6 +3,7 @@ import json
 import math
 import time
 import subprocess
+import sldb.util.lookups as lookups
 
 from sqlalchemy import create_engine, desc, distinct
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -329,8 +330,8 @@ def format_diversity_csv_output(x, y, s):
 
 
 @route('/api/rarefaction/<sample_ids>/<sample_bool>/<fast_bool>/<start>'
-       '/<interval>', methods=['GET'])
-def rarefaction(sample_ids, sample_bool, fast_bool, start, interval):
+       '/<num_points>', methods=['GET'])
+def rarefaction(sample_ids, sample_bool, fast_bool, start, num_points):
     """Return the rarefaction curve in json format from a list of sample ids"""
 
     sample_bool = sample_bool == 'true'
@@ -353,13 +354,20 @@ def rarefaction(sample_ids, sample_bool, fast_bool, start, interval):
         ).group_by(CloneStats.clone_id)
 
     cid_string = ''
+    total_num = 0
 
     for cid in cids:
         if sample_bool:
             cid_string += '>{}\n{}\n'.format(cid.sample_id, cid.clone_id)
+            total_num += 1
         else:
             cid_string += '\n'.join(
                 [str(cid.clone_id) for _ in range(0, cid.cnt)]) + '\n'
+            total_num += cid.cnt
+
+    interval = min(
+        max(total_num // int(num_points), 1),
+        total_num)
 
     command = [rf_bin,
                '-a',
@@ -389,6 +397,44 @@ def rarefaction(sample_ids, sample_bool, fast_bool, start, interval):
     session.close()
 
     return json.dumps({'rarefaction': result_list})
+
+
+@route('/api/diversity/<sample_ids>/<order>/<window>', methods=['GET'])
+def diversity(sample_ids, order, window):
+    """Return the diversity values in json format from a list of sample ids"""
+
+    session = scoped_session(session_factory)()
+
+    sample_id_list = map(int, sample_ids.split(','))
+
+    # Get sequences here
+    seqs = session.query(
+        Sequence.sequence_replaced).filter(
+        Sequence.sample_id.in_(sample_id_list))
+
+    seq_string = ''
+
+    for seq in seqs:
+        seq_string += '>\n{}\n'.format(
+            lookups.aas_from_nts(seq.sequence_replaced, '-')[:103])
+
+    command = [rf_bin,
+               '-r', str(order),
+               '-w', str(window),
+               '-o', 'hi',
+               '-t']
+
+    proc = subprocess.Popen(command,
+                            stdin=subprocess.PIPE,
+                            stdout=subprocess.PIPE)
+
+    output = proc.communicate(seq_string)
+
+    result_list = format_diversity_csv_output(3, 5, output[0])
+
+    session.close()
+
+    return json.dumps({'diversity': result_list})
 
 
 @route('/api/data/v_usage/<samples>/<filter_type>/<include_outliers>/'
