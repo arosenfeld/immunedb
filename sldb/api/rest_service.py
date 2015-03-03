@@ -329,55 +329,56 @@ def format_diversity_csv_output(x, y, s):
     return(formatted)
 
 
-@route('/api/rarefaction/<sample_ids>/<sample_bool>/<fast_bool>/<start>/<interval>', methods=['GET'])
+@route('/api/rarefaction/<sample_ids>/<sample_bool>/<fast_bool>/<start>'
+       '/<interval>', methods=['GET'])
 def rarefaction(sample_ids, sample_bool, fast_bool, start, interval):
-    """
-    Return the rarefaction curve in json format from a list of sample ids
-    """
+    """Return the rarefaction curve in json format from a list of sample ids"""
 
-    sample_bool = sample_bool == "true"
-    fast_bool = fast_bool == "true"
+    sample_bool = sample_bool == 'true'
+    fast_bool = fast_bool == 'true'
 
     session = scoped_session(session_factory)()
 
     sample_id_list = map(int, sample_ids.split(','))
 
     if sample_bool:
-        cids = session.query(CloneStats.clone_id,
-                                CloneStats.sample_id
-                            ).filter(
-                                CloneStats.sample_id.in_(sample_id_list)
-                            )
+        cids = session.query(
+            CloneStats.clone_id, CloneStats.sample_id
+        ).filter(CloneStats.sample_id.in_(sample_id_list))
     else:
-        cids = session.query(CloneStats.clone_id,
-                            func.sum(CloneStats.unique_cnt).label('cnt')
-                            ).filter(
-                                CloneStats.sample_id.in_(sample_id_list)
-                            ).group_by(CloneStats.clone_id)
+        cids = session.query(
+            CloneStats.clone_id,
+            func.sum(CloneStats.unique_cnt).label('cnt')
+        ).filter(
+            CloneStats.sample_id.in_(sample_id_list)
+        ).group_by(CloneStats.clone_id)
 
-    cid_string = ""
+    cid_string = ''
 
     for cid in cids:
         if sample_bool:
-            cid_string += ">" + str(cid.sample_id) + '\n' + str(cid.clone_id) + '\n'
+            cid_string += '>{}\n{}\n'.format(cid.sample_id, cid.clone_id)
         else:
-            cid_string += '\n'.join([str(cid.clone_id) for _ in range(0, cid.cnt)]) + '\n'
+            cid_string += '\n'.join(
+                [str(cid.clone_id) for _ in range(0, cid.cnt)]) + '\n'
 
-    x_axis = '"' + str(start) + " " + str(interval) + '"'
+    x_axis = '"' + str(start) + ' ' + str(interval) + '"'
     command = [rf_bin,
-               "-a",
-               "-d",
-               "-c",
-               "hi",
-               "-t",
-               "-I",
-               str(start) + " " + str(interval)]
+               '-a',
+               '-d',
+               '-c',
+               'hi',
+               '-t',
+               '-I',
+               '{} {}'.format(start, interval)]
+
     if sample_bool:
-        command += ["-s", "-S", "1"]
+        command.extend(['-s', '-S', '1'])
     else:
-        command += ["-L"]
+        command.extend(['-L'])
+
     if fast_bool:
-        command += ["-f"]
+        command.extend(['-f'])
 
     proc = subprocess.Popen(command,
                             stdin=subprocess.PIPE,
