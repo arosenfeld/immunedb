@@ -316,53 +316,125 @@ def v_usage(samples, filter_type, include_outliers, include_partials,
     })
 
 
-def format_rarefaction_output(s):
+def format_diversity_csv_output(x, y, s):
     """
     Convert rarefaction output to a format for plotting
     """
 
-    formatted = [[
-        float(row.split(',')[4]), float(row.split(',')[5])]
-        for i, row in enumerate(s.split('\n')) if row != '' and i != 0]
+    formatted = [[float(row.split(',')[x]), float(row.split(',')[y])]
+                 for i, row in enumerate(s.split('\n'))
+                 if row != '' and i != 0]
 
     return(formatted)
 
 
-@route('/api/rarefaction/<sample_ids>', methods=['GET'])
-def rarefaction(sample_ids):
-    """
-    Return the rarefaction curve in json format from a list of sample IDs
-    """
+@route('/api/rarefaction/<sample_ids>/<sample_bool>/<fast_bool>/<start>'
+       '/<interval>', methods=['GET'])
+def rarefaction(sample_ids, sample_bool, fast_bool, start, interval):
+    """Return the rarefaction curve in json format from a list of sample ids"""
+
+    sample_bool = sample_bool == 'true'
+    fast_bool = fast_bool == 'true'
 
     session = scoped_session(session_factory)()
 
-    cids = session.query(
-        CloneStats.clone_id,
-        func.sum(CloneStats.unique_cnt).label('cnt')
+    sample_id_list = map(int, sample_ids.split(','))
+
+    if sample_bool:
+        cids = session.query(
+            CloneStats.clone_id, CloneStats.sample_id
+        ).filter(CloneStats.sample_id.in_(sample_id_list))
+    else:
+        cids = session.query(
+            CloneStats.clone_id,
+            func.sum(CloneStats.unique_cnt).label('cnt')
         ).filter(
-        CloneStats.sample_id.in_(_split(sample_ids))
+            CloneStats.sample_id.in_(sample_id_list)
         ).group_by(CloneStats.clone_id)
 
     cid_string = ''
-    for cid in cids:
-        cid_string += '\n'.join(
-            [str(cid.clone_id) for _ in range(0, cid.cnt)]) + '\n'
 
-    proc = subprocess.Popen([
-        rf_bin,
-        '-L',
-        '-a',
-        '-d',
-        '-c', 'null',
-        '-t'],
-        stdin=subprocess.PIPE, stdout=subprocess.PIPE)
+    for cid in cids:
+        if sample_bool:
+            cid_string += '>{}\n{}\n'.format(cid.sample_id, cid.clone_id)
+        else:
+            cid_string += '\n'.join(
+                [str(cid.clone_id) for _ in range(0, cid.cnt)]) + '\n'
+
+    x_axis = '"' + str(start) + ' ' + str(interval) + '"'
+    command = [rf_bin,
+               '-a',
+               '-d',
+               '-c',
+               'hi',
+               '-t',
+               '-I',
+               '{} {}'.format(start, interval)]
+
+    if sample_bool:
+        command.extend(['-s', '-S', '1'])
+    else:
+        command.extend(['-L'])
+
+    if fast_bool:
+        command.extend(['-f'])
+
+    proc = subprocess.Popen(command,
+                            stdin=subprocess.PIPE,
+                            stdout=subprocess.PIPE)
 
     output = proc.communicate(cid_string)
-    result_list = format_rarefaction_output(output[0])
+
+    result_list = format_diversity_csv_output(4, 5, output[0])
 
     session.close()
 
     return json.dumps({'rarefaction': result_list})
+
+
+"""
+@route('/api/diversity/<sample_ids>', methods=['GET'])
+def diversity(order, window, sample_ids):
+    #Return the diversity values in json format from a list of sample ids
+
+    session = scoped_session(session_factory)()
+
+    sample_id_list = map(int, sample_ids.split(','))
+    clone_id_iter = session.query(
+            distinct(CloneStats.clone_id).label("clone_id"),
+            func.sum(CloneStats.unique_cnt)
+        ).filter(CloneStats.sample_id.in_(sample_id_list))
+
+    # Get sequences here
+    seqs = session.query(CloneStats.clone_id,
+                         func.sum(CloneStats.unique_cnt).label('cnt')
+                        ).filter(
+                            CloneStats.sample_id.in_(sample_id_list)
+                        ).group_by(CloneStats.clone_id)
+
+    seq_string = ""
+
+    for seq in seqs:
+        cid_string += '\n'.join([(">\n" + str(seq.sequence)) for _ in range(0, seq.cnt)]) + '\n'
+
+    command = ["/home/gw/haskell/diversity/.cabal-sandbox/bin/diversity",
+                "-o", str(order),
+                "-w", str(window),
+                "-o", "hi",
+                "-t"]
+
+    proc = subprocess.Popen(command,
+                            stdin=subprocess.PIPE,
+                            stdout=subprocess.PIPE)
+
+    output = proc.communicate(seq_string)
+
+    result_list = format_rarefaction_output(3, 5, output[0])
+
+    session.close()
+
+    return json.dumps({"diversity": result_list})
+"""
 
 
 @route('/api/data/v_usage/<samples>/<filter_type>/<include_outliers>/'
