@@ -365,12 +365,9 @@ def rarefaction(sample_ids, sample_bool, fast_bool, start, num_points):
                 [str(cid.clone_id) for _ in range(0, cid.cnt)]) + '\n'
             total_num += cid.cnt
 
-    interval = total_num // int(num_points)
-    if interval < 1:
-        interval = 1
-    if interval > total_num:
-        interval = total_num
-    print(interval)
+    interval = min(
+        max(total_num // int(num_points), 1),
+        total_num)
 
     command = [rf_bin,
                '-a',
@@ -404,26 +401,28 @@ def rarefaction(sample_ids, sample_bool, fast_bool, start, num_points):
 
 @route('/api/diversity/<sample_ids>/<order>/<window>', methods=['GET'])
 def diversity(sample_ids, order, window):
-    #Return the diversity values in json format from a list of sample ids
+    """Return the diversity values in json format from a list of sample ids"""
 
     session = scoped_session(session_factory)()
 
     sample_id_list = map(int, sample_ids.split(','))
 
     # Get sequences here
-    seqs = session.query(Sequence.sequence_replaced
-                        ).filter(Sequence.sample_id.in_(sample_id_list))
+    seqs = session.query(
+        Sequence.sequence_replaced).filter(
+        Sequence.sample_id.in_(sample_id_list))
 
-    seq_string = ""
+    seq_string = ''
 
     for seq in seqs:
-        seq_string += ">\n" + (lookups.aas_from_nts(seq.sequence_replaced, "-"))[:103] + '\n'
+        seq_string += '>\n{}\n'.format(
+            lookups.aas_from_nts(seq.sequence_replaced, '-')[:103])
 
     command = [rf_bin,
-               "-r", str(order),
-               "-w", str(window),
-               "-o", "hi",
-               "-t"]
+               '-r', str(order),
+               '-w', str(window),
+               '-o', 'hi',
+               '-t']
 
     proc = subprocess.Popen(command,
                             stdin=subprocess.PIPE,
@@ -435,7 +434,7 @@ def diversity(sample_ids, order, window):
 
     session.close()
 
-    return json.dumps({"diversity": result_list})
+    return json.dumps({'diversity': result_list})
 
 
 @route('/api/data/v_usage/<samples>/<filter_type>/<include_outliers>/'
