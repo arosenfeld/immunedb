@@ -330,8 +330,8 @@ def format_diversity_csv_output(x, y, s):
 
 
 @route('/api/rarefaction/<sample_ids>/<sample_bool>/<fast_bool>/<start>'
-       '/<interval>', methods=['GET'])
-def rarefaction(sample_ids, sample_bool, fast_bool, start, interval):
+       '/<num_points>', methods=['GET'])
+def rarefaction(sample_ids, sample_bool, fast_bool, start, num_points):
     """Return the rarefaction curve in json format from a list of sample ids"""
 
     sample_bool = sample_bool == 'true'
@@ -354,15 +354,24 @@ def rarefaction(sample_ids, sample_bool, fast_bool, start, interval):
         ).group_by(CloneStats.clone_id)
 
     cid_string = ''
+    total_num = 0
 
     for cid in cids:
         if sample_bool:
             cid_string += '>{}\n{}\n'.format(cid.sample_id, cid.clone_id)
+            total_num += 1
         else:
             cid_string += '\n'.join(
                 [str(cid.clone_id) for _ in range(0, cid.cnt)]) + '\n'
+            total_num += cid.cnt
 
-    x_axis = '"' + str(start) + ' ' + str(interval) + '"'
+    interval = total_num // int(num_points)
+    if interval < 1:
+        interval = 1
+    if interval > total_num:
+        interval = total_num
+    print(interval)
+
     command = [rf_bin,
                '-a',
                '-d',
