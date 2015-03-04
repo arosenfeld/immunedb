@@ -76,8 +76,8 @@ def _get_subject_clones(session, subject_id, min_similarity, limit_alignments,
                seq.junction_aa)
         if key in clone_cache:
             seq.clone = clone_cache[key]
-            _assign_identical_sequences(session, seq.sequence, subject_id,
-                                        clone_cache[key].id)
+            _assign_identical_sequences(session, seq.sequence_replaced,
+                                        subject_id, clone_cache[key].id)
             continue
 
         for clone in session.query(Clone)\
