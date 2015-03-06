@@ -322,7 +322,6 @@ def get_max_point(threshold, data_list):
     the curve or above
     """
 
-    print(data_list)
     target_y = threshold * data_list[len(data_list) - 1][1]
 
     result = None
