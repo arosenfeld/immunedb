@@ -52,6 +52,10 @@ website for installation instructions.
 
 SLDB Installation
 -----------------
+
+virtualenv
+^^^^^^^^^^
+
 It is recommended that SLDB be installed within a virtual environment, creating
 an isolated environment from the rest of the system.
 
@@ -78,6 +82,13 @@ Finally, get and install SLDB:
     $ cd sldb
     $ pip install numpy scipy
     $ python setup.py install
+
+Global
+^^^^^^^^^^
+.. warning::
+    Globally installing SLDB is generally not recommended.  Doing so can result
+    in version conflicts and requires root permissions.  Only in specialized
+    situations (within a VM) should this be used.
 
 If instead a global install is desired, run:
 

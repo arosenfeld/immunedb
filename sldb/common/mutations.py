@@ -163,7 +163,8 @@ class Mutations(object):
         :rtype: tuple
 
         """
-        if self.germline[i] != seq[i]:
+        if (self.germline[i] != 'N' and seq[i] != 'N'
+                and self.germline[i] != seq[i]):
             grm_aa = self._get_aa_at(self.germline, i)
             seq_aa = self._get_aa_at(seq, i)
 
@@ -196,24 +197,26 @@ class Mutations(object):
             self._add_pos_stat(i, mut, seq)
         return mut_str
 
-    def get_aggregate(self):
+    def get_aggregate(self, thresholds=None):
         """Aggregates all mutation information from added sequences
 
         :returns: Mutation statistics for regions and positions
         :rtype: tuple ``(region_stats, position_stats)``
 
         """
-        thresholds = [
-            ('percent', 1),
-            ('percent', .8),
-            ('percent', .5),
-            ('percent', .2),
-            ('percent', 0),
-            ('seqs', 2),
-            ('seqs', 5),
-            ('seqs', 10),
-            ('seqs', 25),
-        ]
+
+        if thresholds is None:
+            thresholds = [
+                ('percent', 1),
+                ('percent', .8),
+                ('percent', .5),
+                ('percent', .2),
+                ('percent', 0),
+                ('seqs', 2),
+                ('seqs', 5),
+                ('seqs', 10),
+                ('seqs', 25),
+            ]
 
         threshold_region_stats = {}
         for threshold in thresholds:

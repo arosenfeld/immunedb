@@ -295,14 +295,15 @@ def get_clones_in_subject(session, subject_id):
 
 def get_v_usage(session, samples, filter_type, include_outliers,
                 include_partials, grouping, by_family):
+    """Gets the V-Gene usage percentages for samples"""
     if by_family:
         name_func = lambda s: s.split('*')[0].split('-', 1)[0].replace(
                         'IGHV', '')
     else:
         name_func = lambda s: s.split('*')[0].replace(
                         'IGHV', '')
-    """Gets the V-Gene usage percentages for samples"""
     data = {}
+    totals = {}
     headers = []
     for s in session.query(SampleStats)\
             .filter(SampleStats.filter_type == filter_type,
@@ -318,10 +319,11 @@ def get_v_usage(session, samples, filter_type, include_outliers,
         if group_key is None:
             group_key = 'None'
 
-        data[group_key] = {}
-        total = 0
+        if group_key not in data:
+            data[group_key] = {}
+            totals[group_key] = 0
         for v in dist:
-            total += v[1]
+            totals[group_key] += v[1]
 
         for v in dist:
             name, occ = v
@@ -329,7 +331,7 @@ def get_v_usage(session, samples, filter_type, include_outliers,
 
             if name not in data[group_key]:
                 data[group_key][name] = 0
-            data[group_key][name] += round(100 * occ / float(total), 2)
+            data[group_key][name] += round(100 * occ / float(totals[group_key]), 2)
 
             if data[group_key][name] >= 1.0 and name not in headers:
                 headers.append(name)
@@ -339,7 +341,7 @@ def get_v_usage(session, samples, filter_type, include_outliers,
             if header not in vs:
                 vs[header] = 0
 
-    return data, sorted(headers)
+    return data, sorted(headers), totals
 
 
 def get_v_usage_grouped(session, samples, filter_type, include_outliers,

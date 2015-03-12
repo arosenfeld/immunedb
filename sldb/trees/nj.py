@@ -116,7 +116,6 @@ def _push_common_mutations_up(tree, first):
     if tree.is_leaf():
         return tree.mutations
 
-    dbg = (38, 'A', 'T') in tree.mutations
     common_muts = None
     for child in tree.children:
         child_muts = copy.copy(_push_common_mutations_up(child, first))

@@ -294,7 +294,7 @@ def v_usage(samples, filter_type, include_outliers, include_partials,
 
     """
     session = scoped_session(session_factory)()
-    data, x_categories = queries.get_v_usage(
+    data, x_categories, totals = queries.get_v_usage(
         session, _split(samples), filter_type, include_outliers == 'true',
         include_partials == 'true', grouping, by_family == 'true')
     session.close()
@@ -313,6 +313,7 @@ def v_usage(samples, filter_type, include_outliers, include_partials,
     return json.dumps({
         'x_categories': x_categories,
         'y_categories': y_categories,
+        'totals': totals,
         'data': array,
     })
 
@@ -457,19 +458,27 @@ def export_v_usage(samples, filter_type, include_outliers, include_partials,
 
     """
     session = scoped_session(session_factory)()
-    data, x_categories = queries.get_v_usage(
+    data, x_categories, totals = queries.get_v_usage(
         session, _split(samples), filter_type, include_outliers == 'true',
         include_partials == 'true', grouping, by_family == 'true')
     session.close()
 
+
+    name = 'v_usage_{}.csv'.format(
+        time.strftime('%Y-%m-%d-%H-%M'))
+    response.headers['Content-Disposition'] = 'attachment;filename={}'.format(
+        name)
+
     x_categories.sort()
     y_categories = sorted(data.keys())
-
-    yield '{}\tIGHV'.format(grouping) + '\tIGHV'.join(x_categories) + '\n'
-    for group in sorted(data.keys()):
-        yield group
-        yield ('\t'.join(map(str, [data[group][v] for v in x_categories])) +
-               '\n')
+    array = []
+    yield ' ,{}\n'.format(','.join(map(
+        lambda v: 'IGHV{}'.format(v), x_categories)))
+    for y in y_categories:
+        yield '{}'.format(y)
+        for x in x_categories:
+            yield ',{}'.format(data[y][x])
+        yield '\n'
 
 
 @route('/api/data/export_clones/<rtype>/<rids>', methods=['GET'])
