@@ -1,9 +1,13 @@
+import json
+
 from sqlalchemy import func
 
 from sldb.common.models import Clone, CloneStats, Sequence
+from sldb.common.mutations import MutationCount
 
 
 def clone_stats(session, clone_id, force):
+    mutations = {}
     for cstat in session.query(
             Sequence.sample_id,
             func.count(Sequence.seq_id).label('unique'),
@@ -13,19 +17,29 @@ def clone_stats(session, clone_id, force):
 
         existing = session.query(CloneStats).filter(
             CloneStats.clone_id == clone_id,
-            CloneStats.sample_id == cstat.sample_id).first() is not None
-        if existing:
+            CloneStats.sample_id == cstat.sample_id).first()
+        if existing is not None:
             if force:
                 session.query(CloneStats).filter(
-                    CloneStats.clone_id == clone_id).delete()
+                    CloneStats.clone_id == clone_id,
+                    CloneStats.sample_id == sample_id).delete()
             else:
                 continue
+
+        if clone_id not in mutations:
+            mutations[clone_id] = MutationCount(
+                session,
+                session.query(Clone).filter(Clone.id == clone_id).first()
+            ).calculate(commit_seqs=True)
+
+        sample_muts = mutations[clone_id][cstat.sample_id]
 
         session.add(CloneStats(
             clone_id=clone_id,
             sample_id=cstat.sample_id,
             unique_cnt=cstat.unique,
-            total_cnt=cstat.total))
+            total_cnt=cstat.total,
+            mutations=json.dumps(sample_muts)))
 
 
 def run_clone_stats(session, args):
