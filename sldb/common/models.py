@@ -263,6 +263,8 @@ class CloneStats(BaseData):
     unique_cnt = Column(Integer)
     total_cnt = Column(Integer)
 
+    mutations = Column(MEDIUMTEXT)
+
 
 class SequenceExtension(MapperExtension):
     def before_insert(self, mapper, connection, instance):
@@ -381,6 +383,7 @@ class Sequence(BaseData):
     clone_id = Column(Integer, ForeignKey(Clone.id), index=True)
     clone = relationship(Clone, backref=backref('sequences',
                          order_by=seq_id))
+    mutations_from_clone = Column(MEDIUMTEXT)
 
 
 class DuplicateSequence(BaseData):
