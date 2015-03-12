@@ -4,7 +4,6 @@ from sldb.common.models import Sequence
 from sldb.identification.v_genes import VGene
 import sldb.util.lookups as lookups
 
-
 class ContextualMutations(object):
     def __init__(self):
         self._seen = {}
@@ -175,7 +174,8 @@ class CloneMutations(object):
                     self._get_aa_at(seq.sequence, i), seq.copy_number)
 
             if not only_clone:
-                sample_mutations[seq.sample_id].finish_seq(seq.sequence_replaced)
+                sample_mutations[seq.sample_id].finish_seq(
+                    seq.sequence_replaced)
             clone_mutations.finish_seq(seq.sequence_replaced)
             if commit_seqs:
                 seq.mutations_from_clone = json.dumps(seq_mutations)
