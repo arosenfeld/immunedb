@@ -12,7 +12,6 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 import sldb.util.lookups as lookups
 from sldb.common.models import *
 from sldb.identification.v_genes import VGene
-from sldb.common.mutations import Mutations, MutationType
 
 
 _clone_filters = {

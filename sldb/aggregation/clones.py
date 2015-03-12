@@ -1,14 +1,15 @@
 import argparse
-import distance
 from collections import Counter
+import distance
 
 from sqlalchemy import desc, distinct
 from sqlalchemy.sql import func
 
-from sldb.identification.identify import VDJSequence
-import sldb.util.lookups as lookups
-from sldb.util.funcs import page_query
 from sldb.common.models import *
+from sldb.identification.identify import VDJSequence
+from sldb.identification.v_genes import VGene
+from sldb.util.funcs import page_query
+import sldb.util.lookups as lookups
 
 
 def _consensus(strings):
@@ -43,6 +44,7 @@ def _get_subject_clones(session, subject_id, min_similarity, limit_alignments,
                         include_indels, min_identity, order):
     clone_cache = {}
     new_clones = 0
+    to_update = set([])
     duplicates = 0
     query = session.query(
         Sequence,
@@ -50,6 +52,7 @@ def _get_subject_clones(session, subject_id, min_similarity, limit_alignments,
         ).filter(
             Sequence.sample.has(subject_id=subject_id),
             Sequence.v_match / Sequence.v_length >= min_identity,
+            Sequence.alignment.in_(limit_alignments),
             Sequence.clone_id.is_(None),
         )
     if not include_indels:
@@ -105,6 +108,7 @@ def _get_subject_clones(session, subject_id, min_similarity, limit_alignments,
             seq_clone = new_clone
 
         seq.clone = seq_clone
+        to_update.add(seq_clone.id)
 
         if seqr.others > 1:
             duplicates += (seqr.others - 1)
@@ -114,14 +118,14 @@ def _get_subject_clones(session, subject_id, min_similarity, limit_alignments,
         clone_cache[key] = seq_clone
 
     session.commit()
+    return to_update
 
 
-def _assign_clones_to_groups(session, subject_id):
+def _assign_clones_to_groups(session, subject_id, to_update):
     for i, clone in enumerate(session.query(Clone).filter(
-            Clone.subject_id == subject_id)):
-        seqs = session.query(
-            Sequence.junction_nt, Sequence.germline
-        ).filter(Sequence.clone_id == clone.id).all()
+            Clone.id.in_(to_update))):
+        seqs = session.query(Sequence).filter(
+                Sequence.clone_id == clone.id).all()
 
         clone.cdr3_nt = _consensus(map(lambda s:
                                    s.junction_nt, seqs))
@@ -161,8 +165,8 @@ def run_clones(session, args):
 
     for sid in subjects:
         print 'Assigning clones to subject', sid
-        _get_subject_clones(session, sid, args.similarity / 100.0,
+        to_update = _get_subject_clones(session, sid, args.similarity / 100.0,
                             args.limit_alignments, args.include_indels,
                             args.min_identity / 100.0, args.order)
         print 'Assigning clones to groups'
-        _assign_clones_to_groups(session, sid)
+        _assign_clones_to_groups(session, sid, to_update)
