@@ -4,42 +4,72 @@ from sldb.common.models import Sequence
 from sldb.identification.v_genes import VGene
 import sldb.util.lookups as lookups
 
+
 class ContextualMutations(object):
     def __init__(self):
-        self._seen = set([])
-        self._mutations = {
-            'total': {},
-            'unique': {},
-        }
+        self._seen = {}
+        self.region_muts = {}
+        self.position_muts = {}
 
-    def add_mutation(self, seq_replaced, mtype, mutation, copy_number):
+    def _get_region(self, index, cdr3_num_nts):
+        if index <= 77:
+            return 'FR1'
+        elif index <= 113:
+            return 'CDR1'
+        elif index <= 164:
+            return 'FR2'
+        elif index <= 194:
+            return 'CDR2'
+        elif index <= 308:
+            return 'FR3'
+        elif index <= 308 + cdr3_num_nts:
+            return 'CDR3'
+        return 'FR4'
+
+    def add_mutation(self, seq_replaced, cdr3_num_nts, mtype, mutation,
+                     copy_number):
         pos, from_nt, to_nt, from_aa, to_aa = mutation
-        uniq = (pos, from_nt, to_nt)
+        uniq = '_'.join(map(str, (pos, from_nt, to_nt)))
+        region = self._get_region(pos, cdr3_num_nts)
+        if region not in self.region_muts:
+            self.region_muts[region] = {
+                'total': {},
+                'unique': {}
+            }
         # If it's a new mutation, setup the dictionaries
-        if uniq not in self['total']:
-            self._mutations['total'][uniq] = {}
-            self._mutations['unique'][uniq] = {}
+        if uniq not in self.region_muts[region]['total']:
+            self.region_muts[region]['total'][uniq] = {}
+            self.region_muts[region]['unique'][uniq] = {}
 
         # If the mutation type has not been seen for the mutation, setup the
         # dictionaries
-        if mtype not in record['total'][uniq]:
-            record['total'][uniq][mtype] = {}
-            record['unique'][uniq][mtype] = {}
+        if mtype not in self.region_muts[region]['total'][uniq]:
+            self.region_muts[region]['total'][uniq][mtype] = {}
+            self.region_muts[region]['unique'][uniq][mtype] = {}
 
         # If the specific amino acid change has not been seen, setup the
         # counters
-        if (from_aa, to_aa) not in record['total'][uniq][mtype]:
-            record['total'][uniq][mtype][(from_aa, to_aa)] = 0
-            record['unique'][uniq][mtype][(from_aa, to_aa)] = 0
+        aa_key = '_'.join((from_aa, to_aa))
+        if aa_key not in self.region_muts[region]['total'][uniq][mtype]:
+            self.region_muts[region]['total'][uniq][mtype][aa_key] = 0
+            self.region_muts[region]['unique'][uniq][mtype][aa_key] = 0
 
         # Increment the total count for the mutation
-        record['total'][uniq][mtype][(from_aa, to_aa)] = copy_number
+        self.region_muts[region]['total'][uniq][mtype][aa_key] = copy_number
 
         # If this is the first time the sequence has been seen, add it to the
         # unique count.
-        if seq_replaced not in self._seen:
-            record['unique'][uniq][mtype][(from_aa, to_aa)] = 1
-            self._seen.add(seq_replaced)
+        if uniq not in self._seen:
+            self._seen[uniq] = set([])
+        if seq_replaced not in self._seen[uniq]:
+            self.region_muts[region]['unique'][uniq][mtype][aa_key] = 1
+            self._seen[uniq].add(seq_replaced)
+            if pos not in self.position_muts:
+                self.position_muts[pos] = {}
+            if mtype not in self.position_muts[pos]:
+                self.position_muts[pos][mtype] = 0
+            self.position_muts[pos][mtype] += 1
+
 
 class CloneMutations(object):
     def __init__(self, session, clone):
@@ -68,41 +98,45 @@ class CloneMutations(object):
                 return 'unknown'
             elif grm_aa != seq_aa:
                 if lookups.are_conserved_aas(grm_aa, seq_aa):
-                    return 'conserved'
-                return 'unconserved'
+                    return 'conservative'
+                return 'nonconservative'
             else:
                 return 'synonymous'
 
         return None
 
-    def calculate(self, commit_seqs=False):
+    def calculate(self, commit_seqs=False, limit_samples=None):
         sample_mutations = {}
-        total_mutations = ContextualMutations()
+        clone_mutations = ContextualMutations()
 
-        for seq in session.query(Sequence).filter(
-                Sequence.clone == clone):
+        seqs = self._session.query(Sequence).filter(
+            Sequence.clone == self._clone)
+        if limit_samples is not None:
+            seqs = seqs.filter(Sequence.sample_id.in_(limit_samples))
+
+        for seq in seqs:
             seq_mutations = []
             for i in range(0, len(seq.sequence)):
+                if seq.sample_id not in sample_mutations:
+                    sample_mutations[seq.sample_id] = ContextualMutations()
                 mtype = self._get_mutation(seq.sequence, i)
                 if mtype is None:
                     continue
-                seq_mutations.add((i, self._germline[i], seq.sequence[i],
-                                   from_aa, to_aa))
-
                 mutation = (i, self._germline[i], seq.sequence[i],
                             self._get_aa_at(self._germline, i) or '?',
                             self._get_aa_at(seq.sequence, i) or '?')
-                if seq.sample_id not in sample_mutations:
-                    sample_mutations[seq.sample_id] = ContextualMutations()
-                sample_mutations[seq.sample_id].add_mutation(
-                        seq.sequence_replaced, mtype, mutation, seq.copy_number)
+                seq_mutations.append(mutation)
 
-                total_mutations.add_mutation(seq.sequence_replaced, mtype,
-                                             mutation, seq.copy_number)
+                sample_mutations[seq.sample_id].add_mutation(
+                    seq.sequence_replaced, self._clone.cdr3_num_nts,
+                    mtype, mutation, seq.copy_number)
+
+                clone_mutations.add_mutation(
+                        seq.sequence_replaced, self._clone.cdr3_num_nts, mtype,
+                        mutation, seq.copy_number)
             if commit_seqs:
                 seq.mutations_from_clone = json.dumps(seq_mutations)
 
         if commit_seqs:
             self._session.commit()
-
-        return sample_mutations, all_mutations
+        return sample_mutations, clone_mutations
