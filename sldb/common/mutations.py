@@ -31,22 +31,14 @@ class ContextualMutations(object):
         pos, from_nt, to_nt, mtype = mutation
         region = self._get_region(pos, cdr3_num_nts)
         if region not in self.region_muts:
-            self.region_muts[region] = {
-                'counts': {
-                    'total': {},
-                    'unique': {}
-                },
-                'mutations': {}
-            }
+            self.region_muts[region] = {}
 
         # If it's a new mutation, setup the dictionaries
-        if mtype not in self.region_muts[region]['counts']['total']:
-            self.region_muts[region]['counts']['total'][mtype] = 0
-            self.region_muts[region]['counts']['unique'][mtype] = 0
-            self.region_muts[region]['mutations'][mtype] = {}
+        if mtype not in self.region_muts[region]:
+            self.region_muts[region][mtype] = {}
 
-        if mutation not in self.region_muts[region]['mutations'][mtype]:
-            self.region_muts[region]['mutations'][mtype][mutation] = {
+        if mutation not in self.region_muts[region][mtype]:
+            self.region_muts[region][mtype][mutation] = {
                 'pos': pos,
                 'from_nt': from_nt,
                 'from_aa': from_aa,
@@ -58,30 +50,24 @@ class ContextualMutations(object):
                 'intermediate_aa': intermediate_seq_aa,
             }
 
-        mut_dict = self.region_muts[region]['mutations'][mtype][mutation]
+        mut_dict = self.region_muts[region][mtype][mutation]
         mut_dict['total'] += copy_number
         if final_seq_aa not in mut_dict['to_aas']:
             mut_dict['to_aas'].append(final_seq_aa)
 
-        self.region_muts[region]['counts']['total'][mtype] += copy_number
-
         if mutation not in self._seen:
             self._seen[mutation] = set([])
         if seq_replaced not in self._seen[mutation]:
-            self.region_muts[region]['counts']['unique'][mtype] += 1
             mut_dict['unique'] += 1
             self._seen[mutation].add(seq_replaced)
 
     def get_all(self):
+        # Strip the dictionary keys and just make a list of mutations
         final_regions = {}
-        for region, stats in self.region_muts.iteritems():
-            final_regions[region] = {
-                'counts': stats['counts'],
-                'mutations': {}
-            }
-
-            for mtype, muts in stats['mutations'].iteritems():
-                final_regions[region]['mutations'][mtype] = muts.values()
+        for region, types in self.region_muts.iteritems():
+            final_regions[region] = {}
+            for mtype, mutations in types.iteritems():
+                final_regions[region][mtype] = mutations.values()
 
         return {
             'regions': final_regions,
@@ -169,6 +155,23 @@ class CloneMutations(object):
             self._session.commit()
         return sample_mutations, clone_mutations
 
-def create_threshold_mutations(all_muts, total_seqs, threshold_type,
-                               threshold_value):
-    pas
+def threshold_mutations(all_muts, min_required_seqs):
+    final = {}
+    for region, types in all_muts['regions'].iteritems():
+        final[region] = {
+            'counts': {},
+            'mutations': {}
+        }
+        for mtype, mutations in types.iteritems():
+            for mutation in mutations:
+                if mutation['unique'] >= min_required_seqs:
+                    if mtype not in final[region]:
+                        final[region]['mutations'][mtype] = []
+                        final[region]['counts']['total'] = {mtype: 0}
+                        final[region]['counts']['unique'] = {mtype: 0}
+                    final[region]['mutations'][mtype].append(mutation)
+                    final[region]['counts']['total'][mtype] += \
+                        mutation['total']
+                    final[region]['counts']['unique'][mtype] += \
+                        mutation['unique']
+    return final
