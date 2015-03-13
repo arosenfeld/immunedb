@@ -3,7 +3,7 @@ import json
 from sqlalchemy import func
 
 from sldb.common.models import Clone, CloneStats, Sequence
-from sldb.common.mutations import MutationCount
+from sldb.common.mutations import CloneMutations
 
 
 def clone_stats(session, clone_id, force):
@@ -27,7 +27,7 @@ def clone_stats(session, clone_id, force):
                 continue
 
         if clone_id not in mutations:
-            mutations[clone_id] = MutationCount(
+            mutations[clone_id] = CloneMutations(
                 session,
                 session.query(Clone).filter(Clone.id == clone_id).first()
             ).calculate(commit_seqs=True)
