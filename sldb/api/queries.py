@@ -211,13 +211,28 @@ def compare_clones(session, uids):
                 'j_length': seq.j_length,
             })
 
-        if full_clone:
-            clones[clone_id]['mutation_stats'] = json.loads(session.query(
-                    CloneStats.mutations
-                ).filter(
-                    CloneStats.clone_id == clone_id,
-                    CloneStats.sample_id == 0
-                ).first().mutations)
+        all_mutations = json.loads(session.query(
+            CloneStats.mutations
+        ).filter(
+            CloneStats.clone_id == clone_id,
+            CloneStats.sample_id == 0
+        ).first().mutations)
+
+        clones[clone_id]['mutation_stats'] = all_mutations
+        '''
+        clones[clone_id]['mutation_stats'] = create_threshold_mutations(
+            all_mutations, [
+            ('percent', 1),
+            ('percent', .8),
+            ('percent', .5),
+            ('percent', .2),
+            ('percent', 0),
+            ('seqs', 2),
+            ('seqs', 5),
+            ('seqs', 10),
+            ('seqs', 25)
+        ])
+        '''
 
     return clones
 

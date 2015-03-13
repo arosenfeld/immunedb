@@ -26,49 +26,67 @@ class ContextualMutations(object):
             return 'CDR3'
         return 'FR4'
 
-    def add_mutation(self, seq_replaced, cdr3_num_nts, mtype, mutation,
-                     copy_number):
-        pos, from_nt, to_nt, from_aa, to_aa = mutation
-        uniq = '_'.join(map(str, (pos, from_nt, to_nt)))
+    def add_mutation(self, seq_replaced, cdr3_num_nts, mutation, from_aa,
+                     intermediate_seq_aa, final_seq_aa, copy_number):
+        pos, from_nt, to_nt, mtype = mutation
         region = self._get_region(pos, cdr3_num_nts)
         if region not in self.region_muts:
             self.region_muts[region] = {
-                'total': {},
-                'unique': {}
+                'counts': {
+                    'total': {},
+                    'unique': {}
+                },
+                'mutations': {}
             }
+
         # If it's a new mutation, setup the dictionaries
-        if uniq not in self.region_muts[region]['total']:
-            self.region_muts[region]['total'][uniq] = {}
-            self.region_muts[region]['unique'][uniq] = {}
+        if mtype not in self.region_muts[region]['counts']['total']:
+            self.region_muts[region]['counts']['total'][mtype] = 0
+            self.region_muts[region]['counts']['unique'][mtype] = 0
+            self.region_muts[region]['mutations'][mtype] = {}
 
-        # If the mutation type has not been seen for the mutation, setup the
-        # dictionaries
-        if mtype not in self.region_muts[region]['total'][uniq]:
-            self.region_muts[region]['total'][uniq][mtype] = {}
-            self.region_muts[region]['unique'][uniq][mtype] = {}
+        if mutation not in self.region_muts[region]['mutations'][mtype]:
+            self.region_muts[region]['mutations'][mtype][mutation] = {
+                'pos': pos,
+                'from_nt': from_nt,
+                'from_aa': from_aa,
+                'to_nt': to_nt,
+                'to_aas': [],
 
-        # If the specific amino acid change has not been seen, setup the
-        # counters
-        aa_key = '_'.join((from_aa, to_aa))
-        if aa_key not in self.region_muts[region]['total'][uniq][mtype]:
-            self.region_muts[region]['total'][uniq][mtype][aa_key] = 0
-            self.region_muts[region]['unique'][uniq][mtype][aa_key] = 0
+                'unique': 0,
+                'total': 0,
+                'intermediate_aa': intermediate_seq_aa,
+            }
 
-        # Increment the total count for the mutation
-        self.region_muts[region]['total'][uniq][mtype][aa_key] = copy_number
+        mut_dict = self.region_muts[region]['mutations'][mtype][mutation]
+        mut_dict['total'] += copy_number
+        if final_seq_aa not in mut_dict['to_aas']:
+            mut_dict['to_aas'].append(final_seq_aa)
 
-        # If this is the first time the sequence has been seen, add it to the
-        # unique count.
-        if uniq not in self._seen:
-            self._seen[uniq] = set([])
-        if seq_replaced not in self._seen[uniq]:
-            self.region_muts[region]['unique'][uniq][mtype][aa_key] = 1
-            self._seen[uniq].add(seq_replaced)
-            if pos not in self.position_muts:
-                self.position_muts[pos] = {}
-            if mtype not in self.position_muts[pos]:
-                self.position_muts[pos][mtype] = 0
-            self.position_muts[pos][mtype] += 1
+        self.region_muts[region]['counts']['total'][mtype] += copy_number
+
+        if mutation not in self._seen:
+            self._seen[mutation] = set([])
+        if seq_replaced not in self._seen[mutation]:
+            self.region_muts[region]['counts']['unique'][mtype] += 1
+            mut_dict['unique'] += 1
+            self._seen[mutation].add(seq_replaced)
+
+    def get_all(self):
+        final_regions = {}
+        for region, stats in self.region_muts.iteritems():
+            final_regions[region] = {
+                'counts': stats['counts'],
+                'mutations': {}
+            }
+
+            for mtype, muts in stats['mutations'].iteritems():
+                final_regions[region]['mutations'][mtype] = muts.values()
+
+        return {
+            'regions': final_regions,
+            'positions': self.position_muts
+        }
 
 
 class CloneMutations(object):
@@ -83,27 +101,34 @@ class CloneMutations(object):
             self._germline[VGene.CDR3_OFFSET + clone.cdr3_num_nts:]
         ])
 
-    def _get_aa_at(self, seq, i):
+    def _get_codon_at(self, seq, i):
         aa_off = i - i % 3
-        return lookups.aa_from_codon(seq[aa_off:aa_off + 3])
+        return seq[aa_off:aa_off + 3]
+
+    def _get_aa_at(self, seq, i):
+        return lookups.aa_from_codon(self._get_codon_at(seq, i))
 
     def _get_mutation(self, seq, i):
         if (self._germline[i] != seq[i]
                 and self._germline[i] != 'N'
                 and seq[i] != 'N'):
             grm_aa = self._get_aa_at(self._germline, i)
-            seq_aa = self._get_aa_at(seq, i)
+            # Simulate this mutation alone
+            off = i % 3
+            grm_codon = self._get_codon_at(self._germline, i)
+            seq_aa = lookups.aa_from_codon(
+                grm_codon[:off] + seq[i] + grm_codon[off+1:])
 
             if grm_aa is None or seq_aa is None:
-                return 'unknown'
+                return 'unknown', seq_aa
             elif grm_aa != seq_aa:
                 if lookups.are_conserved_aas(grm_aa, seq_aa):
-                    return 'conservative'
-                return 'nonconservative'
+                    return 'conservative', seq_aa
+                return 'nonconservative', seq_aa
             else:
-                return 'synonymous'
+                return 'synonymous', seq_aa
 
-        return None
+        return None, None
 
     def calculate(self, commit_seqs=False, limit_samples=None):
         sample_mutations = {}
@@ -119,24 +144,31 @@ class CloneMutations(object):
             for i in range(0, len(seq.sequence)):
                 if seq.sample_id not in sample_mutations:
                     sample_mutations[seq.sample_id] = ContextualMutations()
-                mtype = self._get_mutation(seq.sequence, i)
+                mtype, intermediate_seq_aa = self._get_mutation(
+                    seq.sequence, i)
                 if mtype is None:
                     continue
-                mutation = (i, self._germline[i], seq.sequence[i],
-                            self._get_aa_at(self._germline, i) or '?',
-                            self._get_aa_at(seq.sequence, i) or '?')
+
+                mutation = (i, self._germline[i], seq.sequence[i], mtype)
+                from_aa = self._get_aa_at(self._germline, i)
                 seq_mutations.append(mutation)
 
                 sample_mutations[seq.sample_id].add_mutation(
-                    seq.sequence_replaced, self._clone.cdr3_num_nts,
-                    mtype, mutation, seq.copy_number)
+                    seq.sequence_replaced, self._clone.cdr3_num_nts, mutation,
+                    from_aa, intermediate_seq_aa,
+                    self._get_aa_at(seq.sequence, i), seq.copy_number)
 
                 clone_mutations.add_mutation(
-                        seq.sequence_replaced, self._clone.cdr3_num_nts, mtype,
-                        mutation, seq.copy_number)
+                    seq.sequence_replaced, self._clone.cdr3_num_nts, mutation,
+                    from_aa, intermediate_seq_aa,
+                    self._get_aa_at(seq.sequence, i), seq.copy_number)
             if commit_seqs:
                 seq.mutations_from_clone = json.dumps(seq_mutations)
 
         if commit_seqs:
             self._session.commit()
         return sample_mutations, clone_mutations
+
+def create_threshold_mutations(all_muts, total_seqs, threshold_type,
+                               threshold_value):
+    pas
