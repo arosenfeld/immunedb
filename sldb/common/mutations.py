@@ -177,6 +177,7 @@ class CloneMutations(object):
                 sample_mutations[seq.sample_id].finish_seq(
                     seq.sequence_replaced)
             clone_mutations.finish_seq(seq.sequence_replaced)
+
             if commit_seqs:
                 seq.mutations_from_clone = json.dumps(seq_mutations)
 

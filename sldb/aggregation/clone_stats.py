@@ -53,7 +53,7 @@ def clone_stats(session, clone_id, force):
         sample_muts = mutations[clone_id][cstat.sample_id]
 
         if clone_id not in mutations:
-            mutations[clone_id] = MutationCount(
+            mutations[clone_id] = CloneMutations(
                 session,
                 session.query(Clone).filter(Clone.id == clone_id).first()
             ).calculate(commit_seqs=True)
