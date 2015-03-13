@@ -141,11 +141,10 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
         clone_q = clone_q.offset((page - 1) * per_page).limit(per_page)
 
     for c in clone_q:
-        total_unique = 0
-        total_all = 0
         stats_comb = []
         for stat in session.query(CloneStats).filter(
-                CloneStats.clone_id == c.id
+                CloneStats.clone_id == c.id,
+                CloneStats.sample_id != 0
                 ).order_by(desc(CloneStats.unique_cnt)):
             stats_comb.append({
                 'sample': {
@@ -155,11 +154,15 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
                 'unique_sequences': int(stat.unique_cnt),
                 'total_sequences': int(stat.total_cnt)
             })
-            total_unique += int(stat.unique_cnt)
-            total_all += int(stat.total_cnt)
         clone_dict = _clone_to_dict(c)
-        clone_dict['unique_sequences'] = total_unique
-        clone_dict['total_sequences'] = total_all
+        totals = session.query(
+            CloneStats.total_cnt, CloneStats.unique_cnt
+        ).filter(
+            CloneStats.clone_id == c.id,
+            CloneStats.sample_id == 0
+        ).first()
+        clone_dict['unique_sequences'] = totals.unique_cnt
+        clone_dict['total_sequences'] = totals.total_cnt
         clone_dict['stats'] = stats_comb
         res.append(clone_dict)
 
@@ -169,39 +172,30 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
 def compare_clones(session, uids):
     """Compares sequences within clones by determining their mutations"""
     clones = {}
-    clone_muts = {}
     for clone_id, sample_ids in uids.iteritems():
+        full_clone = None in sample_ids
         clone = session.query(Clone).filter(Clone.id == clone_id).first()
-        germline = clone.group.germline
-        if clone_id not in clones:
-            clone_muts[clone_id] = Mutations(germline, clone.cdr3_nt)
-            clones[clone_id] = {
-                'clone': _clone_to_dict(clone),
-                'mutation_stats': {},
-                'seqs': []
-            }
-        mutations = clone_muts[clone_id]
-
-        start_ptrn = re.compile('[N\-]*')
 
         q = session.query(
             Sequence,
             func.sum(Sequence.copy_number).label('copy_number'))\
             .filter(Sequence.clone_id == clone_id)
-        if None not in sample_ids:
+        if not full_clone:
             q = q.filter(Sequence.sample_id.in_(sample_ids))
         q = q.order_by(desc('copy_number')).group_by(
             Sequence.sequence_replaced)
 
+        if clone_id not in clones:
+            clones[clone_id] = {
+                'clone': _clone_to_dict(clone),
+                'mutation_stats': {},
+                'seqs': []
+            }
+
+        start_ptrn = re.compile('[N\-]*')
         for seqr in q:
             seq = seqr.Sequence
-            read_start = start_ptrn.match(seq.sequence)
-            if read_start is None:
-                read_start = 0
-            else:
-                read_start = read_start.span()[1]
-
-            muts = mutations.add_sequence(seq.sequence_replaced)
+            read_start = start_ptrn.match(seq.sequence).span()[1] or 0
             clones[clone_id]['seqs'].append({
                 'seq_id': seq.seq_id,
                 'sample': {
@@ -212,14 +206,18 @@ def compare_clones(session, uids):
                 'sequence': seq.sequence_replaced,
                 'read_start': read_start,
                 'copy_number': int(seqr.copy_number),
-                'mutations': muts,
+                'mutations': seq.mutations_from_clone,
                 'v_extent': seq.v_length + seq.num_gaps + seq.pad_length,
                 'j_length': seq.j_length,
             })
 
-        region_stats, pos_stats = mutations.get_aggregate()
-        clones[clone_id]['mutation_stats']['regions'] = region_stats
-        clones[clone_id]['mutation_stats']['positions'] = pos_stats
+        if full_clone:
+            clones[clone_id]['mutation_stats'] = json.loads(session.query(
+                    CloneStats.mutations
+                ).filter(
+                    CloneStats.clone_id == clone_id,
+                    CloneStats.sample_id == 0
+                ).first().mutations)
 
     return clones
 
@@ -556,13 +554,10 @@ def get_sequence(session, sample_id, seq_id):
     else:
         ret['clone'] = _clone_to_dict(seq.clone)
 
-    muts = Mutations(seq.germline, seq.junction_nt)
-    ret['mutations'] = muts.add_sequence(seq.sequence)
-
     ret['possible_duplicates'] = []
     ret['total_copy_number'] = ret['copy_number']
     for dup in session.query(Sequence).filter(
-            Sequence.sequence == seq.sequence,
+            Sequence.sequence_replaced == seq.sequence_replaced,
             Sequence.sample.has(subject_id=seq.sample.subject_id),
             Sequence.seq_id != seq.seq_id)\
             .order_by(Sequence.sample_id):
