@@ -169,6 +169,7 @@ class CloneMutations(object):
                         mutation, from_aa, intermediate_seq_aa,
                         self._get_aa_at(seq.sequence, i), seq.copy_number)
 
+
                 clone_mutations.add_mutation(
                     seq.sequence_replaced, self._clone.cdr3_num_nts, mutation,
                     from_aa, intermediate_seq_aa,
