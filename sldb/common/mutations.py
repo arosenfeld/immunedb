@@ -4,6 +4,7 @@ from sldb.common.models import Sequence
 from sldb.identification.v_genes import VGene
 import sldb.util.lookups as lookups
 
+
 class ContextualMutations(object):
     def __init__(self):
         self._seen = {}

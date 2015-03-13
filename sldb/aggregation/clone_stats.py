@@ -52,11 +52,34 @@ def clone_stats(session, clone_id, force):
 
         sample_muts = mutations[clone_id][cstat.sample_id]
 
+        # First encountering a new clone
         if clone_id not in mutations:
-            mutations[clone_id] = CloneMutations(
+            # Get the per-sample and total mutations.  Commit the mutations for
+            # the sequences.
+            mutations[clone_id], all_muts = CloneMutations(
                 session,
                 session.query(Clone).filter(Clone.id == clone_id).first()
             ).calculate(commit_seqs=True)
+            # Get the total and unique counts for the entire clone
+            counts = session.query(
+                func.count(
+                    distinct(Sequence.sequence_replaced)
+                ).label('unique'),
+                func.sum(Sequence.copy_number).label('total')
+            ).filter(Sequence.clone_id == clone_id).first()
+
+            # Add the statistics for the whole clone, denoted with a 0 in the
+            # sample_id field
+            session.add(CloneStats(
+                clone_id=clone_id,
+                sample_id=0,
+                unique_cnt=counts.unique,
+                total_cnt=counts.total,
+                mutations=json.dumps({
+                    'regions': all_muts.region_muts,
+                    'positions': all_muts.position_muts
+                })
+            ))
 
         sample_muts = mutations[clone_id][cstat.sample_id]
 
