@@ -219,7 +219,7 @@ def compare_clones(session, uids):
                 'sequence': seq.sequence_replaced,
                 'read_start': read_start,
                 'copy_number': int(seqr.copy_number),
-                'mutations': seq.mutations_from_clone,
+                'mutations': json.loads(seq.mutations_from_clone),
                 'v_extent': seq.v_length + seq.num_gaps + seq.pad_length,
                 'j_length': seq.j_length,
             })

@@ -28,8 +28,17 @@ class ContextualMutations(object):
 
     def add_mutation(self, seq_replaced, cdr3_num_nts, mutation, from_aa,
                      intermediate_seq_aa, final_seq_aa, copy_number):
+        region = self._get_region(mutation[0], cdr3_num_nts)
+        self._add_to_region(seq_replaced, cdr3_num_nts, mutation, from_aa,
+                            intermediate_seq_aa, final_seq_aa, copy_number,
+                            region)
+        self._add_to_region(seq_replaced, cdr3_num_nts, mutation, from_aa,
+                            intermediate_seq_aa, final_seq_aa, copy_number,
+                            'ALL')
+
+    def _add_to_region(self, seq_replaced, cdr3_num_nts, mutation, from_aa,
+                       intermediate_seq_aa, final_seq_aa, copy_number, region):
         pos, from_nt, to_nt, mtype = mutation
-        region = self._get_region(pos, cdr3_num_nts)
         if region not in self.region_muts:
             self.region_muts[region] = {}
 
@@ -55,11 +64,13 @@ class ContextualMutations(object):
         if final_seq_aa not in mut_dict['to_aas']:
             mut_dict['to_aas'].append(final_seq_aa)
 
-        if mutation not in self._seen:
-            self._seen[mutation] = set([])
-        if seq_replaced not in self._seen[mutation]:
+        if region not in self._seen:
+            self._seen[region] = {}
+        if mutation not in self._seen[region]:
+            self._seen[region][mutation] = set([])
+        if seq_replaced not in self._seen[region][mutation]:
             mut_dict['unique'] += 1
-            self._seen[mutation].add(seq_replaced)
+            self._seen[region][mutation].add(seq_replaced)
 
     def get_all(self):
         # Strip the dictionary keys and just make a list of mutations
@@ -126,7 +137,7 @@ class CloneMutations(object):
             seqs = seqs.filter(Sequence.sample_id.in_(limit_samples))
 
         for seq in seqs:
-            seq_mutations = []
+            seq_mutations = {}
             for i in range(0, len(seq.sequence)):
                 if seq.sample_id not in sample_mutations:
                     sample_mutations[seq.sample_id] = ContextualMutations()
@@ -135,10 +146,10 @@ class CloneMutations(object):
                 if mtype is None:
                     continue
 
-                mutation = (i, self._germline[i], seq.sequence[i], mtype)
                 from_aa = self._get_aa_at(self._germline, i)
-                seq_mutations.append(mutation)
+                seq_mutations[i] = mtype
 
+                mutation = (i, self._germline[i], seq.sequence[i], mtype)
                 sample_mutations[seq.sample_id].add_mutation(
                     seq.sequence_replaced, self._clone.cdr3_num_nts, mutation,
                     from_aa, intermediate_seq_aa,
@@ -155,23 +166,27 @@ class CloneMutations(object):
             self._session.commit()
         return sample_mutations, clone_mutations
 
+
 def threshold_mutations(all_muts, min_required_seqs):
     final = {}
     for region, types in all_muts['regions'].iteritems():
         final[region] = {
-            'counts': {},
+            'counts': {
+                'total': {},
+                'unique': {}
+            },
             'mutations': {}
         }
         for mtype, mutations in types.iteritems():
             for mutation in mutations:
                 if mutation['unique'] >= min_required_seqs:
-                    if mtype not in final[region]:
+                    if mtype not in final[region]['mutations']:
                         final[region]['mutations'][mtype] = []
-                        final[region]['counts']['total'] = {mtype: 0}
-                        final[region]['counts']['unique'] = {mtype: 0}
+                    if mtype not in final[region]['counts']['total']:
+                        final[region]['counts']['total'][mtype] = 0
+                        final[region]['counts']['unique'][mtype] = 0
                     final[region]['mutations'][mtype].append(mutation)
                     final[region]['counts']['total'][mtype] += \
-                        mutation['total']
-                    final[region]['counts']['unique'][mtype] += \
                         mutation['unique']
+                    final[region]['counts']['unique'][mtype] += 1
     return final
