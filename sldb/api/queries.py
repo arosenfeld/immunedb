@@ -11,7 +11,7 @@ from sqlalchemy.ext.declarative import DeclarativeMeta
 
 import sldb.util.lookups as lookups
 from sldb.common.models import *
-from sldb.common.mutations import threshold_mutations
+from sldb.common.mutations import CloneMutations, threshold_mutations
 from sldb.identification.v_genes import VGene
 
 
@@ -224,14 +224,24 @@ def compare_clones(session, uids):
                 'j_length': seq.j_length,
             })
 
-        full_clone_stats = session.query(
-            CloneStats.mutations,
-            CloneStats.unique_cnt
-        ).filter(
-            CloneStats.clone_id == clone_id,
-            CloneStats.sample_id == 0
-        ).first()
-        all_mutations = json.loads(full_clone_stats.mutations)
+        if full_clone:
+            full_clone_stats = session.query(
+                CloneStats.mutations,
+                CloneStats.unique_cnt
+            ).filter(
+                CloneStats.clone_id == clone_id,
+                CloneStats.sample_id == 0
+            ).first()
+            total_seqs = full_clone_stats.unique_cnt
+            all_mutations = json.loads(full_clone_stats.mutations)
+        else:
+            print 'CALC'
+            all_mutations = CloneMutations(session, clone).calculate(
+                limit_samples=sample_ids, only_clone=True).get_all()
+            total_seqs = session.query(func.count(Sequence.seq_id)).filter(
+                Sequence.clone_id == clone_id,
+                Sequence.sample_id.in_(sample_ids)).scalar()
+
         mut_dict = {
             'positions': all_mutations['positions'],
             'regions': {}
@@ -242,9 +252,7 @@ def compare_clones(session, uids):
             if threshold[0] == 'seqs':
                 seq_min = threshold[1]
             else:
-                seq_min = int(math.ceil(
-                    threshold[1] / 100.0 * full_clone_stats.unique_cnt))
-                print threshold[1], full_clone_stats.unique_cnt, seq_min
+                seq_min = int(math.ceil(threshold[1] / 100.0 * total_seqs))
             tname = '_'.join(map(str, threshold))
             mut_dict['regions'][tname] = threshold_mutations(all_mutations,
                                                              seq_min)

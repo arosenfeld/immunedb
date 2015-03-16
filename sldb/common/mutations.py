@@ -29,7 +29,6 @@ class ContextualMutations(object):
 
     def add_mutation(self, seq_replaced, cdr3_num_nts, mutation, from_aa,
                      intermediate_seq_aa, final_seq_aa, copy_number):
-
         pos, _, _, mtype = mutation
         region = self._get_region(pos, cdr3_num_nts)
         self._add_to_region(seq_replaced, cdr3_num_nts, mutation, from_aa,
@@ -140,7 +139,8 @@ class CloneMutations(object):
 
         return None, None
 
-    def calculate(self, commit_seqs=False, limit_samples=None):
+    def calculate(self, commit_seqs=False, limit_samples=None,
+                  only_clone=False):
         sample_mutations = {}
         clone_mutations = ContextualMutations()
 
@@ -163,23 +163,28 @@ class CloneMutations(object):
                 seq_mutations[i] = mtype
 
                 mutation = (i, self._germline[i], seq.sequence[i], mtype)
-                sample_mutations[seq.sample_id].add_mutation(
-                    seq.sequence_replaced, self._clone.cdr3_num_nts, mutation,
-                    from_aa, intermediate_seq_aa,
-                    self._get_aa_at(seq.sequence, i), seq.copy_number)
+                if not only_clone:
+                    sample_mutations[seq.sample_id].add_mutation(
+                        seq.sequence_replaced, self._clone.cdr3_num_nts,
+                        mutation, from_aa, intermediate_seq_aa,
+                        self._get_aa_at(seq.sequence, i), seq.copy_number)
 
                 clone_mutations.add_mutation(
                     seq.sequence_replaced, self._clone.cdr3_num_nts, mutation,
                     from_aa, intermediate_seq_aa,
                     self._get_aa_at(seq.sequence, i), seq.copy_number)
 
-            sample_mutations[seq.sample_id].finish_seq(seq.sequence_replaced)
+            if not only_clone:
+                sample_mutations[seq.sample_id].finish_seq(seq.sequence_replaced)
             clone_mutations.finish_seq(seq.sequence_replaced)
             if commit_seqs:
                 seq.mutations_from_clone = json.dumps(seq_mutations)
 
         if commit_seqs:
             self._session.commit()
+        if only_clone:
+            return clone_mutations
+
         return sample_mutations, clone_mutations
 
 
