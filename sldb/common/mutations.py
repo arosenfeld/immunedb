@@ -29,13 +29,22 @@ class ContextualMutations(object):
 
     def add_mutation(self, seq_replaced, cdr3_num_nts, mutation, from_aa,
                      intermediate_seq_aa, final_seq_aa, copy_number):
-        region = self._get_region(mutation[0], cdr3_num_nts)
+
+        pos, _, _, mtype = mutation
+        region = self._get_region(pos, cdr3_num_nts)
         self._add_to_region(seq_replaced, cdr3_num_nts, mutation, from_aa,
                             intermediate_seq_aa, final_seq_aa, copy_number,
                             region)
         self._add_to_region(seq_replaced, cdr3_num_nts, mutation, from_aa,
                             intermediate_seq_aa, final_seq_aa, copy_number,
                             'ALL')
+
+        if seq_replaced not in self._pos_seen:
+            if pos not in self.position_muts:
+                self.position_muts[pos] = {}
+            if mtype not in self.position_muts[pos]:
+                self.position_muts[pos][mtype] = 0
+            self.position_muts[pos][mtype] += 1
 
     def _add_to_region(self, seq_replaced, cdr3_num_nts, mutation, from_aa,
                        intermediate_seq_aa, final_seq_aa, copy_number, region):
@@ -73,13 +82,8 @@ class ContextualMutations(object):
             self._seen[region][mutation].add(seq_replaced)
             mut_dict['unique'] += 1
 
-        if seq_replaced not in self._pos_seen:
-            self._pos_seen.add(seq_replaced)
-            if pos not in self.position_muts:
-                self.position_muts[pos] = {}
-            if mtype not in self.position_muts[pos]:
-                self.position_muts[pos][mtype] = 0
-            self.position_muts[pos][mtype] += 1
+    def finish_seq(self, seq_replaced):
+        self._pos_seen.add(seq_replaced)
 
     def get_all(self):
         # Strip the dictionary keys and just make a list of mutations
@@ -168,6 +172,9 @@ class CloneMutations(object):
                     seq.sequence_replaced, self._clone.cdr3_num_nts, mutation,
                     from_aa, intermediate_seq_aa,
                     self._get_aa_at(seq.sequence, i), seq.copy_number)
+
+            sample_mutations[seq.sample_id].finish_seq(seq.sequence_replaced)
+            clone_mutations.finish_seq(seq.sequence_replaced)
             if commit_seqs:
                 seq.mutations_from_clone = json.dumps(seq_mutations)
 
