@@ -242,8 +242,9 @@ def compare_clones(session, uids):
             if threshold[0] == 'seqs':
                 seq_min = threshold[1]
             else:
-                seq_min = int(
-                    threshold[1] / 100.0 * full_clone_stats.unique_cnt)
+                seq_min = int(math.ceil(
+                    threshold[1] / 100.0 * full_clone_stats.unique_cnt))
+                print threshold[1], full_clone_stats.unique_cnt, seq_min
             tname = '_'.join(map(str, threshold))
             mut_dict['regions'][tname] = threshold_mutations(all_mutations,
                                                              seq_min)
