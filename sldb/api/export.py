@@ -285,7 +285,7 @@ class SequenceExport(Exporter):
         for seq in funcs.page_query(seqs):
             # Get the selected data for the sequence
             data = self.get_selected_data(seq)
-            if self.eformat == 'fill':
+            if self.eformat == 'fill' or self.eformat == 'clip':
                 seq_nts = seq.sequence_replaced
             else:
                 seq_nts = seq.sequence

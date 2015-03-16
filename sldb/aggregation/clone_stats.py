@@ -29,10 +29,13 @@ def clone_stats(session, clone_id, force):
 
 
 def run_clone_stats(session, args):
-    if args.clone_ids is None:
-        clones = map(lambda c: c.id, session.query(Clone.id).all())
-    else:
+    if args.clone_ids is not None:
         clones = args.clone_ids
+    elif args.subjects is not None:
+        clones = map(lambda c: c.id, session.query(Clone.id).filter(
+            Clone.subject_id.in_(args.subjects)).all())
+    else:
+        clones = map(lambda c: c.id, session.query(Clone.id).all())
 
     for i, cid in enumerate(clones):
         clone_stats(session, cid, args.force)
