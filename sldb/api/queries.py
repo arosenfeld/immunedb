@@ -235,7 +235,6 @@ def compare_clones(session, uids):
             total_seqs = full_clone_stats.unique_cnt
             all_mutations = json.loads(full_clone_stats.mutations)
         else:
-            print 'CALC'
             all_mutations = CloneMutations(session, clone).calculate(
                 limit_samples=sample_ids, only_clone=True).get_all()
             total_seqs = session.query(func.count(Sequence.seq_id)).filter(
