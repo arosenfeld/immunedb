@@ -8,6 +8,7 @@ import sldb.util.lookups as lookups
 class ContextualMutations(object):
     def __init__(self):
         self._seen = {}
+        self._pos_seen = set([])
         self.region_muts = {}
         self.position_muts = {}
 
@@ -69,8 +70,16 @@ class ContextualMutations(object):
         if mutation not in self._seen[region]:
             self._seen[region][mutation] = set([])
         if seq_replaced not in self._seen[region][mutation]:
-            mut_dict['unique'] += 1
             self._seen[region][mutation].add(seq_replaced)
+            mut_dict['unique'] += 1
+
+        if seq_replaced not in self._pos_seen:
+            self._pos_seen.add(seq_replaced)
+            if pos not in self.position_muts:
+                self.position_muts[pos] = {}
+            if mtype not in self.position_muts[pos]:
+                self.position_muts[pos][mtype] = 0
+            self.position_muts[pos][mtype] += 1
 
     def get_all(self):
         # Strip the dictionary keys and just make a list of mutations
