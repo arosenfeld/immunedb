@@ -588,7 +588,10 @@ def get_sequence(session, sample_id, seq_id):
     ret['sample'] = _sample_to_dict(seq.sample)
 
     ret['v_extent'] = ret['v_length'] + ret['num_gaps'] + ret['pad_length']
-    ret['mutations'] = json.loads(seq.mutations_from_clone)
+    if seq.mutations_from_clone is not None:
+        ret['mutations'] = json.loads(seq.mutations_from_clone)
+    else:
+        ret['mutations'] = []
 
     if seq.clone is None:
         ret['clone'] = None

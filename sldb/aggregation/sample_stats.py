@@ -186,7 +186,7 @@ def _calculate_seq_stats(session, sample_id, min_cdr3, max_cdr3,
 
     query = session.query(Sequence).filter(
         Sequence.sample_id == sample_id)
-    if include_outliers and min_cdr3 is not None:
+    if not include_outliers and min_cdr3 is not None:
         query = query.filter(Sequence.junction_num_nts >= min_cdr3,
                              Sequence.junction_num_nts <= max_cdr3)
     if only_full_reads:
