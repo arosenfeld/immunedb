@@ -70,10 +70,10 @@ def get_all_studies(session):
     result = {}
     for sample in session.query(Sample).order_by(Sample.date):
         if session.query(Sequence).filter(
-                Sequence.sample == sample).exists():
+                Sequence.sample == sample).count() > 0:
             status = 'reads'
         elif session.query(NoResult).filter(
-                NoResult.sample == sample).exists():
+                NoResult.sample == sample).count() > 0:
             status = 'noreads'
         else:
             status = 'unprocessed'
@@ -588,6 +588,7 @@ def get_sequence(session, sample_id, seq_id):
     ret['sample'] = _sample_to_dict(seq.sample)
 
     ret['v_extent'] = ret['v_length'] + ret['num_gaps'] + ret['pad_length']
+    ret['mutations'] = json.loads(seq.mutations_from_clone)
 
     if seq.clone is None:
         ret['clone'] = None

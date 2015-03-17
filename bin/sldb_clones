@@ -18,7 +18,7 @@ if __name__ == '__main__':
     parser.add_argument('--min-identity', type=int, default=0,
                         help='Minimum V identity of sequences to germline '
                         'required for inclusion in clones. (Default: 0)')
-    parser.add_argument('--limit-alignments', nargs='+', default=('R1+R2'),
+    parser.add_argument('--limit-alignments', nargs='+', default=['R1+R2'],
                         help='Read types to process (R1, R2, and/or '
                         'R1+R2).  Default: R1+R2')
     args = parser.parse_args()
