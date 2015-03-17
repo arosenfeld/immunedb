@@ -290,7 +290,9 @@ def get_clone_overlap(session, filter_type, ctype, limit,
         selected_samples = []
         other_samples = []
         for stat in session.query(CloneStats).filter(
-                CloneStats.clone_id == clone.CloneStats.clone_id).order_by(
+                    CloneStats.clone_id == clone.CloneStats.clone_id,
+                    CloneStats.sample_id != 0
+                ).order_by(
                 desc(CloneStats.total_cnt)):
             data = {
                 'id': stat.sample_id,
