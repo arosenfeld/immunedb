@@ -63,6 +63,7 @@ def _get_subject_clones(session, subject_id, min_similarity, limit_alignments,
 
     query = query.group_by(Sequence.sequence_replaced).having(
         func.sum(Sequence.copy_number) > 1)
+
     for i, seqr in enumerate(query):
         if i > 0 and i % 1000 == 0:
             session.commit()
@@ -122,6 +123,8 @@ def _get_subject_clones(session, subject_id, min_similarity, limit_alignments,
 
 
 def _assign_clones_to_groups(session, subject_id, to_update):
+    if len(to_update) == 0:
+        return
     for i, clone in enumerate(session.query(Clone).filter(
             Clone.id.in_(to_update))):
         seqs = session.query(Sequence).filter(
