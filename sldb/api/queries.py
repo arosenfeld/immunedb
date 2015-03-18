@@ -70,10 +70,10 @@ def get_all_studies(session):
     result = {}
     for sample in session.query(Sample).order_by(Sample.date):
         if session.query(Sequence).filter(
-                Sequence.sample == sample).exists():
+                Sequence.sample == sample).count() > 0:
             status = 'reads'
         elif session.query(NoResult).filter(
-                NoResult.sample == sample).exists():
+                NoResult.sample == sample).count() > 0:
             status = 'noreads'
         else:
             status = 'unprocessed'

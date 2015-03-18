@@ -45,6 +45,15 @@ def _get_mutations(s1, s2):
             muts.add((i + 1, c1, c2))
     return muts
 
+def _instantiate_node(node):
+    node.add_feature('seq_ids', [])
+    node.add_feature('copy_number', 0)
+    node.add_feature('sequence', None)
+    node.add_feature('tissues', [])
+    node.add_feature('subsets', [])
+    node.add_feature('mutations', set([]))
+
+    return node
 
 def _get_tree(session, newick, germline_seq):
     tree = ete2.Tree(newick)
@@ -70,12 +79,7 @@ def _get_tree(session, newick, germline_seq):
             node.add_feature('mutations', _get_mutations(
                              germline_seq, seq.sequence_replaced))
         else:
-            node.add_feature('seq_ids', [])
-            node.add_feature('copy_number', 0)
-            node.add_feature('sequence', None)
-            node.add_feature('tissues', [])
-            node.add_feature('subsets', [])
-            node.add_feature('mutations', set([]))
+            node = _instantiate_node(node)
     return tree
 
 
@@ -170,7 +174,16 @@ def _check_supersets(tree):
                 c2.detach()
                 c1.add_child(c2)
                 moved = True
-        moved = moved or _check_supersets(c1)
+
+            overlap = c1.mutations.intersection(c2.mutations)
+            if len(overlap) > 0:
+                c1.detach()
+                c2.detach()
+                intermediate = _instantiate_node(ete2.Tree(name='NoName'))
+                intermediate.add_child(c1)
+                intermediate.add_child(c2)
+                tree.add_child(intermediate)
+            moved = moved or _check_supersets(c1)
 
     return moved
 
