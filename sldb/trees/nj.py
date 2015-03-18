@@ -55,24 +55,24 @@ def _get_tree(session, newick, germline_seq):
                 Sequence.seq_id == name
             ).first()
             sample_info = session.query(Sequence).filter(
-                Sequence.sequence_replaced == seq.sequence_replaced
+                Sequence.sequence_replaced == seq.sequence_replaced,
+                Sequence.sample.has(subject_id=seq.sample.subject_id)
             ).all()
-            seq_ids = map(lambda s: s.seq_id, sample_info)
+            seq_ids = [seq.seq_id]
             tissues = set(map(lambda s: s.sample.tissue, sample_info))
             subsets = set(map(lambda s: s.sample.subset, sample_info))
             node.add_feature('seq_ids', seq_ids)
-            node.add_feature('copy_number', seq.copy_number)
+            node.add_feature('copy_number',
+                    sum(map(lambda seq: seq.copy_number, sample_info)))
             node.add_feature('tissues', map(str, tissues))
             node.add_feature('subsets', map(str, subsets))
-            node.add_feature('mutations', _get_mutations(
-                germline_seq, seq.sequence_replaced))
         else:
             node.add_feature('seq_ids', [])
             node.add_feature('copy_number', 0)
             node.add_feature('sequence', None)
             node.add_feature('tissues', [])
             node.add_feature('subsets', [])
-            node.add_feature('mutations', set([]))
+        node.add_feature('mutations', set([]))
     return tree
 
 
@@ -146,6 +146,7 @@ def _remove_null_nodes(tree):
             node.up.tissues.extend(node.tissues)
             node.up.subsets.extend(node.subsets)
             node.up.seq_ids.extend(node.seq_ids)
+            node.up.copy_number += node.copy_number
             node.delete(prevent_nondicotomic=False)
 
 
@@ -185,19 +186,20 @@ def run_nj(session, args):
         try:
             tree = _get_tree(session, newick, germline_seq)
         except:
-            print '[ERROR] Could not get tree for {}'.format(clone)
+            print '[ERROR] Could not get tree for {}'.format(
+                clone)
             continue
         tree.set_outgroup('germline')
         tree.search_nodes(name='germline')[0].delete()
 
-        cnt = None
+        first = True
         while True:
-            _push_common_mutations_up(tree, cnt == None)
+            _push_common_mutations_up(tree, first)
             _remove_parent_mutations(tree)
             _remove_null_nodes(tree)
-
             if not _are_null_nodes(tree):
                 break
+            first = False
 
         clone_inst.tree = json.dumps(_get_json(tree))
         session.commit()
