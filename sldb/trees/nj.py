@@ -141,15 +141,19 @@ def _remove_parent_mutations(tree):
 
 
 def _remove_null_nodes(tree):
-    deleted = False
     for node in tree.traverse():
         if node.up is not None and len(node.mutations) == 0:
             node.up.tissues.extend(node.tissues)
             node.up.subsets.extend(node.subsets)
             node.up.seq_ids.extend(node.seq_ids)
-            node.delete()
-            deleted = True
-    return deleted
+            node.delete(prevent_nondicotomic=False)
+
+
+def _are_null_nodes(tree):
+    for node in tree.traverse():
+        if node.up is not None and len(node.mutations) == 0:
+            return True
+    return False
 
 
 def run_nj(session, args):
@@ -190,8 +194,9 @@ def run_nj(session, args):
         while True:
             _push_common_mutations_up(tree, cnt == None)
             _remove_parent_mutations(tree)
-            cnt = _remove_null_nodes(tree)
-            if not cnt:
+            _remove_null_nodes(tree)
+
+            if not _are_null_nodes(tree):
                 break
 
         clone_inst.tree = json.dumps(_get_json(tree))
