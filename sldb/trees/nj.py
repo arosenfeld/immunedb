@@ -54,6 +54,7 @@ def _get_tree(session, newick, germline_seq):
             seq = session.query(Sequence).filter(
                 Sequence.seq_id == name
             ).first()
+            node.name = name
             sample_info = session.query(Sequence).filter(
                 Sequence.sequence_replaced == seq.sequence_replaced,
                 Sequence.sample.has(subject_id=seq.sample.subject_id)
@@ -66,13 +67,15 @@ def _get_tree(session, newick, germline_seq):
                     sum(map(lambda seq: seq.copy_number, sample_info)))
             node.add_feature('tissues', map(str, tissues))
             node.add_feature('subsets', map(str, subsets))
+            node.add_feature('mutations', _get_mutations(
+                             germline_seq, seq.sequence_replaced))
         else:
             node.add_feature('seq_ids', [])
             node.add_feature('copy_number', 0)
             node.add_feature('sequence', None)
             node.add_feature('tissues', [])
             node.add_feature('subsets', [])
-        node.add_feature('mutations', set([]))
+            node.add_feature('mutations', set([]))
     return tree
 
 
@@ -150,12 +153,40 @@ def _remove_null_nodes(tree):
             node.delete(prevent_nondicotomic=False)
 
 
+def _check_supersets(tree):
+    if tree.is_leaf():
+        return False
+
+    moved = False
+    for c1 in tree.children:
+        for c2 in tree.children:
+            if c1 == c2:
+                continue
+            if c1.mutations.issubset(c2.mutations):
+                c1.detach()
+                c2.add_child(c1)
+                moved = True
+            elif c2.mutations.issubset(c1.mutations):
+                c2.detach()
+                c1.add_child(c2)
+                moved = True
+        moved = moved or _check_supersets(c1)
+
+    return moved
+
+
 def _are_null_nodes(tree):
     for node in tree.traverse():
         if node.up is not None and len(node.mutations) == 0:
             return True
     return False
 
+
+def _get_total_muts(tree):
+    muts = 0
+    for node in tree.traverse():
+        muts += len(node.mutations)
+    return muts
 
 def run_nj(session, args):
     if args.clone_ids is None:
@@ -183,6 +214,7 @@ def run_nj(session, args):
                                      clone_inst.cdr3_num_nts:])
 
         newick = _get_newick(session, args.tree_prog, clone, germline_seq)
+
         try:
             tree = _get_tree(session, newick, germline_seq)
         except:
@@ -197,7 +229,8 @@ def run_nj(session, args):
             _push_common_mutations_up(tree, first)
             _remove_parent_mutations(tree)
             _remove_null_nodes(tree)
-            if not _are_null_nodes(tree):
+            moved = _check_supersets(tree)
+            if not moved and not _are_null_nodes(tree):
                 break
             first = False
 
