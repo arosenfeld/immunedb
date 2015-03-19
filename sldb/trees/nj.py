@@ -104,7 +104,7 @@ def _get_json(tree, root=True):
     for child in tree.children:
         node['children'].append(_get_json(child, root=False))
 
-    if not root or len(tree.mutations) == 0:
+    if not root or (len(tree.mutations) == 0 and tree.name != 'NoName'):
         return node
 
     return {
@@ -125,9 +125,7 @@ def _push_common_mutations_up(tree, first):
 
     common_muts = None
     for child in tree.children:
-        child_muts = copy.copy(_push_common_mutations_up(child, first))
-        if len(child_muts) == 0:
-            continue
+        child_muts = _push_common_mutations_up(child, first)
         if common_muts is None:
             common_muts = child_muts
         else:
@@ -162,6 +160,7 @@ def _check_supersets(tree):
         return False
 
     moved = False
+    dbg = tree.up is None
     for c1 in tree.children:
         for c2 in tree.children:
             if c1 == c2:
@@ -180,6 +179,7 @@ def _check_supersets(tree):
                 c1.detach()
                 c2.detach()
                 intermediate = _instantiate_node(ete2.Tree(name='NoName'))
+                intermediate.mutations = overlap
                 intermediate.add_child(c1)
                 intermediate.add_child(c2)
                 tree.add_child(intermediate)
