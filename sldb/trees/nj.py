@@ -13,29 +13,49 @@ from sldb.identification.v_genes import VGene
 import ete2
 
 
-def _get_fasta_input(session, germline_seq, clone_id):
-    in_data = '>germline\n{}\n'.format(germline_seq)
+def _remove_muts(seq, removes, germline_seq):
+    for mut in removes:
+        loc, _, to = mut
+        loc -= 1
+        if seq[loc] == to:
+            seq = seq[:loc] + germline_seq[loc] + seq[loc + 1:]
+    return seq
+
+
+def _get_fasta_input(session, germline_seq, clone_id, min_count):
+    seqs = {}
+    mut_counts = {}
     for i, seq in enumerate(session.query(
             Sequence.seq_id,
             Sequence.sequence_replaced).filter(
                 Sequence.clone_id == clone_id)
             .order_by(desc('copy_number'))
             .group_by(Sequence.sequence_replaced)):
+        seqs[base64.b64encode(seq.seq_id)] = seq.sequence_replaced
 
-        in_data += '>{}\n{}\n'.format(base64.b64encode(seq.seq_id),
-                                      seq.sequence_replaced)
-    return in_data
+        for mut in _get_mutations(germline_seq, seq.sequence_replaced):
+            if mut not in mut_counts:
+                mut_counts[mut] = 0
+            mut_counts[mut] += 1
+
+    remove_muts = set([])
+    for mut, cnt in mut_counts.iteritems():
+        if cnt < min_count:
+            remove_muts.add(mut)
+
+    for seq_id, seq in seqs.iteritems():
+        seqs[seq_id] = _remove_muts(seq, remove_muts, germline_seq)
+
+    in_data = '>germline\n{}\n'.format(germline_seq)
+    for seq_id, seq in seqs.iteritems():
+        in_data += '>{}\n{}\n'.format(seq_id, seq)
+    return in_data, remove_muts
 
 
-def _get_newick(session, tree_prog, clone_id, germline_seq):
-    clone_inst = session.query(Clone).filter(
-        Clone.id == clone_id).first()
-
-    stdin = _get_fasta_input(session, germline_seq, clone_id)
-
-    proc = Popen(shlex.split('{} --alignment -q --DNA -N'.format(
+def _get_newick(session, fasta_input, tree_prog):
+    proc = Popen(shlex.split('{} --alignment -q --DNA -N -r'.format(
         tree_prog)), stdin=PIPE, stdout=PIPE)
-    return proc.communicate(input=stdin)[0]
+    return proc.communicate(input=fasta_input)[0]
 
 
 def _get_mutations(s1, s2):
@@ -55,7 +75,7 @@ def _instantiate_node(node):
 
     return node
 
-def _get_tree(session, newick, germline_seq, min_count):
+def _get_tree(session, newick, germline_seq, remove_muts):
     tree = ete2.Tree(newick)
     mut_counts = {}
     for node in tree.traverse():
@@ -77,20 +97,12 @@ def _get_tree(session, newick, germline_seq, min_count):
                     sum(map(lambda seq: seq.copy_number, sample_info)))
             node.add_feature('tissues', map(str, tissues))
             node.add_feature('subsets', map(str, subsets))
+            modified_seq = _remove_muts(seq.sequence_replaced, remove_muts,
+                                        germline_seq)
             node.add_feature('mutations', _get_mutations(
-                             germline_seq, seq.sequence_replaced))
-            for mut in node.mutations:
-                if mut not in mut_counts:
-                    mut_counts[mut] = 0
-                mut_counts[mut] += len(seq_ids)
+                             germline_seq, modified_seq))
         else:
             node = _instantiate_node(node)
-    remove_muts = set([])
-    for mut, cnt in mut_counts.iteritems():
-        if cnt < min_count:
-            remove_muts.add(mut)
-    for node in tree.traverse():
-        node.mutations = node.mutations.difference(remove_muts)
 
     return tree
 
@@ -238,10 +250,12 @@ def run_nj(session, args):
                         germline_seq[VGene.CDR3_OFFSET +
                                      clone_inst.cdr3_num_nts:])
 
-        newick = _get_newick(session, args.tree_prog, clone, germline_seq)
+        fasta, remove_muts = _get_fasta_input(session, germline_seq, clone,
+                                              args.min_count)
+        newick = _get_newick(session, fasta, args.tree_prog)
 
         try:
-            tree = _get_tree(session, newick, germline_seq, args.min_count)
+            tree = _get_tree(session, newick, germline_seq, remove_muts)
         except:
             print '[ERROR] Could not get tree for {}'.format(
                 clone)
