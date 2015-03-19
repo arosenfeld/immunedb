@@ -1,4 +1,17 @@
 # CHANGELOG
+## v6.1.2
+* Mutations can now be filtered by occurrence frequency via the REST API.
+
+## v6.1.1
+* `sldb_sample_stats` now accepts the `--clones-only` flag which, when set, will
+  cause sample statistics only to be generated for clone filters.  Useful for
+  updates to clonal assignment methods.
+* Fixed a bug where exporting sequences did not return the CDR3 NTs, AAs, or
+  length.
+* V-gene names are now lexicographically sorted when requested via the REST API.
+* `sldb_clones` now accepts the `--order` flag which will sort sequences by copy
+  number for clonal assignment.
+
 ## v6.1.0
 * Clone stats are now properly updated when `--force` flag is passed.
 * Indels are now flagged for percentage mismatch in addition to windowed mutations.
