@@ -14,6 +14,10 @@ if __name__ == '__main__':
                         help='ID of clone from which to make a tree')
     parser.add_argument('--temp', default='/tmp', help='Path for temporary'
                         'files')
+    parser.add_argument('--min-count', default=1, type=int,
+                        help='The minimum number of times a mutation must '
+                        'occur to be incorporated into tree calculation. '
+                        '(Default: 1)')
     args = parser.parse_args()
 
     session = config.init_db(args.master_db_config, args.data_db_config)

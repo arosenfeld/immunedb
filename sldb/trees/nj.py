@@ -55,8 +55,9 @@ def _instantiate_node(node):
 
     return node
 
-def _get_tree(session, newick, germline_seq):
+def _get_tree(session, newick, germline_seq, min_count):
     tree = ete2.Tree(newick)
+    mut_counts = {}
     for node in tree.traverse():
         if node.name not in ('NoName', 'germline'):
             name = base64.b64decode(node.name)
@@ -78,8 +79,19 @@ def _get_tree(session, newick, germline_seq):
             node.add_feature('subsets', map(str, subsets))
             node.add_feature('mutations', _get_mutations(
                              germline_seq, seq.sequence_replaced))
+            for mut in node.mutations:
+                if mut not in mut_counts:
+                    mut_counts[mut] = 0
+                mut_counts[mut] += len(seq_ids)
         else:
             node = _instantiate_node(node)
+    remove_muts = set([])
+    for mut, cnt in mut_counts.iteritems():
+        if cnt < min_count:
+            remove_muts.add(mut)
+    for node in tree.traverse():
+        node.mutations = node.mutations.difference(remove_muts)
+
     return tree
 
 
@@ -229,7 +241,7 @@ def run_nj(session, args):
         newick = _get_newick(session, args.tree_prog, clone, germline_seq)
 
         try:
-            tree = _get_tree(session, newick, germline_seq)
+            tree = _get_tree(session, newick, germline_seq, args.min_count)
         except:
             print '[ERROR] Could not get tree for {}'.format(
                 clone)
