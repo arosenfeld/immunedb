@@ -6,6 +6,7 @@ from sqlalchemy import desc, distinct
 from sqlalchemy.sql import func
 
 from sldb.common.models import *
+import sldb.common.modification_log as mod_log
 from sldb.identification.identify import VDJSequence
 from sldb.identification.v_genes import VGene
 from sldb.util.funcs import page_query
@@ -165,6 +166,8 @@ def run_clones(session, args):
         subjects = map(lambda s: s.id, session.query(Subject.id).all())
     else:
         subjects = args.subjects
+    mod_log.make_mod('clones', session=session, commit=True,
+                     info=vars(args))
 
     for sid in subjects:
         print 'Assigning clones to subject', sid
