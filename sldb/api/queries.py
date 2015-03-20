@@ -295,7 +295,7 @@ def get_clone_overlap(session, filter_type, ctype, limit,
             Clone.subject_id == limit
         )
 
-    clones = clones.order_by(desc('unique_cnt'))
+    clones = fltr(clones.order_by(desc('unique_cnt')))
 
     if paging is not None:
         page, per_page = paging
