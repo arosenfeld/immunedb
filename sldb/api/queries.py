@@ -113,7 +113,11 @@ def get_all_studies(session):
 def get_all_clones(session, filters, order_field, order_dir, paging=None):
     """Gets a list of all clones"""
     res = []
-    clone_q = session.query(Clone)
+    clone_q = session.query(
+        Clone, CloneStats.unique_cnt, CloneStats.total_cnt
+    ).join(CloneStats).filter(
+        CloneStats.sample_id == 0
+    )
 
     if filters is not None:
         for key, value in filters.iteritems():
@@ -125,6 +129,12 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
                     clone_q = clone_q.filter(Clone.cdr3_num_nts >= int(value))
                 elif key == 'max_cdr3_num_nts':
                     clone_q = clone_q.filter(Clone.cdr3_num_nts <= int(value))
+                elif key == 'min_unique':
+                    clone_q = clone_q.filter(
+                        CloneStats.unique_cnt >= int(value))
+                elif key == 'max_unique':
+                    clone_q = clone_q.filter(
+                        CloneStats.unique_cnt <= int(value))
                 elif key == 'id':
                     clone_q = clone_q.filter(Clone.id == int(value))
                 elif key == 'group_id':
@@ -137,33 +147,31 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
                     clone_q = clone_q.filter(
                         getattr(c, key).like(value.replace('*', '%')))
 
+    clone_q = clone_q.order_by(desc(CloneStats.unique_cnt))
     if paging is not None:
         page, per_page = paging
         clone_q = clone_q.offset((page - 1) * per_page).limit(per_page)
 
-    for c in clone_q:
+    for clone_info in clone_q:
+        c = clone_info.Clone
         stats_comb = []
-        for stat in session.query(CloneStats).filter(
-                CloneStats.clone_id == c.id,
-                CloneStats.sample_id != 0
+        for stat in session.query(
+                    CloneStats.unique_cnt, CloneStats.total_cnt, Sample
+                ).join(Sample).filter(
+                    CloneStats.clone_id == c.id,
+                    CloneStats.sample_id != 0
                 ).order_by(desc(CloneStats.unique_cnt)):
             stats_comb.append({
                 'sample': {
-                    'id': stat.sample.id,
-                    'name': stat.sample.name
+                    'id': stat.Sample.id,
+                    'name': stat.Sample.name
                 },
                 'unique_sequences': int(stat.unique_cnt),
                 'total_sequences': int(stat.total_cnt)
             })
         clone_dict = _clone_to_dict(c)
-        totals = session.query(
-            CloneStats.total_cnt, CloneStats.unique_cnt
-        ).filter(
-            CloneStats.clone_id == c.id,
-            CloneStats.sample_id == 0
-        ).first()
-        clone_dict['unique_sequences'] = totals.unique_cnt
-        clone_dict['total_sequences'] = totals.total_cnt
+        clone_dict['unique_sequences'] = clone_info.unique_cnt
+        clone_dict['total_sequences'] = clone_info.total_cnt
         clone_dict['stats'] = stats_comb
         res.append(clone_dict)
 
@@ -269,28 +277,35 @@ def get_clone_overlap(session, filter_type, ctype, limit,
     """Gets a list of clones and the samples in `samples` which they appear"""
     fltr = _clone_filters[filter_type]
     res = []
-    q = fltr(session.query(
-        CloneStats,
-        func.sum(CloneStats.unique_cnt).label('unique'),
-        func.sum(CloneStats.total_cnt).label('total'),
-    ).join(Clone))
 
     if ctype == 'samples':
-        q = q.filter(CloneStats.sample_id.in_(limit))
+        clones = session.query(
+            Clone,
+            func.sum(CloneStats.unique_cnt).label('unique_cnt'),
+            func.sum(CloneStats.total_cnt).label('total_cnt')
+        ).join(CloneStats).filter(
+            CloneStats.sample_id.in_(limit),
+        ).group_by(CloneStats.clone_id)
     elif ctype == 'subject':
-        q = q.filter(CloneStats.sample.has(subject_id=limit))
+        clones = session.query(
+            Clone, CloneStats.unique_cnt.label('unique_cnt'),
+            CloneStats.total_cnt.label('total_cnt')
+        ).join(CloneStats).filter(
+            CloneStats.sample_id == 0,
+            Clone.subject_id == limit
+        )
 
-    q = q.group_by(CloneStats.clone_id).order_by(desc('total'))
+    clones = clones.order_by(desc('unique_cnt'))
 
     if paging is not None:
         page, per_page = paging
-        q = q.offset((page - 1) * per_page).limit(per_page)
+        clones = clones.offset((page - 1) * per_page).limit(per_page)
 
-    for clone in q:
+    for clone in clones:
         selected_samples = []
         other_samples = []
         for stat in session.query(CloneStats).filter(
-                    CloneStats.clone_id == clone.CloneStats.clone_id,
+                    CloneStats.clone_id == clone.Clone.id,
                     CloneStats.sample_id != 0
                 ).order_by(
                 desc(CloneStats.total_cnt)):
@@ -306,9 +321,9 @@ def get_clone_overlap(session, filter_type, ctype, limit,
                 other_samples.append(data)
 
         res.append({
-            'unique_sequences': int(clone.unique),
-            'total_sequences': int(clone.total),
-            'clone': _clone_to_dict(clone.CloneStats.clone),
+            'unique_sequences': int(clone.unique_cnt),
+            'total_sequences': int(clone.total_cnt),
+            'clone': _clone_to_dict(clone.Clone),
             'selected_samples': selected_samples,
             'other_samples': other_samples,
         })
