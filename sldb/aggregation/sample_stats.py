@@ -6,7 +6,7 @@ import numpy as np
 from sqlalchemy import distinct, func
 
 import sldb.common.config as config
-from sldb.common.models import Clone, NoResult, SampleStats, Sequence
+from sldb.common.models import Clone, NoResult, Sample, SampleStats, Sequence
 import sldb.util.lookups as lookups
 
 
