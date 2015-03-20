@@ -3,6 +3,7 @@ import json
 from sqlalchemy import distinct, func
 
 from sldb.common.models import Clone, CloneStats, Sequence
+import sldb.common.modification_log as mod_log
 from sldb.common.mutations import CloneMutations
 
 
@@ -91,6 +92,8 @@ def run_clone_stats(session, args):
     else:
         clones = map(lambda c: c.id, session.query(Clone.id).all())
 
+    mod_log.make_mod('clone_stats', session=session, commit=True,
+                     info=vars(args))
     for i, cid in enumerate(clones):
         clone_stats(session, cid, args.force)
 

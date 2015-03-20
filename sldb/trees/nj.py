@@ -8,6 +8,7 @@ from sqlalchemy import desc, distinct
 from sqlalchemy.sql import func
 
 from sldb.common.models import Clone, CloneGroup, Sample, Sequence
+import sldb.common.modification_log as mod_log
 from sldb.identification.v_genes import VGene
 
 import ete2
@@ -233,6 +234,8 @@ def run_nj(session, args):
         clones = map(lambda c: c.id, clones)
     else:
         clones = args.clone_ids
+    mod_log.make_mod('clone_tree', session=session, commit=True,
+                     info=vars(args))
 
     for clone in clones:
         clone_inst = session.query(Clone).filter(

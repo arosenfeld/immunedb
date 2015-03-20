@@ -8,9 +8,10 @@ from Bio import SeqIO
 from Bio.Seq import Seq
 
 from sldb.common.config import allowed_read_types
+import sldb.common.modification_log as mod_log
+from sldb.common.models import *
 from sldb.identification.vdj_sequence import VDJSequence
 from sldb.identification.v_genes import VGermlines
-from sldb.common.models import *
 import sldb.util.funcs as funcs
 import sldb.util.lookups as lookups
 
@@ -238,6 +239,8 @@ def _identify_reads(session, path, fn, meta, v_germlines, limit_alignments):
 
 def run_identify(session, args):
     v_germlines = VGermlines(args.v_germlines)
+    mod_log.make_mod('identification', session=session, commit=True,
+                     info=vars(args))
 
     for base_dir in args.base_dirs:
         print 'Descending into {}'.format(base_dir)

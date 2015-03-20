@@ -6,9 +6,9 @@ import numpy as np
 from sqlalchemy import distinct, func
 
 import sldb.common.config as config
+import sldb.common.modification_log as mod_log
 from sldb.common.models import Clone, NoResult, Sample, SampleStats, Sequence
 import sldb.util.lookups as lookups
-
 
 _dist_fields = [
     'v_match',
@@ -240,7 +240,7 @@ def _calculate_clone_stats(session, sample_id, min_cdr3, max_cdr3,
               only_full_reads)
 
 
-def _process_sample(session, sample_id, force):
+def _process_sample(session, sample_id, force, clones_only):
     print 'Processing sample {}'.format(sample_id)
     existing_seq = session.query(Sequence).filter(
         Sequence.sample_id == sample_id)
@@ -254,8 +254,12 @@ def _process_sample(session, sample_id, force):
         SampleStats.sample_id == sample_id).first() is not None
     if force and existing:
         print '\tFORCING regeneration of stats'
-        session.query(SampleStats).filter(
-            SampleStats.sample_id == sample_id).delete()
+        dq = session.query(SampleStats).filter(
+            SampleStats.sample_id == sample_id)
+        if clones_only:
+            dq = dq.filter(SampleStats.filter_type.like('clones%'))
+        dq.delete()
+
         session.commit()
 
     if existing and not force:
@@ -268,8 +272,9 @@ def _process_sample(session, sample_id, force):
         print '\tOutliers={}'.format(include_outliers)
         for only_full_reads in [True, False]:
             print '\t\tOnly Full Reads={}'.format(only_full_reads)
-            _calculate_seq_stats(session, sample_id, min_cdr3, max_cdr3,
-                                 include_outliers, only_full_reads)
+            if not clones_only:
+                _calculate_seq_stats(session, sample_id, min_cdr3, max_cdr3,
+                                     include_outliers, only_full_reads)
             _calculate_clone_stats(session, sample_id, min_cdr3, max_cdr3,
                                    include_outliers, only_full_reads)
 
@@ -281,6 +286,8 @@ def run_sample_stats(session, args):
         samples = map(lambda s: s.id, session.query(Sample.id).all())
     else:
         samples = args.samples
+    mod_log.make_mod('sample_stats', session=session, commit=True,
+                     info=vars(args))
 
     for sample_id in samples:
-        _process_sample(session, sample_id, args.force)
+        _process_sample(session, sample_id, args.force, args.clones_only)

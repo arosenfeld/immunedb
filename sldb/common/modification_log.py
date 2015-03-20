@@ -24,7 +24,19 @@ def make_clone_mod(new_clone, old_v_name=None, old_v_seq=None, gaps=None):
     if gaps is not None:
         info['gaps'] = gaps
 
-    return ModificationLog(
-        datetime=datetime.datetime.utcnow(),
-        action_type='clone_modify',
-        info=json.dumps(info))
+    return make_mod('clone_modify', info=info)
+
+def make_mod(action_type, info, session=None, commit=False):
+    ml = ModificationLog(
+            datetime=datetime.datetime.utcnow(),
+            action_type=action_type,
+            info=json.dumps(info))
+    if session is None:
+        if commit:
+            raise LoggingException('Specified `commit` without `session`')
+        return ml
+
+    session.add(ml)
+    if commit:
+        session.commit()
+    return ml
