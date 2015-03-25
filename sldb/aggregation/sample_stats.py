@@ -7,9 +7,8 @@ from sqlalchemy import distinct, func
 
 import sldb.common.config as config
 import sldb.common.modification_log as mod_log
-from sldb.common.models import Clone, NoResult, SampleStats, Sequence
+from sldb.common.models import Clone, NoResult, Sample, SampleStats, Sequence
 import sldb.util.lookups as lookups
-
 
 _dist_fields = [
     'v_match',
