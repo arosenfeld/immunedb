@@ -178,7 +178,7 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
     return res
 
 
-def compare_clones(session, uids, thresholds=None):
+def compare_clones(session, clone_id, sample_ids, thresholds=None):
     """Compares sequences within clones by determining their mutations"""
 
     if thresholds is None:
@@ -193,64 +193,63 @@ def compare_clones(session, uids, thresholds=None):
             ('seqs', 10),
             ('seqs', 25)
         ]
-    clones = {}
-    for clone_id, sample_ids in uids.iteritems():
-        full_clone = None in sample_ids
-        clone = session.query(Clone).filter(Clone.id == clone_id).first()
 
-        q = session.query(distinct(Sequence.sequence_replaced)).filter(
-            Sequence.clone_id == clone_id).count()
-        q = session.query(
-            Sequence,
-            func.sum(Sequence.copy_number).label('copy_number'))\
-            .filter(Sequence.clone_id == clone_id)
-        if not full_clone:
-            q = q.filter(Sequence.sample_id.in_(sample_ids))
-        q = q.order_by(desc('copy_number')).group_by(
-            Sequence.sequence_replaced)
+    result = {}
+    clone = session.query(Clone).filter(Clone.id == clone_id).first()
 
-        clones[clone_id] = {
-            'clone': _clone_to_dict(clone),
-            'seqs': []
-        }
+    q = session.query(distinct(Sequence.sequence_replaced)).filter(
+        Sequence.clone_id == clone_id).count()
+    q = session.query(
+        Sequence,
+        func.sum(Sequence.copy_number).label('copy_number'))\
+        .filter(Sequence.clone_id == clone_id)
+    if sample_ids is not None:
+        q = q.filter(Sequence.sample_id.in_(sample_ids))
+    q = q.order_by(desc('copy_number')).group_by(
+        Sequence.sequence_replaced)
 
-        start_ptrn = re.compile('[N\-]*')
-        for seqr in q:
-            seq = seqr.Sequence
-            read_start = start_ptrn.match(seq.sequence).span()[1] or 0
-            clones[clone_id]['seqs'].append({
-                'seq_id': seq.seq_id,
-                'sample': {
-                    'id': seq.sample.id,
-                    'name': seq.sample.name,
-                },
-                'junction_nt': seq.junction_nt,
-                'sequence': seq.sequence_replaced,
-                'read_start': read_start,
-                'copy_number': int(seqr.copy_number),
-                'mutations': json.loads(seq.mutations_from_clone),
-                'v_extent': seq.v_length + seq.num_gaps + seq.pad_length,
-                'j_length': seq.j_length,
-            })
+    result = {
+        'clone': _clone_to_dict(clone),
+        'seqs': []
+    }
 
-        all_mutations, total_seqs = get_clone_mutations(session, clone_id,
-                                                        sample_ids)
-        mut_dict = {
-            'positions': all_mutations['positions'],
-            'regions': {}
-        }
+    start_ptrn = re.compile('[N\-]*')
+    for seqr in q:
+        seq = seqr.Sequence
+        read_start = start_ptrn.match(seq.sequence).span()[1] or 0
+        result['seqs'].append({
+            'seq_id': seq.seq_id,
+            'sample': {
+                'id': seq.sample.id,
+                'name': seq.sample.name,
+            },
+            'junction_nt': seq.junction_nt,
+            'sequence': seq.sequence_replaced,
+            'read_start': read_start,
+            'copy_number': int(seqr.copy_number),
+            'mutations': json.loads(seq.mutations_from_clone),
+            'v_extent': seq.v_length + seq.num_gaps + seq.pad_length,
+            'j_length': seq.j_length,
+        })
 
-        for threshold in thresholds:
-            if threshold[0] == 'seqs':
-                seq_min = threshold[1]
-            else:
-                seq_min = int(math.ceil(threshold[1] / 100.0 * total_seqs))
-            tname = '_'.join(map(str, threshold))
-            mut_dict['regions'][tname] = threshold_mutations(all_mutations,
-                                                             seq_min)
-        clones[clone_id]['mutation_stats'] = mut_dict
+    all_mutations, total_seqs = get_clone_mutations(session, clone_id,
+                                                    sample_ids)
+    mut_dict = {
+        'positions': all_mutations['positions'],
+        'regions': {}
+    }
 
-    return clones
+    for threshold in thresholds:
+        if threshold[0] == 'seqs':
+            seq_min = threshold[1]
+        else:
+            seq_min = int(math.ceil(threshold[1] / 100.0 * total_seqs))
+        tname = '_'.join(map(str, threshold))
+        mut_dict['regions'][tname] = threshold_mutations(all_mutations,
+                                                         seq_min)
+    result['mutation_stats'] = mut_dict
+
+    return result
 
 
 def get_clone_mutations(session, clone_id, sample_ids=None):

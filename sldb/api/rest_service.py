@@ -163,8 +163,9 @@ def clones():
     return json.dumps({'clones': clones})
 
 
-@route('/api/clone_compare/<uids>')
-def clone_compare(uids):
+@route('/api/clone_compare/<clone_id>')
+@route('/api/clone_compare/<clone_id>/<sample_ids>')
+def clone_compare(clone_id, sample_ids=None):
     """Compares clones, outputting their mutations and other pertinent
     information.
 
@@ -176,20 +177,9 @@ def clone_compare(uids):
 
     """
     session = scoped_session(session_factory)()
-    clones_and_samples = {}
-    for u in uids.split(','):
-        if u.find('_') < 0:
-            clone = int(u)
-            sample = None
-        else:
-            clone, sample = _split(u, '_')
-        if clone not in clones_and_samples:
-            clones_and_samples[clone] = set([])
-        clones_and_samples[clone].add(sample)
-
-    clones = queries.compare_clones(session, clones_and_samples)
+    clones = queries.compare_clones(session, clone_id, sample_ids)
     session.close()
-    return json.dumps({'clones': clones})
+    return json.dumps(clones)
 
 
 @route('/api/clone_tree/<cid:int>')
