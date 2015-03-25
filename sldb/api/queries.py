@@ -69,11 +69,11 @@ def _clone_to_dict(clone):
 def get_all_studies(session):
     result = {}
     for sample in session.query(Sample).order_by(Sample.date):
-        if session.query(Sequence).filter(
-                Sequence.sample == sample).count() > 0:
+        if session.query(Sequence.seq_id).filter(
+                Sequence.sample == sample).first() > 0:
             status = 'reads'
-        elif session.query(NoResult).filter(
-                NoResult.sample == sample).count() > 0:
+        elif session.query(NoResult.seq_id).filter(
+                NoResult.sample == sample).first() > 0:
             status = 'noreads'
         else:
             status = 'unprocessed'
@@ -178,20 +178,21 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
     return res
 
 
-def compare_clones(session, uids):
+def compare_clones(session, uids, thresholds=None):
     """Compares sequences within clones by determining their mutations"""
 
-    thresholds = [
-        ('percent', 100),
-        ('percent', 80),
-        ('percent', 50),
-        ('percent', 20),
-        ('percent', 0),
-        ('seqs', 2),
-        ('seqs', 5),
-        ('seqs', 10),
-        ('seqs', 25)
-    ]
+    if thresholds is None:
+        thresholds = [
+            ('percent', 100),
+            ('percent', 80),
+            ('percent', 50),
+            ('percent', 20),
+            ('percent', 0),
+            ('seqs', 2),
+            ('seqs', 5),
+            ('seqs', 10),
+            ('seqs', 25)
+        ]
     clones = {}
     for clone_id, sample_ids in uids.iteritems():
         full_clone = None in sample_ids
@@ -232,28 +233,12 @@ def compare_clones(session, uids):
                 'j_length': seq.j_length,
             })
 
-        if full_clone:
-            full_clone_stats = session.query(
-                CloneStats.mutations,
-                CloneStats.unique_cnt
-            ).filter(
-                CloneStats.clone_id == clone_id,
-                CloneStats.sample_id == 0
-            ).first()
-            total_seqs = full_clone_stats.unique_cnt
-            all_mutations = json.loads(full_clone_stats.mutations)
-        else:
-            all_mutations = CloneMutations(session, clone).calculate(
-                limit_samples=sample_ids, only_clone=True).get_all()
-            total_seqs = session.query(func.count(Sequence.seq_id)).filter(
-                Sequence.clone_id == clone_id,
-                Sequence.sample_id.in_(sample_ids)).scalar()
-
+        all_mutations, total_seqs = get_clone_mutations(session, clone_id,
+                                                        sample_ids)
         mut_dict = {
             'positions': all_mutations['positions'],
             'regions': {}
         }
-
 
         for threshold in thresholds:
             if threshold[0] == 'seqs':
@@ -266,6 +251,35 @@ def compare_clones(session, uids):
         clones[clone_id]['mutation_stats'] = mut_dict
 
     return clones
+
+
+def get_clone_mutations(session, clone_id, sample_ids=None):
+    if sample_ids is None or type(sample_ids) is int or len(sample_ids) == 1:
+        if sample_ids is None:
+            sample_id = 0
+        elif type(sample_ids) is int:
+            sample_id = sample_ids
+        elif len(sample_ids) == 1:
+            sample_id = sample_ids[0]
+
+        clone_stats = session.query(
+            CloneStats.mutations,
+            CloneStats.unique_cnt
+        ).filter(
+            CloneStats.clone_id == clone_id,
+            CloneStats.sample_id == sample_id
+        ).first()
+        all_mutations = json.loads(clone_stats.mutations)
+        total_seqs = clone_stats.unique_cnt
+    else:
+        clone = session.query(Clone).filter(Clone.id == clone_id).first()
+        all_mutations = CloneMutations(session, clone).calculate(
+            limit_samples=sample_ids, only_clone=True).get_all()
+        total_seqs = session.query(func.count(Sequence.seq_id)).filter(
+            Sequence.clone_id == clone_id,
+            Sequence.sample_id.in_(sample_ids)).scalar()
+
+    return all_mutations, total_seqs
 
 
 def get_clone_tree(session, clone_id):

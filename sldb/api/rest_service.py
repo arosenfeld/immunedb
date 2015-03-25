@@ -1,9 +1,10 @@
 import argparse
+import cStringIO as StringIO
+import csv
 import json
 import math
-import time
 import subprocess
-import sldb.util.lookups as lookups
+import time
 
 from sqlalchemy import create_engine, desc, distinct
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -14,6 +15,8 @@ from bottle import route, response, request, install, run
 from sldb.api.export import CloneExport, SequenceExport
 import sldb.api.queries as queries
 from sldb.common.models import *
+from sldb.common.mutations import threshold_mutations
+import sldb.util.lookups as lookups
 
 
 class EnableCors(object):
@@ -79,7 +82,7 @@ def sequences():
     return json.dumps({'sequences': sequences})
 
 
-@route('/api/sequence/<sample_id>/<seq_id>')
+@route('/api/sequence/<sample_id:int>/<seq_id>')
 def sequence(sample_id, seq_id):
     """Gets the sequence identified by ``seq_id`` in sample with id
     ``sample_id``.
@@ -125,7 +128,7 @@ def subjects():
     return json.dumps({'subjects': subjects})
 
 
-@route('/api/subject/<sid>')
+@route('/api/subject/<sid:int>')
 def subject(sid):
     """Gets the subject with id ``sid``.
 
@@ -189,7 +192,7 @@ def clone_compare(uids):
     return json.dumps({'clones': clones})
 
 
-@route('/api/clone_tree/<cid>')
+@route('/api/clone_tree/<cid:int>')
 def clone_tree(cid):
     """ Gets the lineage tree represented by JSON for a clone.
 
@@ -206,7 +209,7 @@ def clone_tree(cid):
 
 
 @route('/api/clone_overlap/<filter_type>/<samples>')
-@route('/api/subject_clones/<filter_type>/<subject>')
+@route('/api/subject_clones/<filter_type>/<subject:int>')
 def clone_overlap(filter_type, samples=None, subject=None):
     """Gets the clones that overlap between a set of samples. If ``samples`` is
     supplied, the overlap of clones between those is returned.  If ``samples``
@@ -331,7 +334,7 @@ def format_diversity_csv_output(x, y, s):
 
 
 @route('/api/rarefaction/<sample_ids>/<sample_bool>/<fast_bool>/<start>'
-       '/<num_points>', methods=['GET'])
+       '/<num_points:int>', methods=['GET'])
 def rarefaction(sample_ids, sample_bool, fast_bool, start, num_points):
     """Return the rarefaction curve in json format from a list of sample ids"""
 
@@ -565,6 +568,82 @@ def export_sequences(eformat, rtype, rids):
         yield line
 
     session.close()
+
+
+@route('/api/data/export_mutations/<cids>/<thresh_type>/'
+       '<thresh_value:int>/<include_merged>')
+@route('/api/data/export_mutations/<cids>/<sample_ids>/'
+       '<thresh_type>/<thresh_value:int>/<include_merged>')
+def export_mutations(cids, thresh_type, thresh_value, include_merged,
+                     sample_ids=None):
+    session = scoped_session(session_factory)()
+
+    def sample_rows(cid, sample_ids, csv_write):
+        try:
+            all_mutations, total_seqs = queries.get_clone_mutations(
+                session, cid, sample_ids)
+        except:
+            print 'Could not get mutations for clone {} in sample {}'.format(
+                cid, sample_ids)
+            return
+
+        if thresh_type == 'seqs':
+            min_seqs = thresh_value
+        else:
+            min_seqs = int(math.ceil(thresh_value / 100.0 * total_seqs))
+
+        mutations = threshold_mutations(all_mutations, min_seqs)
+        for region, stats in mutations.iteritems():
+            row = {k: 0 for k in headers}
+            row.update({
+                'clone_id': cid,
+                'region': region,
+                'total_seqs': total_seqs,
+            })
+            if sample_ids is None:
+                row['sample_id'] = 'All'
+            elif type(sample_ids) == int:
+                row['sample_id'] = sample_ids
+            else:
+                row['sample_id'] = ','.join(map(str, sample_ids))
+
+            for number in numbers:
+                for mtype, count in stats['counts'][number].iteritems():
+                    row['{}_{}'.format(mtype, number)] = count
+            row.update({
+                'nonsynonymous_unique': (row['conservative_unique'] +
+                    row['nonconservative_unique']),
+                'nonsynonymous_total': (row['conservative_total'] +
+                    row['nonconservative_total'])
+            })
+            csv_write.writerow(row)
+
+    assert thresh_type in ('seqs', 'percent')
+    if sample_ids is not None:
+        sample_ids = filter(lambda e: e != None,
+                            map(int, sample_ids.split(',')))
+
+    headers = ['clone_id', 'sample_id', 'total_seqs', 'region']
+    numbers = ('unique', 'total')
+    mtypes = ('all', 'synonymous', 'nonsynonymous', 'conservative',
+              'nonconservative', 'unknown')
+    for number in numbers:
+        for mtype in mtypes:
+            headers.append('{}_{}'.format(mtype, number))
+    csv_out = StringIO.StringIO()
+    csv_write = csv.DictWriter(csv_out, fieldnames=headers)
+    csv_write.writeheader()
+
+    for cid in map(int, cids.split(',')):
+        sample_rows(cid, None, csv_write)
+        if sample_ids is not None:
+            if include_merged == 'true':
+                sample_rows(cid, sample_ids, csv_write)
+            for sample_id in sample_ids:
+                sample_rows(cid, sample_id, csv_write)
+
+    session.close()
+    return csv_out.getvalue()
 
 
 def run_rest_service(session_maker, args):
