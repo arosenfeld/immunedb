@@ -5,9 +5,10 @@ from sqlalchemy import distinct, func
 from sldb.common.models import Clone, CloneStats, Sequence
 import sldb.common.modification_log as mod_log
 from sldb.common.mutations import CloneMutations
+import sldb.common.baseline as baseline
 
 
-def clone_stats(session, clone_id, force):
+def clone_stats(session, clone_id, baseline_path, baseline_temp, force):
     if force:
         session.query(CloneStats).filter(
             CloneStats.clone_id == clone_id).delete()
@@ -31,6 +32,8 @@ def clone_stats(session, clone_id, force):
         existing = session.query(CloneStats).filter(
             CloneStats.clone_id == clone_id,
             CloneStats.sample_id == cstat.sample_id).first()
+        if existing:
+            continue
 
         # First encountering a new clone
         if clone_id not in mutations:
@@ -41,6 +44,9 @@ def clone_stats(session, clone_id, force):
                 session.query(Clone).filter(Clone.id == clone_id).first()
             ).calculate(commit_seqs=True)
 
+            # Get selection pressure with Baseline
+            selection_pressure = baseline.get_selection(
+                session, clone_id, baseline_path, temp_dir=baseline_temp)
             # Add the statistics for the whole clone, denoted with a 0 in the
             # sample_id field
             session.add(CloneStats(
@@ -48,38 +54,23 @@ def clone_stats(session, clone_id, force):
                 sample_id=0,
                 unique_cnt=counts.unique,
                 total_cnt=counts.total,
-                mutations=json.dumps(all_muts.get_all())
+                mutations=json.dumps(all_muts.get_all()),
+                selection_pressure=json.dumps(selection_pressure)
             ))
 
         sample_muts = mutations[clone_id][cstat.sample_id]
 
-        # First encountering a new clone
-        if clone_id not in mutations:
-            # Get the per-sample and total mutations.  Commit the mutations for
-            # the sequences.
-            mutations[clone_id], all_muts = CloneMutations(
-                session,
-                session.query(Clone).filter(Clone.id == clone_id).first()
-            ).calculate(commit_seqs=True)
-
-            # Add the statistics for the whole clone, denoted with a 0 in the
-            # sample_id field
-            session.add(CloneStats(
-                clone_id=clone_id,
-                sample_id=0,
-                unique_cnt=counts.unique,
-                total_cnt=counts.total,
-                mutations=json.dumps(all_muts.get_all())
-            ))
-
-        sample_muts = mutations[clone_id][cstat.sample_id]
+        selection_pressure = baseline.get_selection(
+                session, clone_id, baseline_path, samples=[cstat.sample_id],
+                temp_dir=baseline_temp)
 
         session.add(CloneStats(
             clone_id=clone_id,
             sample_id=cstat.sample_id,
             unique_cnt=cstat.unique,
             total_cnt=cstat.total,
-            mutations=json.dumps(sample_muts.get_all())
+            mutations=json.dumps(sample_muts.get_all()),
+            selection_pressure=json.dumps(selection_pressure)
         ))
 
 
@@ -95,7 +86,7 @@ def run_clone_stats(session, args):
     mod_log.make_mod('clone_stats', session=session, commit=True,
                      info=vars(args))
     for i, cid in enumerate(clones):
-        clone_stats(session, cid, args.force)
+        clone_stats(session, cid, args.baseline_path, args.temp, args.force)
 
         if i > 0 and i % 1000 == 0:
             print 'Committing {}'.format(i)

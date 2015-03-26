@@ -264,6 +264,7 @@ class CloneStats(BaseData):
     total_cnt = Column(Integer)
 
     mutations = Column(MEDIUMTEXT)
+    selection_pressure = Column(MEDIUMTEXT)
 
 
 class SequenceExtension(MapperExtension):

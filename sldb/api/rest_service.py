@@ -178,9 +178,14 @@ def clone(clone_id, sample_ids=None):
 
     """
     session = scoped_session(session_factory)()
-    clones = queries.get_clone(session, clone_id, sample_ids)
+    clone = queries.get_clone(session, clone_id, sample_ids)
+    pressure = queries.get_selection_pressure(session, clone_id, sample_ids)
     session.close()
-    return json.dumps(clones)
+
+    return json.dumps({
+        'clone': clone,
+        'selection_pressure': pressure
+    })
 
 
 @route('/api/clone_tree/<cid:int>')

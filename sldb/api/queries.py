@@ -1,12 +1,12 @@
 import datetime
 import json
 import math
-import re
 import numpy as np
-from sqlalchemy.sql.expression import false, true
-from sqlalchemy import desc, distinct, inspect
+import re
+
+from sqlalchemy import desc, distinct, inspect, or_
 from sqlalchemy.sql import func
-from sqlalchemy.sql.expression import false
+from sqlalchemy.sql.expression import false, true
 from sqlalchemy.ext.declarative import DeclarativeMeta
 
 import sldb.util.lookups as lookups
@@ -250,6 +250,36 @@ def get_clone(session, clone_id, sample_ids, thresholds=None):
     result['mutation_stats'] = mut_dict
 
     return result
+
+
+def get_selection_pressure(session, clone_id, sample_ids):
+    query = session.query(
+        CloneStats.sample_id, CloneStats.selection_pressure
+    ).filter(CloneStats.clone_id == clone_id)
+    if sample_ids is not None:
+        query = query.filter(
+            or_(
+                CloneStats.sample_id.in_(sample_ids),
+                CloneStats.sample_id == 0
+            )
+        )
+
+    pressure = []
+    for row in query:
+        if row.sample_id == 0:
+            name = 'All'
+        else:
+            name = session.query(Sample.name).filter(
+                    Sample.id == row.sample_id).first().name
+        pressure.append({
+            'sample': {
+                'id': row.sample_id,
+                'name': name
+            },
+            'pressure': json.loads(row.selection_pressure)
+        })
+
+    return pressure
 
 
 def get_clone_mutations(session, clone_id, sample_ids=None):
@@ -536,9 +566,9 @@ def get_stats(session, samples, include_outliers, include_partials, grouping):
     stats = {}
     sample_info = {}
     dist_fields = [
-        'v_match_dist', 'v_length_dist', 'j_match_dist',
-        'j_length_dist', 'v_gene_dist', 'j_gene_dist',
-        'cdr3_length_dist', 'copy_number_dist'
+        'v_match_dist', 'v_length_dist', 'v_identity_dist', 'j_match_dist',
+        'j_length_dist', 'v_gene_dist', 'j_gene_dist', 'cdr3_length_dist',
+        'copy_number_dist'
     ]
     cnt_fields = [
         'sequence_cnt', 'in_frame_cnt', 'stop_cnt', 'functional_cnt',
