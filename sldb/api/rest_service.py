@@ -163,21 +163,22 @@ def clones():
     return json.dumps({'clones': clones})
 
 
-@route('/api/clone_compare/<clone_id>')
-@route('/api/clone_compare/<clone_id>/<sample_ids>')
-def clone_compare(clone_id, sample_ids=None):
-    """Compares clones, outputting their mutations and other pertinent
+@route('/api/clone/<clone_id:int>')
+@route('/api/clone/<clone_id:int>/<sample_ids>')
+def clone(clone_id, sample_ids=None):
+    """Gets a clone clones, outputting its mutations and other pertinent
     information.
 
-    :param str uids: A list of clones to compare either as just their IDs or \
-    ``ID_SAMPLE`` to limit that clone to a given sample
+    :param int clone_id: The clone ID
+    :param str sample_ids: A comma-separated list of samples to restrict
+    analysis
 
-    :returns: A clone comparison between ``uids``
+    :returns: Clone information
     :rtype: str
 
     """
     session = scoped_session(session_factory)()
-    clones = queries.compare_clones(session, clone_id, sample_ids)
+    clones = queries.get_clone(session, clone_id, sample_ids)
     session.close()
     return json.dumps(clones)
 

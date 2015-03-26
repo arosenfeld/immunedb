@@ -178,7 +178,7 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
     return res
 
 
-def compare_clones(session, clone_id, sample_ids, thresholds=None):
+def get_clone(session, clone_id, sample_ids, thresholds=None):
     """Compares sequences within clones by determining their mutations"""
 
     if thresholds is None:
