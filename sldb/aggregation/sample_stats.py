@@ -58,6 +58,7 @@ _clone_contexts = {
     },
 }
 
+
 class ContextStats(object):
     def __init__(self, record_filter):
         self._record_filter = record_filter
@@ -141,14 +142,16 @@ class CloneContextStats(ContextStats):
 def _get_cdr3_bounds(session, sample_id):
     cdr3_fld = Sequence.junction_num_nts
     cdr3s = []
-    for seq in session.query(
-                func.sum(Sequence.copy_number).label('copy_number'),
-                cdr3_fld.label('cdr3_len')
-            ).filter(
-                Sequence.sample_id == sample_id,
-                Sequence.copy_number > 1,
-                Sequence.functional == 1
-            ).group_by(cdr3_fld):
+
+    query = session.query(
+        func.sum(Sequence.copy_number).label('copy_number'),
+        cdr3_fld.label('cdr3_len')
+    ).filter(
+        Sequence.sample_id == sample_id,
+        Sequence.copy_number > 1,
+        Sequence.functional == 1
+    ).group_by(cdr3_fld)
+    for seq in query:
         cdr3s += [seq.cdr3_len] * int(seq.copy_number)
     if len(cdr3s) == 0:
         return None, None

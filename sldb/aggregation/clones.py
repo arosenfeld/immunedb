@@ -129,7 +129,7 @@ def _assign_clones_to_groups(session, subject_id, to_update):
     for i, clone in enumerate(session.query(Clone).filter(
             Clone.id.in_(to_update))):
         seqs = session.query(Sequence).filter(
-                Sequence.clone_id == clone.id).all()
+            Sequence.clone_id == clone.id).all()
 
         clone.cdr3_nt = _consensus(map(lambda s:
                                    s.junction_nt, seqs))
@@ -171,8 +171,9 @@ def run_clones(session, args):
 
     for sid in subjects:
         print 'Assigning clones to subject', sid
-        to_update = _get_subject_clones(session, sid, args.similarity / 100.0,
-                            args.limit_alignments, args.include_indels,
-                            args.min_identity / 100.0, args.order)
+        to_update = _get_subject_clones(
+            session, sid, args.similarity / 100.0,
+            args.limit_alignments, args.include_indels,
+            args.min_identity / 100.0, args.order)
         print 'Assigning clones to groups'
         _assign_clones_to_groups(session, sid, to_update)

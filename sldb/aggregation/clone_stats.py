@@ -61,8 +61,8 @@ def clone_stats(session, clone_id, baseline_path, baseline_temp, force):
         sample_muts = mutations[clone_id][cstat.sample_id]
 
         selection_pressure = baseline.get_selection(
-                session, clone_id, baseline_path, samples=[cstat.sample_id],
-                temp_dir=baseline_temp)
+            session, clone_id, baseline_path, samples=[cstat.sample_id],
+            temp_dir=baseline_temp)
 
         session.add(CloneStats(
             clone_id=clone_id,

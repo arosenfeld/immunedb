@@ -17,7 +17,7 @@ SUB_UNIFORM = 0
 SUB_SMITH = 1
 MUT_UNIFORM = 0
 MUT_SHAPIRO = 1
-CONSTANT_BOUNDARIES = [1,26,38,55,65,104]
+CONSTANT_BOUNDARIES = [1, 26, 38, 55, 65, 104]
 
 SEQ_CLONAL = 1
 FIX_INDELS = 1
@@ -38,10 +38,10 @@ def get_selection(session, clone_id, script_path, samples=None,
                                   samples)
     out_path = os.path.join(temp_dir, 'output')
     cmd = 'Rscript {} {} {} {} {} {} {} {} {} {} {}'.format(
-            script_path, test_type, species,
-            sub_model, mut_model, SEQ_CLONAL,
-            FIX_INDELS, boundaries, input_path, out_path,
-            clone.id)
+        script_path, test_type, species,
+        sub_model, mut_model, SEQ_CLONAL,
+        FIX_INDELS, boundaries, input_path, out_path,
+        clone.id)
     proc = subprocess.Popen(shlex.split(cmd),
                             cwd=os.path.dirname(script_path),
                             stdout=subprocess.PIPE,
@@ -54,8 +54,8 @@ def get_selection(session, clone_id, script_path, samples=None,
 
     os.unlink(input_path)
     os.unlink(read_path)
-    os.unlink(os.path.join(temp_dir,
-        'output{}.RData'.format(clone.id)))
+    os.unlink(os.path.join(
+        temp_dir, 'output{}.RData'.format(clone.id)))
 
     return output
 
@@ -72,10 +72,10 @@ def _make_input_file(session, script_path, temp_dir, clone, samples):
         ])
         fh.write('{}\n'.format(germline))
         query = session.query(
-                    distinct(Sequence.sequence_replaced).label('seq')
-                ).filter(
-                    Sequence.clone_id == clone.id
-                )
+            distinct(Sequence.sequence_replaced).label('seq')
+        ).filter(
+            Sequence.clone_id == clone.id
+        )
         if samples is not None:
             query = query.filter(Sequence.sample_id.in_(samples))
 
@@ -90,9 +90,9 @@ def _parse_output(session, clone, fh):
         if row['Type'] == 'Sequence':
             del row['Type']
             del row['ID']
-            row = {k:v.strip() for k, v in row.iteritems()}
+            row = {k: v.strip() for k, v in row.iteritems()}
             row = {
-                k:v.strip() if v == 'NA' else float(v.strip()) for k, v in
-                    row.iteritems()
+                k: v.strip() if v == 'NA' else float(v.strip()) for k, v in
+                row.iteritems()
             }
             return row

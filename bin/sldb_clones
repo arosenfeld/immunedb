@@ -13,8 +13,8 @@ if __name__ == '__main__':
     parser.add_argument('--subjects', nargs='+', type=int,
                         help='Limit generation to certain subjects')
     parser.add_argument('--include-indels', action='store_true', default=False,
-                        help='If specified, includes indels (or poorly aligned '
-                        'sequences in clones.')
+                        help='If specified, includes indels (or poorly '
+                        'aligned sequences in clones.')
     parser.add_argument('--min-identity', type=int, default=0,
                         help='Minimum V identity of sequences to germline '
                         'required for inclusion in clones. (Default: 0)')

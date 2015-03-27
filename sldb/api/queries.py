@@ -155,12 +155,14 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
     for clone_info in clone_q:
         c = clone_info.Clone
         stats_comb = []
-        for stat in session.query(
-                    CloneStats.unique_cnt, CloneStats.total_cnt, Sample
-                ).join(Sample).filter(
-                    CloneStats.clone_id == c.id,
-                    CloneStats.sample_id != 0
-                ).order_by(desc(CloneStats.unique_cnt)):
+
+        query = session.query(
+            CloneStats.unique_cnt, CloneStats.total_cnt, Sample
+        ).join(Sample).filter(
+            CloneStats.clone_id == c.id,
+            CloneStats.sample_id != 0
+        ).order_by(desc(CloneStats.unique_cnt))
+        for stat in query:
             stats_comb.append({
                 'sample': {
                     'id': stat.Sample.id,
@@ -270,7 +272,7 @@ def get_selection_pressure(session, clone_id, sample_ids):
             name = 'All'
         else:
             name = session.query(Sample.name).filter(
-                    Sample.id == row.sample_id).first().name
+                Sample.id == row.sample_id).first().name
         pressure.append({
             'sample': {
                 'id': row.sample_id,
@@ -347,11 +349,13 @@ def get_clone_overlap(session, filter_type, ctype, limit,
     for clone in clones:
         selected_samples = []
         other_samples = []
-        for stat in session.query(CloneStats).filter(
-                    CloneStats.clone_id == clone.Clone.id,
-                    CloneStats.sample_id != 0
-                ).order_by(
-                desc(CloneStats.total_cnt)):
+        query = session.query(CloneStats).filter(
+            CloneStats.clone_id == clone.Clone.id,
+            CloneStats.sample_id != 0
+        ).order_by(
+            desc(CloneStats.total_cnt)
+        )
+        for stat in query:
             data = {
                 'id': stat.sample_id,
                 'name': stat.sample.name,
@@ -393,10 +397,10 @@ def get_v_usage(session, samples, filter_type, include_outliers,
     """Gets the V-Gene usage percentages for samples"""
     if by_family:
         name_func = lambda s: s.split('*')[0].split('-', 1)[0].replace(
-                        'IGHV', '')
+            'IGHV', '')
     else:
         name_func = lambda s: s.split('*')[0].replace(
-                        'IGHV', '')
+            'IGHV', '')
     data = {}
     totals = {}
     headers = []
@@ -426,7 +430,8 @@ def get_v_usage(session, samples, filter_type, include_outliers,
 
             if name not in data[group_key]:
                 data[group_key][name] = 0
-            data[group_key][name] += round(100 * occ / float(totals[group_key]), 2)
+            data[group_key][name] += round(
+                100 * occ / float(totals[group_key]), 2)
 
             if data[group_key][name] >= 1.0 and name not in headers:
                 headers.append(name)
@@ -440,7 +445,7 @@ def get_v_usage(session, samples, filter_type, include_outliers,
 
 
 def get_v_usage_grouped(session, samples, filter_type, include_outliers,
-                include_partials, grouping):
+                        include_partials, grouping):
     """Gets the V-Gene usage percentages for samples"""
     data = {}
     groups = {}

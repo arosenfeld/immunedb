@@ -3,8 +3,10 @@ import json
 
 from sldb.common.models import ModificationLog
 
+
 class LoggingException(Exception):
     pass
+
 
 def make_clone_mod(new_clone, old_v_name=None, old_v_seq=None, gaps=None):
     if old_v_name is None and gaps is None:
@@ -26,11 +28,12 @@ def make_clone_mod(new_clone, old_v_name=None, old_v_seq=None, gaps=None):
 
     return make_mod('clone_modify', info=info)
 
+
 def make_mod(action_type, info, session=None, commit=False):
     ml = ModificationLog(
-            datetime=datetime.datetime.utcnow(),
-            action_type=action_type,
-            info=json.dumps(info))
+        datetime=datetime.datetime.utcnow(),
+        action_type=action_type,
+        info=json.dumps(info))
     if session is None:
         if commit:
             raise LoggingException('Specified `commit` without `session`')

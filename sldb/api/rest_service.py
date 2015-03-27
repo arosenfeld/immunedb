@@ -462,7 +462,6 @@ def export_v_usage(samples, filter_type, include_outliers, include_partials,
         include_partials == 'true', grouping, by_family == 'true')
     session.close()
 
-
     name = 'v_usage_{}.csv'.format(
         time.strftime('%Y-%m-%d-%H-%M'))
     response.headers['Content-Disposition'] = 'attachment;filename={}'.format(
@@ -604,9 +603,9 @@ def export_mutations(rtype, rids, thresh_type, thresh_value,
                     row['{}_{}'.format(mtype, number)] = count
             row.update({
                 'nonsynonymous_unique': (row['conservative_unique'] +
-                    row['nonconservative_unique']),
+                                         row['nonconservative_unique']),
                 'nonsynonymous_total': (row['conservative_total'] +
-                    row['nonconservative_total'])
+                                        row['nonconservative_total'])
             })
             csv_write.writerow(row)
 
@@ -620,12 +619,12 @@ def export_mutations(rtype, rids, thresh_type, thresh_value,
         only_sample_rows = False
 
     if rtype == 'sample':
-        clone_ids = map(lambda r: r.clone_id,
-                        session.query(
-                                distinct(CloneStats.clone_id).label('clone_id')
-                            ).filter(
-                                CloneStats.sample_id.in_(rids)
-                            ).all())
+        query = session.query(
+            distinct(CloneStats.clone_id).label('clone_id')
+        ).filter(
+            CloneStats.sample_id.in_(rids)
+        )
+        clone_ids = map(lambda r: r.clone_id, query.all())
     else:
         clone_ids = rids
 

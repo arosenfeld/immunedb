@@ -66,6 +66,7 @@ def _get_mutations(s1, s2):
             muts.add((i + 1, c1, c2))
     return muts
 
+
 def _instantiate_node(node):
     node.add_feature('seq_ids', [])
     node.add_feature('copy_number', 0)
@@ -75,6 +76,7 @@ def _instantiate_node(node):
     node.add_feature('mutations', set([]))
 
     return node
+
 
 def _get_tree(session, newick, germline_seq, remove_muts):
     tree = ete2.Tree(newick)
@@ -94,8 +96,8 @@ def _get_tree(session, newick, germline_seq, remove_muts):
             tissues = set(map(lambda s: s.sample.tissue, sample_info))
             subsets = set(map(lambda s: s.sample.subset, sample_info))
             node.add_feature('seq_ids', seq_ids)
-            node.add_feature('copy_number',
-                    sum(map(lambda seq: seq.copy_number, sample_info)))
+            node.add_feature('copy_number', sum(map(
+                lambda seq: seq.copy_number, sample_info)))
             node.add_feature('tissues', map(str, tissues))
             node.add_feature('subsets', map(str, subsets))
             modified_seq = _remove_muts(seq.sequence_replaced, remove_muts,
@@ -225,6 +227,7 @@ def _get_total_muts(tree):
     for node in tree.traverse():
         muts += len(node.mutations)
     return muts
+
 
 def run_nj(session, args):
     if args.clone_ids is None:

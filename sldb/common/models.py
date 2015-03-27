@@ -1,7 +1,7 @@
 import datetime
 
 from sqlalchemy import (Column, Boolean, Integer, String, Text, Date, DateTime,
-    ForeignKey, UniqueConstraint, Index, func)
+                        ForeignKey, UniqueConstraint, Index, func)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.orm.interfaces import MapperExtension
