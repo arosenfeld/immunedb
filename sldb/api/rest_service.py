@@ -566,18 +566,16 @@ def export_sequences(eformat, rtype, rids):
     session.close()
 
 
-@route('/api/data/export_mutations/<cids>/<thresh_type>/'
-       '<thresh_value:int>/<include_merged>')
-@route('/api/data/export_mutations/<cids>/<sample_ids>/'
-       '<thresh_type>/<thresh_value:int>/<include_merged>')
-def export_mutations(cids, thresh_type, thresh_value, include_merged,
-                     sample_ids=None):
+@route('/api/data/export_mutations/<rtype>/<rids>/<thresh_type>/'
+       '<thresh_value:int>', methods=['GET'])
+def export_mutations(rtype, rids, thresh_type, thresh_value,
+                     only_sample_rows=None):
     session = scoped_session(session_factory)()
 
-    def sample_rows(cid, sample_ids, csv_write):
+    def sample_rows(cid, sample_id, csv_write):
         try:
             all_mutations, total_seqs = queries.get_clone_mutations(
-                session, cid, sample_ids)
+                session, cid, sample_id)
         except:
             print 'Could not get mutations for clone {} in sample {}'.format(
                 cid, sample_ids)
@@ -596,12 +594,10 @@ def export_mutations(cids, thresh_type, thresh_value, include_merged,
                 'region': region,
                 'total_seqs': total_seqs,
             })
-            if sample_ids is None:
+            if sample_id is None:
                 row['sample_id'] = 'All'
-            elif type(sample_ids) == int:
-                row['sample_id'] = sample_ids
-            else:
-                row['sample_id'] = ','.join(map(str, sample_ids))
+            elif type(sample_id) == int:
+                row['sample_id'] = sample_id
 
             for number in numbers:
                 for mtype, count in stats['counts'][number].iteritems():
@@ -614,10 +610,24 @@ def export_mutations(cids, thresh_type, thresh_value, include_merged,
             })
             csv_write.writerow(row)
 
+    assert rtype in ('sample', 'clone')
     assert thresh_type in ('seqs', 'percent')
-    if sample_ids is not None:
-        sample_ids = filter(lambda e: e != None,
-                            map(int, sample_ids.split(',')))
+
+    rids = _split(rids)
+    if rtype == 'sample':
+        only_sample_rows = _get_arg('only_sample_rows', False) == 'true'
+    else:
+        only_sample_rows = False
+
+    if rtype == 'sample':
+        clone_ids = map(lambda r: r.clone_id,
+                        session.query(
+                                distinct(CloneStats.clone_id).label('clone_id')
+                            ).filter(
+                                CloneStats.sample_id.in_(rids)
+                            ).all())
+    else:
+        clone_ids = rids
 
     headers = ['clone_id', 'sample_id', 'total_seqs', 'region']
     numbers = ('unique', 'total')
@@ -630,15 +640,27 @@ def export_mutations(cids, thresh_type, thresh_value, include_merged,
     csv_write = csv.DictWriter(csv_out, fieldnames=headers)
     csv_write.writeheader()
 
-    for cid in map(int, cids.split(',')):
+    for cid in clone_ids:
+        # Write mutations for entire clone
         sample_rows(cid, None, csv_write)
-        if sample_ids is not None:
-            if include_merged == 'true':
-                sample_rows(cid, sample_ids, csv_write)
-            for sample_id in sample_ids:
-                sample_rows(cid, sample_id, csv_write)
+        # Write per sample mutations
+        if only_sample_rows:
+            sample_ids = rids
+        else:
+            sample_ids = map(lambda r: r.sample_id, session.query(
+                CloneStats.sample_id).filter(
+                    CloneStats.clone_id == cid,
+                    CloneStats.sample_id != 0).all())
+        for sample_id in sample_ids:
+            sample_rows(cid, sample_id, csv_write)
 
     session.close()
+
+    name = 'mutations_{}.csv'.format(
+        time.strftime('%Y-%m-%d-%H-%M'))
+    response.headers['Content-Disposition'] = 'attachment;filename={}'.format(
+        name)
+
     return csv_out.getvalue()
 
 
