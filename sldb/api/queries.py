@@ -305,7 +305,8 @@ def get_clone_mutations(session, clone_id, sample_ids=None):
     else:
         clone = session.query(Clone).filter(Clone.id == clone_id).first()
         all_mutations = CloneMutations(session, clone).calculate(
-            limit_samples=sample_ids, only_clone=True).get_all()
+            limit_samples=sample_ids, mode=CloneMutations.MODE_TOTAL_ONLY
+        ).get_all()
         total_seqs = session.query(func.count(Sequence.seq_id)).filter(
             Sequence.clone_id == clone_id,
             Sequence.sample_id.in_(sample_ids)).scalar()

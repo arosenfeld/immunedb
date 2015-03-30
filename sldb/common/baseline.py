@@ -33,10 +33,13 @@ def get_selection(session, clone_id, script_path, samples=None,
     last_region = CONSTANT_BOUNDARIES[-1] + clone.cdr3_num_nts // 3
     boundaries = '{}:{}'.format(':'.join(map(str, CONSTANT_BOUNDARIES)),
                                 last_region)
+    unique_id = '_{}_{}'.format(clone_id, '_'.join(map(str, samples)))
+    input_path = os.path.join(temp_dir, 'clone{}.fasta'.format(unique_id))
+    out_path = os.path.join(temp_dir, 'output{}'.format(unique_id))
+    read_path = os.path.join(temp_dir, 'output{}{}.txt'.format(unique_id,
+        clone.id))
 
-    input_path = _make_input_file(session, script_path, temp_dir, clone,
-                                  samples)
-    out_path = os.path.join(temp_dir, 'output')
+    _make_input_file(session, input_path, clone, samples)
     cmd = 'Rscript {} {} {} {} {} {} {} {} {} {} {}'.format(
         script_path, test_type, species,
         sub_model, mut_model, SEQ_CLONAL,
@@ -47,7 +50,6 @@ def get_selection(session, clone_id, script_path, samples=None,
                             stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE)
     proc.communicate()
-    read_path = os.path.join(temp_dir, 'output{}.txt'.format(clone.id))
 
     with open(read_path) as fh:
         output = _parse_output(session, clone, fh)
@@ -55,13 +57,12 @@ def get_selection(session, clone_id, script_path, samples=None,
     os.unlink(input_path)
     os.unlink(read_path)
     os.unlink(os.path.join(
-        temp_dir, 'output{}.RData'.format(clone.id)))
+        temp_dir, 'output{}{}.RData'.format(unique_id, clone.id)))
 
     return output
 
 
-def _make_input_file(session, script_path, temp_dir, clone, samples):
-    input_path = os.path.join(temp_dir, 'clone_{}.fasta'.format(clone.id))
+def _make_input_file(session, input_path, clone, samples):
     with open(input_path, 'w+') as fh:
         fh.write('>>>CLONE\n')
         fh.write('>>germline\n')
@@ -81,7 +82,6 @@ def _make_input_file(session, script_path, temp_dir, clone, samples):
 
         for i, seq in enumerate(query):
             fh.write('>{}\n{}\n'.format(i, seq.seq))
-    return input_path
 
 
 def _parse_output(session, clone, fh):

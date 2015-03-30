@@ -99,6 +99,9 @@ class ContextualMutations(object):
 
 
 class CloneMutations(object):
+    MODE_SAMPLES_AND_TOTAL = 0
+    MODE_SAMPLES_ONLY = 1
+    MODE_TOTAL_ONLY = 2
     def __init__(self, session, clone):
         self._clone = clone
         self._session = session
@@ -140,7 +143,9 @@ class CloneMutations(object):
         return None, None
 
     def calculate(self, commit_seqs=False, limit_samples=None,
-                  only_clone=False):
+                  mode=None):
+        if mode is None:
+            mode = CloneMutations.MODE_SAMPLES_AND_TOTAL
         sample_mutations = {}
         clone_mutations = ContextualMutations()
 
@@ -159,35 +164,45 @@ class CloneMutations(object):
                 if mtype is None:
                     continue
 
+                # TODO: if seq already has mutations committed, use them
+                # instead of recalculating
                 from_aa = self._get_aa_at(self._germline, i)
                 seq_mutations[i] = mtype
 
                 mutation = (i, self._germline[i], seq.sequence[i], mtype)
-                if not only_clone:
+                if mode in (CloneMutations.MODE_SAMPLES_AND_TOTAL,
+                            CloneMutations.MODE_SAMPLES_ONLY):
                     sample_mutations[seq.sample_id].add_mutation(
                         seq.sequence_replaced, self._clone.cdr3_num_nts,
                         mutation, from_aa, intermediate_seq_aa,
                         self._get_aa_at(seq.sequence, i), seq.copy_number)
 
-                clone_mutations.add_mutation(
-                    seq.sequence_replaced, self._clone.cdr3_num_nts, mutation,
-                    from_aa, intermediate_seq_aa,
-                    self._get_aa_at(seq.sequence, i), seq.copy_number)
+                if mode in (CloneMutations.MODE_SAMPLES_AND_TOTAL,
+                            CloneMutations.MODE_TOTAL_ONLY):
+                    clone_mutations.add_mutation(
+                        seq.sequence_replaced, self._clone.cdr3_num_nts,
+                        mutation, from_aa, intermediate_seq_aa,
+                        self._get_aa_at(seq.sequence, i), seq.copy_number)
 
-            if not only_clone:
+            if mode in (CloneMutations.MODE_SAMPLES_AND_TOTAL,
+                        CloneMutations.MODE_SAMPLES_ONLY):
                 sample_mutations[seq.sample_id].finish_seq(
                     seq.sequence_replaced)
-            clone_mutations.finish_seq(seq.sequence_replaced)
+            if mode in (CloneMutations.MODE_SAMPLES_AND_TOTAL,
+                        CloneMutations.MODE_TOTAL_ONLY):
+                clone_mutations.finish_seq(seq.sequence_replaced)
 
             if commit_seqs:
                 seq.mutations_from_clone = json.dumps(seq_mutations)
 
         if commit_seqs:
             self._session.commit()
-        if only_clone:
+        if mode == CloneMutations.MODE_TOTAL_ONLY:
             return clone_mutations
-
-        return sample_mutations, clone_mutations
+        elif mode == CloneMutations.MODE_SAMPLES_ONLY:
+            return sample_mutations
+        elif mode == CloneMutations.MODE_SAMPLES_AND_TOTAL:
+            return sample_mutations, clone_mutations
 
 
 def threshold_mutations(all_muts, min_required_seqs):
