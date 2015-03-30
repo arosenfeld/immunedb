@@ -3,13 +3,12 @@ import json
 from sqlalchemy import distinct, func
 from sqlalchemy.orm import scoped_session
 
+import sldb.common.baseline as baseline
+import sldb.common.config as config
 from sldb.common.models import Clone, CloneStats, Sequence
 import sldb.common.modification_log as mod_log
 from sldb.common.mutations import CloneMutations
-import sldb.common.baseline as baseline
 import sldb.util.concurrent as concurrent
-
-import sldb.common.config as config
 
 class CloneStatsWorker(concurrent.Worker):
     def __init__(self, session, baseline_path, baseline_temp):
@@ -106,6 +105,9 @@ class CloneStatsWorker(concurrent.Worker):
 
 
 def run_clone_stats(session, args):
+    mod_log.make_mod('clone_stats', session=session, commit=True,
+                     info=vars(args))
+
     if args.clone_ids is not None:
         clones = args.clone_ids
     elif args.subjects is not None:
@@ -129,9 +131,6 @@ def run_clone_stats(session, args):
                 'clone_id': cid,
                 'sample_id': sid
             })
-
-    mod_log.make_mod('clone_stats', session=session, commit=True,
-                     info=vars(args))
 
     for i in range(0, args.nproc):
         session = config.init_db(args.master_db_config, args.data_db_config)
