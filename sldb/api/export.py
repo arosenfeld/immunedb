@@ -1,6 +1,9 @@
-import sldb.util.funcs as funcs
+import sldb.api.queries as queries
 from sldb.common.models import (Clone, CloneStats, DuplicateSequence, NoResult,
                                 Sample, Sequence)
+from sldb.common.mutations import threshold_mutations
+import sldb.util.funcs as funcs
+from sldb.util.nested_writer import NestedCSVWriter
 
 
 class Exporter(object):
@@ -24,15 +27,6 @@ class Exporter(object):
             return e, lambda r: getattr(r, e)
         return e
 
-    def tab_entry(self, data):
-        """Gets the sequence in a tab delimited format.
-
-        :param list data: A list of ``(name, value)`` tuples to include in the
-            header
-
-        """
-        return '{}\n'.format('\t'.join(map(lambda s: str(s[1]), data)))
-
     def get_selected_data(self, seq, **overrides):
         """Gets the data specified by ``selected_fields`` for the sequence
         ``seq`` while overriding values in ``overrides`` if they exist.
@@ -44,19 +38,19 @@ class Exporter(object):
         :rtype: list
 
         """
-        data = []
+        data = {}
         for field in self.export_fields:
             n, f = self._name_and_field(field)
             if n in self.selected_fields:
                 try:
                     if n in overrides:
-                        data.append((n, overrides[n]))
+                        data[n] = overrides[n]
                     elif 'clone' not in n or (seq.clone is not None):
-                        data.append((n, f(seq)))
+                        data[n] = f(seq)
                     else:
-                        data.append((n, 'None'))
+                        data[n] = ''
                 except:
-                    data.append((n, 'None'))
+                    data[n] = ''
         return data
 
 
@@ -111,7 +105,7 @@ class CloneExport(Exporter):
             n, f = self._name_and_field(field)
             if n in self.selected_fields:
                 headers.append(n)
-        yield '{}\n'.format('\t'.join(headers))
+        csv = NestedCSVWriter(headers, streaming=True)
 
         last_cid = None
         overall_unique = 0
@@ -126,22 +120,21 @@ class CloneExport(Exporter):
                         ('sample_id', 'TOTAL'),
                         ('unique_sequences', overall_unique),
                         ('unique_total', overall_total)]
-                    for n in headers[3:]:
-                        total_row.append((n, ''))
-                    yield self.tab_entry(total_row)
+                    yield csv.add_row(total_row, write_default=True,
+                                      default='')
                     last_cid = record.clone_id
                     overall_unique = 0
                     overall_total = 0
                 overall_unique += record.unique_cnt
                 overall_total += record.total_cnt
-            yield self.tab_entry(self.get_selected_data(record))
+            yield csv.add_row(self.get_selected_data(record))
 
 
 class SequenceExport(Exporter):
     """A class to handle exporting sequences in various formats.
 
     :param Session session: A handle to a database session
-    :param str eformat: The export format to use.  Currently "tab", "orig", and
+    :param str eformat: The export format to use.  Currently "csv", "orig", and
         "clip" for tab-delimited, FASTA, FASTA with filled in germlines, and
         FASTA in CLIP format respectively
     :param str rtype: The type of record to filter the query on.  Currently
@@ -221,13 +214,12 @@ class SequenceExport(Exporter):
         self.duplicates = duplicates
         self.noresults = noresults
 
-    def _fasta_entry(self, seq_id, keys, sequence):
-        """Gets the entry for a sequence in FASTA format with ``keys`` separated
+    def _fasta_entry(self, seq_id, info, sequence):
+        """Gets the entry for a sequence in FASTA format with ``info`` separated
         in the header by pipe symbols.
 
         :param str seq_id: The sequence identifier
-        :param list keys: A list of ``(name, value)`` tuples to include in the
-            header
+        :param dict info: A dictionary of info to include in the header
         :param str sequence: The sequence for the entry
 
         :returns: The FASTA entry like
@@ -240,8 +232,8 @@ class SequenceExport(Exporter):
         """
         return '>{}{}{}\n{}\n'.format(
             seq_id,
-            '|' if len(keys) > 0 else '',
-            '|'.join(map(lambda (k, v): '{}={}'.format(k, v), keys)),
+            '|' if len(info) > 0 else '',
+            '|'.join(map(lambda (k, v): '{}={}'.format(k, v), info.iteritems())),
             sequence)
 
     def get_data(self):
@@ -270,14 +262,14 @@ class SequenceExport(Exporter):
             # storage engines
             seqs = seqs.order_by(Sequence.seq_id)
 
-            # If it's a tab file, add the headers based on selected fields
-            if self.eformat == 'tab':
+            # If it's a csv file, add the headers based on selected fields
+            if self.eformat == 'csv':
                 headers = []
                 for field in self.export_fields:
                     n, f = self._name_and_field(field)
                     if n in self.selected_fields:
                         headers.append(n)
-                yield '{}\n'.format('\t'.join(headers))
+                self._csv = NestedCSVWriter(headers, streaming=True)
 
         # For CLIP files to check if the germline needs to be output
         last_cid = ''
@@ -290,22 +282,22 @@ class SequenceExport(Exporter):
             else:
                 seq_nts = seq.sequence
 
-            # If it's a tab file, just output the row
-            if self.eformat == 'tab':
-                yield self.tab_entry(data)
+            # If it's a csv file, just output the row
+            if self.eformat == 'csv':
+                yield self._csv.add_row(data)
             else:
                 # If it's a CLIP file and there has been a germline change
                 # output the new germline with metadata in the header
                 if self.eformat == 'clip' and last_cid != seq.clone_id:
                     last_cid = seq.clone_id
                     yield self._fasta_entry(
-                        '>Germline',
-                        (('v_gene', seq.v_gene),
-                         ('j_gene', seq.j_gene),
-                         ('cdr3_aa', seq.junction_aa),
-                         ('cdr3_nt', seq.junction_nt),
-                         ('cdr3_len', seq.junction_num_nts)),
-                        seq.germline)
+                        '>Germline', {
+                            'v_gene': seq.v_gene,
+                            'j_gene': seq.j_gene,
+                            'cdr3_aa': seq.junction_aa,
+                            'cdr3_nt': seq.junction_nt,
+                            'cdr3_len': seq.junction_num_nts
+                        }, seq.germline)
 
                 # Output the FASTA row
                 yield self._fasta_entry(seq.seq_id, data, seq_nts)
@@ -323,8 +315,8 @@ class SequenceExport(Exporter):
                         copy_number=0,
                         duplicate_of_seq_id=seq.seq_id)
 
-                    if self.eformat == 'tab':
-                        yield self.tab_entry(data)
+                    if self.eformat == 'csv':
+                        yield self._csv.add_row(data)
                     else:
                         # Output the FASTA row.  Note we don't need to
                         # re-output a germline since these are duplicates
@@ -338,7 +330,77 @@ class SequenceExport(Exporter):
                 NoResult.sample_id.in_(self.rids))
             for seq in no_res:
                 data = self.get_selected_data(seq)
-                if self.eformat == 'tab':
-                    yield self.tab_entry(data)
+                if self.eformat == 'csv':
+                    yield self._csv.add_row(data)
                 else:
                     yield self._fasta_entry(seq.seq_id, data, seq.sequence)
+
+
+class MutationExporter(object):
+    def __init__(self, session, clone_ids, limit_sample_ids, thresh_type,
+                 thresh_value):
+        self._session = session
+        self._clone_ids = clone_ids
+        self._limit_sample_ids = limit_sample_ids
+        self._thresh_type = thresh_type
+        self._thresh_value = thresh_value
+
+        headers = ['clone_id', 'sample_id', 'total_seqs', 'region']
+        self._numbers = ('unique', 'total')
+        self._mtypes = ('synonymous', 'nonsynonymous', 'conservative', 'nonconservative',
+                  'unknown')
+        for number in self._numbers:
+            for mtype in self._mtypes:
+                headers.append('{}_{}'.format(mtype, number))
+
+        self._csv = NestedCSVWriter(headers, {
+            'nonsynonymous_unique': (lambda r: r.get('conservative_unique', 0) +
+                                     r.get('nonconservative_unique', 0)),
+            'nonsynonymous_total': (lambda r: r.get('conservative_total', 0) +
+                                    r.get('nonconservative_total', 0)),
+            'sample_id': lambda r: r['sample_id'] if r['sample_id']  else 'All'
+        }, streaming=True)
+
+    def _sample_rows(self, cid, sample_id):
+        try:
+            all_mutations, total_seqs = queries.get_clone_mutations(
+                self._session, cid, sample_id)
+        except Exception as ex:
+            return
+
+        if self._thresh_type == 'seqs':
+            min_seqs = self._thresh_value
+        else:
+            min_seqs = int(math.ceil(self._thresh_value / 100.0 * total_seqs))
+
+        mutations = threshold_mutations(all_mutations, min_seqs)
+        for region, stats in mutations.iteritems():
+            row = {
+                'clone_id': cid,
+                'region': region,
+                'sample_id': sample_id,
+                'total_seqs': total_seqs,
+            }
+
+            for number in self._numbers:
+                for mtype, count in stats['counts'][number].iteritems():
+                    row['{}_{}'.format(mtype, number)] = count
+            self._csv.add_row(row, write_default=True, default=0,
+                              write_if_stream=False)
+
+    def get_data(self):
+        for cid in self._clone_ids:
+            # Write mutations for entire clone
+            self._sample_rows(cid, None)
+            yield self._csv.get_value()
+            # Write per sample mutations
+            if self._limit_sample_ids is not None:
+                sample_ids = self._limit_sample_ids
+            else:
+                sample_ids = map(lambda r: r.sample_id, self._session.query(
+                    CloneStats.sample_id).filter(
+                        CloneStats.clone_id == cid,
+                        CloneStats.sample_id != 0).all())
+            for sample_id in sample_ids:
+                self._sample_rows(cid, sample_id)
+                yield self._csv.get_value()

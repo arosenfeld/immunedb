@@ -4,13 +4,13 @@ The SimLab Database (SLDB) package is a Python module that facilitate efficient
 storage and analysis of high-throughput B- and T-cell sequence data.  It's
 primary goals are to:
 
-- **Reduce ad-hoc scripting:** Data analysis performed on an ad-hoc basis, with
-  custom scripts and data formats, is error-prone and leads to inconsistencies.
+- **Reduce ad-hoc scripting:** Data analysis performed on an ad-hoc basis with
+  custom scripts and data formats is error-prone and leads to inconsistencies.
   SLDB provides a standardized analysis platform, performing many common tasks
   automatically.
 
 - **Minimize flat-files:** Flat files are currently the standard method of
-  exchanging data in the biological sciences.  There are a myriad of drawbacks
+  data exchange in the biological sciences.  There are a myriad of drawbacks
   when using these including a lack of `referential integrity
   <http://en.wikipedia.org/wiki/Referential_integrity>`_, unclear `provenance
   <http://en.wikipedia.org/wiki/Provenance#Data_provenance>`_, and

@@ -1,6 +1,4 @@
 import argparse
-import cStringIO as StringIO
-import csv
 import json
 import math
 import subprocess
@@ -12,11 +10,12 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 import bottle
 from bottle import route, response, request, install, run
 
-from sldb.api.export import CloneExport, SequenceExport
+from sldb.api.export import CloneExport, SequenceExport, MutationExporter
 import sldb.api.queries as queries
 from sldb.common.models import *
 from sldb.common.mutations import threshold_mutations
 import sldb.util.lookups as lookups
+from sldb.util.nested_writer import NestedCSVWriter
 
 
 class EnableCors(object):
@@ -498,7 +497,7 @@ def export_clones(rtype, rids):
     fields = _get_arg('fields', False).split(',')
     include_total_row = _get_arg('include_total_row', False) == 'true' or False
 
-    name = '{}_{}.tab'.format(
+    name = '{}_{}.csv'.format(
         rtype,
         time.strftime('%Y-%m-%d-%H-%M'))
 
@@ -518,8 +517,8 @@ def export_clones(rtype, rids):
 def export_sequences(eformat, rtype, rids):
     """Downloads an exported format of specified sequences.
 
-    :param str eformat: The export format to use.  Currently "tab", "orig", and
-        "clip" for tab-delimited, FASTA, FASTA with filled in germlines, and
+    :param str eformat: The export format to use.  Currently "csv", "orig", and
+        "clip" for comma-delimited, FASTA, FASTA with filled in germlines, and
         FASTA in CLIP format respectively
     :param str rtype: The type of record to filter the query on.  Currently
         either "sample" or "clone"
@@ -530,7 +529,7 @@ def export_sequences(eformat, rtype, rids):
 
     """
 
-    assert eformat in ('tab', 'fill', 'orig', 'clip')
+    assert eformat in ('csv', 'fill', 'orig', 'clip')
     assert rtype in ('sample', 'clone')
 
     session = scoped_session(session_factory)()
@@ -539,8 +538,8 @@ def export_sequences(eformat, rtype, rids):
     min_copy = _get_arg('min_copy_number', False)
     min_copy = int(min_copy) if min_copy is not None else 1
 
-    if eformat == 'tab':
-        name = '{}_{}.tab'.format(
+    if eformat == 'csv':
+        name = '{}_{}.csv'.format(
             rtype,
             time.strftime('%Y-%m-%d-%H-%M'))
     else:
@@ -571,41 +570,6 @@ def export_mutations(rtype, rids, thresh_type, thresh_value,
                      only_sample_rows=None):
     session = scoped_session(session_factory)()
 
-    def sample_rows(cid, sample_id, csv_write):
-        try:
-            all_mutations, total_seqs = queries.get_clone_mutations(
-                session, cid, sample_id)
-        except Exception as ex:
-            return
-
-        if thresh_type == 'seqs':
-            min_seqs = thresh_value
-        else:
-            min_seqs = int(math.ceil(thresh_value / 100.0 * total_seqs))
-
-        mutations = threshold_mutations(all_mutations, min_seqs)
-        for region, stats in mutations.iteritems():
-            row = {k: 0 for k in headers}
-            row.update({
-                'clone_id': cid,
-                'region': region,
-                'total_seqs': total_seqs,
-            })
-            if sample_id is None:
-                row['sample_id'] = 'All'
-            elif type(sample_id) == int:
-                row['sample_id'] = sample_id
-
-            for number in numbers:
-                for mtype, count in stats['counts'][number].iteritems():
-                    row['{}_{}'.format(mtype, number)] = count
-            row.update({
-                'nonsynonymous_unique': (row['conservative_unique'] +
-                                         row['nonconservative_unique']),
-                'nonsynonymous_total': (row['conservative_total'] +
-                                        row['nonconservative_total'])
-            })
-            csv_write.writerow(row)
 
     assert rtype in ('sample', 'clone')
     assert thresh_type in ('seqs', 'percent')
@@ -626,39 +590,19 @@ def export_mutations(rtype, rids, thresh_type, thresh_value,
     else:
         clone_ids = rids
 
-    headers = ['clone_id', 'sample_id', 'total_seqs', 'region']
-    numbers = ('unique', 'total')
-    mtypes = ('synonymous', 'nonsynonymous', 'conservative', 'nonconservative',
-              'unknown')
-    for number in numbers:
-        for mtype in mtypes:
-            headers.append('{}_{}'.format(mtype, number))
-    csv_out = StringIO.StringIO()
-    csv_write = csv.DictWriter(csv_out, fieldnames=headers)
-    csv_write.writeheader()
-
-    for cid in clone_ids:
-        # Write mutations for entire clone
-        sample_rows(cid, None, csv_write)
-        # Write per sample mutations
-        if only_sample_rows:
-            sample_ids = rids
-        else:
-            sample_ids = map(lambda r: r.sample_id, session.query(
-                CloneStats.sample_id).filter(
-                    CloneStats.clone_id == cid,
-                    CloneStats.sample_id != 0).all())
-        for sample_id in sample_ids:
-            sample_rows(cid, sample_id, csv_write)
-
+    export = MutationExporter(
+        session, clone_ids,
+        rids if only_sample_rows else None,
+        thresh_type, thresh_value
+    )
     session.close()
 
     name = 'mutations_{}.csv'.format(
         time.strftime('%Y-%m-%d-%H-%M'))
     response.headers['Content-Disposition'] = 'attachment;filename={}'.format(
         name)
-
-    return csv_out.getvalue()
+    for line in export.get_data():
+        yield line
 
 
 def run_rest_service(session_maker, args):
