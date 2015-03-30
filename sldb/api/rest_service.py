@@ -575,9 +575,7 @@ def export_mutations(rtype, rids, thresh_type, thresh_value,
         try:
             all_mutations, total_seqs = queries.get_clone_mutations(
                 session, cid, sample_id)
-        except:
-            print 'Could not get mutations for clone {} in sample {}'.format(
-                cid, sample_ids)
+        except Exception as ex:
             return
 
         if thresh_type == 'seqs':
@@ -630,8 +628,8 @@ def export_mutations(rtype, rids, thresh_type, thresh_value,
 
     headers = ['clone_id', 'sample_id', 'total_seqs', 'region']
     numbers = ('unique', 'total')
-    mtypes = ('all', 'synonymous', 'nonsynonymous', 'conservative',
-              'nonconservative', 'unknown')
+    mtypes = ('synonymous', 'nonsynonymous', 'conservative', 'nonconservative',
+              'unknown')
     for number in numbers:
         for mtype in mtypes:
             headers.append('{}_{}'.format(mtype, number))
