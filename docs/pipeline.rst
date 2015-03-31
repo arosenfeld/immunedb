@@ -217,6 +217,8 @@ error.
 
     $ sldb_clone_tree /path/to/master.json /path/to/data.json /path/to/Baseline_Main.r nj /path/to/clearcut --min-count 2
 
+.. _supplemental_tools:
+
 Supplemental Tools
 ------------------
 In addition to the aforementioned pipeline commands, SLDB provides a number of
@@ -264,3 +266,19 @@ the same name have the exact same sequence.
 
 Other operations are possible with ``sldb_modify_clone`` which can be shown with
 the ``--help`` flag.
+
+sldb_rest
+^^^^^^^^^
+SLDB has a RESTful API that allows for language agnostic querying.  This is
+provided by the ``sldb_rest`` command.  It is specifically designed to provide
+the required calls for the associated `web-app
+<https://github.com/arosenfeld/simlab-web-database>`_.
+
+It requires Haskell and the `diversity package
+<https://hackage.haskell.org/package/diversity>`_.
+
+To run on port 3000:
+
+.. code-block::
+
+    $ sldb_rest /path/to/master.json /path/to/data.json /path/to/diversity -p 3000

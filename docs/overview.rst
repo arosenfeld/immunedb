@@ -67,6 +67,14 @@ lineage trees for clones.  After downloading and compiling per the instructions,
 note the path to the ``clearcut`` executable which will be required for
 generating trees in :ref:`tree_generation`.
 
+Diversity & Haskell
+^^^^^^^^^^^^^^^^^^^
+SLDB can calculate rarefaction for samples with the `diversity package
+<https://hackage.haskell.org/package/diversity>`_ for `Haskell
+<https://www.haskell.org>`_.  This is only required if the ``sldb_rest`` command
+will be used as detailed in :ref:`supplemental_tools`.
+
+
 SLDB Installation
 -----------------
 
