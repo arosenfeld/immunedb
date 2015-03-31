@@ -1,17 +1,123 @@
-import copy
 import base64
+import copy
 import json
 import shlex
 from subprocess import Popen, PIPE, STDOUT
 
+import ete2
+
 from sqlalchemy import desc, distinct
 from sqlalchemy.sql import func
 
+import sldb.common.config as config
 from sldb.common.models import Clone, CloneGroup, Sample, Sequence
 import sldb.common.modification_log as mod_log
 from sldb.identification.v_genes import VGene
+import sldb.util.concurrent as concurrent
 
-import ete2
+class NJWorker(concurrent.Worker):
+    def __init__(self, session, tree_prog, min_count):
+        self._session = session
+        self._tree_prog = tree_prog
+        self._min_count = min_count
+
+    def do_task(self, worker_id, clone_inst):
+        self._print(worker_id, 'Running clone {}'.format(clone_inst.id))
+        germline_seq = self._session.query(CloneGroup.germline).filter(
+            CloneGroup.id == clone_inst.group_id
+        ).first().germline
+
+        germline_seq = (germline_seq[:VGene.CDR3_OFFSET] +
+                        clone_inst.cdr3_nt +
+                        germline_seq[VGene.CDR3_OFFSET +
+                                     clone_inst.cdr3_num_nts:])
+
+        fasta, remove_muts = self._get_fasta_input(germline_seq, clone_inst.id,
+                                                   self._min_count)
+        newick = _get_newick(fasta, self._tree_prog)
+
+        try:
+            tree = self._get_tree(newick, germline_seq, remove_muts)
+        except:
+            self._print('[ERROR] Could not get tree for {}'.format(
+                       clone))
+            return
+        tree.set_outgroup('germline')
+        tree.search_nodes(name='germline')[0].delete()
+
+        first = True
+        while True:
+            _push_common_mutations_up(tree, first)
+            _remove_parent_mutations(tree)
+            _remove_null_nodes(tree)
+            moved = _check_supersets(tree)
+            if not moved and not _are_null_nodes(tree):
+                break
+            first = False
+
+        clone_inst.tree = json.dumps(_get_json(tree))
+        self._session.commit()
+
+    def _get_fasta_input(self, germline_seq, clone_id, min_count):
+        seqs = {}
+        mut_counts = {}
+        for i, seq in enumerate(self._session.query(
+                Sequence.seq_id,
+                Sequence.sequence_replaced).filter(
+                    Sequence.clone_id == clone_id)
+                .order_by(desc('copy_number'))
+                .group_by(Sequence.sequence_replaced)):
+            seqs[base64.b64encode(seq.seq_id)] = seq.sequence_replaced
+
+            for mut in _get_mutations(germline_seq, seq.sequence_replaced):
+                if mut not in mut_counts:
+                    mut_counts[mut] = 0
+                mut_counts[mut] += 1
+
+        remove_muts = set([])
+        for mut, cnt in mut_counts.iteritems():
+            if cnt < min_count:
+                remove_muts.add(mut)
+
+        for seq_id, seq in seqs.iteritems():
+            seqs[seq_id] = _remove_muts(seq, remove_muts, germline_seq)
+
+        in_data = '>germline\n{}\n'.format(germline_seq)
+        for seq_id, seq in seqs.iteritems():
+            in_data += '>{}\n{}\n'.format(seq_id, seq)
+        return in_data, remove_muts
+
+
+    def _get_tree(self, newick, germline_seq, remove_muts):
+        tree = ete2.Tree(newick)
+        mut_counts = {}
+        for node in tree.traverse():
+            if node.name not in ('NoName', 'germline'):
+                name = base64.b64decode(node.name)
+                seq = self._session.query(Sequence).filter(
+                    Sequence.seq_id == name
+                ).first()
+                node.name = name
+                sample_info = self._session.query(Sequence).filter(
+                    Sequence.sequence_replaced == seq.sequence_replaced,
+                    Sequence.sample.has(subject_id=seq.sample.subject_id)
+                ).all()
+                seq_ids = [seq.seq_id]
+                tissues = set(map(lambda s: s.sample.tissue, sample_info))
+                subsets = set(map(lambda s: s.sample.subset, sample_info))
+                node.add_feature('seq_ids', seq_ids)
+                node.add_feature('copy_number', sum(map(
+                    lambda seq: seq.copy_number, sample_info)))
+                node.add_feature('tissues', map(str, tissues))
+                node.add_feature('subsets', map(str, subsets))
+                modified_seq = _remove_muts(seq.sequence_replaced, remove_muts,
+                                            germline_seq)
+                node.add_feature('mutations', _get_mutations(
+                                 germline_seq, modified_seq))
+            else:
+                node = _instantiate_node(node)
+
+        return tree
 
 
 def _remove_muts(seq, removes, germline_seq):
@@ -23,39 +129,9 @@ def _remove_muts(seq, removes, germline_seq):
     return seq
 
 
-def _get_fasta_input(session, germline_seq, clone_id, min_count):
-    seqs = {}
-    mut_counts = {}
-    for i, seq in enumerate(session.query(
-            Sequence.seq_id,
-            Sequence.sequence_replaced).filter(
-                Sequence.clone_id == clone_id)
-            .order_by(desc('copy_number'))
-            .group_by(Sequence.sequence_replaced)):
-        seqs[base64.b64encode(seq.seq_id)] = seq.sequence_replaced
-
-        for mut in _get_mutations(germline_seq, seq.sequence_replaced):
-            if mut not in mut_counts:
-                mut_counts[mut] = 0
-            mut_counts[mut] += 1
-
-    remove_muts = set([])
-    for mut, cnt in mut_counts.iteritems():
-        if cnt < min_count:
-            remove_muts.add(mut)
-
-    for seq_id, seq in seqs.iteritems():
-        seqs[seq_id] = _remove_muts(seq, remove_muts, germline_seq)
-
-    in_data = '>germline\n{}\n'.format(germline_seq)
-    for seq_id, seq in seqs.iteritems():
-        in_data += '>{}\n{}\n'.format(seq_id, seq)
-    return in_data, remove_muts
-
-
-def _get_newick(session, fasta_input, tree_prog):
+def _get_newick(fasta_input, tree_prog):
     proc = Popen(shlex.split('{} --alignment -q --DNA -N -r'.format(
-        tree_prog)), stdin=PIPE, stdout=PIPE)
+        tree_prog)), stdin=PIPE, stdout=PIPE, stderr=PIPE)
     return proc.communicate(input=fasta_input)[0]
 
 
@@ -76,38 +152,6 @@ def _instantiate_node(node):
     node.add_feature('mutations', set([]))
 
     return node
-
-
-def _get_tree(session, newick, germline_seq, remove_muts):
-    tree = ete2.Tree(newick)
-    mut_counts = {}
-    for node in tree.traverse():
-        if node.name not in ('NoName', 'germline'):
-            name = base64.b64decode(node.name)
-            seq = session.query(Sequence).filter(
-                Sequence.seq_id == name
-            ).first()
-            node.name = name
-            sample_info = session.query(Sequence).filter(
-                Sequence.sequence_replaced == seq.sequence_replaced,
-                Sequence.sample.has(subject_id=seq.sample.subject_id)
-            ).all()
-            seq_ids = [seq.seq_id]
-            tissues = set(map(lambda s: s.sample.tissue, sample_info))
-            subsets = set(map(lambda s: s.sample.subset, sample_info))
-            node.add_feature('seq_ids', seq_ids)
-            node.add_feature('copy_number', sum(map(
-                lambda seq: seq.copy_number, sample_info)))
-            node.add_feature('tissues', map(str, tissues))
-            node.add_feature('subsets', map(str, subsets))
-            modified_seq = _remove_muts(seq.sequence_replaced, remove_muts,
-                                        germline_seq)
-            node.add_feature('mutations', _get_mutations(
-                             germline_seq, modified_seq))
-        else:
-            node = _instantiate_node(node)
-
-    return tree
 
 
 def _get_json(tree, root=True):
@@ -240,6 +284,8 @@ def run_nj(session, args):
     mod_log.make_mod('clone_tree', session=session, commit=True,
                      info=vars(args))
 
+    tasks = concurrent.TaskQueue()
+
     for clone in clones:
         clone_inst = session.query(Clone).filter(
             Clone.id == clone).first()
@@ -247,37 +293,10 @@ def run_nj(session, args):
             print ('Not regenerating tree for clone {}.  Use --force to '
                    'override.').format(clone)
             continue
-        germline_seq = session.query(CloneGroup.germline).filter(
-            CloneGroup.id == clone_inst.group_id
-        ).first().germline
+        tasks.add_task(clone_inst)
 
-        germline_seq = (germline_seq[:VGene.CDR3_OFFSET] +
-                        clone_inst.cdr3_nt +
-                        germline_seq[VGene.CDR3_OFFSET +
-                                     clone_inst.cdr3_num_nts:])
+    for i in range(0, args.nproc):
+        session = config.init_db(args.master_db_config, args.data_db_config)
+        tasks.add_worker(NJWorker(session, args.tree_prog, args.min_count))
 
-        fasta, remove_muts = _get_fasta_input(session, germline_seq, clone,
-                                              args.min_count)
-        newick = _get_newick(session, fasta, args.tree_prog)
-
-        try:
-            tree = _get_tree(session, newick, germline_seq, remove_muts)
-        except:
-            print '[ERROR] Could not get tree for {}'.format(
-                clone)
-            continue
-        tree.set_outgroup('germline')
-        tree.search_nodes(name='germline')[0].delete()
-
-        first = True
-        while True:
-            _push_common_mutations_up(tree, first)
-            _remove_parent_mutations(tree)
-            _remove_null_nodes(tree)
-            moved = _check_supersets(tree)
-            if not moved and not _are_null_nodes(tree):
-                break
-            first = False
-
-        clone_inst.tree = json.dumps(_get_json(tree))
-        session.commit()
+    tasks.start()

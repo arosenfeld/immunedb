@@ -27,13 +27,13 @@ class CloneStatsWorker(concurrent.Worker):
 
 
     def _sample_stats(self, worker_id, clone_id, sample_id):
-        print 'Worker {} on clone {}, sample {}'.format(worker_id, clone_id,
-            sample_id)
+        self._print(worker_id, 'Clone {}, sample {}'.format(
+            worker_id, clone_id, sample_id))
 
         existing = self._session.query(CloneStats).filter(
             CloneStats.clone_id == clone_id,
             CloneStats.sample_id == sample_id).first()
-        if existing:
+        if existing is not None:
             return
 
         counts = self._session.query(
@@ -72,6 +72,14 @@ class CloneStatsWorker(concurrent.Worker):
 
 
     def _total_stats(self, worker_id, clone_id):
+        existing = self._session.query(CloneStats).filter(
+            CloneStats.clone_id == clone_id,
+            CloneStats.sample_id == 0).first()
+        if existing is not None:
+            return
+
+        self._print(worker_id, 'Clone {}, all samples'.format(
+            worker_id, clone_id))
         # Get the counts for the entire clone
         counts = self._session.query(
             func.count(distinct(Sequence.sequence_replaced)).label('unique'),
@@ -96,7 +104,7 @@ class CloneStatsWorker(concurrent.Worker):
             sample_id=0,
             unique_cnt=counts.unique,
             total_cnt=counts.total,
-            mutations=json.dumps(all_muts.get_all()),
+            mutations=json.dumps(total_mutations.get_all()),
             selection_pressure=json.dumps(selection_pressure)
         ))
 
@@ -124,6 +132,10 @@ def run_clone_stats(session, args):
 
     tasks = concurrent.TaskQueue()
     for cid in clones:
+        tasks.add_task({
+            'clone_id': cid,
+            'sample_id': 0
+        })
         for sid in map(lambda c: c.sample_id, session.query(
                     distinct(Sequence.sample_id).label('sample_id')
                 ).filter(Sequence.clone_id == cid)):

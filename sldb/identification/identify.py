@@ -38,9 +38,6 @@ class IdentificationWorker(concurrent.Worker):
         self._limit_alignments = limit_alignments
         self._sync_lock = sync_lock
 
-    def _print(self, worker_id, msg):
-        print 'Worker {}: {}'.format(worker_id, msg)
-
     def do_task(self, worker_id, args):
         path = args['path']
         fn = args['fn']

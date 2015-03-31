@@ -2,6 +2,9 @@ import multiprocessing as mp
 import Queue
 
 class Worker(object):
+    def _print(self, worker_id, msg):
+        print 'Worker {}: {}'.format(worker_id, msg)
+
     def do_task(self, worker_id, args):
         raise NotImplementedError
 

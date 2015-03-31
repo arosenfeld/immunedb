@@ -33,7 +33,10 @@ def get_selection(session, clone_id, script_path, samples=None,
     last_region = CONSTANT_BOUNDARIES[-1] + clone.cdr3_num_nts // 3
     boundaries = '{}:{}'.format(':'.join(map(str, CONSTANT_BOUNDARIES)),
                                 last_region)
-    unique_id = '_{}_{}'.format(clone_id, '_'.join(map(str, samples)))
+    if samples is not None:
+        unique_id = '_{}_{}'.format(clone_id, '_'.join(map(str, samples)))
+    else:
+        unique_id = '_{}_{}'.format(clone_id, '_ALL')
     input_path = os.path.join(temp_dir, 'clone{}.fasta'.format(unique_id))
     out_path = os.path.join(temp_dir, 'output{}'.format(unique_id))
     read_path = os.path.join(temp_dir, 'output{}{}.txt'.format(unique_id,
