@@ -158,8 +158,7 @@ class IdentificationWorker(concurrent.Worker):
             vdj.align_to_germline(avg_len, avg_mut)
             if vdj.v_gene is not None and vdj.j_gene is not None:
                 # Add the sequence to the database
-                final_seq_id = self._add_to_db(self._session, read_type,
-                                               sample, vdj)
+                final_seq_id = self._add_to_db(read_type, sample, vdj)
                 # If a duplicate was found, and vdj was added as a duplicate,
                 # update the associated duplicates' duplicate_seq_ids
                 if final_seq_id != vdj.id:
@@ -194,7 +193,7 @@ class IdentificationWorker(concurrent.Worker):
         self._session.commit()
 
 
-    def _add_to_db(alignment, sample, vdj):
+    def _add_to_db(self, alignment, sample, vdj):
         existing = self._session.query(Sequence).filter(
             Sequence.sequence == vdj.sequence,
             Sequence.sample == sample).first()
