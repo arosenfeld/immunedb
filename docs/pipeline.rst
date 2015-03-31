@@ -7,10 +7,10 @@ J genes, and finally group similar sequences into clones.
 The pipeline is comprised of a number of steps, however, which allows any
 portion of this process to be replaced by another system.  For example,
 HighV-Quest could be used for V and J assignment portion.  Further, the SLDB API
-allows developers to integrate existing tools into each step of the pipeline.
+allows developers to integrate other tools into each step of the pipeline.
 
-This section will explain the basic workflow.  It assumes a set of FASTA files
-in a single directory which are to be identified and assigned clones.
+This page explains the basic workflow and assumes MySQL and SLDB are already
+installed on the system.
 
 SLDB Instance Creation
 ----------------------
@@ -25,8 +25,8 @@ the master database, and ``DATA`` with the name for the data database.
 
 Then two configuration files must be made for SLDB to access each of these
 databases.  Create a file ``master.json`` with the following contents, replacing
-``HOST`` with the mySQL hostname (probably `localhost`), ``DATABASE`` with the
-name of the master database, ``USER`` with the name of the user, and
+``HOST`` with the MySQL hostname (probably `localhost`), ``DATABASE`` with the
+name of the **master** database, ``USER`` with the name of the user, and
 ``PASSWORD`` with the user's password.
 
 .. code-block:: json
@@ -39,46 +39,33 @@ name of the master database, ``USER`` with the name of the user, and
     }
 
 Then, create the file ``data.json`` with the same contents except replace
-``DATABASE`` with the data database name.
+``DATABASE`` with the **data** database name.
 
-Sequence Identification
------------------------
-The first step in the SLDB pipeline is sequence identification.  Primarily this
-assigns each sequence a V and J gene, but it also calculates statistics such as
-how well the sequence matches the germline, if there is a probable insertion or
-deletion, and how far into the CDR3 the V and J likely extend.
+Data Preparation
+----------------
+Before running the SLDB pipeline, the input sequence data must be properly
+structured.  All the FASTA files for analysis must be placed in a single
+directory.  For example:
 
-First a metadata JSON file must be placed in the directory with the FASTA files.
+.. code-block:: bash
 
-.. code-block:: json
+    $ ls sequence-data
+    subjectABC_spleen.fasta
+    subjectDEF_blood.fasta
+    subjectXYZ_liver.fasta
 
-    {
-        "all": {
-            "key1": "value1",
-            ...
-            "keyn": "valuen"
-        },
-        "file1.fasta": {
-            "key1": "value1",
-            ...
-            "keyn": "valuen"
-        },
-        "file2.fasta": {
-            "key1": "value1",
-            ...
-            "keyn": "valuen"
-        },
-        ...
-    }
+SLDB needs some metadata about each of the FASTA files to process it.
+Specifically, it **requires** the following information
 
-For each file, the following keys **must** exist:
-
-- ``read_type``: The type of read.  If the reads are paired, use ``R1+R2``,
-  otherwise use ``R1`` or ``R2``.
+- ``read_type``: The type of read.  If the sequences are full reads including
+  the entire V and J (as defined by IMGT germlines), use ``R1+R2``.  If the
+  reads are partial from the 3' (J gene) end use ``R1``, and if the reads are
+  from the 5' (V gene) end use ``R2``.
 - ``study_name``: The name of study for the sample (e.g. Lupus)
-- ``subject``: A unique identifier for the subject.  If the SLDB instance has
-  distinct subjects with the same identifier, they must be given different
-  identifiers or they will be treated as the same subject.
+- ``subject``: A unique identifier for the subject.  This must be unique to the
+  entire SLDB instance as they are not contextual to the study.  Therefore if
+  two studies use the same identifier for different subjects, they must be
+  given new distinct identifiers.
 
 The following are optional for each file:
 
@@ -97,12 +84,9 @@ The following are optional for each file:
 - ``experimenter``: The individual who sequenced the sample. If none is
   specified, the field will be left blank.
 
-The ``all`` block applies the specified keys to all files in the directory (even
-if they are not included in the metadata file).  SLDB first looks in the block
-for each file for each key.  If it is not found, only then does it check
-``all``.
-
-A small example is:
+This information is specified in a ``metadata.json`` file which must be placed
+in the same directory as the FASTA files.  The following is an example of such a
+metadata file:
 
 .. code-block:: json
 
@@ -113,10 +97,170 @@ A small example is:
         },
         "subjectABC_spleen.fasta": {
             "subject": "ABC",
-            "tissue": "Spleen"
+            "tissue": "Spleen",
+            "date": "2015-09-13"
+        },
+        "subjectDEF_blood.fasta": {
+            "subject": "DEF",
+            "tissue": "Blood",
+            "date": "2015-09-14"
         },
         "subjectXYZ_liver.fasta": {
             "subject": "XYZ",
-            "tissue": "Liver"
+            "tissue": "Liver",
+            "date": "2015-09-15"
         }
     }
+
+
+The ``all`` block applies the specified keys to all files in the directory (even
+if they are not included in the metadata file).  If a key is specified both in
+the ``all`` block and the block for a file, the value specified for the file is
+used.
+
+.. warning::
+    Do not use terms like "None", "N/A", or an empty string to specify missing
+    metadata.  Various portions of SLDB group information based on metadata, and
+    will consider strings like these distinct from null metadata.
+
+After creating the metadata file, the directory should look like:
+
+.. code-block:: bash
+
+    $ ls sequence-data
+    metadata.json
+    subjectABC_spleen.fasta
+    subjectDEF_blood.fasta
+    subjectXYZ_liver.fasta
+
+Sequence Identification
+-----------------------
+The first step of the pipeline is sequence identification.  Primarily this
+assigns each sequence a V and J gene, but it also calculates statistics such as
+how well the sequence matches the germline, if there is a probable insertion or
+deletion, and how far into the CDR3 the V and J likely extend.
+
+For identification a  FASTA file with IMGT aligned V germlines is required.
+This can be downloaded from `IMGT's Gene-DB <http://imgt.org/genedb>`_ directly.
+
+To run identification, the ``sldb_identify`` command is used.  All SLDB commands
+can be passed the ``--help`` flag to print the usage instructions.  The basic
+usage for identification requires the master config, data config, the germline
+FASTA file, and the path to the directory with the metadata and FASTA files to
+identify:
+
+.. code-block:: bash
+
+    $ sldb_identify /path/to/master.json /path/to/data.json /path/to/sequence-data-directory /path/to/v_germlines
+
+Clonal Assignment
+-----------------
+After sequences are assigned V and J genes, they can be clustered into clones
+based on CDR3 Amino Acid similarity with the ``sldb_clones`` command.  This
+takes a number of arguments which should be read before use.
+
+A basic example of clonal assignment, not using all possible arguments:
+
+.. code-block:: bash
+
+    $ sldb_clones /path/to/master.json /path/to/data.json --similarity 65 -order
+
+This will assign each sequence with at least 2 copies to a clone.  Additionally,
+it will establish clone-groups in the master database which make associating
+clones across versions simpler.
+
+.. _stats_generation:
+
+Statistics Generation
+---------------------
+Two sets of statistics can be calculated in SLDB:
+
+- **Sample Statistics:** Distribution of sequence and clone features on a
+  per-sample basis, including V and J usage, nucleotides matching the germline,
+  copy number, V length, and CDR3 length.  It calculates all of these with and
+  without outliers, and including and excluding partial reads.
+- **Clone Statistics:** For each clone and sample combination, how many unique
+  and total sequences appear, mutations from the germline, and selection
+  pressure.
+
+These are calculated with the ``sldb_sample_stats`` and ``sldb_clone_stats``
+commands.
+
+For sample statistics there are only a few optional arguments which should be
+reviewed.  In general, however, the command is issued to calculate statistics
+for samples which do not already have them:
+
+.. code-block:: bash
+
+    $ sldb_sample_stats /path/to/master.json /path/to/data.json
+
+Clone statistics require the path to the `Baseline
+<http://selection.med.yale.edu/baseline/Archive>`_ main script.
+
+.. code-block:: bash
+
+    $ sldb_clone_stats /path/to/master.json /path/to/data.json /path/to/Baseline_Main.r
+
+.. _tree_generation:
+
+Clone Trees
+-----------
+Lineage trees for clones is generated with the ``sldb_clone_tree`` command.  The
+only currently supported method is neighbor-joining as provided by `Clearcut
+<http://bioinformatics.hungry.com/clearcut>`_.  Among others, the ``min-count``
+parameter allows for mutations to be omitted if they have not occurred at least
+a specified number of times.  This can be useful to correct for sequencing
+error.
+
+
+.. code-block:: bash
+
+    $ sldb_clone_tree /path/to/master.json /path/to/data.json /path/to/Baseline_Main.r nj /path/to/clearcut --min-count 2
+
+Supplemental Tools
+------------------
+In addition to the aforementioned pipeline commands, SLDB provides a number of
+other commands.
+
+sldb_hvquest
+^^^^^^^^^^^^
+This command can be used in place of ``sldb_identify`` to assign sequences V and
+J genes from `HighV-Quest <http://www.imgt.org/HighV-QUEST>`_ output.  Since
+there is no metadata file, all fields (e.g. subject, date, tissue) must be
+manually specified.
+
+Importing requires only two of the files output by HighV-Quest: the summary and
+gapped nucleotides.
+
+An example call to this command with only the required metadata:
+
+.. code-block:: bash
+
+    $ sldb_hvquest /path/to/master.json /path/to/data.json /path/to/summary_file \
+        /path/to/gapped_nt_file /path/to/v_germlines STUDY_NAME SAMPLE_NAME
+        READ_TYPE SUBJECT DATE
+
+.. warning::
+    SLDB may not be able to process some sequences from HighV-Quest, especially
+    if it assigned a null CDR3.  Further, if the ``--v-ties`` flag is specified
+    and the tied germline cannot be properly aligned to a sequence, it will be
+    considered a no-result.
+
+sldb_modify_clone
+^^^^^^^^^^^^^^^^^
+In some cases, manually changing clone attributes may be desired.  For example,
+some individuals may have clones with insertions or deletions in their germline
+which requires a change to the V gene.  This can be achieved with
+``sldb_modify_clone``.
+
+For example, to add three gaps at position 70 to clone 1234:
+
+.. code-block:: bash
+
+    $ sldb_modify_clone /path/to/master.json /path/to/data.json 1234 70,3 --v-name IGHV3-34*01_deletion
+
+It is necessary to specify a new V gene name since SLDB assumes germlines with
+the same name have the exact same sequence.
+
+Other operations are possible with ``sldb_modify_clone`` which can be shown with
+the ``--help`` flag.
