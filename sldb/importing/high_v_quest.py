@@ -2,6 +2,7 @@ import csv
 import distance
 import re
 
+import sldb.common.modification_log as mod_log
 from sldb.common.models import (DuplicateSequence, NoResult, Sample, Study,
                                 Subject, Sequence)
 from sldb.identification.v_genes import VGene, VGermlines, get_common_seq
@@ -240,6 +241,10 @@ def run_high_v_quest_import(session, args):
             sample)
 
     germlines = VGermlines(args.v_germlines, include_prepadded=True)
+
+    mod_log.make_mod('hvquest_import', session=session, commit=True,
+                     info=vars(args))
+
     with open(args.gapped_nt_file) as gapped_fh:
         _read_gapped(
             session,

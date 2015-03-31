@@ -1,5 +1,6 @@
 import argparse
 import json
+import multiprocessing as mp
 import pkg_resources
 import sys
 
@@ -28,7 +29,7 @@ def _create_engine(data):
     return engine, data['database']
 
 
-def get_base_arg_parser(desc):
+def get_base_arg_parser(desc, multiproc=True):
     """Gets a base argument parser which requires a master and data
     configuration.
 
@@ -42,6 +43,14 @@ def get_base_arg_parser(desc):
     parser.add_argument('master_db_config', help='Path to master database'
                         'config')
     parser.add_argument('data_db_config', help='Path to data database config')
+    if multiproc:
+        try:
+            num_cpu = mp.cpu_count()
+        except NotImplementedError:
+            num_cpu = 4
+        parser.add_argument('--nproc', default=num_cpu, type=int, help='Number'
+                            ' of subprocesses to run ' '(Default: {})'.format(
+                                num_cpu))
 
     return parser
 

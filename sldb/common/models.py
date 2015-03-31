@@ -1,7 +1,7 @@
 import datetime
 
 from sqlalchemy import (Column, Boolean, Integer, String, Text, Date, DateTime,
-    ForeignKey, UniqueConstraint, Index, func)
+                        ForeignKey, UniqueConstraint, Index, func)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.orm.interfaces import MapperExtension
@@ -263,6 +263,9 @@ class CloneStats(BaseData):
     unique_cnt = Column(Integer)
     total_cnt = Column(Integer)
 
+    mutations = Column(MEDIUMTEXT)
+    selection_pressure = Column(MEDIUMTEXT)
+
 
 class SequenceExtension(MapperExtension):
     def before_insert(self, mapper, connection, instance):
@@ -381,6 +384,7 @@ class Sequence(BaseData):
     clone_id = Column(Integer, ForeignKey(Clone.id), index=True)
     clone = relationship(Clone, backref=backref('sequences',
                          order_by=seq_id))
+    mutations_from_clone = Column(MEDIUMTEXT)
 
 
 class DuplicateSequence(BaseData):

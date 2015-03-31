@@ -1,18 +1,18 @@
 import datetime
 import json
 import math
-import re
 import numpy as np
-from sqlalchemy.sql.expression import false, true
-from sqlalchemy import desc, distinct, inspect
+import re
+
+from sqlalchemy import desc, distinct, inspect, or_
 from sqlalchemy.sql import func
-from sqlalchemy.sql.expression import false
+from sqlalchemy.sql.expression import false, true
 from sqlalchemy.ext.declarative import DeclarativeMeta
 
 import sldb.util.lookups as lookups
 from sldb.common.models import *
+from sldb.common.mutations import CloneMutations, threshold_mutations
 from sldb.identification.v_genes import VGene
-from sldb.common.mutations import Mutations, MutationType
 
 
 _clone_filters = {
@@ -69,11 +69,11 @@ def _clone_to_dict(clone):
 def get_all_studies(session):
     result = {}
     for sample in session.query(Sample).order_by(Sample.date):
-        if session.query(Sequence).filter(
-                Sequence.sample == sample).count() > 0:
+        if session.query(Sequence.seq_id).filter(
+                Sequence.sample == sample).first() > 0:
             status = 'reads'
-        elif session.query(NoResult).filter(
-                NoResult.sample == sample).count() > 0:
+        elif session.query(NoResult.seq_id).filter(
+                NoResult.sample == sample).first() > 0:
             status = 'noreads'
         else:
             status = 'unprocessed'
@@ -113,7 +113,11 @@ def get_all_studies(session):
 def get_all_clones(session, filters, order_field, order_dir, paging=None):
     """Gets a list of all clones"""
     res = []
-    clone_q = session.query(Clone)
+    clone_q = session.query(
+        Clone, CloneStats.unique_cnt, CloneStats.total_cnt
+    ).join(CloneStats).filter(
+        CloneStats.sample_id == 0
+    )
 
     if filters is not None:
         for key, value in filters.iteritems():
@@ -125,6 +129,12 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
                     clone_q = clone_q.filter(Clone.cdr3_num_nts >= int(value))
                 elif key == 'max_cdr3_num_nts':
                     clone_q = clone_q.filter(Clone.cdr3_num_nts <= int(value))
+                elif key == 'min_unique':
+                    clone_q = clone_q.filter(
+                        CloneStats.unique_cnt >= int(value))
+                elif key == 'max_unique':
+                    clone_q = clone_q.filter(
+                        CloneStats.unique_cnt <= int(value))
                 elif key == 'id':
                     clone_q = clone_q.filter(Clone.id == int(value))
                 elif key == 'group_id':
@@ -137,92 +147,171 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
                     clone_q = clone_q.filter(
                         getattr(c, key).like(value.replace('*', '%')))
 
+    clone_q = clone_q.order_by(desc(CloneStats.unique_cnt))
     if paging is not None:
         page, per_page = paging
         clone_q = clone_q.offset((page - 1) * per_page).limit(per_page)
 
-    for c in clone_q:
-        total_unique = 0
-        total_all = 0
+    for clone_info in clone_q:
+        c = clone_info.Clone
         stats_comb = []
-        for stat in session.query(CloneStats).filter(
-                CloneStats.clone_id == c.id
-                ).order_by(desc(CloneStats.unique_cnt)):
+
+        query = session.query(
+            CloneStats.unique_cnt, CloneStats.total_cnt, Sample
+        ).join(Sample).filter(
+            CloneStats.clone_id == c.id,
+            CloneStats.sample_id != 0
+        ).order_by(desc(CloneStats.unique_cnt))
+        for stat in query:
             stats_comb.append({
                 'sample': {
-                    'id': stat.sample.id,
-                    'name': stat.sample.name
+                    'id': stat.Sample.id,
+                    'name': stat.Sample.name
                 },
                 'unique_sequences': int(stat.unique_cnt),
                 'total_sequences': int(stat.total_cnt)
             })
-            total_unique += int(stat.unique_cnt)
-            total_all += int(stat.total_cnt)
         clone_dict = _clone_to_dict(c)
-        clone_dict['unique_sequences'] = total_unique
-        clone_dict['total_sequences'] = total_all
+        clone_dict['unique_sequences'] = clone_info.unique_cnt
+        clone_dict['total_sequences'] = clone_info.total_cnt
         clone_dict['stats'] = stats_comb
         res.append(clone_dict)
 
     return res
 
 
-def compare_clones(session, uids):
+def get_clone(session, clone_id, sample_ids, thresholds=None):
     """Compares sequences within clones by determining their mutations"""
-    clones = {}
-    clone_muts = {}
-    for clone_id, sample_ids in uids.iteritems():
+
+    if thresholds is None:
+        thresholds = [
+            ('percent', 100),
+            ('percent', 80),
+            ('percent', 50),
+            ('percent', 20),
+            ('percent', 0),
+            ('seqs', 2),
+            ('seqs', 5),
+            ('seqs', 10),
+            ('seqs', 25)
+        ]
+
+    result = {}
+    clone = session.query(Clone).filter(Clone.id == clone_id).first()
+
+    q = session.query(distinct(Sequence.sequence_replaced)).filter(
+        Sequence.clone_id == clone_id).count()
+    q = session.query(
+        Sequence,
+        func.sum(Sequence.copy_number).label('copy_number'))\
+        .filter(Sequence.clone_id == clone_id)
+    if sample_ids is not None:
+        q = q.filter(Sequence.sample_id.in_(sample_ids))
+    q = q.order_by(desc('copy_number')).group_by(
+        Sequence.sequence_replaced)
+
+    result = {
+        'clone': _clone_to_dict(clone),
+        'seqs': []
+    }
+
+    start_ptrn = re.compile('[N\-]*')
+    for seqr in q:
+        seq = seqr.Sequence
+        read_start = start_ptrn.match(seq.sequence).span()[1] or 0
+        result['seqs'].append({
+            'seq_id': seq.seq_id,
+            'sample': {
+                'id': seq.sample.id,
+                'name': seq.sample.name,
+            },
+            'junction_nt': seq.junction_nt,
+            'sequence': seq.sequence_replaced,
+            'read_start': read_start,
+            'copy_number': int(seqr.copy_number),
+            'mutations': json.loads(seq.mutations_from_clone),
+            'v_extent': seq.v_length + seq.num_gaps + seq.pad_length,
+            'j_length': seq.j_length,
+        })
+
+    all_mutations, total_seqs = get_clone_mutations(session, clone_id,
+                                                    sample_ids)
+    mut_dict = {
+        'positions': all_mutations['positions'],
+        'regions': {}
+    }
+
+    for threshold in thresholds:
+        if threshold[0] == 'seqs':
+            seq_min = threshold[1]
+        else:
+            seq_min = int(math.ceil(threshold[1] / 100.0 * total_seqs))
+        tname = '_'.join(map(str, threshold))
+        mut_dict['regions'][tname] = threshold_mutations(all_mutations,
+                                                         seq_min)
+    result['mutation_stats'] = mut_dict
+
+    return result
+
+
+def get_selection_pressure(session, clone_id, sample_ids):
+    query = session.query(
+        CloneStats.sample_id, CloneStats.selection_pressure
+    ).filter(CloneStats.clone_id == clone_id)
+    if sample_ids is not None:
+        query = query.filter(
+            or_(
+                CloneStats.sample_id.in_(sample_ids),
+                CloneStats.sample_id == 0
+            )
+        )
+
+    pressure = []
+    for row in query:
+        if row.sample_id == 0:
+            name = 'All'
+        else:
+            name = session.query(Sample.name).filter(
+                Sample.id == row.sample_id).first().name
+        pressure.append({
+            'sample': {
+                'id': row.sample_id,
+                'name': name
+            },
+            'pressure': json.loads(row.selection_pressure)
+        })
+
+    return pressure
+
+
+def get_clone_mutations(session, clone_id, sample_ids=None):
+    if sample_ids is None or type(sample_ids) is int or len(sample_ids) == 1:
+        if sample_ids is None:
+            sample_id = 0
+        elif type(sample_ids) is int:
+            sample_id = sample_ids
+        elif len(sample_ids) == 1:
+            sample_id = sample_ids[0]
+
+        clone_stats = session.query(
+            CloneStats.mutations,
+            CloneStats.unique_cnt
+        ).filter(
+            CloneStats.clone_id == clone_id,
+            CloneStats.sample_id == sample_id
+        ).first()
+        all_mutations = json.loads(clone_stats.mutations)
+        total_seqs = clone_stats.unique_cnt
+    else:
         clone = session.query(Clone).filter(Clone.id == clone_id).first()
-        germline = clone.group.germline
-        if clone_id not in clones:
-            clone_muts[clone_id] = Mutations(germline, clone.cdr3_nt)
-            clones[clone_id] = {
-                'clone': _clone_to_dict(clone),
-                'mutation_stats': {},
-                'seqs': []
-            }
-        mutations = clone_muts[clone_id]
+        all_mutations = CloneMutations(session, clone).calculate(
+            limit_samples=sample_ids, mode=CloneMutations.MODE_TOTAL_ONLY
+        ).get_all()
+        total_seqs = session.query(func.count(Sequence.seq_id)).filter(
+            Sequence.clone_id == clone_id,
+            Sequence.sample_id.in_(sample_ids)).scalar()
 
-        start_ptrn = re.compile('[N\-]*')
-
-        q = session.query(
-            Sequence,
-            func.sum(Sequence.copy_number).label('copy_number'))\
-            .filter(Sequence.clone_id == clone_id)
-        if None not in sample_ids:
-            q = q.filter(Sequence.sample_id.in_(sample_ids))
-        q = q.order_by(desc('copy_number')).group_by(
-            Sequence.sequence_replaced)
-
-        for seqr in q:
-            seq = seqr.Sequence
-            read_start = start_ptrn.match(seq.sequence)
-            if read_start is None:
-                read_start = 0
-            else:
-                read_start = read_start.span()[1]
-
-            muts = mutations.add_sequence(seq.sequence_replaced)
-            clones[clone_id]['seqs'].append({
-                'seq_id': seq.seq_id,
-                'sample': {
-                    'id': seq.sample.id,
-                    'name': seq.sample.name,
-                },
-                'junction_nt': seq.junction_nt,
-                'sequence': seq.sequence_replaced,
-                'read_start': read_start,
-                'copy_number': int(seqr.copy_number),
-                'mutations': muts,
-                'v_extent': seq.v_length + seq.num_gaps + seq.pad_length,
-                'j_length': seq.j_length,
-            })
-
-        region_stats, pos_stats = mutations.get_aggregate()
-        clones[clone_id]['mutation_stats']['regions'] = region_stats
-        clones[clone_id]['mutation_stats']['positions'] = pos_stats
-
-    return clones
+    return all_mutations, total_seqs
 
 
 def get_clone_tree(session, clone_id):
@@ -234,29 +323,40 @@ def get_clone_overlap(session, filter_type, ctype, limit,
     """Gets a list of clones and the samples in `samples` which they appear"""
     fltr = _clone_filters[filter_type]
     res = []
-    q = fltr(session.query(
-        CloneStats,
-        func.sum(CloneStats.unique_cnt).label('unique'),
-        func.sum(CloneStats.total_cnt).label('total'),
-    ).join(Clone))
 
     if ctype == 'samples':
-        q = q.filter(CloneStats.sample_id.in_(limit))
+        clones = session.query(
+            Clone,
+            func.sum(CloneStats.unique_cnt).label('unique_cnt'),
+            func.sum(CloneStats.total_cnt).label('total_cnt')
+        ).join(CloneStats).filter(
+            CloneStats.sample_id.in_(limit),
+        ).group_by(CloneStats.clone_id)
     elif ctype == 'subject':
-        q = q.filter(CloneStats.sample.has(subject_id=limit))
+        clones = session.query(
+            Clone, CloneStats.unique_cnt.label('unique_cnt'),
+            CloneStats.total_cnt.label('total_cnt')
+        ).join(CloneStats).filter(
+            CloneStats.sample_id == 0,
+            Clone.subject_id == limit
+        )
 
-    q = q.group_by(CloneStats.clone_id).order_by(desc('total'))
+    clones = fltr(clones.order_by(desc('unique_cnt')))
 
     if paging is not None:
         page, per_page = paging
-        q = q.offset((page - 1) * per_page).limit(per_page)
+        clones = clones.offset((page - 1) * per_page).limit(per_page)
 
-    for clone in q:
+    for clone in clones:
         selected_samples = []
         other_samples = []
-        for stat in session.query(CloneStats).filter(
-                CloneStats.clone_id == clone.CloneStats.clone_id).order_by(
-                desc(CloneStats.total_cnt)):
+        query = session.query(CloneStats).filter(
+            CloneStats.clone_id == clone.Clone.id,
+            CloneStats.sample_id != 0
+        ).order_by(
+            desc(CloneStats.total_cnt)
+        )
+        for stat in query:
             data = {
                 'id': stat.sample_id,
                 'name': stat.sample.name,
@@ -269,9 +369,9 @@ def get_clone_overlap(session, filter_type, ctype, limit,
                 other_samples.append(data)
 
         res.append({
-            'unique_sequences': int(clone.unique),
-            'total_sequences': int(clone.total),
-            'clone': _clone_to_dict(clone.CloneStats.clone),
+            'unique_sequences': int(clone.unique_cnt),
+            'total_sequences': int(clone.total_cnt),
+            'clone': _clone_to_dict(clone.Clone),
             'selected_samples': selected_samples,
             'other_samples': other_samples,
         })
@@ -298,10 +398,10 @@ def get_v_usage(session, samples, filter_type, include_outliers,
     """Gets the V-Gene usage percentages for samples"""
     if by_family:
         name_func = lambda s: s.split('*')[0].split('-', 1)[0].replace(
-                        'IGHV', '')
+            'IGHV', '')
     else:
         name_func = lambda s: s.split('*')[0].replace(
-                        'IGHV', '')
+            'IGHV', '')
     data = {}
     totals = {}
     headers = []
@@ -331,7 +431,8 @@ def get_v_usage(session, samples, filter_type, include_outliers,
 
             if name not in data[group_key]:
                 data[group_key][name] = 0
-            data[group_key][name] += round(100 * occ / float(totals[group_key]), 2)
+            data[group_key][name] += round(
+                100 * occ / float(totals[group_key]), 2)
 
             if data[group_key][name] >= 1.0 and name not in headers:
                 headers.append(name)
@@ -345,7 +446,7 @@ def get_v_usage(session, samples, filter_type, include_outliers,
 
 
 def get_v_usage_grouped(session, samples, filter_type, include_outliers,
-                include_partials, grouping):
+                        include_partials, grouping):
     """Gets the V-Gene usage percentages for samples"""
     data = {}
     groups = {}
@@ -471,9 +572,9 @@ def get_stats(session, samples, include_outliers, include_partials, grouping):
     stats = {}
     sample_info = {}
     dist_fields = [
-        'v_match_dist', 'v_length_dist', 'j_match_dist',
-        'j_length_dist', 'v_gene_dist', 'j_gene_dist',
-        'cdr3_length_dist', 'copy_number_dist'
+        'v_match_dist', 'v_length_dist', 'v_identity_dist', 'j_match_dist',
+        'j_length_dist', 'v_gene_dist', 'j_gene_dist', 'cdr3_length_dist',
+        'copy_number_dist'
     ]
     cnt_fields = [
         'sequence_cnt', 'in_frame_cnt', 'stop_cnt', 'functional_cnt',
@@ -551,19 +652,20 @@ def get_sequence(session, sample_id, seq_id):
     ret['sample'] = _sample_to_dict(seq.sample)
 
     ret['v_extent'] = ret['v_length'] + ret['num_gaps'] + ret['pad_length']
+    if seq.mutations_from_clone is not None:
+        ret['mutations'] = json.loads(seq.mutations_from_clone)
+    else:
+        ret['mutations'] = []
 
     if seq.clone is None:
         ret['clone'] = None
     else:
         ret['clone'] = _clone_to_dict(seq.clone)
 
-    muts = Mutations(seq.germline, seq.junction_nt)
-    ret['mutations'] = muts.add_sequence(seq.sequence)
-
     ret['possible_duplicates'] = []
     ret['total_copy_number'] = ret['copy_number']
     for dup in session.query(Sequence).filter(
-            Sequence.sequence == seq.sequence,
+            Sequence.sequence_replaced == seq.sequence_replaced,
             Sequence.sample.has(subject_id=seq.sample.subject_id),
             Sequence.seq_id != seq.seq_id)\
             .order_by(Sequence.sample_id):

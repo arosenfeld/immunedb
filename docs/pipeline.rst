@@ -98,7 +98,7 @@ The following are optional for each file:
   specified, the field will be left blank.
 
 The ``all`` block applies the specified keys to all files in the directory (even
-if they are not included in the metadata file.  SLDB first looks in the block
+if they are not included in the metadata file).  SLDB first looks in the block
 for each file for each key.  If it is not found, only then does it check
 ``all``.
 
@@ -120,8 +120,3 @@ A small example is:
             "tissue": "Liver"
         }
     }
-
-.. rubric:: Footnotes
-
-.. [#clone_groups] With the exception of the ``clone_groups`` table which will
-    potentially change.

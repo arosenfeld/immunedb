@@ -1,9 +1,8 @@
 import argparse
 import json
 import math
-import time
 import subprocess
-import sldb.util.lookups as lookups
+import time
 
 from sqlalchemy import create_engine, desc, distinct
 from sqlalchemy.orm import sessionmaker, scoped_session
@@ -11,9 +10,12 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 import bottle
 from bottle import route, response, request, install, run
 
-from sldb.api.export import CloneExport, SequenceExport
+from sldb.api.export import CloneExport, SequenceExport, MutationExporter
 import sldb.api.queries as queries
 from sldb.common.models import *
+from sldb.common.mutations import threshold_mutations
+import sldb.util.lookups as lookups
+from sldb.util.nested_writer import NestedCSVWriter
 
 
 class EnableCors(object):
@@ -79,7 +81,7 @@ def sequences():
     return json.dumps({'sequences': sequences})
 
 
-@route('/api/sequence/<sample_id>/<seq_id>')
+@route('/api/sequence/<sample_id:int>/<seq_id>')
 def sequence(sample_id, seq_id):
     """Gets the sequence identified by ``seq_id`` in sample with id
     ``sample_id``.
@@ -125,7 +127,7 @@ def subjects():
     return json.dumps({'subjects': subjects})
 
 
-@route('/api/subject/<sid>')
+@route('/api/subject/<sid:int>')
 def subject(sid):
     """Gets the subject with id ``sid``.
 
@@ -160,36 +162,32 @@ def clones():
     return json.dumps({'clones': clones})
 
 
-@route('/api/clone_compare/<uids>')
-def clone_compare(uids):
-    """Compares clones, outputting their mutations and other pertinent
+@route('/api/clone/<clone_id:int>')
+@route('/api/clone/<clone_id:int>/<sample_ids>')
+def clone(clone_id, sample_ids=None):
+    """Gets a clone clones, outputting its mutations and other pertinent
     information.
 
-    :param str uids: A list of clones to compare either as just their IDs or \
-    ``ID_SAMPLE`` to limit that clone to a given sample
+    :param int clone_id: The clone ID
+    :param str sample_ids: A comma-separated list of samples to restrict
+    analysis
 
-    :returns: A clone comparison between ``uids``
+    :returns: Clone information
     :rtype: str
 
     """
     session = scoped_session(session_factory)()
-    clones_and_samples = {}
-    for u in uids.split(','):
-        if u.find('_') < 0:
-            clone = int(u)
-            sample = None
-        else:
-            clone, sample = _split(u, '_')
-        if clone not in clones_and_samples:
-            clones_and_samples[clone] = set([])
-        clones_and_samples[clone].add(sample)
-
-    clones = queries.compare_clones(session, clones_and_samples)
+    clone = queries.get_clone(session, clone_id, sample_ids)
+    pressure = queries.get_selection_pressure(session, clone_id, sample_ids)
     session.close()
-    return json.dumps({'clones': clones})
+
+    return json.dumps({
+        'clone': clone,
+        'selection_pressure': pressure
+    })
 
 
-@route('/api/clone_tree/<cid>')
+@route('/api/clone_tree/<cid:int>')
 def clone_tree(cid):
     """ Gets the lineage tree represented by JSON for a clone.
 
@@ -206,7 +204,7 @@ def clone_tree(cid):
 
 
 @route('/api/clone_overlap/<filter_type>/<samples>')
-@route('/api/subject_clones/<filter_type>/<subject>')
+@route('/api/subject_clones/<filter_type>/<subject:int>')
 def clone_overlap(filter_type, samples=None, subject=None):
     """Gets the clones that overlap between a set of samples. If ``samples`` is
     supplied, the overlap of clones between those is returned.  If ``samples``
@@ -331,7 +329,7 @@ def format_diversity_csv_output(x, y, s):
 
 
 @route('/api/rarefaction/<sample_ids>/<sample_bool>/<fast_bool>/<start>'
-       '/<num_points>', methods=['GET'])
+       '/<num_points:int>', methods=['GET'])
 def rarefaction(sample_ids, sample_bool, fast_bool, start, num_points):
     """Return the rarefaction curve in json format from a list of sample ids"""
 
@@ -463,7 +461,6 @@ def export_v_usage(samples, filter_type, include_outliers, include_partials,
         include_partials == 'true', grouping, by_family == 'true')
     session.close()
 
-
     name = 'v_usage_{}.csv'.format(
         time.strftime('%Y-%m-%d-%H-%M'))
     response.headers['Content-Disposition'] = 'attachment;filename={}'.format(
@@ -500,7 +497,7 @@ def export_clones(rtype, rids):
     fields = _get_arg('fields', False).split(',')
     include_total_row = _get_arg('include_total_row', False) == 'true' or False
 
-    name = '{}_{}.tab'.format(
+    name = '{}_{}.csv'.format(
         rtype,
         time.strftime('%Y-%m-%d-%H-%M'))
 
@@ -520,8 +517,8 @@ def export_clones(rtype, rids):
 def export_sequences(eformat, rtype, rids):
     """Downloads an exported format of specified sequences.
 
-    :param str eformat: The export format to use.  Currently "tab", "orig", and
-        "clip" for tab-delimited, FASTA, FASTA with filled in germlines, and
+    :param str eformat: The export format to use.  Currently "csv", "orig", and
+        "clip" for comma-delimited, FASTA, FASTA with filled in germlines, and
         FASTA in CLIP format respectively
     :param str rtype: The type of record to filter the query on.  Currently
         either "sample" or "clone"
@@ -532,7 +529,7 @@ def export_sequences(eformat, rtype, rids):
 
     """
 
-    assert eformat in ('tab', 'fill', 'orig', 'clip')
+    assert eformat in ('csv', 'fill', 'orig', 'clip')
     assert rtype in ('sample', 'clone')
 
     session = scoped_session(session_factory)()
@@ -541,8 +538,8 @@ def export_sequences(eformat, rtype, rids):
     min_copy = _get_arg('min_copy_number', False)
     min_copy = int(min_copy) if min_copy is not None else 1
 
-    if eformat == 'tab':
-        name = '{}_{}.tab'.format(
+    if eformat == 'csv':
+        name = '{}_{}.csv'.format(
             rtype,
             time.strftime('%Y-%m-%d-%H-%M'))
     else:
@@ -565,6 +562,47 @@ def export_sequences(eformat, rtype, rids):
         yield line
 
     session.close()
+
+
+@route('/api/data/export_mutations/<rtype>/<rids>/<thresh_type>/'
+       '<thresh_value:int>', methods=['GET'])
+def export_mutations(rtype, rids, thresh_type, thresh_value,
+                     only_sample_rows=None):
+    session = scoped_session(session_factory)()
+
+
+    assert rtype in ('sample', 'clone')
+    assert thresh_type in ('seqs', 'percent')
+
+    rids = _split(rids)
+    if rtype == 'sample':
+        only_sample_rows = _get_arg('only_sample_rows', False) == 'true'
+    else:
+        only_sample_rows = False
+
+    if rtype == 'sample':
+        query = session.query(
+            distinct(CloneStats.clone_id).label('clone_id')
+        ).filter(
+            CloneStats.sample_id.in_(rids)
+        )
+        clone_ids = map(lambda r: r.clone_id, query.all())
+    else:
+        clone_ids = rids
+
+    export = MutationExporter(
+        session, clone_ids,
+        rids if only_sample_rows else None,
+        thresh_type, thresh_value
+    )
+    session.close()
+
+    name = 'mutations_{}.csv'.format(
+        time.strftime('%Y-%m-%d-%H-%M'))
+    response.headers['Content-Disposition'] = 'attachment;filename={}'.format(
+        name)
+    for line in export.get_data():
+        yield line
 
 
 def run_rest_service(session_maker, args):

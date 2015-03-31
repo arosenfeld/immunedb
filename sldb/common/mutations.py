@@ -1,71 +1,18 @@
+import json
+
+from sldb.common.models import Sequence
+from sldb.identification.v_genes import VGene
 import sldb.util.lookups as lookups
 
 
-class MutationType(object):
-    """An enum-like class for different mutation types."""
-    MUT_UNK = ('?', 'unknown')
-    MUT_SYN = ('S', 'synonymous')
-    MUT_CONS = ('C', 'conservative')
-    MUT_UNCONS = ('U', 'nonconservative')
-    MUT_NONE = (' ', 'none')
+class ContextualMutations(object):
+    def __init__(self):
+        self._seen = {}
+        self._pos_seen = set([])
+        self.region_muts = {}
+        self.position_muts = {}
 
-    @classmethod
-    def get_symbol(cls, mtype):
-        """Gets the single-character symbol for a mutation
-
-        :param str mtype: The upper-case mutation type
-
-        :returns: The symbol for the mutation type
-        :rtype: str
-
-        """
-        return mtype[0]
-
-    @classmethod
-    def get_readable(cls, mtype):
-        """Gets the readable text for a mutation
-
-        :param str mtype: The upper-case mutation type
-
-        :returns: The readable string for the mutation type
-        :rtype: str
-
-        """
-        return mtype[1]
-
-    @classmethod
-    def get_types(cls):
-        """Enumerates all the types of mutations"""
-        return [getattr(MutationType, attr) for attr in filter(lambda a:
-                a.startswith('MUT_'), dir(MutationType))]
-
-
-class Mutations(object):
-    """Keeps track of mutations for a given germline.
-
-    :param str germline: The germline sequence to base mutations on
-    :param str cdr3_nts: The nucleotides comprising the CDR3
-
-    """
-    def __init__(self, germline, cdr3_nts):
-        self.region_stats = {}
-        for region in ['all', 'CDR1', 'CDR2', 'CDR3', 'FR1', 'FR2', 'FR3']:
-            self.region_stats[region] = self._create_count_record()
-        self.pos_stats = {}
-        self.total_seqs = 0
-        self.cdr3_nts = cdr3_nts
-        self.germline = germline[:309] + cdr3_nts + \
-            germline[309+len(cdr3_nts):]
-
-    def _get_region(self, index):
-        """Determines the gene region from an offset index
-
-        :param int index: Nucleotide position
-
-        :returns: The region which contains ``index``
-        :rtype: int
-
-        """
+    def _get_region(self, index, cdr3_num_nts):
         if index <= 77:
             return 'FR1'
         elif index <= 113:
@@ -76,186 +23,208 @@ class Mutations(object):
             return 'CDR2'
         elif index <= 308:
             return 'FR3'
-        elif index <= 308 + len(self.cdr3_nts):
+        elif index <= 308 + cdr3_num_nts:
             return 'CDR3'
         return 'FR4'
 
-    def _create_count_record(self, int_count=False):
-        """Creates a statistics record for a region or position.  If
-        ``int_count`` is True, only the counts will be maintained, otherwise
-        all values will be stored.
+    def add_mutation(self, seq_replaced, cdr3_num_nts, mutation, from_aa,
+                     intermediate_seq_aa, final_seq_aa, copy_number):
+        pos, _, _, mtype = mutation
+        region = self._get_region(pos, cdr3_num_nts)
+        self._add_to_region(seq_replaced, cdr3_num_nts, mutation, from_aa,
+                            intermediate_seq_aa, final_seq_aa, copy_number,
+                            region)
+        self._add_to_region(seq_replaced, cdr3_num_nts, mutation, from_aa,
+                            intermediate_seq_aa, final_seq_aa, copy_number,
+                            'ALL')
 
-        :param bool int_count: If only counts should be maintained
+        if seq_replaced not in self._pos_seen:
+            if pos not in self.position_muts:
+                self.position_muts[pos] = {}
+            if mtype not in self.position_muts[pos]:
+                self.position_muts[pos][mtype] = 0
+            self.position_muts[pos][mtype] += 1
 
-        :returns: The mutation count record
-        :rtype: dict
+    def _add_to_region(self, seq_replaced, cdr3_num_nts, mutation, from_aa,
+                       intermediate_seq_aa, final_seq_aa, copy_number, region):
+        pos, from_nt, to_nt, mtype = mutation
+        if region not in self.region_muts:
+            self.region_muts[region] = {}
 
-        """
-        rec = {}
-        for m in (MutationType.MUT_SYN, MutationType.MUT_CONS,
-                  MutationType.MUT_UNCONS):
-            if int_count:
-                rec[MutationType.get_readable(m)] = 0
-            else:
-                rec[MutationType.get_readable(m)] = {}
-        return rec
+        # If it's a new mutation, setup the dictionaries
+        if mtype not in self.region_muts[region]:
+            self.region_muts[region][mtype] = {}
 
-    def _add_region_stat(self, i, seq):
-        """Adds mutations from ``seq`` at a given position to the region stats.
+        if mutation not in self.region_muts[region][mtype]:
+            self.region_muts[region][mtype][mutation] = {
+                'pos': pos,
+                'from_nt': from_nt,
+                'from_aa': from_aa,
+                'to_nt': to_nt,
+                'to_aas': [],
 
-        :param int i: Index of nucleotide
-        :param str seq: The sequence
+                'unique': 0,
+                'total': 0,
+                'intermediate_aa': intermediate_seq_aa,
+            }
 
-        """
-        mtype = self._get_mut_type(seq, i)
-        if mtype not in (MutationType.MUT_NONE, MutationType.MUT_UNK):
-            mtype = MutationType.get_readable(mtype)
-            region = self._get_region(i)
-            if region not in self.region_stats:
-                self.region_stats[region] = self._create_count_record()
+        mut_dict = self.region_muts[region][mtype][mutation]
+        mut_dict['total'] += copy_number
+        if final_seq_aa not in mut_dict['to_aas']:
+            mut_dict['to_aas'].append(final_seq_aa)
 
-            mutation = (i, self.germline[i], seq[i],
-                        self._get_aa_at(self.germline, i),
-                        self._get_aa_at(seq, i))
-            if mutation not in self.region_stats[region][mtype]:
-                self.region_stats[region][mtype][mutation] = 0
-            self.region_stats[region][mtype][mutation] += 1
+        if region not in self._seen:
+            self._seen[region] = {}
+        if mutation not in self._seen[region]:
+            self._seen[region][mutation] = set([])
+        if seq_replaced not in self._seen[region][mutation]:
+            self._seen[region][mutation].add(seq_replaced)
+            mut_dict['unique'] += 1
 
-            if mutation not in self.region_stats['all'][mtype]:
-                self.region_stats['all'][mtype][mutation] = 0
-            self.region_stats['all'][mtype][mutation] += 1
+    def finish_seq(self, seq_replaced):
+        self._pos_seen.add(seq_replaced)
 
-    def _add_pos_stat(self, i, mtype, seq):
-        """Adds mutations from ``seq`` at a given position to the position
-        stats
+    def get_all(self):
+        # Strip the dictionary keys and just make a list of mutations
+        final_regions = {}
+        for region, types in self.region_muts.iteritems():
+            final_regions[region] = {}
+            for mtype, mutations in types.iteritems():
+                final_regions[region][mtype] = mutations.values()
 
-        :param int i: Index of nucleotide
-        :param tuple mtype: The mutation type to add
-        :param str seq: The sequence
+        return {
+            'regions': final_regions,
+            'positions': self.position_muts
+        }
 
-        """
-        mtype = self._get_mut_type(seq, i)
-        if mtype not in (MutationType.MUT_NONE, MutationType.MUT_UNK):
-            if i not in self.pos_stats:
-                self.pos_stats[i] = self._create_count_record(True)
-            self.pos_stats[i][MutationType.get_readable(mtype)] += 1
+
+class CloneMutations(object):
+    MODE_SAMPLES_AND_TOTAL = 0
+    MODE_SAMPLES_ONLY = 1
+    MODE_TOTAL_ONLY = 2
+    def __init__(self, session, clone):
+        self._clone = clone
+        self._session = session
+
+        self._germline = self._clone.group.germline
+        self._germline = ''.join([
+            self._germline[:VGene.CDR3_OFFSET],
+            clone.cdr3_nt,
+            self._germline[VGene.CDR3_OFFSET + clone.cdr3_num_nts:]
+        ])
+
+    def _get_codon_at(self, seq, i):
+        aa_off = i - i % 3
+        return seq[aa_off:aa_off + 3]
 
     def _get_aa_at(self, seq, i):
-        """Gets the amino acid that is partially encoded by position ``i``
+        return lookups.aa_from_codon(self._get_codon_at(seq, i))
 
-        :param str seq: The sequence
-        :param int i: Index of nucleotide
-
-        :returns: The amino acid in ``seq`` at ``i``
-        :rtype: str
-
-        """
-        aa_off = i - i % 3
-        return lookups.aa_from_codon(seq[aa_off:aa_off + 3])
-
-    def _get_mut_type(self, seq, i):
-        """Determines the mutation type of a sequence at a position.
-
-        :param str seq: The sequence
-        :param int i: Index of nucleotide
-
-        :returns: The mutation type in ``seq`` at ``i``
-        :rtype: tuple
-
-        """
-        if (self.germline[i] != 'N' and seq[i] != 'N'
-                and self.germline[i] != seq[i]):
-            grm_aa = self._get_aa_at(self.germline, i)
-            seq_aa = self._get_aa_at(seq, i)
+    def _get_mutation(self, seq, i):
+        if (self._germline[i] != seq[i]
+                and self._germline[i] != 'N'
+                and seq[i] != 'N'):
+            grm_aa = self._get_aa_at(self._germline, i)
+            # Simulate this mutation alone
+            off = i % 3
+            grm_codon = self._get_codon_at(self._germline, i)
+            seq_aa = lookups.aa_from_codon(
+                grm_codon[:off] + seq[i] + grm_codon[off+1:])
 
             if grm_aa is None or seq_aa is None:
-                return MutationType.MUT_UNK
+                return 'unknown', seq_aa
             elif grm_aa != seq_aa:
                 if lookups.are_conserved_aas(grm_aa, seq_aa):
-                    return MutationType.MUT_CONS
-                return MutationType.MUT_UNCONS
+                    return 'conservative', seq_aa
+                return 'nonconservative', seq_aa
             else:
-                return MutationType.MUT_SYN
-        else:
-            return MutationType.MUT_NONE
+                return 'synonymous', seq_aa
 
-    def add_sequence(self, seq):
-        """Calculates all mutation information for a sequence
+        return None, None
 
-        :param str seq: The sequence
+    def calculate(self, commit_seqs=False, limit_samples=None,
+                  mode=None):
+        if mode is None:
+            mode = CloneMutations.MODE_SAMPLES_AND_TOTAL
+        sample_mutations = {}
+        clone_mutations = ContextualMutations()
 
-        :returns: The mutation string
-        :rtype: str
+        seqs = self._session.query(Sequence).filter(
+            Sequence.clone == self._clone)
+        if limit_samples is not None:
+            seqs = seqs.filter(Sequence.sample_id.in_(limit_samples))
 
-        """
-        self.total_seqs += 1
-        mut_str = ''
-        for i in range(0, len(seq)):
-            mut = self._get_mut_type(seq, i)
-            mut_str += MutationType.get_symbol(mut)
-            self._add_region_stat(i, seq)
-            self._add_pos_stat(i, mut, seq)
-        return mut_str
+        for seq in seqs:
+            seq_mutations = {}
+            for i in range(0, len(seq.sequence)):
+                if seq.sample_id not in sample_mutations:
+                    sample_mutations[seq.sample_id] = ContextualMutations()
+                mtype, intermediate_seq_aa = self._get_mutation(
+                    seq.sequence, i)
+                if mtype is None:
+                    continue
 
-    def get_aggregate(self, thresholds=None):
-        """Aggregates all mutation information from added sequences
+                # TODO: if seq already has mutations committed, use them
+                # instead of recalculating
+                from_aa = self._get_aa_at(self._germline, i)
+                seq_mutations[i] = mtype
 
-        :returns: Mutation statistics for regions and positions
-        :rtype: tuple ``(region_stats, position_stats)``
+                mutation = (i, self._germline[i], seq.sequence[i], mtype)
+                if mode in (CloneMutations.MODE_SAMPLES_AND_TOTAL,
+                            CloneMutations.MODE_SAMPLES_ONLY):
+                    sample_mutations[seq.sample_id].add_mutation(
+                        seq.sequence_replaced, self._clone.cdr3_num_nts,
+                        mutation, from_aa, intermediate_seq_aa,
+                        self._get_aa_at(seq.sequence, i), seq.copy_number)
 
-        """
+                if mode in (CloneMutations.MODE_SAMPLES_AND_TOTAL,
+                            CloneMutations.MODE_TOTAL_ONLY):
+                    clone_mutations.add_mutation(
+                        seq.sequence_replaced, self._clone.cdr3_num_nts,
+                        mutation, from_aa, intermediate_seq_aa,
+                        self._get_aa_at(seq.sequence, i), seq.copy_number)
 
-        if thresholds is None:
-            thresholds = [
-                ('percent', 1),
-                ('percent', .8),
-                ('percent', .5),
-                ('percent', .2),
-                ('percent', 0),
-                ('seqs', 2),
-                ('seqs', 5),
-                ('seqs', 10),
-                ('seqs', 25),
-            ]
+            if mode in (CloneMutations.MODE_SAMPLES_AND_TOTAL,
+                        CloneMutations.MODE_SAMPLES_ONLY):
+                sample_mutations[seq.sample_id].finish_seq(
+                    seq.sequence_replaced)
+            if mode in (CloneMutations.MODE_SAMPLES_AND_TOTAL,
+                        CloneMutations.MODE_TOTAL_ONLY):
+                clone_mutations.finish_seq(seq.sequence_replaced)
 
-        threshold_region_stats = {}
-        for threshold in thresholds:
-            region_stats = {}
-            for region, stats in self.region_stats.iteritems():
-                region_stats[region] = {
-                    'counts': {
-                        'unique': self._create_count_record(True),
-                        'total': self._create_count_record(True)
-                    },
-                    'mutations': {}
-                }
+            if commit_seqs:
+                seq.mutations_from_clone = json.dumps(seq_mutations)
 
-                for mut_type, mutations in stats.iteritems():
-                    region_stats[region]['counts']['total'][mut_type] = 0
-                    region_stats[region]['counts']['unique'][mut_type] = 0
-                    region_stats[region]['mutations'][mut_type] = []
-                    for mutation, count in mutations.iteritems():
-                        minimum = threshold[1]
-                        if threshold[0] == 'percent':
-                            minimum *= self.total_seqs
-                        if count >= minimum:
-                            st = region_stats[region]
-                            st['counts']['total'][mut_type] += count
-                            st['counts']['unique'][mut_type] += 1
-                            st['mutations'][mut_type].append({
-                                'count': count,
-                                'position': mutation[0],
-                                'from': mutation[1],
-                                'to': mutation[2],
-                                'aa_from': mutation[3],
-                                'aa_to': mutation[4],
-                            })
+        if commit_seqs:
+            self._session.commit()
+        if mode == CloneMutations.MODE_TOTAL_ONLY:
+            return clone_mutations
+        elif mode == CloneMutations.MODE_SAMPLES_ONLY:
+            return sample_mutations
+        elif mode == CloneMutations.MODE_SAMPLES_AND_TOTAL:
+            return sample_mutations, clone_mutations
 
 
-                if threshold[0] == 'percent':
-                    label = 'percent_{}'.format(int(threshold[1] * 100))
-                else:
-                    label = 'seqs_{}'.format(threshold[1])
-                threshold_region_stats[label] = region_stats
-
-        return threshold_region_stats, self.pos_stats
+def threshold_mutations(all_muts, min_required_seqs):
+    final = {}
+    for region, types in all_muts['regions'].iteritems():
+        final[region] = {
+            'counts': {
+                'total': {},
+                'unique': {}
+            },
+            'mutations': {}
+        }
+        for mtype, mutations in types.iteritems():
+            for mutation in mutations:
+                if mutation['unique'] >= min_required_seqs:
+                    if mtype not in final[region]['mutations']:
+                        final[region]['mutations'][mtype] = []
+                    if mtype not in final[region]['counts']['total']:
+                        final[region]['counts']['total'][mtype] = 0
+                        final[region]['counts']['unique'][mtype] = 0
+                    final[region]['mutations'][mtype].append(mutation)
+                    final[region]['counts']['total'][mtype] += \
+                        mutation['unique']
+                    final[region]['counts']['unique'][mtype] += 1
+    return final
