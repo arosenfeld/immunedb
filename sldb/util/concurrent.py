@@ -6,7 +6,7 @@ class Worker(object):
         raise NotImplementedError
 
     def cleanup(self, worker_id):
-        raise NotImplementedError
+        pass
 
 
 class TaskQueue(object):

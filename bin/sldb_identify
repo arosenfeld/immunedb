@@ -5,7 +5,7 @@ import sldb.common.config as config
 
 if __name__ == '__main__':
     parser = config.get_base_arg_parser('Identifies V and J genes from '
-                                        'FASTA files')
+                                        'FASTA files', multiproc=True)
     parser.add_argument('base_dirs', nargs='+', help='Base directories for '
                         'samples.')
     parser.add_argument('v_germlines', help='FASTA file with IMGT gapped '
