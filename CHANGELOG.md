@@ -1,4 +1,14 @@
 # CHANGELOG
+## v6.2.0
+* Baseline (http://selection.med.yale.edu/baseline) has now been integrated to
+  calculate clonal selection pressure during clone statistic calculations.
+* Clone comparison now only allows one clone to be selected.
+* Modification log messages now added at each pipeline stage.
+* Mutations are now precalculated for all sequences and clones.
+* Mutations can now be exported for both clones and samples.
+* All pipeline stages now use the multiprocessing module to parallelize
+  processing.
+
 ## v6.1.2
 * Mutations can now be filtered by occurrence frequency via the REST API.
 
