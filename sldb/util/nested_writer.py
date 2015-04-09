@@ -21,6 +21,9 @@ class NestedCSVWriter(object):
                 write_dict[header] = self._mapping[header](row)
             elif header in row:
                 write_dict[header] = row[header]
+        return self.add_raw_row(write_dict, write_if_stream=write_if_stream)
+
+    def add_raw_row(self, raw_dict, write_if_stream=True):
         self._csv.writerow(write_dict)
         if self._streaming and write_if_stream:
             return self.get_value()

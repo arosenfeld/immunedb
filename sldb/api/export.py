@@ -115,18 +115,22 @@ class CloneExport(Exporter):
                 if last_cid is None:
                     last_cid = record.clone_id
                 elif last_cid != record.clone_id:
-                    total_row = [
-                        ('clone_id', last_cid),
-                        ('sample_id', 'TOTAL'),
-                        ('unique_sequences', overall_unique),
-                        ('unique_total', overall_total)]
-                    yield csv.add_row(total_row, write_default=True,
-                                      default='')
+                    cnts = session.query(
+                            CloneStats.unique_cnt,
+                            CloneStats.total_cnt
+                        ).filter(
+                            CloneStats.clone_id == last_cid,
+                            CloneStats.sample_id == 0
+                        ).first()
+                    total_row = {
+                        'clone_id': last_cid,
+                        'sample_id': 'TOTAL',
+                        'unique_sequences': cnts.unique_cnt,
+                        'total_sequences': cnts.total_cnt
+                    }
+                    yield csv.add_raw_row(total_row)
                     last_cid = record.clone_id
-                    overall_unique = 0
-                    overall_total = 0
-                overall_unique += record.unique_cnt
-                overall_total += record.total_cnt
+
             yield csv.add_row(self.get_selected_data(record))
 
 
