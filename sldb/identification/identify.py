@@ -232,7 +232,7 @@ class IdentificationWorker(concurrent.Worker):
             copy_number=vdj.copy_number,
 
             junction_nt=vdj.cdr3,
-            junction_aa=lookups.aas_from_nts(vdj.cdr3, ''),
+            junction_aa=lookups.aas_from_nts(vdj.cdr3),
             gap_method='IMGT',
 
             sequence=str(vdj.sequence),

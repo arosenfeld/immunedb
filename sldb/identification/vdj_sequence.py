@@ -92,7 +92,7 @@ class VDJSequence(object):
         if self._seq_filled is None:
             self._seq_filled = ''
             for i, c in enumerate(self.sequence):
-                if c.upper() == 'N':
+                if c.upper() == 'N' and self.germline[i].upper() != '-':
                     self._seq_filled += self.germline[i].upper()
                 else:
                     self._seq_filled += c

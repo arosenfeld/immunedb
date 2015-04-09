@@ -233,7 +233,7 @@ class SampleStatsWorker(concurrent.Worker):
             clone_info = self._session.query(Clone.cdr3_nt).filter(
                 Clone.id == clone.clone_id).first()
             in_frame = len(clone_info.cdr3_nt) % 3 == 0
-            stop = '*' in lookups.aas_from_nts(clone_info.cdr3_nt, '')
+            stop = '*' in lookups.aas_from_nts(clone_info.cdr3_nt)
             functional = in_frame and not stop
             for name, stat in clone_statistics.iteritems():
                 stat.add_if_match(clone, in_frame, stop, functional)

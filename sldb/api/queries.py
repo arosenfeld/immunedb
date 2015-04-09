@@ -434,64 +434,11 @@ def get_v_usage(session, samples, filter_type, include_outliers,
         totals[group_key] = float(sum(names.values()))
         for name, value in names.iteritems():
             percent = round(100 * value / totals[group_key], 2)
-            if name not in headers and percent > 0.5:
-                names[name] = percent
+            names[name] = percent
+            if name not in headers and percent >= 1.0:
                 headers.append(name)
 
     return data, sorted(headers), totals
-
-
-def get_v_usage_grouped(session, samples, filter_type, include_outliers,
-                        include_partials, grouping):
-    """Gets the V-Gene usage percentages for samples"""
-    data = {}
-    groups = {}
-    headers = []
-    for s in session.query(SampleStats)\
-            .filter(SampleStats.filter_type == filter_type,
-                    SampleStats.outliers == include_outliers,
-                    SampleStats.full_reads != include_partials,
-                    SampleStats.sample_id.in_(samples)):
-        dist = json.loads(s.v_gene_dist)
-        if grouping == 'subject':
-            group_key = s.sample.subject.identifier
-        else:
-            group_key = getattr(s.sample, grouping)
-        if group_key not in groups:
-            groups[group_key] = []
-        groups[group_key].append(s.sample.name)
-
-        data[s.sample.name] = {}
-        total = 0
-        for v in dist:
-            total += v[1]
-
-        for v in dist:
-            name, occ = v
-            name = '|'.join(
-                sorted(set(map(
-                    lambda s: s.split('*')[0].replace(
-                        'IGHV', ''), name.split('|')))))
-
-            if name not in data[s.sample.name]:
-                data[s.sample.name][name] = 0
-            data[s.sample.name][name] += round(100 * occ / float(total), 2)
-
-            if data[s.sample.name][name] >= 1.0 and name not in headers:
-                headers.append(name)
-
-    for s, vs in data.iteritems():
-        for header in headers:
-            if header not in vs:
-                vs[header] = 'none'
-
-    keys = []
-    lookup = {}
-    for i, (group, members) in enumerate(groups.iteritems()):
-        for member in sorted(members):
-            keys.append(member)
-            lookup[member] = i
-    return data, sorted(headers), keys, lookup
 
 
 def get_all_subjects(session, paging):

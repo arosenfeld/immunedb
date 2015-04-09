@@ -168,7 +168,7 @@ def _read_gapped(session, reads, gapped_reader, germlines, sample, use_v_ties,
         if len(junction) == 0:
             continue
         read.junction_nt = junction.upper()
-        read.junction_aa = lookups.aas_from_nts(read.junction_nt, '')
+        read.junction_aa = lookups.aas_from_nts(read.junction_nt)
 
         read.sequence = 'N' * read.pad_length + sequence[read.pad_length:]
 

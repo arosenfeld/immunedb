@@ -449,7 +449,9 @@ def diversity(sample_ids, order, window):
 
     for seq in seqs:
         seq_string += '>\n{}\n'.format(
-            lookups.aas_from_nts(seq.sequence_replaced, '-')[:103])
+            lookups.aas_from_nts(
+                seq.sequence_replaced, replace_unknowns='-'
+            )[:103])
 
     command = [rf_bin,
                '-r', str(order),
@@ -504,7 +506,10 @@ def export_v_usage(samples, filter_type, include_outliers, include_partials,
     for y in y_categories:
         yield '{}'.format(y)
         for x in x_categories:
-            yield ',{}'.format(data[y][x])
+            if x in data[y]:
+                yield ',{}'.format(data[y][x])
+            else:
+                yield ',0'
         yield '\n'
 
 

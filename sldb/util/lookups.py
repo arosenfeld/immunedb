@@ -1,19 +1,22 @@
 import itertools
 
 
-def aas_from_nts(nts, ret_on_wrong=None):
+def aas_from_nts(nts, replace_unknowns='X'):
     """Returns the amino acids for a given nuceotide string"""
     aas = ''
     for i in range(0, len(nts), 3):
-        aas += aa_from_codon(str(nts[i:i+3]), ret_on_wrong)
+        codon = str(nts[i:i+3])
+        if len(codon) < 3:
+            break
+        aas += aa_from_codon(codon), replace_unknowns)
     return aas
 
 
-def aa_from_codon(codon, ret_on_wrong=None):
+def aa_from_codon(codon, ret_on_unknown=None):
     """Looks up an amino acid from a codon, or returns None"""
     if codon.upper() in _aa_lookup:
         return _aa_lookup[codon.upper()]
-    return ret_on_wrong
+    return ret_on_unknown
 
 
 def are_conserved_aas(aa1, aa2):

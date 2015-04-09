@@ -135,7 +135,7 @@ def _assign_clones_to_groups(session, subject_id, to_update):
 
         clone.cdr3_nt = _consensus(map(lambda s:
                                    s.junction_nt, seqs))
-        cdr3_aa = lookups.aas_from_nts(clone.cdr3_nt, '')
+        cdr3_aa = lookups.aas_from_nts(clone.cdr3_nt)
 
         group = session.query(CloneGroup).filter(
             CloneGroup.subject_id == subject_id,
