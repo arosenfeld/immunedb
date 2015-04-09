@@ -404,7 +404,6 @@ def get_v_usage(session, samples, filter_type, include_outliers,
             'IGHV', '')
     data = {}
     totals = {}
-    headers = []
     for s in session.query(SampleStats)\
             .filter(SampleStats.filter_type == filter_type,
                     SampleStats.outliers == include_outliers,
@@ -421,9 +420,6 @@ def get_v_usage(session, samples, filter_type, include_outliers,
 
         if group_key not in data:
             data[group_key] = {}
-            totals[group_key] = 0
-        for v in dist:
-            totals[group_key] += v[1]
 
         for v in dist:
             name, occ = v
@@ -431,16 +427,16 @@ def get_v_usage(session, samples, filter_type, include_outliers,
 
             if name not in data[group_key]:
                 data[group_key][name] = 0
-            data[group_key][name] += round(
-                100 * occ / float(totals[group_key]), 2)
+            data[group_key][name] += occ
 
-            if data[group_key][name] >= 1.0 and name not in headers:
+    headers = []
+    for group_key, names in data.iteritems():
+        totals[group_key] = float(sum(names.values()))
+        for name, value in names.iteritems():
+            percent = round(100 * value / totals[group_key], 2)
+            if name not in headers and percent > 0.5:
+                names[name] = percent
                 headers.append(name)
-
-    for s, vs in data.iteritems():
-        for header in headers:
-            if header not in vs:
-                vs[header] = 0
 
     return data, sorted(headers), totals
 
