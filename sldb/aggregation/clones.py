@@ -92,7 +92,9 @@ def _get_subject_clones(session, subject_id, min_similarity, limit_alignments,
                         Clone.cdr3_num_nts == seq.junction_num_nts):
             seqs_in_clone = map(lambda s: s.junction_aa,
                                 session.query(Sequence.junction_aa)
-                                .filter(Sequence.clone == clone))
+                                .filter(Sequence.clone == clone).group_by(
+                                    Sequence.junction_aa
+                                ))
 
             if _similar_to_all(seq.junction_aa, seqs_in_clone,
                                min_similarity):

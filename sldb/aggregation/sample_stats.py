@@ -216,7 +216,7 @@ class SampleStatsWorker(concurrent.Worker):
             func.avg(Sequence.j_length).label('j_length'),
             Sequence.v_gene,
             Sequence.j_gene,
-            func.avg(Sequence.copy_number).label('copy_number'),
+            func.count(Sequence.seq_id).label('copy_number'),
             (Sequence.v_length + Sequence.num_gaps).label('v_length'),
             (
                 func.ceil(100 * Sequence.v_match / Sequence.v_length)
