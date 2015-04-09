@@ -24,7 +24,7 @@ class NestedCSVWriter(object):
         return self.add_raw_row(write_dict, write_if_stream=write_if_stream)
 
     def add_raw_row(self, raw_dict, write_if_stream=True):
-        self._csv.writerow(write_dict)
+        self._csv.writerow(raw_dict)
         if self._streaming and write_if_stream:
             return self.get_value()
 

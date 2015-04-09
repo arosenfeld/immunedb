@@ -229,11 +229,41 @@ def clone_overlap(filter_type, samples=None, subject=None):
         sids = _split(samples)
     ctype = 'samples' if samples is not None else 'subject'
 
+    exporting = _get_arg('export', False) == 'true'
+    paging = _get_paging() if not exporting else None
     clones = queries.get_clone_overlap(
         session, filter_type, ctype,
-        sids if samples is not None else subject, _get_paging())
+        sids if samples is not None else subject, paging)
     session.close()
-    return json.dumps({'clones': clones})
+
+    if exporting:
+        csv_mapping = {
+            'clone_id': (lambda r: r['clone']['id']),
+            'clone_v': (lambda r: r['clone']['group']['v_gene']),
+            'clone_j': (lambda r: r['clone']['group']['j_gene']),
+            'clone_cdr3_aa': (lambda r: r['clone']['group']['cdr3_aa']),
+            'clone_cdr3_num_nts': (
+                lambda r: r['clone']['group']['cdr3_num_nts']
+            ),
+            'clone_subject': (
+                lambda r: r['clone']['group']['subject']['identifier']
+            ),
+        }
+        writer = NestedCSVWriter([
+            'total_sequences', 'unique_sequences', 'clone_id', 'clone_v',
+            'clone_j', 'clone_cdr3_aa', 'clone_cdr3_num_nts', 'clone_subject'
+        ], mapping=csv_mapping, streaming=True)
+
+
+        name = 'overlap_{}.csv'.format(
+            time.strftime('%Y-%m-%d-%H-%M'))
+        response.headers['Content-Disposition'] = ('attachment;'
+            'filename={}').format(name)
+
+        for clone in clones:
+            yield writer.add_row(clone)
+    else:
+        yield json.dumps({'clones': clones})
 
 
 @route('/api/stats/<samples>/<include_outliers>/<include_partials>/<grouping>')
@@ -603,6 +633,20 @@ def export_mutations(rtype, rids, thresh_type, thresh_value,
         name)
     for line in export.get_data():
         yield line
+
+
+@route('/api/data/clone_overlap/<filter_type>/<samples>')
+@route('/api/data/subject_clones/<filter_type>/<subject:int>')
+def export_clone_overlap(filter_type, samples=None, subject=None):
+    session = scoped_session(session_factory)()
+    if samples is not None:
+        sids = _split(samples)
+    ctype = 'samples' if samples is not None else 'subject'
+
+    clones = queries.get_clone_overlap(
+        session, filter_type, ctype,
+        sids if samples is not None else subject, _get_paging())
+    session.close()
 
 
 def run_rest_service(session_maker, args):

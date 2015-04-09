@@ -115,7 +115,7 @@ class CloneExport(Exporter):
                 if last_cid is None:
                     last_cid = record.clone_id
                 elif last_cid != record.clone_id:
-                    cnts = session.query(
+                    cnts = self.session.query(
                             CloneStats.unique_cnt,
                             CloneStats.total_cnt
                         ).filter(
