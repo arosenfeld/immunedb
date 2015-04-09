@@ -8,7 +8,7 @@ def aas_from_nts(nts, replace_unknowns='X'):
         codon = str(nts[i:i+3])
         if len(codon) < 3:
             break
-        aas += aa_from_codon(codon), replace_unknowns)
+        aas += aa_from_codon(codon, replace_unknowns)
     return aas
 
 
