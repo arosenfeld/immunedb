@@ -195,7 +195,7 @@ class IdentificationWorker(concurrent.Worker):
             Sequence.sequence == vdj.sequence,
             Sequence.sample == sample).first()
         if existing is not None:
-            existing.copy_number += 1
+            existing.copy_number += vdj.sequence
             self._session.add(DuplicateSequence(
                 duplicate_seq_id=existing.seq_id,
                 sample_id=sample.id,
