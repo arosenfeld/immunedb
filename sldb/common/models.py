@@ -333,7 +333,7 @@ class Sequence(BaseData):
 
     """
     __tablename__ = 'sequences'
-    __table_args__ = (Index('genes', 'v_gene', 'j_gene',),
+    __table_args__ = (Index('genes', 'v_gene', 'j_gene'),
                       {'mysql_engine': 'TokuDB'})
     __mapper_args__ = {'extension': SequenceExtension()}
 

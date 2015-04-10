@@ -27,6 +27,9 @@ class TaskQueue(object):
         )
 
     def start(self, block=True):
+        for _ in self._workers:
+            self.add_task(None)
+
         for worker in self._workers:
             worker.start()
         if block:
@@ -35,9 +38,13 @@ class TaskQueue(object):
     def _func_wrap(self, worker_id, worker):
         while True:
             try:
-                args = self._task_queue.get_nowait()
+                args = self._task_queue.get()
             except Queue.Empty:
                 break
-            worker.do_task(worker_id, args)
-            self._task_queue.task_done()
+            if args is None:
+                self._task_queue.task_done()
+                break
+            else:
+                worker.do_task(worker_id, args)
+                self._task_queue.task_done()
         worker.cleanup(worker_id)

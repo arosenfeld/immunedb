@@ -32,10 +32,13 @@ class SampleMetadata(object):
 
 
 class IdentificationWorker(concurrent.Worker):
-    def __init__(self, session, v_germlines, limit_alignments, sync_lock):
+    def __init__(self, session, v_germlines, limit_alignments, max_vties,
+                 min_similarity, sync_lock):
         self._session = session
         self._v_germlines = v_germlines
         self._limit_alignments = limit_alignments
+        self._min_similarity = min_similarity
+        self._max_vties = max_vties
         self._sync_lock = sync_lock
 
     def do_task(self, worker_id, args):
@@ -96,6 +99,8 @@ class IdentificationWorker(concurrent.Worker):
         mutations_sum = 0
         # All VDJs assigned for this sample, keyed by raw sequence
         vdjs = {}
+        # Sequences that have noresults
+        noresults = {}
         # All probable duplicates based on keys of vdjs dictionary
         dups = {}
         # Number of noresult sequences
@@ -105,7 +110,7 @@ class IdentificationWorker(concurrent.Worker):
                 os.path.join(path, fn), 'fasta')):
             if i > 0 and i % 1000 == 0:
                 self._session.commit()
-            # Key the vdjs dictionary by the unmodified sequence
+            # Key the dictionaries by the unmodified sequence
             key = str(record.seq)
             if key in vdjs:
                 # If this exact sequence, without padding or gaps, has been
@@ -119,6 +124,11 @@ class IdentificationWorker(concurrent.Worker):
                     duplicate_seq_id=vdjs[key].id,
                     sample_id=sample.id,
                     seq_id=record.description))
+            elif key in noresults:
+                # This sequence cannot be identified.  Add a noresult
+                self._session.add(NoResult(sample=sample,
+                                     seq_id=record.description,
+                                     sequence=str(record.seq)))
             else:
                 # This is the first instance of this exact sequence, so align it
                 # and identify it's V and J
@@ -137,6 +147,7 @@ class IdentificationWorker(concurrent.Worker):
                     self._session.add(NoResult(sample=sample,
                                          seq_id=vdj.id,
                                          sequence=str(vdj.sequence)))
+                    noresults[key] = None
 
         self._session.commit()
 
@@ -153,15 +164,18 @@ class IdentificationWorker(concurrent.Worker):
                 self._session.commit()
             # Align the sequence to a germline based on v_ties
             vdj.align_to_germline(avg_len, avg_mut)
-            if vdj.v_gene is not None and vdj.j_gene is not None:
+            if (vdj.v_gene is not None
+                and vdj.j_gene is not None
+                and vdj.v_match / float(vdj.v_length) >= self._min_similarity
+                and len(vdj.v_gene) <= self._max_vties
+                ):
                 # Add the sequence to the database
                 final_seq_id = self._add_to_db(read_type, sample, vdj)
                 # If a duplicate was found, and vdj was added as a duplicate,
                 # update the associated duplicates' duplicate_seq_ids
-                if final_seq_id != vdj.id:
-                    if vdj.id in dups:
-                        for dup in dups[vdj.id]:
-                            dup.duplicate_seq_id = final_seq_id
+                if final_seq_id != vdj.id and vdj.id in dups:
+                    for dup in dups[vdj.id]:
+                        dup.duplicate_seq_id = final_seq_id
             else:
                 # This is a rare condition, but some sequence after aligning to
                 # V-ties the CDR3 becomes non-existent, and it is thrown out
@@ -195,20 +209,19 @@ class IdentificationWorker(concurrent.Worker):
             Sequence.sequence == vdj.sequence,
             Sequence.sample == sample).first()
         if existing is not None:
-            existing.copy_number += vdj.sequence
+            existing.copy_number += vdj.copy_number
             self._session.add(DuplicateSequence(
                 duplicate_seq_id=existing.seq_id,
                 sample_id=sample.id,
                 seq_id=vdj.id))
             return existing.seq_id
-        indel = vdj.has_possible_indel or (
-            (vdj.v_match / float(vdj.v_length)) < .6)
+ 
         self._session.add(Sequence(
             seq_id=vdj.id,
             sample=sample,
 
             alignment=alignment,
-            probable_indel_or_misalign=indel,
+            probable_indel_or_misalign=vdj.has_possible_indel,
 
             v_gene=funcs.format_ties(vdj.v_gene, 'IGHV'),
             j_gene=funcs.format_ties(vdj.j_gene, 'IGHJ'),
@@ -270,5 +283,8 @@ def run_identify(session, args):
     for i in range(0, args.nproc):
         session = config.init_db(args.master_db_config, args.data_db_config)
         tasks.add_worker(IdentificationWorker(session, v_germlines,
-                                              args.limit_alignments, lock))
+                                              args.limit_alignments, 
+                                              args.max_vties,
+                                              args.min_similarity / float(100),
+                                              lock))
     tasks.start()
