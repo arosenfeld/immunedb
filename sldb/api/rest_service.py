@@ -346,6 +346,24 @@ def v_usage(samples, filter_type, include_outliers, include_partials,
     })
 
 
+def get_max_point(threshold, data_list):
+    """Return the point which is the first point at threshold of the height of
+    the curve or above
+    """
+
+    target_y = threshold * data_list[len(data_list) - 1][1]
+
+    result = None
+    i = 0
+    while(result == None):
+        if data_list[i][1] >= target_y:
+            result = data_list[i]
+        else:
+            i += 1
+
+    return(result)
+
+
 def format_diversity_csv_output(x, y, s):
     """
     Convert rarefaction output to a format for plotting
@@ -426,10 +444,12 @@ def rarefaction(sample_ids, sample_bool, fast_bool, start, num_points):
     output = proc.communicate(cid_string)
 
     result_list = format_diversity_csv_output(4, 5, output[0])
+    threshold_point = get_max_point(0.95, result_list)
 
     session.close()
 
-    return json.dumps({'rarefaction': result_list})
+    return json.dumps({'rarefaction': result_list,
+                       'threshold': threshold_point})
 
 
 @route('/api/diversity/<sample_ids>/<order>/<window>', methods=['GET'])
