@@ -29,7 +29,7 @@ def _create_engine(data):
     return engine, data['database']
 
 
-def get_base_arg_parser(desc, multiproc=True):
+def get_base_arg_parser(desc, multiproc=True, **kwargs):
     """Gets a base argument parser which requires a master and data
     configuration.
 
@@ -39,7 +39,7 @@ def get_base_arg_parser(desc, multiproc=True):
     :rtype: ArgumentParser
 
     """
-    parser = argparse.ArgumentParser(description=desc)
+    parser = argparse.ArgumentParser(description=desc, **kwargs)
     parser.add_argument('master_db_config', help='Path to master database'
                         'config')
     parser.add_argument('data_db_config', help='Path to data database config')
