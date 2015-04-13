@@ -13,6 +13,13 @@ if __name__ == '__main__':
     parser.add_argument('--limit-alignments', nargs='+',
                         default=('R1', 'R1+R2'), help='Read types to process '
                         '(R1, R2, and/or R1+R2).  Default: R1 R1+R2')
+    parser.add_argument('--max-vties', type=int, default=50, help='Maximum '
+                        'number of V-ties to allow in a valid sequence. '
+                        'V-ties resulting in a name longer than 512 characters'
+                        ' will be truncated. (Default: 50)')
+    parser.add_argument('--min-similarity', type=int, default=60,
+                        help='Minimum percent similarity to germline required '
+                        'for valid sequences. (Default: 60)')
     args = parser.parse_args()
 
     session = config.init_db(args.master_db_config, args.data_db_config)
