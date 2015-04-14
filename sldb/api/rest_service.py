@@ -376,19 +376,19 @@ def format_diversity_csv_output(x, y, s):
     return(formatted)
 
 
-@route('/api/rarefaction/<sample_ids>/<sample_bool>/<fast_bool>/<start>'
+@route('/api/rarefaction/<sample_ids>/<mode>/<fast_bool>/<start>'
        '/<num_points:int>', methods=['GET'])
-def rarefaction(sample_ids, sample_bool, fast_bool, start, num_points):
+def rarefaction(sample_ids, mode, fast_bool, start, num_points):
     """Return the rarefaction curve in json format from a list of sample ids"""
 
-    sample_bool = sample_bool == 'true'
-    fast_bool = fast_bool == 'true'
-
+    assert mode in ('sample', 'individual', 'individual_emp')
     session = scoped_session(session_factory)()
+
+    fast_bool = fast_bool == 'true'
 
     sample_id_list = map(int, sample_ids.split(','))
 
-    if sample_bool:
+    if mode == 'sample':
         cids = session.query(
             CloneStats.clone_id, CloneStats.sample_id
         ).filter(CloneStats.sample_id.in_(sample_id_list))
@@ -405,7 +405,7 @@ def rarefaction(sample_ids, sample_bool, fast_bool, start, num_points):
 
     samples = set([])
     for cid in cids:
-        if sample_bool:
+        if mode == 'sample':
             cid_string += '>{}\n{}\n'.format(cid.sample_id, cid.clone_id)
             samples.add(cid.sample_id)
         else:
@@ -413,12 +413,12 @@ def rarefaction(sample_ids, sample_bool, fast_bool, start, num_points):
                 [str(cid.clone_id) for _ in range(0, cid.cnt)]) + '\n'
             total_num += cid.cnt
 
-    if sample_bool:
-        total_num = len(samples)
-
-    interval = min(
-        max(total_num // int(num_points), 1),
-        total_num)
+    if mode == 'sample':
+        interval = 1
+    else:
+        interval = min(
+            max(total_num // int(num_points), 1),
+            total_num)
 
     command = [rf_bin,
                '-a',
@@ -429,13 +429,16 @@ def rarefaction(sample_ids, sample_bool, fast_bool, start, num_points):
                '-I',
                '{} {}'.format(start, interval)]
 
-    if sample_bool:
+    if mode == 'sample':
         command.extend(['-s', '-S', '1'])
     else:
         command.extend(['-L'])
 
     if fast_bool:
         command.extend(['-f'])
+
+    if mode == 'individual_emp':
+        command.extend(['-R', _get_arg('reps', False)])
 
     proc = subprocess.Popen(command,
                             stdin=subprocess.PIPE,
@@ -461,33 +464,30 @@ def diversity(sample_ids, order, window):
     sample_id_list = map(int, sample_ids.split(','))
 
     # Get sequences here
-    seqs = session.query(
-        Sequence.sequence_replaced).filter(
+    seqs = session.query(distinct(Sequence.sequence).label('sequence')).filter(
         Sequence.sample_id.in_(sample_id_list))
-
-    seq_string = ''
-
-    for seq in seqs:
-        seq_string += '>\n{}\n'.format(
-            lookups.aas_from_nts(
-                seq.sequence_replaced, replace_unknowns='-'
-            )[:103])
 
     command = [rf_bin,
                '-r', str(order),
                '-w', str(window),
                '-o', 'hi',
-               '-t']
+               '-t',
+               '-L']
 
     proc = subprocess.Popen(command,
                             stdin=subprocess.PIPE,
                             stdout=subprocess.PIPE)
 
-    output = proc.communicate(seq_string)
+    for i, seq in enumerate(seqs):
+        proc.stdin.write('{}\n'.format(
+            lookups.aas_from_nts(
+                seq.sequence, replace_unknowns='-'
+            )[:103]))
+    session.close()
+
+    output = proc.communicate()
 
     result_list = format_diversity_csv_output(3, 5, output[0])
-
-    session.close()
 
     return json.dumps({'diversity': result_list})
 
