@@ -27,18 +27,21 @@ if __name__ == '__main__':
         'will first be looked up with the header specified with --map-FIELD '
         'and will fall back to the default value if not specified.  Valid '
         'fields.')
-    parser.add_argument('files', help='Files to import')
+    parser.add_argument('v_germlines', help='Path to V germlines file')
+    parser.add_argument('files', nargs='+', help='Files to import')
 
-    parser.add_argument('--defaults', help='Default values for fields. '
-                        'Format as FIELD1=VALUE1 FIELD2=VALUE2')
-    parser.add_argument('--mappings', help='Mappings for field. '
+    parser.add_argument('--defaults', nargs='+', help='Default values for '
+                        'fields. Format as FIELD1=VALUE1 FIELD2=VALUE2')
+    parser.add_argument('--mappings', nargs='+', help='Mappings for field. '
                         'Format as FIELD1=HEADER2 FIELD2=HEADER2')
     parser.add_argument('--print-fields', action=FieldsAction, nargs=0,
                         help='Displays all valid fields. Does not process '
                         'any input.')
+    parser.add_argument('--delimiter', default='\t', help='Field delimiter '
+                        '(Default: tab)')
     args = parser.parse_args()
 
-    #session = config.init_db(args.master_db_config, args.data_db_config)
+    session = config.init_db(args.master_db_config, args.data_db_config)
 
-    #from sldb.importing.delimited import run_delimited_import
-    #sys.exit(run_delimited_import(session, args))
+    from sldb.importing.delimited import run_delimited_import
+    sys.exit(run_delimited_import(session, args))

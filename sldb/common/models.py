@@ -10,11 +10,6 @@ from sqlalchemy.dialects.mysql import TEXT, MEDIUMTEXT
 import sldb.util.funcs as funcs
 from sldb.common.settings import DATABASE_SETTINGS
 
-if DATABASE_SETTINGS['master_metadata'] is None:
-    print 'WARNING: Most master metadata specified'
-if DATABASE_SETTINGS['data_metadata'] is None:
-    print 'WARNING: Most data metadata specified'
-
 BaseMaster = declarative_base(
     metadata=DATABASE_SETTINGS['master_metadata'])
 BaseData = declarative_base(
@@ -97,7 +92,7 @@ class Sample(BaseMaster):
     name = Column(String(128), unique=True)
     info = Column(String(1024))
 
-    date = Column(Date)
+    date = Column(Date, nullable=False)
 
     study_id = Column(Integer, ForeignKey(Study.id))
     study = relationship(Study, backref=backref('samples', order_by=(date,
