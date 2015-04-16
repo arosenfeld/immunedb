@@ -56,6 +56,7 @@ class NJWorker(concurrent.Worker):
             first = False
 
         clone_inst.tree = json.dumps(_get_json(tree))
+        self._session.add(clone_inst)
         self._session.commit()
 
     def _get_fasta_input(self, germline_seq, clone_id, min_count):
@@ -175,7 +176,7 @@ def _get_json(tree, root=True):
     for child in tree.children:
         node['children'].append(_get_json(child, root=False))
 
-    if not root or (len(tree.mutations) == 0 and tree.name != 'NoName'):
+    if not root or (len(tree.mutations) == 0 and tree.name == 'NoName'):
         return node
 
     return {

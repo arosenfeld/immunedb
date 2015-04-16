@@ -69,6 +69,7 @@ class DelimitedImporter(object):
 
         self._cached_studies = {}
         self._cached_subjects = {}
+        self._cached_seqs = {}
 
     def _get_header_name(self, field_name):
         if field_name in self._mappings:
@@ -140,19 +141,6 @@ class DelimitedImporter(object):
         # Some input uses gaps instead of N's, so replace them with N's
         seq = 'N' * pad_length + seq[pad_length:]
 
-        # Check for duplicate sequence
-        existing = self._session.query(Sequence).filter(
-            Sequence.sequence == seq,
-            Sequence.sample_id == sample.id).first()
-        if existing is not None:
-            existing.copy_number += int(self._get_value('copy_number', row))
-            self._session.flush()
-            return
-
-        num_gaps = v_region[pad_length:].count('-')
-        cdr3_aas = (self._get_value('cdr3_aas', row, throw=False)
-            or lookups.aas_from_nts(self._get_value('cdr3_nts', row)))
-
         v_germline = get_common_seq(
             [self._v_germlines[v] for v in self._get_value(
                 'v_gene', row).split('|')])[:VGene.CDR3_OFFSET]
@@ -160,16 +148,33 @@ class DelimitedImporter(object):
             [self._j_germlines[v][-self._j_offset:] for v in self._get_value(
                 'j_gene', row).split('|')])
 
-        sequence_replaced = ''.join(
-            [g if s in ('N', '-') else s for s, g in zip(seq, v_germline)]
-        )
         germline = ''.join([
             v_germline,
             '-' * len(self._get_value('cdr3_nts', row)),
             j_germline
-        ])[:len(seq)]
+        ])
 
-        seq = Sequence(
+        if len(seq) < len(germline):
+            seq += 'N' * (len(germline) - len(seq))
+        sequence_replaced = ''.join(
+            [g if s in ('N', '-') else s for s, g in zip(seq, germline)]
+        )
+
+        seq_cache_key = (sample.id, seq)
+        if seq_cache_key in self._cached_seqs:
+            existing = self._cached_seqs[seq_cache_key]
+        else:
+            # Check for duplicate sequence
+            existing = self._session.query(Sequence).filter(
+                Sequence.sequence == seq,
+                Sequence.sample_id == sample.id).first()
+
+        if existing is not None:
+            existing.copy_number += int(self._get_value('copy_number', row))
+            self._session.flush()
+            return
+
+        new_seq = Sequence(
             sample=sample,
 
             seq_id=self._get_value('seq_id', row),
@@ -178,7 +183,7 @@ class DelimitedImporter(object):
             v_gene=self._get_value('v_gene', row),
             j_gene=self._get_value('j_gene', row),
 
-            num_gaps=num_gaps,
+            num_gaps=v_region[pad_length:].count('-'),
             pad_length=pad_length,
 
             v_match=self._get_value('v_match', row),
@@ -200,7 +205,11 @@ class DelimitedImporter(object):
 
             junction_num_nts=len(self._get_value('cdr3_nts', row)),
             junction_nt=self._get_value('cdr3_nts', row).upper(),
-            junction_aa=cdr3_aas,
+            junction_aa=(
+                self._get_value('cdr3_aas', row, throw=False)
+                or lookups.aas_from_nts(self._get_value('cdr3_nts', row))
+            ),
+
             gap_method='IMGT',
 
             sequence=seq,
@@ -209,15 +218,20 @@ class DelimitedImporter(object):
             germline=germline,
         )
 
+        self._cached_seqs[seq] = new_seq
+        self._session.add(new_seq)
+
     def process_file(self, fh, delimiter):
         for i, row in enumerate(csv.DictReader(fh, delimiter=delimiter)):
             try:
                 study, sample = self._get_models(row)
                 self._process_sequence(row, study, sample)
+                if i % 1000 == 0 and i > 0:
+                    print 'Processed {} sequences'.format(i)
             except Exception as ex:
                 if self._fail_action != 'pass':
                     print ('[WARNING] Unable to process row #{}: '
-                           'exception ={}, msg={}').format(
+                           'exception={}, msg={}').format(
                                 i, str(ex.__class__.__name__), ex.message)
                     if self._fail_action == 'fail':
                         raise ex

@@ -226,7 +226,7 @@ def get_clone(session, clone_id, sample_ids, thresholds=None):
                 'name': seq.sample.name,
             },
             'junction_nt': seq.junction_nt,
-            'sequence': seq.sequence_replaced,
+            'sequence': seq.sequence,
             'read_start': read_start,
             'copy_number': int(seqr.copy_number),
             'mutations': json.loads(seq.mutations_from_clone),

@@ -28,7 +28,7 @@ class CloneStatsWorker(concurrent.Worker):
 
     def _sample_stats(self, worker_id, clone_id, sample_id):
         self._print(worker_id, 'Clone {}, sample {}'.format(
-            worker_id, clone_id, sample_id))
+            clone_id, sample_id))
 
         existing = self._session.query(CloneStats).filter(
             CloneStats.clone_id == clone_id,
@@ -78,8 +78,7 @@ class CloneStatsWorker(concurrent.Worker):
         if existing is not None:
             return
 
-        self._print(worker_id, 'Clone {}, all samples'.format(
-            worker_id, clone_id))
+        self._print(worker_id, 'Clone {}, all samples'.format(clone_id))
         # Get the counts for the entire clone
         counts = self._session.query(
             func.count(distinct(Sequence.sequence_replaced)).label('unique'),
