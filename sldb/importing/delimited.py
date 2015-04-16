@@ -212,12 +212,14 @@ class DelimitedImporter(object):
             copy_number=int(self._get_value('copy_number', row)),
 
             junction_num_nts=len(self._get_value('cdr3_nts', row)),
-            junction_nt=self._get_value('cdr3_nts', row),
+            junction_nt=self._get_value('cdr3_nts', row).upper(),
             junction_aa=cdr3_aas,
             gap_method='IMGT',
 
             sequence=seq,
             sequence_replaced=sequence_replaced,
+
+            germline=germline,
         )
 
     def process_file(self, fh, delimiter):
