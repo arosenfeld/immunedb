@@ -40,6 +40,8 @@ if __name__ == '__main__':
                         'any input.')
     parser.add_argument('--delimiter', default='\t', help='Field delimiter '
                         '(Default: tab)')
+    parser.add_argument('--j-offset', default=31, type=int, help='Number of J '
+        'gene nucleotides upstream from the CDR3. (Default: 31)')
     parser.add_argument('--fail-action', default='warn', help='Action to take '
         'when parsing a sequence fails (e.g. unknown V-gene).  Valid values '
         'are \'pass\' to silently pass, \'warn\' to warn but continue, and '

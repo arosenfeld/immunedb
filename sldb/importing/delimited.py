@@ -67,12 +67,13 @@ def _is_true(v):
 
 class DelimitedImporter(object):
     def __init__(self, session, mappings, defaults, v_germlines, j_germlines,
-                 fail_action):
+                 j_offset, fail_action):
         self._session = session
         self._mappings = mappings
         self._defaults = defaults
         self._v_germlines = v_germlines
         self._j_germlines = j_germlines
+        self._j_offset = j_offset
         self._fail_action = fail_action
 
         self._cached_studies = {}
@@ -158,13 +159,21 @@ class DelimitedImporter(object):
         cdr3_aas = (self._get_value('cdr3_aas', row, throw=False)
             or lookups.aas_from_nts(self._get_value('cdr3_nts', row)))
 
-        germline = get_common_seq(
+        v_germline = get_common_seq(
             [self._v_germlines[v] for v in self._get_value(
                 'v_gene', row).split('|')])
+        j_germline = get_common_seq(
+            [self._j_germlines[v][-self._j_offset:] for v in self._get_value(
+                'j_gene', row).split('|')])
 
         sequence_replaced = ''.join(
-            [g if s in ('N', '-') else s for s, g in zip(seq, germline)]
+            [g if s in ('N', '-') else s for s, g in zip(seq, v_germline)]
         )
+        germline = ''.join([
+            v_germline[:VGene.CDR3_OFFSET],
+            '-' * len(self._get_value('cdr3_nts', row)),
+            j_germline
+        ])
 
         seq = Sequence(
             sample=sample,
@@ -211,7 +220,6 @@ class DelimitedImporter(object):
             sequence_replaced=sequence_replaced,
         )
 
-
     def process_file(self, fh, delimiter):
         for i, row in enumerate(csv.DictReader(fh, delimiter=delimiter)):
             try:
@@ -254,7 +262,7 @@ def run_delimited_import(session, args):
     j_germlines = _get_germlines(args.j_germlines)
 
     importer = DelimitedImporter(session, mappings, defaults, v_germlines,
-                                 j_germlines, args.fail_action)
+                                 j_germlines, args.j_offset, args.fail_action)
 
     for fn in args.files:
         with open(fn) as fh:
