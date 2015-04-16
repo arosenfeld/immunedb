@@ -40,6 +40,12 @@ if __name__ == '__main__':
                         'any input.')
     parser.add_argument('--delimiter', default='\t', help='Field delimiter '
                         '(Default: tab)')
+    parser.add_argument('--v-addition', type=int, default=0, help='The number '
+        'of nucleotides in the CDR3 included in the `v_length` field.  For '
+        'example if the first amino-acid (usually C) of the CDR3 is included '
+        'in the V length, this should be set to 3. (Default: 0)')
+    parser.add_argument('--v-len-has-gaps', default=False, action='store_true',
+            help='If set the V length is treated assumed to include gaps.')
     parser.add_argument('--j-offset', default=31, type=int, help='Number of J '
         'gene nucleotides upstream from the CDR3. (Default: 31)')
     parser.add_argument('--fail-action', default='warn', help='Action to take '

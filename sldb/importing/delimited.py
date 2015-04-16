@@ -32,16 +32,6 @@ IMPORT_HEADERS = {
     'j_length': 'Length of J gene [Required]',
     'j_match': 'Number of nucleotides matching the J-gene germline [Required]',
 
-    'pre_cdr3_length': 'Length of the V-gene before the CDR3.  If not '
-        'specified, assumed to be equal to `v_length`',
-    'pre_cdr3_match': 'Number of nucleotides matching the V-gene germline '
-        'before the CDR3.  If not specified, assumed to be equal to `v_match`',
-
-    'post_cdr3_length': 'Length of the J-gene after the CDR3.  If not '
-        'specified, assumed to be equal to `j_length`',
-    'post_cdr3_match': 'Number of nucleotides matching the J-gene germline '
-        'after the CDR3.  If not specified, assumed to be equal to `j_match`',
-
     'in_frame': 'A boolean indicating if the sequence is in-frame [Required]',
     'functional': 'A boolean indicating if the sequence is functional '
                   '[Required]',
@@ -66,12 +56,13 @@ def _is_true(v):
 
 
 class DelimitedImporter(object):
-    def __init__(self, session, mappings, defaults, v_germlines, j_germlines,
-                 j_offset, fail_action):
+    def __init__(self, session, mappings, defaults, v_germlines, v_addition,
+                 j_germlines, j_offset, fail_action):
         self._session = session
         self._mappings = mappings
         self._defaults = defaults
         self._v_germlines = v_germlines
+        self._v_addition = v_addition
         self._j_germlines = j_germlines
         self._j_offset = j_offset
         self._fail_action = fail_action
@@ -144,6 +135,11 @@ class DelimitedImporter(object):
 
     def _process_sequence(self, row, study, sample):
         seq = self._get_value('sequence', row).upper().replace('.', '-')
+        v_region = seq[:VGene.CDR3_OFFSET]
+        pad_length = re.match('[-N]*', v_region).end() or 0
+        # Some input uses gaps instead of N's, so replace them with N's
+        seq = 'N' * pad_length + seq[pad_length:]
+
         # Check for duplicate sequence
         existing = self._session.query(Sequence).filter(
             Sequence.sequence == seq,
@@ -153,15 +149,13 @@ class DelimitedImporter(object):
             self._session.flush()
             return
 
-        v_region = seq[:VGene.CDR3_OFFSET]
-        pad_length = re.match('[-N]*', v_region).end() or 0
         num_gaps = v_region[pad_length:].count('-')
         cdr3_aas = (self._get_value('cdr3_aas', row, throw=False)
             or lookups.aas_from_nts(self._get_value('cdr3_nts', row)))
 
         v_germline = get_common_seq(
             [self._v_germlines[v] for v in self._get_value(
-                'v_gene', row).split('|')])
+                'v_gene', row).split('|')])[:VGene.CDR3_OFFSET]
         j_germline = get_common_seq(
             [self._j_germlines[v][-self._j_offset:] for v in self._get_value(
                 'j_gene', row).split('|')])
@@ -170,10 +164,10 @@ class DelimitedImporter(object):
             [g if s in ('N', '-') else s for s, g in zip(seq, v_germline)]
         )
         germline = ''.join([
-            v_germline[:VGene.CDR3_OFFSET],
+            v_germline,
             '-' * len(self._get_value('cdr3_nts', row)),
             j_germline
-        ])
+        ])[:len(seq)]
 
         seq = Sequence(
             sample=sample,
@@ -188,23 +182,16 @@ class DelimitedImporter(object):
             pad_length=pad_length,
 
             v_match=self._get_value('v_match', row),
-            v_length=self._get_value('v_length', row),
+            v_length=int(self._get_value('v_length', row)),
 
             j_match=self._get_value('j_match', row),
             j_length=self._get_value('j_length', row),
 
-            pre_cdr3_length=self._get_value(
-                'pre_cdr3_length', row, throw=False
-            ) or self._get_value('v_length', row),
-            pre_cdr3_match=self._get_value(
-                'pre_cdr3_match', row, throw=False
-            ) or self._get_value('v_match', row),
-            post_cdr3_length=self._get_value(
-                'post_cdr3_length', row, throw=False
-            ) or self._get_value('j_length', row),
-            post_cdr3_match=self._get_value(
-                'post_cdr3_match', row, throw=False
-            ) or self._get_value('j_match', row),
+            pre_cdr3_length=int(self._get_value('v_length', row)) -
+                self._v_addition,
+            pre_cdr3_match=self._get_value('v_match', row),
+            post_cdr3_length=len(j_germline),
+            post_cdr3_match=self._get_value('j_match', row),
 
             in_frame=_is_true(self._get_value('in_frame', row)),
             functional=_is_true(self._get_value('functional', row)),
@@ -230,7 +217,7 @@ class DelimitedImporter(object):
             except Exception as ex:
                 if self._fail_action != 'pass':
                     print ('[WARNING] Unable to process row #{}: '
-                           'type={}, msg={}').format(
+                           'exception ={}, msg={}').format(
                                 i, str(ex.__class__.__name__), ex.message)
                     if self._fail_action == 'fail':
                         raise ex
@@ -264,7 +251,8 @@ def run_delimited_import(session, args):
     j_germlines = _get_germlines(args.j_germlines)
 
     importer = DelimitedImporter(session, mappings, defaults, v_germlines,
-                                 j_germlines, args.j_offset, args.fail_action)
+                                 args.v_addition, j_germlines, args.j_offset,
+                                 args.fail_action)
 
     for fn in args.files:
         with open(fn) as fh:
