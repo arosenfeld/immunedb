@@ -27,25 +27,27 @@ _dist_fields = [
 _seq_contexts = {
     'all': {
         'record_filter': lambda seq: True,
-        'use_copy': True
+        'unique': False
     },
     'functional': {
         'record_filter': lambda seq: seq.functional,
-        'use_copy': True
+        'unique': False
     },
     'nonfunctional': {
         'record_filter': lambda seq: not seq.functional,
-        'use_copy': True
+        'unique': False
     },
     'unique': {
-        'record_filter': lambda seq: seq.functional,
-        'use_copy': False
+        'record_filter': lambda seq: seq.Sequence.functional,
+        'unique': True
     },
     'unique_multiple': {
-        'record_filter': lambda seq: seq.functional and seq.copy_number > 1,
-        'use_copy': False
+        'record_filter': lambda seq: seq.Sequence.functional
+            and seq.copy_number > 1,
+        'unique': True
     },
 }
+
 
 _clone_contexts = {
     'clones_all': {
@@ -76,13 +78,14 @@ class ContextStats(object):
 
 
 class SeqContextStats(ContextStats):
-    def __init__(self, record_filter, use_copy):
+    def __init__(self, record_filter, unique):
         super(SeqContextStats, self).__init__(record_filter)
-        self._use_copy = use_copy
+        self.unique = unique
 
-    def add_if_match(self, seq):
-        if not self._record_filter(seq):
+    def add_if_match(self, seq_record):
+        if not self._record_filter(seq_record):
             return
+        seq = seq_record.Sequence if self.unique else seq_record
 
         self.sequence_cnt += 1
         if seq.in_frame:
@@ -104,10 +107,11 @@ class SeqContextStats(ContextStats):
                 self.distributions[name] = {}
             if value not in self.distributions[name]:
                 self.distributions[name][value] = 0
-            if self._use_copy:
-                self.distributions[name][value] += seq.copy_number
-            else:
+
+            if self.unique:
                 self.distributions[name][value] += 1
+            else:
+                self.distributions[name][value] += seq.copy_number
 
 
 class CloneContextStats(ContextStats):
@@ -182,21 +186,37 @@ class SampleStatsWorker(concurrent.Worker):
 
     def _calculate_seq_stats(self, sample_id, min_cdr3, max_cdr3,
                              include_outliers, only_full_reads):
+        def _filter_q(q):
+            if not include_outliers and min_cdr3 is not None:
+                q = q.filter(Sequence.junction_num_nts >= min_cdr3,
+                             Sequence.junction_num_nts <= max_cdr3)
+            if only_full_reads:
+                q = q.filter(Sequence.alignment == 'R1+R2')
+            return q
+
         seq_statistics = {}
         for name, stat in _seq_contexts.iteritems():
             seq_statistics[name] = SeqContextStats(**stat)
 
-        query = self._session.query(Sequence).filter(
-            Sequence.sample_id == sample_id)
-        if not include_outliers and min_cdr3 is not None:
-            query = query.filter(Sequence.junction_num_nts >= min_cdr3,
-                                 Sequence.junction_num_nts <= max_cdr3)
-        if only_full_reads:
-            query = query.filter(Sequence.alignment == 'R1+R2')
+        query_all = _filter_q(self._session.query(Sequence).filter(
+            Sequence.sample_id == sample_id))
 
-        for seq in query:
+        for seq in query_all:
             for stat in seq_statistics.values():
-                stat.add_if_match(seq)
+                if not stat.unique:
+                    stat.add_if_match(seq)
+
+        query_unique = _filter_q(
+                self._session.query(
+                        Sequence,
+                        func.sum(Sequence.copy_number).label('copy_number')
+                    ).filter(Sequence.sample_id == sample_id)
+        ).group_by(Sequence.sequence_replaced)
+
+        for seq in query_unique:
+            for stat in seq_statistics.values():
+                if stat.unique:
+                    stat.add_if_match(seq)
 
         self._add_stat(seq_statistics, sample_id, include_outliers,
                        only_full_reads)

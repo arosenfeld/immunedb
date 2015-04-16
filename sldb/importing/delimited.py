@@ -41,6 +41,7 @@ IMPORT_HEADERS = {
                    '[Required]',
 
     'sequence': 'The full, IMGT aligned sequence [Required]',
+    'cdr3_num_nts': 'The CDR3 number of nucleotides [Required]',
     'cdr3_nts': 'The CDR3 nucleotides [Required]',
     'cdr3_aas': 'The CDR3 amino-acids.  If not specified, the `cdr3_nts` will '
         'be converted to an amino-acid string with unknowns replaced with Xs',
@@ -173,7 +174,13 @@ class DelimitedImporter(object):
             existing.copy_number += int(self._get_value('copy_number', row))
             self._session.flush()
             return
-
+        cdr3_len = int(self._get_value('cdr3_num_nts', row))
+        if cdr3_len == 0:
+            cdr3_nt = cdr3_aa = ''
+        else:
+            cdr3_nt = self._get_value('cdr3_nts', row).upper()
+            cdr3_aa = (self._get_value('cdr3_aas', row, throw=False)
+                or lookups.aas_from_nts(self._get_value('cdr3_nts', row)))
         new_seq = Sequence(
             sample=sample,
 
@@ -203,12 +210,9 @@ class DelimitedImporter(object):
             stop=_is_true(self._get_value('stop', row)),
             copy_number=int(self._get_value('copy_number', row)),
 
-            junction_num_nts=len(self._get_value('cdr3_nts', row)),
-            junction_nt=self._get_value('cdr3_nts', row).upper(),
-            junction_aa=(
-                self._get_value('cdr3_aas', row, throw=False)
-                or lookups.aas_from_nts(self._get_value('cdr3_nts', row))
-            ),
+            junction_num_nts=cdr3_len,
+            junction_nt=cdr3_nt,
+            junction_aa=cdr3_aa,
 
             gap_method='IMGT',
 
