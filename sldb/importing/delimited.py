@@ -1,8 +1,12 @@
 import csv
+import re
+
+from Bio import SeqIO
 
 from sldb.common.models import Sample, Sequence, Study, Subject
-from sldb.identification.v_genes import VGermlines
+from sldb.identification.v_genes import VGene, get_common_seq
 import sldb.util.funcs as funcs
+import sldb.util.lookups as lookups
 
 IMPORT_HEADERS = {
     'study_name': 'The name of the study [Required]',
@@ -19,8 +23,24 @@ IMPORT_HEADERS = {
     'seq_id': 'A unique sequence identifier [Required]',
     'alignment': 'Read type for the sequence (R1, R2, or R1+R2) [Required]',
     'indel': 'A boolean indicating if the sequence has an indel',
+
     'v_gene': 'V-gene name [Required]',
+    'v_length': 'Length of V gene EXCLUDING leading padding [Required]',
+    'v_match': 'Number of nucleotides matching V-gene germline [Required]',
+
     'j_gene': 'J-gene name [Required]',
+    'j_length': 'Length of J gene [Required]',
+    'j_match': 'Number of nucleotides matching the J-gene germline [Required]',
+
+    'pre_cdr3_length': 'Length of the V-gene before the CDR3.  If not '
+        'specified, assumed to be equal to `v_length`',
+    'pre_cdr3_match': 'Number of nucleotides matching the V-gene germline '
+        'before the CDR3.  If not specified, assumed to be equal to `v_match`',
+
+    'post_cdr3_length': 'Length of the J-gene after the CDR3.  If not '
+        'specified, assumed to be equal to `j_length`',
+    'post_cdr3_match': 'Number of nucleotides matching the J-gene germline '
+        'after the CDR3.  If not specified, assumed to be equal to `j_match`',
 
     'in_frame': 'A boolean indicating if the sequence is in-frame [Required]',
     'functional': 'A boolean indicating if the sequence is functional '
@@ -31,6 +51,9 @@ IMPORT_HEADERS = {
                    '[Required]',
 
     'sequence': 'The full, IMGT aligned sequence [Required]',
+    'cdr3_nts': 'The CDR3 nucleotides [Required]',
+    'cdr3_aas': 'The CDR3 amino-acids.  If not specified, the `cdr3_nts` will '
+        'be converted to an amino-acid string with unknowns replaced with Xs',
 }
 
 
@@ -38,11 +61,20 @@ class ImportException(Exception):
     pass
 
 
+def _is_true(v):
+    return v.upper() in ('T', 'TRUE')
+
+
 class DelimitedImporter(object):
-    def __init__(self, session, mappings, defaults):
+    def __init__(self, session, mappings, defaults, v_germlines, j_germlines,
+                 fail_action):
         self._session = session
         self._mappings = mappings
         self._defaults = defaults
+        self._v_germlines = v_germlines
+        self._j_germlines = j_germlines
+        self._fail_action = fail_action
+
         self._cached_studies = {}
         self._cached_subjects = {}
 
@@ -63,51 +95,136 @@ class DelimitedImporter(object):
             return self._defaults[header]
         return row[header]
 
+    def _get_models(self, row):
+        study_name = self._get_value('study_name', row)
+        sample_name = self._get_value('sample_name', row)
+
+        sample_cache_key = (study_name, sample_name)
+        if sample_cache_key in self._cached_studies:
+            study, sample = self._cached_studies[sample_cache_key]
+        else:
+            study, new = funcs.get_or_create(self._session, Study,
+                                             name=study_name)
+            if new:
+                print 'Created new study {}'.format(study_name)
+                self._session.flush()
+
+            sample, new = funcs.get_or_create(self._session, Sample,
+                                              study_id=study.id,
+                                              name=sample_name)
+            if new:
+                print 'Created new sample {}'.format(sample_name)
+                sample.date = self._get_value('date', row)
+                for field in ('subset', 'tissue', 'disease', 'lab',
+                        'experimenter'):
+                    setattr(sample, field,
+                            self._get_value(field, row, throw=False))
+
+                subject_name = self._get_value('subject', row)
+                subject_cache_key = (study_name, subject_name)
+                if subject_cache_key in self._cached_subjects:
+                    subject = self._cached_subjects[subject_cache_key]
+                else:
+                    subject, new = funcs.get_or_create(
+                        self._session,
+                        Subject,
+                        study_id=study.id,
+                        identifier=subject_name)
+                    if new:
+                        print 'Created new subject {}'.format(subject_name)
+                        self._cached_subjects[subject_cache_key] = subject
+
+                sample.subject = subject
+                self._session.flush()
+
+            self._cached_studies[sample_cache_key] = (study, sample)
+            # TODO: If not new, verify the rest of the fields are the same
+        return study, sample
+
+    def _process_sequence(self, row, study, sample):
+        seq = self._get_value('sequence', row).upper().replace('.', '-')
+        # Check for duplicate sequence
+        existing = self._session.query(Sequence).filter(
+            Sequence.sequence == seq,
+            Sequence.sample_id == sample.id).first()
+        if existing is not None:
+            existing.copy_number += int(self._get_value('copy_number', row))
+            self._session.flush()
+            return
+
+        v_region = seq[:VGene.CDR3_OFFSET]
+        pad_length = re.match('[-N]*', v_region).end() or 0
+        num_gaps = v_region[pad_length:].count('-')
+        cdr3_aas = (self._get_value('cdr3_aas', row, throw=False)
+            or lookups.aas_from_nts(self._get_value('cdr3_nts', row)))
+
+        germline = get_common_seq(
+            [self._v_germlines[v] for v in self._get_value(
+                'v_gene', row).split('|')])
+
+        sequence_replaced = ''.join(
+            [g if s in ('N', '-') else s for s, g in zip(seq, germline)]
+        )
+
+        seq = Sequence(
+            sample=sample,
+
+            seq_id=self._get_value('seq_id', row),
+            alignment=self._get_value('alignment', row),
+            probable_indel_or_misalign=_is_true(self._get_value('indel', row)),
+            v_gene=self._get_value('v_gene', row),
+            j_gene=self._get_value('j_gene', row),
+
+            num_gaps=num_gaps,
+            pad_length=pad_length,
+
+            v_match=self._get_value('v_match', row),
+            v_length=self._get_value('v_length', row),
+
+            j_match=self._get_value('j_match', row),
+            j_length=self._get_value('j_length', row),
+
+            pre_cdr3_length=self._get_value(
+                'pre_cdr3_length', row, throw=False
+            ) or self._get_value('v_length', row),
+            pre_cdr3_match=self._get_value(
+                'pre_cdr3_match', row, throw=False
+            ) or self._get_value('v_match', row),
+            post_cdr3_length=self._get_value(
+                'post_cdr3_length', row, throw=False
+            ) or self._get_value('j_length', row),
+            post_cdr3_match=self._get_value(
+                'post_cdr3_match', row, throw=False
+            ) or self._get_value('j_match', row),
+
+            in_frame=_is_true(self._get_value('in_frame', row)),
+            functional=_is_true(self._get_value('functional', row)),
+            stop=_is_true(self._get_value('stop', row)),
+            copy_number=int(self._get_value('copy_number', row)),
+
+            junction_num_nts=len(self._get_value('cdr3_nts', row)),
+            junction_nt=self._get_value('cdr3_nts', row),
+            junction_aa=cdr3_aas,
+            gap_method='IMGT',
+
+            sequence=seq,
+            sequence_replaced=sequence_replaced,
+        )
+
 
     def process_file(self, fh, delimiter):
-        for row in csv.DictReader(fh, delimiter=delimiter):
-            study_name = self._get_value('study_name', row)
-            sample_name = self._get_value('sample_name', row)
+        for i, row in enumerate(csv.DictReader(fh, delimiter=delimiter)):
+            try:
+                study, sample = self._get_models(row)
+                self._process_sequence(row, study, sample)
+            except Exception as ex:
+                if self._fail_action != 'pass':
+                    print ('[WARNING] Unable to process row #{}: '
+                           'type={}, msg={}').format(
+                                i, str(ex.__class__.__name__), ex.message)
+                    if self._fail_action == 'fail':
+                        raise ex
 
-            cache_key = (study_name, sample_name)
-            if cache_key in self._cached_studies:
-                study, sample = self._cached_studies[cache_key]
-            else:
-                study, new = funcs.get_or_create(self._session, Study,
-                                                 name=study_name)
-                if new:
-                    print 'Created new study {}'.format(study_name)
-                    self._session.flush()
-
-                sample, new = funcs.get_or_create(self._session, Sample,
-                                                  study_id=study.id,
-                                                  name=sample_name)
-                if new:
-                    print 'Created new sample {}'.format(sample_name)
-                    sample.date = self._get_value('date', row)
-                    for field in ('subset', 'tissue', 'disease', 'lab',
-                            'experimenter'):
-                        setattr(sample, field,
-                                self._get_value(field, row, throw=False))
-
-                    subject_name = self._get_value('subject', row)
-                    cache_key = (study_name, subject_name)
-                    if cache_key in self._cached_subjects:
-                        subject = self._cached_subjects[cache_key]
-                    else:
-                        subject, new = funcs.get_or_create(
-                            self._session,
-                            Subject,
-                            study_id=study.id,
-                            identifier=subject_name)
-                        if new:
-                            print 'Created new subject {}'.format(subject_name)
-                    sample.subject = subject
-                    self._session.flush()
-
-                self._cached_studies[(study_name, sample_name)] = (study,
-                        sample)
-                # TODO: If not new, verify the rest of the fields are the same
         self._session.commit()
 
 
@@ -121,12 +238,23 @@ def _parse_map(lst):
     return mapping
 
 
-def run_delimited_import(session, args):
-    germlines = VGermlines(args.v_germlines, include_prepadded=True)
-    mappings = _parse_map(args.mappings)
-    defaults = _parse_map(args.defaults);
+def _get_germlines(path):
+    germs = {}
+    with open(path) as fh:
+        for record in SeqIO.parse(fh, 'fasta'):
+            germs[record.id] = str(record.seq)
+    return germs
 
-    importer = DelimitedImporter(session, mappings, defaults)
+
+def run_delimited_import(session, args):
+    mappings = _parse_map(args.mappings)
+    defaults = _parse_map(args.defaults)
+
+    v_germlines = _get_germlines(args.v_germlines)
+    j_germlines = _get_germlines(args.j_germlines)
+
+    importer = DelimitedImporter(session, mappings, defaults, v_germlines,
+                                 j_germlines, args.fail_action)
 
     for fn in args.files:
         with open(fn) as fh:

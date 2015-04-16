@@ -28,6 +28,7 @@ if __name__ == '__main__':
         'and will fall back to the default value if not specified.  Valid '
         'fields.')
     parser.add_argument('v_germlines', help='Path to V germlines file')
+    parser.add_argument('j_germlines', help='Path to J germlines file')
     parser.add_argument('files', nargs='+', help='Files to import')
 
     parser.add_argument('--defaults', nargs='+', help='Default values for '
@@ -39,7 +40,14 @@ if __name__ == '__main__':
                         'any input.')
     parser.add_argument('--delimiter', default='\t', help='Field delimiter '
                         '(Default: tab)')
+    parser.add_argument('--fail-action', default='warn', help='Action to take '
+        'when parsing a sequence fails (e.g. unknown V-gene).  Valid values '
+        'are \'pass\' to silently pass, \'warn\' to warn but continue, and '
+        '\'fail\' to stop processing.  \'fail\' may result in database '
+        'inconsistencies. (Default: warn)')
     args = parser.parse_args()
+    if args.fail_action not in ('pass', 'warn', 'fail'):
+        parser.error('--fail-action must be pass, warn, or fail')
 
     session = config.init_db(args.master_db_config, args.data_db_config)
 
