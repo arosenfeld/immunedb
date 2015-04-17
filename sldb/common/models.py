@@ -5,7 +5,7 @@ from sqlalchemy import (Column, Boolean, Integer, String, Text, Date, DateTime,
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import relationship, backref
 from sqlalchemy.orm.interfaces import MapperExtension
-from sqlalchemy.dialects.mysql import TEXT, MEDIUMTEXT
+from sqlalchemy.dialects.mysql import TEXT, MEDIUMTEXT, BINARY
 
 import sldb.util.funcs as funcs
 from sldb.common.settings import DATABASE_SETTINGS
@@ -264,8 +264,14 @@ class CloneStats(BaseData):
 
 class SequenceExtension(MapperExtension):
     def before_insert(self, mapper, connection, instance):
-        instance.unique_id = funcs.hash(instance.sample_id,
-                                        instance.sequence)
+        instance.sample_seq_hash = funcs.hash(
+            instance.sample_id,
+            instance.sequence
+        )
+        instance.sample_seq_replaced_hash = funcs.hash(
+            instance.sample_id,
+            instance.sequence_replaced
+        )
         instance.junction_num_nts = len(instance.junction_nt)
 
 
@@ -332,7 +338,8 @@ class Sequence(BaseData):
                       {'mysql_engine': 'TokuDB'})
     __mapper_args__ = {'extension': SequenceExtension()}
 
-    unique_id = Column(String(40), unique=True)
+    sample_seq_hash = Column(BINARY(20), unique=True, index=True)
+    sample_seq_replaced_hash = Column(BINARY(20), index=True)
 
     seq_id = Column(String(128), primary_key=True, index=True)
     sample_id = Column(Integer, ForeignKey(Sample.id), primary_key=True,

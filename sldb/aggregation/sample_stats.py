@@ -3,7 +3,9 @@ import json
 
 import numpy as np
 
-from sqlalchemy import distinct, func
+from sqlalchemy import distinct, func, and_
+from sqlalchemy.sql import exists
+from sqlalchemy.orm import aliased
 
 import sldb.common.config as config
 import sldb.common.modification_log as mod_log
@@ -26,25 +28,25 @@ _dist_fields = [
 
 _seq_contexts = {
     'all': {
-        'record_filter': lambda seq: True,
-        'unique': False
+        'record_filter': lambda seq, mult: True,
+        'use_copy': True
     },
     'functional': {
-        'record_filter': lambda seq: seq.functional,
-        'unique': False
+        'record_filter': lambda seq, mult: seq.functional,
+        'use_copy': True
     },
     'nonfunctional': {
-        'record_filter': lambda seq: not seq.functional,
-        'unique': False
+        'record_filter': lambda seq, mult: not seq.functional,
+        'use_copy': True
     },
     'unique': {
-        'record_filter': lambda seq: seq.Sequence.functional,
-        'unique': True
+        'record_filter': lambda seq, mult: seq.Sequence.functional,
+        'use_copy': False
     },
     'unique_multiple': {
-        'record_filter': lambda seq: seq.Sequence.functional
-            and seq.copy_number > 1,
-        'unique': True
+        'record_filter': lambda seq, mult: seq.Sequence.functional
+            and (seq.copy_number > 1 or mult),
+        'use_copy': False
     },
 }
 
@@ -78,22 +80,24 @@ class ContextStats(object):
 
 
 class SeqContextStats(ContextStats):
-    def __init__(self, record_filter, unique):
+    def __init__(self, record_filter, use_copy):
         super(SeqContextStats, self).__init__(record_filter)
-        self.unique = unique
+        self._use_copy = use_copy
+        self._seen = set([])
 
-    def add_if_match(self, seq_record):
-        if not self._record_filter(seq_record):
+    def add_if_match(self, seq_record, multiple):
+        if not self._record_filter(seq_record, multiple):
             return
-        seq = seq_record.Sequence if self.unique else seq_record
 
-        self.sequence_cnt += 1
-        if seq.in_frame:
-            self.in_frame_cnt += 1
-        if seq.stop:
-            self.stop_cnt += 1
-        if seq.functional:
-            self.functional_cnt += 1
+        if (not self._use_copy
+                and seq_record.sample_seq_replaced_hash not in self._seen):
+            self.sequence_cnt += 1
+            if seq.in_frame:
+                self.in_frame_cnt += 1
+            if seq.stop:
+                self.stop_cnt += 1
+            if seq.functional:
+                self.functional_cnt += 1
 
         for dist in _dist_fields:
             if isinstance(dist, tuple):
@@ -108,10 +112,11 @@ class SeqContextStats(ContextStats):
             if value not in self.distributions[name]:
                 self.distributions[name][value] = 0
 
-            if self.unique:
-                self.distributions[name][value] += 1
-            else:
+            if self._use_copy:
                 self.distributions[name][value] += seq.copy_number
+            elif seq_record.sequence_replaced not in self._seen:
+                self.distributions[name][value] += 1
+                self._seen.add(seq_record.sample_seq_replaced_hash)
 
 
 class CloneContextStats(ContextStats):
@@ -186,37 +191,28 @@ class SampleStatsWorker(concurrent.Worker):
 
     def _calculate_seq_stats(self, sample_id, min_cdr3, max_cdr3,
                              include_outliers, only_full_reads):
-        def _filter_q(q):
-            if not include_outliers and min_cdr3 is not None:
-                q = q.filter(Sequence.junction_num_nts >= min_cdr3,
-                             Sequence.junction_num_nts <= max_cdr3)
-            if only_full_reads:
-                q = q.filter(Sequence.alignment == 'R1+R2')
-            return q
-
         seq_statistics = {}
         for name, stat in _seq_contexts.iteritems():
             seq_statistics[name] = SeqContextStats(**stat)
 
-        query_all = _filter_q(self._session.query(Sequence).filter(
-            Sequence.sample_id == sample_id))
+        seq1 = aliased(Sequence)
+        seq2 = aliased(Sequence)
+        query = self._session.query(seq1, exists().where(
+            and_(
+                seq1.sample_seq_replaced_hash == seq1.sample_seq_replaced_hash,
+                seq1.seq_id != seq2.seq_id
+            )
+        ).label('others'))
 
-        for seq in query_all:
+        if not include_outliers and min_cdr3 is not None:
+            query = query.filter(Sequence.junction_num_nts >= min_cdr3,
+                                 Sequence.junction_num_nts <= max_cdr3)
+        if only_full_reads:
+            query = query.filter(Sequence.alignment == 'R1+R2')
+
+        for seq, others in query:
             for stat in seq_statistics.values():
-                if not stat.unique:
-                    stat.add_if_match(seq)
-
-        query_unique = _filter_q(
-                self._session.query(
-                        Sequence,
-                        func.sum(Sequence.copy_number).label('copy_number')
-                    ).filter(Sequence.sample_id == sample_id)
-        ).group_by(Sequence.sequence_replaced)
-
-        for seq in query_unique:
-            for stat in seq_statistics.values():
-                if stat.unique:
-                    stat.add_if_match(seq)
+                stat.add_if_match(seq, seq.copy_number > 1 or others)
 
         self._add_stat(seq_statistics, sample_id, include_outliers,
                        only_full_reads)

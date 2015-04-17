@@ -673,12 +673,9 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
         fields = _fields_to_dict(
             ['seq_id', 'alignment', 'v_gene', 'j_gene', 'v_match', 'j_match',
              'v_length', 'j_length', 'junction_num_nts', 'junction_aa',
-             'in_frame', 'functional', 'stop', 'probable_indel_or_misalign'],
+             'in_frame', 'functional', 'stop', 'probable_indel_or_misalign',
+             'copy_number'],
             row)
-
-        fields['copy_number'] = int(session.query(
-            func.sum(Sequence.copy_number)).filter(
-                Sequence.unique_id == row.unique_id).scalar())
 
         fields['sample'] = _sample_to_dict(row.sample)
         res.append(fields)
