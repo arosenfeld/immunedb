@@ -14,38 +14,29 @@ import sldb.util.concurrent as concurrent
 import sldb.util.lookups as lookups
 
 _dist_fields = [
-    'v_match',
-    'j_match',
-    'j_length',
-    'v_gene',
-    'j_gene',
-    'copy_number',
-
-    ('v_length', lambda seq: seq.v_length + seq.num_gaps),
-    ('v_identity', lambda seq: np.ceil(100 * seq.v_match / seq.v_length)),
-    ('cdr3_length', lambda seq: seq.junction_num_nts),
+    'v_match', 'j_match', 'j_length', 'v_gene', 'j_gene', 'copy_number',
+    'v_length', 'v_identity', 'cdr3_length'
 ]
 
 _seq_contexts = {
     'all': {
-        'record_filter': lambda seq, mult: True,
+        'record_filter': lambda seq: True,
         'use_copy': True
     },
     'functional': {
-        'record_filter': lambda seq, mult: seq.functional,
+        'record_filter': lambda seq: seq.functional,
         'use_copy': True
     },
     'nonfunctional': {
-        'record_filter': lambda seq, mult: not seq.functional,
+        'record_filter': lambda seq: not seq.functional,
         'use_copy': True
     },
     'unique': {
-        'record_filter': lambda seq, mult: seq.Sequence.functional,
+        'record_filter': lambda seq: seq.functional,
         'use_copy': False
     },
     'unique_multiple': {
-        'record_filter': lambda seq, mult: seq.Sequence.functional
-            and (seq.copy_number > 1 or mult),
+        'record_filter': lambda seq: seq.functional and seq.copy_number > 1,
         'use_copy': False
     },
 }
@@ -78,45 +69,42 @@ class ContextStats(object):
         self.stop_cnt = 0
         self.functional_cnt = 0
 
+    def _update(self, seq_record, in_frame, stop, functional, add):
+        self.sequence_cnt += add
+        if in_frame:
+            self.in_frame_cnt += add
+        if stop:
+            self.stop_cnt += add
+        if functional:
+            self.functional_cnt += add
+
+        for field in _dist_fields:
+            value = getattr(seq_record, field)
+            if not isinstance(value, str):
+                value = float(value)
+
+            if field not in self.distributions:
+                self.distributions[field] = {}
+            if value not in self.distributions[field]:
+                self.distributions[field][value] = 0
+
+            self.distributions[field][value] += add
+
 
 class SeqContextStats(ContextStats):
-    def __init__(self, record_filter, use_copy):
+    def __init__(self, session, record_filter, use_copy):
         super(SeqContextStats, self).__init__(record_filter)
+        self._session = session
         self._use_copy = use_copy
-        self._seen = set([])
 
-    def add_if_match(self, seq_record, multiple):
-        if not self._record_filter(seq_record, multiple):
+    def add_if_match(self, seq_record):
+        if not self._record_filter(seq_record):
             return
 
-        if (not self._use_copy
-                and seq_record.sample_seq_replaced_hash not in self._seen):
-            self.sequence_cnt += 1
-            if seq.in_frame:
-                self.in_frame_cnt += 1
-            if seq.stop:
-                self.stop_cnt += 1
-            if seq.functional:
-                self.functional_cnt += 1
+        add = int(seq_record.copy_number) if self._use_copy else 1
 
-        for dist in _dist_fields:
-            if isinstance(dist, tuple):
-                name = dist[0]
-                value = dist[1](seq)
-            else:
-                name = dist
-                value = getattr(seq, dist)
-
-            if name not in self.distributions:
-                self.distributions[name] = {}
-            if value not in self.distributions[name]:
-                self.distributions[name][value] = 0
-
-            if self._use_copy:
-                self.distributions[name][value] += seq.copy_number
-            elif seq_record.sequence_replaced not in self._seen:
-                self.distributions[name][value] += 1
-                self._seen.add(seq_record.sample_seq_replaced_hash)
+        self._update(seq_record, seq_record.in_frame, seq_record.stop,
+                     seq_record.functional, add)
 
 
 class CloneContextStats(ContextStats):
@@ -128,25 +116,7 @@ class CloneContextStats(ContextStats):
         if not self._record_filter(functional):
             return
 
-        self.sequence_cnt += 1
-        if in_frame:
-            self.in_frame_cnt += 1
-        if stop:
-            self.stop_cnt += 1
-        if functional:
-            self.functional_cnt += 1
-
-        for dist in _dist_fields:
-            name = dist[0] if isinstance(dist, tuple) else dist
-            value = getattr(clone, name)
-            if not isinstance(value, str):
-                value = float(value)
-
-            if name not in self.distributions:
-                self.distributions[name] = {}
-            if value not in self.distributions[name]:
-                self.distributions[name][value] = 0
-            self.distributions[name][value] += 1
+        self._update(clone, in_frame, stop, functional, 1)
 
 
 class SampleStatsWorker(concurrent.Worker):
@@ -193,26 +163,38 @@ class SampleStatsWorker(concurrent.Worker):
                              include_outliers, only_full_reads):
         seq_statistics = {}
         for name, stat in _seq_contexts.iteritems():
-            seq_statistics[name] = SeqContextStats(**stat)
+            seq_statistics[name] = SeqContextStats(self._session,**stat)
 
-        seq1 = aliased(Sequence)
-        seq2 = aliased(Sequence)
-        query = self._session.query(seq1, exists().where(
-            and_(
-                seq1.sample_seq_replaced_hash == seq1.sample_seq_replaced_hash,
-                seq1.seq_id != seq2.seq_id
-            )
-        ).label('others'))
+        # TODO: This should be automatically generated from _dist_fields
+        query = self._session.query(
+            func.max(Sequence.v_match).label('v_match'),
+            func.max(Sequence.j_match).label('j_match'),
+            func.max(Sequence.j_length).label('j_length'),
+            Sequence.v_gene,
+            Sequence.j_gene,
+            Sequence.in_frame,
+            Sequence.stop,
+            Sequence.functional,
+            func.sum(Sequence.copy_number).label('copy_number'),
+            func.max(Sequence.v_length + Sequence.num_gaps).label('v_length'),
+            func.max(
+                func.ceil(100 * Sequence.v_match / Sequence.v_length)
+            ).label('v_identity'),
+            Sequence.junction_num_nts.label('cdr3_length')
+        ).filter(
+            Sequence.sample_id == sample_id
+        )
 
         if not include_outliers and min_cdr3 is not None:
             query = query.filter(Sequence.junction_num_nts >= min_cdr3,
                                  Sequence.junction_num_nts <= max_cdr3)
         if only_full_reads:
             query = query.filter(Sequence.alignment == 'R1+R2')
+        query = query.group_by(Sequence.sequence_replaced)
 
-        for seq, others in query:
+        for seq in query:
             for stat in seq_statistics.values():
-                stat.add_if_match(seq, seq.copy_number > 1 or others)
+                stat.add_if_match(seq)
 
         self._add_stat(seq_statistics, sample_id, include_outliers,
                        only_full_reads)
@@ -245,6 +227,7 @@ class SampleStatsWorker(concurrent.Worker):
         if only_full_reads:
             query = query.filter(Sequence.alignment == 'R1+R2')
         query = query.group_by(Sequence.clone_id)
+
         for clone in query:
             clone_info = self._session.query(Clone.cdr3_nt).filter(
                 Clone.id == clone.clone_id).first()
@@ -270,6 +253,7 @@ def _get_cdr3_bounds(session, sample_id):
         Sequence.copy_number > 1,
         Sequence.functional == 1
     ).group_by(cdr3_fld)
+
     for seq in query:
         cdr3s += [seq.cdr3_len] * int(seq.copy_number)
     if len(cdr3s) == 0:
@@ -299,8 +283,9 @@ def _queue_tasks(session, sample_id, clones_only, force, tasks):
         return
 
     min_cdr3, max_cdr3 = _get_cdr3_bounds(session, sample_id)
-    for include_outliers in [True, False]:
-        for only_full_reads in [True, False]:
+    print 'TRUE FALSE'
+    for include_outliers in [True]:#[True, False]:
+        for only_full_reads in [False]:#[True, False]:
             if not clones_only:
                 tasks.add_task({
                     'func': 'seq',
