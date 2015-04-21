@@ -13,7 +13,7 @@ if __name__ == '__main__':
                         'to certain subjects')
     parser.add_argument('--force', action='store_true', help='Force '
                         'regeneration of stats even if they already exist')
-    parser.add_argument('--temp', default='/tmp', help='Path for temporary'
+    parser.add_argument('--temp', default='/tmp', help='Path for temporary '
                         'baseline files')
     args = parser.parse_args()
     if args.subjects is not None and args.clone_ids is not None:
