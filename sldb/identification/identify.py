@@ -104,7 +104,6 @@ class IdentificationWorker(concurrent.Worker):
         noresults = {}
         # All probable duplicates based on keys of vdjs dictionary
         dups = {}
-        # Number of noresult sequences
 
         self._print(worker_id, 'Identifying V and J, committing No Results')
         for i, record in enumerate(SeqIO.parse(
@@ -158,7 +157,7 @@ class IdentificationWorker(concurrent.Worker):
             self._print(worker_id, 'No sequences identified')
             return
 
-        self._print(worker_id, 'Committing Sequences')
+        self._print(worker_id, 'Realigning to V-ties & Committing Sequences')
         avg_len = lengths_sum / float(len(vdjs))
         avg_mut = mutations_sum / float(len(vdjs))
 
@@ -219,6 +218,8 @@ class IdentificationWorker(concurrent.Worker):
                 seq_id=vdj.id))
             return existing.seq_id
 
+        quality = ''.join(map(
+            lambda q: ' ' if q is None else chr(q + 33), vdj.quality))
         self._session.add(Sequence(
             seq_id=vdj.id,
             sample=sample,
@@ -252,6 +253,8 @@ class IdentificationWorker(concurrent.Worker):
             gap_method='IMGT',
 
             sequence=str(vdj.sequence),
+            # Converts quality array into Sanger FASTQ quality string
+            quality=quality,
             sequence_replaced=vdj.sequence_filled,
 
             germline=vdj.germline))

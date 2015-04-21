@@ -198,6 +198,7 @@ class VDJSequence(object):
                 # If found in the reverse complement, flip and translate the
                 # actual sequence for the rest of the analysis
                 self._seq = self._seq.reverse_complement()
+                self._quality.reverse()
                 return self._found_j(i, j_gene, match, full_anchor)
 
     def _found_j(self, i, j_gene, match, full_anchor):
@@ -305,8 +306,12 @@ class VDJSequence(object):
         # the germline length
         if self._pad_len >= 0:
             self._seq = 'N' * self._pad_len + str(self._seq)
+            if self._quality is not None:
+                self._quality = ([None] * self._pad_len) + self._quality
         else:
             self._seq = str(self._seq[-self._pad_len:])
+            if self._quality is not None:
+                self._quality = self._quality[-self._pad_len:]
         # Update the anchor positions after adding padding / trimming
         self._j_anchor_pos += self._pad_len
         self._v_anchor_pos += self._pad_len
@@ -315,6 +320,8 @@ class VDJSequence(object):
         for i, c in enumerate(self._germline):
             if c == '-':
                 self._seq = self._seq[:i] + '-' + self._seq[i:]
+                if self._quality is not None:
+                    self._quality.insert(i, None)
                 self._j_anchor_pos += 1
                 self._v_anchor_pos += 1
 
@@ -338,10 +345,15 @@ class VDJSequence(object):
         # If the sequence is longer than the germline, trim it
         if len(self.sequence) > len(self.germline):
             self._seq = self._seq[:len(self._germline)]
+            if self._quality is not None:
+                self._quality = self._quality[:len(self._germline)]
         elif len(self.sequence) < len(self.germline):
             # If the germline is longer than the sequence, there was probably a
             # deletion, so flag it as such
             self._seq += 'N' * (len(self.germline) - len(self.sequence))
+            if self._quality is not None:
+                self._quality.extend([None] * (len(self.germline) -
+                    len(self._quality)))
             self._possible_indel = True
 
         # Get the number of gaps

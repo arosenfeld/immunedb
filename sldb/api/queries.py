@@ -517,7 +517,7 @@ def get_stats(session, samples, include_outliers, include_partials, grouping):
     dist_fields = [
         'v_match_dist', 'v_length_dist', 'v_identity_dist', 'j_match_dist',
         'j_length_dist', 'v_gene_dist', 'j_gene_dist', 'cdr3_length_dist',
-        'copy_number_dist'
+        'copy_number_dist', 'quality_dist'
     ]
     cnt_fields = [
         'sequence_cnt', 'in_frame_cnt', 'stop_cnt', 'functional_cnt',
@@ -591,7 +591,7 @@ def get_sequence(session, sample_id, seq_id):
         'v_length', 'j_length', 'in_frame', 'functional', 'stop',
         'copy_number', 'sequence', 'pre_cdr3_length', 'pre_cdr3_match',
         'post_cdr3_length', 'post_cdr3_match', 'pad_length', 'num_gaps',
-        'probable_indel_or_misalign'], seq)
+        'probable_indel_or_misalign', 'quality'], seq)
     ret['sample'] = _sample_to_dict(seq.sample)
     ret['read_start'] = re.compile('[N\-]*').match(
         seq.sequence).span()[1] or 0

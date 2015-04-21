@@ -2,6 +2,7 @@ import argparse
 import json
 
 import numpy as np
+np.seterr(all='raise')
 
 from sqlalchemy import distinct, func, and_
 from sqlalchemy.sql import exists
@@ -97,6 +98,16 @@ class SeqContextStats(ContextStats):
         super(SeqContextStats, self).__init__(record_filter)
         self._session = session
         self._use_copy = use_copy
+        self.quality = []
+
+    def _update_quality(self, seq_record):
+        diff = len(seq_record.quality) - len(self.quality)
+        if diff > 0:
+            self.quality.extend([[] for _ in range(0, diff)])
+
+        for i, b in enumerate(seq_record.quality):
+            if b is not ' ':
+                self.quality[i].append(ord(b) - 33)
 
     def add_if_match(self, seq_record):
         if not self._record_filter(seq_record):
@@ -123,7 +134,8 @@ class SeqContextStats(ContextStats):
                     func.ceil(100 * Sequence.v_match / Sequence.v_length)
                 ).label('v_identity'),
                 Sequence.junction_num_nts.label('cdr3_length'),
-                literal(seq_record.copy_number).label('copy_number')
+                literal(seq_record.copy_number).label('copy_number'),
+                Sequence.quality
             ).filter(
                 Sequence.sequence_replaced == seq_record.sequence_replaced,
                 Sequence.sample_id == seq_record.sample_id,
@@ -131,12 +143,12 @@ class SeqContextStats(ContextStats):
             ).order_by(
                 Sequence.v_match
             ).first()
-            assert rep_seq is not None
 
         add = int(rep_seq.copy_number) if self._use_copy else 1
 
         self._update(rep_seq, rep_seq.in_frame, rep_seq.stop,
                      rep_seq.functional, add)
+        self._update_quality(rep_seq)
 
 
 class CloneContextStats(ContextStats):
@@ -183,13 +195,22 @@ class SampleStatsWorker(concurrent.Worker):
                 stop_cnt=stat.stop_cnt,
                 functional_cnt=stat.functional_cnt,
                 no_result_cnt=self._session.query(NoResult).filter(
-                    NoResult.sample_id == sample_id).count()
+                    NoResult.sample_id == sample_id).count(),
             )
+
+            if hasattr(stat, 'quality'):
+                quality_dist = []
+                for pos, quals in enumerate(stat.quality):
+                    if len(quals) > 0:
+                        quality_dist.append((pos, round(np.mean(quals), 2)))
+                ss.quality_dist = json.dumps(quality_dist)
+            else:
+                ss.quality_dist = json.dumps([])
+
             for dname, dist in stat.distributions.iteritems():
                 setattr(ss, '{}_dist'.format(dname),
                         json.dumps([(k, v) for k, v in dist.iteritems()]))
             self._session.add(ss)
-
 
     def _calculate_seq_stats(self, sample_id, min_cdr3, max_cdr3,
                              include_outliers, only_full_reads):
@@ -200,6 +221,7 @@ class SampleStatsWorker(concurrent.Worker):
         # TODO: This should be automatically generated from _dist_fields
         query = self._session.query(
             Sequence.sequence_replaced,
+            Sequence.quality,
             Sequence.sample_id,
             func.max(Sequence.v_length).label('v_length_max'),
             Sequence.v_match,

@@ -41,6 +41,7 @@ IMPORT_HEADERS = {
                    '[Required]',
 
     'sequence': 'The full, IMGT aligned sequence [Required]',
+    'quality': 'Phred quality per-position (Sanger format)',
     'cdr3_num_nts': 'The CDR3 number of nucleotides [Required]',
     'cdr3_nts': 'The CDR3 nucleotides [Required]',
     'cdr3_aas': 'The CDR3 amino-acids.  If not specified, the `cdr3_nts` will '
@@ -217,6 +218,7 @@ class DelimitedImporter(object):
             gap_method='IMGT',
 
             sequence=seq,
+            quality=self._get_value('quality', row, throw=False),
             sequence_replaced=sequence_replaced,
 
             germline=germline,
