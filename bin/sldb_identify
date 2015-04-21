@@ -20,7 +20,19 @@ if __name__ == '__main__':
     parser.add_argument('--min-similarity', type=int, default=60,
                         help='Minimum percent similarity to germline required '
                         'for valid sequences. (Default: 60)')
+    parser.add_argument('--read-format', default='fastq-illumina',
+                        help='Input format.  May be \'fasta\', '
+                        'fastq-illumina\', \'fastq-sanger\', or '
+                        '\'fastq-solexa\' (Default: fastq-illumina)')
+    parser.add_argument('--incl-all', action='store_true', help='If set will '
+                        'attempt to process all files in the directories '
+                        'using the `all` metadata key for those files which '
+                        'do not have an explicit entry.')
+
     args = parser.parse_args()
+    if args.read_format not in ('fasta', 'fastq-illumina', 'fastq-sanger',
+                                'fastq-solexa'):
+        parser.error('Invalid read format {}'.format(args.read_format))
 
     session = config.init_db(args.master_db_config, args.data_db_config)
 

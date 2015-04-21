@@ -374,6 +374,7 @@ class Sequence(BaseData):
     gap_method = Column(String(16))
 
     sequence = Column(String(length=1024), index=True)
+    quality = Column(String(length=1024))
     sequence_replaced = Column(String(length=1024), index=True)
 
     germline = Column(String(length=1024))

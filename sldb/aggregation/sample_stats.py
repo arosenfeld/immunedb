@@ -6,6 +6,7 @@ import numpy as np
 from sqlalchemy import distinct, func, and_
 from sqlalchemy.sql import exists
 from sqlalchemy.orm import aliased
+from sqlalchemy.sql.expression import literal
 
 import sldb.common.config as config
 import sldb.common.modification_log as mod_log
@@ -101,10 +102,41 @@ class SeqContextStats(ContextStats):
         if not self._record_filter(seq_record):
             return
 
-        add = int(seq_record.copy_number) if self._use_copy else 1
+        if seq_record.copy_number == 1:
+            # If this sequences is unique, use it as the representative
+            rep_seq = seq_record
+        else:
+            # There are multiple germline-filled sequences that match
+            # seq_record use the one with longest V (then highest v_match)
+            # as a representative
+            rep_seq = self._session.query(
+                Sequence.v_match,
+                Sequence.j_match,
+                Sequence.j_length,
+                Sequence.v_gene,
+                Sequence.j_gene,
+                Sequence.in_frame,
+                Sequence.stop,
+                Sequence.functional,
+                (Sequence.v_length + Sequence.num_gaps).label('v_length'),
+                (
+                    func.ceil(100 * Sequence.v_match / Sequence.v_length)
+                ).label('v_identity'),
+                Sequence.junction_num_nts.label('cdr3_length'),
+                literal(seq_record.copy_number).label('copy_number')
+            ).filter(
+                Sequence.sequence_replaced == seq_record.sequence_replaced,
+                Sequence.sample_id == seq_record.sample_id,
+                Sequence.v_length == seq_record.v_length_max
+            ).order_by(
+                Sequence.v_match
+            ).first()
+            assert rep_seq is not None
 
-        self._update(seq_record, seq_record.in_frame, seq_record.stop,
-                     seq_record.functional, add)
+        add = int(rep_seq.copy_number) if self._use_copy else 1
+
+        self._update(rep_seq, rep_seq.in_frame, rep_seq.stop,
+                     rep_seq.functional, add)
 
 
 class CloneContextStats(ContextStats):
@@ -167,23 +199,24 @@ class SampleStatsWorker(concurrent.Worker):
 
         # TODO: This should be automatically generated from _dist_fields
         query = self._session.query(
-            func.max(Sequence.v_match).label('v_match'),
-            func.max(Sequence.j_match).label('j_match'),
-            func.max(Sequence.j_length).label('j_length'),
+            Sequence.sequence_replaced,
+            Sequence.sample_id,
+            func.max(Sequence.v_length).label('v_length_max'),
+            Sequence.v_match,
+            Sequence.j_match,
+            Sequence.j_length,
             Sequence.v_gene,
             Sequence.j_gene,
             Sequence.in_frame,
             Sequence.stop,
             Sequence.functional,
             func.sum(Sequence.copy_number).label('copy_number'),
-            func.max(Sequence.v_length + Sequence.num_gaps).label('v_length'),
-            func.max(
+            (Sequence.v_length + Sequence.num_gaps).label('v_length'),
+            (
                 func.ceil(100 * Sequence.v_match / Sequence.v_length)
             ).label('v_identity'),
             Sequence.junction_num_nts.label('cdr3_length')
-        ).filter(
-            Sequence.sample_id == sample_id
-        )
+        ).filter(Sequence.sample_id == sample_id)
 
         if not include_outliers and min_cdr3 is not None:
             query = query.filter(Sequence.junction_num_nts >= min_cdr3,
@@ -283,9 +316,8 @@ def _queue_tasks(session, sample_id, clones_only, force, tasks):
         return
 
     min_cdr3, max_cdr3 = _get_cdr3_bounds(session, sample_id)
-    print 'TRUE FALSE'
-    for include_outliers in [True]:#[True, False]:
-        for only_full_reads in [False]:#[True, False]:
+    for include_outliers in [True, False]:
+        for only_full_reads in [True, False]:
             if not clones_only:
                 tasks.add_task({
                     'func': 'seq',

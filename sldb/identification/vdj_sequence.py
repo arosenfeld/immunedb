@@ -17,13 +17,14 @@ class VDJSequence(object):
     INDEL_MISMATCH_THRESHOLD = .6
 
     def __init__(self, id, seq, is_full_v, v_germlines, force_vs=None,
-                 force_j=None):
+                 force_j=None, quality=None):
         self._id = id
         self._seq = seq
         self._is_full_v = is_full_v
         self.v_germlines = v_germlines
         self._force_vs = force_vs
         self._force_j = force_j
+        self._quality = quality
 
         self._seq_filled = None
 
@@ -53,6 +54,10 @@ class VDJSequence(object):
     @property
     def id(self):
         return self._id
+
+    @property
+    def quality(self):
+        return self._quality
 
     @property
     def j_gene(self):

@@ -33,12 +33,13 @@ class SampleMetadata(object):
 
 class IdentificationWorker(concurrent.Worker):
     def __init__(self, session, v_germlines, limit_alignments, max_vties,
-                 min_similarity, sync_lock):
+                 min_similarity, read_format, sync_lock):
         self._session = session
         self._v_germlines = v_germlines
         self._limit_alignments = limit_alignments
         self._min_similarity = min_similarity
         self._max_vties = max_vties
+        self._read_format = read_format
         self._sync_lock = sync_lock
 
     def do_task(self, worker_id, args):
@@ -107,7 +108,7 @@ class IdentificationWorker(concurrent.Worker):
 
         self._print(worker_id, 'Identifying V and J, committing No Results')
         for i, record in enumerate(SeqIO.parse(
-                os.path.join(path, fn), 'fasta')):
+                os.path.join(path, fn), self._read_format)):
             if i > 0 and i % 1000 == 0:
                 self._session.commit()
             # Key the dictionaries by the unmodified sequence
@@ -130,15 +131,17 @@ class IdentificationWorker(concurrent.Worker):
                                      seq_id=record.description,
                                      sequence=str(record.seq)))
             else:
-                # This is the first instance of this exact sequence, so align it
-                # and identify it's V and J
+                # This is the first instance of this exact sequence, so align
+                # it and identify it's V and J
                 vdj = VDJSequence(record.description,
                                   record.seq,
                                   read_type == 'R1+R2',
-                                  self._v_germlines)
+                                  self._v_germlines,
+                                  quality=record.letter_annotations.get(
+                                      'phred_quality'))
                 if vdj.v_gene is not None and vdj.j_gene is not None:
-                    # If the V and J are found, add it to the vdjs dictionary to
-                    # prevent future exact copies from being aligned
+                    # If the V and J are found, add it to the vdjs dictionary
+                    # to prevent future exact copies from being aligned
                     lengths_sum += vdj.v_length
                     mutations_sum += vdj.mutation_fraction
                     vdjs[key] = vdj
@@ -155,7 +158,7 @@ class IdentificationWorker(concurrent.Worker):
             self._print(worker_id, 'No sequences identified')
             return
 
-        self._print(worker_id, 'Calculating V-ties')
+        self._print(worker_id, 'Committing Sequences')
         avg_len = lengths_sum / float(len(vdjs))
         avg_mut = mutations_sum / float(len(vdjs))
 
@@ -215,7 +218,7 @@ class IdentificationWorker(concurrent.Worker):
                 sample_id=sample.id,
                 seq_id=vdj.id))
             return existing.seq_id
- 
+
         self._session.add(Sequence(
             seq_id=vdj.id,
             sample=sample,
@@ -270,8 +273,13 @@ def run_identify(session, args):
 
         with open(meta_fn) as fh:
             metadata = json.load(fh)
-            for fn in os.listdir(base_dir):
-                if fn == 'metadata.json' or fn not in metadata:
+            if args.incl_all:
+                files = os.listdir(base_dir)
+            else:
+                files = metadata.keys()
+
+            for fn in files:
+                if fn in ('metadata.json', 'all') or fn not in metadata:
                     continue
                 tasks.add_task({
                     'path': base_dir,
@@ -283,8 +291,9 @@ def run_identify(session, args):
     for i in range(0, args.nproc):
         session = config.init_db(args.master_db_config, args.data_db_config)
         tasks.add_worker(IdentificationWorker(session, v_germlines,
-                                              args.limit_alignments, 
+                                              args.limit_alignments,
                                               args.max_vties,
                                               args.min_similarity / float(100),
+                                              args.read_format,
                                               lock))
     tasks.start()
