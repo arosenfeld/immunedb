@@ -198,7 +198,8 @@ class VDJSequence(object):
                 # If found in the reverse complement, flip and translate the
                 # actual sequence for the rest of the analysis
                 self._seq = self._seq.reverse_complement()
-                self._quality.reverse()
+                if self._quality is not None:
+                    self._quality.reverse()
                 return self._found_j(i, j_gene, match, full_anchor)
 
     def _found_j(self, i, j_gene, match, full_anchor):

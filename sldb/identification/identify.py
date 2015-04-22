@@ -101,7 +101,7 @@ class IdentificationWorker(concurrent.Worker):
         # All VDJs assigned for this sample, keyed by raw sequence
         vdjs = {}
         # Sequences that have noresults
-        noresults = {}
+        noresults = set([])
         # All probable duplicates based on keys of vdjs dictionary
         dups = {}
 
@@ -149,7 +149,7 @@ class IdentificationWorker(concurrent.Worker):
                     self._session.add(NoResult(sample=sample,
                                          seq_id=vdj.id,
                                          sequence=str(vdj.sequence)))
-                    noresults[key] = None
+                    noresults.add(key)
 
         self._session.commit()
 
@@ -218,8 +218,11 @@ class IdentificationWorker(concurrent.Worker):
                 seq_id=vdj.id))
             return existing.seq_id
 
-        quality = ''.join(map(
-            lambda q: ' ' if q is None else chr(q + 33), vdj.quality))
+        if vdj.quality is not None:
+            quality = ''.join(map(
+                lambda q: ' ' if q is None else chr(q + 33), vdj.quality))
+        else:
+            quality = None
         self._session.add(Sequence(
             seq_id=vdj.id,
             sample=sample,

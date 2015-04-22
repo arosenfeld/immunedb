@@ -336,7 +336,7 @@ class Sequence(BaseData):
                       {'mysql_engine': 'TokuDB'})
     __mapper_args__ = {'extension': SequenceExtension()}
 
-    sample_seq_hash = Column(BINARY(20), unique=True, index=True)
+    sample_seq_hash = Column(String(40), unique=True, index=True)
 
     seq_id = Column(String(128), primary_key=True, index=True)
     sample_id = Column(Integer, ForeignKey(Sample.id), primary_key=True,

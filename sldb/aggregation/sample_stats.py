@@ -101,13 +101,14 @@ class SeqContextStats(ContextStats):
         self.quality = []
 
     def _update_quality(self, seq_record):
-        diff = len(seq_record.quality) - len(self.quality)
-        if diff > 0:
-            self.quality.extend([[] for _ in range(0, diff)])
+        if seq_record.quality is not None:
+            diff = len(seq_record.quality) - len(self.quality)
+            if diff > 0:
+                self.quality.extend([[] for _ in range(0, diff)])
 
-        for i, b in enumerate(seq_record.quality):
-            if b is not ' ':
-                self.quality[i].append(ord(b) - 33)
+            for i, b in enumerate(seq_record.quality):
+                if b is not ' ':
+                    self.quality[i].append(ord(b) - 33)
 
     def add_if_match(self, seq_record):
         if not self._record_filter(seq_record):
@@ -173,9 +174,8 @@ class SampleStatsWorker(concurrent.Worker):
         elif args['func'] == 'clone':
             func = self._calculate_clone_stats
         print ('Worker {} on {} {}, include_outliers {}, only_full_reads '
-              '{}').format(
-                  worker_id, args['func'], args['sample_id'],
-                  args['include_outliers'], args['only_full_reads'])
+               '{}').format(worker_id, args['func'], args['sample_id'],
+                            args['include_outliers'], args['only_full_reads'])
         func(args['sample_id'], args['min_cdr3'], args['max_cdr3'],
              args['include_outliers'], args['only_full_reads'])
 
@@ -216,7 +216,7 @@ class SampleStatsWorker(concurrent.Worker):
                              include_outliers, only_full_reads):
         seq_statistics = {}
         for name, stat in _seq_contexts.iteritems():
-            seq_statistics[name] = SeqContextStats(self._session,**stat)
+            seq_statistics[name] = SeqContextStats(self._session, **stat)
 
         # TODO: This should be automatically generated from _dist_fields
         query = self._session.query(
@@ -253,7 +253,6 @@ class SampleStatsWorker(concurrent.Worker):
 
         self._add_stat(seq_statistics, sample_id, include_outliers,
                        only_full_reads)
-
 
     def _calculate_clone_stats(self, sample_id, min_cdr3, max_cdr3,
                                include_outliers, only_full_reads):
@@ -293,7 +292,7 @@ class SampleStatsWorker(concurrent.Worker):
                 stat.add_if_match(clone, in_frame, stop, functional)
 
         self._add_stat(clone_statistics, sample_id, include_outliers,
-                  only_full_reads)
+                       only_full_reads)
 
 
 def _get_cdr3_bounds(session, sample_id):

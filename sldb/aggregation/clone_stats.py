@@ -10,6 +10,7 @@ import sldb.common.modification_log as mod_log
 from sldb.common.mutations import CloneMutations
 import sldb.util.concurrent as concurrent
 
+
 class CloneStatsWorker(concurrent.Worker):
     def __init__(self, session, baseline_path, baseline_temp):
         self._session = session
@@ -24,7 +25,6 @@ class CloneStatsWorker(concurrent.Worker):
             self._sample_stats(worker_id, clone_id, sample_id)
         else:
             self._total_stats(worker_id, clone_id)
-
 
     def _sample_stats(self, worker_id, clone_id, sample_id):
         self._print(worker_id, 'Clone {}, sample {}'.format(
@@ -69,7 +69,6 @@ class CloneStatsWorker(concurrent.Worker):
         self._total_completed += 1
         if self._total_completed % 1000 == 0:
             self._session.commit()
-
 
     def _total_stats(self, worker_id, clone_id):
         existing = self._session.query(CloneStats).filter(
@@ -136,7 +135,7 @@ def run_clone_stats(session, args):
             'sample_id': 0
         })
         for sid in map(lambda c: c.sample_id, session.query(
-                    distinct(Sequence.sample_id).label('sample_id')
+                distinct(Sequence.sample_id).label('sample_id')
                 ).filter(Sequence.clone_id == cid)):
             tasks.add_task({
                 'clone_id': cid,

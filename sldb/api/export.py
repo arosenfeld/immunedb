@@ -116,11 +116,11 @@ class CloneExport(Exporter):
                     last_cid = record.clone_id
                 elif last_cid != record.clone_id:
                     cnts = self.session.query(
-                            CloneStats.unique_cnt,
-                            CloneStats.total_cnt
+                        CloneStats.unique_cnt,
+                        CloneStats.total_cnt
                         ).filter(
-                            CloneStats.clone_id == last_cid,
-                            CloneStats.sample_id == 0
+                        CloneStats.clone_id == last_cid,
+                        CloneStats.sample_id == 0
                         ).first()
                     total_row = {
                         'clone_id': last_cid,
@@ -237,7 +237,8 @@ class SequenceExport(Exporter):
         return '>{}{}{}\n{}\n'.format(
             seq_id,
             '|' if len(info) > 0 else '',
-            '|'.join(map(lambda (k, v): '{}={}'.format(k, v), info.iteritems())),
+            '|'.join(map(
+                lambda (k, v): '{}={}'.format(k, v), info.iteritems())),
             sequence)
 
     def get_data(self):
@@ -351,8 +352,8 @@ class MutationExporter(object):
 
         headers = ['clone_id', 'sample_id', 'total_seqs', 'region']
         self._numbers = ('unique', 'total')
-        self._mtypes = ('synonymous', 'nonsynonymous', 'conservative', 'nonconservative',
-                  'unknown')
+        self._mtypes = ('synonymous', 'nonsynonymous', 'conservative',
+                        'nonconservative', 'unknown')
         for number in self._numbers:
             for mtype in self._mtypes:
                 headers.append('{}_{}'.format(mtype, number))
