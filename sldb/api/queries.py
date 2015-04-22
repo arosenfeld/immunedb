@@ -212,6 +212,7 @@ def get_clone(session, clone_id, sample_ids, thresholds=None):
 
     result = {
         'clone': _clone_to_dict(clone),
+        'quality': [],
         'seqs': []
     }
 
@@ -219,6 +220,14 @@ def get_clone(session, clone_id, sample_ids, thresholds=None):
     for seqr in q:
         seq = seqr.Sequence
         read_start = start_ptrn.match(seq.sequence).span()[1] or 0
+        if seq.quality is not None:
+            diff = len(seq.quality) - len(result['quality'])
+            if diff > 0:
+                result['quality'].extend([[] for _ in range(0, diff)])
+            for i, b in enumerate(seq.quality):
+                if b is not ' ':
+                    result['quality'][i].append(ord(b) - 33)
+
         result['seqs'].append({
             'seq_id': seq.seq_id,
             'sample': {
@@ -233,6 +242,12 @@ def get_clone(session, clone_id, sample_ids, thresholds=None):
             'v_extent': seq.v_length + seq.num_gaps + seq.pad_length,
             'j_length': seq.j_length,
         })
+
+    res_qual = []
+    for i, quals in enumerate(result['quality']):
+        if len(quals) > 0:
+            res_qual.append((i, round(np.mean(quals), 2)))
+    result['quality'] = res_qual
 
     all_mutations, total_seqs = get_clone_mutations(session, clone_id,
                                                     sample_ids)

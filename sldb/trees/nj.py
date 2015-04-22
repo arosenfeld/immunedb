@@ -62,10 +62,17 @@ class NJWorker(concurrent.Worker):
     def _get_fasta_input(self, germline_seq, clone_id, min_count):
         seqs = {}
         mut_counts = {}
-        for i, seq in enumerate(self._session.query(
-                Sequence.seq_id,
-                Sequence.sequence).filter(
-                    Sequence.clone_id == clone_id)):
+        q = self._session.query(
+            Sequence.seq_id,
+            Sequence.sequence
+        ).filter(
+            Sequence.clone_id == clone_id
+        ).order_by(
+            Sequence.v_length
+        ).group_by(
+            Sequence.sequence_replaced
+        )
+        for i, seq in enumerate(q):
             seqs[base64.b64encode(seq.seq_id)] = seq.sequence
 
             for mut in _get_mutations(germline_seq, seq.sequence):
@@ -99,7 +106,7 @@ class NJWorker(concurrent.Worker):
                 node.name = name
                 sample_info = self._session.query(Sequence).filter(
                     Sequence.sequence_replaced == seq.sequence_replaced,
-                    Sequence.sample.has(subject_id=seq.sample.subject_id)
+                    Sequence.clone_id == seq.clone_id
                 ).all()
                 seq_ids = [seq.seq_id]
                 tissues = set(map(lambda s: s.sample.tissue, sample_info))

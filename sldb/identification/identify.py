@@ -204,6 +204,7 @@ class IdentificationWorker(concurrent.Worker):
                 self._session.commit()
             self._session.add_all(dup_seqs)
         self._session.commit()
+        self._print(worker_id, 'Finished sample {}'.format(sample.id))
 
 
     def _add_to_db(self, alignment, sample, vdj):
