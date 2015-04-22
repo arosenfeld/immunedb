@@ -64,13 +64,11 @@ class NJWorker(concurrent.Worker):
         mut_counts = {}
         for i, seq in enumerate(self._session.query(
                 Sequence.seq_id,
-                Sequence.sequence_replaced).filter(
-                    Sequence.clone_id == clone_id)
-                .order_by(desc('copy_number'))
-                .group_by(Sequence.sequence_replaced)):
-            seqs[base64.b64encode(seq.seq_id)] = seq.sequence_replaced
+                Sequence.sequence).filter(
+                    Sequence.clone_id == clone_id)):
+            seqs[base64.b64encode(seq.seq_id)] = seq.sequence
 
-            for mut in _get_mutations(germline_seq, seq.sequence_replaced):
+            for mut in _get_mutations(germline_seq, seq.sequence):
                 if mut not in mut_counts:
                     mut_counts[mut] = 0
                 mut_counts[mut] += 1
@@ -139,7 +137,7 @@ def _get_newick(fasta_input, tree_prog):
 def _get_mutations(s1, s2):
     muts = set([])
     for i, (c1, c2) in enumerate(zip(s1, s2)):
-        if (c1 != c2 and c1 != 'N' and c1 != '-' and c2 != '-'):
+        if (c1 != c2 and c1 != 'N' and c2 != 'N' and c1 != '-' and c2 != '-'):
             muts.add((i + 1, c1, c2))
     return muts
 
