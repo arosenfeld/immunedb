@@ -1,6 +1,7 @@
 import multiprocessing as mp
 import Queue
 
+
 class Worker(object):
     def _print(self, worker_id, msg):
         print 'Worker {}: {}'.format(worker_id, msg)
@@ -23,7 +24,7 @@ class TaskQueue(object):
     def add_worker(self, worker):
         self._workers.append(
             mp.Process(target=self._func_wrap, args=(len(self._workers),
-                worker))
+                       worker))
         )
 
     def start(self, block=True):

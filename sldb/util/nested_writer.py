@@ -1,6 +1,7 @@
 import cStringIO as StringIO
 import csv
 
+
 class NestedCSVWriter(object):
     def __init__(self, headers, mapping=None, streaming=False):
         self._headers = headers

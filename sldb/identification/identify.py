@@ -127,8 +127,8 @@ class IdentificationWorker(concurrent.Worker):
             elif key in noresults:
                 # This sequence cannot be identified.  Add a noresult
                 self._session.add(NoResult(sample=sample,
-                                     seq_id=record.description,
-                                     sequence=str(record.seq)))
+                                           seq_id=record.description,
+                                           sequence=str(record.seq)))
             else:
                 # This is the first instance of this exact sequence, so align
                 # it and identify it's V and J
@@ -147,8 +147,8 @@ class IdentificationWorker(concurrent.Worker):
                 else:
                     # The V or J could not be found, so add it as a noresult
                     self._session.add(NoResult(sample=sample,
-                                         seq_id=vdj.id,
-                                         sequence=str(vdj.sequence)))
+                                               seq_id=vdj.id,
+                                               sequence=str(vdj.sequence)))
                     noresults.add(key)
 
         self._session.commit()
@@ -167,10 +167,10 @@ class IdentificationWorker(concurrent.Worker):
             # Align the sequence to a germline based on v_ties
             vdj.align_to_germline(avg_len, avg_mut)
             if (vdj.v_gene is not None
-                and vdj.j_gene is not None
-                and vdj.v_match / float(vdj.v_length) >= self._min_similarity
-                and len(vdj.v_gene) <= self._max_vties
-                ):
+                    and vdj.j_gene is not None
+                    and vdj.v_match / float(vdj.v_length)
+                    >= self._min_similarity
+                    and len(vdj.v_gene) <= self._max_vties):
                 # Add the sequence to the database
                 final_seq_id = self._add_to_db(read_type, sample, vdj)
                 # If a duplicate was found, and vdj was added as a duplicate,
@@ -205,7 +205,6 @@ class IdentificationWorker(concurrent.Worker):
             self._session.add_all(dup_seqs)
         self._session.commit()
         self._print(worker_id, 'Finished sample {}'.format(sample.id))
-
 
     def _add_to_db(self, alignment, sample, vdj):
         existing = self._session.query(Sequence).filter(

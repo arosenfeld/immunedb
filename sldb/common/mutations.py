@@ -102,6 +102,7 @@ class CloneMutations(object):
     MODE_SAMPLES_AND_TOTAL = 0
     MODE_SAMPLES_ONLY = 1
     MODE_TOTAL_ONLY = 2
+
     def __init__(self, session, clone):
         self._clone = clone
         self._session = session

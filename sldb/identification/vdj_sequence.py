@@ -354,7 +354,7 @@ class VDJSequence(object):
             self._seq += 'N' * (len(self.germline) - len(self.sequence))
             if self._quality is not None:
                 self._quality.extend([None] * (len(self.germline) -
-                    len(self._quality)))
+                                     len(self._quality)))
             self._possible_indel = True
 
         # Get the number of gaps

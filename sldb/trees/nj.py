@@ -15,6 +15,7 @@ import sldb.common.modification_log as mod_log
 from sldb.identification.v_genes import VGene
 import sldb.util.concurrent as concurrent
 
+
 class NJWorker(concurrent.Worker):
     def __init__(self, session, tree_prog, min_count):
         self._session = session
@@ -40,7 +41,7 @@ class NJWorker(concurrent.Worker):
             tree = self._get_tree(newick, germline_seq, remove_muts)
         except:
             self._print('[ERROR] Could not get tree for {}'.format(
-                       clone))
+                clone))
             return
         tree.set_outgroup('germline')
         tree.search_nodes(name='germline')[0].delete()
@@ -92,7 +93,6 @@ class NJWorker(concurrent.Worker):
         for seq_id, seq in seqs.iteritems():
             in_data += '>{}\n{}\n'.format(seq_id, seq)
         return in_data, remove_muts
-
 
     def _get_tree(self, newick, germline_seq, remove_muts):
         tree = ete2.Tree(newick)

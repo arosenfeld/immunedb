@@ -40,7 +40,7 @@ def get_selection(session, clone_id, script_path, samples=None,
     input_path = os.path.join(temp_dir, 'clone{}.fasta'.format(unique_id))
     out_path = os.path.join(temp_dir, 'output{}'.format(unique_id))
     read_path = os.path.join(temp_dir, 'output{}{}.txt'.format(unique_id,
-        clone.id))
+                             clone.id))
 
     _make_input_file(session, input_path, clone, samples)
     cmd = 'Rscript {} {} {} {} {} {} {} {} {} {} {}'.format(

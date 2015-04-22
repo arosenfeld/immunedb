@@ -45,7 +45,8 @@ IMPORT_HEADERS = {
     'cdr3_num_nts': 'The CDR3 number of nucleotides [Required]',
     'cdr3_nts': 'The CDR3 nucleotides [Required]',
     'cdr3_aas': 'The CDR3 amino-acids.  If not specified, the `cdr3_nts` will '
-        'be converted to an amino-acid string with unknowns replaced with Xs',
+                'be converted to an amino-acid string with unknowns replaced '
+                'with Xs',
 }
 
 
@@ -84,8 +85,8 @@ class DelimitedImporter(object):
             if header not in self._defaults:
                 if throw:
                     raise ImportException(
-                        'Header {} for field {} not found.'.format(header,
-                            field_name))
+                        'Header {} for field {} not found.'.format(
+                            header, field_name))
                 return None
             return self._defaults[header]
         return row[header]
@@ -111,7 +112,7 @@ class DelimitedImporter(object):
                 print 'Created new sample {}'.format(sample_name)
                 sample.date = self._get_value('date', row)
                 for field in ('subset', 'tissue', 'disease', 'lab',
-                        'experimenter'):
+                              'experimenter'):
                     setattr(sample, field,
                             self._get_value(field, row, throw=False))
 
@@ -181,7 +182,8 @@ class DelimitedImporter(object):
         else:
             cdr3_nt = self._get_value('cdr3_nts', row).upper()
             cdr3_aa = (self._get_value('cdr3_aas', row, throw=False)
-                or lookups.aas_from_nts(self._get_value('cdr3_nts', row)))
+                       or lookups.aas_from_nts(
+                           self._get_value('cdr3_nts', row)))
         new_seq = Sequence(
             sample=sample,
 
@@ -201,7 +203,7 @@ class DelimitedImporter(object):
             j_length=self._get_value('j_length', row),
 
             pre_cdr3_length=int(self._get_value('v_length', row)) -
-                self._v_addition,
+            self._v_addition,
             pre_cdr3_match=self._get_value('v_match', row),
             post_cdr3_length=len(j_germline),
             post_cdr3_match=self._get_value('j_match', row),
@@ -238,7 +240,7 @@ class DelimitedImporter(object):
                 if self._fail_action != 'pass':
                     print ('[WARNING] Unable to process row #{}: '
                            'exception={}, msg={}').format(
-                                i, str(ex.__class__.__name__), ex.message)
+                        i, str(ex.__class__.__name__), ex.message)
                     if self._fail_action == 'fail':
                         raise ex
 

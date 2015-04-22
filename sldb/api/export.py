@@ -359,11 +359,13 @@ class MutationExporter(object):
                 headers.append('{}_{}'.format(mtype, number))
 
         self._csv = NestedCSVWriter(headers, {
-            'nonsynonymous_unique': (lambda r: r.get('conservative_unique', 0) +
-                                     r.get('nonconservative_unique', 0)),
-            'nonsynonymous_total': (lambda r: r.get('conservative_total', 0) +
-                                    r.get('nonconservative_total', 0)),
-            'sample_id': lambda r: r['sample_id'] if r['sample_id']  else 'All'
+            'nonsynonymous_unique': (
+                lambda r: r.get('conservative_unique', 0) +
+                r.get('nonconservative_unique', 0)),
+            'nonsynonymous_total': (
+                lambda r: r.get('conservative_total', 0) +
+                r.get('nonconservative_total', 0)),
+            'sample_id': lambda r: r['sample_id'] if r['sample_id'] else 'All'
         }, streaming=True)
 
     def _sample_rows(self, cid, sample_id):

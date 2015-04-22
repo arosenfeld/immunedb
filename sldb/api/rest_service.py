@@ -254,11 +254,10 @@ def clone_overlap(filter_type, samples=None, subject=None):
             'clone_j', 'clone_cdr3_aa', 'clone_cdr3_num_nts', 'clone_subject'
         ], mapping=csv_mapping, streaming=True)
 
-
         name = 'overlap_{}.csv'.format(
             time.strftime('%Y-%m-%d-%H-%M'))
-        response.headers['Content-Disposition'] = ('attachment;'
-            'filename={}').format(name)
+        response.headers['Content-Disposition'] = (
+            'attachment;filename={}').format(name)
 
         for clone in clones:
             yield writer.add_row(clone)
@@ -351,17 +350,10 @@ def get_max_point(threshold, data_list):
     the curve or above
     """
 
-    target_y = threshold * data_list[len(data_list) - 1][1]
-
-    result = None
-    i = 0
-    while(result == None):
-        if data_list[i][1] >= target_y:
-            result = data_list[i]
-        else:
-            i += 1
-
-    return(result)
+    target_y = threshold * data_list[-1][1]
+    for data in datalist:
+        if data[1] >= target_y:
+            return data
 
 
 def format_diversity_csv_output(x, y, s):
@@ -369,11 +361,9 @@ def format_diversity_csv_output(x, y, s):
     Convert rarefaction output to a format for plotting
     """
 
-    formatted = [[float(row.split(',')[x]), float(row.split(',')[y])]
-                 for i, row in enumerate(s.split('\n'))
-                 if row != '' and i != 0]
-
-    return(formatted)
+    return [[float(row.split(',')[x]), float(row.split(',')[y])]
+            for i, row in enumerate(s.split('\n'))
+            if row != '' and i != 0]
 
 
 @route('/api/rarefaction/<sample_ids>/<mode>/<fast_bool>/<start>'
@@ -624,7 +614,6 @@ def export_sequences(eformat, rtype, rids):
 def export_mutations(rtype, rids, thresh_type, thresh_value,
                      only_sample_rows=None):
     session = scoped_session(session_factory)()
-
 
     assert rtype in ('sample', 'clone')
     assert thresh_type in ('seqs', 'percent')
