@@ -384,6 +384,7 @@ class Sequence(BaseData):
     clone_id = Column(Integer, ForeignKey(Clone.id), index=True)
     clone = relationship(Clone, backref=backref('sequences',
                          order_by=seq_id))
+    copy_number_in_clone = Column(Integer, index=True)
     mutations_from_clone = Column(MEDIUMTEXT)
 
 

@@ -163,6 +163,44 @@ def _assign_clones_to_groups(session, subject_id, to_update):
     session.commit()
 
 
+def _seqs_equal_ignore_ns(s1, s2):
+    if len(s1) != len(s2):
+        return False
+    for c1, c2 in zip(s1, s2):
+        if c1 != c2 and c1 != 'N' and c2 != 'N':
+            return False
+    return True
+
+
+def _collapse_sequences(session, to_update):
+    print 'Collapsing sequences'
+    for clone_id in to_update:
+        seqs_by_size = session.query(
+            Sequence.seq_id, Sequence.sample_id, Sequence.sequence,
+            Sequence.copy_number
+        ).order_by(Sequence.copy_number).all()
+        new_cns = {(s.sample_id, s.seq_id): s.copy_number for s in seqs_by_size}
+        for i, seq1 in enumerate(seqs_by_size):
+            s1_key = (seq1.sample_id, seq1.seq_id)
+            if new_cns[s1_key] == 0:
+                continue
+            for j, seq2 in enumerate(seqs_by_size[i+1:]):
+                s2_key = (seq2.sample_id, seq2.seq_id)
+                if new_cns[s2_key] > 0 and _seqs_equal_ignore_ns(seq1.sequence,
+                                                                 seq2.sequence):
+                    new_cns[s1_key] += seq2.copy_number
+                    new_cns[s2_key] = 0 
+
+        for (sample_id, seq_id), cn in new_cns.iteritems():
+            session.query(Sequence).filter(
+                Sequence.sample_id == sample_id,
+                Sequence.seq_id == seq_id
+            ).update({
+                'copy_number_in_clone': cn
+            })
+
+    session.commit()
+
 def run_clones(session, args):
     if args.subjects is None:
         subjects = map(lambda s: s.id, session.query(Subject.id).all())
@@ -179,3 +217,4 @@ def run_clones(session, args):
             args.min_identity / 100.0, args.order)
         print 'Assigning clones to groups'
         _assign_clones_to_groups(session, sid, to_update)
+        _collapse_sequences(session, to_update)
