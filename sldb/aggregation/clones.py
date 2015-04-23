@@ -11,7 +11,7 @@ from sldb.common.models import *
 import sldb.common.modification_log as mod_log
 from sldb.identification.identify import VDJSequence
 from sldb.identification.v_genes import VGene
-from sldb.util.funcs import page_query
+from sldb.util.funcs import page_query, seq_to_regex
 import sldb.util.lookups as lookups
 
 
@@ -168,25 +168,33 @@ def _assign_clones_to_groups(session, subject_id, to_update):
 def _collapse_sequences(session, to_update):
     print 'Collapsing sequences'
     for clone_id in to_update:
+        session.query(Sequence).filter(
+            Sequence.clone_id == clone_id
+        ).update({
+            'copy_number_in_clone': 0
+        })
+        session.flush()
+
         seqs_by_size = session.query(
             Sequence.seq_id, Sequence.sample_id, Sequence.sequence,
-            Sequence.copy_number
+            Sequence.copy_number_in_sample
         ).filter(
-            Sequence.clone_id == clone_id
-        ).order_by(Sequence.copy_number).all()
-        new_cns = {(s.sample_id, s.seq_id): s.copy_number for s in seqs_by_size}
-        print clone_id, len(new_cns)
+            Sequence.clone_id == clone_id,
+            Sequence.copy_number_in_sample > 0
+        ).order_by(Sequence.copy_number_in_sample).all()
+        new_cns = {(s.sample_id, s.seq_id): s.copy_number_in_sample for s in
+            seqs_by_size}
 
         for i, seq1 in enumerate(seqs_by_size):
             s1_key = (seq1.sample_id, seq1.seq_id)
             if new_cns[s1_key] == 0:
                 continue
-            pattern = re.compile(seq1.sequence.replace('N', '.'))
+            pattern = seq_to_regex(seq1.sequence)
             for j, seq2 in enumerate(seqs_by_size[i+1:]):
                 s2_key = (seq2.sample_id, seq2.seq_id)
                 if (new_cns[s2_key] > 0 
                         and pattern.match(seq2.sequence) is not None):
-                    new_cns[s1_key] += seq2.copy_number
+                    new_cns[s1_key] += seq2.copy_number_in_sample
                     new_cns[s2_key] = 0 
 
         for (sample_id, seq_id), cn in new_cns.iteritems():
