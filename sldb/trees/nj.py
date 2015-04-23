@@ -50,9 +50,9 @@ class NJWorker(concurrent.Worker):
         while True:
             _push_common_mutations_up(tree, first)
             _remove_parent_mutations(tree)
-            _remove_null_nodes(tree)
+            rem_null = _remove_null_nodes(tree)
             moved = _check_supersets(tree)
-            if not moved and not _are_null_nodes(tree):
+            if not rem_null and not moved and not _are_null_nodes(tree):
                 break
             first = False
 
@@ -223,6 +223,7 @@ def _remove_parent_mutations(tree):
 
 
 def _remove_null_nodes(tree):
+    removed = False
     for node in tree.traverse():
         if node.up is not None and len(node.mutations) == 0:
             node.up.tissues.extend(node.tissues)
@@ -230,6 +231,8 @@ def _remove_null_nodes(tree):
             node.up.seq_ids.extend(node.seq_ids)
             node.up.copy_number += node.copy_number
             node.delete(prevent_nondicotomic=False)
+            removed = True
+    return removed
 
 
 def _check_supersets(tree):
