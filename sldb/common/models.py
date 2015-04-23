@@ -366,6 +366,7 @@ class Sequence(BaseData):
     functional = Column(Boolean, index=True)
     stop = Column(Boolean)
     copy_number = Column(Integer, index=True)
+    copy_number_in_sample = Column(Integer, index=True)
 
     # This is just length(junction_nt) but is included for fast statistics
     # generation over the index

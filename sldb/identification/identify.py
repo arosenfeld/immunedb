@@ -204,6 +204,11 @@ class IdentificationWorker(concurrent.Worker):
                 self._session.commit()
             self._session.add_all(dup_seqs)
         self._session.commit()
+
+        self._lock.acquire()
+        self._samples_to_update.add(sample.id)
+        self._lock.release()
+
         self._print(worker_id, 'Finished sample {}'.format(sample.id))
 
     def _add_to_db(self, alignment, sample, vdj):
@@ -293,6 +298,7 @@ def run_identify(session, args):
                     'meta': SampleMetadata(metadata[fn], metadata['all']),
                 })
 
+    samples_to_update = set([])
     lock = mp.RLock()
     for i in range(0, args.nproc):
         session = config.init_db(args.master_db_config, args.data_db_config)

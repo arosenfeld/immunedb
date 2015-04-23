@@ -1,5 +1,7 @@
 import argparse
 from collections import Counter
+import re
+
 import distance
 
 from sqlalchemy import desc, distinct
@@ -163,31 +165,27 @@ def _assign_clones_to_groups(session, subject_id, to_update):
     session.commit()
 
 
-def _seqs_equal_ignore_ns(s1, s2):
-    if len(s1) != len(s2):
-        return False
-    for c1, c2 in zip(s1, s2):
-        if c1 != c2 and c1 != 'N' and c2 != 'N':
-            return False
-    return True
-
-
 def _collapse_sequences(session, to_update):
     print 'Collapsing sequences'
     for clone_id in to_update:
         seqs_by_size = session.query(
             Sequence.seq_id, Sequence.sample_id, Sequence.sequence,
             Sequence.copy_number
+        ).filter(
+            Sequence.clone_id == clone_id
         ).order_by(Sequence.copy_number).all()
         new_cns = {(s.sample_id, s.seq_id): s.copy_number for s in seqs_by_size}
+        print clone_id, len(new_cns)
+
         for i, seq1 in enumerate(seqs_by_size):
             s1_key = (seq1.sample_id, seq1.seq_id)
             if new_cns[s1_key] == 0:
                 continue
+            pattern = re.compile(seq1.sequence.replace('N', '.'))
             for j, seq2 in enumerate(seqs_by_size[i+1:]):
                 s2_key = (seq2.sample_id, seq2.seq_id)
-                if new_cns[s2_key] > 0 and _seqs_equal_ignore_ns(seq1.sequence,
-                                                                 seq2.sequence):
+                if (new_cns[s2_key] > 0 
+                        and pattern.match(seq2.sequence) is not None):
                     new_cns[s1_key] += seq2.copy_number
                     new_cns[s2_key] = 0 
 

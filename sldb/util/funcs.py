@@ -1,4 +1,11 @@
 import hashlib
+import re
+
+
+def seq_to_regex(seq):
+    return re.compile(''.join(
+        map(lambda c: '[{}|N]'.format(c) if c != 'N' else '.', seq)
+    ))
 
 
 def get_or_create(session, model, **kwargs):

@@ -38,7 +38,7 @@ _seq_contexts = {
         'use_copy': False
     },
     'unique_multiple': {
-        'record_filter': lambda seq: seq.functional and seq.copy_number > 1,
+        'record_filter': lambda seq: seq.functional and seq.copy_number_in_clone > 1,
         'use_copy': False
     },
 }
@@ -114,42 +114,11 @@ class SeqContextStats(ContextStats):
         if not self._record_filter(seq_record):
             return
 
-        if seq_record.copy_number == 1:
-            # If this sequences is unique, use it as the representative
-            rep_seq = seq_record
-        else:
-            # There are multiple germline-filled sequences that match
-            # seq_record use the one with longest V (then highest v_match)
-            # as a representative
-            rep_seq = self._session.query(
-                Sequence.v_match,
-                Sequence.j_match,
-                Sequence.j_length,
-                Sequence.v_gene,
-                Sequence.j_gene,
-                Sequence.in_frame,
-                Sequence.stop,
-                Sequence.functional,
-                (Sequence.v_length + Sequence.num_gaps).label('v_length'),
-                (
-                    func.ceil(100 * Sequence.v_match / Sequence.v_length)
-                ).label('v_identity'),
-                Sequence.junction_num_nts.label('cdr3_length'),
-                literal(seq_record.copy_number).label('copy_number'),
-                Sequence.quality
-            ).filter(
-                Sequence.sequence_replaced == seq_record.sequence_replaced,
-                Sequence.sample_id == seq_record.sample_id,
-                Sequence.v_length == seq_record.v_length_max
-            ).order_by(
-                Sequence.v_match
-            ).first()
+        add = int(seq_record.copy_number) if self._use_copy else 1
 
-        add = int(rep_seq.copy_number) if self._use_copy else 1
-
-        self._update(rep_seq, rep_seq.in_frame, rep_seq.stop,
-                     rep_seq.functional, add)
-        self._update_quality(rep_seq)
+        self._update(seq_record, seq_record.in_frame, seq_record.stop,
+                     seq_record.functional, add)
+        self._update_quality(seq_record)
 
 
 class CloneContextStats(ContextStats):
@@ -223,7 +192,6 @@ class SampleStatsWorker(concurrent.Worker):
             Sequence.sequence_replaced,
             Sequence.quality,
             Sequence.sample_id,
-            func.max(Sequence.v_length).label('v_length_max'),
             Sequence.v_match,
             Sequence.j_match,
             Sequence.j_length,
@@ -232,12 +200,13 @@ class SampleStatsWorker(concurrent.Worker):
             Sequence.in_frame,
             Sequence.stop,
             Sequence.functional,
-            func.sum(Sequence.copy_number).label('copy_number'),
+            Sequence.copy_number,
+            Sequence.copy_number_in_clone,
             (Sequence.v_length + Sequence.num_gaps).label('v_length'),
             (
                 func.ceil(100 * Sequence.v_match / Sequence.v_length)
             ).label('v_identity'),
-            Sequence.junction_num_nts.label('cdr3_length')
+            Sequence.junction_num_nts.label('cdr3_length'),
         ).filter(Sequence.sample_id == sample_id)
 
         if not include_outliers and min_cdr3 is not None:
@@ -245,7 +214,6 @@ class SampleStatsWorker(concurrent.Worker):
                                  Sequence.junction_num_nts <= max_cdr3)
         if only_full_reads:
             query = query.filter(Sequence.alignment == 'R1+R2')
-        query = query.group_by(Sequence.sequence_replaced)
 
         for seq in query:
             for stat in seq_statistics.values():

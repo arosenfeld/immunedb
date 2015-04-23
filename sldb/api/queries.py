@@ -199,16 +199,15 @@ def get_clone(session, clone_id, sample_ids, thresholds=None):
     result = {}
     clone = session.query(Clone).filter(Clone.id == clone_id).first()
 
-    q = session.query(distinct(Sequence.sequence_replaced)).filter(
-        Sequence.clone_id == clone_id).count()
     q = session.query(
         Sequence,
-        func.sum(Sequence.copy_number).label('copy_number'))\
-        .filter(Sequence.clone_id == clone_id)
+        Sequence.copy_number
+    ).filter(
+        Sequence.clone_id == clone_id,
+        Sequence.copy_number_in_clone > 0
+    )
     if sample_ids is not None:
         q = q.filter(Sequence.sample_id.in_(sample_ids))
-    q = q.order_by(desc('copy_number')).group_by(
-        Sequence.sequence_replaced)
 
     result = {
         'clone': _clone_to_dict(clone),

@@ -37,11 +37,12 @@ class CloneStatsWorker(concurrent.Worker):
             return
 
         counts = self._session.query(
-            func.count(distinct(Sequence.sequence_replaced)).label('unique'),
-            func.sum(Sequence.copy_number).label('total')
+            func.count(Sequence.seq_id).label('unique'),
+            func.sum(Sequence.copy_number_in_clone).label('total')
         ).filter(
             Sequence.clone_id == clone_id,
-            Sequence.sample_id == sample_id
+            Sequence.sample_id == sample_id,
+            Sequence.copy_number_in_clone > 0
         ).first()
 
         sample_mutations = CloneMutations(
@@ -80,9 +81,12 @@ class CloneStatsWorker(concurrent.Worker):
         self._print(worker_id, 'Clone {}, all samples'.format(clone_id))
         # Get the counts for the entire clone
         counts = self._session.query(
-            func.count(distinct(Sequence.sequence_replaced)).label('unique'),
-            func.sum(Sequence.copy_number).label('total')
-        ).filter(Sequence.clone_id == clone_id).first()
+            func.count(Sequence.seq_id).label('unique'),
+            func.sum(Sequence.copy_number_in_clone).label('total')
+        ).filter(
+            Sequence.clone_id == clone_id,
+            Sequence.copy_number_in_clone > 0
+        ).first()
 
         total_mutations = CloneMutations(
             self._session,
