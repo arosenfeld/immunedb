@@ -12,7 +12,7 @@ def collapse_seqs(session, seqs, copy_field, collapse_copy_field,
         if new_cns[seq1_key] == 0:
             continue
         pattern = seq_to_regex(seq1.sequence)
-        for j, seq2 in enumerate(seqs[i+1:]):
+        for seq2 in seqs[i+1:]:
             seq2_key = (seq2.sample_id, seq2.seq_id)
             if (new_cns[seq2_key] > 0 
                     and pattern.match(seq2.sequence) is not None):
