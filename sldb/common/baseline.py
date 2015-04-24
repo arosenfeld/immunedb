@@ -75,16 +75,23 @@ def _make_input_file(session, input_path, clone, samples):
             clone.group.germline[VGene.CDR3_OFFSET + clone.cdr3_num_nts:]
         ])
         fh.write('{}\n'.format(germline))
-        query = session.query(
-            distinct(Sequence.sequence_replaced).label('seq')
-        ).filter(
-            Sequence.clone_id == clone.id
-        )
-        if samples is not None:
-            query = query.filter(Sequence.sample_id.in_(samples))
+        if samples is None:
+            query = session.query(
+                Sequence.sequence
+            ).filter(
+                Sequence.clone_id == clone_id,
+                Sequence.copy_number_in_clone > 1
+            )
+        else:
+            query = session.query(
+                Sequence.sequence
+            ).filter(
+                Sequence.clone_id == clone.id,
+                Sequence.copy_number_in_sample > 1
+            )
 
         for i, seq in enumerate(query):
-            fh.write('>{}\n{}\n'.format(i, seq.seq))
+            fh.write('>{}\n{}\n'.format(i, seq.sequence))
 
 
 def _parse_output(session, clone, fh):

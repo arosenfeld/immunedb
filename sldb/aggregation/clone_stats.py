@@ -21,42 +21,44 @@ class CloneStatsWorker(concurrent.Worker):
     def do_task(self, worker_id, args):
         clone_id = args['clone_id']
         sample_id = args['sample_id']
-        if sample_id != 0:
-            self._sample_stats(worker_id, clone_id, sample_id)
-        else:
-            self._total_stats(worker_id, clone_id)
+        self._context_stats(worker_id, clone_id)
 
-    def _sample_stats(self, worker_id, clone_id, sample_id):
+    def _context_stats(self, worker_id, clone_id, sample_id):
         self._print(worker_id, 'Clone {}, sample {}'.format(
             clone_id, sample_id))
 
         existing = self._session.query(CloneStats).filter(
             CloneStats.clone_id == clone_id,
             CloneStats.sample_id == sample_id).first()
+
         if existing is not None:
             return
 
         counts = self._session.query(
             func.count(Sequence.seq_id).label('unique'),
-            func.sum(Sequence.copy_number_in_clone).label('total')
+            func.sum(Sequence.copy_number_in_sample).label('total')
         ).filter(
             Sequence.clone_id == clone_id,
-            Sequence.sample_id == sample_id,
-            Sequence.copy_number_in_sample > 0
+            Sequence.copy_number_in_clone > 0
         ).first()
 
-        sample_mutations = CloneMutations(
-            self._session,
-            self._session.query(Clone).filter(
-                Clone.id == clone_id).first()
-        ).calculate(
-            commit_seqs=True, limit_samples=[sample_id],
-            mode=CloneMutations.MODE_SAMPLES_ONLY
-        )[sample_id]
+        if sample_id != 0:
+            sample_mutations = CloneMutations(
+                self._session,
+                self._session.query(Clone).filter(Clone.id == clone_id).first()
+            ).calculate(
+                commit_seqs=True, limit_samples=[sample_id],
+            )[sample_id]
+        else:
+            sample_mutations = CloneMutations(
+                self._session,
+                self._session.query(Clone).filter(Clone.id == clone_id).first()
+            ).calculate()[0]
 
         selection_pressure = baseline.get_selection(
             self._session, clone_id, self._baseline_path,
-            samples=[sample_id], temp_dir=self._baseline_temp)
+            samples=[sample_id] if sample_id != 0 else None,
+            temp_dir=self._baseline_temp)
 
         self._session.add(CloneStats(
             clone_id=clone_id,
@@ -70,48 +72,6 @@ class CloneStatsWorker(concurrent.Worker):
         self._total_completed += 1
         if self._total_completed % 1000 == 0:
             self._session.commit()
-
-    def _total_stats(self, worker_id, clone_id):
-        existing = self._session.query(CloneStats).filter(
-            CloneStats.clone_id == clone_id,
-            CloneStats.sample_id == 0).first()
-        if existing is not None:
-            return
-
-        self._print(worker_id, 'Clone {}, all samples'.format(clone_id))
-        # Get the counts for the entire clone
-        counts = self._session.query(
-            func.count(Sequence.seq_id).label('unique'),
-            func.sum(Sequence.copy_number_in_clone).label('total')
-        ).filter(
-            Sequence.clone_id == clone_id,
-            Sequence.copy_number_in_clone > 0
-        ).first()
-
-        total_mutations = CloneMutations(
-            self._session,
-            self._session.query(Clone).filter(
-                Clone.id == clone_id).first()
-        ).calculate(mode=CloneMutations.MODE_TOTAL_ONLY)
-
-        # Get selection pressure with Baseline
-        selection_pressure = baseline.get_selection(
-            self._session, clone_id, self._baseline_path,
-            temp_dir=self._baseline_temp)
-
-        # Add the statistics for the whole clone, denoted with a 0 in
-        # the sample_id field
-        self._session.add(CloneStats(
-            clone_id=clone_id,
-            sample_id=0,
-            unique_cnt=counts.unique,
-            total_cnt=counts.total,
-            mutations=json.dumps(total_mutations.get_all()),
-            selection_pressure=json.dumps(selection_pressure)
-        ))
-
-    def cleanup(self, worker_id):
-        self._session.commit()
 
 
 def run_clone_stats(session, args):
