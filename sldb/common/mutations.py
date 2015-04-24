@@ -142,8 +142,8 @@ class CloneMutations(object):
         if limit_samples is not None:
             sample_ids = limit_samples
         else:
-            sample_ids = map(lambda r: r.sample_ id, self._session.query(
-                    distinct(Sequence.sample_id)
+            sample_ids = map(lambda r: r.sample_id, self._session.query(
+                    distinct(Sequence.sample_id).label('sample_id')
                 ).filter(
                     Sequence.clone == self._clone
                 ).all()
@@ -155,17 +155,19 @@ class CloneMutations(object):
                 Sequence.sample_id == sample_id,
                 Sequence.copy_number_in_sample > 0
             )
-            sample_mutations[sample_id] = self._get_contextual_mutations(seqs)
+            sample_mutations[sample_id] = self._get_contextual_mutations(
+                seqs, commit_seqs)
 
         if limit_samples is None:
             seqs = self._session.query(Sequence).filter(
                 Sequence.clone == self._clone,
-                Sequence.copy_number_in_clone > 0
+                Sequence.copy_number_in_clone > 0,
             )
-            sample_mutation[0] = _get_contextual_mutations(seqs)
+            sample_mutations[0] = self._get_contextual_mutations(
+                seqs, commit_seqs)
         return sample_mutations
 
-    def _get_contextual_mutations(self, seqs):
+    def _get_contextual_mutations(self, seqs, commit_seqs):
         context_mutations = ContextualMutations()
         for seq in seqs:
             seq_mutations = {}

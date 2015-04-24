@@ -79,7 +79,7 @@ def _make_input_file(session, input_path, clone, samples):
             query = session.query(
                 Sequence.sequence
             ).filter(
-                Sequence.clone_id == clone_id,
+                Sequence.clone == clone,
                 Sequence.copy_number_in_clone > 1
             )
         else:

@@ -21,11 +21,12 @@ class CloneStatsWorker(concurrent.Worker):
     def do_task(self, worker_id, args):
         clone_id = args['clone_id']
         sample_id = args['sample_id']
-        self._context_stats(worker_id, clone_id)
+        self._context_stats(worker_id, clone_id, sample_id)
 
     def _context_stats(self, worker_id, clone_id, sample_id):
         self._print(worker_id, 'Clone {}, sample {}'.format(
-            clone_id, sample_id))
+            clone_id, sample_id if sample_id != 0 else 'ALL')
+        )
 
         existing = self._session.query(CloneStats).filter(
             CloneStats.clone_id == clone_id,
