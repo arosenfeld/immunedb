@@ -151,7 +151,8 @@ class CloneMutations(object):
         clone_mutations = ContextualMutations()
 
         seqs = self._session.query(Sequence).filter(
-            Sequence.clone == self._clone)
+            Sequence.clone == self._clone,
+            Sequence.copy_number_in_clone > 0)
         if limit_samples is not None:
             seqs = seqs.filter(Sequence.sample_id.in_(limit_samples))
 

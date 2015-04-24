@@ -43,6 +43,28 @@ def _assign_identical_sequences(session, replaced_seq, subject_id, clone_id):
         }, synchronize_session=False)
 
 
+def _get_clone_eligible_seqs(seqs):
+    buckets = {}
+    eligible = set([])
+
+    for seq in seqs:
+        key = (seq.v_gene, seq.j_gene, seq.junction_num_nts)
+        if key not in eligible:
+            buckets[key] = []
+        buckets[key].append(seq)
+
+    for bucket_seqs in buckets.values():
+        for i, seq1 in enumerate(bucket_seqs):
+            pattern = seq_to_regex(seq1.sequence)
+            if seq1.copy_number_in_sample > 1:
+                eligible.add(seq1)
+            for seq2 in bucket_seqs[i+1:]:
+                if seq2 not in eligible and pattern.match(seq2) is not None:
+                    eligible.add(seq1)
+                    eligible.add(seq2)
+    return eligible
+
+
 def _get_subject_clones(session, subject_id, min_similarity, limit_alignments,
                         include_indels, min_identity, order):
     clone_cache = {}
@@ -50,24 +72,27 @@ def _get_subject_clones(session, subject_id, min_similarity, limit_alignments,
     to_update = set([])
     duplicates = 0
     query = session.query(
-        Sequence,
-        func.count(Sequence.seq_id).label('others')
-        ).filter(
-            Sequence.sample.has(subject_id=subject_id),
-            Sequence.v_match / Sequence.v_length >= min_identity,
-            Sequence.alignment.in_(limit_alignments),
-            Sequence.clone_id.is_(None),
-        )
+        Sequence.sequence,
+        Sequence.v_gene, 
+        Sequence.j_gene, 
+        Sequence.junction_num_nts, 
+        Sequence.junction_aa,
+        Sequence.copy_number_in_sample
+    ).filter(
+        Sequence.sample.has(subject_id=subject_id),
+        Sequence.v_match / Sequence.v_length >= min_identity,
+        Sequence.alignment.in_(limit_alignments),
+        Sequence.copy_number_in_sample > 0
+        Sequence.clone_id.is_(None),
+        ~Sequence.junction_aa.like('%*%')
+    )
     if not include_indels:
-        query = query.filter(
-            Sequence.probable_indel_or_misalign == 0)
+        query = query.filter(Sequence.probable_indel_or_misalign == 0)
+
     if order:
         query = query.order_by(desc(Sequence.copy_number))
 
-    query = query.group_by(Sequence.sequence_replaced).having(
-        func.sum(Sequence.copy_number) > 1)
-
-    for i, seqr in enumerate(query):
+    for i, seqr in enumerate(_get_clone_eligible_seqs(query.all())):
         if i > 0 and i % 1000 == 0:
             session.commit()
             print 'Committed {} (new clones={}, duplicates={})'.format(
@@ -75,8 +100,6 @@ def _get_subject_clones(session, subject_id, min_similarity, limit_alignments,
 
         seq = seqr.Sequence
 
-        if '*' in seq.junction_aa:
-            continue
         seq_clone = None
         # Key for cache has implicit subject_id due to function parameter
         key = (seq.v_gene, seq.j_gene, seq.junction_num_nts,
@@ -168,6 +191,7 @@ def _assign_clones_to_groups(session, subject_id, to_update):
 def _collapse_sequences(session, to_update):
     print 'Collapsing sequences'
     for clone_id in to_update:
+        # Erase the clone-collapsed copy number for all sequences in the clone
         session.query(Sequence).filter(
             Sequence.clone_id == clone_id
         ).update({
@@ -175,6 +199,7 @@ def _collapse_sequences(session, to_update):
         })
         session.flush()
 
+        # Sort the sequences in the clone by their sample-collapsed copy number
         seqs_by_size = session.query(
             Sequence.seq_id, Sequence.sample_id, Sequence.sequence,
             Sequence.copy_number_in_sample
@@ -182,21 +207,41 @@ def _collapse_sequences(session, to_update):
             Sequence.clone_id == clone_id,
             Sequence.copy_number_in_sample > 0
         ).order_by(Sequence.copy_number_in_sample).all()
+
+        # A mapping of clone-collapsed copy numbers for all sequences
         new_cns = {(s.sample_id, s.seq_id): s.copy_number_in_sample for s in
             seqs_by_size}
 
+        # Iterate over all sequences
         for i, seq1 in enumerate(seqs_by_size):
+            # If the sequences has already been collapsed to another it will
+            # have a clone-collapsed copy number of 0.  Do nothing with it.
             s1_key = (seq1.sample_id, seq1.seq_id)
             if new_cns[s1_key] == 0:
                 continue
+            # Create the regex pattern to match this sequence ignoring Ns
             pattern = seq_to_regex(seq1.sequence)
-            for j, seq2 in enumerate(seqs_by_size[i+1:]):
+            # Iterate over all sequences with a smaller clone-collapsed copy
+            # number
+            for seq2 in seqs_by_size[i+1:]:
                 s2_key = (seq2.sample_id, seq2.seq_id)
                 if (new_cns[s2_key] > 0 
                         and pattern.match(seq2.sequence) is not None):
+                    # If seq2 should collapse to seq1, increment the
+                    # clone-collapsed copy number for seq1 by that of seq2
+                    # and set the clone-collapsed copy number of seq2 to 0
                     new_cns[s1_key] += seq2.copy_number_in_sample
-                    new_cns[s2_key] = 0 
+                    new_cns[s2_key] = 0
+                    # Update seq2's clone-collapse mapping to seq1
+                    session.query(Sequence).filter(
+                        Sequence.sample_id == seq2.sample_id,
+                        Sequence.seq_id == seq2.seq_id
+                    ).update({
+                        'collapse_to_clone_sample_id': seq1.sample_id,
+                        'collapse_to_clone_seq_id': seq1.seq_id,
+                    })
 
+        # Add the new clone-collapsed copy numbers to the database
         for (sample_id, seq_id), cn in new_cns.iteritems():
             session.query(Sequence).filter(
                 Sequence.sample_id == sample_id,

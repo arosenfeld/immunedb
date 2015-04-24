@@ -333,6 +333,10 @@ class Sequence(BaseData):
     """
     __tablename__ = 'sequences'
     __table_args__ = (Index('genes', 'v_gene', 'j_gene'),
+                      Index('clone_collapse', 'collapse_to_clone_sample_id',
+                            'collapse_to_clone_seq_id'),
+                      Index('subject_collapse', 'collapse_to_subject_sample_id',
+                            'collapse_to_subject_seq_id'),
                       {'mysql_engine': 'TokuDB'})
     __mapper_args__ = {'extension': SequenceExtension()}
 
@@ -366,7 +370,6 @@ class Sequence(BaseData):
     functional = Column(Boolean, index=True)
     stop = Column(Boolean)
     copy_number = Column(Integer, index=True)
-    copy_number_in_sample = Column(Integer, index=True)
 
     # This is just length(junction_nt) but is included for fast statistics
     # generation over the index
@@ -385,8 +388,19 @@ class Sequence(BaseData):
     clone_id = Column(Integer, ForeignKey(Clone.id), index=True)
     clone = relationship(Clone, backref=backref('sequences',
                          order_by=seq_id))
-    copy_number_in_clone = Column(Integer, index=True)
     mutations_from_clone = Column(MEDIUMTEXT)
+    
+    copy_number_in_sample = Column(Integer, index=True)
+    collapse_to_sample_seq_id = Column(String(128), index=True)
+
+    copy_number_in_subject = Column(Integer, index=True)
+    collapse_to_subject_sample_id = Column(Integer)
+    collapse_to_subject_seq_id = Column(String(128))
+
+    copy_number_in_clone = Column(Integer, index=True)
+    collapse_to_clone_sample_id = Column(Integer)
+    collapse_to_clone_seq_id = Column(String(128))
+
 
 
 class DuplicateSequence(BaseData):

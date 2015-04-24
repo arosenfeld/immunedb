@@ -42,7 +42,7 @@ class CloneStatsWorker(concurrent.Worker):
         ).filter(
             Sequence.clone_id == clone_id,
             Sequence.sample_id == sample_id,
-            Sequence.copy_number_in_clone > 0
+            Sequence.copy_number_in_sample > 0
         ).first()
 
         sample_mutations = CloneMutations(
@@ -140,7 +140,10 @@ def run_clone_stats(session, args):
         })
         for sid in map(lambda c: c.sample_id, session.query(
                 distinct(Sequence.sample_id).label('sample_id')
-                ).filter(Sequence.clone_id == cid)):
+                ).filter(
+                    Sequence.clone_id == cid,
+                    Sequence.copy_number_in_sample > 0
+                )):
             tasks.add_task({
                 'clone_id': cid,
                 'sample_id': sid

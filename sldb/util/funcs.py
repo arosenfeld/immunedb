@@ -4,7 +4,7 @@ import re
 
 def seq_to_regex(seq):
     return re.compile(''.join(
-        map(lambda c: '[{}|N]'.format(c) if c != 'N' else '.', seq)
+        map(lambda c: '[{}N]'.format(c) if c != 'N' else '[ATCGN]', seq)
     ))
 
 
