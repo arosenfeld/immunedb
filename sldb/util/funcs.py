@@ -1,5 +1,38 @@
-import hashlib
 import re
+
+from sldb.common.models import Sequence
+
+
+def collapse_seqs(session, seqs, copy_field, collapse_copy_field,
+                  collapse_seq_id_field, collapse_sample_id_field=None):
+    new_cns = {(s.sample_id, s.seq_id): getattr(s, copy_field) for s in seqs}
+
+    for i, seq1 in enumerate(seqs):
+        seq1_key = (seq1.sample_id, seq1.seq_id)
+        if new_cns[seq1_key] == 0:
+            continue
+        pattern = seq_to_regex(seq1.sequence)
+        for j, seq2 in enumerate(seqs[i+1:]):
+            seq2_key = (seq2.sample_id, seq2.seq_id)
+            if (new_cns[seq2_key] > 0 
+                    and pattern.match(seq2.sequence) is not None):
+                new_cns[seq1_key] += getattr(seq2, copy_field)
+                new_cns[seq2_key] = 0 
+                update_dict = {collapse_seq_id_field: seq1.seq_id}
+                if collapse_sample_id_field is not None:
+                    update_dict[collapse_sample_id_field] = seq1.sample_id
+                session.query(Sequence).filter(
+                    Sequence.sample_id == seq2.sample_id,
+                    Sequence.seq_id == seq2.seq_id
+                ).update(update_dict)
+
+    for (sample_id, seq_id), cn in new_cns.iteritems():
+        session.query(Sequence).filter(
+            Sequence.sample_id == sample_id,
+            Sequence.seq_id == seq_id
+        ).update({
+            collapse_copy_field: cn
+        })
 
 
 def seq_to_regex(seq):
@@ -35,10 +68,6 @@ def page_query(q, per=10000, updating=False):
         offset += per
         if not r:
             break
-
-
-def hash(sample_id, sequence):
-    return hashlib.sha1('{}{}'.format(sample_id, sequence)).hexdigest()
 
 
 def find_streak_position(s1, s2, max_streak):

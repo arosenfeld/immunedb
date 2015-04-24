@@ -1,4 +1,5 @@
 import datetime
+import hashlib
 
 from sqlalchemy import (Column, Boolean, Integer, String, Text, Date, DateTime,
                         ForeignKey, UniqueConstraint, Index, func)
@@ -7,7 +8,6 @@ from sqlalchemy.orm import relationship, backref
 from sqlalchemy.orm.interfaces import MapperExtension
 from sqlalchemy.dialects.mysql import TEXT, MEDIUMTEXT, BINARY
 
-import sldb.util.funcs as funcs
 from sldb.common.settings import DATABASE_SETTINGS
 
 BaseMaster = declarative_base(
@@ -266,10 +266,9 @@ class CloneStats(BaseData):
 
 class SequenceExtension(MapperExtension):
     def before_insert(self, mapper, connection, instance):
-        instance.sample_seq_hash = funcs.hash(
-            instance.sample_id,
-            instance.sequence
-        )
+        instance.sample_seq_hash = hashlib.sha1('{}{}'.format(
+            instance.sample_id, instance.sequence)
+        ).hexdigest()
         instance.junction_num_nts = len(instance.junction_nt)
 
 

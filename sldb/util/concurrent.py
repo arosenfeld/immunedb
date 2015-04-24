@@ -23,8 +23,10 @@ class TaskQueue(object):
 
     def add_worker(self, worker):
         self._workers.append(
-            mp.Process(target=self._func_wrap, args=(len(self._workers),
-                       worker))
+            mp.Process(
+                target=self._func_wrap,
+                args=(len(self._workers) + 1, worker)
+            )
         )
 
     def start(self, block=True):
