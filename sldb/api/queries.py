@@ -600,12 +600,12 @@ def get_sequence(session, sample_id, seq_id):
                     Sequence.seq_id == dup_seq.duplicate_seq_id).first()
 
     ret = _fields_to_dict([
-        'seq_id', 'alignment', 'v_gene', 'j_gene',
-        'junction_nt', 'junction_aa', 'germline', 'v_match', 'j_match',
-        'v_length', 'j_length', 'in_frame', 'functional', 'stop',
-        'copy_number', 'sequence', 'pre_cdr3_length', 'pre_cdr3_match',
-        'post_cdr3_length', 'post_cdr3_match', 'pad_length', 'num_gaps',
-        'probable_indel_or_misalign', 'quality'], seq)
+        'seq_id', 'alignment', 'v_gene', 'j_gene', 'junction_nt', 'junction_aa',
+        'germline', 'v_match', 'j_match', 'v_length', 'j_length', 'in_frame',
+        'functional', 'stop', 'copy_number', 'sequence', 'pre_cdr3_length',
+        'pre_cdr3_match', 'post_cdr3_length', 'post_cdr3_match', 'pad_length',
+        'num_gaps', 'probable_indel_or_misalign', 'quality',
+    ], seq)
     ret['sample'] = _sample_to_dict(seq.sample)
     ret['read_start'] = re.compile('[N\-]*').match(
         seq.sequence).span()[1] or 0
@@ -621,23 +621,12 @@ def get_sequence(session, sample_id, seq_id):
     else:
         ret['clone'] = None
 
-    ret['possible_duplicates'] = []
-    ret['total_copy_number'] = ret['copy_number']
-    for dup in session.query(Sequence).filter(
-            Sequence.sequence_replaced == seq.sequence_replaced,
-            Sequence.sample.has(subject_id=seq.sample.subject_id),
-            Sequence.seq_id != seq.seq_id)\
-            .order_by(Sequence.sample_id):
-        ret['possible_duplicates'].append({
-            'seq_id': dup.seq_id,
-            'sample': {
-                'id': dup.sample.id,
-                'name': dup.sample.name,
-            },
-            'alignment': dup.alignment,
-            'copy_number': dup.copy_number,
-        })
-        ret['total_copy_number'] += dup.copy_number
+    ret['collapse_info'] = _fields_to_dict([
+        'copy_number_in_sample', 'copy_number_in_subject',
+        'copy_number_in_clone', 'collapse_to_sample_seq_id',
+        'collapse_to_subject_sample_id', 'collapse_to_subject_seq_id',
+        'collapse_to_clone_sample_id', 'collapse_to_clone_seq_id'
+    ])
 
     return ret
 

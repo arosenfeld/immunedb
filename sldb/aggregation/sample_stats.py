@@ -16,8 +16,15 @@ import sldb.util.concurrent as concurrent
 import sldb.util.lookups as lookups
 
 _dist_fields = [
-    'v_match', 'j_match', 'j_length', 'v_gene', 'j_gene', 'copy_number',
-    'v_length', 'v_identity', 'cdr3_length'
+    'v_match',
+    'j_match',
+    'j_length',
+    'v_gene',
+    'j_gene',
+    ('copy_number', lambda s: s.copy_number_in_sample),
+    'v_length',
+    'v_identity',
+    'cdr3_length'
 ]
 
 _seq_contexts = {
@@ -39,7 +46,7 @@ _seq_contexts = {
     },
     'unique_multiple': {
         'record_filter': lambda seq: seq.functional and
-        seq.copy_number_in_sample > 1,
+            seq.copy_number_in_sample > 1,
         'use_copy': False
     },
 }
@@ -82,7 +89,12 @@ class ContextStats(object):
             self.functional_cnt += add
 
         for field in _dist_fields:
-            value = getattr(seq_record, field)
+            if isinstance(field, tuple):
+                value = field[1](seq_record)
+                field = field[0]
+            else:
+                value = getattr(seq_record, field)
+
             if not isinstance(value, str):
                 value = float(value)
 
@@ -190,7 +202,6 @@ class SampleStatsWorker(concurrent.Worker):
 
         # TODO: This should be automatically generated from _dist_fields
         query = self._session.query(
-            Sequence.sequence_replaced,
             Sequence.quality,
             Sequence.sample_id,
             Sequence.v_match,
@@ -237,7 +248,7 @@ class SampleStatsWorker(concurrent.Worker):
             func.avg(Sequence.j_length).label('j_length'),
             Sequence.v_gene,
             Sequence.j_gene,
-            func.count(Sequence.seq_id).label('copy_number'),
+            func.count(Sequence.seq_id).label('copy_number_in_sample'),
             (Sequence.v_length + Sequence.num_gaps).label('v_length'),
             (
                 func.ceil(100 * Sequence.v_match / Sequence.v_length)

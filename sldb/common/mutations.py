@@ -29,14 +29,14 @@ class ContextualMutations(object):
             return 'CDR3'
         return 'FR4'
 
-    def add_mutation(self, seq_replaced, cdr3_num_nts, mutation, from_aa,
+    def add_mutation(self, seq, cdr3_num_nts, mutation, from_aa,
                      intermediate_seq_aa, final_seq_aa, copy_number):
         pos, _, _, mtype = mutation
         region = self._get_region(pos, cdr3_num_nts)
-        self._add_to_region(seq_replaced, cdr3_num_nts, mutation, from_aa,
+        self._add_to_region(seq, cdr3_num_nts, mutation, from_aa,
                             intermediate_seq_aa, final_seq_aa, copy_number,
                             region)
-        self._add_to_region(seq_replaced, cdr3_num_nts, mutation, from_aa,
+        self._add_to_region(seq, cdr3_num_nts, mutation, from_aa,
                             intermediate_seq_aa, final_seq_aa, copy_number,
                             'ALL')
 
@@ -46,7 +46,7 @@ class ContextualMutations(object):
             self.position_muts[pos][mtype] = 0
         self.position_muts[pos][mtype] += 1
 
-    def _add_to_region(self, seq_replaced, cdr3_num_nts, mutation, from_aa,
+    def _add_to_region(self, seq, cdr3_num_nts, mutation, from_aa,
                        intermediate_seq_aa, final_seq_aa, copy_number, region):
         pos, from_nt, to_nt, mtype = mutation
         if region not in self.region_muts:
@@ -181,7 +181,7 @@ class CloneMutations(object):
 
                 mutation = (i, self._germline[i], seq.sequence[i], mtype)
                 context_mutations.add_mutation(
-                    seq.sequence_replaced, self._clone.cdr3_num_nts,
+                    seq.sequence, self._clone.cdr3_num_nts,
                     mutation, from_aa, intermediate_aa,
                     self._get_aa_at(seq.sequence, i), seq.copy_number)
 
