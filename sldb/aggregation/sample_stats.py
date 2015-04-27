@@ -38,7 +38,8 @@ _seq_contexts = {
         'use_copy': False
     },
     'unique_multiple': {
-        'record_filter': lambda seq: seq.functional and seq.copy_number_in_clone > 1,
+        'record_filter': lambda seq: seq.functional and
+        seq.copy_number_in_sample > 1,
         'use_copy': False
     },
 }
@@ -201,7 +202,7 @@ class SampleStatsWorker(concurrent.Worker):
             Sequence.stop,
             Sequence.functional,
             Sequence.copy_number,
-            Sequence.copy_number_in_clone,
+            Sequence.copy_number_in_sample,
             (Sequence.v_length + Sequence.num_gaps).label('v_length'),
             (
                 func.ceil(100 * Sequence.v_match / Sequence.v_length)

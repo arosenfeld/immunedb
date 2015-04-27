@@ -16,9 +16,12 @@ def collapse_seqs(session, seqs, copy_field, collapse_copy_field,
             seq2_key = (seq2.sample_id, seq2.seq_id)
             if (new_cns[seq2_key] > 0 
                     and pattern.match(seq2.sequence) is not None):
-                new_cns[seq1_key] += getattr(seq2, copy_field)
+                new_cns[seq1_key] += new_cns[seq2_key]
                 new_cns[seq2_key] = 0 
-                update_dict = {collapse_seq_id_field: seq1.seq_id}
+                update_dict = {
+                    collapse_seq_id_field: seq1.seq_id,
+                    collapse_copy_field: 0
+                }
                 if collapse_sample_id_field is not None:
                     update_dict[collapse_sample_id_field] = seq1.sample_id
                 session.query(Sequence).filter(
@@ -27,12 +30,18 @@ def collapse_seqs(session, seqs, copy_field, collapse_copy_field,
                 ).update(update_dict)
 
     for (sample_id, seq_id), cn in new_cns.iteritems():
+        if cn == 0:
+            continue
+        update_dict = {
+            collapse_copy_field: cn,
+            collapse_seq_id_field: seq_id
+        }
+        if collapse_sample_id_field is not None:
+            update_dict[collapse_sample_id_field] = sample_id
         session.query(Sequence).filter(
             Sequence.sample_id == sample_id,
             Sequence.seq_id == seq_id
-        ).update({
-            collapse_copy_field: cn
-        })
+        ).update(update_dict)
 
 
 def seq_to_regex(seq):

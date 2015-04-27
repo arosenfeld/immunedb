@@ -355,6 +355,7 @@ def collapse_samples(args, samples_to_update):
         tasks.add_worker(CollapseWorker(worker_session))
     tasks.start()
 
+
 def collapse_subjects(args, samples_to_update):
     session = config.init_db(args.master_db_config, args.data_db_config)
     tasks = concurrent.TaskQueue()
@@ -369,7 +370,6 @@ def collapse_subjects(args, samples_to_update):
             Sequence.v_gene, Sequence.j_gene, Sequence.junction_num_nts
         ).filter(
             Sequence.sample.has(subject_id=subject_id),
-            Sequence.copy_number_in_sample > 0
         ).group_by(
             Sequence.v_gene, Sequence.j_gene, Sequence.junction_num_nts
         )
@@ -389,8 +389,8 @@ def collapse_subjects(args, samples_to_update):
         tasks.add_worker(CollapseWorker(worker_session))
     tasks.start()
 
+
 def run_identify(session, args):
-    '''
     mod_log.make_mod('identification', session=session, commit=True,
                      info=vars(args))
     session.close()
@@ -431,9 +431,8 @@ def run_identify(session, args):
                                               samples_to_update,
                                               lock))
     tasks.start()
-    '''
-    samples_to_update = map(lambda r: r.id, session.query(Sample.id).all())
-    #print 'Collapsing samples...'
-    #collapse_samples(args, samples_to_update)
+    samples_to_update = map(lambda r:r.id, session.query(Sample.id).all())
+    print 'Collapsing samples...'
+    collapse_samples(args, samples_to_update)
     print 'Collapsing subjects...'
     collapse_subjects(args, samples_to_update)

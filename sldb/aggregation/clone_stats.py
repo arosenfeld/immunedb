@@ -16,7 +16,6 @@ class CloneStatsWorker(concurrent.Worker):
         self._session = session
         self._baseline_path = baseline_path
         self._baseline_temp = baseline_temp
-        self._total_completed = 0
 
     def do_task(self, worker_id, args):
         clone_id = args['clone_id']
@@ -35,15 +34,15 @@ class CloneStatsWorker(concurrent.Worker):
         if existing is not None:
             return
 
-        counts = self._session.query(
-            func.count(Sequence.seq_id).label('unique'),
-            func.sum(Sequence.copy_number_in_sample).label('total')
-        ).filter(
-            Sequence.clone_id == clone_id,
-            Sequence.copy_number_in_clone > 0
-        ).first()
-
         if sample_id != 0:
+            counts = self._session.query(
+                func.count(Sequence.seq_id).label('unique'),
+                func.sum(Sequence.copy_number_in_sample).label('total')
+            ).filter(
+                Sequence.clone_id == clone_id,
+                Sequence.copy_number_in_sample > 0
+            ).first()
+
             sample_mutations = CloneMutations(
                 self._session,
                 self._session.query(Clone).filter(Clone.id == clone_id).first()
@@ -51,6 +50,14 @@ class CloneStatsWorker(concurrent.Worker):
                 commit_seqs=True, limit_samples=[sample_id],
             )[sample_id]
         else:
+            counts = self._session.query(
+                func.count(Sequence.seq_id).label('unique'),
+                func.sum(Sequence.copy_number_in_clone).label('total')
+            ).filter(
+                Sequence.clone_id == clone_id,
+                Sequence.copy_number_in_clone > 0
+            ).first()
+
             sample_mutations = CloneMutations(
                 self._session,
                 self._session.query(Clone).filter(Clone.id == clone_id).first()
@@ -70,9 +77,9 @@ class CloneStatsWorker(concurrent.Worker):
             selection_pressure=json.dumps(selection_pressure)
         ))
 
-        self._total_completed += 1
-        if self._total_completed % 1000 == 0:
-            self._session.commit()
+    def cleanup(self, worker_id):
+        self._session.commit()
+        self._session.close()
 
 
 def run_clone_stats(session, args):
