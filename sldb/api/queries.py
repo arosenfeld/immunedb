@@ -638,7 +638,12 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
     res = []
     query = session.query(Sequence).join(Sample).outerjoin(Clone)
 
+    copy_number_field = 'copy_number'
     if filters is not None:
+        if 'collapsed' in filters and filters['collapsed'] != 'all':
+            copy_number_field = getattr(
+                Sequence, 'copy_number_in_{}'.format(filters['collapsed'])
+            )
         for key, value in filters.iteritems():
             if value in [None, True, False]:
                 continue
@@ -649,9 +654,11 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
                 elif key == 'in_frame':
                     query = query.filter(Sequence.in_frame == int(value))
                 elif key == 'min_copy_number':
-                    query = query.filter(Sequence.copy_number >= int(value))
+                    query = query.filter(copy_number_field >= int(value))
                 elif key == 'max_copy_number':
-                    query = query.filter(Sequence.copy_number <= int(value))
+                    query = query.filter(copy_number_field <= int(value))
+                elif key == 'collapsed':
+                    query = query.filter(copy_number_field > 0)
                 else:
                     query = query.filter(get_field(key).like(
                         value.replace('*', '%')))
@@ -664,6 +671,16 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
             or not filters['show_indel']):
         query = query.filter(Sequence.probable_indel_or_misalign == 0)
 
+    if order_field == 'copy_number':
+        order_field = copy_number_field
+    else:
+        order_field = getattr(Sequence, order_field)
+
+    if order_dir == 'asc':
+        query = query.order_by(order_field)
+    else:
+        query = query.order_by(desc(order_field))
+
     if paging is not None:
         page, per_page = paging
         query = query.offset((page - 1) * per_page).limit(per_page)
@@ -673,7 +690,8 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
             ['seq_id', 'alignment', 'v_gene', 'j_gene', 'v_match', 'j_match',
              'v_length', 'j_length', 'junction_num_nts', 'junction_aa',
              'in_frame', 'functional', 'stop', 'probable_indel_or_misalign',
-             'copy_number'],
+             'copy_number', 'copy_number_in_sample', 'copy_number_in_subject',
+             'copy_number_in_clone'],
             row)
 
         fields['sample'] = _sample_to_dict(row.sample)
