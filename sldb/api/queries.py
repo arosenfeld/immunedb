@@ -10,6 +10,7 @@ from sqlalchemy.sql.expression import false, true
 from sqlalchemy.ext.declarative import DeclarativeMeta
 
 import sldb.util.lookups as lookups
+import sldb.util.funcs as funcs
 from sldb.common.models import *
 from sldb.common.mutations import CloneMutations, threshold_mutations
 from sldb.identification.v_genes import VGene
@@ -621,12 +622,7 @@ def get_sequence(session, sample_id, seq_id):
     else:
         ret['clone'] = None
 
-    ret['collapse_info'] = _fields_to_dict([
-        'copy_number_in_sample', 'copy_number_in_subject',
-        'copy_number_in_clone', 'collapse_to_sample_seq_id',
-        'collapse_to_subject_sample_id', 'collapse_to_subject_seq_id',
-        'collapse_to_clone_sample_id', 'collapse_to_clone_seq_id'
-    ])
+    ret['collapse_info'] = funcs.trace_seq_collapses(session, seq)
 
     return ret
 

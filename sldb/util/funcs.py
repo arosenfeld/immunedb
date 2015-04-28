@@ -3,6 +3,55 @@ import re
 from sldb.common.models import Sequence
 
 
+def trace_seq_collapses(session, seq):
+    sample_col = session.query(
+        Sequence.collapse_to_subject_seq_id,
+        Sequence.collapse_to_subject_sample_id,
+        Sequence.copy_number_in_sample
+    ).filter(
+        Sequence.seq_id == seq.collapse_to_sample_seq_id,
+        Sequence.sample_id == seq.sample_id
+    ).first()
+
+    subject_col = session.query(
+        Sequence.collapse_to_clone_seq_id,
+        Sequence.collapse_to_clone_sample_id,
+        Sequence.copy_number_in_subject
+    ).filter(
+        Sequence.seq_id == sample_col.collapse_to_subject_seq_id,
+        Sequence.sample_id == sample_col.collapse_to_subject_sample_id,
+    ).first()
+
+    clone_col = session.query(
+        Sequence.copy_number_in_clone
+    ).filter(
+        Sequence.seq_id == subject_col.collapse_to_clone_seq_id,
+        Sequence.sample_id == subject_col.collapse_to_clone_sample_id,
+    ).first()
+
+    ret = {
+        'sample': {
+            'seq_id': seq.collapse_to_sample_seq_id,
+            'sample_id': seq.sample_id,
+            'copy_number': sample_col.copy_number_in_sample
+        },
+        'subject': {
+            'seq_id': sample_col.collapse_to_subject_seq_id,
+            'sample_id': sample_col.collapse_to_subject_sample_id,
+            'copy_number': subject_col.copy_number_in_subject
+        },
+    }
+
+    if clone_col is not None:
+        ret['clone'] = {
+            'seq_id': subject_col.collapse_to_clone_seq_id,
+            'sample_id': subject_col.collapse_to_clone_sample_id,
+            'copy_number': clone_col.copy_number_in_clone
+        }
+
+    return ret
+
+
 def collapse_seqs(session, seqs, copy_field, collapse_copy_field,
                   collapse_seq_id_field, collapse_sample_id_field=None):
     new_cns = {(s.sample_id, s.seq_id): getattr(s, copy_field) for s in seqs}
@@ -14,10 +63,10 @@ def collapse_seqs(session, seqs, copy_field, collapse_copy_field,
         pattern = seq_to_regex(seq1.sequence)
         for seq2 in seqs[i+1:]:
             seq2_key = (seq2.sample_id, seq2.seq_id)
-            if (new_cns[seq2_key] > 0 
+            if (new_cns[seq2_key] > 0
                     and pattern.match(seq2.sequence) is not None):
                 new_cns[seq1_key] += new_cns[seq2_key]
-                new_cns[seq2_key] = 0 
+                new_cns[seq2_key] = 0
                 update_dict = {
                     collapse_seq_id_field: seq1.seq_id,
                     collapse_copy_field: 0
