@@ -41,8 +41,9 @@ class NJWorker(concurrent.Worker):
             tree = self._get_tree(newick, germline_seq, remove_muts)
         except:
             self._print('[ERROR] Could not get tree for {}'.format(
-                clone))
+                clone_inst.id))
             return
+
         tree.set_outgroup('germline')
         tree.search_nodes(name='germline')[0].delete()
 
@@ -67,11 +68,10 @@ class NJWorker(concurrent.Worker):
             Sequence.seq_id,
             Sequence.sequence
         ).filter(
-            Sequence.clone_id == clone_id
+            Sequence.clone_id == clone_id,
+            Sequence.copy_number_in_clone > 0
         ).order_by(
             Sequence.v_length
-        ).group_by(
-            Sequence.sequence_replaced
         )
         for i, seq in enumerate(q):
             seqs[base64.b64encode(seq.seq_id)] = seq.sequence
@@ -103,17 +103,16 @@ class NJWorker(concurrent.Worker):
                 seq = self._session.query(Sequence).filter(
                     Sequence.seq_id == name
                 ).first()
+                tissues = set([])
+                subsets = set([])
+                for collapsed_seq in _get_seqs_collapsed_to(
+                        self._session, seq):
+                    tissues.add(collapsed_seq.sample.tissue)
+                    subsets.add(collapsed_seq.sample.subset)
+
                 node.name = name
-                sample_info = self._session.query(Sequence).filter(
-                    Sequence.sequence_replaced == seq.sequence_replaced,
-                    Sequence.clone_id == seq.clone_id
-                ).all()
-                seq_ids = [seq.seq_id]
-                tissues = set(map(lambda s: s.sample.tissue, sample_info))
-                subsets = set(map(lambda s: s.sample.subset, sample_info))
-                node.add_feature('seq_ids', seq_ids)
-                node.add_feature('copy_number', sum(map(
-                    lambda seq: seq.copy_number, sample_info)))
+                node.add_feature('seq_ids', [seq.seq_id])
+                node.add_feature('copy_number', seq.copy_number_in_clone)
                 node.add_feature('tissues', map(str, tissues))
                 node.add_feature('subsets', map(str, subsets))
                 modified_seq = _remove_muts(seq.sequence_replaced, remove_muts,
@@ -125,6 +124,22 @@ class NJWorker(concurrent.Worker):
 
         return tree
 
+
+def _get_seqs_collapsed_to(session, seq):
+    subject_level_seqs = session.query(
+        Sequence
+    ).filter(
+        Sequence.collapse_to_clone_seq_id == seq.seq_id,
+        Sequence.collapse_to_clone_sample_id == seq.sample_id,
+    )
+
+    for sub_seq in subject_level_seqs:
+        sample_level_seqs = session.query(Sequence).filter(
+            Sequence.collapse_to_subject_seq_id == sub_seq.seq_id,
+            Sequence.collapse_to_subject_sample_id == sub_seq.sample_id
+            )
+        for sample_seq in sample_level_seqs:
+            yield sample_seq
 
 def _remove_muts(seq, removes, germline_seq):
     for mut in removes:

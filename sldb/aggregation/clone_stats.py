@@ -40,7 +40,8 @@ class CloneStatsWorker(concurrent.Worker):
                 func.sum(Sequence.copy_number_in_sample).label('total')
             ).filter(
                 Sequence.clone_id == clone_id,
-                Sequence.copy_number_in_sample > 0
+                Sequence.copy_number_in_sample > 0,
+                Sequence.sample_id == sample_id
             ).first()
 
             sample_mutations = CloneMutations(
