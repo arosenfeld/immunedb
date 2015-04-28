@@ -219,7 +219,10 @@ class SampleStatsWorker(concurrent.Worker):
                 func.ceil(100 * Sequence.v_match / Sequence.v_length)
             ).label('v_identity'),
             Sequence.junction_num_nts.label('cdr3_length'),
-        ).filter(Sequence.sample_id == sample_id)
+        ).filter(
+            Sequence.sample_id == sample_id,
+            Sequence.copy_number_in_sample > 0
+        )
 
         if not include_outliers and min_cdr3 is not None:
             query = query.filter(Sequence.junction_num_nts >= min_cdr3,
@@ -243,20 +246,23 @@ class SampleStatsWorker(concurrent.Worker):
         # TODO: This should be automatically generated from _dist_fields
         query = self._session.query(
             Sequence.clone_id,
-            func.avg(Sequence.v_match).label('v_match'),
-            func.avg(Sequence.j_match).label('j_match'),
-            func.avg(Sequence.j_length).label('j_length'),
+            func.round(func.avg(Sequence.v_match)).label('v_match'),
+            func.round(func.avg(Sequence.j_match)).label('j_match'),
+            func.round(func.avg(Sequence.j_length)).label('j_length'),
             Sequence.v_gene,
             Sequence.j_gene,
             func.count(Sequence.seq_id).label('copy_number_in_sample'),
-            (Sequence.v_length + Sequence.num_gaps).label('v_length'),
-            (
-                func.ceil(100 * Sequence.v_match / Sequence.v_length)
+            func.round(
+                func.avg(Sequence.v_length + Sequence.num_gaps)
+            ).label('v_length'),
+            func.round(
+                func.avg(100 * Sequence.v_match / Sequence.v_length)
             ).label('v_identity'),
-            Sequence.junction_num_nts.label('cdr3_length')).filter(
-                Sequence.sample_id == sample_id,
-                ~Sequence.clone_id.is_(None)
-            )
+            Sequence.junction_num_nts.label('cdr3_length')
+        ).filter(
+            Sequence.sample_id == sample_id,
+            ~Sequence.clone_id.is_(None)
+        )
 
         if only_full_reads:
             query = query.filter(Sequence.alignment == 'R1+R2')

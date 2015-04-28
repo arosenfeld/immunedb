@@ -2,7 +2,6 @@ import re
 
 from sldb.common.models import Sequence
 
-
 def trace_seq_collapses(session, seq):
     sample_col = session.query(
         Sequence.collapse_to_subject_seq_id,
