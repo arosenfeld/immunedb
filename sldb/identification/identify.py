@@ -13,6 +13,7 @@ import sldb.common.config as config
 import sldb.common.modification_log as mod_log
 from sldb.common.models import (DuplicateSequence, NoResult, Sample, Sequence,
                                 Study, Subject)
+import sldb.identification.collapse as collapse
 from sldb.identification.vdj_sequence import VDJSequence
 from sldb.identification.v_genes import VGermlines
 import sldb.util.concurrent as concurrent
@@ -21,14 +22,14 @@ import sldb.util.lookups as lookups
 
 
 class SampleMetadata(object):
-    def __init__(self, global_config, specific_config):
-        self._global = global_config
+    def __init__(self, specific_config, global_config=None):
         self._specific = specific_config
+        self._global = global_config
 
     def get(self, key, require=True):
         if key in self._specific:
             return self._specific[key]
-        if key in self._global:
+        elif self._global is not None and key in self._global:
             return self._global[key]
         if require:
             raise Exception(('Could not find metadata for key {}'.format(key)))
@@ -36,14 +37,15 @@ class SampleMetadata(object):
 
 class IdentificationWorker(concurrent.Worker):
     def __init__(self, session, v_germlines, limit_alignments, max_vties,
-                 min_similarity, read_format, samples_to_update, sync_lock):
+                 min_similarity, read_format, samples_to_update_queue,
+                 sync_lock):
         self._session = session
         self._v_germlines = v_germlines
         self._limit_alignments = limit_alignments
         self._min_similarity = min_similarity
         self._max_vties = max_vties
         self._read_format = read_format
-        self._samples_to_update = samples_to_update
+        self._samples_to_update_queue = samples_to_update_queue
         self._sync_lock = sync_lock
 
     def do_task(self, worker_id, args):
@@ -209,11 +211,12 @@ class IdentificationWorker(concurrent.Worker):
             self._session.add_all(dup_seqs)
         self._session.commit()
 
-        self._sync_lock.acquire()
-        self._samples_to_update.add(sample.id)
-        self._sync_lock.release()
-
+        self._samples_to_update_queue.put(sample.id)
         self._print(worker_id, 'Finished sample {}'.format(sample.id))
+
+    def cleanup(self, worker_id):
+        self._print(worker_id, 'Identification worker terminating')
+        self._session.close()
 
     def _add_to_db(self, alignment, sample, vdj):
         existing = self._session.query(Sequence).filter(
@@ -273,123 +276,6 @@ class IdentificationWorker(concurrent.Worker):
         return vdj.id
 
 
-class CollapseWorker(concurrent.Worker):
-    def __init__(self, session):
-        self._session = session
-
-    def do_task(self, worker_id, args):
-        if args['type'] == 'sample':
-            self._collapse_sample(worker_id, args)
-        elif args['type'] == 'subject':
-            self._collapse_subject(worker_id, args)
-
-    def _collapse_sample(self, worker_id, args):
-        seqs = self._session.query(
-            Sequence.sample_id, Sequence.seq_id, Sequence.sequence,
-            Sequence.copy_number
-        ).filter(
-            Sequence.sample_id == args['sample_id'],
-            Sequence.v_gene == args['v_gene'],
-            Sequence.j_gene == args['j_gene'],
-            Sequence.junction_num_nts == args['junction_num_nts']
-        ).order_by(desc(Sequence.copy_number)).all()
-        self._print(worker_id, 'Collapsing bucket in sample {} with {} '
-                    'seqs'.format(args['sample_id'], len(seqs)))
-
-        funcs.collapse_seqs(
-            self._session, seqs, 'copy_number', 'copy_number_in_sample',
-            'collapse_to_sample_seq_id'
-        )
-
-    def _collapse_subject(self, worker_id, args):
-        seqs = self._session.query(
-            Sequence.sample_id, Sequence.seq_id, Sequence.sequence,
-            Sequence.copy_number_in_sample
-        ).filter(
-            Sequence.sample.has(subject_id=args['subject_id']),
-            Sequence.copy_number_in_sample > 0,
-
-            Sequence.v_gene == args['v_gene'],
-            Sequence.j_gene == args['j_gene'],
-            Sequence.junction_num_nts == args['junction_num_nts']
-        ).order_by(desc(Sequence.copy_number_in_sample)).all()
-        self._print(worker_id, 'Collapsing bucket in subject {} with {} '
-                    'seqs'.format(args['subject_id'], len(seqs)))
-
-        funcs.collapse_seqs(
-            self._session, seqs, 'copy_number_in_sample',
-            'copy_number_in_subject', 'collapse_to_subject_seq_id',
-            'collapse_to_subject_sample_id'
-        )
-
-    def cleanup(self, worker_id):
-        self._print(worker_id, 'Committing collapsed sequences')
-        self._session.commit()
-        self._session.close()
-
-
-def collapse_samples(args, samples_to_update):
-    session = config.init_db(args.master_db_config, args.data_db_config)
-    tasks = concurrent.TaskQueue()
-    for sample_id in samples_to_update:
-        buckets = session.query(
-            Sequence.v_gene, Sequence.j_gene, Sequence.junction_num_nts,
-        ).filter(
-            Sequence.sample_id == sample_id
-        ).group_by(
-            Sequence.v_gene, Sequence.j_gene, Sequence.junction_num_nts,
-        )
-        for bucket in buckets:
-            tasks.add_task({
-                'type': 'sample',
-                'sample_id': sample_id,
-                'v_gene': bucket.v_gene,
-                'j_gene': bucket.j_gene,
-                'junction_num_nts': bucket.junction_num_nts
-            })
-    session.close()
-
-    for i in range(0, args.nproc):
-        worker_session = config.init_db(args.master_db_config,
-                                        args.data_db_config)
-        tasks.add_worker(CollapseWorker(worker_session))
-    tasks.start()
-
-
-def collapse_subjects(args, samples_to_update):
-    session = config.init_db(args.master_db_config, args.data_db_config)
-    tasks = concurrent.TaskQueue()
-
-    subject_ids = map(lambda r: r.subject_id, session.query(
-        distinct(Sample.subject_id).label('subject_id')
-    ).filter(
-        Sample.id.in_(samples_to_update)
-    ).all())
-    for subject_id in subject_ids:
-        buckets = session.query(
-            Sequence.v_gene, Sequence.j_gene, Sequence.junction_num_nts
-        ).filter(
-            Sequence.sample.has(subject_id=subject_id),
-        ).group_by(
-            Sequence.v_gene, Sequence.j_gene, Sequence.junction_num_nts
-        )
-        for bucket in buckets:
-            tasks.add_task({
-                'type': 'subject',
-                'subject_id': subject_id,
-                'v_gene': bucket.v_gene,
-                'j_gene': bucket.j_gene,
-                'junction_num_nts': bucket.junction_num_nts
-            })
-
-    session.close()
-    for i in range(0, args.nproc):
-        worker_session = config.init_db(args.master_db_config,
-                                        args.data_db_config)
-        tasks.add_worker(CollapseWorker(worker_session))
-    tasks.start()
-
-
 def run_identify(session, args):
     mod_log.make_mod('identification', session=session, commit=True,
                      info=vars(args))
@@ -416,23 +302,34 @@ def run_identify(session, args):
                 tasks.add_task({
                     'path': base_dir,
                     'fn': fn,
-                    'meta': SampleMetadata(metadata[fn], metadata['all']),
+                    'meta': SampleMetadata(
+                        metadata[fn],
+                        metadata['all'] if 'all' in metadata else None
+                    ),
                 })
 
-    samples_to_update = set([])
+    samples_to_update_queue = mp.Queue()
     lock = mp.RLock()
+    workers = []
     for i in range(0, args.nproc):
         worker_session = config.init_db(args.master_db_config, args.data_db_config)
-        tasks.add_worker(IdentificationWorker(worker_session, v_germlines,
+        w = IdentificationWorker(worker_session, v_germlines,
                                               args.limit_alignments,
                                               args.max_vties,
                                               args.min_similarity / float(100),
                                               args.read_format,
-                                              samples_to_update,
-                                              lock))
+                                              samples_to_update_queue,
+                                              lock)
+
+        workers.append(w)
+        tasks.add_worker(w)
     tasks.start()
-    samples_to_update = map(lambda r:r.id, session.query(Sample.id).all())
-    print 'Collapsing samples...'
-    collapse_samples(args, samples_to_update)
-    print 'Collapsing subjects...'
-    collapse_subjects(args, samples_to_update)
+
+    samples_to_update = set([])
+    while not samples_to_update_queue.empty():
+        samples_to_update.add(samples_to_update_queue.get())
+
+    samples_to_update = map(lambda r:r.id,
+        session.query(Sample.id).filter(Sample.id >= 36).all())
+    collapse.run_collapse(session, args.master_db_config, args.data_db_config,
+                          args.nproc, samples_to_update)

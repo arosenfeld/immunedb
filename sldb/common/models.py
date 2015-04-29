@@ -332,6 +332,8 @@ class Sequence(BaseData):
     """
     __tablename__ = 'sequences'
     __table_args__ = (Index('genes', 'v_gene', 'j_gene'),
+                      Index('sample_collapse', 'collapse_to_sample_seq_id',
+                            'sample_id'),
                       Index('clone_collapse', 'collapse_to_clone_sample_id',
                             'collapse_to_clone_seq_id'),
                       Index('subject_collapse', 'collapse_to_subject_sample_id',

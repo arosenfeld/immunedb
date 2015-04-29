@@ -19,6 +19,11 @@ if __name__ == '__main__':
     parser.add_argument('--limit-alignments', nargs='+', default=['R1+R2'],
                         help='Read types to process (R1, R2, and/or '
                         'R1+R2).  Default: R1+R2')
+    parser.add_argument('--regen', action='store_true', help='If specified '
+                        'all clones (limited by subject if --subject is '
+                        'specified) will be DELETED before creating new '
+                        'clones.  Associated sequences will be re-assigned '
+                        'new clones')
     args = parser.parse_args()
 
     session = config.init_db(args.master_db_config, args.data_db_config)

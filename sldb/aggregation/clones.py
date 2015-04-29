@@ -4,8 +4,8 @@ import re
 
 import distance
 
-from sqlalchemy import desc, distinct
-from sqlalchemy.sql import func
+from sqlalchemy import and_, desc, distinct
+from sqlalchemy.sql import exists, func
 
 from sldb.common.models import *
 import sldb.common.modification_log as mod_log
@@ -163,6 +163,21 @@ def _collapse_sequences(session, to_update):
     session.commit()
 
 def _push_clones_down(session, to_update):
+    def _get_subject_assigned(sample_id, seq_id):
+        return session.query(
+            Sequence
+        ).filter(
+            Sequence.collapse_to_clone_sample_id == sample_id,
+            Sequence.collapse_to_clone_seq_id == seq_id
+        )
+
+    def _get_sample_assigned(sample_id, seq_id):
+        return session.query(
+            Sequence
+        ).filter(
+            Sequence.collapse_to_subject_sample_id == sample_id,
+            Sequence.collapse_to_subject_seq_id == seq_id
+        )
     clone_assigned = session.query(
         Sequence.sample_id,
         Sequence.seq_id,
@@ -174,23 +189,23 @@ def _push_clones_down(session, to_update):
     )
 
     for clone_seq in clone_assigned:
-        subject_assigned = session.query(
-            Sequence
-        ).filter(
-            Sequence.collapse_to_clone_sample_id == clone_seq.sample_id,
-            Sequence.collapse_to_clone_seq_id == clone_seq.seq_id
-        )
-        for subject_seq in subject_assigned:
-            subject_seq.clone_id = clone_seq.clone_id
-            sample_assigned = session.query(
-                Sequence
-            ).filter(
-                Sequence.collapse_to_subject_sample_id == subject_seq.sample_id,
-                Sequence.collapse_to_subject_seq_id == subject_seq.seq_id
-            )
-            for sample_seq in sample_assigned:
+        _get_subject_assigned(
+            clone_seq.sample_id,
+            clone_seq.seq_id
+        ).update({
+            'clone_id': clone_seq.clone_id,
+        })
+        for subject_seq in _get_subject_assigned(clone_seq.sample_id,
+                                                 clone_seq.seq_id):
+            _get_sample_assigned(
+                subject_seq.sample_id,
+                subject_seq.seq_id
+            ).update({
+                'clone_id': clone_seq.clone_id
+            })
+            for sample_seq in _get_sample_assigned(subject_seq.sample_id,
+                                                   subject_seq.seq_id):
                 # Update the sequences and everything collapsed to it in its sample
-                sample_seq.clone_id = clone_seq.clone_id
                 session.query(Sequence).filter(
                     Sequence.collapse_to_sample_seq_id == sample_seq.seq_id,
                     Sequence.sample_id == sample_seq.sample_id
@@ -207,6 +222,31 @@ def run_clones(session, args):
     mod_log.make_mod('clones', session=session, commit=True,
                      info=vars(args))
 
+    if args.regen:
+        print 'Unassigning existing clones'
+        session.query(Sequence).filter(
+            exists().where(
+                and_(Sequence.clone_id == Clone.id,
+                     Clone.subject_id.in_(subjects)
+                )
+            )
+        ).update({
+            'clone_id': None,
+        }, synchronize_session=False)
+        print 'Deleting existing clone stats'
+        session.query(CloneStats).filter(
+            exists().where(
+                and_(CloneStats.clone_id == Clone.id,
+                     Clone.subject_id.in_(subjects)
+                )
+            )
+        ).delete(synchronize_session=False)
+        print 'Deleting existing clones'
+        session.query(Clone).filter(
+            Clone.subject_id.in_(subjects)
+        ).delete(synchronize_session=False)
+        session.commit()
+
     for sid in subjects:
         print 'Assigning clones to subject', sid
         to_update = _get_subject_clones(
@@ -215,8 +255,7 @@ def run_clones(session, args):
             args.min_identity / 100.0)
         print 'Assigning clones to groups'
         _assign_clones_to_groups(session, sid, to_update)
-        to_update = map(lambda r:r.id, session.query(Clone.id).filter(
-            Clone.id != None).all())
         _collapse_sequences(session, to_update)
         print 'Pushing clone IDs down'
         _push_clones_down(session, to_update)
+        break

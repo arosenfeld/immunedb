@@ -4,6 +4,7 @@ import re
 from Bio import SeqIO
 
 from sldb.common.models import Sample, Sequence, Study, Subject
+import sldb.identification.collapse as collapse
 from sldb.identification.v_genes import VGene, get_common_seq
 import sldb.util.funcs as funcs
 import sldb.util.lookups as lookups
@@ -229,13 +230,14 @@ class DelimitedImporter(object):
         self._cached_seqs[seq] = new_seq
         self._session.add(new_seq)
 
-    def process_file(self, fh, delimiter):
+    def process_file(self, fh, delimiter, samples_to_collapse):
         for i, row in enumerate(csv.DictReader(fh, delimiter=delimiter)):
             try:
                 study, sample = self._get_models(row)
                 self._process_sequence(row, study, sample)
                 if i % 1000 == 0 and i > 0:
                     print 'Processed {} sequences'.format(i)
+                samples_to_collapse.add(sample.id)
             except Exception as ex:
                 if self._fail_action != 'pass':
                     print ('[WARNING] Unable to process row #{}: '
@@ -276,6 +278,9 @@ def run_delimited_import(session, args):
                                  args.v_addition, j_germlines, args.j_offset,
                                  args.fail_action)
 
+    samples_to_collapse = set([])
     for fn in args.files:
         with open(fn) as fh:
-            importer.process_file(fh, args.delimiter)
+            importer.process_file(fh, args.delimiter, samples_to_collapse)
+
+    collapse.run_collapse
