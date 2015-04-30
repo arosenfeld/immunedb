@@ -152,7 +152,7 @@ def run_clones(session, args):
         print 'Unassigning existing clones'
         session.query(Sequence).filter(
             exists().where(
-                and_(Sequence.clone_id == Clone.id,
+                and_(Clone.id == Sequence.clone_id,
                      Clone.subject_id.in_(subjects)
                 )
             )

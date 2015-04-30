@@ -370,7 +370,8 @@ class Sequence(BaseData):
     in_frame = Column(Boolean)
     functional = Column(Boolean, index=True)
     stop = Column(Boolean)
-    copy_number = Column(Integer, index=True)
+    copy_number = Column(Integer, index=True, server_default='0',
+                         nullable=False)
 
     # This is just length(junction_nt) but is included for fast statistics
     # generation over the index
@@ -391,14 +392,17 @@ class Sequence(BaseData):
                          order_by=seq_id))
     mutations_from_clone = Column(MEDIUMTEXT)
     
-    copy_number_in_sample = Column(Integer, index=True)
+    copy_number_in_sample = Column(Integer, index=True, server_default='0',
+                                   nullable=False)
     collapse_to_sample_seq_id = Column(String(128), index=True)
 
-    copy_number_in_subject = Column(Integer, index=True)
+    copy_number_in_subject = Column(Integer, index=True, server_default='0',
+                                    nullable=False)
     collapse_to_subject_sample_id = Column(Integer)
     collapse_to_subject_seq_id = Column(String(128))
 
-    copy_number_in_clone = Column(Integer, index=True)
+    copy_number_in_clone = Column(Integer, index=True, server_default='0',
+                                  nullable=False)
     collapse_to_clone_sample_id = Column(Integer)
     collapse_to_clone_seq_id = Column(String(128))
 

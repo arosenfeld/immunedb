@@ -1,7 +1,7 @@
 import re
 
 from sqlalchemy import and_, distinct
-from sqlalchemy.sql import desc, exists
+from sqlalchemy.sql import desc, exists, text
 
 import sldb.common.config as config
 from sldb.common.models import Clone, Sample, Sequence, Subject
@@ -214,6 +214,7 @@ def collapse_subjects(master_db_config, data_db_config, subject_ids,
 
 def collapse_clones(master_db_config, data_db_config, clone_ids,
                     nproc):
+    session = config.init_db(master_db_config, data_db_config)
     for clone_id in clone_ids:
         seqs = session.query(
             Sequence.sample_id,
@@ -222,7 +223,7 @@ def collapse_clones(master_db_config, data_db_config, clone_ids,
             Sequence.copy_number_in_subject
         ).filter(
             Sequence.clone_id == clone_id,
-            Sequence.copy_number_in_clone > 0
+            Sequence.copy_number_in_subject > 0
         ).order_by(
             desc(Sequence.copy_number_in_subject)
         ).all()
@@ -234,59 +235,55 @@ def collapse_clones(master_db_config, data_db_config, clone_ids,
 
     session.commit()
 
-'''
-def push_clones_down(session, to_update):
-    def _get_subject_assigned(sample_id, seq_id):
-        return session.query(
-            Sequence
-        ).filter(
-            Sequence.collapse_to_clone_sample_id == sample_id,
-            Sequence.collapse_to_clone_seq_id == seq_id
-        )
+    print 'Pushing clone IDs to subject sequences'
+    session.connection(mapper=Sequence).execute(text('''
+        update
+            sequences as s
+        join
+            (select seq_id, sample_id, clone_id from sequences where
+                copy_number_in_clone > 0) as j
+        on
+            (s.collapse_to_clone_seq_id=j.seq_id and
+                s.collapse_to_clone_sample_id=j.sample_id)
+        set
+            s.clone_id=j.clone_id
+        where
+            s.copy_number_in_clone=0
+    '''))
 
-    def _get_sample_assigned(sample_id, seq_id):
-        return session.query(
-            Sequence
-        ).filter(
-            Sequence.collapse_to_subject_sample_id == sample_id,
-            Sequence.collapse_to_subject_seq_id == seq_id
-        )
-    clone_assigned = session.query(
-        Sequence.sample_id,
-        Sequence.seq_id,
-        Sequence.clone_id,
-        Sequence.copy_number,
-    ).filter(
-        Sequence.copy_number_in_clone > 0,
-        Sequence.clone_id.in_(to_update)
-    )
+    print 'Pushing clone IDs to sample sequences'
+    session.connection(mapper=Sequence).execute(text('''
+        update
+            sequences as s
+        join
+            (select seq_id, sample_id, clone_id from sequences where
+                copy_number_in_subject > 0) as j
+        on
+            (s.collapse_to_subject_seq_id=j.seq_id and
+                s.collapse_to_subject_sample_id=j.sample_id)
+        set
+            s.clone_id=j.clone_id
+        where
+            s.copy_number_in_clone=0
+    '''))
 
-    for clone_seq in clone_assigned:
-        _get_subject_assigned(
-            clone_seq.sample_id,
-            clone_seq.seq_id
-        ).update({
-            'clone_id': clone_seq.clone_id,
-        })
-        for subject_seq in _get_subject_assigned(clone_seq.sample_id,
-                                                 clone_seq.seq_id):
-            _get_sample_assigned(
-                subject_seq.sample_id,
-                subject_seq.seq_id
-            ).update({
-                'clone_id': clone_seq.clone_id
-            })
-            for sample_seq in _get_sample_assigned(subject_seq.sample_id,
-                                                   subject_seq.seq_id):
-                # Update the sequences and everything collapsed to it in its sample
-                session.query(Sequence).filter(
-                    Sequence.collapse_to_sample_seq_id == sample_seq.seq_id,
-                    Sequence.sample_id == sample_seq.sample_id
-                ).update({
-                    'clone_id': clone_seq.clone_id
-                })
+    print 'Pushing clone IDs to individual sequences'
+    session.connection(mapper=Sequence).execute(text('''
+        update
+            sequences as s
+        join
+            (select seq_id, sample_id, clone_id from sequences where
+                copy_number_in_sample > 0) as j
+        on
+            (s.collapse_to_sample_seq_id=j.seq_id and
+                s.sample_id=j.sample_id)
+        set
+            s.clone_id=j.clone_id
+        where
+            s.copy_number_in_clone=0
+    '''))
     session.commit()
-'''
+
 
 def run_collapse(session, args):
     mod_log.make_mod('collapse', session=session, commit=True,
@@ -299,9 +296,8 @@ def run_collapse(session, args):
     ids = args.ids or map(
         lambda r: r.id, session.query(levels[args.level][1]).all()
     )
-    print 'Collapsing sequences in {}s: {}'.format(
-        args.level, ','.join(map(str, ids))
-    )
+    print 'Collapsing sequences in {} {}s'.format(
+        len(ids), args.level)
     session.close()
     levels[args.level][0](args.master_db_config, args.data_db_config,
                           ids, args.nproc)
