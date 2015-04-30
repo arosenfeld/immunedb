@@ -11,7 +11,6 @@ from sldb.common.models import *
 import sldb.common.modification_log as mod_log
 from sldb.identification.identify import VDJSequence
 from sldb.identification.v_genes import VGene
-from sldb.util.funcs import collapse_seqs, page_query, seq_to_regex
 import sldb.util.lookups as lookups
 
 
@@ -72,7 +71,7 @@ def _get_subject_clones(session, subject_id, min_similarity, limit_alignments,
                 Sequence.junction_aa
             ).filter(
                 Sequence.clone == clone,
-                Sequence.copy_number_in_subject > 0
+                Sequence.copy_number_in_subject > 1
             ).group_by(
                 Sequence.junction_aa
             )
@@ -141,79 +140,6 @@ def _assign_clones_to_groups(session, subject_id, to_update):
     session.commit()
 
 
-def _collapse_sequences(session, to_update):
-    print 'Collapsing sequences'
-    for clone_id in to_update:
-        seqs = session.query(
-            Sequence.sample_id,
-            Sequence.seq_id,
-            Sequence.sequence,
-            Sequence.copy_number_in_subject
-        ).filter(
-            Sequence.clone_id == clone_id,
-        ).order_by(
-            desc(Sequence.copy_number_in_subject)
-        ).all()
-
-        collapse_seqs(
-            session, seqs, 'copy_number_in_subject', 'copy_number_in_clone',
-            'collapse_to_clone_seq_id', 'collapse_to_clone_sample_id'
-        )
-
-    session.commit()
-
-def _push_clones_down(session, to_update):
-    def _get_subject_assigned(sample_id, seq_id):
-        return session.query(
-            Sequence
-        ).filter(
-            Sequence.collapse_to_clone_sample_id == sample_id,
-            Sequence.collapse_to_clone_seq_id == seq_id
-        )
-
-    def _get_sample_assigned(sample_id, seq_id):
-        return session.query(
-            Sequence
-        ).filter(
-            Sequence.collapse_to_subject_sample_id == sample_id,
-            Sequence.collapse_to_subject_seq_id == seq_id
-        )
-    clone_assigned = session.query(
-        Sequence.sample_id,
-        Sequence.seq_id,
-        Sequence.clone_id,
-        Sequence.copy_number,
-    ).filter(
-        Sequence.copy_number_in_clone > 0,
-        Sequence.clone_id.in_(to_update)
-    )
-
-    for clone_seq in clone_assigned:
-        _get_subject_assigned(
-            clone_seq.sample_id,
-            clone_seq.seq_id
-        ).update({
-            'clone_id': clone_seq.clone_id,
-        })
-        for subject_seq in _get_subject_assigned(clone_seq.sample_id,
-                                                 clone_seq.seq_id):
-            _get_sample_assigned(
-                subject_seq.sample_id,
-                subject_seq.seq_id
-            ).update({
-                'clone_id': clone_seq.clone_id
-            })
-            for sample_seq in _get_sample_assigned(subject_seq.sample_id,
-                                                   subject_seq.seq_id):
-                # Update the sequences and everything collapsed to it in its sample
-                session.query(Sequence).filter(
-                    Sequence.collapse_to_sample_seq_id == sample_seq.seq_id,
-                    Sequence.sample_id == sample_seq.sample_id
-                ).update({
-                    'clone_id': clone_seq.clone_id
-                })
-    session.commit()
-
 def run_clones(session, args):
     if args.subjects is None:
         subjects = map(lambda s: s.id, session.query(Subject.id).all())
@@ -255,7 +181,3 @@ def run_clones(session, args):
             args.min_identity / 100.0)
         print 'Assigning clones to groups'
         _assign_clones_to_groups(session, sid, to_update)
-        _collapse_sequences(session, to_update)
-        print 'Pushing clone IDs down'
-        _push_clones_down(session, to_update)
-        break

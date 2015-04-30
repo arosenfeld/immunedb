@@ -51,53 +51,6 @@ def trace_seq_collapses(session, seq):
     return ret
 
 
-def collapse_seqs(session, seqs, copy_field, collapse_copy_field,
-                  collapse_seq_id_field, collapse_sample_id_field=None):
-    new_cns = {(s.sample_id, s.seq_id): getattr(s, copy_field) for s in seqs}
-
-    for i, seq1 in enumerate(seqs):
-        seq1_key = (seq1.sample_id, seq1.seq_id)
-        if new_cns[seq1_key] == 0:
-            continue
-        pattern = seq_to_regex(seq1.sequence)
-        for seq2 in seqs[i+1:]:
-            seq2_key = (seq2.sample_id, seq2.seq_id)
-            if (new_cns[seq2_key] > 0
-                    and pattern.match(seq2.sequence) is not None):
-                new_cns[seq1_key] += new_cns[seq2_key]
-                new_cns[seq2_key] = 0
-                update_dict = {
-                    collapse_seq_id_field: seq1.seq_id,
-                    collapse_copy_field: 0
-                }
-                if collapse_sample_id_field is not None:
-                    update_dict[collapse_sample_id_field] = seq1.sample_id
-                session.query(Sequence).filter(
-                    Sequence.sample_id == seq2.sample_id,
-                    Sequence.seq_id == seq2.seq_id
-                ).update(update_dict)
-
-    for (sample_id, seq_id), cn in new_cns.iteritems():
-        if cn == 0:
-            continue
-        update_dict = {
-            collapse_copy_field: cn,
-            collapse_seq_id_field: seq_id
-        }
-        if collapse_sample_id_field is not None:
-            update_dict[collapse_sample_id_field] = sample_id
-        session.query(Sequence).filter(
-            Sequence.sample_id == sample_id,
-            Sequence.seq_id == seq_id
-        ).update(update_dict)
-
-
-def seq_to_regex(seq):
-    return re.compile(''.join(
-        map(lambda c: '[{}N]'.format(c) if c != 'N' else '[ATCGN]', seq)
-    ))
-
-
 def get_or_create(session, model, **kwargs):
     """Gets or creates a record based on some kwargs search parameters"""
     instance = session.query(model).filter_by(**kwargs).first()

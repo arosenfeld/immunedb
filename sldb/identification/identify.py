@@ -13,7 +13,6 @@ import sldb.common.config as config
 import sldb.common.modification_log as mod_log
 from sldb.common.models import (DuplicateSequence, NoResult, Sample, Sequence,
                                 Study, Subject)
-import sldb.identification.collapse as collapse
 from sldb.identification.vdj_sequence import VDJSequence
 from sldb.identification.v_genes import VGermlines
 import sldb.util.concurrent as concurrent
@@ -310,26 +309,14 @@ def run_identify(session, args):
 
     samples_to_update_queue = mp.Queue()
     lock = mp.RLock()
-    workers = []
     for i in range(0, args.nproc):
         worker_session = config.init_db(args.master_db_config, args.data_db_config)
-        w = IdentificationWorker(worker_session, v_germlines,
+        tasks.add_worker(IdentificationWorker(worker_session, v_germlines,
                                               args.limit_alignments,
                                               args.max_vties,
                                               args.min_similarity / float(100),
                                               args.read_format,
                                               samples_to_update_queue,
-                                              lock)
+                                              lock))
 
-        workers.append(w)
-        tasks.add_worker(w)
     tasks.start()
-
-    samples_to_update = set([])
-    while not samples_to_update_queue.empty():
-        samples_to_update.add(samples_to_update_queue.get())
-
-    samples_to_update = map(lambda r:r.id,
-        session.query(Sample.id).filter(Sample.id >= 36).all())
-    collapse.run_collapse(session, args.master_db_config, args.data_db_config,
-                          args.nproc, samples_to_update)
