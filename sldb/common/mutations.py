@@ -114,9 +114,9 @@ class CloneMutations(object):
         return lookups.aa_from_codon(self._get_codon_at(seq, i))
 
     def _get_mutation(self, seq, i):
-        if (self._germline[i] != seq[i]
-                and self._germline[i] != 'N'
-                and seq[i] != 'N'):
+        if (self._germline[i] != seq[i] and
+                self._germline[i] != 'N' and
+                seq[i] != 'N'):
             grm_aa = self._get_aa_at(self._germline, i)
             # Simulate this mutation alone
             off = i % 3

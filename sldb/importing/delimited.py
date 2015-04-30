@@ -182,8 +182,8 @@ class DelimitedImporter(object):
             cdr3_nt = cdr3_aa = ''
         else:
             cdr3_nt = self._get_value('cdr3_nts', row).upper()
-            cdr3_aa = (self._get_value('cdr3_aas', row, throw=False)
-                       or lookups.aas_from_nts(
+            cdr3_aa = (self._get_value('cdr3_aas', row, throw=False) or
+                       lookups.aas_from_nts(
                            self._get_value('cdr3_nts', row)))
         new_seq = Sequence(
             sample=sample,

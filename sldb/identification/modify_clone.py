@@ -16,8 +16,8 @@ def _update_clone(session, clone, v_name, new_v_seq):
         CloneGroup.cdr3_num_nts == clone.cdr3_num_nts,
         CloneGroup.subject_id == clone.subject_id).first()
     if not group:
-        germline = (new_v_seq[:VGene.CDR3_OFFSET:]
-                    + clone.group.germline[VGene.CDR3_OFFSET:])
+        germline = (new_v_seq[:VGene.CDR3_OFFSET:] +
+                    clone.group.germline[VGene.CDR3_OFFSET:])
         group = CloneGroup(
             v_gene=v_name,
             j_gene=clone.j_gene,

@@ -52,7 +52,7 @@ def _get_subject_clones(session, subject_id, min_similarity, limit_alignments,
     for i, seq in enumerate(query):
         if i > 0 and i % 1000 == 0:
             session.commit()
-            print 'Committed {} (new clones={})'.format( i, new_clones)
+            print 'Committed {} (new clones={})'.format(i, new_clones)
 
         # Key for cache has implicit subject_id due to function parameter
         key = (seq.v_gene, seq.j_gene, seq.junction_num_nts,
@@ -153,8 +153,7 @@ def run_clones(session, args):
         session.query(Sequence).filter(
             exists().where(
                 and_(Clone.id == Sequence.clone_id,
-                     Clone.subject_id.in_(subjects)
-                )
+                     Clone.subject_id.in_(subjects))
             )
         ).update({
             'clone_id': None,
@@ -163,8 +162,7 @@ def run_clones(session, args):
         session.query(CloneStats).filter(
             exists().where(
                 and_(CloneStats.clone_id == Clone.id,
-                     Clone.subject_id.in_(subjects)
-                )
+                     Clone.subject_id.in_(subjects))
             )
         ).delete(synchronize_session=False)
         print 'Deleting existing clones'

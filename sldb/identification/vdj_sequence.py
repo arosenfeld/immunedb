@@ -301,8 +301,8 @@ class VDJSequence(object):
         self._germline = get_common_seq(
             [self.v_germlines[v].sequence for v in self._v]
         )[:VGene.CDR3_OFFSET]
-        self._pad_len = (len(self._germline.replace('-', ''))
-                         - self.v_anchor_pos)
+        self._pad_len = (len(self._germline.replace('-', '')) -
+                         self.v_anchor_pos)
         # If we need to pad the sequence, do so, otherwise trim the sequence to
         # the germline length
         if self._pad_len >= 0:
@@ -332,8 +332,8 @@ class VDJSequence(object):
             str(anchors.j_anchors[self.j_gene[0]]))
         # Calculate the length of the CDR3
         self._cdr3_len = (
-            (self.j_anchor_pos + len(anchors.j_anchors[self.j_gene[0]])
-                - germlines.j_offset) - self.v_anchor_pos)
+            (self.j_anchor_pos + len(anchors.j_anchors[self.j_gene[0]]) -
+             germlines.j_offset) - self.v_anchor_pos)
 
         if self._cdr3_len <= 0:
             self._v = None

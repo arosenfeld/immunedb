@@ -8,6 +8,7 @@ from sldb.common.models import Clone, Sample, Sequence, Subject
 import sldb.common.modification_log as mod_log
 import sldb.util.concurrent as concurrent
 
+
 class CollapseWorker(concurrent.Worker):
     def __init__(self, session):
         self._session = session
@@ -97,8 +98,8 @@ def collapse_seqs(session, seqs, copy_field, collapse_copy_field,
             if pattern.match(smaller['sequence']) is not None:
                 # Add the smaller sequence's copy number to the larger
                 larger['cn'] += smaller['cn']
-                # If the smaller sequence matches the larger, collapse it to the
-                # larger
+                # If the smaller sequence matches the larger, collapse it to
+                # the larger
                 update_dict = {
                     collapse_seq_id_field: larger['seq_id'],
                     collapse_copy_field: 0

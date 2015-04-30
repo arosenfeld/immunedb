@@ -52,7 +52,7 @@ def get_selection(session, clone_id, script_path, samples=None,
                             cwd=os.path.dirname(script_path),
                             stdout=subprocess.PIPE,
                             stderr=subprocess.PIPE)
-    print proc.communicate()
+    proc.communicate()
 
     with open(read_path) as fh:
         output = _parse_output(session, clone, fh)

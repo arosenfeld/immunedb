@@ -336,7 +336,8 @@ class Sequence(BaseData):
                             'sample_id'),
                       Index('clone_collapse', 'collapse_to_clone_sample_id',
                             'collapse_to_clone_seq_id'),
-                      Index('subject_collapse', 'collapse_to_subject_sample_id',
+                      Index('subject_collapse',
+                            'collapse_to_subject_sample_id',
                             'collapse_to_subject_seq_id'),
                       {'mysql_engine': 'TokuDB'})
     __mapper_args__ = {'extension': SequenceExtension()}
@@ -391,7 +392,7 @@ class Sequence(BaseData):
     clone = relationship(Clone, backref=backref('sequences',
                          order_by=seq_id))
     mutations_from_clone = Column(MEDIUMTEXT)
-    
+
     copy_number_in_sample = Column(Integer, index=True, server_default='0',
                                    nullable=False)
     collapse_to_sample_seq_id = Column(String(128), index=True)
@@ -405,7 +406,6 @@ class Sequence(BaseData):
                                   nullable=False)
     collapse_to_clone_sample_id = Column(Integer)
     collapse_to_clone_seq_id = Column(String(128))
-
 
 
 class DuplicateSequence(BaseData):

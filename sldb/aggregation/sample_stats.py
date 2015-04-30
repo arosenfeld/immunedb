@@ -2,7 +2,6 @@ import argparse
 import json
 
 import numpy as np
-np.seterr(all='raise')
 
 from sqlalchemy import distinct, func, and_
 from sqlalchemy.sql import exists
@@ -14,6 +13,7 @@ import sldb.common.modification_log as mod_log
 from sldb.common.models import Clone, NoResult, Sample, SampleStats, Sequence
 import sldb.util.concurrent as concurrent
 import sldb.util.lookups as lookups
+
 
 _dist_fields = [
     'v_match',
@@ -46,7 +46,7 @@ _seq_contexts = {
     },
     'unique_multiple': {
         'record_filter': lambda seq: seq.functional and
-            seq.copy_number_in_sample > 1,
+        seq.copy_number_in_sample > 1,
         'use_copy': False
     },
 }
@@ -345,6 +345,7 @@ def _queue_tasks(session, sample_id, clones_only, force, tasks):
 
 
 def run_sample_stats(session, args):
+    np.seterr(all='raise')
     mod_log.make_mod('sample_stats', session=session, commit=True,
                      info=vars(args))
 

@@ -412,10 +412,10 @@ def get_v_usage(session, samples, filter_type, include_outliers,
                 include_partials, grouping, by_family):
     """Gets the V-Gene usage percentages for samples"""
     if by_family:
-        name_func = lambda s: s.split('*')[0].split('-', 1)[0].replace(
+        def name_func(s): lambda s: s.split('*')[0].split('-', 1)[0].replace(
             'IGHV', '')
     else:
-        name_func = lambda s: s.split('*')[0].replace(
+        def name_func(s): lambda s: s.split('*')[0].replace(
             'IGHV', '')
     data = {}
     totals = {}
@@ -601,11 +601,12 @@ def get_sequence(session, sample_id, seq_id):
                     Sequence.seq_id == dup_seq.duplicate_seq_id).first()
 
     ret = _fields_to_dict([
-        'seq_id', 'alignment', 'v_gene', 'j_gene', 'junction_nt', 'junction_aa',
-        'germline', 'v_match', 'j_match', 'v_length', 'j_length', 'in_frame',
-        'functional', 'stop', 'copy_number', 'sequence', 'pre_cdr3_length',
-        'pre_cdr3_match', 'post_cdr3_length', 'post_cdr3_match', 'pad_length',
-        'num_gaps', 'probable_indel_or_misalign', 'quality',
+        'seq_id', 'alignment', 'v_gene', 'j_gene', 'junction_nt',
+        'junction_aa', 'germline', 'v_match', 'j_match', 'v_length',
+        'j_length', 'in_frame', 'functional', 'stop', 'copy_number',
+        'sequence', 'pre_cdr3_length', 'pre_cdr3_match', 'post_cdr3_length',
+        'post_cdr3_match', 'pad_length', 'num_gaps',
+        'probable_indel_or_misalign', 'quality',
     ], seq)
     ret['sample'] = _sample_to_dict(seq.sample)
     ret['read_start'] = re.compile('[N\-]*').match(
@@ -663,12 +664,12 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
                     query = query.filter(get_field(key).like(
                         value.replace('*', '%')))
 
-    if (filters is None
-            or 'show_partials' not in filters
-            or not filters['show_partials']):
+    if (filters is None or
+            'show_partials' not in filters or
+            not filters['show_partials']):
         query = query.filter(Sequence.alignment == 'R1+R2')
-    if (filters is None or 'show_indel' not in filters
-            or not filters['show_indel']):
+    if (filters is None or 'show_indel' not in filters or
+            not filters['show_indel']):
         query = query.filter(Sequence.probable_indel_or_misalign == 0)
 
     if order_field == 'copy_number':

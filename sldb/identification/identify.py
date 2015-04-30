@@ -171,11 +171,11 @@ class IdentificationWorker(concurrent.Worker):
                 self._session.commit()
             # Align the sequence to a germline based on v_ties
             vdj.align_to_germline(avg_len, avg_mut)
-            if (vdj.v_gene is not None
-                    and vdj.j_gene is not None
-                    and vdj.v_match / float(vdj.v_length)
-                    >= self._min_similarity
-                    and len(vdj.v_gene) <= self._max_vties):
+            if (vdj.v_gene is not None and
+                    vdj.j_gene is not None and
+                    vdj.v_match / float(vdj.v_length) >=
+                    self._min_similarity and
+                    len(vdj.v_gene) <= self._max_vties):
                 # Add the sequence to the database
                 final_seq_id = self._add_to_db(read_type, sample, vdj)
                 # If a duplicate was found, and vdj was added as a duplicate,
@@ -310,7 +310,8 @@ def run_identify(session, args):
     samples_to_update_queue = mp.Queue()
     lock = mp.RLock()
     for i in range(0, args.nproc):
-        worker_session = config.init_db(args.master_db_config, args.data_db_config)
+        worker_session = config.init_db(args.master_db_config,
+                                        args.data_db_config)
         tasks.add_worker(IdentificationWorker(worker_session, v_germlines,
                                               args.limit_alignments,
                                               args.max_vties,

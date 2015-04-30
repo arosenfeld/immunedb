@@ -141,6 +141,7 @@ def _get_seqs_collapsed_to(session, seq):
         for sample_seq in sample_level_seqs:
             yield sample_seq
 
+
 def _remove_muts(seq, removes, germline_seq):
     for mut in removes:
         loc, _, to = mut

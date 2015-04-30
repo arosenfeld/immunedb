@@ -134,8 +134,8 @@ class VGermlines(object):
                 try:
                     v = VGene(str(record.seq))
                     self._germlines[record.id] = v
-                    if (self._min_length is None
-                            or self._min_length > len(v.sequence_ungapped)):
+                    if (self._min_length is None or
+                            self._min_length > len(v.sequence_ungapped)):
                         self._min_length = len(v.sequence_ungapped)
                 except:
                     pass
