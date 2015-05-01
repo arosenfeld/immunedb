@@ -74,7 +74,7 @@ def sequences():
     sequences = queries.get_all_sequences(
         session,
         _get_arg('filter'),
-        _get_arg('order_field', False) or 'seq_id',
+        _get_arg('order_field', False),
         _get_arg('order_dir', False) or 'desc',
         _get_paging())
     session.close()
@@ -155,7 +155,7 @@ def clones():
     clones = queries.get_all_clones(
         session,
         _get_arg('filter'),
-        _get_arg('order_field', False) or 'id',
+        _get_arg('order_field', False) or 'unique_cnt',
         _get_arg('order_dir', False) or 'desc',
         _get_paging())
     session.close()

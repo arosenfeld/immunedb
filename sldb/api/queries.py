@@ -113,10 +113,16 @@ def get_all_studies(session):
 
 def get_all_clones(session, filters, order_field, order_dir, paging=None):
     """Gets a list of all clones"""
+    def get_field(key):
+        tbls = [Clone, CloneGroup, CloneStats]
+        for t in tbls:
+            if hasattr(t, key):
+                return getattr(t, key)
+
     res = []
     clone_q = session.query(
         Clone, CloneStats.unique_cnt, CloneStats.total_cnt
-    ).join(CloneStats).filter(
+    ).join(CloneStats).join(CloneGroup).filter(
         CloneStats.sample_id == 0
     )
 
@@ -148,13 +154,19 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
                     clone_q = clone_q.filter(
                         getattr(c, key).like(value.replace('*', '%')))
 
-    clone_q = clone_q.order_by(desc(CloneStats.unique_cnt))
+
+    order_field = get_field(order_field)
+
+    if order_dir == 'asc':
+        clone_q = clone_q.order_by(order_field)
+    else:
+        clone_q = clone_q.order_by(desc(order_field))
+
     if paging is not None:
         page, per_page = paging
         clone_q = clone_q.offset((page - 1) * per_page).limit(per_page)
 
-    for clone_info in clone_q:
-        c = clone_info.Clone
+    for c, unique_cnt, total_cnt in clone_q:
         stats_comb = []
 
         query = session.query(
@@ -173,8 +185,8 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
                 'total_sequences': int(stat.total_cnt)
             })
         clone_dict = _clone_to_dict(c)
-        clone_dict['unique_sequences'] = clone_info.unique_cnt
-        clone_dict['total_sequences'] = clone_info.total_cnt
+        clone_dict['unique_sequences'] = unique_cnt
+        clone_dict['total_sequences'] = total_cnt
         clone_dict['stats'] = stats_comb
         res.append(clone_dict)
 
@@ -641,10 +653,13 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
 
     copy_number_field = 'copy_number'
     if filters is not None:
-        if 'collapsed' in filters and filters['collapsed'] != 'all':
-            copy_number_field = getattr(
-                Sequence, 'copy_number_in_{}'.format(filters['collapsed'])
-            )
+        if 'collapsed' in filters:
+            if filters['collapsed'] == 'all':
+                copy_number_field = Sequence.copy_number
+            else:
+                copy_number_field = getattr(
+                    Sequence, 'copy_number_in_{}'.format(filters['collapsed'])
+                )
         for key, value in filters.iteritems():
             if value in [None, True, False]:
                 continue
@@ -672,15 +687,16 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
             not filters['show_indel']):
         query = query.filter(Sequence.probable_indel_or_misalign == 0)
 
-    if order_field == 'copy_number':
-        order_field = copy_number_field
-    else:
-        order_field = getattr(Sequence, order_field)
+    if order_field is not None:
+        if order_field == 'copy_number':
+            order_field = copy_number_field
+        else:
+            order_field = getattr(Sequence, order_field)
 
-    if order_dir == 'asc':
-        query = query.order_by(order_field)
-    else:
-        query = query.order_by(desc(order_field))
+        if order_dir == 'asc':
+            query = query.order_by(order_field)
+        else:
+            query = query.order_by(desc(order_field))
 
     if paging is not None:
         page, per_page = paging
