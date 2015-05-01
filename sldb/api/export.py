@@ -191,6 +191,7 @@ class SequenceExport(Exporter):
         'copy_number',
 
         'sequence',
+        'quality',
         'sequence_filled',
         'germline',
 
@@ -206,10 +207,21 @@ class SequenceExport(Exporter):
         ('clone_cdr3_nt', lambda seq: seq.clone.cdr3_nt),
         ('clone_cdr3_aa', lambda seq: seq.clone.group.cdr3_aa),
         ('clone_json_tree', lambda seq: seq.clone.tree),
+
+        'copy_number_in_sample',
+        'collapse_to_sample_seq_id',
+
+        'copy_number_in_subject',
+        'collapse_to_subject_seq_id',
+        'collapse_to_subject_sample_id',
+
+        'copy_number_in_clone',
+        'collapse_to_clone_seq_id',
+        'collapse_to_clone_sample_id',
     ]
 
     def __init__(self, session, eformat, rtype, rids, selected_fields,
-                 min_copy, duplicates, noresults):
+                 min_copy, duplicates, noresults, level):
         super(SequenceExport, self).__init__(
             session, rtype, rids, SequenceExport._allowed_fields,
             selected_fields)
@@ -217,6 +229,7 @@ class SequenceExport(Exporter):
         self.min_copy = min_copy
         self.duplicates = duplicates
         self.noresults = noresults
+        self.level = level
 
     def _fasta_entry(self, seq_id, info, sequence):
         """Gets the entry for a sequence in FASTA format with ``info`` separated
@@ -254,8 +267,17 @@ class SequenceExport(Exporter):
         seqs = self.session.query(Sequence).filter(
             getattr(
                 Sequence, '{}_id'.format(self.rtype)
-            ).in_(self.rids),
-            Sequence.copy_number >= self.min_copy)
+            ).in_(self.rids)
+        )
+        if self.level == 'all':
+            seqs = seqs.filter(
+                Sequence.copy_number >= self.min_copy
+            )
+        else:
+            seqs = seqs.filter(
+                getattr(Sequence, 'copy_number_in_{}'.format(self.level)) >=
+                    self.min_copy
+            )
 
         # If it's a CLIP file, order by clone_id to minimize
         # repetition of germline entries

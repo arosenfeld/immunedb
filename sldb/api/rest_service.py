@@ -557,9 +557,11 @@ def export_clones(rtype, rids):
     session.close()
 
 
-@route('/api/data/export_sequences/<eformat>/<rtype>/<rids>', methods=['GET'])
-@route('/api/data/export_sequences/<eformat>/<rtype>/<rids>/', methods=['GET'])
-def export_sequences(eformat, rtype, rids):
+@route('/api/data/export_sequences/<eformat>/<rtype>/<rids>/<level>',
+       methods=['GET'])
+@route('/api/data/export_sequences/<eformat>/<rtype>/<rids>/<level>/',
+       methods=['GET'])
+def export_sequences(eformat, rtype, rids, level):
     """Downloads an exported format of specified sequences.
 
     :param str eformat: The export format to use.  Currently "csv", "orig", and
@@ -576,6 +578,7 @@ def export_sequences(eformat, rtype, rids):
 
     assert eformat in ('csv', 'fill', 'orig', 'clip')
     assert rtype in ('sample', 'clone')
+    assert level in ('all', 'sample', 'subject', 'clone')
 
     session = scoped_session(session_factory)()
 
@@ -602,7 +605,8 @@ def export_sequences(eformat, rtype, rids):
         session, eformat, rtype, _split(rids), fields,
         min_copy=min_copy,
         duplicates=_get_arg('duplicates', False) == 'true',
-        noresults=_get_arg('noresults', False) == 'true')
+        noresults=_get_arg('noresults', False) == 'true',
+        level=level)
     for line in export.get_data():
         yield line
 
