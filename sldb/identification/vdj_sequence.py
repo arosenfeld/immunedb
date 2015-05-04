@@ -223,6 +223,7 @@ class VDJSequence(object):
             reversed(j_in_cdr3),
             reversed(cdr3_segment),
             self.MISMATCH_THRESHOLD)
+
         # Trim the J gene based on the extent in the CDR3
         if streak is not None:
             j_full = j_full[streak:]

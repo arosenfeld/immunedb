@@ -424,11 +424,9 @@ def get_v_usage(session, samples, filter_type, include_outliers,
                 include_partials, grouping, by_family):
     """Gets the V-Gene usage percentages for samples"""
     if by_family:
-        def name_func(s): lambda s: s.split('*')[0].split('-', 1)[0].replace(
-            'IGHV', '')
+        def name_func(s): s.split('*')[0].split('-', 1)[0].replace('IGHV', '')
     else:
-        def name_func(s): lambda s: s.split('*')[0].replace(
-            'IGHV', '')
+        def name_func(s): s.split('*')[0].replace( 'IGHV', '')
     data = {}
     totals = {}
     for s in session.query(SampleStats)\
