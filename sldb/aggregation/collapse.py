@@ -122,7 +122,6 @@ def collapse_samples(master_db_config, data_db_config, sample_ids,
                      nproc):
     session = config.init_db(master_db_config, data_db_config)
 
-    '''
     session.query(Sequence).filter(
         Sequence.sample_id.in_(sample_ids)
     ).update({
@@ -134,7 +133,6 @@ def collapse_samples(master_db_config, data_db_config, sample_ids,
         'copy_number_in_clone': None,
     }, synchronize_session=False)
     session.commit()
-    '''
 
     tasks = concurrent.TaskQueue()
 
