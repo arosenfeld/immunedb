@@ -1,4 +1,4 @@
-import re
+import dnautils
 
 from sqlalchemy import and_, distinct
 from sqlalchemy.sql import desc, exists, text
@@ -70,12 +70,6 @@ class CollapseWorker(concurrent.Worker):
         self._session.close()
 
 
-def seq_to_regex(seq):
-    return re.compile(''.join(
-        map(lambda c: '[{}N]'.format(c) if c != 'N' else '[ATCGN]', seq)
-    ))
-
-
 def collapse_seqs(session, seqs, copy_field, collapse_copy_field,
                   collapse_seq_id_field, collapse_sample_id_field=None):
     to_process = [{
@@ -90,12 +84,10 @@ def collapse_seqs(session, seqs, copy_field, collapse_copy_field,
         larger = to_process[0]
         # Remove it from the list to process
         to_process = to_process[1:]
-        # Compile its sequence into regex
-        pattern = seq_to_regex(larger['sequence'])
         # Iterate over all smaller sequences to find matches
         for i in reversed(range(0, len(to_process))):
             smaller = to_process[i]
-            if pattern.match(smaller['sequence']) is not None:
+            if dnautils.equal(larger['sequence'], smaller['sequence']):
                 # Add the smaller sequence's copy number to the larger
                 larger['cn'] += smaller['cn']
                 # If the smaller sequence matches the larger, collapse it to
@@ -130,8 +122,9 @@ def collapse_samples(master_db_config, data_db_config, sample_ids,
                      nproc):
     session = config.init_db(master_db_config, data_db_config)
 
+    '''
     session.query(Sequence).filter(
-        Sequence.sample_id.in_(samples_ids)
+        Sequence.sample_id.in_(sample_ids)
     ).update({
         'collapse_to_subject_seq_id': None,
         'collapse_to_subject_sample_id': None,
@@ -141,10 +134,11 @@ def collapse_samples(master_db_config, data_db_config, sample_ids,
         'copy_number_in_clone': None,
     }, synchronize_session=False)
     session.commit()
+    '''
 
     tasks = concurrent.TaskQueue()
 
-    for sample_id in samples_ids:
+    for sample_id in sample_ids:
         buckets = session.query(
             Sequence.v_gene, Sequence.j_gene, Sequence.junction_num_nts,
         ).filter(
