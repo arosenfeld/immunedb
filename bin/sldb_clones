@@ -8,7 +8,7 @@ if __name__ == '__main__':
     parser.add_argument('--similarity', type=int, default=85,
                         dest='similarity', help='Minimum similarity between '
                         'clone sequences. (Default: 85)')
-    parser.add_argument('--subjects', nargs='+', type=int,
+    parser.add_argument('--subject-ids', nargs='+', type=int,
                         help='Limit generation to certain subjects')
     parser.add_argument('--include-indels', action='store_true', default=False,
                         help='If specified, includes indels (or poorly '

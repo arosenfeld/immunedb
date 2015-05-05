@@ -42,7 +42,8 @@ IMPORT_HEADERS = {
                    '[Required]',
 
     'sequence': 'The full, IMGT aligned sequence [Required]',
-    'quality': 'Phred quality per-position (Sanger format)',
+    'quality': 'Phred quality per-position in Sanger format.  Gapped '
+               'positions should be spaces (Sanger format)',
     'cdr3_num_nts': 'The CDR3 number of nucleotides [Required]',
     'cdr3_nts': 'The CDR3 nucleotides [Required]',
     'cdr3_aas': 'The CDR3 amino-acids.  If not specified, the `cdr3_nts` will '

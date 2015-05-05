@@ -52,7 +52,8 @@ def _get_subject_clones(session, subject_id, min_similarity, limit_alignments,
     for i, seq in enumerate(query):
         if i > 0 and i % 1000 == 0:
             session.commit()
-            print 'Committed {} (new clones={})'.format(i, new_clones)
+            print 'Committed {}/{} (new clones={})'.format(i, query.count(),
+                                                           new_clones)
 
         # Key for cache has implicit subject_id due to function parameter
         key = (seq.v_gene, seq.j_gene, seq.junction_num_nts,
@@ -134,17 +135,17 @@ def _assign_clones_to_groups(session, subject_id, to_update):
         clone.group = group
 
         if i > 0 and i % 1000 == 0:
-            print 'Committed {}'.format(i)
+            print 'Committed {}/{}'.format(i, len(to_update))
             session.commit()
 
     session.commit()
 
 
 def run_clones(session, args):
-    if args.subjects is None:
+    if args.subject_ids is None:
         subjects = map(lambda s: s.id, session.query(Subject.id).all())
     else:
-        subjects = args.subjects
+        subjects = args.subject_ids
     mod_log.make_mod('clones', session=session, commit=True,
                      info=vars(args))
 
