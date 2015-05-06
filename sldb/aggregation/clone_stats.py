@@ -20,9 +20,10 @@ class CloneStatsWorker(concurrent.Worker):
     def do_task(self, worker_id, args):
         clone_id = args['clone_id']
         sample_id = args['sample_id']
-        self._context_stats(worker_id, clone_id, sample_id)
+        single = args['single']
+        self._context_stats(worker_id, clone_id, sample_id, single)
 
-    def _context_stats(self, worker_id, clone_id, sample_id):
+    def _context_stats(self, worker_id, clone_id, sample_id, single):
         self._print(worker_id, 'Clone {}, sample {}'.format(
             clone_id, sample_id if sample_id != 0 else 'ALL')
         )
@@ -40,8 +41,8 @@ class CloneStatsWorker(concurrent.Worker):
                 func.sum(Sequence.copy_number_in_sample).label('total')
             ).filter(
                 Sequence.clone_id == clone_id,
-                Sequence.copy_number_in_sample > 0,
-                Sequence.sample_id == sample_id
+                Sequence.sample_id == sample_id,
+                Sequence.copy_number_in_sample > 0
             ).first()
 
             sample_mutations = CloneMutations(
@@ -69,14 +70,20 @@ class CloneStatsWorker(concurrent.Worker):
             samples=[sample_id] if sample_id != 0 else None,
             temp_dir=self._baseline_temp)
 
-        self._session.add(CloneStats(
-            clone_id=clone_id,
-            sample_id=sample_id,
-            unique_cnt=counts.unique,
-            total_cnt=counts.total,
-            mutations=json.dumps(sample_mutations.get_all()),
-            selection_pressure=json.dumps(selection_pressure)
-        ))
+        record_values = {
+            clone_id: clone_id,
+            unique_cnt: counts.unique,
+            total_cnt: counts.total,
+            mutations: json.dumps(sample_mutations.get_all()),
+            selection_pressure: json.dumps(selection_pressure)
+        }
+        self._session.add(CloneStats(sample_id=sample_id, **record_values))
+
+        # If this clone only appears in one sample, the 'total clone' stats are
+        # the same as for the single sample
+        if single:
+            self._session.add(CloneStats(sample_id=0, **record_values))
+
 
     def cleanup(self, worker_id):
         self._session.commit()
@@ -103,20 +110,31 @@ def run_clone_stats(session, args):
 
     tasks = concurrent.TaskQueue()
     for cid in clones:
-        tasks.add_task({
-            'clone_id': cid,
-            'sample_id': 0
-        })
-        for sid in map(lambda c: c.sample_id, session.query(
-                distinct(Sequence.sample_id).label('sample_id')
-                ).filter(
-                    Sequence.clone_id == cid,
-                    Sequence.copy_number_in_sample > 0
-                )):
+        sample_ids = map(lambda c: c.sample_id, session.query(
+            distinct(Sequence.sample_id).label('sample_id')
+        ).filter(
+            Sequence.clone_id == cid,
+            Sequence.copy_number_in_sample > 0
+        ))
+        if len(sample_ids) > 1:
             tasks.add_task({
                 'clone_id': cid,
-                'sample_id': sid
+                'single': False,
+                'sample_id': 0
             })
+            for sid in sample_ids:
+                tasks.add_task({
+                    'clone_id': cid,
+                    'single': False,
+                    'sample_id': sid
+                })
+        else:
+            tasks.add_task({
+                'clone_id': cid,
+                'single': True,
+                'sample_id': sample_ids[0]
+            })
+
 
     for i in range(0, args.nproc):
         session = config.init_db(args.master_db_config, args.data_db_config)
