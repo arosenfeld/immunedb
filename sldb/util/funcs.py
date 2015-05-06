@@ -13,6 +13,9 @@ def trace_seq_collapses(session, seq):
         Sequence.sample_id == seq.sample_id
     ).first()
 
+    if sample_col is None:
+        return None
+
     subject_col = session.query(
         Sequence.collapse_to_clone_seq_id,
         Sequence.collapse_to_clone_sample_id,
@@ -21,6 +24,9 @@ def trace_seq_collapses(session, seq):
         Sequence.seq_id == sample_col.collapse_to_subject_seq_id,
         Sequence.sample_id == sample_col.collapse_to_subject_sample_id,
     ).first()
+
+    if subject_col is None:
+        return None
 
     clone_col = session.query(
         Sequence.copy_number_in_clone

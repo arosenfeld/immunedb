@@ -638,7 +638,7 @@ def get_sequence(session, sample_id, seq_id):
     else:
         ret['clone'] = None
 
-    ret['collapse_info'] = funcs.trace_seq_collapses(session, seq)
+    ret['collapse_info'] = funcs.trace_seq_collapses(session, seq) or {}
 
     return ret
 
