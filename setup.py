@@ -31,10 +31,10 @@ setup(
     ],
     install_requires=[
         'gevent',
-        'sqlalchemy>=0.9.8',
+        'sqlalchemy',
         'biopython',
         'bottle',
-        'ete2>=2.2',
+        'ete2',
         'distance',
         'numpy',
         'scipy',
