@@ -239,7 +239,6 @@ def collapse_subjects(master_db_config, data_db_config, subject_ids,
 
 def collapse_clones(master_db_config, data_db_config, clone_ids,
                     nproc, chunk_size=25):
-    '''
     print 'Creating task queue to collapse {} clones.'.format(len(clone_ids))
     tasks = concurrent.TaskQueue()
     # Collapsing clones is relatively fast and the overhead of context switching
@@ -255,7 +254,6 @@ def collapse_clones(master_db_config, data_db_config, clone_ids,
         tasks.add_worker(CollapseWorker(worker_session))
 
     tasks.start()
-    '''
 
     session = config.init_db(master_db_config, data_db_config)
     print 'Pushing clone IDs to subject sequences'
