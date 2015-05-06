@@ -89,9 +89,9 @@ def run_clone_stats(session, args):
 
     if args.clone_ids is not None:
         clones = args.clone_ids
-    elif args.subjects is not None:
+    elif args.subject_ids is not None:
         clones = map(lambda c: c.id, session.query(Clone.id).filter(
-            Clone.subject_id.in_(args.subjects)).all())
+            Clone.subject_id.in_(args.subject_ids)).all())
     else:
         clones = map(lambda c: c.id, session.query(Clone.id).all())
 

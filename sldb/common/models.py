@@ -331,15 +331,19 @@ class Sequence(BaseData):
 
     """
     __tablename__ = 'sequences'
-    __table_args__ = (Index('genes', 'v_gene', 'j_gene'),
-                      Index('sample_collapse', 'collapse_to_sample_seq_id',
-                            'sample_id'),
-                      Index('clone_collapse', 'collapse_to_clone_sample_id',
-                            'collapse_to_clone_seq_id'),
-                      Index('subject_collapse',
-                            'collapse_to_subject_sample_id',
-                            'collapse_to_subject_seq_id'),
-                      {'mysql_engine': 'TokuDB'})
+    __table_args__ = (
+        Index('genes', 'v_gene', 'j_gene'),
+        Index('sample_collapse', 'collapse_to_sample_seq_id',
+              'sample_id'),
+        Index('clone_collapse', 'collapse_to_clone_sample_id',
+              'collapse_to_clone_seq_id'),
+        Index('subject_collapse',
+              'collapse_to_subject_sample_id',
+              'collapse_to_subject_seq_id'),
+        Index('clone_by_subject', 'clone_id',
+              'copy_number_in_subject'),
+        {'mysql_engine': 'TokuDB'}
+    )
     __mapper_args__ = {'extension': SequenceExtension()}
 
     sample_seq_hash = Column(String(40), unique=True, index=True)
