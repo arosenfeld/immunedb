@@ -214,7 +214,7 @@ def get_clone(session, clone_id, sample_ids, thresholds=None):
 
     q = session.query(
         Sequence,
-        Sequence.copy_number
+        Sequence.copy_number_in_clone
     ).filter(
         Sequence.clone_id == clone_id,
         Sequence.copy_number_in_clone > 0
@@ -249,7 +249,7 @@ def get_clone(session, clone_id, sample_ids, thresholds=None):
             'junction_nt': seq.junction_nt,
             'sequence': seq.sequence,
             'read_start': read_start,
-            'copy_number': int(seqr.copy_number),
+            'copy_number_in_clone': int(seqr.copy_number_in_clone),
             'mutations': json.loads(seq.mutations_from_clone),
             'v_extent': seq.v_length + seq.num_gaps + seq.pad_length,
             'j_length': seq.j_length,
@@ -638,7 +638,7 @@ def get_sequence(session, sample_id, seq_id):
     else:
         ret['clone'] = None
 
-    ret['collapse_info'] = funcs.trace_seq_collapses(session, seq)
+    ret['collapse_info'] = funcs.trace_seq_collapses(session, seq) or {}
 
     return ret
 
