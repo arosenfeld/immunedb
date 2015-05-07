@@ -84,8 +84,9 @@ class CollapseWorker(concurrent.Worker):
             ).all()
 
             collapse_seqs(
-                self._session, seqs, 'copy_number_in_subject', 'copy_number_in_clone',
-                'collapse_to_clone_seq_id', 'collapse_to_clone_sample_id'
+                self._session, seqs, 'copy_number_in_subject',
+                'copy_number_in_clone', 'collapse_to_clone_seq_id',
+                'collapse_to_clone_sample_id'
             )
 
         self._tasks += 1
@@ -241,8 +242,9 @@ def collapse_clones(master_db_config, data_db_config, clone_ids,
                     nproc, chunk_size=25):
     print 'Creating task queue to collapse {} clones.'.format(len(clone_ids))
     tasks = concurrent.TaskQueue()
-    # Collapsing clones is relatively fast and the overhead of context switching
-    # is high, so give each worker a few clones to collapse instead of just one.
+    # Collapsing clones is relatively fast and the overhead of context
+    # switching is high, so give each worker a few clones to collapse instead
+    # of just one.
     for i in range(0, len(clone_ids), chunk_size):
         tasks.add_task({
             'type': 'clone',

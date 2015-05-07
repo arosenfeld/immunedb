@@ -84,7 +84,6 @@ class CloneStatsWorker(concurrent.Worker):
         if single:
             self._session.add(CloneStats(sample_id=0, **record_values))
 
-
     def cleanup(self, worker_id):
         self._session.commit()
         self._session.close()
@@ -137,7 +136,6 @@ def run_clone_stats(session, args):
                 'single': True,
                 'sample_id': sample_ids[0]
             })
-
 
     for i in range(0, args.nproc):
         session = config.init_db(args.master_db_config, args.data_db_config)

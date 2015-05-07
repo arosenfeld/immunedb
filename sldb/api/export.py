@@ -276,7 +276,7 @@ class SequenceExport(Exporter):
         else:
             seqs = seqs.filter(
                 getattr(Sequence, 'copy_number_in_{}'.format(self.level)) >=
-                    self.min_copy
+                self.min_copy
             )
 
         # If it's a CLIP file, order by clone_id to minimize

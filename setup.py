@@ -1,6 +1,6 @@
 from setuptools import setup, Extension
 
-dnautils = Extension('dnautils', sources = ['lib/dnautils.c'])
+dnautils = Extension('dnautils', sources=['lib/dnautils.c'])
 
 setup(
     name='SLDB',

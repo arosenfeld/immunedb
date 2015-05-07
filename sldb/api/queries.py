@@ -154,7 +154,6 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
                     clone_q = clone_q.filter(
                         getattr(c, key).like(value.replace('*', '%')))
 
-
     order_field = get_field(order_field)
 
     if order_dir == 'asc':
@@ -424,9 +423,11 @@ def get_v_usage(session, samples, filter_type, include_outliers,
                 include_partials, grouping, by_family):
     """Gets the V-Gene usage percentages for samples"""
     if by_family:
-        def name_func(s): s.split('*')[0].split('-', 1)[0].replace('IGHV', '')
+        def name_func(s):
+            return s.split('*')[0].split('-', 1)[0].replace('IGHV', '')
     else:
-        def name_func(s): s.split('*')[0].replace( 'IGHV', '')
+        def name_func(s):
+            return s.split('*')[0].replace('IGHV', '')
     data = {}
     totals = {}
     for s in session.query(SampleStats)\

@@ -143,9 +143,9 @@ class CloneMutations(object):
             sample_ids = limit_samples
         else:
             sample_ids = map(lambda r: r.sample_id, self._session.query(
-                    distinct(Sequence.sample_id).label('sample_id')
+                distinct(Sequence.sample_id).label('sample_id')
                 ).filter(
-                    Sequence.clone == self._clone
+                Sequence.clone == self._clone
                 ).all()
             )
             sample_ids.append(0)

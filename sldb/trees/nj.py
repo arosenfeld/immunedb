@@ -121,8 +121,8 @@ class NJWorker(concurrent.Worker):
                 modified_seq = _remove_muts(seq.sequence_replaced, remove_muts,
                                             germline_seq)
                 node.add_feature('mutations', _get_mutations(
-                     germline_seq, modified_seq,
-                     map(int, json.loads(seq.mutations_from_clone).keys())
+                    germline_seq, modified_seq,
+                    map(int, json.loads(seq.mutations_from_clone).keys())
                     )
                 )
             else:
