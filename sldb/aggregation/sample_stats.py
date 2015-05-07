@@ -304,7 +304,8 @@ def _get_cdr3_bounds(session, sample_id):
 
 
 def _queue_tasks(session, sample_id, clones_only, force, tasks):
-    print 'Checking sample {}'.format(sample_id)
+    print 'Creating task queue to generate stats for sample {}.'.format(
+        sample_id)
     existing_seq = session.query(Sequence).filter(
         Sequence.sample_id == sample_id)
     existing_nores = session.query(NoResult).filter(
@@ -349,10 +350,10 @@ def run_sample_stats(session, args):
     mod_log.make_mod('sample_stats', session=session, commit=True,
                      info=vars(args))
 
-    if args.samples is None:
+    if args.sample_ids is None:
         samples = map(lambda s: s.id, session.query(Sample.id).all())
     else:
-        samples = args.samples
+        samples = args.sample_ids
 
     if args.force:
         q = session.query(SampleStats).filter(

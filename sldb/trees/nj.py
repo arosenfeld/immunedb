@@ -66,7 +66,8 @@ class NJWorker(concurrent.Worker):
         mut_counts = {}
         q = self._session.query(
             Sequence.seq_id,
-            Sequence.sequence
+            Sequence.sequence,
+            Sequence.mutations_from_clone
         ).filter(
             Sequence.clone_id == clone_id,
             Sequence.copy_number_in_clone > 0
@@ -76,7 +77,9 @@ class NJWorker(concurrent.Worker):
         for i, seq in enumerate(q):
             seqs[base64.b64encode(seq.seq_id)] = seq.sequence
 
-            for mut in _get_mutations(germline_seq, seq.sequence):
+            for mut in _get_mutations(
+                    germline_seq, seq.sequence,
+                    map(int, json.loads(seq.mutations_from_clone).keys())):
                 if mut not in mut_counts:
                     mut_counts[mut] = 0
                 mut_counts[mut] += 1
@@ -118,7 +121,10 @@ class NJWorker(concurrent.Worker):
                 modified_seq = _remove_muts(seq.sequence_replaced, remove_muts,
                                             germline_seq)
                 node.add_feature('mutations', _get_mutations(
-                                 germline_seq, modified_seq))
+                     germline_seq, modified_seq,
+                     map(int, json.loads(seq.mutations_from_clone).keys())
+                    )
+                )
             else:
                 node = _instantiate_node(node)
 
@@ -157,12 +163,8 @@ def _get_newick(fasta_input, tree_prog):
     return proc.communicate(input=fasta_input)[0]
 
 
-def _get_mutations(s1, s2):
-    muts = set([])
-    for i, (c1, c2) in enumerate(zip(s1, s2)):
-        if (c1 != c2 and c1 != 'N' and c2 != 'N' and c1 != '-' and c2 != '-'):
-            muts.add((i + 1, c1, c2))
-    return muts
+def _get_mutations(s1, s2, positions):
+    return set([(i + 1, s1[i], s2[i]) for i in positions])
 
 
 def _instantiate_node(node):

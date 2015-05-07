@@ -5,20 +5,21 @@ static PyObject *DNAUtilError;
 static PyObject *dnautils_equal(PyObject *self, PyObject *args) {
     PyObject *s1, *s2;
     char *str1, *str2;
-    int i = 0;
+    int i;
 
     if (!PyArg_ParseTuple(args, "SS", &s1, &s2)) {
-        return NULL;
-    }
-    if ((str1 = PyString_AsString(s1)) == NULL) {
-        return NULL;
-    }
-    if ((str2 = PyString_AsString(s2)) == NULL) {
         return NULL;
     }
 
     if (PyString_Size(s1) != PyString_Size(s2)) {
         PyErr_SetString(DNAUtilError, "Sequences have unequal lengths.");
+        return NULL;
+    }
+
+    if ((str1 = PyString_AsString(s1)) == NULL) {
+        return NULL;
+    }
+    if ((str2 = PyString_AsString(s2)) == NULL) {
         return NULL;
     }
 

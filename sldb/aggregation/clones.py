@@ -38,12 +38,15 @@ def _get_subject_clones(session, subject_id, min_similarity, limit_alignments,
         Sequence.clone_id.is_(None),
 
         Sequence.sample.has(subject_id=subject_id),
-        Sequence.v_match / Sequence.v_length >= min_identity,
         Sequence.alignment.in_(limit_alignments),
         ~Sequence.junction_aa.like('%*%'),
 
         Sequence.copy_number_in_subject > 1
     )
+    if min_identity > 0:
+        query = query.filter(
+            Sequence.v_match / Sequence.v_length >= min_identity
+        )
     if not include_indels:
         query = query.filter(Sequence.probable_indel_or_misalign == 0)
 
@@ -159,6 +162,10 @@ def run_clones(session, args):
             )
         ).update({
             'clone_id': None,
+            'mutations_from_clone': None,
+            'collapse_to_clone_seq_id': None,
+            'collapse_to_clone_sample_id': None,
+            'copy_number_in_clone': None
         }, synchronize_session=False)
         print 'Deleting existing clone stats'
         session.query(CloneStats).filter(
