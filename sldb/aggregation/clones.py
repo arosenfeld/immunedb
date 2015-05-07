@@ -49,10 +49,11 @@ def _get_subject_clones(session, subject_id, min_similarity, limit_alignments,
 
     query = query.order_by(desc(Sequence.copy_number_in_subject))
 
+    total = query.count()
     for i, seq in enumerate(query):
         if i > 0 and i % 1000 == 0:
             session.commit()
-            print 'Committed {}/{} (new clones={})'.format(i, query.count(),
+            print 'Committed {}/{} (new clones={})'.format(i, total,
                                                            new_clones)
 
         # Key for cache has implicit subject_id due to function parameter
