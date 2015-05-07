@@ -92,7 +92,6 @@ class CollapseWorker(concurrent.Worker):
         if self._tasks % 100 == 0:
             self._session.commit()
 
-
     def cleanup(self, worker_id):
         self._print(worker_id, 'Committing collapsed sequences')
         self._session.commit()
@@ -134,6 +133,7 @@ def collapse_seqs(session, seqs, copy_field, collapse_copy_field,
                 # Delete the smaller sequence from the list to process since
                 # it's been collapsed
                 del to_process[i]
+
         # Update the larger sequence's copy number and "collapse" to itself
         update_dict = {
             collapse_seq_id_field: larger['seq_id'],

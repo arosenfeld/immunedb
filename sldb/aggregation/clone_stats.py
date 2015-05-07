@@ -63,7 +63,7 @@ class CloneStatsWorker(concurrent.Worker):
             sample_mutations = CloneMutations(
                 self._session,
                 self._session.query(Clone).filter(Clone.id == clone_id).first()
-            ).calculate()[0]
+            ).calculate(limit_samples=[0])[0]
 
         selection_pressure = baseline.get_selection(
             self._session, clone_id, self._baseline_path,
@@ -71,11 +71,11 @@ class CloneStatsWorker(concurrent.Worker):
             temp_dir=self._baseline_temp)
 
         record_values = {
-            clone_id: clone_id,
-            unique_cnt: counts.unique,
-            total_cnt: counts.total,
-            mutations: json.dumps(sample_mutations.get_all()),
-            selection_pressure: json.dumps(selection_pressure)
+            'clone_id': clone_id,
+            'unique_cnt': counts.unique,
+            'total_cnt': counts.total,
+            'mutations': json.dumps(sample_mutations.get_all()),
+            'selection_pressure': json.dumps(selection_pressure)
         }
         self._session.add(CloneStats(sample_id=sample_id, **record_values))
 
@@ -109,6 +109,9 @@ def run_clone_stats(session, args):
         session.commit()
 
     tasks = concurrent.TaskQueue()
+    print 'Creating task queue to generate stats for {} clones.'.format(
+        len(clones)
+    )
     for cid in clones:
         sample_ids = map(lambda c: c.sample_id, session.query(
             distinct(Sequence.sample_id).label('sample_id')
