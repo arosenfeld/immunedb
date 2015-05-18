@@ -153,6 +153,39 @@ identify:
 
     $ sldb_identify /path/to/master.json /path/to/data.json /path/to/sequence-data-directory /path/to/v_germlines
 
+Sample & Subject Sequence Collapsing
+------------------------------------
+SLDB collapses sequences at three levels: the sample, subject, and clone.
+Collapsing two sequences at a given level means that they are considered the
+same.  This is not necessarily a simple task of checking for exactly matching
+sequences because sequences may contain unknown bases, represented by the
+character ``N``.
+
+To do so, SLDB compares sequences pairwise, ignoring positions that either
+sequences has an ``N`` with the ``sldb_collapse`` command.  This process is
+highly optimized due to its computational complexity, and written in C rather
+than Python.
+
+Collapsing at the sample level must be done immediately after identification
+with:
+
+.. code-block:: bash
+
+    $ sldb_collapse /path/to/master.json /path/to/data.json samples
+
+The optional ``--sample-ids`` flag can specify that only certain samples should be
+collapsed.
+
+After this, the sequences must be collapsed to the subject level with a similar
+command:
+
+.. code-block:: bash
+
+    $ sldb_collapse /path/to/master.json /path/to/data.json subjects
+
+Similarly, the ``--subject-ids`` flag can be used to limit which subjects are
+collapsed.
+
 Clonal Assignment
 -----------------
 After sequences are assigned V and J genes, they can be clustered into clones
@@ -168,6 +201,18 @@ A basic example of clonal assignment, not using all possible arguments:
 This will assign each sequence with at least 2 copies to a clone.  Additionally,
 it will establish clone-groups in the master database which make associating
 clones across versions simpler.
+
+
+Clone Sequence Collapsing
+-------------------------
+After clones are created, sequences within them must further be collapsed with:
+
+.. code-block:: bash
+
+    $ sldb_collapse /path/to/master.json /path/to/data.json clones
+
+As with subject collapsing ``--subject-ids`` can be used to limit the clones to
+specified subjects.
 
 .. _stats_generation:
 
