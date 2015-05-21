@@ -121,6 +121,8 @@ class SampleStats(BaseData):
         (e.g. functional)
     :param bool outliers: If outliers were included in the statistics
     :param bool full_reads: If only full reads were included in the statistics
+
+    :param str v_identity_dist: Distribution of V gene identity
     :param str v_match_dist: Distribution of V gene match count
     :param str v_length_dist: Distribution of V gene total length
     :param str j_match_dist: Distribution of J gene match count
@@ -248,6 +250,27 @@ class Clone(BaseData):
 
 
 class CloneStats(BaseData):
+    """Stores statistics for a given clone and sample.  If sample is zero (0)
+    the statistics are for the specified clone in all samples.
+
+    :param int clone_id: The clone ID
+    :param Relationship clone: Reference to the associated \
+        :py:class:`Clone` instance
+
+    :param int sample_id: The sample ID
+    :param Relationship sample: Reference to the associated \
+        :py:class:`Sample` instance
+
+    :param int unique_cnt: The number of unique sequences in the clone in the \
+        sample
+    :param int total_cnt: The number of total sequences in the clone in the \
+        sample
+
+    :param str mutations: A JSON stanza of mutation count information
+    :param str selection_pressure: A JSON stanza of selection pressure \
+        information
+
+    """
     __tablename__ = 'clone_stats'
     __table_args__ = {'mysql_engine': 'TokuDB'}
 
@@ -265,6 +288,14 @@ class CloneStats(BaseData):
 
 
 class SequenceExtension(MapperExtension):
+    """An extension to force sequences to be unique within a sample.  This
+    cannot be achieved with a traditional UNIQUE constraint since the key would
+    be too long.
+
+    Also sets the ``junction_num_nts`` to the length of the `junction_nt`
+    string
+
+    """
     def before_insert(self, mapper, connection, instance):
         instance.sample_seq_hash = hashlib.sha1('{}{}'.format(
             instance.sample_id, instance.sequence)
@@ -275,24 +306,27 @@ class SequenceExtension(MapperExtension):
 class Sequence(BaseData):
     """Represents a single unique sequence.
 
-    :param str unique_id: A key over ``sample_id`` and ``sequence`` so the \
-        tuple can be maintained unique
+    :param str sample_seq_hash: A key over ``sample_id`` and ``sequence`` so \
+        the tuple can be maintained unique
     :param str seq_id: A unique identifier for the sequence as output by the \
         sequencer
     :param int sample_id: The ID of the sample from which this sequence came
     :param Relationship sample: Reference to the associated \
         :py:class:`Sample` instance
     :param str alignment: Alignment type (e.g. R1, R2, or R1+R2)
-    :param int levenshtein_dist: The optional Levenshtein distance of the \
-        sequence to its germline.  Used to identify possible indels and \
-        misalignments.
+    :param bool probable_indel_or_misalign: If the sequence likely has an \
+        indel or is a bad alignment
+
+    :param str v_gene: The V-gene assigned to the sequence
+    :param str j_gene: The J-gene assigned to the sequence
+
     :param int num_gaps: Number of inserted gaps
     :param int pad_length: The number of pad nucleotides added to the V end \
         of the sequence
+
     :param int v_match: The number of V-gene nucleotides matching the germline
     :param int v_length: The length of the V-gene segment prior to a streak \
         of mismatches in the CDR3
-
     :param int j_match: The number of J-gene nucleotides matching the germline
     :param int j_length: The length of the J-gene segment after a streak of \
         mismatches in the CDR3
@@ -308,26 +342,50 @@ class Sequence(BaseData):
     :param bool in_frame: If the sequence's CDR3 has a length divisible by 3
     :param bool functional: If the sequence is in-frame and contains no stop \
         codons
-
     :param bool stop: If the sequence contains a stop codon
     :param int copy_number: Number of reads identical to the sequence in the \
         same sample
-    :param str sequence: The (possibly-padded) sequence
 
-
-    :param str v_gene: The V-gene assigned to the sequence
-    :param str j_gene: The J-gene assigned to the sequence
     :param int junction_num_nts: The number of nucleotides in the CDR3
     :param str junction_nt: The nucleotides comprising the CDR3
     :param str junction_aa: The amino-acids comprising the CDR3
     :param str gap_method: The method used to gap the sequence (e.g. IGMT)
+
+    :param str sequence: The (possibly-padded) sequence
+    :param str quality: Optional Phred quality score (in Sanger format) for \
+        each base in ``sequence``
     :param str sequence_replaced: The full sequence after being filled in \
         with the germline
+
     :param str germline: The germline sequence for this sequence
 
     :param int clone_id: The clone ID to which this sequence belongs
     :param Relationship clone: Reference to the associated :py:class:`Clone` \
         instance
+    :param str mutations_from_clone: A JSON stanza with mutation information
+
+    :param int copy_number_in_sample: The copy number of the sequence after \
+        collapsing at the sample level.  Will be 0 if the sequence is \
+        collapsed to another.
+    :param str collapse_to_sample_seq_id: The sequence ID of the sequence \
+        to which this sequence is collapsed at the sample level
+
+    :param int copy_number_in_subject: The copy number of the sequence after \
+        collapsing at the subject level.  Will be 0 if the sequence is \
+        collapsed to another.
+    :param int collapse_to_subject_sample_id: The sample ID of the sequence \
+        to which this sequence is collapsed at the subject level
+    :param str collapse_to_subject_seq_id: The sequence ID of the sequence \
+        to which this sequence is collapsed at the subject level
+
+
+    :param int copy_number_in_clone: The copy number of the sequence after \
+        collapsing at the clone level.  Will be 0 if the sequence is \
+        collapsed to another.
+    :param int collapse_to_clone_sample_id: The sample ID of the sequence \
+        to which this sequence is collapsed at the clone level
+    :param str collapse_to_clone_seq_id: The sequence ID of the sequence \
+        to which this sequence is collapsed at the clone level
 
     """
     __tablename__ = 'sequences'
@@ -418,6 +476,9 @@ class DuplicateSequence(BaseData):
     attribute of :py:class:`Sequence` instances is equal to the number of
     its duplicate sequences plus one.
 
+    :param str seq_id: A unique identifier for the sequence as output by the \
+        sequencer
+
     :param str duplicate_seq_id: The identifier of the sequence in the same \
         sample with the same sequence
     :param Relationship duplicate_seq: Reference to the associated \
@@ -426,9 +487,6 @@ class DuplicateSequence(BaseData):
     :param int sample_id: The ID of the sample from which this sequence came
     :param Relationship sample: Reference to the associated \
         :py:class:`Sample` instance
-
-    :param str seq_id: A unique identifier for the sequence as output by the \
-        sequencer
 
     """
     __tablename__ = 'duplicate_sequences'
@@ -475,6 +533,14 @@ class NoResult(BaseData):
 
 
 class ModificationLog(BaseData):
+    """A log message for a database modification
+
+    :param int id: The ID of the log message
+    :param datetime datetime: The date and time of the message
+    :param str action_type: A short string representing the action
+    :param str info: A JSON stanza with log message information
+
+    """
     __tablename__ = 'modification_logs'
     __table_args__ = {'mysql_engine': 'TokuDB'}
 

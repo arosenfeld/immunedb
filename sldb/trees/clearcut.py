@@ -16,11 +16,12 @@ from sldb.identification.v_genes import VGene
 import sldb.util.concurrent as concurrent
 
 
-class NJWorker(concurrent.Worker):
-    def __init__(self, session, tree_prog, min_count):
+class ClearcutWorker(concurrent.Worker):
+    def __init__(self, session, tree_prog, min_count, min_samples):
         self._session = session
         self._tree_prog = tree_prog
         self._min_count = min_count
+        self._min_samples = min_samples
 
     def do_task(self, worker_id, clone_inst):
         self._print(worker_id, 'Running clone {}'.format(clone_inst.id))
@@ -33,14 +34,13 @@ class NJWorker(concurrent.Worker):
                         germline_seq[VGene.CDR3_OFFSET +
                                      clone_inst.cdr3_num_nts:])
 
-        fasta, remove_muts = self._get_fasta_input(germline_seq, clone_inst.id,
-                                                   self._min_count)
+        fasta, remove_muts = self._get_fasta_input(germline_seq, clone_inst.id)
         newick = _get_newick(fasta, self._tree_prog)
 
         try:
             tree = self._get_tree(newick, germline_seq, remove_muts)
         except:
-            self._print('[ERROR] Could not get tree for {}'.format(
+            self._print(worker_id, '[ERROR] Could not get tree for {}'.format(
                 clone_inst.id))
             return
 
@@ -61,11 +61,12 @@ class NJWorker(concurrent.Worker):
         self._session.add(clone_inst)
         self._session.commit()
 
-    def _get_fasta_input(self, germline_seq, clone_id, min_count):
+    def _get_fasta_input(self, germline_seq, clone_id):
         seqs = {}
         mut_counts = {}
         q = self._session.query(
             Sequence.seq_id,
+            Sequence.sample_id,
             Sequence.sequence,
             Sequence.mutations_from_clone
         ).filter(
@@ -81,12 +82,14 @@ class NJWorker(concurrent.Worker):
                     germline_seq, seq.sequence,
                     map(int, json.loads(seq.mutations_from_clone).keys())):
                 if mut not in mut_counts:
-                    mut_counts[mut] = 0
-                mut_counts[mut] += 1
+                    mut_counts[mut] = {'count': 0, 'samples': set([])}
+                mut_counts[mut]['count'] += 1
+                mut_counts[mut]['samples'].add(seq.sample_id)
 
         remove_muts = set([])
-        for mut, cnt in mut_counts.iteritems():
-            if cnt < min_count:
+        for mut, cnts in mut_counts.iteritems():
+            if (cnts['count'] < self._min_count
+                    or len(cnts['samples']) < self._min_samples):
                 remove_muts.add(mut)
 
         for seq_id, seq in seqs.iteritems():
@@ -300,7 +303,7 @@ def _get_total_muts(tree):
     return muts
 
 
-def run_nj(session, args):
+def run_clearcut(session, args):
     if args.clone_ids is None:
         clones = session.query(Clone.id)
         if not args.force:
@@ -324,6 +327,7 @@ def run_nj(session, args):
 
     for i in range(0, args.nproc):
         session = config.init_db(args.master_db_config, args.data_db_config)
-        tasks.add_worker(NJWorker(session, args.tree_prog, args.min_count))
+        tasks.add_worker(ClearcutWorker(session, args.clearcut_path,
+                                        args.min_count, args.min_samples))
 
     tasks.start()

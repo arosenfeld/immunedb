@@ -351,7 +351,7 @@ def get_max_point(threshold, data_list):
     """
 
     target_y = threshold * data_list[-1][1]
-    for data in datalist:
+    for data in data_list:
         if data[1] >= target_y:
             return data
 

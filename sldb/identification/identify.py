@@ -230,6 +230,7 @@ class IdentificationWorker(concurrent.Worker):
             return existing.seq_id
 
         if vdj.quality is not None:
+            # Converts quality array into Sanger FASTQ quality string
             quality = ''.join(map(
                 lambda q: ' ' if q is None else chr(q + 33), vdj.quality))
         else:
@@ -267,7 +268,6 @@ class IdentificationWorker(concurrent.Worker):
             gap_method='IMGT',
 
             sequence=str(vdj.sequence),
-            # Converts quality array into Sanger FASTQ quality string
             quality=quality,
             sequence_replaced=vdj.sequence_filled,
 
