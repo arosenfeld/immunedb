@@ -20,7 +20,7 @@ setup(
     scripts=[
         'bin/sldb_clones',
         'bin/sldb_clone_stats',
-        'bin/sldb_clone_tree',
+        'bin/sldb_clone_trees',
         'bin/sldb_collapse',
         'bin/sldb_identify',
         'bin/sldb_import_delim',

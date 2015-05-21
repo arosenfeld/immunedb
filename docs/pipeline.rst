@@ -250,7 +250,7 @@ Clone statistics require the path to the `Baseline
 
 Clone Trees
 -----------
-Lineage trees for clones is generated with the ``sldb_clone_tree`` command.  The
+Lineage trees for clones is generated with the ``sldb_clone_trees`` command.  The
 only currently supported method is neighbor-joining as provided by `Clearcut
 <http://bioinformatics.hungry.com/clearcut>`_.  Among others, the ``min-count``
 parameter allows for mutations to be omitted if they have not occurred at least
@@ -260,7 +260,7 @@ error.
 
 .. code-block:: bash
 
-    $ sldb_clone_tree /path/to/master.json /path/to/data.json /path/to/Baseline_Main.r nj /path/to/clearcut --min-count 2
+    $ sldb_clone_trees /path/to/master.json /path/to/data.json /path/to/clearcut --min-count 2
 
 .. _supplemental_tools:
 
