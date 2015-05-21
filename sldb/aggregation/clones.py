@@ -165,7 +165,7 @@ def run_clones(session, args):
             'mutations_from_clone': None,
             'collapse_to_clone_seq_id': None,
             'collapse_to_clone_sample_id': None,
-            'copy_number_in_clone': None
+            'copy_number_in_clone': 0
         }, synchronize_session=False)
         print 'Deleting existing clone stats'
         session.query(CloneStats).filter(
