@@ -15,12 +15,30 @@ import sldb.util.lookups as lookups
 
 
 def _consensus(strings):
+    """Gets the unweighted consensus from a list of strings
+
+    :param list strings: A set of equal-length strings.
+
+    :returns: A consensus string
+    :rtype: str
+
+    """
     chrs = [Counter(chars).most_common(1)[0][0] for chars in zip(*strings)]
     return ''.join(chrs)
 
 
-def _similar_to_all(seq, clone_query, min_similarity):
-    for comp_seq in clone_query:
+def _similar_to_all(seq, rest, min_similarity):
+    """Determines if the string ``seq`` is at least ``min_similarity`` similar to the list
+    of strings ``rest``.
+    
+    :param str seq: The string to compare
+    :param list rest: The list of strings to compare to
+
+    :returns: If ``seq`` is similar to every sequence in ``rest``
+    :rtype: bool
+
+    """
+    for comp_seq in rest:
         sim_frac = 1 - distance.hamming(comp_seq, seq) / float(len(comp_seq))
         if sim_frac < min_similarity:
             return False
@@ -29,6 +47,23 @@ def _similar_to_all(seq, clone_query, min_similarity):
 
 def _get_subject_clones(session, subject_id, min_similarity, limit_alignments,
                         include_indels, min_identity):
+    """Assigns clones to all viable sequences in the specified subject.
+
+    :param Session session: The database session
+    :param int subject_id: ID of the subject
+    :param float min_similarity: The minimum similarity required for two
+    sequences to be in the same clone
+    :param list limit_alignments: The alignments allowed for sequences to be in
+    a clone
+    :param bool include_indels: If sequences with possible indels should be
+    assigned to clones
+    :param float min_identity: The minimum V-gene germline-identity required for
+    a sequence to be assigned a clone
+
+    :returns: The list of clone IDs which have been created or updated
+    :rtype: list
+
+    """
     clone_cache = {}
     new_clones = 0
     to_update = set([])
@@ -106,6 +141,13 @@ def _get_subject_clones(session, subject_id, min_similarity, limit_alignments,
 
 
 def _assign_clones_to_groups(session, subject_id, to_update):
+    """Assigns clones to groups.
+
+    :param Session session: The database session
+    :param int subject_id: The ID of the subject
+    :param list to_update: The list of clone IDs to assign to groups
+
+    """
     if len(to_update) == 0:
         return
     for i, clone in enumerate(session.query(Clone).filter(
@@ -146,6 +188,11 @@ def _assign_clones_to_groups(session, subject_id, to_update):
 
 
 def run_clones(session, args):
+    """Runs the clone-assignment pipeline stage.
+    :param Session session: The database session
+    :param Namespace args: The arguments passed to the command
+
+    """
     if args.subject_ids is None:
         subjects = map(lambda s: s.id, session.query(Subject.id).all())
     else:

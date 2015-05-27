@@ -19,7 +19,7 @@ class Exporter(object):
 
         :param tuple e: Input field to split into name and field.
 
-        :return: Name and field for export field ``e``
+        :returns: Name and field for export field ``e``
         :rtype: (name, field)
 
         """
@@ -34,7 +34,7 @@ class Exporter(object):
         :param Sequence seq: The sequence from which to gather fields
         :param kwargs overrides: Fields to override
 
-        :returns A list of ``(name, value)`` tuples with the selected data
+        :returns: A list of ``(name, value)`` tuples with the selected data
         :rtype: list
 
         """

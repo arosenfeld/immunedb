@@ -12,18 +12,38 @@ import sldb.util.concurrent as concurrent
 
 
 class CloneStatsWorker(concurrent.Worker):
+    """A worker class for generating clone statistics.  This worker will accept
+    one ``(clone, sample)`` set at a time for maximum parallelization.
+
+    :param Session session: The database session
+    :param str baseline_path: The path to the main baseline run script
+    :param str baseline_temp: The path to a directory where temporary files may
+        be placed.
+
+    """
     def __init__(self, session, baseline_path, baseline_temp):
         self._session = session
         self._baseline_path = baseline_path
         self._baseline_temp = baseline_temp
 
     def do_task(self, worker_id, args):
+        """Starts the task of generating clone statistics for a given
+        ``(clone_id, sample_id)`` pair.  If ``args['sample_id']`` is 0,
+        statistics for the clone in all samples will be created, otherwise
+        statistics for the clone in the context of just the specified sample
+        will be created.  If ``args['single']`` is ``True`` the clone only
+        exists in one sample so the statistics for the sample and all samples
+        are the same and will be calculated only once for efficiency.
+
+        :param int worker_id: The ID of the worker
+        :param dict args: A dictionary with keys: an integer``clone_id``, an
+            integer ``sample_id``, and a boolean ``single``.
+
+        """
         clone_id = args['clone_id']
         sample_id = args['sample_id']
         single = args['single']
-        self._context_stats(worker_id, clone_id, sample_id, single)
 
-    def _context_stats(self, worker_id, clone_id, sample_id, single):
         self._print(worker_id, 'Clone {}, sample {}'.format(
             clone_id, sample_id if sample_id != 0 else 'ALL')
         )
@@ -90,6 +110,11 @@ class CloneStatsWorker(concurrent.Worker):
 
 
 def run_clone_stats(session, args):
+    """Runs the clone statistics generation stage of the pipeline.
+    :param Session session: The database session
+    :param Namespace args: The arguments passed to the command
+
+    """
     mod_log.make_mod('clone_stats', session=session, commit=True,
                      info=vars(args))
 
