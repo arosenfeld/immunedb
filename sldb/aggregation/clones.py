@@ -210,9 +210,6 @@ def run_clones(session, args):
         ).update({
             'clone_id': None,
             'mutations_from_clone': None,
-            'collapse_to_clone_seq_id': None,
-            'collapse_to_clone_sample_id': None,
-            'copy_number_in_clone': None
         }, synchronize_session=False)
         print 'Deleting existing clone stats'
         session.query(CloneStats).filter(
@@ -235,3 +232,35 @@ def run_clones(session, args):
             args.min_identity / 100.0)
         print 'Assigning clones to groups'
         _assign_clones_to_groups(session, sid, to_update)
+
+    print 'Pushing clone IDs to sample sequences'
+    session.connection(mapper=Sequence).execute(text('''
+        update
+            sequences as s
+        join
+            (select seq_id, sample_id, clone_id from sequences where
+                copy_number_in_subject > 0) as j
+        on
+            (s.collapse_to_subject_seq_id=j.seq_id and
+                s.collapse_to_subject_sample_id=j.sample_id)
+        set
+            s.clone_id=j.clone_id
+        where
+            s.copy_number_in_subject=0
+    '''))
+
+    print 'Pushing clone IDs to individual sequences'
+    session.connection(mapper=Sequence).execute(text('''
+        update
+            sequences as s
+        join
+            (select seq_id, sample_id, clone_id from sequences where
+                copy_number_in_sample > 0) as j
+        on
+            (s.collapse_to_sample_seq_id=j.seq_id and
+                s.sample_id=j.sample_id)
+        set
+            s.clone_id=j.clone_id
+        where
+            s.copy_number_in_sample=0
+    '''))

@@ -378,15 +378,6 @@ class Sequence(BaseData):
     :param str collapse_to_subject_seq_id: The sequence ID of the sequence \
         to which this sequence is collapsed at the subject level
 
-
-    :param int copy_number_in_clone: The copy number of the sequence after \
-        collapsing at the clone level.  Will be 0 if the sequence is \
-        collapsed to another.
-    :param int collapse_to_clone_sample_id: The sample ID of the sequence \
-        to which this sequence is collapsed at the clone level
-    :param str collapse_to_clone_seq_id: The sequence ID of the sequence \
-        to which this sequence is collapsed at the clone level
-
     """
     __tablename__ = 'sequences'
     __table_args__ = (
@@ -463,11 +454,6 @@ class Sequence(BaseData):
                                     nullable=False)
     collapse_to_subject_sample_id = Column(Integer)
     collapse_to_subject_seq_id = Column(String(128))
-
-    copy_number_in_clone = Column(Integer, index=True, server_default='0',
-                                  nullable=False)
-    collapse_to_clone_sample_id = Column(Integer)
-    collapse_to_clone_seq_id = Column(String(128))
 
 
 class DuplicateSequence(BaseData):

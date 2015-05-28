@@ -55,35 +55,23 @@ class CloneStatsWorker(concurrent.Worker):
         if existing is not None:
             return
 
-        if sample_id != 0:
-            counts = self._session.query(
-                func.count(Sequence.seq_id).label('unique'),
-                func.sum(Sequence.copy_number_in_sample).label('total')
-            ).filter(
-                Sequence.clone_id == clone_id,
-                Sequence.sample_id == sample_id,
-                Sequence.copy_number_in_sample > 0
-            ).first()
+        counts = self._session.query(
+            func.count(Sequence.seq_id).label('unique'),
+            func.sum(Sequence.copy_number_in_sample).label('total')
+        ).filter(Sequence.clone_id == clone_id)
 
-            sample_mutations = CloneMutations(
-                self._session,
-                self._session.query(Clone).filter(Clone.id == clone_id).first()
-            ).calculate(
-                commit_seqs=True, limit_samples=[sample_id],
-            )[sample_id]
+        if sample == 0:
+            counts = counts.filter(Sequence.copy_number_in_subject > 0)
         else:
-            counts = self._session.query(
-                func.count(Sequence.seq_id).label('unique'),
-                func.sum(Sequence.copy_number_in_clone).label('total')
-            ).filter(
-                Sequence.clone_id == clone_id,
-                Sequence.copy_number_in_clone > 0
-            ).first()
+            counts = counts.filter(Sequence.sample_id == sample_id,
+                                   Sequence.copy_number_in_sample > 0)
 
-            sample_mutations = CloneMutations(
-                self._session,
-                self._session.query(Clone).filter(Clone.id == clone_id).first()
-            ).calculate(limit_samples=[0])[0]
+        sample_mutations = CloneMutations(
+            self._session,
+            self._session.query(Clone).filter(Clone.id == clone_id).first()
+        ).calculate(
+            commit_seqs=sample_id != 0, limit_samples=[sample_id],
+        )[sample_id]
 
         selection_pressure = baseline.get_selection(
             self._session, clone_id, self._baseline_path,
@@ -144,6 +132,8 @@ def run_clone_stats(session, args):
             Sequence.copy_number_in_sample > 0
         ))
         if len(sample_ids) > 1:
+            # If the clone exists in multiple samples, calculate the overall
+            # stats AND the per-sample stats
             tasks.add_task({
                 'clone_id': cid,
                 'single': False,
@@ -156,6 +146,8 @@ def run_clone_stats(session, args):
                     'sample_id': sid
                 })
         else:
+            # If the clone exists in exactly one sample, calculate the stats for
+            # that sample and copy it to the overall stats
             tasks.add_task({
                 'clone_id': cid,
                 'single': True,

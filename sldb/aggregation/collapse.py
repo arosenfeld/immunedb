@@ -68,31 +68,6 @@ class CollapseWorker(concurrent.Worker):
         if self._tasks % 100 == 0:
             self._session.commit()
 
-    def _collapse_clone(self, worker_id, args):
-        self._print(worker_id, 'Collapsing clones {}'.format(
-            ','.join(map(str, args['cids']))))
-
-        for cid in args['cids']:
-            seqs = self._session.query(
-                Sequence.sample_id,
-                Sequence.seq_id,
-                Sequence.sequence,
-                Sequence.copy_number_in_subject
-            ).filter(
-                Sequence.clone_id == cid,
-                Sequence.copy_number_in_subject > 0
-            ).all()
-
-            collapse_seqs(
-                self._session, seqs, 'copy_number_in_subject',
-                'copy_number_in_clone', 'collapse_to_clone_seq_id',
-                'collapse_to_clone_sample_id'
-            )
-
-        self._tasks += 1
-        if self._tasks % 100 == 0:
-            self._session.commit()
-
     def cleanup(self, worker_id):
         self._print(worker_id, 'Committing collapsed sequences')
         self._session.commit()
@@ -159,9 +134,6 @@ def collapse_samples(master_db_config, data_db_config, sample_ids,
         'collapse_to_subject_seq_id': None,
         'collapse_to_subject_sample_id': None,
         'copy_number_in_subject': 0,
-        'collapse_to_clone_seq_id': None,
-        'collapse_to_clone_sample_id': None,
-        'copy_number_in_clone': 0,
     }, synchronize_session=False)
     session.commit()
 
@@ -197,20 +169,6 @@ def collapse_subjects(master_db_config, data_db_config, subject_ids,
     print 'Creating task queue to collapse {} subjects.'.format(
         len(subject_ids))
 
-    session.query(Sequence).filter(
-        exists().where(
-            and_(
-                Sample.id == Sequence.sample_id,
-                Sample.subject_id.in_(subject_ids)
-            )
-        )
-    ).update({
-        'collapse_to_clone_seq_id': None,
-        'collapse_to_clone_sample_id': None,
-        'copy_number_in_clone': 0,
-    }, synchronize_session=False)
-    session.commit()
-
     tasks = concurrent.TaskQueue()
 
     for subject_id in subject_ids:
@@ -238,77 +196,6 @@ def collapse_subjects(master_db_config, data_db_config, subject_ids,
     tasks.start()
 
 
-def collapse_clones(master_db_config, data_db_config, clone_ids,
-                    nproc, chunk_size=25):
-    print 'Creating task queue to collapse {} clones.'.format(len(clone_ids))
-    tasks = concurrent.TaskQueue()
-    # Collapsing clones is relatively fast and the overhead of context
-    # switching is high, so give each worker a few clones to collapse instead
-    # of just one.
-    for i in range(0, len(clone_ids), chunk_size):
-        tasks.add_task({
-            'type': 'clone',
-            'cids': clone_ids[i:i+chunk_size]
-        })
-
-    for i in range(0, nproc):
-        worker_session = config.init_db(master_db_config, data_db_config)
-        tasks.add_worker(CollapseWorker(worker_session))
-
-    tasks.start()
-
-    session = config.init_db(master_db_config, data_db_config)
-    print 'Pushing clone IDs to subject sequences'
-    session.connection(mapper=Sequence).execute(text('''
-        update
-            sequences as s
-        join
-            (select seq_id, sample_id, clone_id from sequences where
-                copy_number_in_clone > 0) as j
-        on
-            (s.collapse_to_clone_seq_id=j.seq_id and
-                s.collapse_to_clone_sample_id=j.sample_id)
-        set
-            s.clone_id=j.clone_id
-        where
-            s.copy_number_in_clone=0
-    '''))
-
-    print 'Pushing clone IDs to sample sequences'
-    session.connection(mapper=Sequence).execute(text('''
-        update
-            sequences as s
-        join
-            (select seq_id, sample_id, clone_id from sequences where
-                copy_number_in_subject > 1) as j
-        on
-            (s.collapse_to_subject_seq_id=j.seq_id and
-                s.collapse_to_subject_sample_id=j.sample_id)
-        set
-            s.clone_id=j.clone_id
-        where
-            s.copy_number_in_clone=0
-    '''))
-
-    print 'Pushing clone IDs to individual sequences'
-    session.connection(mapper=Sequence).execute(text('''
-        update
-            sequences as s
-        join
-            (select seq_id, sample_id, clone_id from sequences where
-                copy_number_in_sample > 0) as j
-        on
-            (s.collapse_to_sample_seq_id=j.seq_id and
-                s.sample_id=j.sample_id)
-        set
-            s.clone_id=j.clone_id
-        where
-            s.copy_number_in_sample=0
-    '''))
-    session.commit()
-    session.close()
-
-
 def run_collapse(session, args):
     mod_log.make_mod('collapse', session=session, commit=True,
                      info=vars(args))
@@ -322,17 +209,10 @@ def run_collapse(session, args):
             lambda r: r.id, session.query(Subject).all()
         )
         func = collapse_subjects
-    elif args.level == 'clones':
-        func = collapse_clones
-        if args.ids is not None:
-            ids = map(lambda r: r.id, session.query(Clone.id).filter(
-                Clone.subject_id.in_(args.ids)).all()
-            )
-        else:
-            ids = map(lambda r: r.id, session.query(Clone).all())
     else:
         print '[ERROR] Unknown collapse level.'
         return
+
     session.close()
     func(args.master_db_config, args.data_db_config,
          ids, args.nproc)

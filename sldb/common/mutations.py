@@ -155,7 +155,7 @@ class CloneMutations(object):
                 Sequence.clone == self._clone)
             if sample_id == 0:
                 seqs = seqs.filter(
-                    Sequence.copy_number_in_clone > 0
+                    Sequence.copy_number_in_subject > 0
                 )
             else:
                 seqs = seqs.filter(

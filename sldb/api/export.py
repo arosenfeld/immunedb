@@ -214,10 +214,6 @@ class SequenceExport(Exporter):
         'copy_number_in_subject',
         'collapse_to_subject_seq_id',
         'collapse_to_subject_sample_id',
-
-        'copy_number_in_clone',
-        'collapse_to_clone_seq_id',
-        'collapse_to_clone_sample_id',
     ]
 
     def __init__(self, session, eformat, rtype, rids, selected_fields,

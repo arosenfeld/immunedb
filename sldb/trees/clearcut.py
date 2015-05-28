@@ -71,7 +71,7 @@ class ClearcutWorker(concurrent.Worker):
             Sequence.mutations_from_clone
         ).filter(
             Sequence.clone_id == clone_id,
-            Sequence.copy_number_in_clone > 0
+            Sequence.copy_number_in_subject > 0
         ).order_by(
             Sequence.v_length
         )
@@ -118,7 +118,7 @@ class ClearcutWorker(concurrent.Worker):
 
                 node.name = name
                 node.add_feature('seq_ids', [seq.seq_id])
-                node.add_feature('copy_number', seq.copy_number_in_clone)
+                node.add_feature('copy_number', seq.copy_number_in_subject)
                 node.add_feature('tissues', map(str, tissues))
                 node.add_feature('subsets', map(str, subsets))
                 modified_seq = _remove_muts(seq.sequence_replaced, remove_muts,
