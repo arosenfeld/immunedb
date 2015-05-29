@@ -295,7 +295,7 @@ def run_identify(session, args):
             else:
                 files = metadata.keys()
 
-            for fn in files:
+            for fn in sorted(files):
                 if fn in ('metadata.json', 'all') or fn not in metadata:
                     continue
                 tasks.add_task({
