@@ -86,10 +86,18 @@ class CloneStatsWorker(concurrent.Worker):
             commit_seqs=sample_id == 0, limit_samples=[sample_id],
         )[sample_id]
 
-        selection_pressure = baseline.get_selection(
-            self._session, clone_id, self._baseline_path,
-            samples=[sample_id] if sample_id != 0 else None,
-            temp_dir=self._baseline_temp)
+        selection_pressure = {
+            'all': baseline.get_selection(
+                self._session, clone_id, self._baseline_path,
+                samples=[sample_id] if sample_id != 0 else None,
+                remove_single_mutations=False,
+                temp_dir=self._baseline_temp),
+            'multiples': baseline.get_selection(
+                self._session, clone_id, self._baseline_path,
+                samples=[sample_id] if sample_id != 0 else None,
+                remove_single_mutations=True,
+                temp_dir=self._baseline_temp)
+        }
 
         record_values = {
             'clone_id': clone_id,

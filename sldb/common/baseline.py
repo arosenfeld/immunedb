@@ -1,5 +1,6 @@
 import csv
 import os
+import json
 import shlex
 import subprocess
 
@@ -24,6 +25,7 @@ FIX_INDELS = 1
 
 
 def get_selection(session, clone_id, script_path, samples=None,
+                  remove_single_mutations=False,
                   temp_dir='/tmp',
                   test_type=TEST_FOCUSED,
                   species=SPECIES_HUMAN,
@@ -42,7 +44,8 @@ def get_selection(session, clone_id, script_path, samples=None,
     read_path = os.path.join(temp_dir, 'output{}{}.txt'.format(unique_id,
                              clone.id))
 
-    _make_input_file(session, input_path, clone, samples)
+    _make_input_file(session, input_path, clone, samples,
+                     remove_single_mutations)
     cmd = 'Rscript {} {} {} {} {} {} {} {} {} {} {}'.format(
         script_path, test_type, species,
         sub_model, mut_model, SEQ_CLONAL,
@@ -65,7 +68,8 @@ def get_selection(session, clone_id, script_path, samples=None,
     return output
 
 
-def _make_input_file(session, input_path, clone, samples):
+def _make_input_file(session, input_path, clone, samples,
+                     remove_single_mutations):
     with open(input_path, 'w+') as fh:
         fh.write('>>>CLONE\n')
         fh.write('>>germline\n')
@@ -75,23 +79,40 @@ def _make_input_file(session, input_path, clone, samples):
             clone.group.germline[VGene.CDR3_OFFSET + clone.cdr3_num_nts:]
         ])
         fh.write('{}\n'.format(germline))
-        if samples is None:
-            query = session.query(
+
+        seqs = session.query(
                 Sequence.sequence
+                Sequence.mutations_from_clone
             ).filter(
                 Sequence.clone == clone,
                 Sequence.copy_number_in_subject > 0
             )
+        if samples is None:
+            seqs = seqs.filter(Sequence.copy_number_in_clone > 0)
         else:
-            query = session.query(
-                Sequence.sequence
-            ).filter(
-                Sequence.clone_id == clone.id,
-                Sequence.copy_number_in_sample > 0
-            )
+            seqs = seqs.filter(Sequence.copy_number_in_sample > 0)
 
-        for i, seq in enumerate(query):
-            fh.write('>{}\n{}\n'.format(i, seq.sequence))
+        if remove_single_mutations:
+            singles = set([])
+            seqs = seqs.all()
+            for seq in seqs:
+                muts = set([(i, seq.sequence[i]) for i in
+                    seq.mutations_from_clone.keys()])
+                singles.symmetric_difference_update(muts)
+
+            updated_seqs = []
+            for seq in seqs:
+                ns = list(seq.sequence)
+                for pos, to_nt in muts:
+                    if ns[pos] == to_nt:
+                        ns[pos] = clone.germline[pos]
+                updated_seqs.append(''.join(ns))
+        else:
+            updated_seqs = map(lambda s: s.sequence, seqs)
+
+
+        for i, seq in enumerate(updated_seqs):
+            fh.write('>{}\n{}\n'.format(i, seq))
 
 
 def _parse_output(session, clone, fh):

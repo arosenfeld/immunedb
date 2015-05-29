@@ -57,7 +57,14 @@ class ClearcutWorker(concurrent.Worker):
                 break
             first = False
 
-        clone_inst.tree = json.dumps(_get_json(tree))
+        final = {
+            'info': {
+                'min_count': self._min_count,
+                'min_samples': self._min_samples
+            },
+            'tree': _get_json(tree)
+        }
+        clone_inst.tree = json.dumps(final)
         self._session.add(clone_inst)
         self._session.commit()
 
