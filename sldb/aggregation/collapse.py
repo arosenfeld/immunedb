@@ -10,19 +10,38 @@ import sldb.util.concurrent as concurrent
 
 
 class CollapseWorker(concurrent.Worker):
+    """A worker for collapsing sequences without including positions where
+    either sequences has an 'N'.
+
+    :param Session session: The database session
+
+    """
     def __init__(self, session):
         self._session = session
         self._tasks = 0
 
     def do_task(self, worker_id, args):
+        """Initiates the correct method based on the type of collapsing that is
+        being done
+
+        :param int worker_id: The ID of the worker
+        :param dict args: A dictionary with at least a ``type`` key
+
+        """
         if args['type'] == 'sample':
             self._collapse_sample(worker_id, args)
         elif args['type'] == 'subject':
             self._collapse_subject(worker_id, args)
-        elif args['type'] == 'clone':
-            self._collapse_clone(worker_id, args)
 
     def _collapse_sample(self, worker_id, args):
+        """Collapses sequences in sample ``args['sample_id']`` and bucket
+        ``(v_gene, j_gene, junction_num_nts)``
+
+        :param int worker_id: The ID of the worker
+        :param dict args: A dictionary with the keys ``sample_id``, ``v_gene``,
+            ``j_gene``, and ``junction_num_nts``
+
+        """
         seqs = self._session.query(
             Sequence.sample_id, Sequence.seq_id, Sequence.sequence,
             Sequence.copy_number
@@ -44,6 +63,15 @@ class CollapseWorker(concurrent.Worker):
             self._session.commit()
 
     def _collapse_subject(self, worker_id, args):
+        """Collapses all clones in the subject with ID ``args['subject_id']``
+        and bucket ``(v_gene, j_gene, junction_num_nts)``
+
+        :param int worker_id: The ID of the worker
+        :param dict args: A dictionary with the keys ``subject_id``,
+            ``v_gene``, ``j_gene``, and ``junction_num_nts``
+
+        """
+
         seqs = self._session.query(
             Sequence.sample_id, Sequence.seq_id, Sequence.sequence,
             Sequence.copy_number_in_sample
@@ -76,6 +104,27 @@ class CollapseWorker(concurrent.Worker):
 
 def collapse_seqs(session, seqs, copy_field, collapse_copy_field,
                   collapse_seq_id_field, collapse_sample_id_field=None):
+    """Collapses sequences, aggregating their copy number in ``copy_field`` into
+    a single sequences ``collapse_copy_field`` and setting the collapsed
+    sequences' ``collapse_seq_id_field`` and ``collapse_sample_id_field`` to
+    that of the collapsed-to sequence.
+
+    :param Session session: The database session
+    :param Sequence seqs: A list of sequences to collapse in any order
+        containing at least the fields ``sample_id``, ``seq_id``, ``sequence``,
+        and the fields with names passed in ``collapse_copy_field``,
+        ``collapse_seq_id_field``, ``collapse_sample_id_field``.
+    :param str copy_field: The name of the field which will be collapsed.  This
+        field will be set to 0 for all sequences which are collapsed to
+        another.
+    :param str collapse_copy_field: The field to which ``copy_field`` values
+        will be collapsed
+    :param str collapse_seq_id_field: The field to set to the ``seq_id`` of the
+        sequence to which a sequence is collapsed
+    :param str collapse_sample_id_field: The field to set to the ``sample_id``
+        of the sequence to which a sequence is collapsed
+
+    """
     to_process = sorted([{
         'sample_id': s.sample_id,
         'seq_id': s.seq_id,
