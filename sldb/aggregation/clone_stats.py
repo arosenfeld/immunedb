@@ -13,7 +13,7 @@ import sldb.util.concurrent as concurrent
 
 class CloneStatsWorker(concurrent.Worker):
     """A worker class for generating clone statistics.  This worker will accept
-    one ``(clone, sample)`` set at a time for maximum parallelization.
+    one clone at a time for parallelization.
 
     :param Session session: The database session
     :param str baseline_path: The path to the main baseline run script
@@ -28,16 +28,9 @@ class CloneStatsWorker(concurrent.Worker):
 
     def do_task(self, worker_id, clone_id):
         """Starts the task of generating clone statistics for a given
-        ``(clone_id, sample_id)`` pair.  If ``args['sample_id']`` is 0,
-        statistics for the clone in all samples will be created, otherwise
-        statistics for the clone in the context of just the specified sample
-        will be created.  If ``args['single']`` is ``True`` the clone only
-        exists in one sample so the statistics for the sample and all samples
-        are the same and will be calculated only once for efficiency.
-
+        clone_id. 
         :param int worker_id: The ID of the worker
-        :param dict args: A dictionary with keys: an integer``clone_id``, an
-            integer ``sample_id``, and a boolean ``single``.
+        :param int args: The clone_id for which to calculate statistics
 
         """
 
@@ -56,6 +49,18 @@ class CloneStatsWorker(concurrent.Worker):
                                  single=len(sample_ids) == 1)
 
     def _process_sample(self, worker_id, clone_id, sample_id, single):
+        """Processes clone statistics for one sample (or the aggregate of all
+        samples).  If ``sample_id`` is 0 the statistics for all sequences in the
+        clone is generated.  If ``single`` is specified, the clone only occurs
+        in one sample and the entry with ``sample_id=0`` should be the same as
+        for the one sample.
+
+        :param int worker_id: The ID of the worker
+        :param int clone_id: The ID of the clone
+        :param int sample_id: The ID of a sample in which the clone exists
+        :param bool single: If the clone only occurs in one sample
+
+        """
         existing = self._session.query(CloneStats).filter(
             CloneStats.clone_id == clone_id,
             CloneStats.sample_id == sample_id).first()
