@@ -26,7 +26,7 @@ class CloneStatsWorker(concurrent.Worker):
         self._baseline_path = baseline_path
         self._baseline_temp = baseline_temp
 
-    def do_task(self, worker_id, args):
+    def do_task(self, worker_id, clone_id):
         """Starts the task of generating clone statistics for a given
         ``(clone_id, sample_id)`` pair.  If ``args['sample_id']`` is 0,
         statistics for the clone in all samples will be created, otherwise
@@ -40,14 +40,22 @@ class CloneStatsWorker(concurrent.Worker):
             integer ``sample_id``, and a boolean ``single``.
 
         """
-        clone_id = args['clone_id']
-        sample_id = args['sample_id']
-        single = args['single']
 
-        self._print(worker_id, 'Clone {}, sample {}'.format(
-            clone_id, sample_id if sample_id != 0 else 'ALL')
+        self._print(worker_id, 'Clone {}'.format(clone_id))
+        sample_ids = map(lambda c: c.sample_id, self._session.query(
+                distinct(Sequence.sample_id).label('sample_id')
+            ).filter(
+                Sequence.clone_id == clone_id,
+                Sequence.copy_number_in_sample > 0
+            )
         )
+        if len(sample_ids) > 1:
+            sample_ids.append(0)
+        for sample_id in sample_ids:
+            self._process_sample(worker_id, clone_id, sample_id,
+                                 single=len(sample_ids) == 1)
 
+    def _process_sample(self, worker_id, clone_id, sample_id, single):
         existing = self._session.query(CloneStats).filter(
             CloneStats.clone_id == clone_id,
             CloneStats.sample_id == sample_id).first()
@@ -60,17 +68,17 @@ class CloneStatsWorker(concurrent.Worker):
             func.sum(Sequence.copy_number_in_sample).label('total')
         ).filter(Sequence.clone_id == clone_id)
 
-        if sample == 0:
-            counts = counts.filter(Sequence.copy_number_in_subject > 0)
+        if sample_id == 0:
+            counts = counts.filter(Sequence.copy_number_in_subject > 0).first()
         else:
             counts = counts.filter(Sequence.sample_id == sample_id,
-                                   Sequence.copy_number_in_sample > 0)
+                                   Sequence.copy_number_in_sample > 0).first()
 
         sample_mutations = CloneMutations(
             self._session,
             self._session.query(Clone).filter(Clone.id == clone_id).first()
         ).calculate(
-            commit_seqs=sample_id != 0, limit_samples=[sample_id],
+            commit_seqs=sample_id == 0, limit_samples=[sample_id],
         )[sample_id]
 
         selection_pressure = baseline.get_selection(
@@ -113,6 +121,7 @@ def run_clone_stats(session, args):
             Clone.subject_id.in_(args.subject_ids)).all())
     else:
         clones = map(lambda c: c.id, session.query(Clone.id).all())
+    clones.sort()
 
     if args.force:
         session.query(CloneStats).filter(
@@ -125,34 +134,7 @@ def run_clone_stats(session, args):
         len(clones)
     )
     for cid in clones:
-        sample_ids = map(lambda c: c.sample_id, session.query(
-            distinct(Sequence.sample_id).label('sample_id')
-        ).filter(
-            Sequence.clone_id == cid,
-            Sequence.copy_number_in_sample > 0
-        ))
-        if len(sample_ids) > 1:
-            # If the clone exists in multiple samples, calculate the overall
-            # stats AND the per-sample stats
-            tasks.add_task({
-                'clone_id': cid,
-                'single': False,
-                'sample_id': 0
-            })
-            for sid in sample_ids:
-                tasks.add_task({
-                    'clone_id': cid,
-                    'single': False,
-                    'sample_id': sid
-                })
-        else:
-            # If the clone exists in exactly one sample, calculate the stats for
-            # that sample and copy it to the overall stats
-            tasks.add_task({
-                'clone_id': cid,
-                'single': True,
-                'sample_id': sample_ids[0]
-            })
+        tasks.add_task(cid)
 
     for i in range(0, args.nproc):
         session = config.init_db(args.master_db_config, args.data_db_config)

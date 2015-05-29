@@ -135,20 +135,12 @@ class ClearcutWorker(concurrent.Worker):
 
 
 def _get_seqs_collapsed_to(session, seq):
-    subject_level_seqs = session.query(
-        Sequence
-    ).filter(
-        Sequence.collapse_to_clone_seq_id == seq.seq_id,
-        Sequence.collapse_to_clone_sample_id == seq.sample_id,
+    sample_level_seqs = session.query(Sequence).filter(
+        Sequence.collapse_to_subject_seq_id == sub_seq.seq_id,
+        Sequence.collapse_to_subject_sample_id == sub_seq.sample_id
     )
-
-    for sub_seq in subject_level_seqs:
-        sample_level_seqs = session.query(Sequence).filter(
-            Sequence.collapse_to_subject_seq_id == sub_seq.seq_id,
-            Sequence.collapse_to_subject_sample_id == sub_seq.sample_id
-            )
-        for sample_seq in sample_level_seqs:
-            yield sample_seq
+    for sample_seq in sample_level_seqs:
+        yield sample_seq
 
 
 def _remove_muts(seq, removes, germline_seq):

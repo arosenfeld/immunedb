@@ -18,7 +18,6 @@ def trace_seq_collapses(session, seq):
 
     subject_col = session.query(
         Sequence.collapse_to_clone_seq_id,
-        Sequence.collapse_to_clone_sample_id,
         Sequence.copy_number_in_subject
     ).filter(
         Sequence.seq_id == sample_col.collapse_to_subject_seq_id,
