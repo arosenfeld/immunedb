@@ -1,3 +1,4 @@
+import collections
 import csv
 import os
 import json
@@ -81,31 +82,37 @@ def _make_input_file(session, input_path, clone, samples,
         fh.write('{}\n'.format(germline))
 
         seqs = session.query(
-                Sequence.sequence
-                Sequence.mutations_from_clone
-            ).filter(
-                Sequence.clone == clone,
-                Sequence.copy_number_in_subject > 0
-            )
+            Sequence.sequence,
+            Sequence.mutations_from_clone
+        ).filter(
+            Sequence.clone == clone
+        )
         if samples is None:
-            seqs = seqs.filter(Sequence.copy_number_in_clone > 0)
+            seqs = seqs.filter(Sequence.copy_number_in_subject > 0)
         else:
-            seqs = seqs.filter(Sequence.copy_number_in_sample > 0)
+            seqs = seqs.filter(Sequence.copy_number_in_sample > 0,
+                               Sequence.sample_id.in_(samples))
 
         if remove_single_mutations:
-            singles = set([])
+            removes = collections.Counter()
             seqs = seqs.all()
+            # Iterate over each sequence and increment the count for each
+            # mutation in the counter
             for seq in seqs:
-                muts = set([(i, seq.sequence[i]) for i in
-                    seq.mutations_from_clone.keys()])
-                singles.symmetric_difference_update(muts)
+                removes.update({(i, seq.sequence[i]): 1 for i in
+                    map(int, json.loads(seq.mutations_from_clone).keys())
+                })
 
+            # Filter out the mutations which occur more than once
+            removes = [mut for mut, cnt in removes.iteritems() if cnt == 1]
+
+            # Remove the remaining mutations, each of which only occurs once
             updated_seqs = []
             for seq in seqs:
                 ns = list(seq.sequence)
-                for pos, to_nt in muts:
+                for pos, to_nt in removes:
                     if ns[pos] == to_nt:
-                        ns[pos] = clone.germline[pos]
+                        ns[pos] = germline[pos]
                 updated_seqs.append(''.join(ns))
         else:
             updated_seqs = map(lambda s: s.sequence, seqs)

@@ -28,7 +28,7 @@ class CloneStatsWorker(concurrent.Worker):
 
     def do_task(self, worker_id, clone_id):
         """Starts the task of generating clone statistics for a given
-        clone_id. 
+        clone_id.
         :param int worker_id: The ID of the worker
         :param int args: The clone_id for which to calculate statistics
 
@@ -83,7 +83,7 @@ class CloneStatsWorker(concurrent.Worker):
             self._session,
             self._session.query(Clone).filter(Clone.id == clone_id).first()
         ).calculate(
-            commit_seqs=sample_id == 0, limit_samples=[sample_id],
+            commit_seqs=sample_id != 0, limit_samples=[sample_id],
         )[sample_id]
 
         selection_pressure = {
