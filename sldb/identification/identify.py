@@ -290,10 +290,7 @@ def run_identify(session, args):
 
         with open(meta_fn) as fh:
             metadata = json.load(fh)
-            if args.incl_all:
-                files = os.listdir(base_dir)
-            else:
-                files = metadata.keys()
+            files = metadata.keys()
 
             for fn in sorted(files):
                 if fn in ('metadata.json', 'all') or fn not in metadata:

@@ -23,10 +23,6 @@ if __name__ == '__main__':
     parser.add_argument('--read-format', default='fastq',
                         help='Input format.  May be \'fasta\' or \'fastq\' '
                         '(Default: fastq)')
-    parser.add_argument('--incl-all', action='store_true', help='If set will '
-                        'attempt to process all files in the directories '
-                        'using the `all` metadata key for those files which '
-                        'do not have an explicit entry.')
 
     args = parser.parse_args()
     if args.read_format not in ('fasta', 'fastq'):

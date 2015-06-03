@@ -112,6 +112,7 @@ class CloneStatsWorker(concurrent.Worker):
         # the same as for the single sample
         if single:
             self._session.add(CloneStats(sample_id=0, **record_values))
+        self._session.commit()
 
     def cleanup(self, worker_id):
         self._session.commit()

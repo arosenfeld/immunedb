@@ -39,9 +39,9 @@ class ClearcutWorker(concurrent.Worker):
 
         try:
             tree = self._get_tree(newick, germline_seq, remove_muts)
-        except:
-            self._print(worker_id, '[ERROR] Could not get tree for {}'.format(
-                clone_inst.id))
+        except Exception as ex:
+            self._print(worker_id, '[ERROR] Could not get tree for '
+                        '{}: {}'.format(clone_inst.id, str(ex)))
             return
 
         tree.set_outgroup('germline')
@@ -85,9 +85,10 @@ class ClearcutWorker(concurrent.Worker):
         for i, seq in enumerate(q):
             seqs[base64.b64encode(seq.seq_id)] = seq.sequence
 
-            for mut in _get_mutations(
-                    germline_seq, seq.sequence,
-                    map(int, json.loads(seq.mutations_from_clone).keys())):
+            mutations = _get_mutations(
+                germline_seq, seq.sequence, map(int,
+                json.loads(seq.mutations_from_clone).keys()))
+            for mut in mutations:
                 if mut not in mut_counts:
                     mut_counts[mut] = {'count': 0, 'samples': set([])}
                 mut_counts[mut]['count'] += 1
@@ -111,7 +112,7 @@ class ClearcutWorker(concurrent.Worker):
         tree = ete2.Tree(newick)
         mut_counts = {}
         for node in tree.traverse():
-            if node.name not in ('NoName', 'germline'):
+            if node.name not in ('NoName', 'germline', ''):
                 name = base64.b64decode(node.name)
                 seq = self._session.query(Sequence).filter(
                     Sequence.seq_id == name
@@ -143,8 +144,8 @@ class ClearcutWorker(concurrent.Worker):
 
 def _get_seqs_collapsed_to(session, seq):
     sample_level_seqs = session.query(Sequence).filter(
-        Sequence.collapse_to_subject_seq_id == sub_seq.seq_id,
-        Sequence.collapse_to_subject_sample_id == sub_seq.sample_id
+        Sequence.collapse_to_subject_seq_id == seq.seq_id,
+        Sequence.collapse_to_subject_sample_id == seq.sample_id
     )
     for sample_seq in sample_level_seqs:
         yield sample_seq
