@@ -4,24 +4,22 @@ import numpy as np
 
 from Bio.Seq import Seq
 
-import sldb.identification.anchors as anchors
-import sldb.identification.germlines as germlines
 from sldb.util.funcs import find_streak_position
-from sldb.identification.v_genes import VGene, get_common_seq
+from sldb.identification.v_genes import VGene, get_common_seq, find_v_position
 
 
 class VDJSequence(object):
     MISMATCH_THRESHOLD = 3
-    MIN_J_ANCHOR_LEN = 12
     INDEL_WINDOW = 30
     INDEL_MISMATCH_THRESHOLD = .6
 
-    def __init__(self, id, seq, is_full_v, v_germlines, force_vs=None,
-                 force_j=None, quality=None):
+    def __init__(self, id, seq, is_full_v, v_germlines, j_germlines,
+            force_vs=None, force_j=None, quality=None):
         self._id = id
         self._seq = seq
         self._is_full_v = is_full_v
         self.v_germlines = v_germlines
+        self.j_germlines = j_germlines
         self._force_vs = force_vs
         self._force_j = force_j
         self._quality = quality
@@ -181,23 +179,15 @@ class VDJSequence(object):
         # TGGTCACCGTCTCCT
         # TGGTCACCGTCT
 
-        # If forcing a J, set the dictionary, otherwise try all
-        if self._force_j is not None:
-            j_anchors = {self._j: anchors.j_anchors[self._force_j]}
-        else:
-            j_anchors = anchors.j_anchors
-
-        for match, full_anchor, j_gene in anchors.all_j_anchors(
-                self.MIN_J_ANCHOR_LEN, anchors=j_anchors):
+        for match, full_anchor, j_gene in self.j_germlines.get_all_anchors(
+                limit_genes=self._force_j):
             i = self._seq.rfind(match)
             if i >= 0:
                 return self._found_j(i, j_gene, match, full_anchor)
 
-            i = self._seq.reverse_complement().rfind(match)
+            self._seq = self._seq.reverse_complement()
+            i = self._seq.rfind(match)
             if i >= 0:
-                # If found in the reverse complement, flip and translate the
-                # actual sequence for the rest of the analysis
-                self._seq = self._seq.reverse_complement()
                 if self._quality is not None:
                     self._quality.reverse()
                 return self._found_j(i, j_gene, match, full_anchor)
@@ -208,20 +198,24 @@ class VDJSequence(object):
         self._j = [j_gene]
 
         # Get the full germline J gene
-        j_full = germlines.j[self.j_gene[0]]
-        # Get the portion of J in the CDR3
-        j_in_cdr3 = j_full[:len(j_full) - germlines.j_offset]
-        cdr3_end = (self._j_anchor_pos) - germlines.j_offset +\
-            len(match)
-        cdr3_segment = self.sequence[cdr3_end - len(j_in_cdr3):cdr3_end]
-        if len(j_in_cdr3) == 0 or len(cdr3_segment) == 0:
+        j_full = self.j_germlines[self.j_gene[0]]
+
+        # Get the portion of the germline J in the CDR3
+        germline_in_cdr3 = self.j_germlines.get_j_in_cdr3(self.j_gene[0])
+        cdr3_end_pos = (
+            self._j_anchor_pos + self.j_germlines.anchor_len -
+            self.j_germlines.upstream_of_cdr3
+        )
+        sequence_in_cdr3 = self.sequence[cdr3_end_pos - len(germline_in_cdr3)
+            :cdr3_end_pos]
+        if len(germline_in_cdr3) == 0 or len(sequence_in_cdr3) == 0:
             self._j = None
             return
 
         # Get the extent of the J in the CDR3
         streak = find_streak_position(
-            reversed(j_in_cdr3),
-            reversed(cdr3_segment),
+            reversed(germline_in_cdr3),
+            reversed(sequence_in_cdr3),
             self.MISMATCH_THRESHOLD)
 
         # Trim the J gene based on the extent in the CDR3
@@ -242,14 +236,15 @@ class VDJSequence(object):
         # Get the full-J distance
         dist = distance.hamming(
             j_full,
-            self.sequence[self._j_start:self._j_start+len(j_full)])
+            self.sequence[self._j_start:self._j_start+len(j_full)]
+        )
 
-        self._j = anchors.get_j_ties(self.j_gene[0], match)
+        self._j = self.j_germlines.get_ties(self.j_gene[0], match)
         self._j_length = len(j_full)
         self._j_match = self._j_length - dist
 
     def _get_v(self, reverse):
-        self._v_anchor_pos = anchors.find_v_position(self.sequence, reverse)
+        self._v_anchor_pos = find_v_position(self.sequence, reverse)
         if self.v_anchor_pos is not None:
             self._find_v()
             if self.v_gene is None and not reverse:
@@ -296,8 +291,9 @@ class VDJSequence(object):
             self._v = None
             return
 
-    def align_to_germline(self, avg_len, avg_mut):
-        self._v = self.v_germlines.get_ties(self.v_gene, avg_len, avg_mut)
+    def align_to_germline(self, avg_len=None, avg_mut=None):
+        if avg_len is not None and avg_mut is not None:
+            self._v = self.v_germlines.get_ties(self.v_gene, avg_len, avg_mut)
         # Set the germline to the V gene up to the CDR3
         self._germline = get_common_seq(
             [self.v_germlines[v].sequence for v in self._v]
@@ -327,14 +323,12 @@ class VDJSequence(object):
                 self._j_anchor_pos += 1
                 self._v_anchor_pos += 1
 
-        j_germ = germlines.j[self.j_gene[0]]
-        # Find the J anchor in the germline J gene
-        j_anchor_in_germline = j_germ.rfind(
-            str(anchors.j_anchors[self.j_gene[0]]))
+        j_germ = self.j_germlines[self.j_gene[0]]
         # Calculate the length of the CDR3
         self._cdr3_len = (
-            (self.j_anchor_pos + len(anchors.j_anchors[self.j_gene[0]]) -
-             germlines.j_offset) - self.v_anchor_pos)
+            self.j_anchor_pos + self.j_germlines.anchor_len -
+             self.j_germlines.upstream_of_cdr3 - self.v_anchor_pos
+        )
 
         if self._cdr3_len <= 0:
             self._v = None
@@ -343,7 +337,7 @@ class VDJSequence(object):
         self._j_anchor_pos += self._cdr3_len
         # Fill germline CDR3 with gaps
         self._germline += '-' * self._cdr3_len
-        self._germline += j_germ[-germlines.j_offset:]
+        self._germline += j_germ[-self.j_germlines.upstream_of_cdr3:]
         # If the sequence is longer than the germline, trim it
         if len(self.sequence) > len(self.germline):
             self._seq = self._seq[:len(self._germline)]
@@ -376,7 +370,7 @@ class VDJSequence(object):
             str(pre_cdr3_seq), str(pre_cdr3_germ))
 
         # Get the length of J after the CDR3
-        self._post_cdr3_length = germlines.j_offset
+        self._post_cdr3_length = self.j_germlines.upstream_of_cdr3
         # Get the sequence and germline sequences after CDR3
         post_j = j_germ[-self.post_cdr3_length:]
         post_s = self.sequence[VGene.CDR3_OFFSET+len(self.cdr3):]

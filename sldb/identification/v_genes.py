@@ -11,14 +11,6 @@ import sldb.identification.anchors as anchors
 from sldb.util.funcs import find_streak_position
 
 
-def get_common_seq(seqs):
-    v_gene = []
-    for nts in itertools.izip_longest(*seqs, fillvalue='N'):
-        v_gene.append(nts[0] if all(map(lambda n: n == nts[0], nts)) else 'N')
-    v_gene = ''.join(v_gene)
-    return v_gene[:VGene.CDR3_OFFSET]
-
-
 class AlignmentException(Exception):
     pass
 
@@ -119,10 +111,9 @@ class VGene(object):
                 self.__class__.__name__))
 
 
-class VGermlines(object):
+class VGermlines(dict):
     def __init__(self, path_to_germlines, ties_prob_threshold=.01,
                  include_prepadded=False):
-        self._germlines = {}
         self._prob_threshold = ties_prob_threshold
         self._ties = {}
         self._min_length = None
@@ -133,7 +124,7 @@ class VGermlines(object):
                     continue
                 try:
                     v = VGene(str(record.seq))
-                    self._germlines[record.id] = v
+                    self[record.id] = v
                     if (self._min_length is None or
                             self._min_length > len(v.sequence_ungapped)):
                         self._min_length = len(v.sequence_ungapped)
@@ -154,14 +145,14 @@ class VGermlines(object):
         if key not in self._ties:
             self._ties[key] = {}
 
-        if gene not in self._germlines:
+        if gene not in self:
             return set([gene])
 
         if gene not in self._ties[key]:
-            s_1 = self._germlines[gene].sequence_ungapped
+            s_1 = self[gene].sequence_ungapped
             self._ties[key][gene] = set([gene])
 
-            for name, v in self._germlines.iteritems():
+            for name, v in self.iteritems():
                 s_2 = v.sequence_ungapped
                 K = distance.hamming(s_1[-length:], s_2[-length:])
                 dist = hypergeom(length, K, np.ceil(length * mutation))
@@ -190,13 +181,56 @@ class VGermlines(object):
             return .15
         return .30
 
-    def __getitem__(self, key):
-        return self._germlines[key]
 
-    def __iter__(self):
-        for k in self._germlines.keys():
-            yield k
+def get_common_seq(seqs):
+    if len(seqs) == 0:
+        return seqs[0]
+    v_gene = []
+    for nts in itertools.izip_longest(*seqs, fillvalue='N'):
+        v_gene.append(nts[0] if all(map(lambda n: n == nts[0], nts)) else 'N')
+    v_gene = ''.join(v_gene)
+    return v_gene[:VGene.CDR3_OFFSET]
 
-    def iteritems(self):
-        for k in self._germlines.keys():
-            yield k, self._germlines[k]
+
+def find_v_position(sequence, reverse=False):
+    '''Tries to find the end of the V gene region'''
+    if type(sequence) == str:
+        sequence = Seq(sequence)
+    # TODO: Possibly look for TATTACTG
+    loc = sequence.rfind('TATTACTGT')
+    if loc >= 0:
+        return loc + 6
+    # Try to find DxxxyzC
+    found = _find_dc(sequence, reverse)
+    if found is None:
+        # If DxxyzC isn't found, try to find 'YYC', 'YCC', or 'YHC'
+        found = _find_yxc(sequence, reverse)
+
+    loc = sequence.rfind('TATTACTG')
+    if loc >= 0:
+        return loc + 6
+    return found
+
+
+def _find_dc(sequence, reverse):
+    return _find_with_frameshifts(sequence, 'D(.{3}((YY)|(YC)|(YH)))C',
+                                  reverse)
+
+
+def _find_yxc(sequence, reverse):
+    return _find_with_frameshifts(sequence, 'Y([YHC])C', reverse)
+
+
+def _find_with_frameshifts(sequence, regex, reverse):
+    r = range(2, -1, -1)
+    if reverse:
+        r = reversed(r)
+
+    for shift in r:
+        seq = sequence[shift:]
+        seq = seq[:len(seq) - len(seq) % 3]
+        aas = str(seq.translate())
+        res = re.search(regex, aas)
+        if res is not None:
+            return (res.end() - 1) * 3 + shift
+    return None
