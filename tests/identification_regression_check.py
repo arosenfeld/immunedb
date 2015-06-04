@@ -65,4 +65,5 @@ for i, record in enumerate(regression):
     new['original_seq'] = record['original_seq']
 
     compare_dicts(record, new)
-    print '{} / {}'.format(i + 1, len(regression))
+    if i % 1000 == 0:
+        print '{} / {}'.format(i + 1, len(regression))

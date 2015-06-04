@@ -196,19 +196,12 @@ def find_v_position(sequence, reverse=False):
     '''Tries to find the end of the V gene region'''
     if type(sequence) == str:
         sequence = Seq(sequence)
-    # TODO: Possibly look for TATTACTG
-    loc = sequence.rfind('TATTACTGT')
-    if loc >= 0:
-        return loc + 6
     # Try to find DxxxyzC
     found = _find_dc(sequence, reverse)
     if found is None:
         # If DxxyzC isn't found, try to find 'YYC', 'YCC', or 'YHC'
         found = _find_yxc(sequence, reverse)
 
-    loc = sequence.rfind('TATTACTG')
-    if loc >= 0:
-        return loc + 6
     return found
 
 
