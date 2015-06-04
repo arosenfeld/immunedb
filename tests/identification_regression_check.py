@@ -62,10 +62,6 @@ for i, record in enumerate(regression):
         vdj.align_to_germline()
         if vdj.v_gene is not None and vdj.j_gene is not None:
             new = {field: getattr(vdj, field) for field in fields}
-        else:
-            print 'FAIL 2'
-    else:
-        print 'FAIL 1'
     new['original_seq'] = record['original_seq']
 
     compare_dicts(record, new)
