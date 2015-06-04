@@ -9,7 +9,8 @@ class JGermlines(dict):
 
         with open(path_to_germlines) as fh:
             for record in SeqIO.parse(fh, 'fasta'):
-                self[record.description] = str(record.seq)
+                if all(map(lambda c: c in 'ATCG', record.seq)):
+                    self[record.description] = str(record.seq).upper()
 
         self._anchors = {name: seq[-anchor_len:] for name, seq in
             self.iteritems()}

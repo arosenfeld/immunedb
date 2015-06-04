@@ -19,7 +19,7 @@ class VGene(object):
     CDR3_OFFSET = 309
 
     def __init__(self, gapped_sequence, force_anchor=False):
-        self._gapped_seq = str(gapped_sequence)
+        self._gapped_seq = str(gapped_sequence).upper()
         if self._gapped_seq[self.CDR3_OFFSET:].count('-') > 0:
             raise AlignmentException('Cannot have gaps after CDR3 start '
                                      '(position {})'.format(self.CDR3_OFFSET))

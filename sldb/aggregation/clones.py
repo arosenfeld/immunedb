@@ -5,7 +5,7 @@ import re
 import distance
 
 from sqlalchemy import and_, desc, distinct
-from sqlalchemy.sql import exists, func
+from sqlalchemy.sql import exists, func, text
 
 from sldb.common.models import *
 import sldb.common.modification_log as mod_log
@@ -30,7 +30,7 @@ def _consensus(strings):
 def _similar_to_all(seq, rest, min_similarity):
     """Determines if the string ``seq`` is at least ``min_similarity`` similar to the list
     of strings ``rest``.
-    
+
     :param str seq: The string to compare
     :param list rest: The list of strings to compare to
 

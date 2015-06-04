@@ -15,6 +15,7 @@ from sldb.common.models import (DuplicateSequence, NoResult, Sample, Sequence,
                                 Study, Subject)
 from sldb.identification.vdj_sequence import VDJSequence
 from sldb.identification.v_genes import VGermlines
+from sldb.identification.j_genes import JGermlines
 import sldb.util.concurrent as concurrent
 import sldb.util.funcs as funcs
 import sldb.util.lookups as lookups
@@ -35,11 +36,12 @@ class SampleMetadata(object):
 
 
 class IdentificationWorker(concurrent.Worker):
-    def __init__(self, session, v_germlines, limit_alignments, max_vties,
-                 min_similarity, read_format, samples_to_update_queue,
+    def __init__(self, session, v_germlines, j_germlines, limit_alignments,
+                 max_vties, min_similarity, read_format, samples_to_update_queue,
                  sync_lock):
         self._session = session
         self._v_germlines = v_germlines
+        self._j_germlines = j_germlines
         self._limit_alignments = limit_alignments
         self._min_similarity = min_similarity
         self._max_vties = max_vties
@@ -141,6 +143,7 @@ class IdentificationWorker(concurrent.Worker):
                                   record.seq,
                                   read_type == 'R1+R2',
                                   self._v_germlines,
+                                  self._j_germlines,
                                   quality=record.letter_annotations.get(
                                       'phred_quality'))
                 if vdj.v_gene is not None and vdj.j_gene is not None:
@@ -280,6 +283,8 @@ def run_identify(session, args):
                      info=vars(args))
     session.close()
     v_germlines = VGermlines(args.v_germlines)
+    j_germlines = JGermlines(args.j_germlines, args.upstream_of_cdr3,
+                             args.anchor_len, args.min_anchor_len)
     tasks = concurrent.TaskQueue()
     for base_dir in args.base_dirs:
         print 'Descending into {}'.format(base_dir)
@@ -309,7 +314,9 @@ def run_identify(session, args):
     for i in range(0, args.nproc):
         worker_session = config.init_db(args.master_db_config,
                                         args.data_db_config)
-        tasks.add_worker(IdentificationWorker(worker_session, v_germlines,
+        tasks.add_worker(IdentificationWorker(worker_session,
+                                              v_germlines,
+                                              j_germlines,
                                               args.limit_alignments,
                                               args.max_vties,
                                               args.min_similarity / float(100),
