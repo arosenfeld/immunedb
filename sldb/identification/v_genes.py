@@ -6,8 +6,8 @@ import numpy as np
 from scipy.stats import hypergeom
 
 from Bio import SeqIO
+from Bio.Seq import Seq
 
-import sldb.identification.anchors as anchors
 from sldb.util.funcs import find_streak_position
 
 
@@ -24,7 +24,7 @@ class VGene(object):
             raise AlignmentException('Cannot have gaps after CDR3 start '
                                      '(position {})'.format(self.CDR3_OFFSET))
         if not force_anchor:
-            self._ungapped_anchor_pos = anchors.find_v_position(
+            self._ungapped_anchor_pos = find_v_position(
                 self.sequence_ungapped)
         else:
             self._ungapped_anchor_pos = self.CDR3_OFFSET - \
