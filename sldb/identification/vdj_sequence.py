@@ -16,7 +16,7 @@ class VDJSequence(object):
     def __init__(self, id, seq, is_full_v, v_germlines, j_germlines,
             force_vs=None, force_j=None, quality=None):
         self._id = id
-        self._seq = seq
+        self._seq = seq.upper()
         self._is_full_v = is_full_v
         self.v_germlines = v_germlines
         self.j_germlines = j_germlines
@@ -43,8 +43,7 @@ class VDJSequence(object):
         self.copy_number = 1
 
         # If there are invalid characters in the sequence, ignore it
-        stripped = filter(lambda s: s in 'ATCGN', self.sequence)
-        if len(stripped) == len(self.sequence):
+        if all(map(lambda c: c in 'ATCGN', self.sequence)):
             self._find_j()
             if self._j is not None:
                 self._get_v(reverse=False)

@@ -6,10 +6,21 @@ import sldb.common.config as config
 if __name__ == '__main__':
     parser = config.get_base_arg_parser('Identifies V and J genes from '
                                         'FASTA files', multiproc=True)
-    parser.add_argument('base_dirs', nargs='+', help='Base directories for '
-                        'samples.')
     parser.add_argument('v_germlines', help='FASTA file with IMGT gapped '
                         'V-gene germlines')
+    parser.add_argument('j_germlines', help='FASTA file with J-gene '
+                        'germlines. The final nucleotide in all genes must be '
+                        'aligned. Sequence cannot contain any gaps.')
+    parser.add_argument('upstream_of_cdr3', type=int, help='The number of '
+                        ' nucleotides in the J germlines upstream of the CDR3')
+    parser.add_argument('anchor_len', type=int, help='The number of '
+                        'nucleotides at the end of the J germlines to use as '
+                        'anchors.')
+    parser.add_argument('min_anchor_len', type=int, help='The minimum number '
+                        'of nucleotides in the J germline anchors required '
+                        'to match the sequence.')
+    parser.add_argument('base_dirs', nargs='+', help='Base directories for '
+                        'samples.')
     parser.add_argument('--limit-alignments', nargs='+',
                         default=('R1', 'R1+R2'), help='Read types to process '
                         '(R1, R2, and/or R1+R2).  Default: R1 R1+R2')
@@ -27,6 +38,8 @@ if __name__ == '__main__':
     args = parser.parse_args()
     if args.read_format not in ('fasta', 'fastq'):
         parser.error('Invalid read format {}'.format(args.read_format))
+    if args.min_anchor_len > args.anchor_len:
+        parser.error('Minimum anchor length must be <= total anchor length')
 
     session = config.init_db(args.master_db_config, args.data_db_config)
 
