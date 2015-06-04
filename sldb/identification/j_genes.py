@@ -42,7 +42,7 @@ class JGermlines(dict):
 
     def get_ties(self, name, seq):
         tied = set([name])
-        for j, seq in sorted(self.iteritems()):
-            if seq[:len(seq)] == seq:
+        for j, other_seq in sorted(self.iteritems()):
+            if other_seq[-self.anchor_len:][:len(seq)] == seq:
                 tied.add(j)
         return tied

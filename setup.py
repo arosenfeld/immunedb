@@ -35,7 +35,6 @@ setup(
         'biopython',
         'bottle',
         'ete2',
-        'distance',
         'numpy',
         'scipy',
         'PyMySQL',

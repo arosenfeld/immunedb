@@ -1,4 +1,3 @@
-import distance
 import json
 import multiprocessing as mp
 import os
@@ -187,8 +186,9 @@ class IdentificationWorker(concurrent.Worker):
                     for dup in dups[vdj.id]:
                         dup.duplicate_seq_id = final_seq_id
             else:
-                # This is a rare condition, but some sequence after aligning to
-                # V-ties the CDR3 becomes non-existent, and it is thrown out
+                # This is a rare condition, but some sequences, after aligning
+                # to V-ties, the CDR3 becomes non-existent, and it is thrown
+                # out
                 self._session.add(NoResult(sample=sample,
                                            seq_id=vdj.id,
                                            sequence=str(vdj.sequence)))

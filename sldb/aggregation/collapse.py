@@ -1,8 +1,7 @@
-import dnautils
-
 from sqlalchemy import and_, distinct
 from sqlalchemy.sql import desc, exists, text
 
+import dnautils
 import sldb.common.config as config
 from sldb.common.models import Clone, CloneGroup, Sample, Sequence, Subject
 import sldb.common.modification_log as mod_log

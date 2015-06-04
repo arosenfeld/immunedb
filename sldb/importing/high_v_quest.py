@@ -1,7 +1,7 @@
 import csv
-import distance
 import re
 
+import dnautils
 import sldb.common.modification_log as mod_log
 from sldb.common.models import (DuplicateSequence, NoResult, Sample, Study,
                                 Subject, Sequence)
@@ -33,7 +33,7 @@ def _get_value(line, key):
 
 
 def _match(s1, s2):
-    return len(s1), len(s1) - distance.hamming(s1, s2)
+    return len(s1), len(s1) - dnautils.hamming(s1, s2)
 
 
 class ImportException(Exception):

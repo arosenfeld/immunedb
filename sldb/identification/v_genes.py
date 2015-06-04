@@ -1,4 +1,4 @@
-import distance
+import dnautils
 import re
 import itertools
 
@@ -101,7 +101,7 @@ class VGene(object):
         if len(this_seq) != len(other_seq) or len(this_seq) == 0:
             raise AlignmentException('Unequal sequences after alignment')
         # Determine the distance between the germline and sequence
-        dist = distance.hamming(this_seq, other_seq)
+        dist = dnautils.hamming(this_seq, other_seq)
 
         return dist, len(other_seq)
 
@@ -154,7 +154,7 @@ class VGermlines(dict):
 
             for name, v in self.iteritems():
                 s_2 = v.sequence_ungapped
-                K = distance.hamming(s_1[-length:], s_2[-length:])
+                K = dnautils.hamming(s_1[-length:], s_2[-length:])
                 dist = hypergeom(length, K, np.ceil(length * mutation))
                 p = np.sum(
                     [dist.pmf(k) * np.power(.33, k)

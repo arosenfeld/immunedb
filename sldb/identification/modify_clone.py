@@ -1,6 +1,5 @@
 import re
 
-import distance
 
 from sldb.common.models import Clone, CloneGroup, Sequence
 import sldb.common.modification_log as mod_log

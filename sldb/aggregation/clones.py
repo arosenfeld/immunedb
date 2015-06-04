@@ -2,11 +2,10 @@ import argparse
 from collections import Counter
 import re
 
-import distance
-
 from sqlalchemy import and_, desc, distinct
 from sqlalchemy.sql import exists, func, text
 
+import dnautils
 from sldb.common.models import *
 import sldb.common.modification_log as mod_log
 from sldb.identification.identify import VDJSequence
@@ -39,7 +38,7 @@ def _similar_to_all(seq, rest, min_similarity):
 
     """
     for comp_seq in rest:
-        sim_frac = 1 - distance.hamming(comp_seq, seq) / float(len(comp_seq))
+        sim_frac = 1 - dnautils.hamming(comp_seq, seq) / float(len(comp_seq))
         if sim_frac < min_similarity:
             return False
     return True
