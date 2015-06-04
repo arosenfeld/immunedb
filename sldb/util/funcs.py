@@ -5,9 +5,12 @@ from sldb.common.models import Sequence
 
 def trace_seq_collapses(session, seq):
     sample_col = session.query(
+        Sequence.seq_id,
+        Sequence.sample_id,
+        Sequence.copy_number_in_sample,
+
         Sequence.collapse_to_subject_seq_id,
         Sequence.collapse_to_subject_sample_id,
-        Sequence.copy_number_in_sample
     ).filter(
         Sequence.seq_id == seq.collapse_to_sample_seq_id,
         Sequence.sample_id == seq.sample_id
@@ -17,7 +20,8 @@ def trace_seq_collapses(session, seq):
         return None
 
     subject_col = session.query(
-        Sequence.collapse_to_clone_seq_id,
+        Sequence.seq_id,
+        Sequence.sample_id,
         Sequence.copy_number_in_subject
     ).filter(
         Sequence.seq_id == sample_col.collapse_to_subject_seq_id,
@@ -29,13 +33,13 @@ def trace_seq_collapses(session, seq):
 
     ret = {
         'sample': {
-            'seq_id': seq.collapse_to_sample_seq_id,
-            'sample_id': seq.sample_id,
+            'seq_id': sample_col.seq_id,
+            'sample_id': sample_col.sample_id,
             'copy_number': sample_col.copy_number_in_sample
         },
         'subject': {
-            'seq_id': sample_col.collapse_to_subject_seq_id,
-            'sample_id': sample_col.collapse_to_subject_sample_id,
+            'seq_id': subject_col.seq_id,
+            'sample_id': subject_col.sample_id,
             'copy_number': subject_col.copy_number_in_subject
         },
     }
