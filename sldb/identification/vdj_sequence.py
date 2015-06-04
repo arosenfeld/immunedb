@@ -219,7 +219,7 @@ class VDJSequence(object):
 
         # Trim the J gene based on the extent in the CDR3
         if streak is not None:
-            j_full = j_full[streak:]
+            j_full = j_full[len(germline_in_cdr3) - streak:]
 
         # Find where the full J starts
         self._j_start = self._j_anchor_pos + len(match) - len(j_full)
