@@ -39,9 +39,9 @@ class ClearcutWorker(concurrent.Worker):
 
         try:
             tree = self._get_tree(newick, germline_seq, remove_muts)
-        except:
-            self._print(worker_id, '[ERROR] Could not get tree for {}'.format(
-                clone_inst.id))
+        except Exception as ex:
+            self._print(worker_id, '[ERROR] Could not get tree for '
+                        '{}: {}'.format(clone_inst.id, str(ex)))
             return
 
         tree.set_outgroup('germline')
@@ -57,7 +57,14 @@ class ClearcutWorker(concurrent.Worker):
                 break
             first = False
 
-        clone_inst.tree = json.dumps(_get_json(tree))
+        final = {
+            'info': {
+                'min_count': self._min_count,
+                'min_samples': self._min_samples
+            },
+            'tree': _get_json(tree)
+        }
+        clone_inst.tree = json.dumps(final)
         self._session.add(clone_inst)
         self._session.commit()
 
@@ -71,16 +78,17 @@ class ClearcutWorker(concurrent.Worker):
             Sequence.mutations_from_clone
         ).filter(
             Sequence.clone_id == clone_id,
-            Sequence.copy_number_in_clone > 0
+            Sequence.copy_number_in_subject > 0
         ).order_by(
             Sequence.v_length
         )
         for i, seq in enumerate(q):
             seqs[base64.b64encode(seq.seq_id)] = seq.sequence
 
-            for mut in _get_mutations(
-                    germline_seq, seq.sequence,
-                    map(int, json.loads(seq.mutations_from_clone).keys())):
+            mutations = _get_mutations(
+                germline_seq, seq.sequence, map(int,
+                json.loads(seq.mutations_from_clone).keys()))
+            for mut in mutations:
                 if mut not in mut_counts:
                     mut_counts[mut] = {'count': 0, 'samples': set([])}
                 mut_counts[mut]['count'] += 1
@@ -104,7 +112,7 @@ class ClearcutWorker(concurrent.Worker):
         tree = ete2.Tree(newick)
         mut_counts = {}
         for node in tree.traverse():
-            if node.name not in ('NoName', 'germline'):
+            if node.name not in ('NoName', 'germline', ''):
                 name = base64.b64decode(node.name)
                 seq = self._session.query(Sequence).filter(
                     Sequence.seq_id == name
@@ -118,7 +126,7 @@ class ClearcutWorker(concurrent.Worker):
 
                 node.name = name
                 node.add_feature('seq_ids', [seq.seq_id])
-                node.add_feature('copy_number', seq.copy_number_in_clone)
+                node.add_feature('copy_number', seq.copy_number_in_subject)
                 node.add_feature('tissues', map(str, tissues))
                 node.add_feature('subsets', map(str, subsets))
                 modified_seq = _remove_muts(seq.sequence_replaced, remove_muts,
@@ -135,20 +143,12 @@ class ClearcutWorker(concurrent.Worker):
 
 
 def _get_seqs_collapsed_to(session, seq):
-    subject_level_seqs = session.query(
-        Sequence
-    ).filter(
-        Sequence.collapse_to_clone_seq_id == seq.seq_id,
-        Sequence.collapse_to_clone_sample_id == seq.sample_id,
+    sample_level_seqs = session.query(Sequence).filter(
+        Sequence.collapse_to_subject_seq_id == seq.seq_id,
+        Sequence.collapse_to_subject_sample_id == seq.sample_id
     )
-
-    for sub_seq in subject_level_seqs:
-        sample_level_seqs = session.query(Sequence).filter(
-            Sequence.collapse_to_subject_seq_id == sub_seq.seq_id,
-            Sequence.collapse_to_subject_sample_id == sub_seq.sample_id
-            )
-        for sample_seq in sample_level_seqs:
-            yield sample_seq
+    for sample_seq in sample_level_seqs:
+        yield sample_seq
 
 
 def _remove_muts(seq, removes, germline_seq):

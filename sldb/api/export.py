@@ -19,7 +19,7 @@ class Exporter(object):
 
         :param tuple e: Input field to split into name and field.
 
-        :return: Name and field for export field ``e``
+        :returns: Name and field for export field ``e``
         :rtype: (name, field)
 
         """
@@ -34,7 +34,7 @@ class Exporter(object):
         :param Sequence seq: The sequence from which to gather fields
         :param kwargs overrides: Fields to override
 
-        :returns A list of ``(name, value)`` tuples with the selected data
+        :returns: A list of ``(name, value)`` tuples with the selected data
         :rtype: list
 
         """
@@ -214,10 +214,6 @@ class SequenceExport(Exporter):
         'copy_number_in_subject',
         'collapse_to_subject_seq_id',
         'collapse_to_subject_sample_id',
-
-        'copy_number_in_clone',
-        'collapse_to_clone_seq_id',
-        'collapse_to_clone_sample_id',
     ]
 
     def __init__(self, session, eformat, rtype, rids, selected_fields,
@@ -269,10 +265,8 @@ class SequenceExport(Exporter):
                 Sequence, '{}_id'.format(self.rtype)
             ).in_(self.rids)
         )
-        if self.level == 'all':
-            seqs = seqs.filter(
-                Sequence.copy_number >= self.min_copy
-            )
+        if self.level == 'uncollapsed':
+            seqs = seqs.filter(Sequence.copy_number >= self.min_copy)
         else:
             seqs = seqs.filter(
                 getattr(Sequence, 'copy_number_in_{}'.format(self.level)) >=
@@ -284,11 +278,6 @@ class SequenceExport(Exporter):
         if self.eformat == 'clip':
             seqs = seqs.order_by(Sequence.clone_id)
         else:
-            # This probably isn't necessary but is a safe guard since we
-            # page_query is used and order may not be deterministic on all
-            # storage engines
-            seqs = seqs.order_by(Sequence.seq_id)
-
             # If it's a csv file, add the headers based on selected fields
             if self.eformat == 'csv':
                 headers = []
@@ -301,7 +290,7 @@ class SequenceExport(Exporter):
         # For CLIP files to check if the germline needs to be output
         last_cid = ''
         # TODO: Change this to .yield_per?
-        for seq in funcs.page_query(seqs):
+        for seq in seqs:
             # Get the selected data for the sequence
             data = self.get_selected_data(seq)
             if self.eformat == 'fill' or self.eformat == 'clip':

@@ -1,4 +1,3 @@
-import distance
 import json
 import multiprocessing as mp
 import os
@@ -15,6 +14,7 @@ from sldb.common.models import (DuplicateSequence, NoResult, Sample, Sequence,
                                 Study, Subject)
 from sldb.identification.vdj_sequence import VDJSequence
 from sldb.identification.v_genes import VGermlines
+from sldb.identification.j_genes import JGermlines
 import sldb.util.concurrent as concurrent
 import sldb.util.funcs as funcs
 import sldb.util.lookups as lookups
@@ -35,11 +35,12 @@ class SampleMetadata(object):
 
 
 class IdentificationWorker(concurrent.Worker):
-    def __init__(self, session, v_germlines, limit_alignments, max_vties,
-                 min_similarity, read_format, samples_to_update_queue,
+    def __init__(self, session, v_germlines, j_germlines, limit_alignments,
+                 max_vties, min_similarity, read_format, samples_to_update_queue,
                  sync_lock):
         self._session = session
         self._v_germlines = v_germlines
+        self._j_germlines = j_germlines
         self._limit_alignments = limit_alignments
         self._min_similarity = min_similarity
         self._max_vties = max_vties
@@ -141,6 +142,7 @@ class IdentificationWorker(concurrent.Worker):
                                   record.seq,
                                   read_type == 'R1+R2',
                                   self._v_germlines,
+                                  self._j_germlines,
                                   quality=record.letter_annotations.get(
                                       'phred_quality'))
                 if vdj.v_gene is not None and vdj.j_gene is not None:
@@ -184,8 +186,9 @@ class IdentificationWorker(concurrent.Worker):
                     for dup in dups[vdj.id]:
                         dup.duplicate_seq_id = final_seq_id
             else:
-                # This is a rare condition, but some sequence after aligning to
-                # V-ties the CDR3 becomes non-existent, and it is thrown out
+                # This is a rare condition, but some sequences, after aligning
+                # to V-ties, the CDR3 becomes non-existent, and it is thrown
+                # out
                 self._session.add(NoResult(sample=sample,
                                            seq_id=vdj.id,
                                            sequence=str(vdj.sequence)))
@@ -280,6 +283,8 @@ def run_identify(session, args):
                      info=vars(args))
     session.close()
     v_germlines = VGermlines(args.v_germlines)
+    j_germlines = JGermlines(args.j_germlines, args.upstream_of_cdr3,
+                             args.anchor_len, args.min_anchor_len)
     tasks = concurrent.TaskQueue()
     for base_dir in args.base_dirs:
         print 'Descending into {}'.format(base_dir)
@@ -290,12 +295,9 @@ def run_identify(session, args):
 
         with open(meta_fn) as fh:
             metadata = json.load(fh)
-            if args.incl_all:
-                files = os.listdir(base_dir)
-            else:
-                files = metadata.keys()
+            files = metadata.keys()
 
-            for fn in files:
+            for fn in sorted(files):
                 if fn in ('metadata.json', 'all') or fn not in metadata:
                     continue
                 tasks.add_task({
@@ -312,7 +314,9 @@ def run_identify(session, args):
     for i in range(0, args.nproc):
         worker_session = config.init_db(args.master_db_config,
                                         args.data_db_config)
-        tasks.add_worker(IdentificationWorker(worker_session, v_germlines,
+        tasks.add_worker(IdentificationWorker(worker_session,
+                                              v_germlines,
+                                              j_germlines,
                                               args.limit_alignments,
                                               args.max_vties,
                                               args.min_similarity / float(100),

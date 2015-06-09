@@ -19,11 +19,6 @@ if __name__ == '__main__':
     subject_parser.add_argument('--subject-ids', nargs='+', default=None,
                                 dest='ids', type=int,
                                 help='Subject ID(s) to collapse.')
-
-    clone_parser = subparsers.add_parser('clones')
-    clone_parser.add_argument('--subject-ids', nargs='+', default=None,
-                              dest='ids', type=int,
-                              help='Subject ID(s) to collapse.')
     args = parser.parse_args()
 
     session = config.init_db(args.master_db_config, args.data_db_config)

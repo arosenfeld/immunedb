@@ -578,7 +578,7 @@ def export_sequences(eformat, rtype, rids, level):
 
     assert eformat in ('csv', 'fill', 'orig', 'clip')
     assert rtype in ('sample', 'clone')
-    assert level in ('all', 'sample', 'subject', 'clone')
+    assert level in ('all', 'sample', 'subject')
 
     session = scoped_session(session_factory)()
 

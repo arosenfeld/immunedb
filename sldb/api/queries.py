@@ -213,10 +213,10 @@ def get_clone(session, clone_id, sample_ids, thresholds=None):
 
     q = session.query(
         Sequence,
-        Sequence.copy_number_in_clone
+        Sequence.copy_number_in_subject
     ).filter(
         Sequence.clone_id == clone_id,
-        Sequence.copy_number_in_clone > 0
+        Sequence.copy_number_in_subject > 0
     )
     if sample_ids is not None:
         q = q.filter(Sequence.sample_id.in_(sample_ids))
@@ -248,7 +248,7 @@ def get_clone(session, clone_id, sample_ids, thresholds=None):
             'junction_nt': seq.junction_nt,
             'sequence': seq.sequence,
             'read_start': read_start,
-            'copy_number_in_clone': int(seqr.copy_number_in_clone),
+            'copy_number_in_subject': int(seqr.copy_number_in_subject),
             'mutations': json.loads(seq.mutations_from_clone),
             'v_extent': seq.v_length + seq.num_gaps + seq.pad_length,
             'j_length': seq.j_length,
@@ -711,8 +711,7 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
             ['seq_id', 'alignment', 'v_gene', 'j_gene', 'v_match', 'j_match',
              'v_length', 'j_length', 'junction_num_nts', 'junction_aa',
              'in_frame', 'functional', 'stop', 'probable_indel_or_misalign',
-             'copy_number', 'copy_number_in_sample', 'copy_number_in_subject',
-             'copy_number_in_clone'],
+             'copy_number', 'copy_number_in_sample', 'copy_number_in_subject'],
             row)
 
         fields['sample'] = _sample_to_dict(row.sample)
