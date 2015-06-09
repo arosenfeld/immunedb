@@ -122,6 +122,7 @@ class VGermlines(dict):
             for record in SeqIO.parse(fh, 'fasta'):
                 if record.seq.startswith('-') and not include_prepadded:
                     continue
+                assert record.id.startswith('IGHV')
                 try:
                     v = VGene(str(record.seq))
                     self[record.id] = v
