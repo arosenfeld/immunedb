@@ -607,7 +607,7 @@ def export_sequences(eformat, rtype, rids, level):
         duplicates=_get_arg('duplicates', False) == 'true',
         noresults=_get_arg('noresults', False) == 'true',
         level=level,
-        with_clones_only=_get_arg('with_clones_only', False) == 'true')
+        only_with_clones=_get_arg('only_with_clones', False) == 'true')
     for line in export.get_data():
         yield line
 

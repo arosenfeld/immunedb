@@ -167,7 +167,7 @@ def _get_newick(fasta_input, tree_prog):
 
 
 def _get_mutations(s1, s2, positions):
-    return set([(i + 1, s1[i], s2[i]) for i in positions])
+    return set([(i + 1, s1[i], s2[i]) for i in positions if s1[i] != s2[i]])
 
 
 def _instantiate_node(node):

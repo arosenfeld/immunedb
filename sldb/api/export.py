@@ -217,7 +217,7 @@ class SequenceExport(Exporter):
     ]
 
     def __init__(self, session, eformat, rtype, rids, selected_fields,
-                 min_copy, duplicates, noresults, level, with_clones_only):
+                 min_copy, duplicates, noresults, level, only_with_clones):
         super(SequenceExport, self).__init__(
             session, rtype, rids, SequenceExport._allowed_fields,
             selected_fields)
@@ -226,7 +226,7 @@ class SequenceExport(Exporter):
         self.duplicates = duplicates
         self.noresults = noresults
         self.level = level
-        self.with_clones_only = with_clones_only
+        self.only_with_clones = only_with_clones
 
     def _fasta_entry(self, seq_id, info, sequence):
         """Gets the entry for a sequence in FASTA format with ``info`` separated
@@ -274,7 +274,7 @@ class SequenceExport(Exporter):
                 self.min_copy
             )
 
-        if self.with_clones_only:
+        if self.only_with_clones:
             seqs = seqs.filter(~Sequence.clone_id.is_(None))
 
         # If it's a CLIP file, order by clone_id to minimize
