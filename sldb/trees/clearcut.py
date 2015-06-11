@@ -34,16 +34,9 @@ class ClearcutWorker(concurrent.Worker):
                         germline_seq[VGene.CDR3_OFFSET +
                                      clone_inst.cdr3_num_nts:])
 
-        try:
-            fasta, remove_muts = self._get_fasta_input(germline_seq,
-                                                       clone_inst.id)
-            newick = _get_newick(fasta, self._tree_prog)
-
-            tree = self._get_tree(newick, germline_seq, remove_muts)
-        except Exception as ex:
-            self._print(worker_id, '[ERROR] Could not get tree for '
-                        '{}: {}'.format(clone_inst.id, str(ex)))
-            return
+        fasta, remove_muts = self._get_fasta_input(germline_seq, clone_inst.id)
+        newick = _get_newick(fasta, self._tree_prog)
+        tree = self._get_tree(newick, germline_seq, remove_muts)
 
         tree.set_outgroup('germline')
         tree.search_nodes(name='germline')[0].delete()
@@ -89,7 +82,7 @@ class ClearcutWorker(concurrent.Worker):
                 raise Exception(
                     'Mutation information not available for sequence '
                     '{}. Skipping this clone tree. Was '
-                    'sldb_clone_stats' 'run?'.format(seq.seq_id)
+                    'sldb_clone_stats run?'.format(seq.seq_id)
                 )
 
             mutations = _get_mutations(
@@ -320,6 +313,7 @@ def run_clearcut(session, args):
 
     tasks = concurrent.TaskQueue()
 
+    print 'Creating task queue for clones'
     for clone in clones:
         clone_inst = session.query(Clone).filter(
             Clone.id == clone).first()

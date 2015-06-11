@@ -1,4 +1,5 @@
 import multiprocessing as mp
+import traceback
 import Queue
 
 
@@ -11,7 +12,6 @@ class Worker(object):
 
     def cleanup(self, worker_id):
         pass
-
 
 class TaskQueue(object):
     def __init__(self):
@@ -41,13 +41,20 @@ class TaskQueue(object):
     def _func_wrap(self, worker_id, worker):
         while True:
             try:
-                args = self._task_queue.get()
-            except Queue.Empty:
-                break
-            if args is None:
-                self._task_queue.task_done()
-                break
-            else:
-                worker.do_task(worker_id, args)
+                try:
+                    args = self._task_queue.get()
+                except Queue.Empty:
+                    break
+                if args is None:
+                    self._task_queue.task_done()
+                    break
+                else:
+                    worker.do_task(worker_id, args)
+                    self._task_queue.task_done()
+            except Exception as ex:
+                worker._print(
+                    worker_id, '[TASK ERROR] The task was not completed '
+                    'because:\n{}'.format(traceback.format_exc())
+                )
                 self._task_queue.task_done()
         worker.cleanup(worker_id)
