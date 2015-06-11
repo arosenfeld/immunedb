@@ -127,7 +127,7 @@ class SeqContextStats(ContextStats):
         if not self._record_filter(seq_record):
             return
 
-        add = int(seq_record.copy_number) if self._use_copy else 1
+        add = int(seq_record.copy_number_in_sample) if self._use_copy else 1
 
         self._update(seq_record, seq_record.in_frame, seq_record.stop,
                      seq_record.functional, add)
@@ -212,7 +212,6 @@ class SampleStatsWorker(concurrent.Worker):
             Sequence.in_frame,
             Sequence.stop,
             Sequence.functional,
-            Sequence.copy_number,
             Sequence.copy_number_in_sample,
             (Sequence.v_length + Sequence.num_gaps).label('v_length'),
             (
@@ -286,16 +285,17 @@ def _get_cdr3_bounds(session, sample_id):
     cdr3s = []
 
     query = session.query(
-        func.sum(Sequence.copy_number).label('copy_number'),
+        func.sum(Sequence.copy_number_in_sample).label(
+            'copy_number_in_sample'),
         cdr3_fld.label('cdr3_len')
     ).filter(
         Sequence.sample_id == sample_id,
-        Sequence.copy_number > 1,
+        Sequence.copy_number_in_sample > 1,
         Sequence.functional == 1
     ).group_by(cdr3_fld)
 
     for seq in query:
-        cdr3s += [seq.cdr3_len] * int(seq.copy_number)
+        cdr3s += [seq.cdr3_len] * int(seq.copy_number_in_sample)
     if len(cdr3s) == 0:
         return None, None
     q25, q75 = np.percentile(cdr3s, [25, 75])
