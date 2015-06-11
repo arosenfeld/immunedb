@@ -45,7 +45,7 @@ def _similar_to_all(seq, rest, min_similarity):
 
 
 def _get_subject_clones(session, subject_id, min_similarity, limit_alignments,
-                        include_indels, min_identity):
+                        include_indels, min_identity, min_copy):
     """Assigns clones to all viable sequences in the specified subject.
 
     :param Session session: The database session
@@ -75,7 +75,7 @@ def _get_subject_clones(session, subject_id, min_similarity, limit_alignments,
         Sequence.alignment.in_(limit_alignments),
         ~Sequence.junction_aa.like('%*%'),
 
-        Sequence.copy_number_in_subject > 1
+        Sequence.copy_number_in_subject >= min_copy
     )
     if min_identity > 0:
         query = query.filter(
@@ -110,7 +110,7 @@ def _get_subject_clones(session, subject_id, min_similarity, limit_alignments,
                 Sequence.junction_aa
             ).filter(
                 Sequence.clone == clone,
-                Sequence.copy_number_in_subject > 1
+                Sequence.copy_number_in_subject >= min_copy
             ).group_by(
                 Sequence.junction_aa
             )
@@ -228,7 +228,7 @@ def run_clones(session, args):
         to_update = _get_subject_clones(
             session, sid, args.similarity / 100.0,
             args.limit_alignments, args.include_indels,
-            args.min_identity / 100.0)
+            args.min_identity / 100.0, args.min_copy)
         print 'Assigning clones to groups'
         _assign_clones_to_groups(session, sid, to_update)
 

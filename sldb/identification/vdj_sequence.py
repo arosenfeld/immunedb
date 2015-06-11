@@ -184,9 +184,9 @@ class VDJSequence(object):
             if i >= 0:
                 return self._found_j(i, j_gene, match, full_anchor)
 
-            self._seq = self._seq.reverse_complement()
-            i = self._seq.rfind(match)
+            i = self._seq.reverse_complement().rfind(match)
             if i >= 0:
+                self._seq = self._seq.reverse_complement()
                 if self._quality is not None:
                     self._quality.reverse()
                 return self._found_j(i, j_gene, match, full_anchor)
