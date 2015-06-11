@@ -182,27 +182,24 @@ def _instantiate_node(node):
 
 
 def _get_json(tree, root=True):
-    muts = []
-    for mut in tree.mutations:
-        muts.append({
-            'pos': mut[0],
-            'from': mut[1],
-            'to': mut[2],
-        })
     node = {
         'data': {
             'seq_ids': sorted(set(tree.seq_ids)),
             'copy_number': tree.copy_number,
             'tissues': ','.join(sorted(set(tree.tissues))),
             'subsets': ','.join(sorted(set(tree.subsets))),
-            'mutations': muts,
+            'mutations': [{
+                'pos': mut[0],
+                'from': mut[1],
+                'to': mut[2],
+            } for mut in tree.mutations]
         },
         'children': []
     }
     for child in tree.children:
         node['children'].append(_get_json(child, root=False))
 
-    if not root or (len(tree.mutations) == 0 and tree.name == 'NoName'):
+    if not root or (len(tree.mutations) == 0 and len(tree.seq_ids) == 0):
         return node
 
     return {
