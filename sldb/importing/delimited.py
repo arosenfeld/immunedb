@@ -4,7 +4,6 @@ import re
 from Bio import SeqIO
 
 from sldb.common.models import Sample, Sequence, Study, Subject
-import sldb.identification.collapse as collapse
 from sldb.identification.v_genes import VGene, get_common_seq
 import sldb.util.funcs as funcs
 import sldb.util.lookups as lookups
@@ -96,6 +95,7 @@ class DelimitedImporter(object):
     def _get_models(self, row):
         study_name = self._get_value('study_name', row)
         sample_name = self._get_value('sample_name', row)
+        subject_name = self._get_value('subject', row)
 
         sample_cache_key = (study_name, sample_name)
         if sample_cache_key in self._cached_studies:
@@ -118,7 +118,6 @@ class DelimitedImporter(object):
                     setattr(sample, field,
                             self._get_value(field, row, throw=False))
 
-                subject_name = self._get_value('subject', row)
                 subject_cache_key = (study_name, subject_name)
                 if subject_cache_key in self._cached_subjects:
                     subject = self._cached_subjects[subject_cache_key]
@@ -130,7 +129,7 @@ class DelimitedImporter(object):
                         identifier=subject_name)
                     if new:
                         print 'Created new subject {}'.format(subject_name)
-                        self._cached_subjects[subject_cache_key] = subject
+                    self._cached_subjects[subject_cache_key] = subject
 
                 sample.subject = subject
                 self._session.flush()
@@ -146,12 +145,15 @@ class DelimitedImporter(object):
         # Some input uses gaps instead of N's, so replace them with N's
         seq = 'N' * pad_length + seq[pad_length:]
 
+        vs = [g if g.startswith('IGHV') else 'IGHV{}'.format(g)
+                for g in self._get_value('v_gene', row).split('|')]
+        js = [g if g.startswith('IGHJ') else 'IGHJ{}'.format(g)
+                for g in self._get_value('j_gene', row).split('|')]
+
         v_germline = get_common_seq(
-            [self._v_germlines[v] for v in self._get_value(
-                'v_gene', row).split('|')])[:VGene.CDR3_OFFSET]
+            [self._v_germlines[v] for v in vs])[:VGene.CDR3_OFFSET]
         j_germline = get_common_seq(
-            [self._j_germlines[v][-self._j_offset:] for v in self._get_value(
-                'j_gene', row).split('|')])
+            [self._j_germlines[j][-self._j_offset:] for j in js])
 
         germline = ''.join([
             v_germline,

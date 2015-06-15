@@ -675,8 +675,5 @@ def run_rest_service(session_maker, args):
     rf_bin = args.rarefaction_bin
 
     bottle.install(EnableCors())
-    if args.debug:
-        bottle.run(host='0.0.0.0', port=args.port, server='gevent',
-                   debug=True)
-    else:
-        bottle.run(host='0.0.0.0', port=args.port, server='gevent')
+    bottle.run(host='0.0.0.0', port=args.port, server='gevent',
+               debug=args.debug)

@@ -155,10 +155,11 @@ class SampleStatsWorker(concurrent.Worker):
             func = self._calculate_seq_stats
         elif args['func'] == 'clone':
             func = self._calculate_clone_stats
-        self._print('Worker {} on {} {}, include_outliers {}, only_full_reads '
-                    '{}').format(
-                            args['func'], args['sample_id'],
-                            args['include_outliers'], args['only_full_reads'])
+        self._print(('Processing {} for sample {}, include_outliers {}, '
+                    'only_full_reads {}').format(
+                    'sequences' if args['func'] == 'seq' else 'clones',
+                    args['sample_id'], args['include_outliers'],
+                    args['only_full_reads']))
         func(args['sample_id'], args['min_cdr3'], args['max_cdr3'],
              args['include_outliers'], args['only_full_reads'])
 
