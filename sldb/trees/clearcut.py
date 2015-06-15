@@ -1,16 +1,12 @@
 import base64
-import copy
 import json
 import shlex
 from subprocess import Popen, PIPE, STDOUT
 
 import ete2
 
-from sqlalchemy import desc, distinct
-from sqlalchemy.sql import func
-
 import sldb.common.config as config
-from sldb.common.models import Clone, CloneGroup, Sample, Sequence
+from sldb.common.models import Clone, CloneGroup, Sequence
 import sldb.common.modification_log as mod_log
 from sldb.identification.v_genes import VGene
 import sldb.util.concurrent as concurrent
@@ -76,7 +72,7 @@ class ClearcutWorker(concurrent.Worker):
         ).order_by(
             Sequence.v_length
         )
-        for i, seq in enumerate(q):
+        for seq in enumerate(q):
             seqs[base64.b64encode(seq.seq_id)] = seq.sequence
             if seq.mutations_from_clone is None:
                 raise Exception(
@@ -86,8 +82,9 @@ class ClearcutWorker(concurrent.Worker):
                 )
 
             mutations = _get_mutations(
-                germline_seq, seq.sequence, map(int,
-                json.loads(seq.mutations_from_clone).keys()))
+                germline_seq, seq.sequence, map(
+                    int, json.loads(seq.mutations_from_clone).keys())
+            )
             for mut in mutations:
                 if mut not in mut_counts:
                     mut_counts[mut] = {'count': 0, 'samples': set([])}
@@ -110,7 +107,6 @@ class ClearcutWorker(concurrent.Worker):
 
     def _get_tree(self, newick, germline_seq, remove_muts):
         tree = ete2.Tree(newick)
-        mut_counts = {}
         for node in tree.traverse():
             if node.name not in ('NoName', 'germline', ''):
                 name = base64.b64decode(node.name)
@@ -133,9 +129,7 @@ class ClearcutWorker(concurrent.Worker):
                                             germline_seq)
                 node.add_feature('mutations', _get_mutations(
                     germline_seq, modified_seq,
-                    map(int, json.loads(seq.mutations_from_clone).keys())
-                    )
-                )
+                    map(int, json.loads(seq.mutations_from_clone).keys())))
             else:
                 node = _instantiate_node(node)
 
@@ -258,7 +252,6 @@ def _check_supersets(tree):
         return False
 
     moved = False
-    dbg = tree.up is None
     for c1 in tree.children:
         for c2 in tree.children:
             if c1 == c2:
@@ -323,7 +316,7 @@ def run_clearcut(session, args):
             continue
         tasks.add_task(clone_inst)
 
-    for i in range(0, args.nproc):
+    for _ in range(0, args.nproc):
         session = config.init_db(args.master_db_config, args.data_db_config)
         tasks.add_worker(ClearcutWorker(session, args.clearcut_path,
                                         args.min_count, args.min_samples))
