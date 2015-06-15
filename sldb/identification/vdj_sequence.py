@@ -7,6 +7,7 @@ import dnautils
 from sldb.util.funcs import find_streak_position
 from sldb.identification.v_genes import VGene, get_common_seq, find_v_position
 
+class AlignmentException(Exception): pass
 
 class VDJSequence(object):
     MISMATCH_THRESHOLD = 3
@@ -190,6 +191,7 @@ class VDJSequence(object):
                 if self._quality is not None:
                     self._quality.reverse()
                 return self._found_j(i, j_gene, match, full_anchor)
+        raise AlignmentException('Could not find J anchor')
 
     def _found_j(self, i, j_gene, match, full_anchor):
         # If a match is found, record its location and gene
@@ -276,7 +278,7 @@ class VDJSequence(object):
                     self._v.append(v)
 
         if self._v is None:
-            return
+            raise AlignmentException('Could not find V anchor')
 
         # Determine the pad length
         self._pad_len = self._germ_pos - self.v_anchor_pos
@@ -286,7 +288,7 @@ class VDJSequence(object):
         # If we need to pad with a full sequence, there is a misalignment
         if self._is_full_v and self._pad_len > 0:
             self._v = None
-            return
+            raise AlignmentException('Full sequence required padding.')
 
     def align_to_germline(self, avg_len=None, avg_mut=None):
         if avg_len is not None and avg_mut is not None:
@@ -331,7 +333,8 @@ class VDJSequence(object):
 
         if self._cdr3_len <= 0:
             self._v = None
-            return
+            raise AlignmentException('CDR3 has non-positive length: {}'
+                                     '.'.format(self._cdr3_len))
 
         self._j_anchor_pos += self._cdr3_len
         # Fill germline CDR3 with gaps

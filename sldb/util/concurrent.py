@@ -4,13 +4,13 @@ import Queue
 
 
 class Worker(object):
-    def _print(self, worker_id, msg):
-        print 'Worker {}: {}'.format(worker_id, msg)
+    def _print(self, msg):
+        print 'Worker {}: {}'.format(self._worker_id, msg)
 
-    def do_task(self, worker_id, args):
+    def do_task(self, args):
         raise NotImplementedError
 
-    def cleanup(self, worker_id):
+    def cleanup(self):
         pass
 
 class TaskQueue(object):
@@ -39,6 +39,7 @@ class TaskQueue(object):
             self._task_queue.join()
 
     def _func_wrap(self, worker_id, worker):
+        worker._worker_id = worker_id
         while True:
             try:
                 try:
@@ -49,12 +50,12 @@ class TaskQueue(object):
                     self._task_queue.task_done()
                     break
                 else:
-                    worker.do_task(worker_id, args)
+                    worker.do_task(args)
                     self._task_queue.task_done()
             except Exception as ex:
                 worker._print(
-                    worker_id, '[TASK ERROR] The task was not completed '
+                    '[TASK ERROR] The task was not completed '
                     'because:\n{}'.format(traceback.format_exc())
                 )
                 self._task_queue.task_done()
-        worker.cleanup(worker_id)
+        worker.cleanup()

@@ -48,12 +48,12 @@ class IdentificationWorker(concurrent.Worker):
         self._samples_to_update_queue = samples_to_update_queue
         self._sync_lock = sync_lock
 
-    def do_task(self, worker_id, args):
+    def do_task(self, args):
         path = args['path']
         fn = args['fn']
         meta = args['meta']
 
-        self._print(worker_id, 'Starting sample {}'.format(fn))
+        self._print('Starting sample {}'.format(fn))
         read_type = meta.get('read_type')
         if read_type not in config.allowed_read_types:
             raise Exception(
@@ -61,7 +61,7 @@ class IdentificationWorker(concurrent.Worker):
                     read_type, fn, ','.join(config.allowed_read_types)))
 
         if read_type not in self._limit_alignments:
-            self._print(worker_id, 'Skipping {} since read type is {} and '
+            self._print('Skipping {} since read type is {} and '
                         'identification is limited to {}').format(
                             fn, read_type, ','.join(self._limit_alignments))
             return
@@ -71,7 +71,7 @@ class IdentificationWorker(concurrent.Worker):
             self._session, Study, name=meta.get('study_name'))
 
         if new:
-            self._print(worker_id, 'Created new study "{}"'.format(study.name))
+            self._print('Created new study "{}"'.format(study.name))
             self._session.commit()
 
         name = meta.get('sample_name', require=False) or fn.split('.', 1)[0]
@@ -79,7 +79,7 @@ class IdentificationWorker(concurrent.Worker):
             self._session, Sample, name=name, study=study)
         if new:
             sample.date = meta.get('date')
-            self._print(worker_id, 'Created new sample "{}" in MASTER'.format(
+            self._print('Created new sample "{}" in MASTER'.format(
                 sample.name))
             for key in ('subset', 'tissue', 'disease', 'lab',
                         'experimenter'):
@@ -95,7 +95,7 @@ class IdentificationWorker(concurrent.Worker):
                 Sequence.sample == sample,
                 Sequence.alignment == read_type).first()
             if exists is not None:
-                self._print(worker_id, ('Sample "{}" for study already exists '
+                self._print(('Sample "{}" for study already exists '
                             'in DATA.  Skipping.').format(sample.name))
                 self._sync_lock.release()
                 return
@@ -111,7 +111,7 @@ class IdentificationWorker(concurrent.Worker):
         # All probable duplicates based on keys of vdjs dictionary
         dups = {}
 
-        self._print(worker_id, 'Identifying V and J, committing No Results')
+        self._print('Identifying V and J, committing No Results')
         for i, record in enumerate(SeqIO.parse(
                 os.path.join(path, fn), self._read_format)):
             if i > 0 and i % 1000 == 0:
@@ -138,20 +138,20 @@ class IdentificationWorker(concurrent.Worker):
             else:
                 # This is the first instance of this exact sequence, so align
                 # it and identify it's V and J
-                vdj = VDJSequence(record.description,
-                                  record.seq,
-                                  read_type == 'R1+R2',
-                                  self._v_germlines,
-                                  self._j_germlines,
-                                  quality=record.letter_annotations.get(
-                                      'phred_quality'))
-                if vdj.v_gene is not None and vdj.j_gene is not None:
+                try:
+                    vdj = VDJSequence(record.description,
+                                      record.seq,
+                                      read_type == 'R1+R2',
+                                      self._v_germlines,
+                                      self._j_germlines,
+                                      quality=record.letter_annotations.get(
+                                          'phred_quality'))
                     # If the V and J are found, add it to the vdjs dictionary
                     # to prevent future exact copies from being aligned
                     lengths_sum += vdj.v_length
                     mutations_sum += vdj.mutation_fraction
                     vdjs[key] = vdj
-                else:
+                except AlignmentException:
                     # The V or J could not be found, so add it as a noresult
                     self._session.add(NoResult(sample=sample,
                                                seq_id=vdj.id,
@@ -161,23 +161,23 @@ class IdentificationWorker(concurrent.Worker):
         self._session.commit()
 
         if len(vdjs) == 0:
-            self._print(worker_id, 'No sequences identified')
+            self._print('No sequences identified')
             return
 
-        self._print(worker_id, 'Realigning to V-ties & Committing Sequences')
+        self._print('Realigning to V-ties & Committing Sequences')
         avg_len = lengths_sum / float(len(vdjs))
         avg_mut = mutations_sum / float(len(vdjs))
 
-        for i, (_, vdj) in enumerate(vdjs.iteritems()):
+        for i, vdj in enumerate(vdjs.values()):
             if i > 0 and i % 1000 == 0:
                 self._session.commit()
-            # Align the sequence to a germline based on v_ties
-            vdj.align_to_germline(avg_len, avg_mut)
-            if (vdj.v_gene is not None and
-                    vdj.j_gene is not None and
-                    vdj.v_match / float(vdj.v_length) >=
-                    self._min_similarity and
-                    len(vdj.v_gene) <= self._max_vties):
+            try:
+                # Align the sequence to a germline based on v_ties
+                vdj.align_to_germline(avg_len, avg_mut)
+                if (vdj.v_match / float(vdj.v_length) < self._min_similarity
+                        or len(vdj.v_gene) > self._max_vties):
+                    raise AlignmentException('V-match too low or too many'
+                                             'V-ties')
                 # Add the sequence to the database
                 final_seq_id = self._add_to_db(read_type, sample, vdj)
                 # If a duplicate was found, and vdj was added as a duplicate,
@@ -185,7 +185,7 @@ class IdentificationWorker(concurrent.Worker):
                 if final_seq_id != vdj.id and vdj.id in dups:
                     for dup in dups[vdj.id]:
                         dup.duplicate_seq_id = final_seq_id
-            else:
+            except AlignmentException:
                 # This is a rare condition, but some sequences, after aligning
                 # to V-ties, the CDR3 becomes non-existent, and it is thrown
                 # out
@@ -206,7 +206,7 @@ class IdentificationWorker(concurrent.Worker):
         self._session.commit()
 
         # Add the true duplicates to the database
-        self._print(worker_id, 'Adding duplicates')
+        self._print('Adding duplicates')
         for i, dup_seqs in enumerate(dups.values()):
             if i > 0 and i % 1000 == 0:
                 self._session.commit()
@@ -214,10 +214,10 @@ class IdentificationWorker(concurrent.Worker):
         self._session.commit()
 
         self._samples_to_update_queue.put(sample.id)
-        self._print(worker_id, 'Finished sample {}'.format(sample.id))
+        self._print('Finished sample {}'.format(sample.id))
 
-    def cleanup(self, worker_id):
-        self._print(worker_id, 'Identification worker terminating')
+    def cleanup(self):
+        self._print('Identification worker terminating')
         self._session.close()
 
     def _add_to_db(self, alignment, sample, vdj):

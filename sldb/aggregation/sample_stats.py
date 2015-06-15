@@ -150,18 +150,19 @@ class SampleStatsWorker(concurrent.Worker):
     def __init__(self, session):
         self._session = session
 
-    def do_task(self, worker_id, args):
+    def do_task(self, args):
         if args['func'] == 'seq':
             func = self._calculate_seq_stats
         elif args['func'] == 'clone':
             func = self._calculate_clone_stats
-        print ('Worker {} on {} {}, include_outliers {}, only_full_reads '
-               '{}').format(worker_id, args['func'], args['sample_id'],
+        self._print('Worker {} on {} {}, include_outliers {}, only_full_reads '
+                    '{}').format(
+                            args['func'], args['sample_id'],
                             args['include_outliers'], args['only_full_reads'])
         func(args['sample_id'], args['min_cdr3'], args['max_cdr3'],
              args['include_outliers'], args['only_full_reads'])
 
-    def cleanup(self, worker_id):
+    def cleanup(self):
         self._session.commit()
 
     def _add_stat(self, stats, sample_id, include_outliers,

@@ -19,24 +19,22 @@ class CollapseWorker(concurrent.Worker):
         self._session = session
         self._tasks = 0
 
-    def do_task(self, worker_id, args):
+    def do_task(self, args):
         """Initiates the correct method based on the type of collapsing that is
         being done
 
-        :param int worker_id: The ID of the worker
         :param dict args: A dictionary with at least a ``type`` key
 
         """
         if args['type'] == 'sample':
-            self._collapse_sample(worker_id, args)
+            self._collapse_sample(args)
         elif args['type'] == 'subject':
-            self._collapse_subject(worker_id, args)
+            self._collapse_subject(args)
 
-    def _collapse_sample(self, worker_id, args):
+    def _collapse_sample(self, args):
         """Collapses sequences in sample ``args['sample_id']`` and bucket
         ``(v_gene, j_gene, junction_num_nts)``
 
-        :param int worker_id: The ID of the worker
         :param dict args: A dictionary with the keys ``sample_id``, ``v_gene``,
             ``j_gene``, and ``junction_num_nts``
 
@@ -50,7 +48,7 @@ class CollapseWorker(concurrent.Worker):
             Sequence.j_gene == args['j_gene'],
             Sequence.junction_num_nts == args['junction_num_nts']
         ).all()
-        self._print(worker_id, 'Collapsing bucket in sample {} with {} '
+        self._print('Collapsing bucket in sample {} with {} '
                     'seqs'.format(args['sample_id'], len(seqs)))
 
         collapse_seqs(
@@ -61,11 +59,10 @@ class CollapseWorker(concurrent.Worker):
         if self._tasks % 100 == 0:
             self._session.commit()
 
-    def _collapse_subject(self, worker_id, args):
+    def _collapse_subject(self, args):
         """Collapses all clones in the subject with ID ``args['subject_id']``
         and bucket ``(v_gene, j_gene, junction_num_nts)``
 
-        :param int worker_id: The ID of the worker
         :param dict args: A dictionary with the keys ``subject_id``,
             ``v_gene``, ``j_gene``, and ``junction_num_nts``
 
@@ -82,7 +79,7 @@ class CollapseWorker(concurrent.Worker):
             Sequence.j_gene == args['j_gene'],
             Sequence.junction_num_nts == args['junction_num_nts']
         ).all()
-        self._print(worker_id, 'Collapsing bucket in subject {} with {} '
+        self._print('Collapsing bucket in subject {} with {} '
                     'seqs'.format(args['subject_id'], len(seqs)))
 
         collapse_seqs(
@@ -95,8 +92,8 @@ class CollapseWorker(concurrent.Worker):
         if self._tasks % 100 == 0:
             self._session.commit()
 
-    def cleanup(self, worker_id):
-        self._print(worker_id, 'Committing collapsed sequences')
+    def cleanup(self):
+        self._print('Committing collapsed sequences')
         self._session.commit()
         self._session.close()
 

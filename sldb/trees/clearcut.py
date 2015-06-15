@@ -23,8 +23,8 @@ class ClearcutWorker(concurrent.Worker):
         self._min_count = min_count
         self._min_samples = min_samples
 
-    def do_task(self, worker_id, clone_inst):
-        self._print(worker_id, 'Running clone {}'.format(clone_inst.id))
+    def do_task(self, clone_inst):
+        self._print('Running clone {}'.format(clone_inst.id))
         germline_seq = self._session.query(CloneGroup.germline).filter(
             CloneGroup.id == clone_inst.group_id
         ).first().germline

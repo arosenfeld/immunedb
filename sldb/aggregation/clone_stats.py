@@ -26,15 +26,14 @@ class CloneStatsWorker(concurrent.Worker):
         self._baseline_path = baseline_path
         self._baseline_temp = baseline_temp
 
-    def do_task(self, worker_id, clone_id):
+    def do_task(self, clone_id):
         """Starts the task of generating clone statistics for a given
         clone_id.
-        :param int worker_id: The ID of the worker
         :param int args: The clone_id for which to calculate statistics
 
         """
 
-        self._print(worker_id, 'Clone {}'.format(clone_id))
+        self._print('Clone {}'.format(clone_id))
         sample_ids = map(lambda c: c.sample_id, self._session.query(
                 distinct(Sequence.sample_id).label('sample_id')
             ).filter(
@@ -45,17 +44,16 @@ class CloneStatsWorker(concurrent.Worker):
         if len(sample_ids) > 1:
             sample_ids.append(0)
         for sample_id in sample_ids:
-            self._process_sample(worker_id, clone_id, sample_id,
+            self._process_sample(clone_id, sample_id,
                                  single=len(sample_ids) == 1)
 
-    def _process_sample(self, worker_id, clone_id, sample_id, single):
+    def _process_sample(self, clone_id, sample_id, single):
         """Processes clone statistics for one sample (or the aggregate of all
         samples).  If ``sample_id`` is 0 the statistics for all sequences in the
         clone is generated.  If ``single`` is specified, the clone only occurs
         in one sample and the entry with ``sample_id=0`` should be the same as
         for the one sample.
 
-        :param int worker_id: The ID of the worker
         :param int clone_id: The ID of the clone
         :param int sample_id: The ID of a sample in which the clone exists
         :param bool single: If the clone only occurs in one sample
@@ -114,7 +112,7 @@ class CloneStatsWorker(concurrent.Worker):
             self._session.add(CloneStats(sample_id=0, **record_values))
         self._session.commit()
 
-    def cleanup(self, worker_id):
+    def cleanup(self):
         self._session.commit()
         self._session.close()
 
