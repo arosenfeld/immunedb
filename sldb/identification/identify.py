@@ -36,8 +36,8 @@ class SampleMetadata(object):
 
 class IdentificationWorker(concurrent.Worker):
     def __init__(self, session, v_germlines, j_germlines, limit_alignments,
-                 max_vties, min_similarity, read_format, samples_to_update_queue,
-                 sync_lock):
+                 max_vties, min_similarity, read_format,
+                 samples_to_update_queue, sync_lock):
         self._session = session
         self._v_germlines = v_germlines
         self._j_germlines = j_germlines

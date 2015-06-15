@@ -283,5 +283,3 @@ def run_delimited_import(session, args):
     for fn in args.files:
         with open(fn) as fh:
             importer.process_file(fh, args.delimiter, samples_to_collapse)
-
-    collapse.run_collapse
