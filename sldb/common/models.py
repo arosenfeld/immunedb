@@ -2,9 +2,9 @@ import datetime
 import hashlib
 
 from sqlalchemy import (Column, Boolean, Integer, String, Text, Date, DateTime,
-                        ForeignKey, UniqueConstraint, Index, func)
+                        ForeignKey, UniqueConstraint, Index, event, func)
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import relationship, backref
+from sqlalchemy.orm import ColumnProperty, relationship, backref
 from sqlalchemy.orm.interfaces import MapperExtension
 from sqlalchemy.dialects.mysql import TEXT, MEDIUMTEXT, BINARY
 
@@ -14,6 +14,8 @@ BaseMaster = declarative_base(
     metadata=DATABASE_SETTINGS['master_metadata'])
 BaseData = declarative_base(
     metadata=DATABASE_SETTINGS['data_metadata'])
+MAX_CDR3_NTS = 96
+MAX_CDR3_AAS = int(MAX_CDR3_NTS / 3)
 
 
 class Study(BaseMaster):
@@ -204,7 +206,7 @@ class CloneGroup(BaseMaster):
 
     v_gene = Column(String(length=512))
     j_gene = Column(String(length=128))
-    cdr3_aa = Column(String(length=128))
+    cdr3_aa = Column(String(length=MAX_CDR3_AAS))
     cdr3_num_nts = Column(Integer)
 
     subject_id = Column(Integer, ForeignKey(Subject.id), index=True)
@@ -232,7 +234,7 @@ class Clone(BaseData):
                             'cdr3_num_nts', 'subject_id'),
                       {'mysql_engine': 'TokuDB'})
     id = Column(Integer, primary_key=True)
-    cdr3_nt = Column(String(length=512))
+    cdr3_nt = Column(String(length=MAX_CDR3_NTS)
 
     # These are necessary during creation of clones, but will
     # always be redundant with the associated grouping after completion
@@ -429,8 +431,8 @@ class Sequence(BaseData):
     # generation over the index
     junction_num_nts = Column(Integer, index=True)
 
-    junction_nt = Column(String(512))
-    junction_aa = Column(String(512), index=True)
+    junction_nt = Column(String(MAX_CDR3_NTS))
+    junction_aa = Column(String(MAX_CDR3_AAS), index=True)
     gap_method = Column(String(16))
 
     sequence = Column(String(length=1024), index=True)
@@ -533,3 +535,20 @@ class ModificationLog(BaseData):
 
     action_type = Column(String(length=128))
     info = Column(String(length=1024))
+
+def check_string_length(cls, key, inst):
+    prop = inst.prop
+    # Only interested in simple columns, not relations
+    if isinstance(prop, ColumnProperty) and len(prop.columns) == 1:
+        col = prop.columns[0]
+        # if we have string column with a length, install a length validator
+        if isinstance(col.type, String) and col.type.length:
+            max_length = col.type.length
+            def set_(instance, value, oldvalue, initiator):
+                if len(value)>max_length:
+                    raise ValueError("Length %d exceeds allowed %d" % \
+                                            (len(value), max_length))
+            event.listen(inst, 'set', set_)
+
+event.listen(BaseMaster, 'attribute_instrument', check_string_length)
+event.listen(BaseData, 'attribute_instrument', check_string_length)
