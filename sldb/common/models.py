@@ -234,7 +234,7 @@ class Clone(BaseData):
                             'cdr3_num_nts', 'subject_id'),
                       {'mysql_engine': 'TokuDB'})
     id = Column(Integer, primary_key=True)
-    cdr3_nt = Column(String(length=MAX_CDR3_NTS)
+    cdr3_nt = Column(String(length=MAX_CDR3_NTS))
 
     # These are necessary during creation of clones, but will
     # always be redundant with the associated grouping after completion
@@ -545,9 +545,9 @@ def check_string_length(cls, key, inst):
         if isinstance(col.type, String) and col.type.length:
             max_length = col.type.length
             def set_(instance, value, oldvalue, initiator):
-                if len(value)>max_length:
-                    raise ValueError("Length %d exceeds allowed %d" % \
-                                            (len(value), max_length))
+                if len(value) > max_length:
+                    raise ValueError('Length {} exceeds allowed {}'.format(
+                        len(value), max_length))
             event.listen(inst, 'set', set_)
 
 event.listen(BaseMaster, 'attribute_instrument', check_string_length)

@@ -126,15 +126,23 @@ class IdentificationWorker(concurrent.Worker):
                 vdj.copy_number += 1
                 if vdj.id not in dups:
                     dups[vdj.id] = []
-                dups[vdj.id].append(DuplicateSequence(
-                    duplicate_seq_id=vdjs[key].id,
-                    sample_id=sample.id,
-                    seq_id=record.description))
+                try:
+                    dups[vdj.id].append(DuplicateSequence(
+                        duplicate_seq_id=vdjs[key].id,
+                        sample_id=sample.id,
+                        seq_id=record.description))
+                except ValueError as ex:
+                    self._print('Unable to create DuplicateSequence {}'.format(
+                        ex.message))
             elif key in noresults:
                 # This sequence cannot be identified.  Add a noresult
-                self._session.add(NoResult(sample=sample,
-                                           seq_id=record.description,
-                                           sequence=str(record.seq)))
+                try:
+                    self._session.add(NoResult(sample=sample,
+                                               seq_id=record.description,
+                                               sequence=str(record.seq)))
+                except ValueError as ex:
+                    self._print('Unable to create NoResult {}'.format(
+                        ex.message))
             else:
                 # This is the first instance of this exact sequence, so align
                 # it and identify it's V and J
@@ -152,11 +160,15 @@ class IdentificationWorker(concurrent.Worker):
                     mutations_sum += vdj.mutation_fraction
                     vdjs[key] = vdj
                 except AlignmentException:
-                    # The V or J could not be found, so add it as a noresult
-                    self._session.add(NoResult(sample=sample,
-                                               seq_id=vdj.id,
-                                               sequence=str(vdj.sequence)))
                     noresults.add(key)
+                    # The V or J could not be found, so add it as a noresult
+                    try:
+                        self._session.add(NoResult(sample=sample,
+                                                   seq_id=vdj.id,
+                                                   sequence=str(vdj.sequence)))
+                    except ValueError as ex:
+                        self._print('Unable to create NoResult {}'.format(
+                            ex.message))
 
         self._session.commit()
 
@@ -179,30 +191,40 @@ class IdentificationWorker(concurrent.Worker):
                     raise AlignmentException('V-match too low or too many'
                                              'V-ties')
                 # Add the sequence to the database
-                final_seq_id = self._add_to_db(read_type, sample, vdj)
-                # If a duplicate was found, and vdj was added as a duplicate,
-                # update the associated duplicates' duplicate_seq_ids
-                if final_seq_id != vdj.id and vdj.id in dups:
-                    for dup in dups[vdj.id]:
-                        dup.duplicate_seq_id = final_seq_id
+                try:
+                    final_seq_id = self._add_to_db(read_type, sample, vdj)
+                    # If a duplicate was found, and vdj was added as a duplicate,
+                    # update the associated duplicates' duplicate_seq_ids
+                    if final_seq_id != vdj.id and vdj.id in dups:
+                        for dup in dups[vdj.id]:
+                            dup.duplicate_seq_id = final_seq_id
+                except ValueError as ex:
+                    self._print('Unable to create Sequence {}'.format(
+                        ex.message))
             except AlignmentException:
                 # This is a rare condition, but some sequences, after aligning
                 # to V-ties, the CDR3 becomes non-existent, and it is thrown
                 # out
-                self._session.add(NoResult(sample=sample,
-                                           seq_id=vdj.id,
-                                           sequence=str(vdj.sequence)))
-                if vdj.id in dups:
-                    # It's duplicate sequences must be added as noresults also
-                    for dup in dups[vdj.id]:
-                        # Restore the original sequence by removing padding and
-                        # gaps
-                        self._session.add(NoResult(
-                            sample=sample,
-                            seq_id=dup.seq_id,
-                            sequence=vdj.sequence.replace('-', '').strip('N')))
+                try:
+                    self._session.add(NoResult(sample=sample,
+                                               seq_id=vdj.id,
+                                               sequence=str(vdj.sequence)))
+                    if vdj.id in dups:
+                        # It's duplicate sequences must be added as noresults
+                        # also
+                        for dup in dups[vdj.id]:
+                            # Restore the original sequence by removing padding
+                            # and gaps
+                            self._session.add(NoResult(
+                                sample=sample,
+                                seq_id=dup.seq_id,
+                                sequence=vdj.sequence.replace('-', '').strip(
+                                    'N')))
 
-                    del dups[vdj.id]
+                        del dups[vdj.id]
+                except ValueError as ex:
+                    self._print('Unable to create NoResult {}'.format(
+                        ex.message))
         self._session.commit()
 
         # Add the true duplicates to the database
@@ -226,10 +248,14 @@ class IdentificationWorker(concurrent.Worker):
             Sequence.sample == sample).first()
         if existing is not None:
             existing.copy_number += vdj.copy_number
-            self._session.add(DuplicateSequence(
-                duplicate_seq_id=existing.seq_id,
-                sample_id=sample.id,
-                seq_id=vdj.id))
+            try:
+                self._session.add(DuplicateSequence(
+                    duplicate_seq_id=existing.seq_id,
+                    sample_id=sample.id,
+                    seq_id=vdj.id))
+            except ValueError as ex:
+                self._print('Unable to create DuplicateSequence {}'.format(
+                    ex.message))
             return existing.seq_id
 
         if vdj.quality is not None:
