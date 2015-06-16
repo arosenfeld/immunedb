@@ -81,7 +81,7 @@ class CloneExport(Exporter):
         ('lab', lambda s: s.sample.lab),
         ('experimenter', lambda s: s.sample.experimenter),
         ('date', lambda s: s.sample.date),
-        'tree'
+        ('tree', lambda s: s.clone.tree),
     ]
 
     def __init__(self, session, rtype, rids, selected_fields,
