@@ -163,9 +163,6 @@ class DelimitedImporter(object):
 
         if len(seq) < len(germline):
             seq += 'N' * (len(germline) - len(seq))
-        sequence_replaced = ''.join(
-            [g if s in ('N', '-') else s for s, g in zip(seq, germline)]
-        )
 
         seq_cache_key = (sample.id, seq)
         if seq_cache_key in self._cached_seqs:
@@ -217,15 +214,14 @@ class DelimitedImporter(object):
             stop=_is_true(self._get_value('stop', row)),
             copy_number=int(self._get_value('copy_number', row)),
 
-            junction_num_nts=cdr3_len,
-            junction_nt=cdr3_nt,
-            junction_aa=cdr3_aa,
+            cdr3_num_nts=cdr3_len,
+            cdr3_nt=cdr3_nt,
+            cdr3_aa=cdr3_aa,
 
             gap_method='IMGT',
 
             sequence=seq,
             quality=self._get_value('quality', row, throw=False),
-            sequence_replaced=sequence_replaced,
 
             germline=germline,
         )

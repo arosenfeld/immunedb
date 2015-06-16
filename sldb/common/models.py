@@ -294,7 +294,7 @@ class SequenceExtension(MapperExtension):
     cannot be achieved with a traditional UNIQUE constraint since the key would
     be too long.
 
-    Also sets the ``junction_num_nts`` to the length of the `junction_nt`
+    Also sets the ``cdr3_num_nts`` to the length of the `cdr3_nt`
     string
 
     """
@@ -302,7 +302,7 @@ class SequenceExtension(MapperExtension):
         instance.sample_seq_hash = hashlib.sha1('{}{}'.format(
             instance.sample_id, instance.sequence)
         ).hexdigest()
-        instance.junction_num_nts = len(instance.junction_nt)
+        instance.cdr3_num_nts = len(instance.cdr3_nt)
 
 
 class Sequence(BaseData):
@@ -348,16 +348,14 @@ class Sequence(BaseData):
     :param int copy_number: Number of reads identical to the sequence in the \
         same sample
 
-    :param int junction_num_nts: The number of nucleotides in the CDR3
-    :param str junction_nt: The nucleotides comprising the CDR3
-    :param str junction_aa: The amino-acids comprising the CDR3
+    :param int cdr3_num_nts: The number of nucleotides in the CDR3
+    :param str cdr3_nt: The nucleotides comprising the CDR3
+    :param str cdr3_aa: The amino-acids comprising the CDR3
     :param str gap_method: The method used to gap the sequence (e.g. IGMT)
 
     :param str sequence: The (possibly-padded) sequence
     :param str quality: Optional Phred quality score (in Sanger format) for \
         each base in ``sequence``
-    :param str sequence_replaced: The full sequence after being filled in \
-        with the germline
 
     :param str germline: The germline sequence for this sequence
 
@@ -403,6 +401,7 @@ class Sequence(BaseData):
     sample = relationship(Sample, backref=backref('sequences'))
 
     alignment = Column(String(length=6), index=True)
+    partial_read = Column(Boolean, index=True)
     probable_indel_or_misalign = Column(Boolean, index=True)
 
     v_gene = Column(String(512), index=True)
@@ -427,17 +426,16 @@ class Sequence(BaseData):
     copy_number = Column(Integer, index=True, server_default='0',
                          nullable=False)
 
-    # This is just length(junction_nt) but is included for fast statistics
+    # This is just length(cdr3_nt) but is included for fast statistics
     # generation over the index
-    junction_num_nts = Column(Integer, index=True)
+    cdr3_num_nts = Column(Integer, index=True)
 
-    junction_nt = Column(String(MAX_CDR3_NTS))
-    junction_aa = Column(String(MAX_CDR3_AAS), index=True)
+    cdr3_nt = Column(String(MAX_CDR3_NTS))
+    cdr3_aa = Column(String(MAX_CDR3_AAS), index=True)
     gap_method = Column(String(16))
 
     sequence = Column(String(length=1024), index=True)
     quality = Column(String(length=1024))
-    sequence_replaced = Column(String(length=1024), index=True)
 
     germline = Column(String(length=1024))
 

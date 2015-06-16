@@ -14,11 +14,10 @@ class VDJSequence(object):
     INDEL_WINDOW = 30
     INDEL_MISMATCH_THRESHOLD = .6
 
-    def __init__(self, id, seq, is_full_v, v_germlines, j_germlines,
-            force_vs=None, force_j=None, quality=None):
+    def __init__(self, id, seq, v_germlines, j_germlines, force_vs=None,
+                 force_j=None, quality=None):
         self._id = id
         self._seq = seq.upper()
-        self._is_full_v = is_full_v
         self.v_germlines = v_germlines
         self.j_germlines = j_germlines
         self._force_vs = force_vs
@@ -85,6 +84,10 @@ class VDJSequence(object):
     def cdr3(self):
         return self.sequence[VGene.CDR3_OFFSET:
                              VGene.CDR3_OFFSET + self._cdr3_len]
+
+    @property
+    def partial_read(self):
+        return self._pad_len > 0
 
     @property
     def sequence(self):
@@ -285,10 +288,6 @@ class VDJSequence(object):
         # Mutation ratio is the distance divided by the length of overlap
         self._mutation_frac = self._v_score / float(self._v_length)
 
-        # If we need to pad with a full sequence, there is a misalignment
-        if self._is_full_v and self._pad_len > 0:
-            self._v = None
-            raise AlignmentException('Full sequence required padding.')
 
     def align_to_germline(self, avg_len=None, avg_mut=None):
         if avg_len is not None and avg_mut is not None:

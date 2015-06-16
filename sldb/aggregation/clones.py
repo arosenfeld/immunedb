@@ -73,7 +73,7 @@ def _get_subject_clones(session, subject_id, min_similarity, limit_alignments,
 
         Sequence.sample.has(subject_id=subject_id),
         Sequence.alignment.in_(limit_alignments),
-        ~Sequence.junction_aa.like('%*%'),
+        ~Sequence.cdr3_aa.like('%*%'),
 
         Sequence.copy_number_in_subject >= min_copy
     )
@@ -94,8 +94,8 @@ def _get_subject_clones(session, subject_id, min_similarity, limit_alignments,
                                                            new_clones)
 
         # Key for cache has implicit subject_id due to function parameter
-        key = (seq.v_gene, seq.j_gene, seq.junction_num_nts,
-               seq.junction_aa)
+        key = (seq.v_gene, seq.j_gene, seq.cdr3_num_nts,
+               seq.cdr3_aa)
         if key in clone_cache:
             seq.clone = clone_cache[key]
             continue
@@ -105,18 +105,18 @@ def _get_subject_clones(session, subject_id, min_similarity, limit_alignments,
                 .filter(Clone.subject_id == subject_id,
                         Clone.v_gene == seq.v_gene,
                         Clone.j_gene == seq.j_gene,
-                        Clone.cdr3_num_nts == seq.junction_num_nts):
+                        Clone.cdr3_num_nts == seq.cdr3_num_nts):
             seqs_in_clone = session.query(
-                Sequence.junction_aa
+                Sequence.cdr3_aa
             ).filter(
                 Sequence.clone == clone,
                 Sequence.copy_number_in_subject >= min_copy
             ).group_by(
-                Sequence.junction_aa
+                Sequence.cdr3_aa
             )
-            seqs_in_clone = map(lambda s: s.junction_aa, seqs_in_clone)
+            seqs_in_clone = map(lambda s: s.cdr3_aa, seqs_in_clone)
 
-            if _similar_to_all(seq.junction_aa, seqs_in_clone, min_similarity):
+            if _similar_to_all(seq.cdr3_aa, seqs_in_clone, min_similarity):
                 seq_clone = clone
                 break
 
@@ -124,7 +124,7 @@ def _get_subject_clones(session, subject_id, min_similarity, limit_alignments,
             new_clone = Clone(subject_id=subject_id,
                               v_gene=seq.v_gene,
                               j_gene=seq.j_gene,
-                              cdr3_num_nts=seq.junction_num_nts)
+                              cdr3_num_nts=seq.cdr3_num_nts)
             new_clones += 1
             session.add(new_clone)
             session.flush()
@@ -157,7 +157,7 @@ def _assign_clones_to_groups(session, subject_id, to_update):
         ).all()
 
         clone.cdr3_nt = _consensus(map(lambda s:
-                                   s.junction_nt, seqs))
+                                   s.cdr3_nt, seqs))
         cdr3_aa = lookups.aas_from_nts(clone.cdr3_nt)
 
         group = session.query(CloneGroup).filter(

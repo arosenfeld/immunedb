@@ -33,10 +33,10 @@ class CollapseWorker(concurrent.Worker):
 
     def _collapse_sample(self, args):
         """Collapses sequences in sample ``args['sample_id']`` and bucket
-        ``(v_gene, j_gene, junction_num_nts)``
+        ``(v_gene, j_gene, cdr3_num_nts)``
 
         :param dict args: A dictionary with the keys ``sample_id``, ``v_gene``,
-            ``j_gene``, and ``junction_num_nts``
+            ``j_gene``, and ``cdr3_num_nts``
 
         """
         seqs = self._session.query(
@@ -46,7 +46,7 @@ class CollapseWorker(concurrent.Worker):
             Sequence.sample_id == args['sample_id'],
             Sequence.v_gene == args['v_gene'],
             Sequence.j_gene == args['j_gene'],
-            Sequence.junction_num_nts == args['junction_num_nts']
+            Sequence.cdr3_num_nts == args['cdr3_num_nts']
         ).all()
         self._print('Collapsing bucket in sample {} with {} '
                     'seqs'.format(args['sample_id'], len(seqs)))
@@ -61,10 +61,10 @@ class CollapseWorker(concurrent.Worker):
 
     def _collapse_subject(self, args):
         """Collapses all clones in the subject with ID ``args['subject_id']``
-        and bucket ``(v_gene, j_gene, junction_num_nts)``
+        and bucket ``(v_gene, j_gene, cdr3_num_nts)``
 
         :param dict args: A dictionary with the keys ``subject_id``,
-            ``v_gene``, ``j_gene``, and ``junction_num_nts``
+            ``v_gene``, ``j_gene``, and ``cdr3_num_nts``
 
         """
 
@@ -77,7 +77,7 @@ class CollapseWorker(concurrent.Worker):
 
             Sequence.v_gene == args['v_gene'],
             Sequence.j_gene == args['j_gene'],
-            Sequence.junction_num_nts == args['junction_num_nts']
+            Sequence.cdr3_num_nts == args['cdr3_num_nts']
         ).all()
         self._print('Collapsing bucket in subject {} with {} '
                     'seqs'.format(args['subject_id'], len(seqs)))
@@ -186,11 +186,11 @@ def collapse_samples(master_db_config, data_db_config, sample_ids,
 
     for sample_id in sample_ids:
         buckets = session.query(
-            Sequence.v_gene, Sequence.j_gene, Sequence.junction_num_nts,
+            Sequence.v_gene, Sequence.j_gene, Sequence.cdr3_num_nts,
         ).filter(
             Sequence.sample_id == sample_id
         ).group_by(
-            Sequence.v_gene, Sequence.j_gene, Sequence.junction_num_nts,
+            Sequence.v_gene, Sequence.j_gene, Sequence.cdr3_num_nts,
         )
         for bucket in buckets:
             tasks.add_task({
@@ -198,7 +198,7 @@ def collapse_samples(master_db_config, data_db_config, sample_ids,
                 'sample_id': sample_id,
                 'v_gene': bucket.v_gene,
                 'j_gene': bucket.j_gene,
-                'junction_num_nts': bucket.junction_num_nts
+                'cdr3_num_nts': bucket.cdr3_num_nts
             })
     session.close()
 
@@ -218,11 +218,11 @@ def collapse_subjects(master_db_config, data_db_config, subject_ids,
 
     for subject_id in subject_ids:
         buckets = session.query(
-            Sequence.v_gene, Sequence.j_gene, Sequence.junction_num_nts
+            Sequence.v_gene, Sequence.j_gene, Sequence.cdr3_num_nts
         ).filter(
             Sequence.sample.has(subject_id=subject_id),
         ).group_by(
-            Sequence.v_gene, Sequence.j_gene, Sequence.junction_num_nts
+            Sequence.v_gene, Sequence.j_gene, Sequence.cdr3_num_nts
         )
         for bucket in buckets:
             tasks.add_task({
@@ -230,7 +230,7 @@ def collapse_subjects(master_db_config, data_db_config, subject_ids,
                 'subject_id': subject_id,
                 'v_gene': bucket.v_gene,
                 'j_gene': bucket.j_gene,
-                'junction_num_nts': bucket.junction_num_nts
+                'cdr3_num_nts': bucket.cdr3_num_nts
             })
 
     session.close()

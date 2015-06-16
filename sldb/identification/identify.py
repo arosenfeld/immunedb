@@ -269,6 +269,7 @@ class IdentificationWorker(concurrent.Worker):
             sample=sample,
 
             alignment=alignment,
+            partial_read=vdj.partial_read,
             probable_indel_or_misalign=vdj.has_possible_indel,
 
             v_gene=funcs.format_ties(vdj.v_gene, 'IGHV'),
@@ -292,13 +293,12 @@ class IdentificationWorker(concurrent.Worker):
             stop=vdj.stop,
             copy_number=vdj.copy_number,
 
-            junction_nt=vdj.cdr3,
-            junction_aa=lookups.aas_from_nts(vdj.cdr3),
+            cdr3_nt=vdj.cdr3,
+            cdr3_aa=lookups.aas_from_nts(vdj.cdr3),
             gap_method='IMGT',
 
             sequence=str(vdj.sequence),
             quality=quality,
-            sequence_replaced=vdj.sequence_filled,
 
             germline=vdj.germline))
         return vdj.id

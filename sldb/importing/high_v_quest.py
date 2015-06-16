@@ -26,7 +26,7 @@ def _get_value(line, key):
         'sequence': 'Sequence',
 
         'v_region': 'V-REGION',
-        'junction': 'JUNCTION',
+        'cdr3': 'JUNCTION',
         'gapped_sequence': 'V-D-J-REGION',
     }
     return line[_HEADERS.get(key)]
@@ -154,7 +154,7 @@ def _read_gapped(session, reads, gapped_reader, germlines, sample, use_v_ties,
         sequence = _pad_replace(sequence)
 
         v_region = _pad_replace(_get_value(line, 'v_region'))
-        junction = _get_value(line, 'junction')
+        cdr3 = _get_value(line, 'cdr3')
         read = reads[seq_id]
 
         pad = re.match('-*', v_region)
@@ -164,11 +164,11 @@ def _read_gapped(session, reads, gapped_reader, germlines, sample, use_v_ties,
             read.pad_length = pad.end()
         read.num_gaps = v_region[read.pad_length:].count('-')
 
-        read.junction_num_nts = len(junction)
-        if len(junction) == 0:
+        read.cdr3_num_nts = len(cdr3)
+        if len(cdr3) == 0:
             continue
-        read.junction_nt = junction.upper()
-        read.junction_aa = lookups.aas_from_nts(read.junction_nt)
+        read.cdr3_nt = cdr3.upper()
+        read.cdr3_aa = lookups.aas_from_nts(read.cdr3_nt)
 
         read.sequence = 'N' * read.pad_length + sequence[read.pad_length:]
 
@@ -189,7 +189,7 @@ def _read_gapped(session, reads, gapped_reader, germlines, sample, use_v_ties,
             vs = [germlines['IGHV{}'.format(v)].sequence
                   for v in read.v_gene][:VGene.CDR3_OFFSET]
             read.germline = get_common_seq(vs)
-            read.germline += '-' * read.junction_num_nts
+            read.germline += '-' * read.cdr3_num_nts
             read.germline += j_germlines.j['IGHJ{}'.format(
                 read.j_gene[0])][-j_germlines.j_offset:]
             read.germline = read.germline[:len(read.sequence)]
@@ -201,10 +201,6 @@ def _read_gapped(session, reads, gapped_reader, germlines, sample, use_v_ties,
         read.v_gene = funcs.format_ties(read.v_gene, 'IGHV')
         read.j_gene = funcs.format_ties(read.j_gene, 'IGHJ')
 
-        read.sequence_replaced = ''.join(
-            [g if s == 'N' else s for s, g in zip(
-                read.sequence, read.germline)])
-
         try:
             read.pre_cdr3_length, read.pre_cdr3_match = _match(
                 sequence[:VGene.CDR3_OFFSET],
@@ -213,9 +209,9 @@ def _read_gapped(session, reads, gapped_reader, germlines, sample, use_v_ties,
             read.pre_cdr3_length -= read.pad_length
             read.post_cdr3_length, read.post_cdr3_match = _match(
                 sequence[
-                    VGene.CDR3_OFFSET + read.junction_num_nts:],
+                    VGene.CDR3_OFFSET + read.cdr3_num_nts:],
                 read.germline[
-                    VGene.CDR3_OFFSET + read.junction_num_nts:]
+                    VGene.CDR3_OFFSET + read.cdr3_num_nts:]
             )
         except:
             session.add(NoResult(

@@ -219,17 +219,17 @@ class SampleStatsWorker(concurrent.Worker):
             (
                 func.ceil(100 * Sequence.v_match / Sequence.v_length)
             ).label('v_identity'),
-            Sequence.junction_num_nts.label('cdr3_length'),
+            Sequence.cdr3_num_nts.label('cdr3_length'),
         ).filter(
             Sequence.sample_id == sample_id,
             Sequence.copy_number_in_sample > 0
         )
 
         if not include_outliers and min_cdr3 is not None:
-            query = query.filter(Sequence.junction_num_nts >= min_cdr3,
-                                 Sequence.junction_num_nts <= max_cdr3)
+            query = query.filter(Sequence.cdr3_num_nts >= min_cdr3,
+                                 Sequence.cdr3_num_nts <= max_cdr3)
         if only_full_reads:
-            query = query.filter(Sequence.alignment == 'R1+R2')
+            query = query.filter(Sequence.partial_read == 0)
 
         for seq in query:
             for stat in seq_statistics.values():
@@ -259,14 +259,14 @@ class SampleStatsWorker(concurrent.Worker):
             func.round(
                 func.avg(100 * Sequence.v_match / Sequence.v_length)
             ).label('v_identity'),
-            Sequence.junction_num_nts.label('cdr3_length')
+            Sequence.cdr3_num_nts.label('cdr3_length')
         ).filter(
             Sequence.sample_id == sample_id,
             ~Sequence.clone_id.is_(None)
         )
 
         if only_full_reads:
-            query = query.filter(Sequence.alignment == 'R1+R2')
+            query = query.filter(Sequence.partial_read == 0)
         query = query.group_by(Sequence.clone_id)
 
         for clone in query:
@@ -283,7 +283,7 @@ class SampleStatsWorker(concurrent.Worker):
 
 
 def _get_cdr3_bounds(session, sample_id):
-    cdr3_fld = Sequence.junction_num_nts
+    cdr3_fld = Sequence.cdr3_num_nts
     cdr3s = []
 
     query = session.query(

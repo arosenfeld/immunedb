@@ -198,9 +198,9 @@ class SequenceExport(Exporter):
 
         'v_gene',
         'j_gene',
-        ('cdr3_nt', lambda seq: seq.junction_nt),
-        ('cdr3_aa', lambda seq: seq.junction_aa),
-        ('cdr3_num_nts', lambda seq: seq.junction_num_nts),
+        'cdr3_nt',
+        'cdr3_aa',
+        'cdr3_num_nts',
         'gap_method',
 
         'clone_id',
@@ -299,7 +299,8 @@ class SequenceExport(Exporter):
             # Get the selected data for the sequence
             data = self.get_selected_data(seq)
             if self.eformat == 'fill' or self.eformat == 'clip':
-                seq_nts = seq.sequence_replaced
+                seq_nts = ''.join([g if s == 'N' else s for s, g in zip(
+                    seq.sequence, seq.germline)])
             else:
                 seq_nts = seq.sequence
 
@@ -315,9 +316,9 @@ class SequenceExport(Exporter):
                         '>Germline', {
                             'v_gene': seq.v_gene,
                             'j_gene': seq.j_gene,
-                            'cdr3_aa': seq.junction_aa,
-                            'cdr3_nt': seq.junction_nt,
-                            'cdr3_len': seq.junction_num_nts
+                            'cdr3_aa': seq.cdr3_aa,
+                            'cdr3_nt': seq.cdr3_nt,
+                            'cdr3_len': seq.cdr3_num_nts
                         }, seq.germline)
 
                 # Output the FASTA row

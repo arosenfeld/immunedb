@@ -125,7 +125,7 @@ class ClearcutWorker(concurrent.Worker):
                 node.add_feature('copy_number', seq.copy_number_in_subject)
                 node.add_feature('tissues', map(str, tissues))
                 node.add_feature('subsets', map(str, subsets))
-                modified_seq = _remove_muts(seq.sequence_replaced, remove_muts,
+                modified_seq = _remove_muts(seq.sequence, remove_muts,
                                             germline_seq)
                 node.add_feature('mutations', _get_mutations(
                     germline_seq, modified_seq,

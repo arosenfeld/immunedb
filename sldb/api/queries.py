@@ -245,7 +245,7 @@ def get_clone(session, clone_id, sample_ids, thresholds=None):
                 'id': seq.sample.id,
                 'name': seq.sample.name,
             },
-            'junction_nt': seq.junction_nt,
+            'cdr3_nt': seq.cdr3_nt,
             'sequence': seq.sequence,
             'read_start': read_start,
             'copy_number_in_subject': int(seqr.copy_number_in_subject),
@@ -617,8 +617,8 @@ def get_sequence(session, sample_id, seq_id):
                     Sequence.seq_id == dup_seq.duplicate_seq_id).first()
 
     ret = _fields_to_dict([
-        'seq_id', 'alignment', 'v_gene', 'j_gene', 'junction_nt',
-        'junction_aa', 'germline', 'v_match', 'j_match', 'v_length',
+        'seq_id', 'alignment', 'v_gene', 'j_gene', 'cdr3_nt',
+        'cdr3_aa', 'germline', 'v_match', 'j_match', 'v_length',
         'j_length', 'in_frame', 'functional', 'stop', 'copy_number',
         'sequence', 'pre_cdr3_length', 'pre_cdr3_match', 'post_cdr3_length',
         'post_cdr3_match', 'pad_length', 'num_gaps',
@@ -709,7 +709,7 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
     for row in query:
         fields = _fields_to_dict(
             ['seq_id', 'alignment', 'v_gene', 'j_gene', 'v_match', 'j_match',
-             'v_length', 'j_length', 'junction_num_nts', 'junction_aa',
+             'v_length', 'j_length', 'cdr3_num_nts', 'cdr3_aa',
              'in_frame', 'functional', 'stop', 'probable_indel_or_misalign',
              'copy_number', 'copy_number_in_sample', 'copy_number_in_subject'],
             row)
