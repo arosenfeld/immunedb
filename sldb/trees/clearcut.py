@@ -72,7 +72,7 @@ class ClearcutWorker(concurrent.Worker):
         ).order_by(
             Sequence.v_length
         )
-        for seq in enumerate(q):
+        for seq in q:
             seqs[base64.b64encode(seq.seq_id)] = seq.sequence
             if seq.mutations_from_clone is None:
                 raise Exception(
