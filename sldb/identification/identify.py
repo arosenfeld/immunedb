@@ -35,13 +35,12 @@ class SampleMetadata(object):
 
 
 class IdentificationWorker(concurrent.Worker):
-    def __init__(self, session, v_germlines, j_germlines, limit_alignments,
-                 max_vties, min_similarity, read_format,
-                 samples_to_update_queue, sync_lock):
+    def __init__(self, session, v_germlines, j_germlines, max_vties,
+                 min_similarity, read_format, samples_to_update_queue,
+                 sync_lock):
         self._session = session
         self._v_germlines = v_germlines
         self._j_germlines = j_germlines
-        self._limit_alignments = limit_alignments
         self._min_similarity = min_similarity
         self._max_vties = max_vties
         self._read_format = read_format
@@ -59,12 +58,6 @@ class IdentificationWorker(concurrent.Worker):
             raise Exception(
                 'Invalid read type {} for {}.  Must be one of {}'.format(
                     read_type, fn, ','.join(config.allowed_read_types)))
-
-        if read_type not in self._limit_alignments:
-            self._print('Skipping {} since read type is {} and '
-                        'identification is limited to {}').format(
-                            fn, read_type, ','.join(self._limit_alignments))
-            return
 
         self._sync_lock.acquire()
         study, new = funcs.get_or_create(
@@ -348,7 +341,6 @@ def run_identify(session, args):
         tasks.add_worker(IdentificationWorker(worker_session,
                                               v_germlines,
                                               j_germlines,
-                                              args.limit_alignments,
                                               args.max_vties,
                                               args.min_similarity / float(100),
                                               args.read_format,

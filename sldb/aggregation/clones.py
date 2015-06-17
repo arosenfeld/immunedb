@@ -27,8 +27,8 @@ def _consensus(strings):
 
 
 def _similar_to_all(seq, rest, min_similarity):
-    """Determines if the string ``seq`` is at least ``min_similarity`` similar to the list
-    of strings ``rest``.
+    """Determines if the string ``seq`` is at least ``min_similarity`` similar
+    to the list of strings ``rest``.
 
     :param str seq: The string to compare
     :param list rest: The list of strings to compare to
@@ -44,20 +44,20 @@ def _similar_to_all(seq, rest, min_similarity):
     return True
 
 
-def _get_subject_clones(session, subject_id, min_similarity, limit_alignments,
-                        include_indels, min_identity, min_copy):
+def _get_subject_clones(session, subject_id, min_similarity, include_indels,
+                        include_partials, min_identity, min_copy):
     """Assigns clones to all viable sequences in the specified subject.
 
     :param Session session: The database session
     :param int subject_id: ID of the subject
     :param float min_similarity: The minimum similarity required for two
-    sequences to be in the same clone
-    :param list limit_alignments: The alignments allowed for sequences to be in
-    a clone
+        sequences to be in the same clone a clone
     :param bool include_indels: If sequences with possible indels should be
-    assigned to clones
-    :param float min_identity: The minimum V-gene germline-identity required for
-    a sequence to be assigned a clone
+        assigned to clones
+    :param bool include_partials: If partial sequences should be assigned to
+        clones
+    :param float min_identity: The minimum V-gene germline-identity required
+        for a sequence to be assigned a clone
 
     :returns: The list of clone IDs which have been created or updated
     :rtype: list
@@ -72,7 +72,6 @@ def _get_subject_clones(session, subject_id, min_similarity, limit_alignments,
         Sequence.clone_id.is_(None),
 
         Sequence.sample.has(subject_id=subject_id),
-        Sequence.alignment.in_(limit_alignments),
         ~Sequence.cdr3_aa.like('%*%'),
 
         Sequence.copy_number_in_subject >= min_copy
@@ -83,6 +82,8 @@ def _get_subject_clones(session, subject_id, min_similarity, limit_alignments,
         )
     if not include_indels:
         query = query.filter(Sequence.probable_indel_or_misalign == 0)
+    if not include_partials:
+        query = query.filter(Sequence.partial_read == 0)
 
     query = query.order_by(desc(Sequence.copy_number_in_subject))
 
@@ -227,7 +228,7 @@ def run_clones(session, args):
         print 'Assigning clones to subject', sid
         to_update = _get_subject_clones(
             session, sid, args.similarity / 100.0,
-            args.limit_alignments, args.include_indels,
+            args.include_indels, args.include_partials,
             args.min_identity / 100.0, args.min_copy)
         print 'Assigning clones to groups'
         _assign_clones_to_groups(session, sid, to_update)
