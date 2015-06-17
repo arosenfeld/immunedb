@@ -3,12 +3,13 @@ import pickle
 
 from Bio.Seq import Seq
 
-from sldb.identification.vdj_sequence import VDJSequence
+from sldb.identification.vdj_sequence import AlignmentException, VDJSequence
 from sldb.identification.v_genes import VGermlines
 from sldb.identification.j_genes import JGermlines
 
 def compare_dicts(regression, new):
     assert set(regression.keys()) == set(new.keys())
+
     for k in regression.keys():
         assert regression[k] == new[k], (
             'Mismatch in sequence {} for key {}, reg={}, new={}'.format(
@@ -18,7 +19,6 @@ parser = argparse.ArgumentParser()
 parser.add_argument('regression_file')
 parser.add_argument('v_germline_file')
 parser.add_argument('j_germline_file')
-parser.add_argument('--partial-reads', default=False, action='store_true')
 
 args = parser.parse_args()
 
@@ -55,13 +55,14 @@ with open(args.regression_file) as reg_file:
     regression = pickle.load(reg_file)
 
 for i, record in enumerate(regression):
-    vdj = VDJSequence(record['id'], record['original_seq'], not
-                      args.partial_reads, v_germlines, j_germlines)
-    new = {'id': vdj.id, 'v_gene': None, 'j_gene': None}
-    if vdj.v_gene is not None and vdj.j_gene is not None:
+    new = {'id': record['id'], 'v_gene': None, 'j_gene': None}
+    try:
+        vdj = VDJSequence(record['id'], record['original_seq'], v_germlines,
+                j_germlines)
         vdj.align_to_germline()
-        if vdj.v_gene is not None and vdj.j_gene is not None:
-            new = {field: getattr(vdj, field) for field in fields}
+        new = {field: getattr(vdj, field) for field in fields}
+    except AlignmentException:
+        pass
     new['original_seq'] = record['original_seq']
 
     compare_dicts(record, new)
