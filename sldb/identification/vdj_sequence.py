@@ -42,11 +42,10 @@ class VDJSequence(object):
 
         self.copy_number = 1
 
-        # If there are invalid characters in the sequence, ignore it
-        if all(map(lambda c: c in 'ATCGN', self.sequence)):
-            self._find_j()
-            if self._j is not None:
-                self._get_v(reverse=False)
+        if not all(map(lambda c: c in 'ATCGN', self.sequence)):
+            raise AlignmentException('Invalid characters in sequence.')
+        self._find_j()
+        self._find_v()
 
     @property
     def id(self):
@@ -214,7 +213,8 @@ class VDJSequence(object):
             :cdr3_end_pos]
         if len(germline_in_cdr3) == 0 or len(sequence_in_cdr3) == 0:
             self._j = None
-            return
+            raise AlignmentException('Could not find sequence or germline in '
+                                     'CDR3')
 
         # Get the extent of the J in the CDR3
         streak = find_streak_position(
@@ -235,7 +235,7 @@ class VDJSequence(object):
                 self.sequence[self._j_start:self._j_start+len(j_full)]):
             self._j = None
             self._j_anchor_pos = None
-            return
+            raise AlignmentException('Germline extended past end of J')
 
         # Get the full-J distance
         dist = dnautils.hamming(
@@ -246,14 +246,16 @@ class VDJSequence(object):
         self._j = self.j_germlines.get_ties(self.j_gene[0], match)
         self._j_length = len(j_full)
 
-    def _get_v(self, reverse):
-        self._v_anchor_pos = find_v_position(self.sequence, reverse)
-        if self.v_anchor_pos is not None:
-            self._find_v()
-            if self.v_gene is None and not reverse:
-                self._get_v(True)
-
     def _find_v(self):
+        for self._v_anchor_pos in find_v_position(self.sequence):
+            self._found_v()
+            if self._v is not None:
+                break
+
+        if self._v is None:
+            raise AlignmentException('Could not find suitable V anchor')
+
+    def _found_v(self):
         '''Finds the V gene closest to that of the sequence'''
         self._v_score = None
         self._aligned_v = VGene(self.sequence)
@@ -280,14 +282,11 @@ class VDJSequence(object):
                     # Add the V-tie
                     self._v.append(v)
 
-        if self._v is None:
-            raise AlignmentException('Could not find V anchor')
-
-        # Determine the pad length
-        self._pad_len = self._germ_pos - self.v_anchor_pos
-        # Mutation ratio is the distance divided by the length of overlap
-        self._mutation_frac = self._v_score / float(self._v_length)
-
+        if self._v is not None:
+            # Determine the pad length
+            self._pad_len = self._germ_pos - self.v_anchor_pos
+            # Mutation ratio is the distance divided by the length of overlap
+            self._mutation_frac = self._v_score / float(self._v_length)
 
     def align_to_germline(self, avg_len=None, avg_mut=None):
         if avg_len is not None and avg_mut is not None:

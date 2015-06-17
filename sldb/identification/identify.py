@@ -12,7 +12,7 @@ import sldb.common.config as config
 import sldb.common.modification_log as mod_log
 from sldb.common.models import (DuplicateSequence, NoResult, Sample, Sequence,
                                 Study, Subject)
-from sldb.identification.vdj_sequence import VDJSequence
+from sldb.identification.vdj_sequence import AlignmentException, VDJSequence
 from sldb.identification.v_genes import VGermlines
 from sldb.identification.j_genes import JGermlines
 import sldb.util.concurrent as concurrent
@@ -137,7 +137,7 @@ class IdentificationWorker(concurrent.Worker):
             elif key in noresults:
                 # This sequence cannot be identified.  Add a noresult
                 try:
-                    self._session.add(NoResult(sample=sample,
+                    self._session.add(NoResult(sample_id=sample.id,
                                                seq_id=record.description,
                                                sequence=str(record.seq)))
                 except ValueError as ex:
@@ -149,7 +149,6 @@ class IdentificationWorker(concurrent.Worker):
                 try:
                     vdj = VDJSequence(record.description,
                                       record.seq,
-                                      read_type == 'R1+R2',
                                       self._v_germlines,
                                       self._j_germlines,
                                       quality=record.letter_annotations.get(
@@ -163,9 +162,10 @@ class IdentificationWorker(concurrent.Worker):
                     noresults.add(key)
                     # The V or J could not be found, so add it as a noresult
                     try:
-                        self._session.add(NoResult(sample=sample,
-                                                   seq_id=vdj.id,
-                                                   sequence=str(vdj.sequence)))
+                        self._session.add(NoResult(
+                            sample=sample,
+                            seq_id=record.description,
+                            sequence=str(record.seq)))
                     except ValueError as ex:
                         self._print('Unable to create NoResult {}'.format(
                             ex.message))
@@ -193,14 +193,17 @@ class IdentificationWorker(concurrent.Worker):
                 # Add the sequence to the database
                 try:
                     final_seq_id = self._add_to_db(read_type, sample, vdj)
-                    # If a duplicate was found, and vdj was added as a duplicate,
-                    # update the associated duplicates' duplicate_seq_ids
+                    # If a duplicate was found, and vdj was added as a
+                    # duplicate, update the associated duplicates'
+                    # duplicate_seq_ids
                     if final_seq_id != vdj.id and vdj.id in dups:
                         for dup in dups[vdj.id]:
                             dup.duplicate_seq_id = final_seq_id
                 except ValueError as ex:
                     self._print('Unable to create Sequence {}'.format(
                         ex.message))
+                    if vdj.id in dups:
+                        del dups[vdj.id]
             except AlignmentException:
                 # This is a rare condition, but some sequences, after aligning
                 # to V-ties, the CDR3 becomes non-existent, and it is thrown
@@ -216,7 +219,7 @@ class IdentificationWorker(concurrent.Worker):
                             # Restore the original sequence by removing padding
                             # and gaps
                             self._session.add(NoResult(
-                                sample=sample,
+                                sample_id=sample.id,
                                 seq_id=dup.seq_id,
                                 sequence=vdj.sequence.replace('-', '').strip(
                                     'N')))
@@ -264,9 +267,10 @@ class IdentificationWorker(concurrent.Worker):
                 lambda q: ' ' if q is None else chr(q + 33), vdj.quality))
         else:
             quality = None
+
         self._session.add(Sequence(
             seq_id=vdj.id,
-            sample=sample,
+            sample_id=sample.id,
 
             alignment=alignment,
             partial_read=vdj.partial_read,
@@ -294,6 +298,7 @@ class IdentificationWorker(concurrent.Worker):
             copy_number=vdj.copy_number,
 
             cdr3_nt=vdj.cdr3,
+            cdr3_num_nts = len(vdj.cdr3),
             cdr3_aa=lookups.aas_from_nts(vdj.cdr3),
             gap_method='IMGT',
 
@@ -301,6 +306,7 @@ class IdentificationWorker(concurrent.Worker):
             quality=quality,
 
             germline=vdj.germline))
+
         return vdj.id
 
 
@@ -313,7 +319,6 @@ def run_identify(session, args):
                              args.anchor_len, args.min_anchor_len)
     tasks = concurrent.TaskQueue()
     for base_dir in args.base_dirs:
-        print 'Descending into {}'.format(base_dir)
         meta_fn = '{}/metadata.json'.format(base_dir)
         if not os.path.isfile(meta_fn):
             print '\tNo metadata file found for this set of samples.'

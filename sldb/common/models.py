@@ -302,7 +302,6 @@ class SequenceExtension(MapperExtension):
         instance.sample_seq_hash = hashlib.sha1('{}{}'.format(
             instance.sample_id, instance.sequence)
         ).hexdigest()
-        instance.cdr3_num_nts = len(instance.cdr3_nt)
 
 
 class Sequence(BaseData):
@@ -543,7 +542,7 @@ def check_string_length(cls, key, inst):
         if isinstance(col.type, String) and col.type.length:
             max_length = col.type.length
             def set_(instance, value, oldvalue, initiator):
-                if len(value) > max_length:
+                if value is not None and len(value) > max_length:
                     raise ValueError('Length {} exceeds allowed {}'.format(
                         len(value), max_length))
             event.listen(inst, 'set', set_)

@@ -18,18 +18,15 @@ class AlignmentException(Exception):
 class VGene(object):
     CDR3_OFFSET = 309
 
-    def __init__(self, gapped_sequence, force_anchor=False):
+    def __init__(self, gapped_sequence):
         self._gapped_seq = str(gapped_sequence).upper()
         if self._gapped_seq[self.CDR3_OFFSET:].count('-') > 0:
             raise AlignmentException('Cannot have gaps after CDR3 start '
                                      '(position {})'.format(self.CDR3_OFFSET))
-        if not force_anchor:
+        try:
             self._ungapped_anchor_pos = find_v_position(
-                self.sequence_ungapped)
-        else:
-            self._ungapped_anchor_pos = self.CDR3_OFFSET - \
-                self._gapped_seq.count('-')
-        if self._ungapped_anchor_pos is None:
+                self.sequence_ungapped).next()
+        except StopIteration:
             raise AlignmentException('Unable to find anchor')
 
     @property
@@ -193,38 +190,23 @@ def get_common_seq(seqs):
     return v_gene[:VGene.CDR3_OFFSET]
 
 
-def find_v_position(sequence, reverse=False):
+def find_v_position(sequence):
     '''Tries to find the end of the V gene region'''
     if type(sequence) == str:
         sequence = Seq(sequence)
     # Try to find DxxxyzC
-    found = _find_dc(sequence, reverse)
-    if found is None:
-        # If DxxyzC isn't found, try to find 'YYC', 'YCC', or 'YHC'
-        found = _find_yxc(sequence, reverse)
-
-    return found
-
-
-def _find_dc(sequence, reverse):
-    return _find_with_frameshifts(sequence, 'D(.{3}((YY)|(YC)|(YH)))C',
-                                  reverse)
+    for found in _find_with_frameshifts(sequence, 'D(.{3}((YY)|(YC)|(YH)))C'):
+        yield found
+    # Try to find 'YYC', 'YCC', or 'YHC'
+    for found in _find_with_frameshifts(sequence, 'Y([YHC])C'):
+        yield found
 
 
-def _find_yxc(sequence, reverse):
-    return _find_with_frameshifts(sequence, 'Y([YHC])C', reverse)
-
-
-def _find_with_frameshifts(sequence, regex, reverse):
-    r = range(2, -1, -1)
-    if reverse:
-        r = reversed(r)
-
-    for shift in r:
+def _find_with_frameshifts(sequence, regex):
+    for shift in [2, 1, 0]:
         seq = sequence[shift:]
         seq = seq[:len(seq) - len(seq) % 3]
         aas = str(seq.translate())
         res = re.search(regex, aas)
         if res is not None:
-            return (res.end() - 1) * 3 + shift
-    return None
+            yield (res.end() - 1) * 3 + shift
