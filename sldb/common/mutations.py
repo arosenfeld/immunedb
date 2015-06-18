@@ -98,13 +98,7 @@ class CloneMutations(object):
     def __init__(self, session, clone):
         self._clone = clone
         self._session = session
-
-        self._germline = self._clone.group.germline
-        self._germline = ''.join([
-            self._germline[:VGene.CDR3_OFFSET],
-            clone.cdr3_nt,
-            self._germline[VGene.CDR3_OFFSET + clone.cdr3_num_nts:]
-        ])
+        self._germline = self._clone.consensus_germline
 
     def _get_codon_at(self, seq, i):
         aa_off = i - i % 3

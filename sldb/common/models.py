@@ -16,6 +16,7 @@ BaseData = declarative_base(
     metadata=DATABASE_SETTINGS['data_metadata'])
 MAX_CDR3_NTS = 96
 MAX_CDR3_AAS = int(MAX_CDR3_NTS / 3)
+CDR3_OFFSET = 309
 
 
 class Study(BaseMaster):
@@ -176,79 +177,52 @@ class SampleStats(BaseData):
     no_result_cnt = Column(Integer)
 
 
-class CloneGroup(BaseMaster):
-    """A group of clones which share the same V, J, and CDR3 amino-acids.  This
-    is used to correlate identical or similar clones across database versions
-    when their ID may change.
+class Clone(BaseData):
+    """A group of sequences likely originating from the same germline
 
-    :param int id: An auto-assigned unique identifier for the group
+    :param int id: An auto-assigned unique identifier for the clone
     :param str v_gene: The V-gene assigned to the sequence
     :param str j_gene: The J-gene assigned to the sequence
-    :param cdr3_aa: The amino-acid sequence of the group's CDR3
-    :param cdr3_num_nts: The number of nucleotides in the group's CDR3
+    :param str cdr3_nt: The consensus nucleotides for the clone
+    :param int cdr3_num_nts: The number of nucleotides in the group's CDR3
+    :param str cdr3_aa: The amino-acid sequence of the group's CDR3
     :param int subject_id: The ID of the subject from which the sample was \
         taken
     :param Relationship subject: Reference to the associated \
         :py:class:`Subject` instance
     :param str germline: The germline sequence for this sequence
+    :param str tree: The textual representation of the clone's lineage tree
 
     """
-    __tablename__ = 'clone_groups'
-    __table_args__ = (Index('grp_aas', 'v_gene', 'j_gene', 'subject_id',
-                            'cdr3_aa'),
-                      Index('grp_len', 'v_gene', 'j_gene', 'subject_id',
-                            'cdr3_num_nts'),
-                      UniqueConstraint('v_gene', 'j_gene', 'subject_id',
-                                       'cdr3_num_nts', 'cdr3_aa'),
+    __tablename__ = 'clones'
+    __table_args__ = (Index('size_bucket', 'v_gene', 'j_gene',
+                            'subject_id', 'cdr3_num_nts'),
+                      Index('aa_bucket', 'v_gene', 'j_gene',
+                            'subject_id', 'cdr3_num_nts'),
                       {'mysql_engine': 'TokuDB'})
-
     id = Column(Integer, primary_key=True)
 
-    v_gene = Column(String(length=512))
-    j_gene = Column(String(length=128))
+    v_gene = Column(String(length=512), index=True)
+    j_gene = Column(String(length=128), index=True)
+
+    cdr3_nt = Column(String(length=MAX_CDR3_NTS))
+    cdr3_num_nts = Column(Integer, index=True)
     cdr3_aa = Column(String(length=MAX_CDR3_AAS))
-    cdr3_num_nts = Column(Integer)
 
     subject_id = Column(Integer, ForeignKey(Subject.id), index=True)
     subject = relationship(Subject, backref=backref('clones',
                            order_by=(v_gene, j_gene, cdr3_num_nts, cdr3_aa)))
 
     germline = Column(String(length=1024))
-
-
-class Clone(BaseData):
-    """A group of sequences likely originating from the same germline
-
-    :param int id: An auto-assigned unique identifier for the clone
-    :param str cdr3_nt: The consensus nucleotides for the clone
-    :param int group_id: The group ID for the clone to correlate clones \
-        across database versions
-
-    :param Relationship group: Reference to the associated \
-        :py:class:`CloneGroup` instance
-    :param str tree: The textual representation of the clone's lineage tree
-
-    """
-    __tablename__ = 'clones'
-    __table_args__ = (Index('bucket', 'v_gene', 'j_gene',
-                            'cdr3_num_nts', 'subject_id'),
-                      {'mysql_engine': 'TokuDB'})
-    id = Column(Integer, primary_key=True)
-    cdr3_nt = Column(String(length=MAX_CDR3_NTS))
-
-    # These are necessary during creation of clones, but will
-    # always be redundant with the associated grouping after completion
-    v_gene = Column(String(length=512), index=True)
-    j_gene = Column(String(length=128), index=True)
-    cdr3_num_nts = Column(Integer, index=True)
-    subject_id = Column(Integer, ForeignKey(Subject.id), index=True)
-    #
-
-    group_id = Column(Integer, ForeignKey(CloneGroup.id),
-                      index=True)
-    group = relationship(CloneGroup, backref=backref('clones',
-                         order_by=(id)))
     tree = Column(MEDIUMTEXT)
+
+    @property
+    def consensus_germline(self):
+        return ''.join([
+            self.germline[0:CDR3_OFFSET],
+            self.cdr3_nt,
+            self.germline[CDR3_OFFSET + self.cdr3_num_nts:]
+        ])
 
 
 class CloneStats(BaseData):

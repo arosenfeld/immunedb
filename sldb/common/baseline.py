@@ -74,12 +74,7 @@ def _make_input_file(session, input_path, clone, samples,
     with open(input_path, 'w+') as fh:
         fh.write('>>>CLONE\n')
         fh.write('>>germline\n')
-        germline = ''.join([
-            clone.group.germline[:VGene.CDR3_OFFSET],
-            clone.cdr3_nt,
-            clone.group.germline[VGene.CDR3_OFFSET + clone.cdr3_num_nts:]
-        ])
-        fh.write('{}\n'.format(germline))
+        fh.write('{}\n'.format(clone.consensus_germline))
 
         seqs = session.query(
             Sequence.sequence,

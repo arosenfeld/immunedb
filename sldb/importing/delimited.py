@@ -3,7 +3,7 @@ import re
 
 from Bio import SeqIO
 
-from sldb.common.models import Sample, Sequence, Study, Subject
+from sldb.common.models import CDR3_OFFSET, Sample, Sequence, Study, Subject
 from sldb.identification.v_genes import VGene, get_common_seq
 import sldb.util.funcs as funcs
 import sldb.util.lookups as lookups
@@ -140,7 +140,7 @@ class DelimitedImporter(object):
 
     def _process_sequence(self, row, study, sample):
         seq = self._get_value('sequence', row).upper().replace('.', '-')
-        v_region = seq[:VGene.CDR3_OFFSET]
+        v_region = seq[:CDR3_OFFSET]
         pad_length = re.match('[-N]*', v_region).end() or 0
         # Some input uses gaps instead of N's, so replace them with N's
         seq = 'N' * pad_length + seq[pad_length:]
@@ -151,7 +151,7 @@ class DelimitedImporter(object):
                 for g in self._get_value('j_gene', row).split('|')]
 
         v_germline = get_common_seq(
-            [self._v_germlines[v] for v in vs])[:VGene.CDR3_OFFSET]
+            [self._v_germlines[v] for v in vs])[:CDR3_OFFSET]
         j_germline = get_common_seq(
             [self._j_germlines[j][-self._j_offset:] for j in js])
 

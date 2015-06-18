@@ -3,8 +3,8 @@ import re
 
 import dnautils
 import sldb.common.modification_log as mod_log
-from sldb.common.models import (DuplicateSequence, NoResult, Sample, Study,
-                                Subject, Sequence)
+from sldb.common.models import (CDR3_OFFSET, DuplicateSequence, NoResult,
+                                Sample, Study, Subject, Sequence)
 from sldb.identification.v_genes import VGene, VGermlines, get_common_seq
 import sldb.util.funcs as funcs
 import sldb.util.lookups as lookups
@@ -187,7 +187,7 @@ def _read_gapped(session, reads, gapped_reader, germlines, sample, use_v_ties,
             if use_v_ties:
                 read.v_gene = germlines.get_ties(read.v_gene, lens, muts)
             vs = [germlines['IGHV{}'.format(v)].sequence
-                  for v in read.v_gene][:VGene.CDR3_OFFSET]
+                  for v in read.v_gene][:CDR3_OFFSET]
             read.germline = get_common_seq(vs)
             read.germline += '-' * read.cdr3_num_nts
             read.germline += j_germlines.j['IGHJ{}'.format(
@@ -203,15 +203,15 @@ def _read_gapped(session, reads, gapped_reader, germlines, sample, use_v_ties,
 
         try:
             read.pre_cdr3_length, read.pre_cdr3_match = _match(
-                sequence[:VGene.CDR3_OFFSET],
-                read.germline[:VGene.CDR3_OFFSET]
+                sequence[:CDR3_OFFSET],
+                read.germline[:CDR3_OFFSET]
             )
             read.pre_cdr3_length -= read.pad_length
             read.post_cdr3_length, read.post_cdr3_match = _match(
                 sequence[
-                    VGene.CDR3_OFFSET + read.cdr3_num_nts:],
+                    CDR3_OFFSET + read.cdr3_num_nts:],
                 read.germline[
-                    VGene.CDR3_OFFSET + read.cdr3_num_nts:]
+                    CDR3_OFFSET + read.cdr3_num_nts:]
             )
         except:
             session.add(NoResult(

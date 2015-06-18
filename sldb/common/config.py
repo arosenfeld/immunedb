@@ -88,7 +88,6 @@ def init_db(master_db_config, data_db_config, as_maker=False, from_dict=False):
     model_map = {
         Study: master_engine,
         Sample: master_engine,
-        CloneGroup: master_engine,
         Subject: master_engine,
 
         SampleStats: data_engine,

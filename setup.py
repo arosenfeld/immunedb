@@ -25,7 +25,6 @@ setup(
         'bin/sldb_identify',
         'bin/sldb_import_delim',
         'bin/sldb_hvquest',
-        'bin/sldb_modify_clone',
         'bin/sldb_rest',
         'bin/sldb_sample_stats',
     ],

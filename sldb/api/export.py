@@ -64,11 +64,10 @@ class CloneExport(Exporter):
         ('unique_sequences', lambda s: s.unique_cnt),
         ('total_sequences', lambda s: s.total_cnt),
 
-        ('group_id', lambda s: s.clone.group_id),
         ('v_gene', lambda s: s.clone.v_gene),
         ('j_gene', lambda s: s.clone.j_gene),
         ('cdr3_nt', lambda s: s.clone.cdr3_nt),
-        ('cdr3_aa', lambda s: s.clone.group.cdr3_aa),
+        ('cdr3_aa', lambda s: s.clone.cdr3_aa),
         ('cdr3_num_nts', lambda s: s.clone.cdr3_num_nts),
         ('functional', lambda s: s.clone.cdr3_num_nts % 3 == 0),
 
@@ -204,9 +203,8 @@ class SequenceExport(Exporter):
         'gap_method',
 
         'clone_id',
-        ('clone_group_id', lambda seq: seq.clone.group.id),
         ('clone_cdr3_nt', lambda seq: seq.clone.cdr3_nt),
-        ('clone_cdr3_aa', lambda seq: seq.clone.group.cdr3_aa),
+        ('clone_cdr3_aa', lambda seq: seq.clone.cdr3_aa),
         ('clone_json_tree', lambda seq: seq.clone.tree),
 
         'copy_number_in_sample',

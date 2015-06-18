@@ -52,18 +52,11 @@ def _sample_to_dict(sample):
 
 
 def _clone_to_dict(clone):
-    d = _fields_to_dict(['id', 'cdr3_nt'], clone)
-    d['group'] = {
-        'id': clone.group.id,
-        'v_gene': clone.group.v_gene,
-        'j_gene': clone.group.j_gene,
-        'cdr3_aa': clone.group.cdr3_aa,
-        'cdr3_num_nts': clone.group.cdr3_num_nts,
-        'subject': _subject_to_dict(clone.group.subject),
-    }
-    d['germline'] = clone.group.germline[0:VGene.CDR3_OFFSET] + \
-        clone.cdr3_nt + clone.group.germline[VGene.CDR3_OFFSET +
-                                             clone.group.cdr3_num_nts:]
+    d = _fields_to_dict(['id', 'cdr3_nt', 'v_gene', 'j_gene', 'cdr3_aa',
+                         'cdr3_num_nts'], clone)
+    d['subject'] = _subject_to_dict(clone.subject)
+    d['germline'] = clone.consensus_germline
+
     return d
 
 
@@ -114,7 +107,7 @@ def get_all_studies(session):
 def get_all_clones(session, filters, order_field, order_dir, paging=None):
     """Gets a list of all clones"""
     def get_field(key):
-        tbls = [Clone, CloneGroup, CloneStats]
+        tbls = [Clone, CloneStats]
         for t in tbls:
             if hasattr(t, key):
                 return getattr(t, key)
@@ -122,7 +115,7 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
     res = []
     clone_q = session.query(
         Clone, CloneStats.unique_cnt, CloneStats.total_cnt
-    ).join(CloneStats).join(CloneGroup).filter(
+    ).join(CloneStats).filter(
         CloneStats.sample_id == 0
     )
 
@@ -144,15 +137,9 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
                         CloneStats.unique_cnt <= int(value))
                 elif key == 'id':
                     clone_q = clone_q.filter(Clone.id == int(value))
-                elif key == 'group_id':
-                    clone_q = clone_q.filter(Clone.group_id == int(value))
                 else:
-                    if hasattr(Clone, key):
-                        c = Clone
-                    else:
-                        c = Clone.group
-                    clone_q = clone_q.filter(
-                        getattr(c, key).like(value.replace('*', '%')))
+                    clone_q = clone_q.filter(getattr(Clone, key).like(
+                        value.replace('*', '%')))
 
     order_field = get_field(order_field)
 
@@ -634,11 +621,7 @@ def get_sequence(session, sample_id, seq_id):
     else:
         ret['mutations'] = []
 
-    if seq.clone is not None and seq.clone.group is not None:
-        ret['clone'] = _clone_to_dict(seq.clone)
-    else:
-        ret['clone'] = None
-
+    ret['clone'] = _clone_to_dict(seq.clone) if seq.clone is not None else None
     ret['collapse_info'] = funcs.trace_seq_collapses(session, seq) or {}
 
     return ret

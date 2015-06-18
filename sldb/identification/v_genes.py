@@ -8,6 +8,7 @@ from scipy.stats import hypergeom
 from Bio import SeqIO
 from Bio.Seq import Seq
 
+from sldb.common.models import CDR3_OFFSET
 from sldb.util.funcs import find_streak_position
 
 
@@ -16,13 +17,11 @@ class AlignmentException(Exception):
 
 
 class VGene(object):
-    CDR3_OFFSET = 309
-
     def __init__(self, gapped_sequence):
         self._gapped_seq = str(gapped_sequence).upper()
-        if self._gapped_seq[self.CDR3_OFFSET:].count('-') > 0:
+        if self._gapped_seq[CDR3_OFFSET:].count('-') > 0:
             raise AlignmentException('Cannot have gaps after CDR3 start '
-                                     '(position {})'.format(self.CDR3_OFFSET))
+                                     '(position {})'.format(CDR3_OFFSET))
         try:
             self._ungapped_anchor_pos = find_v_position(
                 self.sequence_ungapped).next()
@@ -187,7 +186,7 @@ def get_common_seq(seqs):
     for nts in itertools.izip_longest(*seqs, fillvalue='N'):
         v_gene.append(nts[0] if all(map(lambda n: n == nts[0], nts)) else 'N')
     v_gene = ''.join(v_gene)
-    return v_gene[:VGene.CDR3_OFFSET]
+    return v_gene[:CDR3_OFFSET]
 
 
 def find_v_position(sequence):

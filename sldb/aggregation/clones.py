@@ -6,7 +6,7 @@ from sqlalchemy import and_, desc, distinct
 from sqlalchemy.sql import exists, func, text
 
 import dnautils
-from sldb.common.models import *
+from sldb.common.models import Clone, Sequence
 import sldb.common.modification_log as mod_log
 from sldb.identification.identify import VDJSequence
 from sldb.identification.v_genes import VGene
@@ -140,46 +140,23 @@ def _get_subject_clones(session, subject_id, min_similarity, include_indels,
     return to_update
 
 
-def _assign_clones_to_groups(session, subject_id, to_update):
-    """Assigns clones to groups.
+def _generate_consensus(session, subject_id, to_update):
+    """Generates consensus CDR3s for clones.
 
     :param Session session: The database session
     :param int subject_id: The ID of the subject
     :param list to_update: The list of clone IDs to assign to groups
 
     """
-    if len(to_update) == 0:
-        return
     for i, clone in enumerate(session.query(Clone).filter(
             Clone.id.in_(to_update))):
-        seqs = session.query(Sequence).filter(
+        seqs = session.query(Sequence.cdr3_nt).filter(
             Sequence.clone_id == clone.id,
             Sequence.copy_number_in_subject > 0
         ).all()
 
-        clone.cdr3_nt = _consensus(map(lambda s:
-                                   s.cdr3_nt, seqs))
-        cdr3_aa = lookups.aas_from_nts(clone.cdr3_nt)
-
-        group = session.query(CloneGroup).filter(
-            CloneGroup.subject_id == subject_id,
-            CloneGroup.v_gene == clone.v_gene,
-            CloneGroup.j_gene == clone.j_gene,
-            CloneGroup.cdr3_num_nts == clone.cdr3_num_nts,
-            CloneGroup.cdr3_aa == cdr3_aa).first()
-
-        if group is None:
-            germline = seqs[0].germline
-
-            group = CloneGroup(subject_id=subject_id,
-                               v_gene=clone.v_gene,
-                               j_gene=clone.j_gene,
-                               cdr3_num_nts=clone.cdr3_num_nts,
-                               cdr3_aa=cdr3_aa,
-                               germline=germline)
-            session.add(group)
-        clone.group = group
-
+        clone.cdr3_nt = _consensus(map(lambda s: s.cdr3_nt, seqs))
+        clone.cdr3_aa = lookups.aas_from_nts(clone.cdr3_nt)
         if i > 0 and i % 1000 == 0:
             print 'Committed {}/{}'.format(i, len(to_update))
             session.commit()
@@ -189,6 +166,7 @@ def _assign_clones_to_groups(session, subject_id, to_update):
 
 def run_clones(session, args):
     """Runs the clone-assignment pipeline stage.
+
     :param Session session: The database session
     :param Namespace args: The arguments passed to the command
 
@@ -230,8 +208,9 @@ def run_clones(session, args):
             session, sid, args.similarity / 100.0,
             args.include_indels, args.include_partials,
             args.min_identity / 100.0, args.min_copy)
-        print 'Assigning clones to groups'
-        _assign_clones_to_groups(session, sid, to_update)
+        if len(to_update) > 0:
+            print 'Generating consensus CDR3s'
+            _generate_consensus(session, sid, to_update)
 
     print 'Pushing clone IDs to sample sequences'
     session.connection(mapper=Sequence).execute(text('''

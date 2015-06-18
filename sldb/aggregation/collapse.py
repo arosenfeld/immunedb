@@ -3,7 +3,7 @@ from sqlalchemy.sql import desc, exists, text
 
 import dnautils
 import sldb.common.config as config
-from sldb.common.models import Clone, CloneGroup, Sample, Sequence, Subject
+from sldb.common.models import Clone, Sample, Sequence, Subject
 import sldb.common.modification_log as mod_log
 import sldb.util.concurrent as concurrent
 

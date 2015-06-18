@@ -6,7 +6,7 @@ from subprocess import Popen, PIPE, STDOUT
 import ete2
 
 import sldb.common.config as config
-from sldb.common.models import Clone, CloneGroup, Sequence
+from sldb.common.models import Clone, Sequence
 import sldb.common.modification_log as mod_log
 from sldb.identification.v_genes import VGene
 import sldb.util.concurrent as concurrent
@@ -21,14 +21,8 @@ class ClearcutWorker(concurrent.Worker):
 
     def do_task(self, clone_inst):
         self._print('Running clone {}'.format(clone_inst.id))
-        germline_seq = self._session.query(CloneGroup.germline).filter(
-            CloneGroup.id == clone_inst.group_id
-        ).first().germline
 
-        germline_seq = (germline_seq[:VGene.CDR3_OFFSET] +
-                        clone_inst.cdr3_nt +
-                        germline_seq[VGene.CDR3_OFFSET +
-                                     clone_inst.cdr3_num_nts:])
+        germline_seq = clone_inst.consensus_germline
 
         fasta, remove_muts = self._get_fasta_input(germline_seq, clone_inst.id)
         newick = _get_newick(fasta, self._tree_prog)
