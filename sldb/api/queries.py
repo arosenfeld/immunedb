@@ -60,6 +60,13 @@ def _clone_to_dict(clone):
     return d
 
 
+def _page_query(q, paging):
+    if paging is None:
+        return q
+    page, per_page = paging
+    return q.offset((page - 1) * per_page).limit(per_page)
+
+
 def get_all_studies(session):
     result = {}
     for sample in session.query(Sample).order_by(Sample.date):
@@ -148,11 +155,7 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
     else:
         clone_q = clone_q.order_by(desc(order_field))
 
-    if paging is not None:
-        page, per_page = paging
-        clone_q = clone_q.offset((page - 1) * per_page).limit(per_page)
-
-    for c, unique_cnt, total_cnt in clone_q:
+    for c, unique_cnt, total_cnt in _page_query(clone_q, paging):
         stats_comb = []
 
         query = session.query(
@@ -356,11 +359,7 @@ def get_clone_overlap(session, filter_type, ctype, limit,
 
     clones = fltr(clones.order_by(desc('unique_cnt')))
 
-    if paging is not None:
-        page, per_page = paging
-        clones = clones.offset((page - 1) * per_page).limit(per_page)
-
-    for clone in clones:
+    for clone in _page_query(clones, paging):
         selected_samples = []
         other_samples = []
         query = session.query(CloneStats).filter(
@@ -454,15 +453,9 @@ def get_v_usage(session, samples, filter_type, include_outliers,
     return data, sorted(headers), totals
 
 
-def get_all_subjects(session, paging):
-    q = session.query(Subject)
-
-    if paging is not None:
-        page, per_page = paging
-        q = q.offset((page - 1) * per_page).limit(per_page)
-
+def get_all_subjects(session, paging=None):
     subjects = []
-    for subject in q:
+    for subject in _page_query(session.query(Subject), paging):
         seqs = session.query(func.sum(SampleStats.sequence_cnt))\
             .filter(
                 SampleStats.sample.has(subject=subject),
@@ -685,11 +678,7 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
         else:
             query = query.order_by(desc(order_field))
 
-    if paging is not None:
-        page, per_page = paging
-        query = query.offset((page - 1) * per_page).limit(per_page)
-
-    for row in query:
+    for row in _page_query(query):
         fields = _fields_to_dict(
             ['seq_id', 'alignment', 'v_gene', 'j_gene', 'v_match', 'j_match',
              'v_length', 'j_length', 'cdr3_num_nts', 'cdr3_aa', 'in_frame',
