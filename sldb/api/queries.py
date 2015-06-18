@@ -669,7 +669,7 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
     if (filters is None or
             'show_partials' not in filters or
             not filters['show_partials']):
-        query = query.filter(Sequence.alignment == 'R1+R2')
+        query = query.filter(Sequence.partial_read == 0)
     if (filters is None or 'show_indel' not in filters or
             not filters['show_indel']):
         query = query.filter(Sequence.probable_indel_or_misalign == 0)
@@ -692,9 +692,10 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
     for row in query:
         fields = _fields_to_dict(
             ['seq_id', 'alignment', 'v_gene', 'j_gene', 'v_match', 'j_match',
-             'v_length', 'j_length', 'cdr3_num_nts', 'cdr3_aa',
-             'in_frame', 'functional', 'stop', 'probable_indel_or_misalign',
-             'copy_number', 'copy_number_in_sample', 'copy_number_in_subject'],
+             'v_length', 'j_length', 'cdr3_num_nts', 'cdr3_aa', 'in_frame',
+             'functional', 'stop', 'partial_read',
+             'probable_indel_or_misalign', 'copy_number',
+             'copy_number_in_sample', 'copy_number_in_subject'],
             row)
 
         fields['sample'] = _sample_to_dict(row.sample)

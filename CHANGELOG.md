@@ -1,4 +1,17 @@
 # CHANGELOG
+## v0.8.0
+* J gene germlines are now specified by a FASTA file than hard-coded sequences.
+* Clone lineages can now be created only from mutations that occur in a given
+  number of samples.
+* Various performance enhancements to clone statistics.
+* Selection pressure is pre-calculated for all mutations as well as those which
+  occur at least twice.
+* Removed clone collapse level since it will never result in further collapsing
+  past the subject level.
+* Delimited importing update to match new models.
+* Sequences with various capitalization is now normalized.
+* V identification no longer looks for hard-coded anchors.
+
 ## v0.7.0
 * Versioning will now follow the [Semantic Versioning
   Standard](http://semver.org).
