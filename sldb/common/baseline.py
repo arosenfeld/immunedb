@@ -107,7 +107,7 @@ def _make_input_file(session, input_path, clone, samples,
                 ns = list(seq.sequence)
                 for pos, to_nt in removes:
                     if ns[pos] == to_nt:
-                        ns[pos] = germline[pos]
+                        ns[pos] = clone.consensus_germline[pos]
                 updated_seqs.append(''.join(ns))
         else:
             updated_seqs = map(lambda s: s.sequence, seqs)

@@ -198,7 +198,7 @@ class Clone(BaseData):
     __table_args__ = (Index('size_bucket', 'v_gene', 'j_gene',
                             'subject_id', 'cdr3_num_nts'),
                       Index('aa_bucket', 'v_gene', 'j_gene',
-                            'subject_id', 'cdr3_num_nts'),
+                            'subject_id', 'cdr3_aa'),
                       {'mysql_engine': 'TokuDB'})
     id = Column(Integer, primary_key=True)
 

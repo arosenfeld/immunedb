@@ -6,7 +6,7 @@ from sqlalchemy import and_, desc, distinct
 from sqlalchemy.sql import exists, func, text
 
 import dnautils
-from sldb.common.models import Clone, Sequence
+from sldb.common.models import Clone, Sequence, Subject
 import sldb.common.modification_log as mod_log
 from sldb.identification.identify import VDJSequence
 from sldb.identification.v_genes import VGene
@@ -150,7 +150,7 @@ def _generate_consensus(session, subject_id, to_update):
     """
     for i, clone in enumerate(session.query(Clone).filter(
             Clone.id.in_(to_update))):
-        seqs = session.query(Sequence.cdr3_nt).filter(
+        seqs = session.query(Sequence.cdr3_nt, Sequence.germline).filter(
             Sequence.clone_id == clone.id,
             Sequence.copy_number_in_subject > 0
         ).all()
@@ -160,6 +160,7 @@ def _generate_consensus(session, subject_id, to_update):
         if i > 0 and i % 1000 == 0:
             print 'Committed {}/{}'.format(i, len(to_update))
             session.commit()
+        clone.germline = seqs[0].germline
 
     session.commit()
 
