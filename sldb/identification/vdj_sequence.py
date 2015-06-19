@@ -15,12 +15,13 @@ class VDJSequence(object):
     INDEL_WINDOW = 30
     INDEL_MISMATCH_THRESHOLD = .6
 
-    def __init__(self, id, seq, v_germlines, j_germlines, force_vs=None,
-                 force_j=None, quality=None):
+    def __init__(self, id, seq, v_germlines, j_germlines,
+                 force_vs=None, force_j=None, quality=None):
         self._id = id
         self._seq = seq.upper()
         self.v_germlines = v_germlines
         self.j_germlines = j_germlines
+
         self._force_vs = force_vs
         self._force_j = force_j
         self._quality = quality
@@ -40,8 +41,6 @@ class VDJSequence(object):
         self._cdr3_len = 0
 
         self._possible_indel = False
-
-        self.copy_number = 1
 
         if not all(map(lambda c: c in 'ATCGN', self.sequence)):
             raise AlignmentException('Invalid characters in sequence.')
@@ -187,9 +186,9 @@ class VDJSequence(object):
             if i >= 0:
                 return self._found_j(i, j_gene, match, full_anchor)
 
-            i = self._seq.reverse_complement().rfind(match)
+            i = Seq(self._seq).reverse_complement().rfind(match)
             if i >= 0:
-                self._seq = self._seq.reverse_complement()
+                self._seq = str(Seq(self._seq).reverse_complement())
                 if self._quality is not None:
                     self._quality.reverse()
                 return self._found_j(i, j_gene, match, full_anchor)

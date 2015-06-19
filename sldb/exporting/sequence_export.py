@@ -38,7 +38,7 @@ class SequenceExport(Exporter):
         ('study_id', lambda seq: seq.sample.study.id),
         ('study_name', lambda seq: seq.sample.study.name),
 
-        'alignment', 'partial', 'probable_indel_or_misalign',
+        'paired', 'partial', 'probable_indel_or_misalign',
 
         'num_gaps', 'pad_length',
 

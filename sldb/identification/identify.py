@@ -34,31 +34,173 @@ class SampleMetadata(object):
             raise Exception(('Could not find metadata for key {}'.format(key)))
 
 
+class SequenceRecord(object):
+    def __init__(self, sequence, quality):
+        self.sequence = sequence
+        self.quality = quality
+
+        self.seq_ids = []
+        self.vdj = None
+
+    def add_as_noresult(self, session, sample):
+        try:
+            for seq_id in self.seq_ids:
+                session.add(NoResult(
+                    seq_id=seq_id,
+                    sample=sample,
+                    sequence=self.sequence))
+        except ValueError as ex:
+            self._print('Unable to process NoResult due to model '
+                        'constraints {}'.format(ex.message))
+
+    def add_as_duplicate(self, session, sample, existing_seq_id):
+        try:
+            for seq_id in self.seq_ids:
+                session.add(DuplicateSequence(
+                    seq_id=seq_id,
+                    sample=sample,
+                    duplicate_seq_id=existing_seq_id))
+        except ValueError as ex:
+            self._print('Unable to process DuplicateSequence due to model '
+                        'constraints {}'.format(ex.message))
+
+    def add_as_sequence(self, session, sample, meta, new_sample):
+        if not new_sample:
+            existing = session.query(Sequence).filter(
+                Sequence.sequence == self.vdj.sequence,
+                Sequence.sample == sample).first()
+            if existing is not None:
+                existing.copy_number += len(self.seq_ids)
+                self.add_as_duplicate(session, sample, existing.seq_id)
+                return
+
+        if self.vdj.quality is not None:
+            # Converts quality array into Sanger FASTQ quality string
+            quality = ''.join(map(
+                lambda q: ' ' if q is None else chr(q + 33), self.vdj.quality))
+        else:
+            quality = None
+
+        try:
+            session.add(Sequence(
+                seq_id=self.vdj.id,
+                sample_id=sample.id,
+
+                paired=meta.get('paired').lower() == 'true',
+                partial_read=self.vdj.partial_read,
+                probable_indel_or_misalign=self.vdj.has_possible_indel,
+
+                v_gene=funcs.format_ties(self.vdj.v_gene, 'IGHV'),
+                j_gene=funcs.format_ties(self.vdj.j_gene, 'IGHJ'),
+
+                num_gaps=self.vdj.num_gaps,
+                pad_length=self.vdj.pad_length,
+
+                v_match=self.vdj.v_match,
+                v_length=self.vdj.v_length,
+                j_match=self.vdj.j_match,
+                j_length=self.vdj.j_length,
+
+                pre_cdr3_length=self.vdj.pre_cdr3_length,
+                pre_cdr3_match=self.vdj.pre_cdr3_match,
+                post_cdr3_length=self.vdj.post_cdr3_length,
+                post_cdr3_match=self.vdj.post_cdr3_match,
+
+                in_frame=self.vdj.in_frame,
+                functional=self.vdj.functional,
+                stop=self.vdj.stop,
+                copy_number=len(self.seq_ids),
+
+                cdr3_nt=self.vdj.cdr3,
+                cdr3_num_nts = len(self.vdj.cdr3),
+                cdr3_aa=lookups.aas_from_nts(self.vdj.cdr3),
+
+                sequence=str(self.vdj.sequence),
+                quality=quality,
+
+                germline=self.vdj.germline))
+        except ValueError as ex:
+            self._print('Unable to process Sequence due to model '
+                        'constraints {}'.format(ex.message))
+
+
 class IdentificationWorker(concurrent.Worker):
     def __init__(self, session, v_germlines, j_germlines, max_vties,
-                 min_similarity, read_format, samples_to_update_queue,
+                 min_similarity, samples_to_update_queue,
                  sync_lock):
         self._session = session
         self._v_germlines = v_germlines
         self._j_germlines = j_germlines
         self._min_similarity = min_similarity
         self._max_vties = max_vties
-        self._read_format = read_format
         self._samples_to_update_queue = samples_to_update_queue
         self._sync_lock = sync_lock
 
     def do_task(self, args):
-        path = args['path']
-        fn = args['fn']
         meta = args['meta']
+        self._print('Starting sample {}'.format(meta.get('sample_name')))
+        study, sample, new_sample = self._setup_sample(meta)
 
-        self._print('Starting sample {}'.format(fn))
-        read_type = meta.get('read_type')
-        if read_type not in config.allowed_read_types:
-            raise Exception(
-                'Invalid read type {} for {}.  Must be one of {}'.format(
-                    read_type, fn, ','.join(config.allowed_read_types)))
+        sequences = {}
+        parser = SeqIO.parse(os.path.join(args['path'], args['fn']), 'fasta' if
+                             args['fn'].endswith('.fasta') else 'fastq')
+        # Collapse identical sequences
+        self._print('Collapsing identical sequences')
+        for record in parser:
+            seq = str(record.seq)
+            if seq not in sequences:
+                sequences[seq] = SequenceRecord(
+                    seq,
+                    record.letter_annotations.get('phred_quality'))
+                sequences[seq]._print = self._print
+            sequences[seq].seq_ids.append(record.description)
 
+        self._print('Aligning unique sequences')
+        # Attempt to align all unique sequences
+        for sequence in sequences.keys():
+            record = sequences[sequence]
+            del sequences[sequence]
+
+            try:
+                vdj = VDJSequence(
+                    record.seq_ids[0],
+                    record.sequence,
+                    self._v_germlines,
+                    self._j_germlines,
+                    quality=record.quality
+                )
+                # The alignment was successful.  If the aligned sequence
+                # already exists, append the seq_ids.  Otherwise add it as a
+                # new unique sequence.
+                record.vdj = vdj
+                if vdj.sequence in sequences:
+                    sequences[vdj.sequence].seq_ids += record.seq_ids
+                else:
+                    sequences[vdj.sequence] = record
+            except AlignmentException:
+                record.add_as_noresult(self._session, sample)
+
+        avg_len = sum(
+            map(lambda r: r.vdj.v_length, sequences.values())
+        ) / float(len(sequences))
+        avg_mut = sum(
+            map(lambda r: r.vdj.mutation_fraction, sequences.values())
+        ) / float(len(sequences))
+
+        self._print('Re-aligning to V-ties')
+        for record in sequences.values():
+            try:
+                self._realign_sequence(record.vdj, avg_len, avg_mut)
+                record.add_as_sequence(self._session, sample, meta, new_sample)
+            except AlignmentException:
+                record.add_as_noresult(self._session, sample)
+        self._session.commit()
+
+    def cleanup(self):
+        self._print('Identification worker terminating')
+        self._session.close()
+
+    def _setup_sample(self, meta):
         self._sync_lock.acquire()
         study, new = funcs.get_or_create(
             self._session, Study, name=meta.get('study_name'))
@@ -67,10 +209,10 @@ class IdentificationWorker(concurrent.Worker):
             self._print('Created new study "{}"'.format(study.name))
             self._session.commit()
 
-        name = meta.get('sample_name', require=False) or fn.split('.', 1)[0]
-        sample, new = funcs.get_or_create(
+        name = meta.get('sample_name')
+        sample, new_sample = funcs.get_or_create(
             self._session, Sample, name=name, study=study)
-        if new:
+        if new_sample:
             sample.date = meta.get('date')
             self._print('Created new sample "{}" in MASTER'.format(
                 sample.name))
@@ -82,225 +224,16 @@ class IdentificationWorker(concurrent.Worker):
                 identifier=meta.get('subject'))
             sample.subject = subject
             self._session.commit()
-        else:
-            # TODO: Verify the data for the existing sample matches
-            exists = self._session.query(Sequence).filter(
-                Sequence.sample == sample,
-                Sequence.alignment == read_type).first()
-            if exists is not None:
-                self._print(('Sample "{}" for study already exists '
-                            'in DATA.  Skipping.').format(sample.name))
-                self._sync_lock.release()
-                return
+
         self._sync_lock.release()
 
-        # Sums of statistics for retroactive v-tie calculation
-        lengths_sum = 0
-        mutations_sum = 0
-        # All VDJs assigned for this sample, keyed by raw sequence
-        vdjs = {}
-        # Sequences that have noresults
-        noresults = set([])
-        # All probable duplicates based on keys of vdjs dictionary
-        dups = {}
+        return study, sample, new_sample
 
-        self._print('Identifying V and J, committing No Results')
-        for i, record in enumerate(SeqIO.parse(
-                os.path.join(path, fn), self._read_format)):
-            if i > 0 and i % 1000 == 0:
-                self._session.commit()
-            # Key the dictionaries by the unmodified sequence
-            key = str(record.seq)
-            if key in vdjs:
-                # If this exact sequence, without padding or gaps, has been
-                # assigned a V and J, bump the copy number of that
-                # VDJSequence instance and add this seq_id as a duplicate.
-                vdj = vdjs[key]
-                vdj.copy_number += 1
-                if vdj.id not in dups:
-                    dups[vdj.id] = []
-                try:
-                    dups[vdj.id].append(DuplicateSequence(
-                        duplicate_seq_id=vdjs[key].id,
-                        sample_id=sample.id,
-                        seq_id=record.description))
-                except ValueError as ex:
-                    self._print('Unable to create DuplicateSequence {}'.format(
-                        ex.message))
-            elif key in noresults:
-                # This sequence cannot be identified.  Add a noresult
-                try:
-                    self._session.add(NoResult(sample_id=sample.id,
-                                               seq_id=record.description,
-                                               sequence=str(record.seq)))
-                except ValueError as ex:
-                    self._print('Unable to create NoResult {}'.format(
-                        ex.message))
-            else:
-                # This is the first instance of this exact sequence, so align
-                # it and identify it's V and J
-                try:
-                    vdj = VDJSequence(record.description,
-                                      record.seq,
-                                      self._v_germlines,
-                                      self._j_germlines,
-                                      quality=record.letter_annotations.get(
-                                          'phred_quality'))
-                    # If the V and J are found, add it to the vdjs dictionary
-                    # to prevent future exact copies from being aligned
-                    lengths_sum += vdj.v_length
-                    mutations_sum += vdj.mutation_fraction
-                    vdjs[key] = vdj
-                except AlignmentException:
-                    noresults.add(key)
-                    # The V or J could not be found, so add it as a noresult
-                    try:
-                        self._session.add(NoResult(
-                            sample=sample,
-                            seq_id=record.description,
-                            sequence=str(record.seq)))
-                    except ValueError as ex:
-                        self._print('Unable to create NoResult {}'.format(
-                            ex.message))
-
-        self._session.commit()
-
-        if len(vdjs) == 0:
-            self._print('No sequences identified')
-            return
-
-        self._print('Realigning to V-ties & Committing Sequences')
-        avg_len = lengths_sum / float(len(vdjs))
-        avg_mut = mutations_sum / float(len(vdjs))
-
-        for i, vdj in enumerate(vdjs.values()):
-            if i > 0 and i % 1000 == 0:
-                self._session.commit()
-            try:
-                # Align the sequence to a germline based on v_ties
-                vdj.align_to_germline(avg_len, avg_mut)
-                if (vdj.v_match / float(vdj.v_length) < self._min_similarity
-                        or len(vdj.v_gene) > self._max_vties):
-                    raise AlignmentException('V-match too low or too many'
-                                             'V-ties')
-                # Add the sequence to the database
-                try:
-                    final_seq_id = self._add_to_db(read_type, sample, vdj)
-                    # If a duplicate was found, and vdj was added as a
-                    # duplicate, update the associated duplicates'
-                    # duplicate_seq_ids
-                    if final_seq_id != vdj.id and vdj.id in dups:
-                        for dup in dups[vdj.id]:
-                            dup.duplicate_seq_id = final_seq_id
-                except ValueError as ex:
-                    self._print('Unable to create Sequence {}'.format(
-                        ex.message))
-                    if vdj.id in dups:
-                        del dups[vdj.id]
-            except AlignmentException:
-                # This is a rare condition, but some sequences, after aligning
-                # to V-ties, the CDR3 becomes non-existent, and it is thrown
-                # out
-                try:
-                    self._session.add(NoResult(sample=sample,
-                                               seq_id=vdj.id,
-                                               sequence=str(vdj.sequence)))
-                    if vdj.id in dups:
-                        # It's duplicate sequences must be added as noresults
-                        # also
-                        for dup in dups[vdj.id]:
-                            # Restore the original sequence by removing padding
-                            # and gaps
-                            self._session.add(NoResult(
-                                sample_id=sample.id,
-                                seq_id=dup.seq_id,
-                                sequence=vdj.sequence.replace('-', '').strip(
-                                    'N')))
-
-                        del dups[vdj.id]
-                except ValueError as ex:
-                    self._print('Unable to create NoResult {}'.format(
-                        ex.message))
-        self._session.commit()
-
-        # Add the true duplicates to the database
-        self._print('Adding duplicates')
-        for i, dup_seqs in enumerate(dups.values()):
-            if i > 0 and i % 1000 == 0:
-                self._session.commit()
-            self._session.add_all(dup_seqs)
-        self._session.commit()
-
-        self._samples_to_update_queue.put(sample.id)
-        self._print('Finished sample {}'.format(sample.id))
-
-    def cleanup(self):
-        self._print('Identification worker terminating')
-        self._session.close()
-
-    def _add_to_db(self, alignment, sample, vdj):
-        existing = self._session.query(Sequence).filter(
-            Sequence.sequence == vdj.sequence,
-            Sequence.sample == sample).first()
-        if existing is not None:
-            existing.copy_number += vdj.copy_number
-            try:
-                self._session.add(DuplicateSequence(
-                    duplicate_seq_id=existing.seq_id,
-                    sample_id=sample.id,
-                    seq_id=vdj.id))
-            except ValueError as ex:
-                self._print('Unable to create DuplicateSequence {}'.format(
-                    ex.message))
-            return existing.seq_id
-
-        if vdj.quality is not None:
-            # Converts quality array into Sanger FASTQ quality string
-            quality = ''.join(map(
-                lambda q: ' ' if q is None else chr(q + 33), vdj.quality))
-        else:
-            quality = None
-
-        self._session.add(Sequence(
-            seq_id=vdj.id,
-            sample_id=sample.id,
-
-            alignment=alignment,
-            partial_read=vdj.partial_read,
-            probable_indel_or_misalign=vdj.has_possible_indel,
-
-            v_gene=funcs.format_ties(vdj.v_gene, 'IGHV'),
-            j_gene=funcs.format_ties(vdj.j_gene, 'IGHJ'),
-
-            num_gaps=vdj.num_gaps,
-            pad_length=vdj.pad_length,
-
-            v_match=vdj.v_match,
-            v_length=vdj.v_length,
-            j_match=vdj.j_match,
-            j_length=vdj.j_length,
-
-            pre_cdr3_length=vdj.pre_cdr3_length,
-            pre_cdr3_match=vdj.pre_cdr3_match,
-            post_cdr3_length=vdj.post_cdr3_length,
-            post_cdr3_match=vdj.post_cdr3_match,
-
-            in_frame=vdj.in_frame,
-            functional=vdj.functional,
-            stop=vdj.stop,
-            copy_number=vdj.copy_number,
-
-            cdr3_nt=vdj.cdr3,
-            cdr3_num_nts = len(vdj.cdr3),
-            cdr3_aa=lookups.aas_from_nts(vdj.cdr3),
-            gap_method='IMGT',
-
-            sequence=str(vdj.sequence),
-            quality=quality,
-
-            germline=vdj.germline))
-
-        return vdj.id
+    def _realign_sequence(self, vdj, avg_len, avg_mut):
+        vdj.align_to_germline(avg_len, avg_mut)
+        if (vdj.v_match / float(vdj.v_length) < self._min_similarity
+                or len(vdj.v_gene) > self._max_vties):
+            raise AlignmentException('V-match too low or too many V-ties')
 
 
 def run_identify(session, args):
@@ -343,7 +276,6 @@ def run_identify(session, args):
                                               j_germlines,
                                               args.max_vties,
                                               args.min_similarity / float(100),
-                                              args.read_format,
                                               samples_to_update_queue,
                                               lock))
 

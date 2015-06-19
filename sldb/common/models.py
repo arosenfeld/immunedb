@@ -288,7 +288,7 @@ class Sequence(BaseData):
     :param int sample_id: The ID of the sample from which this sequence came
     :param Relationship sample: Reference to the associated \
         :py:class:`Sample` instance
-    :param str alignment: Alignment type (e.g. R1, R2, or R1+R2)
+    :param str paired: If the sequence is from a paired-end read
     :param bool probable_indel_or_misalign: If the sequence likely has an \
         indel or is a bad alignment
 
@@ -373,7 +373,7 @@ class Sequence(BaseData):
                        index=True)
     sample = relationship(Sample, backref=backref('sequences'))
 
-    alignment = Column(String(length=6), index=True)
+    paired = Column(Boolean, index=True)
     partial_read = Column(Boolean, index=True)
     probable_indel_or_misalign = Column(Boolean, index=True)
 
@@ -405,7 +405,6 @@ class Sequence(BaseData):
 
     cdr3_nt = Column(String(MAX_CDR3_NTS))
     cdr3_aa = Column(String(MAX_CDR3_AAS), index=True)
-    gap_method = Column(String(16))
 
     sequence = Column(String(length=1024), index=True)
     quality = Column(String(length=1024))
