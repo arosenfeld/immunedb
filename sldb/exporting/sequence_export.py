@@ -76,29 +76,6 @@ class SequenceExport(Exporter):
         self.level = level
         self.only_with_clones = only_with_clones
 
-    def _fasta_entry(self, seq_id, info, sequence):
-        """Gets the entry for a sequence in FASTA format with ``info`` separated
-        in the header by pipe symbols.
-
-        :param str seq_id: The sequence identifier
-        :param dict info: A dictionary of info to include in the header
-        :param str sequence: The sequence for the entry
-
-        :returns: The FASTA entry like
-
-            >seq_id|hdr_key1=hdr_val1|hdr_key2=hdr_val2|...
-            ATCGATCG...
-
-        :rtype: str
-
-        """
-        return '>{}{}{}\n{}\n'.format(
-            seq_id,
-            '|' if len(info) > 0 else '',
-            '|'.join(map(
-                lambda (k, v): '{}={}'.format(k, v), info.iteritems())),
-            sequence)
-
     def get_data(self):
         """Gets the output data for this export instance.  This could be export
         to a file, over a socket, etc. as it's simply a string or could be
@@ -108,11 +85,31 @@ class SequenceExport(Exporter):
         :rtype: str
 
         """
+
+        seqs = self.writer.preprocess_query(self._get_base_sequences())
+        headers = []
+        for field in self.export_fields:
+            n, f = self._name_and_field(field)
+            if n in self.selected_fields:
+                headers.append(n)
+        self.writer.set_selected_fields(headers)
+        self.selected_fields = self.writer.get_required_fields(
+            self.selected_fields)
+
+        for seq in seqs:
+            # Get the selected data for the sequence
+            data = self.get_selected_data(seq)
+            yield self.writer.format_sequence(data)
+            for dup in self._get_duplicate_seqs(seq):
+                yield dup
+
+        for noresult in self._get_noresults():
+            yield noresult
+
+    def _get_base_sequences(self):
         # Get all the sequences matching the request
         seqs = self.session.query(Sequence).filter(
-            getattr(
-                Sequence, '{}_id'.format(self.rtype)
-            ).in_(self.rids)
+            getattr(Sequence, '{}_id'.format(self.rtype)).in_(self.rids)
         )
         if self.level == 'uncollapsed':
             seqs = seqs.filter(Sequence.copy_number >= self.min_copy)
@@ -125,41 +122,25 @@ class SequenceExport(Exporter):
         if self.only_with_clones:
             seqs = seqs.filter(~Sequence.clone_id.is_(None))
 
-        # If it's a CLIP file, order by clone_id to minimize
-        # repetition of germline entries
-        seqs = self.writer.preprocess_query(seqs)
-        headers = []
-        for field in self.export_fields:
-            n, f = self._name_and_field(field)
-            if n in self.selected_fields:
-                headers.append(n)
-        headers = self.writer.preprocess_headers(headers)
+        return seqs
 
-        # For CLIP files to check if the germline needs to be output
-        last_cid = ''
-        # TODO: Change this to .yield_per?
-        for seq in seqs:
-            # Get the selected data for the sequence
-            data = self.get_selected_data(seq)
-            yield self.writer.format_sequence(data)
+    def _get_duplicate_seqs(self, seq):
+        # Regardless of output type, output duplicates if desired
+        if self.duplicates and seq.copy_number > 1:
+            for dup in self.session.query(DuplicateSequence).filter(
+                    DuplicateSequence.duplicate_seq == seq):
+                # Duplicates have the same data as their original sequence,
+                # except the seq_id, copy_number is set to 0, and the
+                # duplicate_of_seq_id is set to the original sequence's
+                data = self.get_selected_data(
+                    seq,
+                    seq_id=dup.seq_id,
+                    copy_number=0,
+                    duplicate_of_seq_id=seq.seq_id)
 
-            # Regardless of output type, output duplicates if desired
-            if self.duplicates and seq.copy_number > 1:
-                for dup in self.session.query(DuplicateSequence).filter(
-                        DuplicateSequence.duplicate_seq == seq):
-                    # Duplicates have the same data as their original sequence,
-                    # except the seq_id, copy_number is set to 0, and the
-                    # duplicate_of_seq_id is set to the original sequence's
-                    data = self.get_selected_data(
-                        seq,
-                        seq_id=dup.seq_id,
-                        copy_number=0,
-                        duplicate_of_seq_id=seq.seq_id)
+                yield self.writer.format_sequence(data, pseudo_seq=True)
 
-                    yield self.writer.format_sequence(data, pseudo_seq=True)
-
-        # Regardless of the output type, output noresults if desired for
-        # samples
+    def _get_noresults(self):
         if self.rtype == 'sample' and self.noresults:
             no_res = self.session.query(NoResult).filter(
                 NoResult.sample_id.in_(self.rids))

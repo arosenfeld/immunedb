@@ -678,7 +678,7 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
         else:
             query = query.order_by(desc(order_field))
 
-    for row in _page_query(query):
+    for row in _page_query(query, paging):
         fields = _fields_to_dict(
             ['seq_id', 'alignment', 'v_gene', 'j_gene', 'v_match', 'j_match',
              'v_length', 'j_length', 'cdr3_num_nts', 'cdr3_aa', 'in_frame',

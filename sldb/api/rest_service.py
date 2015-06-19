@@ -10,10 +10,14 @@ from sqlalchemy.orm import sessionmaker, scoped_session
 import bottle
 from bottle import route, response, request, install, run
 
-from sldb.api.export import CloneExport, SequenceExport, MutationExporter
+from sldb.exporting.clone_export import CloneExport
+from sldb.exporting.sequence_export import SequenceExport
+from sldb.exporting.mutation_export import MutationExporter
 import sldb.api.queries as queries
 from sldb.common.models import *
 from sldb.common.mutations import threshold_mutations
+from sldb.exporting.writers import (CLIPWriter, SequenceWriter, FASTAWriter,
+                                    FASTQWriter, CSVWriter)
 import sldb.util.lookups as lookups
 from sldb.util.nested_writer import NestedCSVWriter
 
@@ -587,26 +591,19 @@ def export_sequences(eformat, rtype, rids, level):
     min_copy = _get_arg('min_copy_number', False)
     min_copy = int(min_copy) if min_copy is not None else 1
 
-    if eformat == 'csv':
-        name = '{}_{}.csv'.format(
-            rtype,
-            time.strftime('%Y-%m-%d-%H-%M'))
-    else:
-        name = '{}_{}_{}.fasta'.format(
-            rtype,
-            eformat,
-            time.strftime('%Y-%m-%d-%H-%M'))
+    time_str = time.strftime('%Y-%m-%d-%H-%M')
+    ext = eformat.split('-', 1)[0]
 
     response.headers['Content-Disposition'] = 'attachment;filename={}'.format(
-        name)
+        '{}_{}.{}'.format(rtype, time_str, ext))
 
     if eformat == 'csv':
         writer = CSVWriter()
     elif eformat.startswith('fasta'):
         writer = FASTAWriter(replaced_sequences='fill' in eformat)
-    elif eformat.startswith('fastq')
+    elif eformat.startswith('fastq'):
         writer = FASTQWriter(replaced_sequences='fill' in eformat)
-    elif eformat.startswith('clip')
+    elif eformat.startswith('clip'):
         writer = CLIPWriter(replaced_sequences='fill' in eformat)
 
     export = SequenceExport(
