@@ -86,13 +86,8 @@ class SequenceExport(Exporter):
 
         """
 
-        seqs = self.writer.preprocess_query(self._get_base_sequences())
-        headers = []
-        for field in self.export_fields:
-            n, f = self._name_and_field(field)
-            if n in self.selected_fields:
-                headers.append(n)
-        self.writer.set_selected_fields(headers)
+        seqs = self.writer.preprocess_query(self._get_filtered_query())
+        self.writer.set_selected_fields(self.get_headers())
         self.selected_fields = self.writer.get_required_fields(
             self.selected_fields)
 
@@ -106,11 +101,9 @@ class SequenceExport(Exporter):
         for noresult in self._get_noresults():
             yield noresult
 
-    def _get_base_sequences(self):
+    def _get_filtered_query(self):
         # Get all the sequences matching the request
-        seqs = self.session.query(Sequence).filter(
-            getattr(Sequence, '{}_id'.format(self.rtype)).in_(self.rids)
-        )
+        seqs = self.get_base_query(Sequence)
         if self.level == 'uncollapsed':
             seqs = seqs.filter(Sequence.copy_number >= self.min_copy)
         else:

@@ -48,3 +48,19 @@ class Exporter(object):
                 except:
                     data[n] = ''
         return data
+
+    def get_headers(self):
+        headers = []
+        for field in self.export_fields:
+            n, f = self._name_and_field(field)
+            if n in self.selected_fields:
+                headers.append(n)
+        return headers
+
+    def get_base_query(self, model):
+        return self.session.query(model).filter(
+            getattr(
+                model, '{}_id'.format(self.rtype)
+            ).in_(self.rids),
+        )
+
