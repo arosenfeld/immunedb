@@ -1,4 +1,24 @@
 # CHANGELOG
+## v0.9.0
+* Quality strings are now properly oriented for reverse-complement sequences.
+* Trees will no longer have zero-mutation roots.
+* Clones can now be created with an specifiable minimum-copy number.
+* Sequence exports can now optionally only include sequences assigned to clones.
+* Total sequence counts in sample statistics now work with sample-level
+  collapsing.
+* Tree creation will now emit a warning when mutation information is
+  unavailable.
+* Multiprocess workers now emit warning when uncaught errors occur.
+* VDJ alignment now uses exceptions to indicate alignment failures.
+* String-fields in models are now verified to be of correct length or a
+  `ValueEror` is thrown.
+* CDR3s are now limited to the lesser of 32 amino acids or 96 nucleotides.
+* Models now consistently use `cdr3` instead of `junction` for the CDR3 region.
+* Identification has been refactored to be cleaner and more efficient.
+* Regression testing has been added in the `tests` directory.
+* The `CloneGroup` model has been removed.
+* Exporting has been refactored.
+
 ## v0.8.0
 * J gene germlines are now specified by a FASTA file than hard-coded sequences.
 * Clone lineages can now be created only from mutations that occur in a given
