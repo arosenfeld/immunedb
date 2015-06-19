@@ -12,6 +12,7 @@ setup(
         'sldb.aggregation',
         'sldb.api',
         'sldb.common',
+        'sldb.exporting',
         'sldb.identification',
         'sldb.importing',
         'sldb.trees',

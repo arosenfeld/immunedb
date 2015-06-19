@@ -576,7 +576,8 @@ def export_sequences(eformat, rtype, rids, level):
 
     """
 
-    assert eformat in ('csv', 'fill', 'orig', 'clip')
+    assert eformat in ('csv', 'fasta-fill', 'fasta-orig', 'fastq-fill',
+                       'fastq-orig', 'clip-orig', 'clip-fill')
     assert rtype in ('sample', 'clone')
     assert level in ('uncollapsed', 'sample', 'subject')
 
@@ -591,8 +592,6 @@ def export_sequences(eformat, rtype, rids, level):
             rtype,
             time.strftime('%Y-%m-%d-%H-%M'))
     else:
-        if 'seq_id' in fields:
-            fields.remove('seq_id')
         name = '{}_{}_{}.fasta'.format(
             rtype,
             eformat,
@@ -601,8 +600,17 @@ def export_sequences(eformat, rtype, rids, level):
     response.headers['Content-Disposition'] = 'attachment;filename={}'.format(
         name)
 
+    if eformat == 'csv':
+        writer = CSVWriter()
+    elif eformat.startswith('fasta'):
+        writer = FASTAWriter(replaced_sequences='fill' in eformat)
+    elif eformat.startswith('fastq')
+        writer = FASTQWriter(replaced_sequences='fill' in eformat)
+    elif eformat.startswith('clip')
+        writer = CLIPWriter(replaced_sequences='fill' in eformat)
+
     export = SequenceExport(
-        session, eformat, rtype, _split(rids), fields,
+        session, writer, rtype, _split(rids), fields,
         min_copy=min_copy,
         duplicates=_get_arg('duplicates', False) == 'true',
         noresults=_get_arg('noresults', False) == 'true',
