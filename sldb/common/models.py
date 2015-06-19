@@ -374,7 +374,7 @@ class Sequence(BaseData):
     sample = relationship(Sample, backref=backref('sequences'))
 
     paired = Column(Boolean, index=True)
-    partial_read = Column(Boolean, index=True)
+    partial = Column(Boolean, index=True)
     probable_indel_or_misalign = Column(Boolean, index=True)
 
     v_gene = Column(String(512), index=True)

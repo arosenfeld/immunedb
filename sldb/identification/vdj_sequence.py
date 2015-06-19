@@ -84,7 +84,7 @@ class VDJSequence(object):
         return self.sequence[CDR3_OFFSET:CDR3_OFFSET + self._cdr3_len]
 
     @property
-    def partial_read(self):
+    def partial(self):
         return self._pad_len > 0
 
     @property

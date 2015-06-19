@@ -83,7 +83,7 @@ def _get_subject_clones(session, subject_id, min_similarity, include_indels,
     if not include_indels:
         query = query.filter(Sequence.probable_indel_or_misalign == 0)
     if not include_partials:
-        query = query.filter(Sequence.partial_read == 0)
+        query = query.filter(Sequence.partial == 0)
 
     query = query.order_by(desc(Sequence.copy_number_in_subject))
 

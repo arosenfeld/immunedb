@@ -87,7 +87,7 @@ class SequenceRecord(object):
                 sample_id=sample.id,
 
                 paired=meta.get('paired').lower() == 'true',
-                partial_read=self.vdj.partial_read,
+                partial=self.vdj.partial,
                 probable_indel_or_misalign=self.vdj.has_possible_indel,
 
                 v_gene=funcs.format_ties(self.vdj.v_gene, 'IGHV'),

@@ -14,6 +14,8 @@ IMPORT_HEADERS = {
     'sample_name': 'The name of the sample [Required]',
     'subject': 'The name of the subject [Required]',
 
+    'paired': 'If the reads are paired end or not [Required]',
+
     'subset': 'The cell subset of the sample',
     'tissue': 'The tissue from which the sample was gathered',
     'disease': 'The disease present in the subject',
@@ -21,7 +23,6 @@ IMPORT_HEADERS = {
     'experimenter': 'The individual who gathered the sample',
 
     'seq_id': 'A unique sequence identifier [Required]',
-    'alignment': 'Read type for the sequence (R1, R2, or R1+R2) [Required]',
     'indel': 'A boolean indicating if the sequence has an indel',
 
     'v_gene': 'V-gene name [Required]',
@@ -189,7 +190,9 @@ class DelimitedImporter(object):
             sample=sample,
 
             seq_id=self._get_value('seq_id', row),
-            alignment=self._get_value('alignment', row),
+
+            paired=_is_true(self._get_value('paired', row)),
+            partial=pad_length > 0,
             probable_indel_or_misalign=_is_true(self._get_value('indel', row)),
             v_gene=self._get_value('v_gene', row),
             j_gene=self._get_value('j_gene', row),

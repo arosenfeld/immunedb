@@ -28,13 +28,11 @@ if __name__ == '__main__':
     parser.add_argument('--min-similarity', type=int, default=60,
                         help='Minimum percent similarity to germline required '
                         'for valid sequences. (Default: 60)')
-    parser.add_argument('--read-format', default='fastq',
-                        help='Input format.  May be \'fasta\' or \'fastq\' '
-                        '(Default: fastq)')
+    parser.add_argument('--append-existing', action='store_true',
+                        default=False, help='If specified, sequences will be '
+                        'added to samples which already exist')
 
     args = parser.parse_args()
-    if args.read_format not in ('fasta', 'fastq'):
-        parser.error('Invalid read format {}'.format(args.read_format))
     if args.min_anchor_len > args.anchor_len:
         parser.error('Minimum anchor length must be <= total anchor length')
 

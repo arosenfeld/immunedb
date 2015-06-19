@@ -597,7 +597,7 @@ def get_sequence(session, sample_id, seq_id):
                     Sequence.seq_id == dup_seq.duplicate_seq_id).first()
 
     ret = _fields_to_dict([
-        'seq_id', 'alignment', 'v_gene', 'j_gene', 'cdr3_nt',
+        'seq_id', 'partial', 'paired', 'v_gene', 'j_gene', 'cdr3_nt',
         'cdr3_aa', 'germline', 'v_match', 'j_match', 'v_length',
         'j_length', 'in_frame', 'functional', 'stop', 'copy_number',
         'sequence', 'pre_cdr3_length', 'pre_cdr3_match', 'post_cdr3_length',
@@ -662,7 +662,7 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
     if (filters is None or
             'show_partials' not in filters or
             not filters['show_partials']):
-        query = query.filter(Sequence.partial_read == 0)
+        query = query.filter(Sequence.partial == 0)
     if (filters is None or 'show_indel' not in filters or
             not filters['show_indel']):
         query = query.filter(Sequence.probable_indel_or_misalign == 0)
@@ -680,9 +680,9 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
 
     for row in _page_query(query, paging):
         fields = _fields_to_dict(
-            ['seq_id', 'alignment', 'v_gene', 'j_gene', 'v_match', 'j_match',
+            ['seq_id', 'paired', 'v_gene', 'j_gene', 'v_match', 'j_match',
              'v_length', 'j_length', 'cdr3_num_nts', 'cdr3_aa', 'in_frame',
-             'functional', 'stop', 'partial_read',
+             'functional', 'stop', 'partial',
              'probable_indel_or_misalign', 'copy_number',
              'copy_number_in_sample', 'copy_number_in_subject'],
             row)

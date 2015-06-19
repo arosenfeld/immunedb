@@ -229,7 +229,7 @@ class SampleStatsWorker(concurrent.Worker):
             query = query.filter(Sequence.cdr3_num_nts >= min_cdr3,
                                  Sequence.cdr3_num_nts <= max_cdr3)
         if only_full_reads:
-            query = query.filter(Sequence.partial_read == 0)
+            query = query.filter(Sequence.partial == 0)
 
         for seq in query:
             for stat in seq_statistics.values():
@@ -266,7 +266,7 @@ class SampleStatsWorker(concurrent.Worker):
         )
 
         if only_full_reads:
-            query = query.filter(Sequence.partial_read == 0)
+            query = query.filter(Sequence.partial == 0)
         query = query.group_by(Sequence.clone_id)
 
         for clone in query:
