@@ -64,15 +64,14 @@ class SequenceRecord(object):
             self._print('Unable to process DuplicateSequence due to model '
                         'constraints {}'.format(ex.message))
 
-    def add_as_sequence(self, session, sample, meta, new_sample):
-        if not new_sample:
-            existing = session.query(Sequence).filter(
-                Sequence.sequence == self.vdj.sequence,
-                Sequence.sample == sample).first()
-            if existing is not None:
-                existing.copy_number += len(self.seq_ids)
-                self.add_as_duplicate(session, sample, existing.seq_id)
-                return
+    def add_as_sequence(self, session, sample, meta):
+        existing = session.query(Sequence).filter(
+            Sequence.sequence == self.vdj.sequence,
+            Sequence.sample == sample).first()
+        if existing is not None:
+            existing.copy_number += len(self.seq_ids)
+            self.add_as_duplicate(session, sample, existing.seq_id)
+            return
 
         if self.vdj.quality is not None:
             # Converts quality array into Sanger FASTQ quality string
@@ -139,7 +138,7 @@ class IdentificationWorker(concurrent.Worker):
     def do_task(self, args):
         meta = args['meta']
         self._print('Starting sample {}'.format(meta.get('sample_name')))
-        study, sample, new_sample = self._setup_sample(meta)
+        study, sample = self._setup_sample(meta)
 
         sequences = {}
         parser = SeqIO.parse(os.path.join(args['path'], args['fn']), 'fasta' if
@@ -157,7 +156,7 @@ class IdentificationWorker(concurrent.Worker):
 
         self._print('Aligning unique sequences')
         # Attempt to align all unique sequences
-        for sequence in sequences.keys():
+        for sequence in funcs.periodic_commit(self._session, sequences.keys()):
             record = sequences[sequence]
             del sequences[sequence]
 
@@ -188,10 +187,10 @@ class IdentificationWorker(concurrent.Worker):
         ) / float(len(sequences))
 
         self._print('Re-aligning to V-ties')
-        for record in sequences.values():
+        for record in funcs.periodic_commit(self._session, sequences.values()):
             try:
                 self._realign_sequence(record.vdj, avg_len, avg_mut)
-                record.add_as_sequence(self._session, sample, meta, new_sample)
+                record.add_as_sequence(self._session, sample, meta)
             except AlignmentException:
                 record.add_as_noresult(self._session, sample)
         self._session.commit()
@@ -210,9 +209,9 @@ class IdentificationWorker(concurrent.Worker):
             self._session.commit()
 
         name = meta.get('sample_name')
-        sample, new_sample = funcs.get_or_create(
+        sample, new = funcs.get_or_create(
             self._session, Sample, name=name, study=study)
-        if new_sample:
+        if new:
             sample.date = meta.get('date')
             self._print('Created new sample "{}" in MASTER'.format(
                 sample.name))
@@ -227,7 +226,7 @@ class IdentificationWorker(concurrent.Worker):
 
         self._sync_lock.release()
 
-        return study, sample, new_sample
+        return study, sample
 
     def _realign_sequence(self, vdj, avg_len, avg_mut):
         vdj.align_to_germline(avg_len, avg_mut)

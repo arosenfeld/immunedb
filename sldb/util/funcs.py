@@ -2,6 +2,13 @@ import re
 
 from sldb.common.models import Sequence
 
+def periodic_commit(session, query, interval=1000):
+    for i, r in enumerate(query):
+        if i > 0 and i % interval == 0:
+            session.commit()
+        yield r
+    session.commit()
+
 
 def trace_seq_collapses(session, seq):
     sample_col = session.query(
