@@ -380,8 +380,8 @@ class VDJSequence(object):
 
         # Update the V and J matches after ties
         self._v_match = self.v_length - dnautils.hamming(
-            self.germline.replace('-', '')[:self.v_length],
-            self.sequence.replace('-', '')[:self.v_length]
+            self.germline.replace('-', '')[:self._pad_len + self.v_length],
+            self.sequence.replace('-', '')[:self._pad_len + self.v_length]
         )
         self._j_match = self.j_length - dnautils.hamming(
             self.germline.replace('-', '')[-len(j_germ):],
