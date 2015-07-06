@@ -244,3 +244,5 @@ def run_clones(session, args):
         where
             s.copy_number_in_sample=0
     '''))
+
+    session.commit()
