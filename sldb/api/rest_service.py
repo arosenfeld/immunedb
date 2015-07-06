@@ -243,14 +243,14 @@ def clone_overlap(filter_type, samples=None, subject=None):
     if exporting:
         csv_mapping = {
             'clone_id': (lambda r: r['clone']['id']),
-            'clone_v': (lambda r: r['clone']['group']['v_gene']),
-            'clone_j': (lambda r: r['clone']['group']['j_gene']),
-            'clone_cdr3_aa': (lambda r: r['clone']['group']['cdr3_aa']),
+            'clone_v': (lambda r: r['clone']['v_gene']),
+            'clone_j': (lambda r: r['clone']['j_gene']),
+            'clone_cdr3_aa': (lambda r: r['clone']['cdr3_aa']),
             'clone_cdr3_num_nts': (
-                lambda r: r['clone']['group']['cdr3_num_nts']
+                lambda r: r['clone']['cdr3_num_nts']
             ),
             'clone_subject': (
-                lambda r: r['clone']['group']['subject']['identifier']
+                lambda r: r['clone']['subject']['identifier']
             ),
         }
         writer = NestedCSVWriter([

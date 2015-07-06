@@ -44,9 +44,7 @@ class CloneExport(Exporter):
         self._include_total_row = include_total_row
 
     def get_data(self):
-        query = self.get_base_query(CloneStats)
-        if len(self.selected_fields) > 0:
-            query = query.join(Clone).join(Sample)
+        query = self.get_base_query(CloneStats).join(Clone).join(Sample)
         query = query.order_by(CloneStats.clone_id)
 
         csv = NestedCSVWriter(self.get_headers(), streaming=True)
