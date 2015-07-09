@@ -28,7 +28,7 @@ class Study(BaseMaster):
 
     """
     __tablename__ = 'studies'
-    __table_args__ = {'mysql_engine': 'TokuDB'}
+    __table_args__ = {'mysql_row_format': 'DYNAMIC'}
 
     id = Column(Integer, primary_key=True)
     # The name of the study
@@ -51,7 +51,7 @@ class Subject(BaseMaster):
     """
     __tablename__ = 'subjects'
     __table_args__ = (UniqueConstraint('study_id', 'identifier'),
-                      {'mysql_engine': 'TokuDB'})
+                      {'mysql_row_format': 'DYNAMIC'})
 
     id = Column(Integer, primary_key=True)
 
@@ -89,7 +89,7 @@ class Sample(BaseMaster):
 
     """
     __tablename__ = 'samples'
-    __table_args__ = {'mysql_engine': 'TokuDB'}
+    __table_args__ = {'mysql_row_format': 'DYNAMIC'}
 
     id = Column(Integer, primary_key=True)
     name = Column(String(128), unique=True)
@@ -143,7 +143,7 @@ class SampleStats(BaseData):
 
     """
     __tablename__ = 'sample_stats'
-    __table_args__ = {'mysql_engine': 'TokuDB'}
+    __table_args__ = {'mysql_row_format': 'DYNAMIC'}
 
     sample_id = Column(Integer, ForeignKey(Sample.id),
                        primary_key=True)
@@ -199,7 +199,7 @@ class Clone(BaseData):
                             'subject_id', 'cdr3_num_nts'),
                       Index('aa_bucket', 'v_gene', 'j_gene',
                             'subject_id', 'cdr3_aa'),
-                      {'mysql_engine': 'TokuDB'})
+                      {'mysql_row_format': 'DYNAMIC'})
     id = Column(Integer, primary_key=True)
 
     v_gene = Column(String(length=512), index=True)
@@ -248,7 +248,7 @@ class CloneStats(BaseData):
 
     """
     __tablename__ = 'clone_stats'
-    __table_args__ = {'mysql_engine': 'TokuDB'}
+    __table_args__ = {'mysql_row_format': 'DYNAMIC'}
 
     clone_id = Column(Integer, ForeignKey(Clone.id), primary_key=True)
     clone = relationship(Clone)
@@ -362,7 +362,7 @@ class Sequence(BaseData):
               'collapse_to_subject_seq_id'),
         Index('clone_by_subject', 'clone_id',
               'copy_number_in_subject'),
-        {'mysql_engine': 'TokuDB'}
+        {'mysql_row_format': 'DYNAMIC'}
     )
     __mapper_args__ = {'extension': SequenceExtension()}
 
@@ -446,7 +446,7 @@ class DuplicateSequence(BaseData):
 
     """
     __tablename__ = 'duplicate_sequences'
-    __table_args__ = {'mysql_engine': 'TokuDB'}
+    __table_args__ = {'mysql_row_format': 'DYNAMIC'}
 
     seq_id = Column(String(length=128), primary_key=True)
 
@@ -476,7 +476,7 @@ class NoResult(BaseData):
 
     """
     __tablename__ = 'noresults'
-    __table_args__ = {'mysql_engine': 'TokuDB'}
+    __table_args__ = {'mysql_row_format': 'DYNAMIC'}
 
     seq_id = Column(String(length=128), primary_key=True)
 
@@ -498,7 +498,7 @@ class ModificationLog(BaseData):
 
     """
     __tablename__ = 'modification_logs'
-    __table_args__ = {'mysql_engine': 'TokuDB'}
+    __table_args__ = {'mysql_row_format': 'DYNAMIC'}
 
     id = Column(Integer, primary_key=True)
     datetime = Column(DateTime, default=datetime.datetime.utcnow)
