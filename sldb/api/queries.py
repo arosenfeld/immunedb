@@ -615,7 +615,7 @@ def get_sequence(session, sample_id, seq_id):
         ret['mutations'] = []
 
     ret['clone'] = _clone_to_dict(seq.clone) if seq.clone is not None else None
-    ret['collapse_info'] = funcs.trace_seq_collapses(session, seq) or {}
+    ret['collapse_info'] = funcs.trace_seq_collapses(session, seq)
 
     return ret
 

@@ -50,8 +50,7 @@ class SequenceRecord(object):
                     sample=sample,
                     sequence=self.sequence))
         except ValueError as ex:
-            self._print('Unable to process NoResult due to model '
-                        'constraints {}'.format(ex.message))
+            pass
 
     def add_as_duplicate(self, session, sample, existing_seq_id):
         try:
@@ -61,8 +60,7 @@ class SequenceRecord(object):
                     sample=sample,
                     duplicate_seq_id=existing_seq_id))
         except ValueError as ex:
-            self._print('Unable to process DuplicateSequence due to model '
-                        'constraints {}'.format(ex.message))
+            pass
 
     def add_as_sequence(self, session, sample, meta):
         existing = session.query(Sequence).filter(
@@ -119,8 +117,7 @@ class SequenceRecord(object):
 
                 germline=self.vdj.germline))
         except ValueError as ex:
-            self._print('Unable to process Sequence due to model '
-                        'constraints {}'.format(ex.message))
+            pass
 
 
 class IdentificationWorker(concurrent.Worker):
@@ -194,6 +191,7 @@ class IdentificationWorker(concurrent.Worker):
             except AlignmentException:
                 record.add_as_noresult(self._session, sample)
         self._session.commit()
+        self._print('Completed sample {}'.format(sample.name))
 
     def cleanup(self):
         self._print('Identification worker terminating')

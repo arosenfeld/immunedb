@@ -11,6 +11,7 @@ def periodic_commit(session, query, interval=1000):
 
 
 def trace_seq_collapses(session, seq):
+    ret = {}
     sample_col = session.query(
         Sequence.seq_id,
         Sequence.sample_id,
@@ -23,33 +24,28 @@ def trace_seq_collapses(session, seq):
         Sequence.sample_id == seq.sample_id
     ).first()
 
-    if sample_col is None:
-        return None
-
-    subject_col = session.query(
-        Sequence.seq_id,
-        Sequence.sample_id,
-        Sequence.copy_number_in_subject
-    ).filter(
-        Sequence.seq_id == sample_col.collapse_to_subject_seq_id,
-        Sequence.sample_id == sample_col.collapse_to_subject_sample_id,
-    ).first()
-
-    if subject_col is None:
-        return None
-
-    ret = {
-        'sample': {
+    if sample_col is not None:
+        ret['sample'] = {
             'seq_id': sample_col.seq_id,
             'sample_id': sample_col.sample_id,
             'copy_number': sample_col.copy_number_in_sample
-        },
-        'subject': {
-            'seq_id': subject_col.seq_id,
-            'sample_id': subject_col.sample_id,
-            'copy_number': subject_col.copy_number_in_subject
-        },
-    }
+        }
+
+        subject_col = session.query(
+            Sequence.seq_id,
+            Sequence.sample_id,
+            Sequence.copy_number_in_subject
+        ).filter(
+            Sequence.seq_id == sample_col.collapse_to_subject_seq_id,
+            Sequence.sample_id == sample_col.collapse_to_subject_sample_id,
+        ).first()
+
+        if subject_col is not None:
+            ret['subject'] = {
+                'seq_id': subject_col.seq_id,
+                'sample_id': subject_col.sample_id,
+                'copy_number': subject_col.copy_number_in_subject
+            }
 
     return ret
 
