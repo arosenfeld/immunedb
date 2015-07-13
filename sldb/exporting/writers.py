@@ -1,4 +1,5 @@
 from sldb.common.models import Sequence
+from sldb.util.nested_writer import NestedCSVWriter
 
 class SequenceWriter(object):
     def __init__(self):
@@ -92,7 +93,8 @@ class CLIPWriter(FASTAWriter):
 
 
 class CSVWriter(SequenceWriter):
-    def preprocess_headers(self, headers):
+    def set_selected_fields(self, headers):
+        super(CSVWriter, self).set_selected_fields(headers)
         self._csv = NestedCSVWriter(headers, streaming=True)
 
     def format_sequence(self, data, pseudo_seq=False):
