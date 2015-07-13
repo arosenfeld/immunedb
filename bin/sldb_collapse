@@ -4,21 +4,10 @@ import argparse
 import sldb.common.config as config
 
 if __name__ == '__main__':
-    parser = config.get_base_arg_parser(
-        'Collapses sequences at a given level.  Collapsing at the \'sample\' '
-        'or \'clone\' level will erase higher-level collapsing information '
-        'of affected rows.', multiproc=True)
-    subparsers = parser.add_subparsers(dest='level',
-                                       help='The level of collapsing')
-    sample_parser = subparsers.add_parser('samples')
-    sample_parser.add_argument('--sample-ids', nargs='+', default=None,
-                               dest='ids', type=int,
-                               help='Sample ID(s) to collapse.')
-
-    subject_parser = subparsers.add_parser('subjects')
-    subject_parser.add_argument('--subject-ids', nargs='+', default=None,
-                                dest='ids', type=int,
-                                help='Subject ID(s) to collapse.')
+    parser = config.get_base_arg_parser('Collapses sequences at the sample and'
+                                        'subject level.', multiproc=True)
+    parser.add_argument('--subject-ids', nargs='+', default=None, type=int,
+                        help='Subject ID(s) to collapse.')
     args = parser.parse_args()
 
     session = config.init_db(args.master_db_config, args.data_db_config)
