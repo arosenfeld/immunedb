@@ -173,6 +173,9 @@ class IdentificationWorker(concurrent.Worker):
                     sequences[vdj.sequence] = record
             except AlignmentException:
                 record.add_as_noresult(self._session, sample)
+            except:
+                self._print('\tUnexpected error processing sequence '
+                            '{}'.format(record.seq_ids[0]))
 
         avg_len = sum(
             map(lambda r: r.vdj.v_length, sequences.values())
@@ -188,6 +191,9 @@ class IdentificationWorker(concurrent.Worker):
                 record.add_as_sequence(self._session, sample, meta)
             except AlignmentException:
                 record.add_as_noresult(self._session, sample)
+            except:
+                self._print('\tUnexpected error processing sequence '
+                            '{}'.format(record.seq_ids[0]))
         self._session.commit()
         self._print('Completed sample {}'.format(sample.name))
 
