@@ -141,17 +141,15 @@ class IdentificationWorker(concurrent.Worker):
         parser = SeqIO.parse(os.path.join(args['path'], args['fn']), 'fasta' if
                              args['fn'].endswith('.fasta') else 'fastq')
         # Collapse identical sequences
-        self._print('Collapsing identical sequences')
+        self._print('\tCollapsing identical sequences')
         for record in parser:
             seq = str(record.seq)
             if seq not in sequences:
                 sequences[seq] = SequenceRecord(
-                    seq,
-                    record.letter_annotations.get('phred_quality'))
-                sequences[seq]._print = self._print
+                    seq, record.letter_annotations.get('phred_quality'))
             sequences[seq].seq_ids.append(record.description)
 
-        self._print('Aligning unique sequences')
+        self._print('\tAligning unique sequences')
         # Attempt to align all unique sequences
         for sequence in funcs.periodic_commit(self._session, sequences.keys()):
             record = sequences[sequence]
@@ -183,7 +181,7 @@ class IdentificationWorker(concurrent.Worker):
             map(lambda r: r.vdj.mutation_fraction, sequences.values())
         ) / float(len(sequences))
 
-        self._print('Re-aligning to V-ties')
+        self._print('\tRe-aligning to V-ties')
         for record in funcs.periodic_commit(self._session, sequences.values()):
             try:
                 self._realign_sequence(record.vdj, avg_len, avg_mut)
@@ -203,7 +201,7 @@ class IdentificationWorker(concurrent.Worker):
             self._session, Study, name=meta.get('study_name'))
 
         if new:
-            self._print('Created new study "{}"'.format(study.name))
+            self._print('\tCreated new study "{}"'.format(study.name))
             self._session.commit()
 
         name = meta.get('sample_name')
@@ -211,10 +209,9 @@ class IdentificationWorker(concurrent.Worker):
             self._session, Sample, name=name, study=study)
         if new:
             sample.date = meta.get('date')
-            self._print('Created new sample "{}" in MASTER'.format(
+            self._print('\tCreated new sample "{}" in MASTER'.format(
                 sample.name))
-            for key in ('subset', 'tissue', 'disease', 'lab',
-                        'experimenter'):
+            for key in ('subset', 'tissue', 'disease', 'lab', 'experimenter'):
                 setattr(sample, key, meta.get(key, require=False))
             subject, new = funcs.get_or_create(
                 self._session, Subject, study=study,
@@ -237,31 +234,37 @@ def run_identify(session, args):
     mod_log.make_mod('identification', session=session, commit=True,
                      info=vars(args))
     session.close()
+    # Load the germlines from files
     v_germlines = VGermlines(args.v_germlines)
     j_germlines = JGermlines(args.j_germlines, args.upstream_of_cdr3,
                              args.anchor_len, args.min_anchor_len)
     tasks = concurrent.TaskQueue()
-    for base_dir in args.base_dirs:
-        meta_fn = '{}/metadata.json'.format(base_dir)
-        if not os.path.isfile(meta_fn):
-            print '\tNo metadata file found for this set of samples.'
-            return
 
-        with open(meta_fn) as fh:
-            metadata = json.load(fh)
-            files = metadata.keys()
+    # If metadata is not specified, assume it is "metadata.json" in the
+    # samples_dir directory
+    if args.metadata is None:
+        meta_fn = '{}/metadata.json'.format(args.samples_dir)
+    else:
+        meta_fn = args.metadata
 
-            for fn in sorted(files):
-                if fn in ('metadata.json', 'all') or fn not in metadata:
-                    continue
-                tasks.add_task({
-                    'path': base_dir,
-                    'fn': fn,
-                    'meta': SampleMetadata(
-                        metadata[fn],
-                        metadata['all'] if 'all' in metadata else None
-                    ),
-                })
+    # Verify the metadata file exists
+    if not os.path.isfile(meta_fn):
+        print 'Metadata file not found.'
+        return
+
+    with open(meta_fn) as fh:
+        metadata = json.load(fh)
+
+    # Create the tasks for each file
+    for fn in sorted(metadata.keys()):
+        tasks.add_task({
+            'path': args.samples_dir,
+            'fn': fn,
+            'meta': SampleMetadata(
+                metadata[fn],
+                metadata['all'] if 'all' in metadata else None
+            )
+        })
 
     samples_to_update_queue = mp.Queue()
     lock = mp.RLock()
