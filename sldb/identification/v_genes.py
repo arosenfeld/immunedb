@@ -199,6 +199,9 @@ def find_v_position(sequence):
     # Try to find 'YYC', 'YCC', or 'YHC'
     for found in _find_with_frameshifts(sequence, 'Y([YHC])C'):
         yield found
+    # Try to find 'DxxxxxC'
+    for found in _find_with_frameshifts(sequence, 'D(.{5})C'):
+        yield found
 
 
 def _find_with_frameshifts(sequence, regex):
