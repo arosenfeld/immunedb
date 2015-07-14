@@ -122,14 +122,12 @@ class SequenceRecord(object):
 
 class IdentificationWorker(concurrent.Worker):
     def __init__(self, session, v_germlines, j_germlines, max_vties,
-                 min_similarity, samples_to_update_queue,
-                 sync_lock):
+            min_similarity, sync_lock):
         self._session = session
         self._v_germlines = v_germlines
         self._j_germlines = j_germlines
         self._min_similarity = min_similarity
         self._max_vties = max_vties
-        self._samples_to_update_queue = samples_to_update_queue
         self._sync_lock = sync_lock
 
     def do_task(self, args):
@@ -263,6 +261,8 @@ def run_identify(session, args):
 
     # Create the tasks for each file
     for fn in sorted(metadata.keys()):
+        if fn is 'all':
+            continue
         tasks.add_task({
             'path': args.samples_dir,
             'fn': fn,
@@ -272,7 +272,6 @@ def run_identify(session, args):
             )
         })
 
-    samples_to_update_queue = mp.Queue()
     lock = mp.RLock()
     for i in range(0, args.nproc):
         worker_session = config.init_db(args.master_db_config,
@@ -282,7 +281,6 @@ def run_identify(session, args):
                                               j_germlines,
                                               args.max_vties,
                                               args.min_similarity / float(100),
-                                              samples_to_update_queue,
                                               lock))
 
     tasks.start()
