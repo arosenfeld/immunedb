@@ -225,6 +225,26 @@ class Clone(BaseData):
         ])
 
 
+class HashExtension(MapperExtension):
+    def __init__(self, store_name, hash_fields):
+        self._store_name = store_name
+        self._hash_fields = hash_fields
+
+    """An extension to force sequences to be unique within a sample.  This
+    cannot be achieved with a traditional UNIQUE constraint since the key would
+    be too long.
+
+    Also sets the ``cdr3_num_nts`` to the length of the `cdr3_nt`
+    string
+
+    """
+    def before_insert(self, mapper, connection, instance):
+        fields = map(lambda f: str(getattr(instance, f)), self._hash_fields)
+        setattr(instance, self._store_name,
+                hashlib.sha1(' '.join(fields)).hexdigest()
+        )
+
+
 class CloneStats(BaseData):
     """Stores statistics for a given clone and sample.  If sample is zero (0)
     the statistics are for the specified clone in all samples.
@@ -249,11 +269,15 @@ class CloneStats(BaseData):
     """
     __tablename__ = 'clone_stats'
     __table_args__ = {'mysql_row_format': 'DYNAMIC'}
+    __mapper_args__ = {'extension': HashExtension(
+        'clone_sample_hash', ('clone_id', 'sample_id')
+    )}
 
-    clone_id = Column(Integer, ForeignKey(Clone.id), primary_key=True)
+    clone_sample_hash = Column(String(40), primary_key=True)
+    clone_id = Column(Integer, ForeignKey(Clone.id), index=True)
     clone = relationship(Clone)
 
-    sample_id = Column(Integer, ForeignKey(Sample.id), primary_key=True)
+    sample_id = Column(Integer, ForeignKey(Sample.id), index=True)
     sample = relationship(Sample, backref=backref('clone_stats'))
 
     unique_cnt = Column(Integer)
@@ -261,21 +285,6 @@ class CloneStats(BaseData):
 
     mutations = Column(MEDIUMTEXT)
     selection_pressure = Column(MEDIUMTEXT)
-
-
-class SequenceExtension(MapperExtension):
-    """An extension to force sequences to be unique within a sample.  This
-    cannot be achieved with a traditional UNIQUE constraint since the key would
-    be too long.
-
-    Also sets the ``cdr3_num_nts`` to the length of the `cdr3_nt`
-    string
-
-    """
-    def before_insert(self, mapper, connection, instance):
-        instance.sample_seq_hash = hashlib.sha1('{}{}'.format(
-            instance.sample_id, instance.sequence)
-        ).hexdigest()
 
 
 class Sequence(BaseData):
@@ -364,7 +373,9 @@ class Sequence(BaseData):
               'copy_number_in_subject'),
         {'mysql_row_format': 'DYNAMIC'}
     )
-    __mapper_args__ = {'extension': SequenceExtension()}
+    __mapper_args__ = {'extension': HashExtension(
+        'sample_seq_hash', ('sample_id', 'sequence')
+    )}
 
     sample_seq_hash = Column(String(40), unique=True, index=True)
 
