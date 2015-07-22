@@ -2,6 +2,7 @@ import json
 import multiprocessing as mp
 import os
 import re
+import traceback
 
 from Bio import SeqIO
 
@@ -64,8 +65,9 @@ class SequenceRecord(object):
 
     def add_as_sequence(self, session, sample, meta):
         existing = session.query(Sequence).filter(
-            Sequence.sequence == self.vdj.sequence,
-            Sequence.sample == sample).first()
+            Sequence.sample_seq_hash == funcs.hash_fields(
+                sample.id,
+                self.vdj.sequence)).first()
         if existing is not None:
             existing.copy_number += len(self.seq_ids)
             self.add_as_duplicate(session, sample, existing.seq_id)
@@ -171,9 +173,10 @@ class IdentificationWorker(concurrent.Worker):
                     sequences[vdj.sequence] = record
             except AlignmentException:
                 record.add_as_noresult(self._session, sample)
-            except:
+            except Exception as e:
                 self._print('\tUnexpected error processing sequence '
-                            '{}'.format(record.seq_ids[0]))
+                            '{}\n\t{}'.format(record.seq_ids[0],
+                                            traceback.format_exc()))
 
         avg_len = sum(
             map(lambda r: r.vdj.v_length, sequences.values())
