@@ -66,8 +66,8 @@ class SequenceRecord(object):
     def add_as_sequence(self, session, sample, meta):
         existing = session.query(Sequence).filter(
             Sequence.sample_seq_hash == funcs.hash_fields(
-                sample.id,
-                self.vdj.sequence)).first()
+                sample.id, self.vdj.sequence)
+        ).first()
         if existing is not None:
             existing.copy_number += len(self.seq_ids)
             self.add_as_duplicate(session, sample, existing.seq_id)
@@ -263,7 +263,7 @@ def run_identify(session, args):
 
     # Create the tasks for each file
     for fn in sorted(metadata.keys()):
-        if fn is 'all':
+        if fn == 'all':
             continue
         tasks.add_task({
             'path': args.samples_dir,
