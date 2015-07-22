@@ -51,7 +51,8 @@ total = len(list(SeqIO.parse(args.fasta_file, args.format)))
 for i, record in enumerate(SeqIO.parse(args.fasta_file, args.format)):
     vals = {'id': record.description, 'v_gene': None, 'j_gene': None}
     try:
-        vdj = VDJSequence(record.description, record.seq, v_germlines, j_germlines)
+        vdj = VDJSequence(record.description, str(record.seq), v_germlines,
+                          j_germlines)
         vdj.align_to_germline()
         vals = {field: getattr(vdj, field) for field in fields}
     except AlignmentException:
