@@ -117,8 +117,7 @@ class SequenceRecord(object):
 
                 germline=self.vdj.germline))
         except ValueError as ex:
-            pass
-
+            self.add_as_noresult(session, sample)
 
 class IdentificationWorker(concurrent.Worker):
     def __init__(self, session, v_germlines, j_germlines, max_vties,
