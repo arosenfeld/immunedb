@@ -9,6 +9,7 @@ from sqlalchemy.orm.interfaces import MapperExtension
 from sqlalchemy.dialects.mysql import TEXT, MEDIUMTEXT, BINARY
 
 from sldb.common.settings import DATABASE_SETTINGS
+from sldb.util.funcs import field_hash
 
 BaseMaster = declarative_base(
     metadata=DATABASE_SETTINGS['master_metadata'])
@@ -226,23 +227,23 @@ class Clone(BaseData):
 
 
 class HashExtension(MapperExtension):
+    """An extension to hash a set of fields into a field that has an index-able
+    length.
+
+    :param str store_name: The name of the hash field to populate.  Must be
+        able to store a 40 character string.
+    :param list hash_fields: An ordered iterable of field names whos values
+        should be hashed.  This is order dependant.
+
+    """
+
     def __init__(self, store_name, hash_fields):
         self._store_name = store_name
         self._hash_fields = hash_fields
 
-    """An extension to force sequences to be unique within a sample.  This
-    cannot be achieved with a traditional UNIQUE constraint since the key would
-    be too long.
-
-    Also sets the ``cdr3_num_nts`` to the length of the `cdr3_nt`
-    string
-
-    """
     def before_insert(self, mapper, connection, instance):
         fields = map(lambda f: str(getattr(instance, f)), self._hash_fields)
-        setattr(instance, self._store_name,
-                hashlib.sha1(' '.join(fields)).hexdigest()
-        )
+        setattr(instance, self._store_name, hash_fields(fields))
 
 
 class CloneStats(BaseData):

@@ -1,3 +1,4 @@
+import hashlib
 import re
 
 from sldb.common.models import Sequence
@@ -83,3 +84,7 @@ def format_ties(ties, name):
         return None
     ties = map(lambda e: e.replace(name, ''), ties)
     return '{}{}'.format(name, '|'.join(sorted(ties)))
+
+
+def field_hash(fields):
+    return hashlib.sha1(' '.join(fields)).hexdigest()
