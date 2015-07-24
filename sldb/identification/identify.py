@@ -2,6 +2,7 @@ import json
 import multiprocessing as mp
 import os
 import re
+import traceback
 
 from Bio import SeqIO
 
@@ -10,8 +11,8 @@ from sqlalchemy.sql import desc, func
 
 import sldb.common.config as config
 import sldb.common.modification_log as mod_log
-from sldb.common.models import (DuplicateSequence, NoResult, Sample, Sequence,
-                                Study, Subject)
+from sldb.common.models import (HashExtension, DuplicateSequence, NoResult,
+                                Sample, Sequence, Study, Subject)
 from sldb.identification.vdj_sequence import AlignmentException, VDJSequence
 from sldb.identification.v_genes import VGermlines
 from sldb.identification.j_genes import JGermlines
@@ -64,8 +65,9 @@ class SequenceRecord(object):
 
     def add_as_sequence(self, session, sample, meta):
         existing = session.query(Sequence).filter(
-            Sequence.sequence == self.vdj.sequence,
-            Sequence.sample == sample).first()
+            Sequence.sample_seq_hash == HashExtension.hash_fields(
+                sample.id, self.vdj.sequence)
+        ).first()
         if existing is not None:
             existing.copy_number += len(self.seq_ids)
             self.add_as_duplicate(session, sample, existing.seq_id)
@@ -83,7 +85,7 @@ class SequenceRecord(object):
                 seq_id=self.vdj.id,
                 sample_id=sample.id,
 
-                paired=meta.get('paired').lower() == 'true',
+                paired=meta.get('paired'),
                 partial=self.vdj.partial,
                 probable_indel_or_misalign=self.vdj.has_possible_indel,
 
@@ -117,19 +119,16 @@ class SequenceRecord(object):
 
                 germline=self.vdj.germline))
         except ValueError as ex:
-            pass
-
+            self.add_as_noresult(session, sample)
 
 class IdentificationWorker(concurrent.Worker):
     def __init__(self, session, v_germlines, j_germlines, max_vties,
-                 min_similarity, samples_to_update_queue,
-                 sync_lock):
+            min_similarity, sync_lock):
         self._session = session
         self._v_germlines = v_germlines
         self._j_germlines = j_germlines
         self._min_similarity = min_similarity
         self._max_vties = max_vties
-        self._samples_to_update_queue = samples_to_update_queue
         self._sync_lock = sync_lock
 
     def do_task(self, args):
@@ -141,17 +140,15 @@ class IdentificationWorker(concurrent.Worker):
         parser = SeqIO.parse(os.path.join(args['path'], args['fn']), 'fasta' if
                              args['fn'].endswith('.fasta') else 'fastq')
         # Collapse identical sequences
-        self._print('Collapsing identical sequences')
+        self._print('\tCollapsing identical sequences')
         for record in parser:
             seq = str(record.seq)
             if seq not in sequences:
                 sequences[seq] = SequenceRecord(
-                    seq,
-                    record.letter_annotations.get('phred_quality'))
-                sequences[seq]._print = self._print
+                    seq, record.letter_annotations.get('phred_quality'))
             sequences[seq].seq_ids.append(record.description)
 
-        self._print('Aligning unique sequences')
+        self._print('\tAligning unique sequences')
         # Attempt to align all unique sequences
         for sequence in funcs.periodic_commit(self._session, sequences.keys()):
             record = sequences[sequence]
@@ -175,6 +172,10 @@ class IdentificationWorker(concurrent.Worker):
                     sequences[vdj.sequence] = record
             except AlignmentException:
                 record.add_as_noresult(self._session, sample)
+            except Exception as e:
+                self._print('\tUnexpected error processing sequence '
+                            '{}\n\t{}'.format(record.seq_ids[0],
+                                            traceback.format_exc()))
 
         avg_len = sum(
             map(lambda r: r.vdj.v_length, sequences.values())
@@ -183,13 +184,16 @@ class IdentificationWorker(concurrent.Worker):
             map(lambda r: r.vdj.mutation_fraction, sequences.values())
         ) / float(len(sequences))
 
-        self._print('Re-aligning to V-ties')
+        self._print('\tRe-aligning to V-ties')
         for record in funcs.periodic_commit(self._session, sequences.values()):
             try:
                 self._realign_sequence(record.vdj, avg_len, avg_mut)
                 record.add_as_sequence(self._session, sample, meta)
             except AlignmentException:
                 record.add_as_noresult(self._session, sample)
+            except:
+                self._print('\tUnexpected error processing sequence '
+                            '{}'.format(record.seq_ids[0]))
         self._session.commit()
         self._print('Completed sample {}'.format(sample.name))
 
@@ -203,7 +207,7 @@ class IdentificationWorker(concurrent.Worker):
             self._session, Study, name=meta.get('study_name'))
 
         if new:
-            self._print('Created new study "{}"'.format(study.name))
+            self._print('\tCreated new study "{}"'.format(study.name))
             self._session.commit()
 
         name = meta.get('sample_name')
@@ -211,10 +215,9 @@ class IdentificationWorker(concurrent.Worker):
             self._session, Sample, name=name, study=study)
         if new:
             sample.date = meta.get('date')
-            self._print('Created new sample "{}" in MASTER'.format(
+            self._print('\tCreated new sample "{}" in MASTER'.format(
                 sample.name))
-            for key in ('subset', 'tissue', 'disease', 'lab',
-                        'experimenter'):
+            for key in ('subset', 'tissue', 'disease', 'lab', 'experimenter'):
                 setattr(sample, key, meta.get(key, require=False))
             subject, new = funcs.get_or_create(
                 self._session, Subject, study=study,
@@ -237,33 +240,40 @@ def run_identify(session, args):
     mod_log.make_mod('identification', session=session, commit=True,
                      info=vars(args))
     session.close()
+    # Load the germlines from files
     v_germlines = VGermlines(args.v_germlines)
     j_germlines = JGermlines(args.j_germlines, args.upstream_of_cdr3,
                              args.anchor_len, args.min_anchor_len)
     tasks = concurrent.TaskQueue()
-    for base_dir in args.base_dirs:
-        meta_fn = '{}/metadata.json'.format(base_dir)
-        if not os.path.isfile(meta_fn):
-            print '\tNo metadata file found for this set of samples.'
-            return
 
-        with open(meta_fn) as fh:
-            metadata = json.load(fh)
-            files = metadata.keys()
+    # If metadata is not specified, assume it is "metadata.json" in the
+    # samples_dir directory
+    if args.metadata is None:
+        meta_fn = '{}/metadata.json'.format(args.samples_dir)
+    else:
+        meta_fn = args.metadata
 
-            for fn in sorted(files):
-                if fn in ('metadata.json', 'all') or fn not in metadata:
-                    continue
-                tasks.add_task({
-                    'path': base_dir,
-                    'fn': fn,
-                    'meta': SampleMetadata(
-                        metadata[fn],
-                        metadata['all'] if 'all' in metadata else None
-                    ),
-                })
+    # Verify the metadata file exists
+    if not os.path.isfile(meta_fn):
+        print 'Metadata file not found.'
+        return
 
-    samples_to_update_queue = mp.Queue()
+    with open(meta_fn) as fh:
+        metadata = json.load(fh)
+
+    # Create the tasks for each file
+    for fn in sorted(metadata.keys()):
+        if fn == 'all':
+            continue
+        tasks.add_task({
+            'path': args.samples_dir,
+            'fn': fn,
+            'meta': SampleMetadata(
+                metadata[fn],
+                metadata['all'] if 'all' in metadata else None
+            )
+        })
+
     lock = mp.RLock()
     for i in range(0, args.nproc):
         worker_session = config.init_db(args.master_db_config,
@@ -273,7 +283,6 @@ def run_identify(session, args):
                                               j_germlines,
                                               args.max_vties,
                                               args.min_similarity / float(100),
-                                              samples_to_update_queue,
                                               lock))
 
     tasks.start()

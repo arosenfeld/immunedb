@@ -13,8 +13,8 @@ if __name__ == '__main__':
     parser.add_argument('--include-indels', action='store_true', default=False,
                         help='If specified, includes indels (or poorly '
                         'aligned sequences) in clones.')
-    parser.add_argument('--include-partials', action='store_true',
-                        default=False, help='If specified, includes partial '
+    parser.add_argument('--exclude-partials', action='store_true',
+                        default=False, help='If specified, excludes partial '
                         'sequences in clones.  Note partial sequences which '
                         'were collapse to a full sequence will always be '
                         'included.')
@@ -23,7 +23,7 @@ if __name__ == '__main__':
                         'required for inclusion in clones. (Default: 0)')
     parser.add_argument('--min-copy', type=int, default=2, help='The minimum '
                         'copy number that sequences must have in the subject '
-                        'to be included in clones')
+                        'to be included in clones. (Default: 2)')
     parser.add_argument('--regen', action='store_true', help='If specified '
                         'all clones (limited by subject if --subject is '
                         'specified) will be DELETED before creating new '

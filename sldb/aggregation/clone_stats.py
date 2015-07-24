@@ -42,17 +42,17 @@ class CloneStatsWorker(concurrent.Worker):
             )
         )
         if len(sample_ids) > 1:
-            sample_ids.append(0)
+            sample_ids.append(None)
         for sample_id in sample_ids:
             self._process_sample(clone_id, sample_id,
                                  single=len(sample_ids) == 1)
 
     def _process_sample(self, clone_id, sample_id, single):
         """Processes clone statistics for one sample (or the aggregate of all
-        samples).  If ``sample_id`` is 0 the statistics for all sequences in the
-        clone is generated.  If ``single`` is specified, the clone only occurs
-        in one sample and the entry with ``sample_id=0`` should be the same as
-        for the one sample.
+        samples).  If ``sample_id`` is None the statistics for all sequences in
+        the clone is generated.  If ``single`` is specified, the clone only
+        occurs in one sample and the entry with ``sample_id=None`` should be
+        the same as for the one sample.
 
         :param int clone_id: The ID of the clone
         :param int sample_id: The ID of a sample in which the clone exists
@@ -71,7 +71,7 @@ class CloneStatsWorker(concurrent.Worker):
             func.sum(Sequence.copy_number_in_sample).label('total')
         ).filter(Sequence.clone_id == clone_id)
 
-        if sample_id == 0:
+        if sample_id is None:
             counts = counts.filter(Sequence.copy_number_in_subject > 0).first()
         else:
             counts = counts.filter(Sequence.sample_id == sample_id,
@@ -81,18 +81,18 @@ class CloneStatsWorker(concurrent.Worker):
             self._session,
             self._session.query(Clone).filter(Clone.id == clone_id).first()
         ).calculate(
-            commit_seqs=sample_id != 0, limit_samples=[sample_id],
+            commit_seqs=sample_id is not None, limit_samples=[sample_id],
         )[sample_id]
 
         selection_pressure = {
             'all': baseline.get_selection(
                 self._session, clone_id, self._baseline_path,
-                samples=[sample_id] if sample_id != 0 else None,
+                samples=[sample_id] if sample_id is not None else None,
                 remove_single_mutations=False,
                 temp_dir=self._baseline_temp),
             'multiples': baseline.get_selection(
                 self._session, clone_id, self._baseline_path,
-                samples=[sample_id] if sample_id != 0 else None,
+                samples=[sample_id] if sample_id is not None else None,
                 remove_single_mutations=True,
                 temp_dir=self._baseline_temp)
         }
@@ -109,7 +109,7 @@ class CloneStatsWorker(concurrent.Worker):
         # If this clone only appears in one sample, the 'total clone' stats are
         # the same as for the single sample
         if single:
-            self._session.add(CloneStats(sample_id=0, **record_values))
+            self._session.add(CloneStats(sample_id=None, **record_values))
         self._session.commit()
 
     def cleanup(self):
@@ -136,6 +136,7 @@ def run_clone_stats(session, args):
     clones.sort()
 
     if args.force:
+        print 'Deleting old clone statistics for {} clones'.format(len(clones))
         session.query(CloneStats).filter(
             CloneStats.clone_id.in_(clones)
         ).delete(synchronize_session=False)

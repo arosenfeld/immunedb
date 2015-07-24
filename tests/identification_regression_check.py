@@ -8,7 +8,9 @@ from sldb.identification.v_genes import VGermlines
 from sldb.identification.j_genes import JGermlines
 
 def compare_dicts(regression, new):
-    assert set(regression.keys()) == set(new.keys())
+    assert set(regression.keys()) == set(new.keys()), (
+            'Mismatch for sizes\n{}\n{}'.format(regression.keys(), new.keys())
+        )
 
     for k in regression.keys():
         assert regression[k] == new[k], (
@@ -57,8 +59,8 @@ with open(args.regression_file) as reg_file:
 for i, record in enumerate(regression):
     new = {'id': record['id'], 'v_gene': None, 'j_gene': None}
     try:
-        vdj = VDJSequence(record['id'], record['original_seq'], v_germlines,
-                j_germlines)
+        vdj = VDJSequence(record['id'], str(record['original_seq']),
+                          v_germlines, j_germlines)
         vdj.align_to_germline()
         new = {field: getattr(vdj, field) for field in fields}
     except AlignmentException:
@@ -66,5 +68,4 @@ for i, record in enumerate(regression):
     new['original_seq'] = record['original_seq']
 
     compare_dicts(record, new)
-    if i % 1000 == 0:
-        print '{} / {}'.format(i + 1, len(regression))
+    print '{} / {}'.format(i + 1, len(regression))

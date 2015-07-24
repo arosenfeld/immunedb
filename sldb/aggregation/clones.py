@@ -45,7 +45,7 @@ def _similar_to_all(seq, rest, min_similarity):
 
 
 def _get_subject_clones(session, subject_id, min_similarity, include_indels,
-                        include_partials, min_identity, min_copy):
+                        exclude_partials, min_identity, min_copy):
     """Assigns clones to all viable sequences in the specified subject.
 
     :param Session session: The database session
@@ -54,8 +54,8 @@ def _get_subject_clones(session, subject_id, min_similarity, include_indels,
         sequences to be in the same clone a clone
     :param bool include_indels: If sequences with possible indels should be
         assigned to clones
-    :param bool include_partials: If partial sequences should be assigned to
-        clones
+    :param bool exclude_partials: If partial sequences should be excluded from
+        clonal assignment
     :param float min_identity: The minimum V-gene germline-identity required
         for a sequence to be assigned a clone
 
@@ -82,7 +82,7 @@ def _get_subject_clones(session, subject_id, min_similarity, include_indels,
         )
     if not include_indels:
         query = query.filter(Sequence.probable_indel_or_misalign == 0)
-    if not include_partials:
+    if exclude_partials:
         query = query.filter(Sequence.partial == 0)
 
     query = query.order_by(desc(Sequence.copy_number_in_subject))
@@ -207,7 +207,7 @@ def run_clones(session, args):
         print 'Assigning clones to subject', sid
         to_update = _get_subject_clones(
             session, sid, args.similarity / 100.0,
-            args.include_indels, args.include_partials,
+            args.include_indels, args.exclude_partials,
             args.min_identity / 100.0, args.min_copy)
         if len(to_update) > 0:
             print 'Generating consensus CDR3s'

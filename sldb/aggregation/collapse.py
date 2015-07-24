@@ -1,4 +1,4 @@
-from sqlalchemy import and_, distinct
+from sqlalchemy import and_, distinct, or_
 from sqlalchemy.sql import desc, exists, text
 
 import dnautils
@@ -11,9 +11,7 @@ import sldb.util.concurrent as concurrent
 class CollapseWorker(concurrent.Worker):
     """A worker for collapsing sequences without including positions where
     either sequences has an 'N'.
-
     :param Session session: The database session
-
     """
     def __init__(self, session):
         self._session = session
@@ -22,9 +20,7 @@ class CollapseWorker(concurrent.Worker):
     def do_task(self, args):
         """Initiates the correct method based on the type of collapsing that is
         being done
-
         :param dict args: A dictionary with at least a ``type`` key
-
         """
         if args['type'] == 'sample':
             self._collapse_sample(args)
@@ -34,10 +30,8 @@ class CollapseWorker(concurrent.Worker):
     def _collapse_sample(self, args):
         """Collapses sequences in sample ``args['sample_id']`` and bucket
         ``(v_gene, j_gene, cdr3_num_nts)``
-
         :param dict args: A dictionary with the keys ``sample_id``, ``v_gene``,
             ``j_gene``, and ``cdr3_num_nts``
-
         """
         seqs = self._session.query(
             Sequence.sample_id, Sequence.seq_id, Sequence.sequence,
@@ -62,10 +56,8 @@ class CollapseWorker(concurrent.Worker):
     def _collapse_subject(self, args):
         """Collapses all clones in the subject with ID ``args['subject_id']``
         and bucket ``(v_gene, j_gene, cdr3_num_nts)``
-
         :param dict args: A dictionary with the keys ``subject_id``,
             ``v_gene``, ``j_gene``, and ``cdr3_num_nts``
-
         """
 
         seqs = self._session.query(
@@ -104,7 +96,6 @@ def collapse_seqs(session, seqs, copy_field, collapse_copy_field,
     a single sequences ``collapse_copy_field`` and setting the collapsed
     sequences' ``collapse_seq_id_field`` and ``collapse_sample_id_field`` to
     that of the collapsed-to sequence.
-
     :param Session session: The database session
     :param Sequence seqs: A list of sequences to collapse in any order
         containing at least the fields ``sample_id``, ``seq_id``, ``sequence``,
@@ -119,7 +110,6 @@ def collapse_seqs(session, seqs, copy_field, collapse_copy_field,
         sequence to which a sequence is collapsed
     :param str collapse_sample_id_field: The field to set to the ``sample_id``
         of the sequence to which a sequence is collapsed
-
     """
     to_process = sorted([{
         'sample_id': s.sample_id,
@@ -173,13 +163,6 @@ def collapse_samples(master_db_config, data_db_config, sample_ids,
     session = config.init_db(master_db_config, data_db_config)
     print 'Creating task queue to collapse {} samples.'.format(len(sample_ids))
 
-    session.query(Sequence).filter(
-        Sequence.sample_id.in_(sample_ids)
-    ).update({
-        'collapse_to_subject_seq_id': None,
-        'collapse_to_subject_sample_id': None,
-        'copy_number_in_subject': 0,
-    }, synchronize_session=False)
     session.commit()
 
     tasks = concurrent.TaskQueue()
@@ -244,20 +227,38 @@ def collapse_subjects(master_db_config, data_db_config, subject_ids,
 def run_collapse(session, args):
     mod_log.make_mod('collapse', session=session, commit=True,
                      info=vars(args))
-    if args.level == 'samples':
-        ids = args.ids or map(
-            lambda r: r.id, session.query(Sample).all()
-        )
-        func = collapse_samples
-    elif args.level == 'subjects':
-        ids = args.ids or map(
-            lambda r: r.id, session.query(Subject).all()
-        )
-        func = collapse_subjects
-    else:
-        print '[ERROR] Unknown collapse level.'
-        return
+
+    subjects = args.subject_ids or map(
+        lambda e: e.id, session.query(Subject.id).all()
+    )
+
+    samples = map(lambda e: e.id, session.query(
+        Sample.id
+    ).filter(
+        Sample.subject_id.in_(subjects)).all()
+    )
+    for sample in samples:
+        if session.query(Sequence).filter(
+                Sequence.sample_id == sample,
+                or_(Sequence.copy_number_in_sample > 0,
+                    Sequence.copy_number_in_subject > 0)).first() is None:
+            continue
+        print 'Clearing old collapse information for sample {}'.format(sample)
+        session.query(Sequence).filter(Sequence.sample_id == sample).filter(
+        ).update({
+            'collapse_to_sample_seq_id': None,
+            'copy_number_in_sample': 0,
+
+            'collapse_to_subject_seq_id': None,
+            'collapse_to_subject_sample_id': None,
+            'copy_number_in_subject': 0
+        })
+        session.commit()
 
     session.close()
-    func(args.master_db_config, args.data_db_config,
-         ids, args.nproc)
+    print 'Collapsing {} samples'.format(len(samples))
+    collapse_samples(args.master_db_config, args.data_db_config, samples,
+                     args.nproc)
+    print 'Collapsing {} subjects'.format(len(subjects))
+    collapse_subjects(args.master_db_config, args.data_db_config, subjects,
+                      args.nproc)

@@ -378,14 +378,15 @@ class VDJSequence(object):
         self._post_cdr3_match = self.post_cdr3_length - dnautils.hamming(
             post_j, post_s)
 
-        # Update the V and J matches after ties
+        # Updaself.sequence[:CDR3_OFFSET]te the V and J matches after ties
         self._v_match = self.v_length - dnautils.hamming(
-            self.germline.replace('-', '')[:self._pad_len + self.v_length],
-            self.sequence.replace('-', '')[:self._pad_len + self.v_length]
+            self.germline[:CDR3_OFFSET],
+            self.sequence[:CDR3_OFFSET]
         )
+
         self._j_match = self.j_length - dnautils.hamming(
-            self.germline.replace('-', '')[-len(j_germ):],
-            self.sequence.replace('-', '')[-len(j_germ):]
+            self.germline[-len(j_germ):],
+            self.sequence[-len(j_germ):]
         )
 
     @property

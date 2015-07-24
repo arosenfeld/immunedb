@@ -28,7 +28,7 @@ class Study(BaseMaster):
 
     """
     __tablename__ = 'studies'
-    __table_args__ = {'mysql_engine': 'TokuDB'}
+    __table_args__ = {'mysql_row_format': 'DYNAMIC'}
 
     id = Column(Integer, primary_key=True)
     # The name of the study
@@ -51,7 +51,7 @@ class Subject(BaseMaster):
     """
     __tablename__ = 'subjects'
     __table_args__ = (UniqueConstraint('study_id', 'identifier'),
-                      {'mysql_engine': 'TokuDB'})
+                      {'mysql_row_format': 'DYNAMIC'})
 
     id = Column(Integer, primary_key=True)
 
@@ -89,7 +89,7 @@ class Sample(BaseMaster):
 
     """
     __tablename__ = 'samples'
-    __table_args__ = {'mysql_engine': 'TokuDB'}
+    __table_args__ = {'mysql_row_format': 'DYNAMIC'}
 
     id = Column(Integer, primary_key=True)
     name = Column(String(128), unique=True)
@@ -143,7 +143,7 @@ class SampleStats(BaseData):
 
     """
     __tablename__ = 'sample_stats'
-    __table_args__ = {'mysql_engine': 'TokuDB'}
+    __table_args__ = {'mysql_row_format': 'DYNAMIC'}
 
     sample_id = Column(Integer, ForeignKey(Sample.id),
                        primary_key=True)
@@ -199,7 +199,7 @@ class Clone(BaseData):
                             'subject_id', 'cdr3_num_nts'),
                       Index('aa_bucket', 'v_gene', 'j_gene',
                             'subject_id', 'cdr3_aa'),
-                      {'mysql_engine': 'TokuDB'})
+                      {'mysql_row_format': 'DYNAMIC'})
     id = Column(Integer, primary_key=True)
 
     v_gene = Column(String(length=512), index=True)
@@ -225,6 +225,30 @@ class Clone(BaseData):
         ])
 
 
+class HashExtension(MapperExtension):
+    """An extension to hash a set of fields into a field that has an index-able
+    length.
+
+    :param str store_name: The name of the hash field to populate.  Must be
+        able to store a 40 character string.
+    :param list hash_fields: An ordered iterable of field names whos values
+        should be hashed.  This is order dependant.
+
+    """
+
+    def __init__(self, store_name, hash_fields):
+        self._store_name = store_name
+        self._hash_fields = hash_fields
+
+    def before_insert(self, mapper, connection, instance):
+        fields = map(lambda f: str(getattr(instance, f)), self._hash_fields)
+        setattr(instance, self._store_name, HashExtension.hash_fields(fields))
+
+    @staticmethod
+    def hash_fields(cls, fields):
+        return hashlib.sha1(' '.join(fields)).hexdigest()
+
+
 class CloneStats(BaseData):
     """Stores statistics for a given clone and sample.  If sample is zero (0)
     the statistics are for the specified clone in all samples.
@@ -248,12 +272,16 @@ class CloneStats(BaseData):
 
     """
     __tablename__ = 'clone_stats'
-    __table_args__ = {'mysql_engine': 'TokuDB'}
+    __table_args__ = {'mysql_row_format': 'DYNAMIC'}
+    __mapper_args__ = {'extension': HashExtension(
+        'clone_sample_hash', ('clone_id', 'sample_id')
+    )}
 
-    clone_id = Column(Integer, ForeignKey(Clone.id), primary_key=True)
+    clone_sample_hash = Column(String(40), primary_key=True)
+    clone_id = Column(Integer, ForeignKey(Clone.id), index=True)
     clone = relationship(Clone)
 
-    sample_id = Column(Integer, ForeignKey(Sample.id), primary_key=True)
+    sample_id = Column(Integer, ForeignKey(Sample.id), index=True)
     sample = relationship(Sample, backref=backref('clone_stats'))
 
     unique_cnt = Column(Integer)
@@ -261,21 +289,6 @@ class CloneStats(BaseData):
 
     mutations = Column(MEDIUMTEXT)
     selection_pressure = Column(MEDIUMTEXT)
-
-
-class SequenceExtension(MapperExtension):
-    """An extension to force sequences to be unique within a sample.  This
-    cannot be achieved with a traditional UNIQUE constraint since the key would
-    be too long.
-
-    Also sets the ``cdr3_num_nts`` to the length of the `cdr3_nt`
-    string
-
-    """
-    def before_insert(self, mapper, connection, instance):
-        instance.sample_seq_hash = hashlib.sha1('{}{}'.format(
-            instance.sample_id, instance.sequence)
-        ).hexdigest()
 
 
 class Sequence(BaseData):
@@ -362,9 +375,11 @@ class Sequence(BaseData):
               'collapse_to_subject_seq_id'),
         Index('clone_by_subject', 'clone_id',
               'copy_number_in_subject'),
-        {'mysql_engine': 'TokuDB'}
+        {'mysql_row_format': 'DYNAMIC'}
     )
-    __mapper_args__ = {'extension': SequenceExtension()}
+    __mapper_args__ = {'extension': HashExtension(
+        'sample_seq_hash', ('sample_id', 'sequence')
+    )}
 
     sample_seq_hash = Column(String(40), unique=True, index=True)
 
@@ -446,7 +461,7 @@ class DuplicateSequence(BaseData):
 
     """
     __tablename__ = 'duplicate_sequences'
-    __table_args__ = {'mysql_engine': 'TokuDB'}
+    __table_args__ = {'mysql_row_format': 'DYNAMIC'}
 
     seq_id = Column(String(length=128), primary_key=True)
 
@@ -476,7 +491,7 @@ class NoResult(BaseData):
 
     """
     __tablename__ = 'noresults'
-    __table_args__ = {'mysql_engine': 'TokuDB'}
+    __table_args__ = {'mysql_row_format': 'DYNAMIC'}
 
     seq_id = Column(String(length=128), primary_key=True)
 
@@ -498,7 +513,7 @@ class ModificationLog(BaseData):
 
     """
     __tablename__ = 'modification_logs'
-    __table_args__ = {'mysql_engine': 'TokuDB'}
+    __table_args__ = {'mysql_row_format': 'DYNAMIC'}
 
     id = Column(Integer, primary_key=True)
     datetime = Column(DateTime, default=datetime.datetime.utcnow)

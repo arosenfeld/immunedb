@@ -123,9 +123,8 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
     clone_q = session.query(
         Clone, CloneStats.unique_cnt, CloneStats.total_cnt
     ).join(CloneStats).filter(
-        CloneStats.sample_id == 0
+        CloneStats.sample_id.is_(None)
     )
-
     if filters is not None:
         for key, value in filters.iteritems():
             if value is None:
@@ -162,7 +161,7 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
             CloneStats.unique_cnt, CloneStats.total_cnt, Sample
         ).join(Sample).filter(
             CloneStats.clone_id == c.id,
-            CloneStats.sample_id != 0
+            ~CloneStats.sample_id.is_(None)
         ).order_by(desc(CloneStats.unique_cnt))
         for stat in query:
             stats_comb.append({
@@ -256,7 +255,6 @@ def get_clone(session, clone_id, sample_ids, thresholds=None):
         'positions': all_mutations['positions'],
         'regions': {}
     }
-
     for threshold in thresholds:
         if threshold[0] == 'seqs':
             seq_min = threshold[1]
@@ -266,6 +264,19 @@ def get_clone(session, clone_id, sample_ids, thresholds=None):
         mut_dict['regions'][tname] = threshold_mutations(all_mutations,
                                                          seq_min)
     result['mutation_stats'] = mut_dict
+
+    stats = session.query(
+        CloneStats
+    ).filter(
+        CloneStats.clone_id == clone.id,
+        ~CloneStats.sample_id.is_(None)
+    ).order_by(desc(CloneStats.unique_cnt))
+    result['samples'] = []
+    for stat in stats:
+        sample = _sample_to_dict(stat.sample)
+        sample['unique'] = stat.unique_cnt
+        sample['total'] = stat.total_cnt
+        result['samples'].append(sample)
 
     return result
 
@@ -278,13 +289,13 @@ def get_selection_pressure(session, clone_id, sample_ids):
         query = query.filter(
             or_(
                 CloneStats.sample_id.in_(sample_ids),
-                CloneStats.sample_id == 0
+                CloneStats.sample_id.is_(None)
             )
         )
 
     pressure = []
     for row in query:
-        if row.sample_id == 0:
+        if row.sample_id is None:
             name = 'All'
         else:
             name = session.query(Sample.name).filter(
@@ -303,7 +314,7 @@ def get_selection_pressure(session, clone_id, sample_ids):
 def get_clone_mutations(session, clone_id, sample_ids=None):
     if sample_ids is None or type(sample_ids) is int or len(sample_ids) == 1:
         if sample_ids is None:
-            sample_id = 0
+            sample_id = None
         elif type(sample_ids) is int:
             sample_id = sample_ids
         elif len(sample_ids) == 1:
@@ -353,7 +364,7 @@ def get_clone_overlap(session, filter_type, ctype, limit,
             Clone, CloneStats.unique_cnt.label('unique_cnt'),
             CloneStats.total_cnt.label('total_cnt')
         ).join(CloneStats).filter(
-            CloneStats.sample_id == 0,
+            CloneStats.sample_id.is_(None),
             Clone.subject_id == limit
         )
 
@@ -364,7 +375,7 @@ def get_clone_overlap(session, filter_type, ctype, limit,
         other_samples = []
         query = session.query(CloneStats).filter(
             CloneStats.clone_id == clone.Clone.id,
-            CloneStats.sample_id != 0
+            ~CloneStats.sample_id.is_(None)
         ).order_by(
             desc(CloneStats.total_cnt)
         )

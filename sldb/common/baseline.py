@@ -112,7 +112,6 @@ def _make_input_file(session, input_path, clone, samples,
         else:
             updated_seqs = map(lambda s: s.sequence, seqs)
 
-
         for i, seq in enumerate(updated_seqs):
             fh.write('>{}\n{}\n'.format(i, seq))
 
