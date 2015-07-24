@@ -9,7 +9,6 @@ from sqlalchemy.orm.interfaces import MapperExtension
 from sqlalchemy.dialects.mysql import TEXT, MEDIUMTEXT, BINARY
 
 from sldb.common.settings import DATABASE_SETTINGS
-from sldb.util.funcs import field_hash
 
 BaseMaster = declarative_base(
     metadata=DATABASE_SETTINGS['master_metadata'])
@@ -243,7 +242,11 @@ class HashExtension(MapperExtension):
 
     def before_insert(self, mapper, connection, instance):
         fields = map(lambda f: str(getattr(instance, f)), self._hash_fields)
-        setattr(instance, self._store_name, hash_fields(fields))
+        setattr(instance, self._store_name, HashExtension.hash_fields(fields))
+
+    @staticmethod
+    def hash_fields(cls, fields):
+        return hashlib.sha1(' '.join(fields)).hexdigest()
 
 
 class CloneStats(BaseData):

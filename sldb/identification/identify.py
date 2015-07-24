@@ -11,8 +11,8 @@ from sqlalchemy.sql import desc, func
 
 import sldb.common.config as config
 import sldb.common.modification_log as mod_log
-from sldb.common.models import (DuplicateSequence, NoResult, Sample, Sequence,
-                                Study, Subject)
+from sldb.common.models import (HashExtension, DuplicateSequence, NoResult,
+                                Sample, Sequence, Study, Subject)
 from sldb.identification.vdj_sequence import AlignmentException, VDJSequence
 from sldb.identification.v_genes import VGermlines
 from sldb.identification.j_genes import JGermlines
@@ -65,7 +65,7 @@ class SequenceRecord(object):
 
     def add_as_sequence(self, session, sample, meta):
         existing = session.query(Sequence).filter(
-            Sequence.sample_seq_hash == funcs.hash_fields(
+            Sequence.sample_seq_hash == HashExtension.hash_fields(
                 sample.id, self.vdj.sequence)
         ).first()
         if existing is not None:

@@ -255,7 +255,6 @@ def get_clone(session, clone_id, sample_ids, thresholds=None):
         'positions': all_mutations['positions'],
         'regions': {}
     }
-
     for threshold in thresholds:
         if threshold[0] == 'seqs':
             seq_min = threshold[1]
@@ -265,6 +264,19 @@ def get_clone(session, clone_id, sample_ids, thresholds=None):
         mut_dict['regions'][tname] = threshold_mutations(all_mutations,
                                                          seq_min)
     result['mutation_stats'] = mut_dict
+
+    stats = session.query(
+        CloneStats
+    ).filter(
+        CloneStats.clone_id == clone.id,
+        ~CloneStats.sample_id.is_(None)
+    ).order_by(desc(CloneStats.unique_cnt))
+    result['samples'] = []
+    for stat in stats:
+        sample = _sample_to_dict(stat.sample)
+        sample['unique'] = stat.unique_cnt
+        sample['total'] = stat.total_cnt
+        result['samples'].append(sample)
 
     return result
 
