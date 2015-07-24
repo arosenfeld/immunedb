@@ -4,7 +4,7 @@ dnautils = Extension('dnautils', sources=['lib/dnautils.c'])
 
 setup(
     name='SLDB',
-    version='0.9.1',
+    version='0.10.0',
     author='Aaron M. Rosenfeld',
     author_email='ar374@drexel.edu',
     packages=[
