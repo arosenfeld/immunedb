@@ -1,3 +1,4 @@
+import dnautils
 import json
 import multiprocessing as mp
 import os
@@ -13,13 +14,13 @@ import sldb.common.config as config
 import sldb.common.modification_log as mod_log
 from sldb.common.models import (HashExtension, DuplicateSequence, NoResult,
                                 Sample, Sequence, Study, Subject)
-from sldb.identification.vdj_sequence import AlignmentException, VDJSequence
+from sldb.identification import AlignmentException
+from sldb.identification.vdj_sequence import VDJSequence
 from sldb.identification.v_genes import VGermlines
 from sldb.identification.j_genes import JGermlines
 import sldb.util.concurrent as concurrent
 import sldb.util.funcs as funcs
 import sldb.util.lookups as lookups
-
 
 class SampleMetadata(object):
     def __init__(self, specific_config, global_config=None):
@@ -66,7 +67,7 @@ class SequenceRecord(object):
     def add_as_sequence(self, session, sample, meta):
         existing = session.query(Sequence).filter(
             Sequence.sample_seq_hash == HashExtension.hash_fields(
-                sample.id, self.vdj.sequence)
+                (sample.id, self.vdj.sequence))
         ).first()
         if existing is not None:
             existing.copy_number += len(self.seq_ids)
@@ -121,6 +122,7 @@ class SequenceRecord(object):
         except ValueError as ex:
             self.add_as_noresult(session, sample)
 
+
 class IdentificationWorker(concurrent.Worker):
     def __init__(self, session, v_germlines, j_germlines, max_vties,
             min_similarity, sync_lock):
@@ -172,7 +174,7 @@ class IdentificationWorker(concurrent.Worker):
                     sequences[vdj.sequence] = record
             except AlignmentException:
                 record.add_as_noresult(self._session, sample)
-            except Exception as e:
+            except:
                 self._print('\tUnexpected error processing sequence '
                             '{}\n\t{}'.format(record.seq_ids[0],
                                             traceback.format_exc()))
@@ -184,7 +186,8 @@ class IdentificationWorker(concurrent.Worker):
             map(lambda r: r.vdj.mutation_fraction, sequences.values())
         ) / float(len(sequences))
 
-        self._print('\tRe-aligning to V-ties')
+        self._print('\tRe-aligning to V-ties, Mutations={}, Length={}'.format(
+            round(avg_mut, 2), round(avg_len, 2)))
         for record in funcs.periodic_commit(self._session, sequences.values()):
             try:
                 self._realign_sequence(record.vdj, avg_len, avg_mut)
@@ -193,7 +196,8 @@ class IdentificationWorker(concurrent.Worker):
                 record.add_as_noresult(self._session, sample)
             except:
                 self._print('\tUnexpected error processing sequence '
-                            '{}'.format(record.seq_ids[0]))
+                            '{}\n\t{}'.format(record.seq_ids[0],
+                                            traceback.format_exc()))
         self._session.commit()
         self._print('Completed sample {}'.format(sample.name))
 

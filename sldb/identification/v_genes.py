@@ -9,11 +9,8 @@ from Bio import SeqIO
 from Bio.Seq import Seq
 
 from sldb.common.models import CDR3_OFFSET
+from sldb.identification import AlignmentException
 from sldb.util.funcs import find_streak_position
-
-
-class AlignmentException(Exception):
-    pass
 
 
 class VGene(object):
@@ -179,14 +176,16 @@ class VGermlines(dict):
         return .30
 
 
-def get_common_seq(seqs):
+def get_common_seq(seqs, cutoff=True):
     if len(seqs) == 0:
         return seqs[0]
     v_gene = []
     for nts in itertools.izip_longest(*seqs, fillvalue='N'):
         v_gene.append(nts[0] if all(map(lambda n: n == nts[0], nts)) else 'N')
     v_gene = ''.join(v_gene)
-    return v_gene[:CDR3_OFFSET]
+    if cutoff:
+        return v_gene[:CDR3_OFFSET]
+    return v_gene
 
 
 def find_v_position(sequence):

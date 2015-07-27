@@ -6,9 +6,10 @@ from Bio.Seq import Seq
 import dnautils
 from sldb.common.models import CDR3_OFFSET
 from sldb.util.funcs import find_streak_position
+from sldb.identification import AlignmentException
 from sldb.identification.v_genes import VGene, get_common_seq, find_v_position
+import sldb.identification.local_align as local_align
 
-class AlignmentException(Exception): pass
 
 class VDJSequence(object):
     MISMATCH_THRESHOLD = 3
@@ -26,8 +27,6 @@ class VDJSequence(object):
         self._force_j = force_j
         self._quality = quality
 
-        self._seq_filled = None
-
         self._j = None
         self._j_anchor_pos = None
         self._j_match = None
@@ -44,8 +43,45 @@ class VDJSequence(object):
 
         if not all(map(lambda c: c in 'ATCGN', self.sequence)):
             raise AlignmentException('Invalid characters in sequence.')
+
         self._find_j()
         self._find_v()
+
+    def locally_align(self):
+        vs, germ, new_seq = local_align.align_v(self._seq, self.v_germlines)
+
+        self._v = set(vs)
+        self._germline = germ[-CDR3_OFFSET:]
+        self._seq = new_seq[len(germ) - CDR3_OFFSET:]
+        if self._quality is not None:
+            self._quality = self._quality[len(germ) - CDR3_OFFSET:]
+
+            for i, c in enumerate(self._germline):
+                if c == '-':
+                    self._quality.insert(i, None)
+
+        self._find_j()
+        self._cdr3_len = (
+            self.j_anchor_pos + self.j_germlines.anchor_len -
+             self.j_germlines.upstream_of_cdr3 - len(self._germline)
+        )
+        self._germline += ('-' * self._cdr3_len)
+
+        j_germ = get_common_seq(
+            map(reversed,
+                [self.j_germlines[j][-self.j_germlines.upstream_of_cdr3:]
+                    for j in self.j_gene]))
+        self._germline += ''.join(
+            reversed(j_germ[-self.j_germlines.upstream_of_cdr3:]))
+
+        # TODO: These are not correct
+        self._v_length = CDR3_OFFSET
+        self._v_match = dnautils.hamming(self._germline[:CDR3_OFFSET],
+                                         self._seq[:CDR3_OFFSET])
+        self._pre_cdr3_length = self._v_length
+        self._pre_cdr3_match = self._v_match
+        self._post_cdr3_length = 0
+        self._post_cdr3_match = 0
 
     @property
     def id(self):
@@ -92,17 +128,6 @@ class VDJSequence(object):
         return self._seq
 
     @property
-    def sequence_filled(self):
-        if self._seq_filled is None:
-            self._seq_filled = ''
-            for i, c in enumerate(self.sequence):
-                if c.upper() == 'N' and self.germline[i].upper() != '-':
-                    self._seq_filled += self.germline[i].upper()
-                else:
-                    self._seq_filled += c
-        return self._seq_filled
-
-    @property
     def aligned_v(self):
         return self._aligned_v
 
@@ -116,7 +141,7 @@ class VDJSequence(object):
 
     @property
     def num_gaps(self):
-        return self._num_gaps
+        return self.sequence[:CDR3_OFFSET].count('-')
 
     @property
     def pad_length(self):
@@ -169,7 +194,7 @@ class VDJSequence(object):
     def post_cdr3_match(self):
         return self._post_cdr3_match
 
-    def _find_j(self):
+    def _find_j(self, offset=0):
         '''Finds the location and type of J gene'''
         # Iterate over every possible J anchor.  For each germline, try its
         # full sequence, then exclude the final 3 characters at a time until
@@ -182,7 +207,7 @@ class VDJSequence(object):
 
         for match, full_anchor, j_gene in self.j_germlines.get_all_anchors(
                 limit_genes=self._force_j):
-            i = self._seq.rfind(match)
+            i = self._seq[offset:].rfind(match) + offset
             if i >= 0:
                 return self._found_j(i, j_gene, match, full_anchor)
 
@@ -350,9 +375,6 @@ class VDJSequence(object):
                 self._quality.extend([None] * (len(self.germline) -
                                      len(self._quality)))
             self._possible_indel = True
-
-        # Get the number of gaps
-        self._num_gaps = self.sequence[:CDR3_OFFSET].count('-')
 
         # Get the pre-CDR3 germline and sequence stripped of gaps
         pre_cdr3_germ = self.germline[:CDR3_OFFSET].replace('-', '')

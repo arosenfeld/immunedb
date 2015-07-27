@@ -245,8 +245,8 @@ class HashExtension(MapperExtension):
         setattr(instance, self._store_name, HashExtension.hash_fields(fields))
 
     @staticmethod
-    def hash_fields(cls, fields):
-        return hashlib.sha1(' '.join(fields)).hexdigest()
+    def hash_fields(fields):
+        return hashlib.sha1(' '.join(map(str, fields))).hexdigest()
 
 
 class CloneStats(BaseData):
@@ -390,7 +390,10 @@ class Sequence(BaseData):
 
     paired = Column(Boolean, index=True)
     partial = Column(Boolean, index=True)
+
     probable_indel_or_misalign = Column(Boolean, index=True)
+    deletions = Column(String(128), index=True) # POS:LENGTH[,POS:LENGTH ...]
+    insertions = Column(String(256), index=True) # POS:NTS[,POS:NTS ...]
 
     v_gene = Column(String(512), index=True)
     j_gene = Column(String(512), index=True)
