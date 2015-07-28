@@ -74,6 +74,8 @@ struct alignment {
     int seq1_gaps;
     int seq2_gaps;
     int score;
+    int max_i;
+    int max_j;
 };
 
 int max(int del, int ins, int match) {
@@ -92,16 +94,20 @@ int max(int del, int ins, int match) {
 int get_alignment(char *seq1, char *seq2, int insertion_penalty,
                   int deletion_penalty, int mismatch_penalty,
                   int extend_penalty, int match_score, int **p, int **q,
-                  struct alignment *a, int max_i, int max_j) {
+                  struct alignment *a) {
     int offset = 0;
-    int i = max_i;//strlen(seq1);
-    int j = max_j;//strlen(seq2);
+    int i = a->max_i;
+    int j = a->max_j;
 
     a->score = 0;
     char last1 = ' ';
     char last2 = ' ';
+    a->max_i = 0;
+    a->max_j = 0;
     while (i > 0 || j > 0) {
         if (i <= 0 || j <= 0) {
+            a->max_i = i;
+            a->max_j = j;
             break;
         }
         if (q[i][j] == MATCH) {
@@ -159,7 +165,7 @@ int align_seqs(char *seq1, char *seq2, int insertion_penalty,
     }
 
     int del, ins, match;
-    int max_p, max_i, max_j;
+    int max_p;
     for (int i = 1; i < l1 + 1; i++) {
         for (int j = 1; j < l2 + 1; j++) {
             del = p[i - 1][j] + deletion_penalty;
@@ -185,15 +191,15 @@ int align_seqs(char *seq1, char *seq2, int insertion_penalty,
 
             if (p[i][j] > max_p || (i == 1 && j == 1)) {
                 max_p = p[i][j];
-                max_i = i;
-                max_j = j;
+                a->max_i = i;
+                a->max_j = j;
             }
         }
     }
 
     int ret = get_alignment(seq1, seq2, insertion_penalty, deletion_penalty,
                             mismatch_penalty, extend_penalty, match_score, p,
-                            q, a, max_i, max_j);
+                            q, a);
 
     for (int i = 0; i < l1 + 1; i++) {
         free(p[i]);
@@ -232,8 +238,9 @@ static PyObject *dnautils_align(PyObject *self, PyObject *args) {
         return NULL;
     }
 
-    return Py_BuildValue("SSi", PyString_FromString(a.seq1),
-                         PyString_FromString(a.seq2), a.score);
+    return Py_BuildValue("SSiii", PyString_FromString(a.seq1),
+                         PyString_FromString(a.seq2), a.max_i, a.max_j,
+                         a.score);
 }
 
 static PyMethodDef DNAUtilsMethods[] = {
