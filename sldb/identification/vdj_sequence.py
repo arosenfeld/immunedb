@@ -49,16 +49,14 @@ class VDJSequence(object):
             self._find_v()
 
     def locally_align(self):
-        vs, germ, new_seq = local_align.align_v(self._seq, self.v_germlines)
+        self._v, self._germline, self._seq = local_align.align_v(
+                self._seq, self.v_germlines)
 
-        self._v = set(vs)
-        self._germline = germ[-CDR3_OFFSET:]
-        self._seq = new_seq[len(germ) - CDR3_OFFSET:]
         if self._quality is not None:
             self._quality = self._quality[len(germ) - CDR3_OFFSET:]
 
             for i, c in enumerate(self._germline):
-                if c == '-':
+                if c in ('-', '.'):
                     self._quality.insert(i, None)
 
         self._find_j(CDR3_OFFSET)
@@ -83,6 +81,13 @@ class VDJSequence(object):
         self._pre_cdr3_match = self._v_match
         self._post_cdr3_length = 0
         self._post_cdr3_match = 0
+
+        self._insertions = local_align.get_gap_differences(
+            self._germline, self._seq)
+        self._deletions = local_align.get_gap_differences(
+            self._seq, self._germline)
+        self._seq = self._seq.replace('.', '-')
+        self._germline = self._seq.replace('.', '-')
 
     @property
     def id(self):

@@ -9,18 +9,19 @@ def _find_cdr3_start(seq):
     for i, c in enumerate(seq):
         offset += 1 if c != '.' else 0
         if offset == CDR3_OFFSET:
-            return i
+            return i + 1
 
-def align_v(sequence, v_germlines):
+def align_v(sequence, v_germlines, insert_penalty=-100, delete_penalty=-30,
+            extend_penalty=-10, mismatch_penalty=-10, match_score=40):
     max_align = None
     max_v = None
     for name, germr in v_germlines.iteritems():
         germ = germr.sequence
         try:
             g, s, germ_omit, seq_omit, score = dnautils.align(
-                germ.replace('-', ''),
-                sequence.replace('-', ''),
-                -90, -30, -10, -10, 40)
+                germ.replace('-', ''), sequence.replace('-', ''),
+                insert_penalty, delete_penalty, extend_penalty,
+                mismatch_penalty, match_score)
             s = ''.join(reversed(s))
             g = ''.join(reversed(g))
         except Exception as e:
@@ -70,3 +71,11 @@ def align_v(sequence, v_germlines):
     seq_final = seq_final#.replace('.', '-')
 
     return map(lambda e: e[0], max_v), germ_final, seq_final
+
+def get_gap_differences(reference, seq):
+    diffs = []
+    for diff in re.finditer('[.]+', reference):
+        start, end = diff.span()
+        diffs.append((start, end, seq[start:end]))
+
+    return diffs
