@@ -79,24 +79,27 @@ struct alignment {
 int max(int del, int ins, int match) {
     int vals[3] = { del, ins, match };
     int max = vals[0];
-    int max_i = 0;
+    int max_type = 0;
     for (int i = 1; i < 3; i++) {
         if (vals[i] > max) {
             max = vals[i];
-            max_i = i;
+            max_type = i;
         }
     }
-    return max_i;
+    return max_type;
 }
 
 int get_alignment(char *seq1, char *seq2, int insertion_penalty,
-                  int deletion_penalty, int mismatch_penalty, int match_score,
-                  int **p, int **q, struct alignment *a) {
+                  int deletion_penalty, int mismatch_penalty,
+                  int extend_penalty, int match_score, int **p, int **q,
+                  struct alignment *a, int max_i, int max_j) {
     int offset = 0;
-    int i = strlen(seq1);
-    int j = strlen(seq2);
+    int i = max_i;//strlen(seq1);
+    int j = max_j;//strlen(seq2);
 
     a->score = 0;
+    char last1 = ' ';
+    char last2 = ' ';
     while (i > 0 || j > 0) {
         if (i <= 0 || j <= 0) {
             break;
@@ -106,20 +109,34 @@ int get_alignment(char *seq1, char *seq2, int insertion_penalty,
             j -= 1;
             a->seq1[offset] = seq1[i];
             a->seq2[offset] = seq2[j];
-            a->score += match_score;
+            if (seq1[offset] == seq2[offset]) {
+                a->score += match_score;
+            } else {
+                a->score += mismatch_penalty;
+            }
         } else if (q[i][j] == INSERTION) {
             j -= 1;
             a->seq1[offset] = '-';
             a->seq2[offset] = seq2[j];
-            a->score += insertion_penalty;
+            if (last1 == '-') {
+                a->score += extend_penalty;
+            } else {
+                a->score += insertion_penalty;
+            }
         } else if (q[i][j] == DELETION) {
             i -= 1;
             a->seq1[offset] = seq1[i];
             a->seq2[offset] = '-';
-            a->score += deletion_penalty;
+            if (last2 == '-') {
+                a->score += extend_penalty;
+            } else {
+                a->score += deletion_penalty;
+            }
         } else {
             return -1;
         }
+        last1 = a->seq1[offset];
+        last2 = a->seq2[offset];
         offset++;
     }
 
@@ -130,8 +147,8 @@ int get_alignment(char *seq1, char *seq2, int insertion_penalty,
 }
 
 int align_seqs(char *seq1, char *seq2, int insertion_penalty,
-               int deletion_penalty, int mismatch_penalty, int match_score,
-               struct alignment *a) {
+               int deletion_penalty, int mismatch_penalty, int extend_penalty,
+               int match_score, struct alignment *a) {
     int l1 = strlen(seq1);
     int l2 = strlen(seq2);
     int **p = malloc(sizeof(int *) * (l1 + 1));
@@ -142,6 +159,7 @@ int align_seqs(char *seq1, char *seq2, int insertion_penalty,
     }
 
     int del, ins, match;
+    int max_p, max_i, max_j;
     for (int i = 1; i < l1 + 1; i++) {
         for (int j = 1; j < l2 + 1; j++) {
             del = p[i - 1][j] + deletion_penalty;
@@ -155,20 +173,27 @@ int align_seqs(char *seq1, char *seq2, int insertion_penalty,
             } else {
                 match = p[i - 1][j - 1] + mismatch_penalty;
             }
-            int max_i = max(del, ins, match);
-            if (max_i == DELETION) {
+            int max_type = max(del, ins, match);
+            if (max_type == DELETION) {
                 p[i][j] = del;
-            } else if (max_i == INSERTION) {
+            } else if (max_type == INSERTION) {
                 p[i][j] = ins;
-            } else if (max_i == MATCH) {
+            } else if (max_type == MATCH) {
                 p[i][j] = match;
             }
-            q[i][j] = max_i;
+            q[i][j] = max_type;
+
+            if (p[i][j] > max_p || (i == 1 && j == 1)) {
+                max_p = p[i][j];
+                max_i = i;
+                max_j = j;
+            }
         }
     }
 
     int ret = get_alignment(seq1, seq2, insertion_penalty, deletion_penalty,
-                            mismatch_penalty, match_score, p, q, a);
+                            mismatch_penalty, extend_penalty, match_score, p,
+                            q, a, max_i, max_j);
 
     for (int i = 0; i < l1 + 1; i++) {
         free(p[i]);
@@ -183,14 +208,13 @@ int align_seqs(char *seq1, char *seq2, int insertion_penalty,
 static PyObject *dnautils_align(PyObject *self, PyObject *args) {
     PyObject *s1, *s2;
     char *str1, *str2;
-    int insertion_penalty = -20;
-    int deletion_penalty = -20;
-    int mismatch_penalty = -4;
-    int match_score = 1;
 
-    if (!PyArg_ParseTuple(args, "SS|iiii", &s1, &s2, &insertion_penalty,
-                          &deletion_penalty, &mismatch_penalty,
-                          &match_score)) {
+    int insertion_penalty, deletion_penalty, mismatch_penalty, extend_penalty,
+        match_score;
+
+    if (!PyArg_ParseTuple(args, "SSiiiii", &s1, &s2, &insertion_penalty,
+                          &deletion_penalty, &extend_penalty,
+                          &mismatch_penalty, &match_score)) {
         return NULL;
     }
 
@@ -203,7 +227,7 @@ static PyObject *dnautils_align(PyObject *self, PyObject *args) {
 
     struct alignment a;
     if (align_seqs(str1, str2, insertion_penalty, deletion_penalty,
-                   mismatch_penalty, match_score, &a) < 0) {
+                   mismatch_penalty, extend_penalty, match_score, &a) < 0) {
         PyErr_SetString(DNAUtilError, "Error aligning sequences.");
         return NULL;
     }

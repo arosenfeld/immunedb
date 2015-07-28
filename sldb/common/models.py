@@ -392,6 +392,7 @@ class Sequence(BaseData):
     partial = Column(Boolean, index=True)
 
     probable_indel_or_misalign = Column(Boolean, index=True)
+    indel_fixed = Column(Boolean, index=True)
     deletions = Column(String(128), index=True) # POS:LENGTH[,POS:LENGTH ...]
     insertions = Column(String(256), index=True) # POS:NTS[,POS:NTS ...]
 

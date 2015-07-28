@@ -8,8 +8,8 @@ def _find_cdr3_start(seq):
     offset = 0
     for i, c in enumerate(seq):
         offset += 1 if c != '.' else 0
-        if offset > CDR3_OFFSET:
-            return i
+        if offset == CDR3_OFFSET:
+            return i + 1
 
 def align_v(sequence, v_germlines):
     max_align = None
@@ -19,7 +19,7 @@ def align_v(sequence, v_germlines):
         try:
             g, s, score = dnautils.align(germ.replace('-', ''),
                                          sequence.replace('-', ''),
-                                         -20, -20, -20, 5)
+                                         -90, -30, -10, -10, 40)
             s = ''.join(reversed(s))
             g = ''.join(reversed(g))
         except Exception as e:
@@ -28,13 +28,14 @@ def align_v(sequence, v_germlines):
             if max_align is None or score > max_align['score']:
                 max_v = []
             max_v.append((name, g))
+            if len(germ) > len(g):
+                g = germ[:len(germ) - len(g)] + g
             max_align = {
                 'original_germ': germ,
                 'seq': s,
                 'germ': g,
                 'score': score
             }
-
     if max_align is None:
         raise AlignmentException('Could not locally align sequence.')
 
@@ -59,7 +60,7 @@ def align_v(sequence, v_germlines):
     seq_final = seq_final[offset:]
 
     end = _find_cdr3_start(germ_final)
-    germ_final = germ_final[:end].replace('.', '-')
-    seq_final = seq_final.replace('.', '-')
+    germ_final = germ_final[:end]#.replace('.', '-')
+    seq_final = seq_final#.replace('.', '-')
 
     return map(lambda e: e[0], max_v), germ_final, seq_final

@@ -17,7 +17,7 @@ class VDJSequence(object):
     INDEL_MISMATCH_THRESHOLD = .6
 
     def __init__(self, id, seq, v_germlines, j_germlines,
-                 force_vs=None, force_j=None, quality=None):
+                 force_vs=None, force_j=None, quality=None, skip_align=False):
         self._id = id
         self._seq = seq.upper()
         self.v_germlines = v_germlines
@@ -44,8 +44,9 @@ class VDJSequence(object):
         if not all(map(lambda c: c in 'ATCGN', self.sequence)):
             raise AlignmentException('Invalid characters in sequence.')
 
-        self._find_j()
-        self._find_v()
+        if not skip_align:
+            self._find_j()
+            self._find_v()
 
     def locally_align(self):
         vs, germ, new_seq = local_align.align_v(self._seq, self.v_germlines)
@@ -60,7 +61,7 @@ class VDJSequence(object):
                 if c == '-':
                     self._quality.insert(i, None)
 
-        self._find_j()
+        self._find_j(CDR3_OFFSET)
         self._cdr3_len = (
             self.j_anchor_pos + self.j_germlines.anchor_len -
              self.j_germlines.upstream_of_cdr3 - len(self._germline)
