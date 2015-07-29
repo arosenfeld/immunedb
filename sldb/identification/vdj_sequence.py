@@ -32,7 +32,7 @@ class VDJSequence(object):
         self._j_match = None
 
         self._v = None
-        self._v_anchor_pos = None
+        self._v_end = None
         self._v_match = None
 
         self._mutation_frac = None
@@ -40,6 +40,10 @@ class VDJSequence(object):
         self._cdr3_len = 0
 
         self._possible_indel = False
+        self._regions = [78, 36, 51, 30, 114]
+
+        self.insertions = None
+        self.deletions = None
 
         if not all(map(lambda c: c in 'ATCGN', self.sequence)):
             raise AlignmentException('Invalid characters in sequence.')
@@ -49,7 +53,7 @@ class VDJSequence(object):
             self._find_v()
 
     def locally_align(self):
-        self._v, self._germline, self._seq = local_align.align_v(
+        self._v, self._germline, self._seq, self._v_length = local_align.align_v(
                 self._seq, self.v_germlines)
 
         if self._quality is not None:
@@ -60,38 +64,36 @@ class VDJSequence(object):
                     self._quality.insert(i, None)
 
         self._find_j(CDR3_OFFSET)
-        self._cdr3_len = (
-            self.j_anchor_pos + self.j_germlines.anchor_len -
-             self.j_germlines.upstream_of_cdr3 - len(self._germline)
-        )
-        self._germline += ('-' * self._cdr3_len)
+        # TODO: Add padding for partials
+        self._pad_len = 0
+        if self._v_length is None:
+            raise AlignmentException('Germline was too small.')
 
-        j_germ = get_common_seq(
-            map(reversed,
-                [self.j_germlines[j][-self.j_germlines.upstream_of_cdr3:]
-                    for j in self.j_gene]))
-        self._germline += ''.join(
-            reversed(j_germ[-self.j_germlines.upstream_of_cdr3:]))
+        self._v_end = self._v_length + self._pad_len
+        self.calculate_stats()
 
-        # TODO: These are not correct
-        self._v_length = CDR3_OFFSET
-        self._v_match = dnautils.hamming(self._germline[:CDR3_OFFSET],
-                                         self._seq[:CDR3_OFFSET])
-        self._pre_cdr3_length = self._v_length
-        self._pre_cdr3_match = self._v_match
-        self._post_cdr3_length = 0
-        self._post_cdr3_match = 0
-
-        self._insertions = local_align.get_gap_differences(
+        self.insertions = local_align.get_gap_differences(
             self._germline, self._seq)
-        self._deletions = local_align.get_gap_differences(
+        self.deletions = local_align.get_gap_differences(
             self._seq, self._germline)
+
+        offset = 0
+        for i, region_size in enumerate(self._regions):
+            for (start, size) in self.insertions:
+                if offset <= start < offset + region_size:
+                    self._regions[i] += len(nts)
+            offset += region_size
+
         self._seq = self._seq.replace('.', '-')
-        self._germline = self._seq.replace('.', '-')
+        self._germline = self._germline.replace('.', '-')
 
     @property
     def id(self):
         return self._id
+
+    @property
+    def regions(self):
+        return '.'.join(map(str, self._regions))
 
     @property
     def quality(self):
@@ -118,12 +120,8 @@ class VDJSequence(object):
         return self._j_anchor_pos
 
     @property
-    def v_anchor_pos(self):
-        return self._v_anchor_pos
-
-    @property
     def cdr3(self):
-        return self.sequence[CDR3_OFFSET:CDR3_OFFSET + self._cdr3_len]
+        return self.sequence[self._v_end:self._v_end + self._cdr3_len]
 
     @property
     def partial(self):
@@ -147,7 +145,7 @@ class VDJSequence(object):
 
     @property
     def num_gaps(self):
-        return self.sequence[:CDR3_OFFSET].count('-')
+        return self.sequence[:self._v_end].count('-')
 
     @property
     def pad_length(self):
@@ -155,7 +153,7 @@ class VDJSequence(object):
 
     @property
     def in_frame(self):
-        return len(self.cdr3) % 3 == 0
+        return len(self.cdr3) % 3 and self._v_end % 3 == 0
 
     @property
     def stop(self):
@@ -277,7 +275,7 @@ class VDJSequence(object):
         self._j_length = len(j_full)
 
     def _find_v(self):
-        for self._v_anchor_pos in find_v_position(self.sequence):
+        for self._v_end in find_v_position(self.sequence):
             self._found_v()
             if self._v is not None:
                 break
@@ -314,7 +312,7 @@ class VDJSequence(object):
 
         if self._v is not None:
             # Determine the pad length
-            self._pad_len = self._germ_pos - self.v_anchor_pos
+            self._pad_len = self._germ_pos - self._v_end
             # Mutation ratio is the distance divided by the length of overlap
             self._mutation_frac = self._v_score / float(self._v_length)
 
@@ -325,8 +323,7 @@ class VDJSequence(object):
         self._germline = get_common_seq(
             [self.v_germlines[v].sequence for v in self._v]
         )[:CDR3_OFFSET]
-        self._pad_len = (len(self._germline.replace('-', '')) -
-                         self.v_anchor_pos)
+        self._pad_len = len(self._germline.replace('-', '')) - self._v_end
         # If we need to pad the sequence, do so, otherwise trim the sequence to
         # the germline length
         if self._pad_len >= 0:
@@ -339,7 +336,7 @@ class VDJSequence(object):
                 self._quality = self._quality[-self._pad_len:]
         # Update the anchor positions after adding padding / trimming
         self._j_anchor_pos += self._pad_len
-        self._v_anchor_pos += self._pad_len
+        self._v_end += self._pad_len
 
         # Add germline gaps to sequence before CDR3 and update anchor positions
         for i, c in enumerate(self._germline):
@@ -348,15 +345,18 @@ class VDJSequence(object):
                 if self._quality is not None:
                     self._quality.insert(i, None)
                 self._j_anchor_pos += 1
-                self._v_anchor_pos += 1
+                self._v_end += 1
 
+        self.calculate_stats()
+
+    def calculate_stats(self):
         j_germ = get_common_seq(
             map(reversed, [self.j_germlines[j] for j in self.j_gene]))
         j_germ = ''.join(reversed(j_germ))
         # Calculate the length of the CDR3
         self._cdr3_len = (
             self.j_anchor_pos + self.j_germlines.anchor_len -
-             self.j_germlines.upstream_of_cdr3 - self.v_anchor_pos
+             self.j_germlines.upstream_of_cdr3 - self._v_end
         )
 
         if self._cdr3_len <= 0:
@@ -383,8 +383,8 @@ class VDJSequence(object):
             self._possible_indel = True
 
         # Get the pre-CDR3 germline and sequence stripped of gaps
-        pre_cdr3_germ = self.germline[:CDR3_OFFSET].replace('-', '')
-        pre_cdr3_seq = self.sequence[:CDR3_OFFSET].replace('-', '')
+        pre_cdr3_germ = self.germline[:self._v_end].replace('-', '')
+        pre_cdr3_seq = self.sequence[:self._v_end].replace('-', '')
         # If there is padding, get rid of it in the sequence and align the
         # germline
         if self._pad_len > 0:
@@ -400,16 +400,15 @@ class VDJSequence(object):
         self._post_cdr3_length = self.j_germlines.upstream_of_cdr3
         # Get the sequence and germline sequences after CDR3
         post_j = j_germ[-self.post_cdr3_length:]
-        post_s = self.sequence[CDR3_OFFSET+len(self.cdr3):]
+        post_s = self.sequence[self._v_end+len(self.cdr3):]
 
         # Calculate their match count
         self._post_cdr3_match = self.post_cdr3_length - dnautils.hamming(
             post_j, post_s)
 
-        # Updaself.sequence[:CDR3_OFFSET]te the V and J matches after ties
         self._v_match = self.v_length - dnautils.hamming(
-            self.germline[:CDR3_OFFSET],
-            self.sequence[:CDR3_OFFSET]
+            self.germline[:self._v_end],
+            self.sequence[:self._v_end]
         )
 
         self._j_match = self.j_length - dnautils.hamming(
@@ -425,8 +424,8 @@ class VDJSequence(object):
             return True
 
         start = re.search('[ATCG]', self.sequence).start()
-        germ = self.germline[start:CDR3_OFFSET]
-        seq = self.sequence[start:CDR3_OFFSET]
+        germ = self.germline[start:self._v_end]
+        seq = self.sequence[start:self._v_end]
 
         for i in range(0, len(germ) - self.INDEL_WINDOW + 1):
             dist = dnautils.hamming(germ[i:i+self.INDEL_WINDOW],

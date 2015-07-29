@@ -67,15 +67,15 @@ def align_v(sequence, v_germlines, insert_penalty=-100, delete_penalty=-30,
     seq_final = seq_final[offset:]
 
     end = _find_cdr3_start(germ_final)
-    germ_final = germ_final[:end]#.replace('.', '-')
-    seq_final = seq_final#.replace('.', '-')
+    germ_final = germ_final[:end]
+    seq_final = seq_final
 
-    return map(lambda e: e[0], max_v), germ_final, seq_final
+    return map(lambda e: e[0], max_v), germ_final, seq_final, end
 
 def get_gap_differences(reference, seq):
     diffs = []
     for diff in re.finditer('[.]+', reference):
         start, end = diff.span()
-        diffs.append((start, end, seq[start:end]))
+        diffs.append((start, end - start))
 
     return diffs

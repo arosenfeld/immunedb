@@ -64,7 +64,7 @@ class SequenceRecord(object):
         except ValueError as ex:
             pass
 
-    def add_as_sequence(self, session, sample, meta):
+    def add_as_sequence(self, session, sample, paired):
         existing = session.query(Sequence).filter(
             Sequence.sample_seq_hash == HashExtension.hash_fields(
                 (sample.id, self.vdj.sequence))
@@ -86,9 +86,13 @@ class SequenceRecord(object):
                 seq_id=self.vdj.id,
                 sample_id=sample.id,
 
-                paired=meta.get('paired'),
+                paired=paired,
                 partial=self.vdj.partial,
+
                 probable_indel_or_misalign=self.vdj.has_possible_indel,
+                regions=self.vdj.regions,
+                deletions=self.vdj.deletions,
+                insertions=self.vdj.insertions,
 
                 v_gene=funcs.format_ties(self.vdj.v_gene, 'IGHV'),
                 j_gene=funcs.format_ties(self.vdj.j_gene, 'IGHJ'),
@@ -191,7 +195,8 @@ class IdentificationWorker(concurrent.Worker):
         for record in funcs.periodic_commit(self._session, sequences.values()):
             try:
                 self._realign_sequence(record.vdj, avg_len, avg_mut)
-                record.add_as_sequence(self._session, sample, meta)
+                record.add_as_sequence(self._session, sample,
+                                       meta.get('paired'))
             except AlignmentException:
                 record.add_as_noresult(self._session, sample)
             except:
