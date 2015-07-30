@@ -212,7 +212,9 @@ def get_clone(session, clone_id, sample_ids, thresholds=None):
     result = {
         'clone': _clone_to_dict(clone),
         'quality': [],
-        'seqs': []
+        'seqs': [],
+        # TODO: Fix this for clones with indels
+        'region_boundaries': [77, 113, 164, 194, 308, 347, 378]
     }
 
     start_ptrn = re.compile('[N\-]*')
@@ -379,23 +381,20 @@ def get_clone_overlap(session, filter_type, ctype, limit,
             desc(CloneStats.total_cnt)
         )
         for stat in query:
-            data = {
-                'id': stat.sample_id,
-                'name': stat.sample.name,
-                'unique_sequences': stat.unique_cnt,
-                'total_sequences': stat.total_cnt
-            }
+            sample_str = '{} ({} unique / {} total)'.format(
+                stat.sample.name, stat.unique_cnt, stat.total_cnt
+            )
             if ctype == 'subject' or stat.sample_id in limit:
-                selected_samples.append(data)
+                selected_samples.append(sample_str)
             else:
-                other_samples.append(data)
+                other_samples.append(sample_str)
 
         res.append({
             'unique_sequences': int(clone.unique_cnt),
             'total_sequences': int(clone.total_cnt),
             'clone': _clone_to_dict(clone.Clone),
-            'selected_samples': selected_samples,
-            'other_samples': other_samples,
+            'selected_samples': ' '.join(selected_samples),
+            'other_samples': ''.join(other_samples),
         })
 
     if paging:

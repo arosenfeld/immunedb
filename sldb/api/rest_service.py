@@ -255,7 +255,8 @@ def clone_overlap(filter_type, samples=None, subject=None):
         }
         writer = NestedCSVWriter([
             'total_sequences', 'unique_sequences', 'clone_id', 'clone_v',
-            'clone_j', 'clone_cdr3_aa', 'clone_cdr3_num_nts', 'clone_subject'
+            'clone_j', 'clone_cdr3_aa', 'clone_cdr3_num_nts', 'clone_subject',
+            'selected_samples', 'other_samples'
         ], mapping=csv_mapping, streaming=True)
 
         name = 'overlap_{}.csv'.format(
