@@ -1,8 +1,11 @@
 import dnautils
 import re
 from sldb.identification import AlignmentException
-from sldb.identification.v_genes import get_common_seq
-from sldb.common.models import CDR3_OFFSET
+from sldb.identification.identify import SequenceRecord
+from sldb.identification.j_genes import JGermlines
+from sldb.identification.v_genes import get_common_seq, VGermlines
+from sldb.identification.vdj_sequence import VDJSequence
+from sldb.common.models import CDR3_OFFSET, DuplicateSequence, Sequence
 
 def _find_cdr3_start(seq):
     offset = 0
@@ -72,10 +75,43 @@ def align_v(sequence, v_germlines, insert_penalty=-100, delete_penalty=-30,
 
     return map(lambda e: e[0], max_v), germ_final, seq_final, end
 
-def get_gap_differences(reference, seq):
-    diffs = []
-    for diff in re.finditer('[.]+', reference):
-        start, end = diff.span()
-        diffs.append((start, end - start))
 
-    return diffs
+def run_fix_indels(session, args):
+    v_germlines = VGermlines(args.v_germlines)
+    j_germlines = JGermlines(args.j_germlines, args.upstream_of_cdr3,
+                             args.anchor_len, args.min_anchor_len)
+
+    indels = session.query(Sequence).filter(
+        Sequence.probable_indel_or_misalign == 1)
+    total = indels.count()
+    fixed = 0
+
+    for i, seq in enumerate(indels):
+        quality = seq.quality
+        if quality is not None:
+            quality = seq.quality.replace(' ', '')
+            quality = map(lambda q: ord(q) - 33, quality)
+
+        v = VDJSequence(seq.seq_id, seq.sequence.replace('-', ''), v_germlines,
+                        j_germlines, quality, skip_align=True)
+        try:
+            v.locally_align(align_v(seq.sequence.replace('-', ''),
+                                    v_germlines))
+            if not v.has_possible_indel:
+                fixed += 1
+                r = SequenceRecord(seq.sequence.replace('-', ''), seq.sample)
+                r.seq_ids = map(lambda e: e.seq_id, session.query(
+                    DuplicateSequence.seq_id
+                ).filter(
+                    DuplicateSequence.duplicate_seq_id == seq.seq_id
+                ).all())
+                r.seq_ids.append(v.id)
+                r.vdj = v
+                session.delete(seq)
+                r.add_as_sequence(session, seq.sample, seq.paired)
+        except AlignmentException as e:
+            pass
+        if i > 0 and i % 10 == 0:
+            print 'Aligned {}/{} (fixed {}, {}%)'.format(
+                i, total, fixed, round(100 * fixed / i))
+    session.commit()

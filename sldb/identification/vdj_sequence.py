@@ -8,7 +8,15 @@ from sldb.common.models import CDR3_OFFSET
 from sldb.util.funcs import find_streak_position
 from sldb.identification import AlignmentException
 from sldb.identification.v_genes import VGene, get_common_seq, find_v_position
-import sldb.identification.local_align as local_align
+
+
+def get_gap_differences(reference, seq):
+    diffs = []
+    for diff in re.finditer('[.]+', reference):
+        start, end = diff.span()
+        diffs.append((start, end - start))
+
+    return diffs
 
 
 class VDJSequence(object):
@@ -52,16 +60,8 @@ class VDJSequence(object):
             self._find_j()
             self._find_v()
 
-    def locally_align(self):
-        self._v, self._germline, self._seq, self._v_length = local_align.align_v(
-                self._seq, self.v_germlines)
-
-        if self._quality is not None:
-            self._quality = self._quality[len(germ) - CDR3_OFFSET:]
-
-            for i, c in enumerate(self._germline):
-                if c in ('-', '.'):
-                    self._quality.insert(i, None)
+    def locally_align(self, alignment, avg_mut, avg_len):
+        self._v, self._germline, self._seq, self._v_length = alignment
 
         self._find_j(CDR3_OFFSET)
         # TODO: Add padding for partials
@@ -70,22 +70,50 @@ class VDJSequence(object):
             raise AlignmentException('Germline was too small.')
 
         self._v_end = self._v_length + self._pad_len
-        self.calculate_stats()
 
-        self.insertions = local_align.get_gap_differences(
-            self._germline, self._seq)
-        self.deletions = local_align.get_gap_differences(
-            self._seq, self._germline)
+        self.insertions = get_gap_differences(self._germline, self._seq)
+        self.deletions = get_gap_differences(self._seq, self._germline)
+
+        self._v = self.v_germlines.get_ties(self.v_gene, avg_len, avg_mut)
+        common_v = get_common_seq(
+            [self.v_germlines[v].sequence for v in self._v]
+        )[:CDR3_OFFSET]
+
+        for (start, size) in self.insertions:
+            common_v = ''.join([
+                common_v[:start],
+                '.' * size,
+                common_v[start:]
+            ])
+
+        common_v = common_v.replace('-', '')
+        for gap in re.finditer('[-]+', self._germline):
+            start, end = gap.span()
+            common_v = ''.join([
+                common_v[:start],
+                '-' * (end - start),
+                common_v[start:]
+            ])
+        self._germline = common_v
+        self.calculate_stats()
 
         offset = 0
         for i, region_size in enumerate(self._regions):
             for (start, size) in self.insertions:
                 if offset <= start < offset + region_size:
-                    self._regions[i] += len(nts)
+                    self._regions[i] += size
             offset += region_size
 
         self._seq = self._seq.replace('.', '-')
         self._germline = self._germline.replace('.', '-')
+
+        if self._quality is not None:
+            self._quality = self._quality[len(germ) - CDR3_OFFSET:]
+
+            for i, c in enumerate(self._seq):
+                if c in ('-', '.'):
+                    self._quality.insert(i, None)
+
 
     @property
     def id(self):
@@ -93,7 +121,7 @@ class VDJSequence(object):
 
     @property
     def regions(self):
-        return '.'.join(map(str, self._regions))
+        return self._regions
 
     @property
     def quality(self):
@@ -383,8 +411,8 @@ class VDJSequence(object):
             self._possible_indel = True
 
         # Get the pre-CDR3 germline and sequence stripped of gaps
-        pre_cdr3_germ = self.germline[:self._v_end].replace('-', '')
-        pre_cdr3_seq = self.sequence[:self._v_end].replace('-', '')
+        pre_cdr3_germ = self.germline[:self._v_end]
+        pre_cdr3_seq = self.sequence[:self._v_end]
         # If there is padding, get rid of it in the sequence and align the
         # germline
         if self._pad_len > 0:

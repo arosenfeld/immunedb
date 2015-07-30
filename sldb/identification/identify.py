@@ -90,9 +90,9 @@ class SequenceRecord(object):
                 partial=self.vdj.partial,
 
                 probable_indel_or_misalign=self.vdj.has_possible_indel,
-                regions=self.vdj.regions,
-                deletions=self.vdj.deletions,
-                insertions=self.vdj.insertions,
+                regions='.'.join(map(str, self.vdj.regions)),
+                deletions=self._format_gaps(self.vdj.deletions),
+                insertions=self._format_gaps(self.vdj.insertions),
 
                 v_gene=funcs.format_ties(self.vdj.v_gene, 'IGHV'),
                 j_gene=funcs.format_ties(self.vdj.j_gene, 'IGHJ'),
@@ -125,6 +125,13 @@ class SequenceRecord(object):
                 germline=self.vdj.germline))
         except ValueError as ex:
             self.add_as_noresult(session, sample)
+
+    def _format_gaps(self, gaps):
+        if gaps is None:
+            return None
+        return ','.join(
+            ['{}-{}'.format(start, end) for (start, end) in gaps]
+        )
 
 
 class IdentificationWorker(concurrent.Worker):
