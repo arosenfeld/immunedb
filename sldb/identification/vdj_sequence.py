@@ -181,7 +181,7 @@ class VDJSequence(object):
 
     @property
     def in_frame(self):
-        return len(self.cdr3) % 3 and self._v_end % 3 == 0
+        return len(self.cdr3) % 3 == 0 and self._v_end % 3 == 0
 
     @property
     def stop(self):
