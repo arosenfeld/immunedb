@@ -144,8 +144,7 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
                 elif key == 'id':
                     clone_q = clone_q.filter(Clone.id == int(value))
                 else:
-                    clone_q = clone_q.filter(getattr(Clone, key).like(
-                        value.replace('*', '%')))
+                    clone_q = clone_q.filter(getattr(Clone, key).like(value))
 
     order_field = get_field(order_field)
 
@@ -667,8 +666,7 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
                 elif key == 'collapsed':
                     query = query.filter(copy_number_field > 0)
                 else:
-                    query = query.filter(get_field(key).like(
-                        value.replace('*', '%')))
+                    query = query.filter(get_field(key).like(value))
 
     if (filters is None or
             'show_partials' not in filters or

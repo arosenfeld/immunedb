@@ -104,11 +104,15 @@ class Sample(BaseMaster):
     subject_id = Column(Integer, ForeignKey(Subject.id), index=True)
     subject = relationship(Subject, backref=backref('samples',
                            order_by=(id)))
+
     subset = Column(String(128))
     tissue = Column(String(16))
+    site = Column(String(16))
     disease = Column(String(32))
     lab = Column(String(128))
     experimenter = Column(String(128))
+
+    library = Column(Integer, server_default='1', nullable=False)
 
 
 class SampleStats(BaseData):

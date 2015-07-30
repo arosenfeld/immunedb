@@ -1,5 +1,8 @@
 import dnautils
 import re
+
+from sqlalchemy import func
+
 from sldb.identification import AlignmentException
 from sldb.identification.identify import SequenceRecord
 from sldb.identification.j_genes import JGermlines
@@ -14,7 +17,7 @@ def _find_cdr3_start(seq):
         if offset == CDR3_OFFSET:
             return i + 1
 
-def align_v(sequence, v_germlines, insert_penalty=-100, delete_penalty=-30,
+def align_v(sequence, v_germlines, insert_penalty=-30, delete_penalty=-30,
             extend_penalty=-10, mismatch_penalty=-10, match_score=40):
     max_align = None
     max_v = None
@@ -95,8 +98,12 @@ def run_fix_indels(session, args):
         v = VDJSequence(seq.seq_id, seq.sequence.replace('-', ''), v_germlines,
                         j_germlines, quality, skip_align=True)
         try:
+            avg_mut, avg_len = session.query(
+                1 - func.avg(Sequence.v_match / Sequence.v_length),
+                func.avg(Sequence.v_length)
+            ).filter(Sequence.sample == seq.sample).first()
             v.locally_align(align_v(seq.sequence.replace('-', ''),
-                                    v_germlines))
+                                    v_germlines), avg_mut, avg_len)
             if not v.has_possible_indel:
                 fixed += 1
                 r = SequenceRecord(seq.sequence.replace('-', ''), seq.sample)
