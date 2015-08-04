@@ -22,6 +22,7 @@ import sldb.util.concurrent as concurrent
 import sldb.util.funcs as funcs
 import sldb.util.lookups as lookups
 
+
 class SampleMetadata(object):
     def __init__(self, specific_config, global_config=None):
         self._specific = specific_config
@@ -116,7 +117,7 @@ class SequenceRecord(object):
                 copy_number=len(self.seq_ids),
 
                 cdr3_nt=self.vdj.cdr3,
-                cdr3_num_nts = len(self.vdj.cdr3),
+                cdr3_num_nts=len(self.vdj.cdr3),
                 cdr3_aa=lookups.aas_from_nts(self.vdj.cdr3),
 
                 sequence=str(self.vdj.sequence),
@@ -136,7 +137,7 @@ class SequenceRecord(object):
 
 class IdentificationWorker(concurrent.Worker):
     def __init__(self, session, v_germlines, j_germlines, max_vties,
-            min_similarity, sync_lock):
+                 min_similarity, sync_lock):
         self._session = session
         self._v_germlines = v_germlines
         self._j_germlines = j_germlines
@@ -188,7 +189,7 @@ class IdentificationWorker(concurrent.Worker):
             except:
                 self._print('\tUnexpected error processing sequence '
                             '{}\n\t{}'.format(record.seq_ids[0],
-                                            traceback.format_exc()))
+                                              traceback.format_exc()))
 
         if len(sequences) > 0:
             avg_len = sum(
@@ -199,8 +200,8 @@ class IdentificationWorker(concurrent.Worker):
             ) / float(len(sequences))
 
             self._print('\tRe-aligning to V-ties, Mutations={},'
-                        'Length={}'.format(round(avg_mut, 2), round(avg_len,
-                            2)))
+                        'Length={}'.format(
+                            round(avg_mut, 2), round(avg_len, 2)))
             for record in funcs.periodic_commit(self._session,
                                                 sequences.values()):
                 try:
@@ -212,7 +213,7 @@ class IdentificationWorker(concurrent.Worker):
                 except:
                     self._print('\tUnexpected error processing sequence '
                                 '{}\n\t{}'.format(record.seq_ids[0],
-                                                traceback.format_exc()))
+                                                  traceback.format_exc()))
         self._session.commit()
         self._print('Completed sample {}'.format(sample.name))
 
@@ -250,8 +251,8 @@ class IdentificationWorker(concurrent.Worker):
 
     def _realign_sequence(self, vdj, avg_len, avg_mut):
         vdj.align_to_germline(avg_len, avg_mut)
-        if (vdj.v_match / float(vdj.v_length) < self._min_similarity
-                or len(vdj.v_gene) > self._max_vties):
+        if (vdj.v_match / float(vdj.v_length) < self._min_similarity or
+                len(vdj.v_gene) > self._max_vties):
             raise AlignmentException('V-match too low or too many V-ties')
 
 

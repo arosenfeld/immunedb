@@ -1,1 +1,2 @@
-class AlignmentException(Exception): pass
+class AlignmentException(Exception):
+    pass

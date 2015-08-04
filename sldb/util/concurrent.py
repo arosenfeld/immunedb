@@ -13,6 +13,7 @@ class Worker(object):
     def cleanup(self):
         pass
 
+
 class TaskQueue(object):
     def __init__(self):
         self._task_queue = mp.JoinableQueue()

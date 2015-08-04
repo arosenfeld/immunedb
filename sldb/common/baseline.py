@@ -94,7 +94,8 @@ def _make_input_file(session, input_path, clone, samples,
             # Iterate over each sequence and increment the count for each
             # mutation in the counter
             for seq in seqs:
-                removes.update({(i, seq.sequence[i]): 1 for i in
+                removes.update({
+                    (i, seq.sequence[i]): 1 for i in
                     map(int, json.loads(seq.mutations_from_clone).keys())
                 })
 

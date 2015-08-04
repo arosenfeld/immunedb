@@ -10,12 +10,14 @@ from sldb.identification.v_genes import get_common_seq, VGermlines
 from sldb.identification.vdj_sequence import VDJSequence
 from sldb.common.models import CDR3_OFFSET, DuplicateSequence, Sequence
 
+
 def _find_cdr3_start(seq):
     offset = 0
     for i, c in enumerate(seq):
         offset += 1 if c != '.' else 0
         if offset == CDR3_OFFSET:
             return i + 1
+
 
 def align_v(sequence, v_germlines, insert_penalty=-30, delete_penalty=-30,
             extend_penalty=-10, mismatch_penalty=-10, match_score=40):

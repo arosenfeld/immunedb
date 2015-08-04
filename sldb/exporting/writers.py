@@ -1,6 +1,7 @@
 from sldb.common.models import Sequence
 from sldb.util.nested_writer import NestedCSVWriter
 
+
 class SequenceWriter(object):
     def __init__(self):
         self._required_fields = []
@@ -41,13 +42,16 @@ class FASTAWriter(SequenceWriter):
         )
 
     def _get_header(self, metadata):
-        fields =  {k: v for k, v in metadata.iteritems() if k in
-            self._selected_fields}
+        fields = {k: v for k, v in metadata.iteritems() if k in
+                  self._selected_fields}
+        for field in self._required_fields:
+            if field in fields:
+                del fields[field]
         return ''.join([
             metadata['seq_id'],
             '|' if len(fields) > 0 else '',
             '|'.join(map(lambda (k, v): '{}={}'.format(k, v),
-                fields.iteritems()))
+                     fields.iteritems()))
         ])
 
 

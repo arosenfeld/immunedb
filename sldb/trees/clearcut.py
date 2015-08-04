@@ -87,8 +87,8 @@ class ClearcutWorker(concurrent.Worker):
 
         remove_muts = set([])
         for mut, cnts in mut_counts.iteritems():
-            if (cnts['count'] < self._min_count
-                    or len(cnts['samples']) < self._min_samples):
+            if (cnts['count'] < self._min_count or
+                    len(cnts['samples']) < self._min_samples):
                 remove_muts.add(mut)
 
         for seq_id, seq in seqs.iteritems():

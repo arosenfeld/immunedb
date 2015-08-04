@@ -63,4 +63,3 @@ class Exporter(object):
                 model, '{}_id'.format(self.rtype)
             ).in_(self.rids),
         )
-

@@ -1,5 +1,6 @@
 from Bio import SeqIO
 
+
 class JGermlines(dict):
     def __init__(self, path_to_germlines, upstream_of_cdr3, anchor_len,
                  min_anchor_len):
@@ -14,7 +15,7 @@ class JGermlines(dict):
                     self[record.id] = str(record.seq).upper()
 
         self._anchors = {name: seq[-anchor_len:] for name, seq in
-            self.iteritems()}
+                         self.iteritems()}
 
     @property
     def upstream_of_cdr3(self):
