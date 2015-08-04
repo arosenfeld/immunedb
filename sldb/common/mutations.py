@@ -142,12 +142,12 @@ class CloneMutations(object):
                 Sequence.clone == self._clone
                 ).all()
             )
-            sample_ids.append(0)
+            sample_ids.append(None)
 
         for sample_id in sample_ids:
             seqs = self._session.query(Sequence).filter(
                 Sequence.clone == self._clone)
-            if sample_id == 0:
+            if sample_id is None:
                 seqs = seqs.filter(
                     Sequence.copy_number_in_subject > 0
                 )
