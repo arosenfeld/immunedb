@@ -114,7 +114,6 @@ class VDJSequence(object):
                 if c in ('-', '.'):
                     self._quality.insert(i, None)
 
-
     @property
     def id(self):
         return self._id
@@ -265,8 +264,8 @@ class VDJSequence(object):
             self._j_anchor_pos + self.j_germlines.anchor_len -
             self.j_germlines.upstream_of_cdr3
         )
-        sequence_in_cdr3 = self.sequence[cdr3_end_pos - len(germline_in_cdr3)
-            :cdr3_end_pos]
+        sequence_in_cdr3 = self.sequence[cdr3_end_pos - len(germline_in_cdr3):
+                                         cdr3_end_pos]
         if len(germline_in_cdr3) == 0 or len(sequence_in_cdr3) == 0:
             self._j = None
             raise AlignmentException('Could not find sequence or germline in '
@@ -384,7 +383,7 @@ class VDJSequence(object):
         # Calculate the length of the CDR3
         self._cdr3_len = (
             self.j_anchor_pos + self.j_germlines.anchor_len -
-             self.j_germlines.upstream_of_cdr3 - self._v_end
+            self.j_germlines.upstream_of_cdr3 - self._v_end
         )
 
         if self._cdr3_len <= 0:

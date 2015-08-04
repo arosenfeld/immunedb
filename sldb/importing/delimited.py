@@ -147,9 +147,9 @@ class DelimitedImporter(object):
         seq = 'N' * pad_length + seq[pad_length:]
 
         vs = [g if g.startswith('IGHV') else 'IGHV{}'.format(g)
-                for g in self._get_value('v_gene', row).split('|')]
+              for g in self._get_value('v_gene', row).split('|')]
         js = [g if g.startswith('IGHJ') else 'IGHJ{}'.format(g)
-                for g in self._get_value('j_gene', row).split('|')]
+              for g in self._get_value('j_gene', row).split('|')]
 
         v_germline = get_common_seq(
             [self._v_germlines[v] for v in vs])[:CDR3_OFFSET]

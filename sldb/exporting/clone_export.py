@@ -64,6 +64,6 @@ class CloneExport(Exporter):
         ).first())
 
         total_row = {k: v for k, v in stats.iteritems()
-            if k in self._total_row_fields}
+                     if k in self._total_row_fields}
         total_row['sample_name'] = 'Total'
         return total_row

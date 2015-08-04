@@ -3,6 +3,7 @@ from sldb.common.models import CloneStats
 from sldb.common.mutations import threshold_mutations
 from sldb.util.nested_writer import NestedCSVWriter
 
+
 class MutationExporter(object):
     def __init__(self, session, clone_ids, limit_sample_ids, thresh_type,
                  thresh_value):

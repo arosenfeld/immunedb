@@ -381,20 +381,23 @@ def get_clone_overlap(session, filter_type, ctype, limit,
             desc(CloneStats.total_cnt)
         )
         for stat in query:
-            sample_str = '{} ({} unique / {} total)'.format(
-                stat.sample.name, stat.unique_cnt, stat.total_cnt
-            )
+            data = {
+                'id': stat.sample_id,
+                'name': stat.sample.name,
+                'unique_sequences': stat.unique_cnt,
+                'total_sequences': stat.total_cnt
+            }
             if ctype == 'subject' or stat.sample_id in limit:
-                selected_samples.append(sample_str)
+                selected_samples.append(data)
             else:
-                other_samples.append(sample_str)
+                other_samples.append(data)
 
         res.append({
             'unique_sequences': int(clone.unique_cnt),
             'total_sequences': int(clone.total_cnt),
             'clone': _clone_to_dict(clone.Clone),
-            'selected_samples': ' '.join(selected_samples),
-            'other_samples': ''.join(other_samples),
+            'selected_samples': selected_samples,
+            'other_samples': other_samples,
         })
 
     if paging:

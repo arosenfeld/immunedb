@@ -397,8 +397,8 @@ class Sequence(BaseData):
 
     probable_indel_or_misalign = Column(Boolean, index=True)
     regions = Column(String(25))
-    deletions = Column(String(128), index=True) # POS:LENGTH[,POS:LENGTH ...]
-    insertions = Column(String(256), index=True) # POS:NTS[,POS:NTS ...]
+    deletions = Column(String(128), index=True)   # POS:LENGTH[,POS:LENGTH ...]
+    insertions = Column(String(256), index=True)  # POS:NTS[,POS:NTS ...]
 
     v_gene = Column(String(512), index=True)
     j_gene = Column(String(512), index=True)
@@ -459,6 +459,7 @@ class Sequence(BaseData):
         boundaries.append(cdr3_end - 1)
         boundaries.append(len(self.sequence) - 1)
         return boundaries
+
 
 class DuplicateSequence(BaseData):
     """A sequence which is a duplicate of a :py:class:`Sequence`.  This is
@@ -540,6 +541,7 @@ class ModificationLog(BaseData):
     action_type = Column(String(length=128))
     info = Column(String(length=1024))
 
+
 def check_string_length(cls, key, inst):
     prop = inst.prop
     # Only interested in simple columns, not relations
@@ -548,6 +550,7 @@ def check_string_length(cls, key, inst):
         # if we have string column with a length, install a length validator
         if isinstance(col.type, String) and col.type.length:
             max_length = col.type.length
+
             def set_(instance, value, oldvalue, initiator):
                 if value is not None and len(value) > max_length:
                     raise ValueError('Length {} exceeds allowed {}'.format(

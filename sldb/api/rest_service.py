@@ -240,6 +240,9 @@ def clone_overlap(filter_type, samples=None, subject=None):
         sids if samples is not None else subject, paging)
     session.close()
 
+    def format_samples(samples):
+        return ','.join(map(lambda e: e['name'], samples))
+
     if exporting:
         csv_mapping = {
             'clone_id': (lambda r: r['clone']['id']),
@@ -252,6 +255,10 @@ def clone_overlap(filter_type, samples=None, subject=None):
             'clone_subject': (
                 lambda r: r['clone']['subject']['identifier']
             ),
+            'other_samples': (lambda r: format_samples(r['other_samples'])),
+            'selected_samples': (
+                lambda r: format_samples(r['selected_samples'])
+            )
         }
         writer = NestedCSVWriter([
             'total_sequences', 'unique_sequences', 'clone_id', 'clone_v',
