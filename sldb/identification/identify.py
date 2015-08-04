@@ -281,14 +281,19 @@ def run_identify(session, args):
     for fn in sorted(metadata.keys()):
         if fn == 'all':
             continue
-        tasks.add_task({
-            'path': args.samples_dir,
-            'fn': fn,
-            'meta': SampleMetadata(
-                metadata[fn],
-                metadata['all'] if 'all' in metadata else None
-            )
-        })
+        meta = SampleMetadata(
+            metadata[fn],
+            metadata['all'] if 'all' in metadata else None)
+        if (args.skip_existing and session.query(Sequence).filter(
+                Sequence.sample.has(name=meta.get('sample_name'))
+                ).first() is not None):
+            print 'Skipping existing sample {}'.format(meta.get('sample_name'))
+        else:
+            tasks.add_task({
+                'path': args.samples_dir,
+                'fn': fn,
+                'meta': meta
+            })
 
     lock = mp.RLock()
     for i in range(0, args.nproc):
