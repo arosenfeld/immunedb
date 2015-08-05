@@ -30,6 +30,10 @@ if __name__ == '__main__':
     parser.add_argument('--min-similarity', type=int, default=60,
                         help='Minimum percent similarity to germline required '
                         'for valid sequences. (Default: 60)')
+    parser.add_argument('--warn-existing', default=False, action='store_true',
+                        help='If specified, warns of existing samples and '
+                        'skips them.  Otherwise, an error is raised and '
+                        'identification will not begin.')
 
     args = parser.parse_args()
     if args.min_anchor_len > args.anchor_len:

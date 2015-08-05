@@ -197,16 +197,17 @@ class IdentificationWorker(concurrent.Worker):
                 map(lambda r: r.vdj.mutation_fraction, sequences.values())
             ) / float(len(sequences))
 
-            self._print('\tRe-aligning to V-ties, Mutations={},'
+            self._print('\tRe-aligning to V-ties, Mutations={}, '
                         'Length={}'.format(
                             round(avg_mut, 2), round(avg_len, 2)))
+
             for record in funcs.periodic_commit(self._session,
                                                 sequences.values()):
+                del sequences[record.sequence]
                 try:
                     self._realign_sequence(record.vdj, avg_len, avg_mut)
-                    if (record.sequence in sequences and
-                            sequences[record.sequence].seq_id != record.vdj.id
-                            ):
+
+                    if record.sequence in sequences:
                         sequences[record.sequence].seq_ids += record.seq_ids
                     else:
                         sequences[record.sequence] = record
@@ -218,7 +219,7 @@ class IdentificationWorker(concurrent.Worker):
                                                   traceback.format_exc()))
 
             self._print('\tAdding final sequences to database')
-            for sequence in sequences:
+            for record in sequences.values():
                 record.add_as_sequence(self._session, sample,
                                        meta.get('paired'))
 
@@ -300,10 +301,12 @@ def run_identify(session, args):
         if (session.query(Sequence).filter(
                 Sequence.sample.has(name=meta.get('sample_name'))
                 ).first() is not None):
-            print 'Sample {} already has sequences.  Cannot continue.'.format(
-                meta.get('sample_name')
+            print 'Sample {} already has sequences. {}'.format(
+                meta.get('sample_name'), 'Skipping.' if
+                args.warn_existing else 'Cannot continue.'
             )
-            return
+            if not args.warn_existing:
+                return
         elif meta.get('sample_name') in sample_names:
             print ('Sample {} exists more than once in metadata. Cannot '
                     'continue.').format(meta.get('sample_name'))
