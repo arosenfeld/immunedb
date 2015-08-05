@@ -30,9 +30,6 @@ if __name__ == '__main__':
     parser.add_argument('--min-similarity', type=int, default=60,
                         help='Minimum percent similarity to germline required '
                         'for valid sequences. (Default: 60)')
-    parser.add_argument('--skip-existing', action='store_true',
-                        help='If specified, samples which already exist in '
-                        'the database will be skipped')
 
     args = parser.parse_args()
     if args.min_anchor_len > args.anchor_len:

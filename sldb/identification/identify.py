@@ -39,11 +39,17 @@ class SampleMetadata(object):
 
 class SequenceRecord(object):
     def __init__(self, sequence, quality):
-        self.sequence = sequence
+        self._orig_sequence = sequence
         self.quality = quality
 
         self.seq_ids = []
         self.vdj = None
+
+    @property
+    def sequence(self):
+        if self.vdj is None:
+            return self._orig_sequence
+        return self.vdj.sequence
 
     def add_as_noresult(self, session, sample):
         try:
@@ -55,26 +61,7 @@ class SequenceRecord(object):
         except ValueError as ex:
             pass
 
-    def add_as_duplicate(self, session, sample, existing_seq_id):
-        try:
-            for seq_id in self.seq_ids:
-                session.add(DuplicateSequence(
-                    seq_id=seq_id,
-                    sample=sample,
-                    duplicate_seq_id=existing_seq_id))
-        except ValueError as ex:
-            pass
-
     def add_as_sequence(self, session, sample, paired):
-        existing = session.query(Sequence).filter(
-            Sequence.sample_seq_hash == HashExtension.hash_fields(
-                (sample.id, self.vdj.sequence))
-        ).first()
-        if existing is not None:
-            existing.copy_number += len(self.seq_ids)
-            self.add_as_duplicate(session, sample, existing.seq_id)
-            return
-
         if self.vdj.quality is not None:
             # Converts quality array into Sanger FASTQ quality string
             quality = ''.join(map(
@@ -124,6 +111,17 @@ class SequenceRecord(object):
                 quality=quality,
 
                 germline=self.vdj.germline))
+            # Add duplicate sequences
+            try:
+                for seq_id in self.seq_ids:
+                    if seq_id == self.vdj.id:
+                        continue
+                    session.add(DuplicateSequence(
+                        seq_id=seq_id,
+                        sample=sample,
+                        duplicate_seq_id=self.vdj.id))
+            except ValueError as ex:
+                pass
         except ValueError as ex:
             self.add_as_noresult(session, sample)
 
@@ -180,10 +178,10 @@ class IdentificationWorker(concurrent.Worker):
                 # already exists, append the seq_ids.  Otherwise add it as a
                 # new unique sequence.
                 record.vdj = vdj
-                if vdj.sequence in sequences:
-                    sequences[vdj.sequence].seq_ids += record.seq_ids
+                if record.sequence in sequences:
+                    sequences[record.sequence].seq_ids += record.seq_ids
                 else:
-                    sequences[vdj.sequence] = record
+                    sequences[record.sequence] = record
             except AlignmentException:
                 record.add_as_noresult(self._session, sample)
             except:
@@ -206,14 +204,24 @@ class IdentificationWorker(concurrent.Worker):
                                                 sequences.values()):
                 try:
                     self._realign_sequence(record.vdj, avg_len, avg_mut)
-                    record.add_as_sequence(self._session, sample,
-                                           meta.get('paired'))
+                    if (record.sequence in sequences and
+                            sequences[record.sequence].seq_id != record.vdj.id
+                            ):
+                        sequences[record.sequence].seq_ids += record.seq_ids
+                    else:
+                        sequences[record.sequence] = record
                 except AlignmentException:
                     record.add_as_noresult(self._session, sample)
                 except:
                     self._print('\tUnexpected error processing sequence '
                                 '{}\n\t{}'.format(record.seq_ids[0],
                                                   traceback.format_exc()))
+
+            self._print('\tAdding final sequences to database')
+            for sequence in sequences:
+                record.add_as_sequence(self._session, sample,
+                                       meta.get('paired'))
+
         self._session.commit()
         self._print('Completed sample {}'.format(sample.name))
 
@@ -282,22 +290,31 @@ def run_identify(session, args):
         metadata = json.load(fh)
 
     # Create the tasks for each file
+    sample_names = set([])
     for fn in sorted(metadata.keys()):
         if fn == 'all':
             continue
         meta = SampleMetadata(
             metadata[fn],
             metadata['all'] if 'all' in metadata else None)
-        if (args.skip_existing and session.query(Sequence).filter(
+        if (session.query(Sequence).filter(
                 Sequence.sample.has(name=meta.get('sample_name'))
                 ).first() is not None):
-            print 'Skipping existing sample {}'.format(meta.get('sample_name'))
+            print 'Sample {} already has sequences.  Cannot continue.'.format(
+                meta.get('sample_name')
+            )
+            return
+        elif meta.get('sample_name') in sample_names:
+            print ('Sample {} exists more than once in metadata. Cannot '
+                    'continue.').format(meta.get('sample_name'))
+            return
         else:
             tasks.add_task({
                 'path': args.samples_dir,
                 'fn': fn,
                 'meta': meta
             })
+            sample_names.add(meta.get('sample_name'))
 
     lock = mp.RLock()
     for i in range(0, args.nproc):
