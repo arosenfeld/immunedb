@@ -30,6 +30,7 @@ class SampleMetadata(object):
 
     def get(self, key, require=True):
         if key in self._specific:
+
             return self._specific[key]
         elif self._global is not None and key in self._global:
             return self._global[key]
@@ -219,7 +220,8 @@ class IdentificationWorker(concurrent.Worker):
                                                   traceback.format_exc()))
 
             self._print('\tAdding final sequences to database')
-            for record in sequences.values():
+            for record in funcs.periodic_commit(self._session,
+                                                sequences.values()):
                 record.add_as_sequence(self._session, sample,
                                        meta.get('paired'))
 
