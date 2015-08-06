@@ -1,10 +1,11 @@
 from setuptools import setup, Extension
 
-dnautils = Extension('dnautils', sources=['lib/dnautils.c'])
+dnautils = Extension('dnautils', sources=['lib/dnautils.c'],
+                     extra_compile_args=['-std=c99'])
 
 setup(
     name='SLDB',
-    version='0.11.1',
+    version='0.11.2',
     author='Aaron M. Rosenfeld',
     author_email='ar374@drexel.edu',
     packages=[
