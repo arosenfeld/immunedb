@@ -8,7 +8,8 @@ from sldb.identification.identify import SequenceRecord
 from sldb.identification.j_genes import JGermlines
 from sldb.identification.v_genes import get_common_seq, VGermlines
 from sldb.identification.vdj_sequence import VDJSequence
-from sldb.common.models import CDR3_OFFSET, DuplicateSequence, Sequence
+from sldb.common.models import (CDR3_OFFSET, HashExtension, DuplicateSequence,
+                                Sequence)
 
 
 def _find_cdr3_start(seq):
@@ -19,8 +20,8 @@ def _find_cdr3_start(seq):
             return i + 1
 
 
-def align_v(sequence, v_germlines, insert_penalty=-30, delete_penalty=-30,
-            extend_penalty=-10, mismatch_penalty=-10, match_score=40):
+def align_v(sequence, v_germlines, insert_penalty=-50, delete_penalty=-50,
+            extend_penalty=-10, mismatch_penalty=-20, match_score=40):
     max_align = None
     max_v = None
     for name, germr in v_germlines.iteritems():
@@ -108,16 +109,32 @@ def run_fix_indels(session, args):
                                     v_germlines), avg_mut, avg_len)
             if not v.has_possible_indel:
                 fixed += 1
-                r = SequenceRecord(seq.sequence.replace('-', ''), seq.sample)
-                r.seq_ids = map(lambda e: e.seq_id, session.query(
-                    DuplicateSequence.seq_id
+                existing = session.query(
+                    Sequence.seq_id,
+                    Sequence.sample_id
                 ).filter(
-                    DuplicateSequence.duplicate_seq_id == seq.seq_id
-                ).all())
-                r.seq_ids.append(v.id)
-                r.vdj = v
-                session.delete(seq)
-                r.add_as_sequence(session, seq.sample, seq.paired)
+                    Sequence.sample_seq_hash == HashExtension.hash_fields(
+                        (seq.sample_id, v.sequence))
+                ).first()
+                if existing is not None:
+                    existing.copy_number += 1
+                    session.delete(seq)
+                    session.add(DuplicateSequence(
+                        duplicate_seq_id=existing.seq_id,
+                        sample_id=existing.sample_id))
+                else:
+                    r = SequenceRecord(seq.sequence.replace('-', ''),
+                                       seq.sample)
+                    r.seq_ids = map(lambda e: e.seq_id, session.query(
+                        DuplicateSequence.seq_id
+                    ).filter(
+                        DuplicateSequence.duplicate_seq_id == seq.seq_id
+                    ).all())
+                    r.seq_ids.append(v.id)
+                    r.vdj = v
+                    session.delete(seq)
+                    session.flush()
+                    r.add_as_sequence(session, seq.sample, seq.paired)
         except AlignmentException as e:
             pass
         if i > 0 and i % 10 == 0:
