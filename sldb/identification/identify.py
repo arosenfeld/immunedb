@@ -294,6 +294,7 @@ def run_identify(session, args):
 
     # Create the tasks for each file
     sample_names = set([])
+    fail = False
     for fn in sorted(metadata.keys()):
         if fn == 'all':
             continue
@@ -307,8 +308,7 @@ def run_identify(session, args):
                 meta.get('sample_name'), 'Skipping.' if
                 args.warn_existing else 'Cannot continue.'
             )
-            if not args.warn_existing:
-                return
+            fail = True
         elif meta.get('sample_name') in sample_names:
             print ('Sample {} exists more than once in metadata. Cannot '
                     'continue.').format(meta.get('sample_name'))
@@ -321,6 +321,11 @@ def run_identify(session, args):
             })
             sample_names.add(meta.get('sample_name'))
 
+    if fail and not args.warn_existing:
+        print ('Encountered errors.  Not running any identification.  To '
+               'skip samples that are already in the database use '
+               '--warn-existing.')
+        return
     lock = mp.RLock()
     for i in range(0, args.nproc):
         worker_session = config.init_db(args.master_db_config,
