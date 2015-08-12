@@ -135,11 +135,12 @@ class SequenceRecord(object):
 
 
 class IdentificationWorker(concurrent.Worker):
-    def __init__(self, session, v_germlines, j_germlines, max_vties,
+    def __init__(self, session, v_germlines, j_germlines, trim, max_vties,
                  min_similarity, sync_lock):
         self._session = session
         self._v_germlines = v_germlines
         self._j_germlines = j_germlines
+        self._trim = trim
         self._min_similarity = min_similarity
         self._max_vties = max_vties
         self._sync_lock = sync_lock
@@ -155,7 +156,7 @@ class IdentificationWorker(concurrent.Worker):
         # Collapse identical sequences
         self._print('\tCollapsing identical sequences')
         for record in parser:
-            seq = str(record.seq)
+            seq = str(record.seq)[self._trim:]
             if seq not in sequences:
                 sequences[seq] = SequenceRecord(
                     seq, record.letter_annotations.get('phred_quality'))
@@ -328,6 +329,7 @@ def run_identify(session, args):
         tasks.add_worker(IdentificationWorker(worker_session,
                                               v_germlines,
                                               j_germlines,
+                                              args.trim,
                                               args.max_vties,
                                               args.min_similarity / float(100),
                                               lock))

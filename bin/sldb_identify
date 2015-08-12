@@ -30,6 +30,9 @@ if __name__ == '__main__':
     parser.add_argument('--min-similarity', type=int, default=60,
                         help='Minimum percent similarity to germline required '
                         'for valid sequences. (Default: 60)')
+    parser.add_argument('--trim', type=int, default=0,
+                        help='Number of nucleotides to trim from the '
+                        'beginning of each sequence (Default: 0)')
     parser.add_argument('--warn-existing', default=False, action='store_true',
                         help='If specified, warns of existing samples and '
                         'skips them.  Otherwise, an error is raised and '
