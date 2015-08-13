@@ -44,7 +44,7 @@ def _subject_to_dict(subject):
 
 
 def _sample_to_dict(sample):
-    d = _fields_to_dict(['id', 'name', 'info', 'subset', 'tissue',
+    d = _fields_to_dict(['id', 'name', 'info', 'subset', 'tissue', 'ig_class',
                          'disease', 'lab', 'experimenter'], sample)
     d['date'] = sample.date.strftime('%Y-%m-%d')
     d['subject'] = _subject_to_dict(sample.subject)
@@ -200,8 +200,7 @@ def get_clone(session, clone_id, sample_ids, thresholds=None):
     clone = session.query(Clone).filter(Clone.id == clone_id).first()
 
     q = session.query(
-        Sequence,
-        Sequence.copy_number_in_subject
+        Sequence
     ).filter(
         Sequence.clone_id == clone_id,
         Sequence.copy_number_in_subject > 0
@@ -212,14 +211,13 @@ def get_clone(session, clone_id, sample_ids, thresholds=None):
     result = {
         'clone': _clone_to_dict(clone),
         'quality': [],
-        'seqs': [],
+        'seqs': {},
         # TODO: Fix this for clones with indels
         'region_boundaries': [77, 113, 164, 194, 308, 347, 378]
     }
 
     start_ptrn = re.compile('[N\-]*')
-    for seqr in q:
-        seq = seqr.Sequence
+    for seq in q:
         read_start = start_ptrn.match(seq.sequence).span()[1] or 0
         if seq.quality is not None:
             diff = len(seq.quality) - len(result['quality'])
@@ -229,7 +227,7 @@ def get_clone(session, clone_id, sample_ids, thresholds=None):
                 if b is not ' ':
                     result['quality'][i].append(ord(b) - 33)
 
-        result['seqs'].append({
+        result['seqs'][(seq.sample.id, seq.seq_id)] = {
             'seq_id': seq.seq_id,
             'sample': {
                 'id': seq.sample.id,
@@ -238,11 +236,33 @@ def get_clone(session, clone_id, sample_ids, thresholds=None):
             'cdr3_nt': seq.cdr3_nt,
             'sequence': seq.sequence,
             'read_start': read_start,
-            'copy_number_in_subject': int(seqr.copy_number_in_subject),
+            'copy_number_in_subject': int(seq.copy_number_in_subject),
             'mutations': json.loads(seq.mutations_from_clone),
             'v_extent': seq.v_length + seq.num_gaps + seq.pad_length,
             'j_length': seq.j_length,
-        })
+            'collapse_to': []
+        }
+
+    q = session.query(
+        Sequence
+    ).filter(
+        Sequence.clone_id == clone_id,
+        Sequence.copy_number_in_sample > 0,
+        Sequence.copy_number_in_subject == 0
+    )
+
+    for seq in q:
+        key = (seq.collapse_to_subject_sample_id,
+               seq.collapse_to_subject_seq_id)
+        if key in result['seqs']:
+            result['seqs'][key]['collapse_to'].append({
+                'sample_id': seq.sample.id,
+                'sample_name': seq.sample.name,
+                'seq_id': seq.seq_id,
+                'copy_number_in_sample': seq.copy_number_in_sample
+            })
+
+    result['seqs'] = result['seqs'].values()
 
     res_qual = []
     for i, quals in enumerate(result['quality']):
