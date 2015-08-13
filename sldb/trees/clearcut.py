@@ -109,16 +109,19 @@ class ClearcutWorker(concurrent.Worker):
                 ).first()
                 tissues = set([])
                 subsets = set([])
+                ig_classes = set([])
                 for collapsed_seq in _get_seqs_collapsed_to(
                         self._session, seq):
                     tissues.add(collapsed_seq.sample.tissue)
                     subsets.add(collapsed_seq.sample.subset)
+                    ig_classes.add(collapsed_seq.sample.ig_class)
 
                 node.name = name
                 node.add_feature('seq_ids', [seq.seq_id])
                 node.add_feature('copy_number', seq.copy_number_in_subject)
                 node.add_feature('tissues', map(str, tissues))
                 node.add_feature('subsets', map(str, subsets))
+                node.add_feature('ig_classes', map(str, ig_classes))
                 modified_seq = _remove_muts(seq.sequence, remove_muts,
                                             germline_seq)
                 node.add_feature('mutations', _get_mutations(
@@ -164,6 +167,7 @@ def _instantiate_node(node):
     node.add_feature('sequence', None)
     node.add_feature('tissues', [])
     node.add_feature('subsets', [])
+    node.add_feature('ig_classes', [])
     node.add_feature('mutations', set([]))
 
     return node
@@ -176,6 +180,7 @@ def _get_json(tree, root=True):
             'copy_number': tree.copy_number,
             'tissues': ','.join(sorted(set(tree.tissues))),
             'subsets': ','.join(sorted(set(tree.subsets))),
+            'ig_classes': ','.join(sorted(set(tree.ig_classes))),
             'mutations': [{
                 'pos': mut[0],
                 'from': mut[1],
@@ -196,6 +201,7 @@ def _get_json(tree, root=True):
             'copy_number': 0,
             'tissues': '',
             'subsets': '',
+            'ig_classes': '',
             'mutations': [],
         },
         'children': [node]
@@ -234,6 +240,7 @@ def _remove_null_nodes(tree):
         if node.up is not None and len(node.mutations) == 0:
             node.up.tissues.extend(node.tissues)
             node.up.subsets.extend(node.subsets)
+            node.up.ig_classes.extend(node.ig_classes)
             node.up.seq_ids.extend(node.seq_ids)
             node.up.copy_number += node.copy_number
             node.delete(prevent_nondicotomic=False)
