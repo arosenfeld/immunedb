@@ -17,9 +17,11 @@ class Worker(object):
 class TaskQueue(object):
     def __init__(self):
         self._task_queue = mp.JoinableQueue()
+        self._num_tasks = 0
         self._workers = []
 
     def add_task(self, args):
+        self._num_tasks += 1
         self._task_queue.put(args)
 
     def add_worker(self, worker):
@@ -60,3 +62,6 @@ class TaskQueue(object):
                 )
                 self._task_queue.task_done()
         worker.cleanup()
+
+    def num_tasks(self):
+        return self._num_tasks

@@ -109,6 +109,7 @@ class VGermlines(dict):
                  include_prepadded=False):
         self._prob_threshold = ties_prob_threshold
         self._ties = {}
+        self._hypers = {}
         self._min_length = None
 
         with open(path_to_germlines) as fh:
@@ -149,15 +150,22 @@ class VGermlines(dict):
             for name, v in self.iteritems():
                 s_2 = v.sequence_ungapped
                 K = dnautils.hamming(s_1[-length:], s_2[-length:])
-                dist = hypergeom(length, K, np.ceil(length * mutation))
-                p = np.sum(
-                    [dist.pmf(k) * np.power(.33, k)
-                        for k in xrange(int(np.ceil(K/2)), K)]
-                )
+                p = self._hypergeom(length, mutation, K)
                 if p >= self._prob_threshold:
                     self._ties[key][gene].add(name)
 
         return self._ties[key][gene]
+
+    def _hypergeom(self, length, mutation, K):
+        key = (length, mutation, K)
+        if key not in self._hypers:
+            dist = hypergeom(length, K, np.ceil(length * mutation))
+            p = np.sum(
+                [dist.pmf(k) * np.power(.33, k)
+                    for k in xrange(int(np.ceil(K/2)), K)]
+            )
+            self._hypers[key] = p
+        return self._hypers[key]
 
     def _length_bucket(self, length):
         if 0 < length <= 100:

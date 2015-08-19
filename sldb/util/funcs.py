@@ -11,7 +11,6 @@ def periodic_commit(session, query, interval=100):
         yield r
     session.commit()
 
-
 def trace_seq_collapses(session, seq):
     ret = {}
     sample_col = session.query(

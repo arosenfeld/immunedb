@@ -322,9 +322,8 @@ def run_identify(session, args):
             sample_names.add(meta.get('sample_name'))
 
     lock = mp.RLock()
-    for i in range(0, args.nproc):
-        worker_session = config.init_db(args.master_db_config,
-                                        args.data_db_config)
+    for i in range(0, min(args.nproc, tasks.num_tasks())):
+        worker_session = config.init_db(args.db_config)
         tasks.add_worker(IdentificationWorker(worker_session,
                                               v_germlines,
                                               j_germlines,
