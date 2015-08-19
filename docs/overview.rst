@@ -42,12 +42,6 @@ is a drop-in replacement for MySQL, `MariaDB <http://mariadb.org>`_ can also be
 used and is recommended.  Please see the associated website for installation
 instructions.
 
-SLDB requires that `TokuDB <http://tokutek.com/tokudb-for-mysql>`_ be used as
-the storage engine for MySQL.  It `has been shown
-<http://www.tokutek.com/tokudb-for-mysql/benchmarks-vs-innodb-hdd/>`_ to perform
-better on large datasets than the default storage engine InnoDB.  See their
-website for installation instructions.
-
 Baseline & R
 ^^^^^^^^^^^^
 SLDB uses `Baseline <http://selection.med.yale.edu/baseline>`_ to

@@ -54,6 +54,7 @@ Getting Started
 
     overview
     pipeline
+    database
 
 Underlying Technologies
 -----------------------
@@ -62,10 +63,6 @@ Underlying Technologies
   of implementation like `MariaDB <https://mariadb.org>`_) which enforces rigorous
   data guarantees, indexes the data for fast retrieval, and enforces atomicity
   of operations
-
-- `TokuDB <http://www.tokutek.com/tokudb-for-mysql>`_: The storage engine which
-  writes the database to non-volatile media, and is optimized for large quantities
-  of data such as that in high-throughput sequencing.
 
 - `SQLAlchemy <http://www.sqlalchemy.org>`_: The interface between Python and
   the database which abstracts SQL queries from the implementation and enforces
