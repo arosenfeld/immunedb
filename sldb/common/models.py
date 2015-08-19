@@ -1,25 +1,21 @@
 import datetime
 import hashlib
 
-from sqlalchemy import (Column, Boolean, Integer, String, Text, Date, DateTime,
-                        ForeignKey, UniqueConstraint, Index, event, func)
+from sqlalchemy import (Column, Boolean, Float, Integer, String, Text, Date,
+                        DateTime, ForeignKey, UniqueConstraint, Index, event,
+                        func)
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import ColumnProperty, relationship, backref
 from sqlalchemy.orm.interfaces import MapperExtension
 from sqlalchemy.dialects.mysql import TEXT, MEDIUMTEXT, BINARY
 
-from sldb.common.settings import DATABASE_SETTINGS
-
-BaseMaster = declarative_base(
-    metadata=DATABASE_SETTINGS['master_metadata'])
-BaseData = declarative_base(
-    metadata=DATABASE_SETTINGS['data_metadata'])
+Base = declarative_base()
 MAX_CDR3_NTS = 96
 MAX_CDR3_AAS = int(MAX_CDR3_NTS / 3)
 CDR3_OFFSET = 309
 
 
-class Study(BaseMaster):
+class Study(Base):
     """A high-level study such as one studying Lupus.
 
     :param int id: An auto-assigned unique identifier for the study
@@ -37,7 +33,7 @@ class Study(BaseMaster):
     info = Column(String(length=1024))
 
 
-class Subject(BaseMaster):
+class Subject(Base):
     """A subject which was sampled for a study.
 
     :param int id: An auto-assigned unique identifier for the subject
@@ -61,7 +57,7 @@ class Subject(BaseMaster):
                          order_by=identifier))
 
 
-class Sample(BaseMaster):
+class Sample(Base):
     """A sample taken from a single subject, tissue, and subset.
 
     :param int id: An auto-assigned unique identifier for the sample
@@ -116,8 +112,11 @@ class Sample(BaseMaster):
 
     library = Column(Integer, server_default='1', nullable=False)
 
+    v_ties_mutations = Column(Float)
+    v_ties_len = Column(Float)
 
-class SampleStats(BaseData):
+
+class SampleStats(Base):
     """Aggregate statistics for a sample.  This exists to reduce the time
     queries take for a sample.
 
@@ -183,7 +182,7 @@ class SampleStats(BaseData):
     no_result_cnt = Column(Integer)
 
 
-class Clone(BaseData):
+class Clone(Base):
     """A group of sequences likely originating from the same germline
 
     :param int id: An auto-assigned unique identifier for the clone
@@ -255,7 +254,7 @@ class HashExtension(MapperExtension):
         return hashlib.sha1(' '.join(map(str, fields))).hexdigest()
 
 
-class CloneStats(BaseData):
+class CloneStats(Base):
     """Stores statistics for a given clone and sample.  If sample is zero (0)
     the statistics are for the specified clone in all samples.
 
@@ -297,7 +296,7 @@ class CloneStats(BaseData):
     selection_pressure = Column(MEDIUMTEXT)
 
 
-class Sequence(BaseData):
+class Sequence(Base):
     """Represents a single unique sequence.
 
     :param str sample_seq_hash: A key over ``sample_id`` and ``sequence`` so \
@@ -463,7 +462,7 @@ class Sequence(BaseData):
         return boundaries
 
 
-class DuplicateSequence(BaseData):
+class DuplicateSequence(Base):
     """A sequence which is a duplicate of a :py:class:`Sequence`.  This is
     used to minimize the size of the sequences table.  The ``copy_number``
     attribute of :py:class:`Sequence` instances is equal to the number of
@@ -501,7 +500,7 @@ class DuplicateSequence(BaseData):
                           order_by=seq_id))
 
 
-class NoResult(BaseData):
+class NoResult(Base):
     """A sequence which could not be match with a V or J.
 
     :param str seq_id: A unique identifier for the sequence as output by the \
@@ -525,7 +524,7 @@ class NoResult(BaseData):
     sequence = Column(String(length=1024))
 
 
-class ModificationLog(BaseData):
+class ModificationLog(Base):
     """A log message for a database modification
 
     :param int id: The ID of the log message
@@ -559,5 +558,4 @@ def check_string_length(cls, key, inst):
                         len(value), max_length))
             event.listen(inst, 'set', set_)
 
-event.listen(BaseMaster, 'attribute_instrument', check_string_length)
-event.listen(BaseData, 'attribute_instrument', check_string_length)
+event.listen(Base, 'attribute_instrument', check_string_length)
