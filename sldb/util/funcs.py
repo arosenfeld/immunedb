@@ -4,12 +4,19 @@ import re
 from sldb.common.models import Sequence
 
 
+def ord_to_quality(quality):
+    if quality is None:
+        return None
+    return ''.join(map(lambda q: ' ' if q is None else chr(q + 33), quality))
+
+
 def periodic_commit(session, query, interval=100):
     for i, r in enumerate(query):
         if i > 0 and i % interval == 0:
             session.commit()
         yield r
     session.commit()
+
 
 def trace_seq_collapses(session, seq):
     ret = {}

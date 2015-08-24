@@ -63,14 +63,8 @@ class SequenceRecord(object):
             pass
 
     def add_as_sequence(self, session, sample, paired):
-        if self.vdj.quality is not None:
-            # Converts quality array into Sanger FASTQ quality string
-            quality = ''.join(map(
-                lambda q: ' ' if q is None else chr(q + 33), self.vdj.quality))
-        else:
-            quality = None
-
         try:
+            indel = self.vdj.has_possible_indel
             session.add(Sequence(
                 seq_id=self.vdj.id,
                 sample_id=sample.id,
@@ -78,7 +72,7 @@ class SequenceRecord(object):
                 paired=paired,
                 partial=self.vdj.partial,
 
-                probable_indel_or_misalign=self.vdj.has_possible_indel,
+                probable_indel_or_misalign=indel,
                 regions='.'.join(map(str, self.vdj.regions)),
                 deletions=self._format_gaps(self.vdj.deletions),
                 insertions=self._format_gaps(self.vdj.insertions),
@@ -93,6 +87,11 @@ class SequenceRecord(object):
                 v_length=self.vdj.v_length,
                 j_match=self.vdj.j_match,
                 j_length=self.vdj.j_length,
+
+                removed_prefix=self.vdj.removed_prefix,
+                #removed_prefix_qual=funcs.ord_to_quality(
+                #    self.vdj.removed_prefix_qual),
+                v_mutation_fraction = self.vdj.mutation_fraction,
 
                 pre_cdr3_length=self.vdj.pre_cdr3_length,
                 pre_cdr3_match=self.vdj.pre_cdr3_match,
@@ -109,9 +108,10 @@ class SequenceRecord(object):
                 cdr3_aa=lookups.aas_from_nts(self.vdj.cdr3),
 
                 sequence=str(self.vdj.sequence),
-                quality=quality,
+                quality=funcs.ord_to_quality(self.vdj.quality),
 
                 germline=self.vdj.germline))
+
             # Add duplicate sequences
             try:
                 for seq_id in self.seq_ids:
