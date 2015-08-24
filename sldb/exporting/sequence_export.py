@@ -91,7 +91,7 @@ class SequenceExport(Exporter):
         self.selected_fields = self.writer.get_required_fields(
             self.selected_fields)
 
-        for seq in seqs:
+        for seq in seqs.yield_per(5000):
             # Get the selected data for the sequence
             data = self.get_selected_data(seq)
             yield self.writer.format_sequence(data)
