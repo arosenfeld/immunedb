@@ -412,6 +412,10 @@ class Sequence(Base):
     j_match = Column(Integer)
     j_length = Column(Integer)
 
+    removed_prefix = Column(String(256))
+    removed_prefix_qual = Column(String(256))
+    v_mutation_fraction = Column(Float)
+
     pre_cdr3_length = Column(Integer)
     pre_cdr3_match = Column(Integer)
     post_cdr3_length = Column(Integer)
@@ -448,6 +452,19 @@ class Sequence(Base):
                                     nullable=False)
     collapse_to_subject_sample_id = Column(Integer)
     collapse_to_subject_seq_id = Column(String(128))
+
+    @property
+    def original_sequence(self):
+        return '{}{}'.format(
+            self.removed_prefix,
+            self.sequence.replace('-', '')
+        )
+
+    @property
+    def original_quality(self):
+        if self.quality is None:
+            return None
+        return '{}{}'.format(self.removed_prefix_qual, self.quality)
 
     @property
     def region_boundaries(self):
@@ -554,8 +571,10 @@ def check_string_length(cls, key, inst):
 
             def set_(instance, value, oldvalue, initiator):
                 if value is not None and len(value) > max_length:
-                    raise ValueError('Length {} exceeds allowed {}'.format(
-                        len(value), max_length))
+                    raise ValueError(
+                        'Length {} exceeds allowed {} for {}'.format(
+                        len(value), max_length, col.name)
+                    )
             event.listen(inst, 'set', set_)
 
 event.listen(Base, 'attribute_instrument', check_string_length)

@@ -53,6 +53,9 @@ class VDJSequence(object):
         self.insertions = None
         self.deletions = None
 
+        self.removed_prefix = ''
+        self.removed_prefix_qual = ''
+
         if not all(map(lambda c: c in 'ATCGN', self.sequence)):
             raise AlignmentException('Invalid characters in sequence.')
 
@@ -63,18 +66,18 @@ class VDJSequence(object):
     def locally_align(self, alignment, avg_mut, avg_len):
         self._v, self._germline, self._seq, self._v_length = alignment
 
-        self._find_j(CDR3_OFFSET)
         # TODO: Add padding for partials
         self._pad_len = 0
         if self._v_length is None:
             raise AlignmentException('Germline was too small.')
 
-        self._v_end = self._v_length + self._pad_len
+        #self._v_end = self._v_length + self._pad_len
 
         self.insertions = get_gap_differences(self._germline, self._seq)
         self.deletions = get_gap_differences(self._seq, self._germline)
 
         self._v = self.v_germlines.get_ties(self.v_gene, avg_len, avg_mut)
+        insertion_total = sum(map(lambda e: e[1], self.insertions))
         common_v = get_common_seq(
             [self.v_germlines[v].sequence for v in self._v]
         )[:CDR3_OFFSET]
@@ -94,7 +97,10 @@ class VDJSequence(object):
                 '-' * (end - start),
                 common_v[start:]
             ])
+
         self._germline = common_v
+        self._v_end = len(self._germline)
+        self._find_j(self._v_end)
         self.calculate_stats()
 
         offset = 0
@@ -107,12 +113,14 @@ class VDJSequence(object):
         self._seq = self._seq.replace('.', '-')
         self._germline = self._germline.replace('.', '-')
 
+        '''
         if self._quality is not None:
             self._quality = self._quality[len(germ) - CDR3_OFFSET:]
 
             for i, c in enumerate(self._seq):
                 if c in ('-', '.'):
                     self._quality.insert(i, None)
+        '''
 
     @property
     def id(self):
@@ -238,16 +246,16 @@ class VDJSequence(object):
 
         for match, full_anchor, j_gene in self.j_germlines.get_all_anchors(
                 limit_genes=self._force_j):
-            i = self._seq[offset:].rfind(match) + offset
+            i = self._seq[offset:].rfind(match)
             if i >= 0:
-                return self._found_j(i, j_gene, match, full_anchor)
+                return self._found_j(i + offset, j_gene, match, full_anchor)
 
             i = Seq(self._seq).reverse_complement().rfind(match)
             if i >= 0:
                 self._seq = str(Seq(self._seq).reverse_complement())
                 if self._quality is not None:
                     self._quality.reverse()
-                return self._found_j(i, j_gene, match, full_anchor)
+                return self._found_j(i + offset, j_gene, match, full_anchor)
         raise AlignmentException('Could not find J anchor')
 
     def _found_j(self, i, j_gene, match, full_anchor):
@@ -291,12 +299,6 @@ class VDJSequence(object):
             self._j = None
             self._j_anchor_pos = None
             raise AlignmentException('Germline extended past end of J')
-
-        # Get the full-J distance
-        dist = dnautils.hamming(
-            j_full,
-            str(self.sequence[self._j_start:self._j_start+len(j_full)])
-        )
 
         self._j = self.j_germlines.get_ties(self.j_gene[0], match)
         self._j_length = len(j_full)
@@ -358,8 +360,10 @@ class VDJSequence(object):
             if self._quality is not None:
                 self._quality = ([None] * self._pad_len) + self._quality
         else:
+            self.removed_prefix = self._seq[:-self._pad_len]
             self._seq = str(self._seq[-self._pad_len:])
             if self._quality is not None:
+                self.removed_prefix_qual = self._quality[:-self._pad_len]
                 self._quality = self._quality[-self._pad_len:]
         # Update the anchor positions after adding padding / trimming
         self._j_anchor_pos += self._pad_len

@@ -1,3 +1,4 @@
+#include <string.h>
 #include <Python.h>
 
 #define BUF_SIZE 2048

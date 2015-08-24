@@ -2,6 +2,7 @@ import dnautils
 import re
 
 from sqlalchemy import func
+from sqlalchemy.orm.exc import NoResultFound
 
 from sldb.identification import AlignmentException
 from sldb.identification.identify import SequenceRecord
@@ -25,10 +26,10 @@ def align_v(sequence, v_germlines, insert_penalty=-50, delete_penalty=-50,
     max_align = None
     max_v = None
     for name, germr in v_germlines.iteritems():
-        germ = germr.sequence
+        germ = germr.sequence.replace('-', '')
         try:
             g, s, germ_omit, seq_omit, score = dnautils.align(
-                germ.replace('-', ''), sequence.replace('-', ''),
+                germ, sequence.replace('-', ''),
                 insert_penalty, delete_penalty, extend_penalty,
                 mismatch_penalty, match_score)
             s = ''.join(reversed(s))
@@ -39,18 +40,18 @@ def align_v(sequence, v_germlines, insert_penalty=-50, delete_penalty=-50,
             if max_align is None or score > max_align['score']:
                 max_v = []
             max_v.append((name, g))
+            v_length = len(s)
             if len(germ) > len(g):
-                g = germ[:len(germ) - len(g) - germ_omit] + g
+                g = germ[:germ_omit].lower() + g
+                g += germ[len(g) - g.count('-'):]
             if len(sequence) > len(s):
-                s += sequence[-(len(sequence) - seq_omit - len(
-                    s.replace('-', '').replace('.', ''))):]
+                s += sequence[seq_omit + len(s) - s.count('-'):]
             max_align = {
-                'original_germ': germ,
+                'original_germ': germr.sequence,
                 'seq': s,
                 'germ': g,
                 'score': score,
-                'germ_omit': germ_omit,
-                'seq_omit': seq_omit,
+                'v_length': v_length,
             }
     if max_align is None:
         raise AlignmentException('Could not locally align sequence.')
@@ -66,20 +67,20 @@ def align_v(sequence, v_germlines, insert_penalty=-50, delete_penalty=-50,
     for gap in imgt_gaps:
         germ_final.insert(gap, '-')
         seq_final.insert(gap, '-')
+
     germ_final = ''.join(germ_final)
     seq_final = ''.join(seq_final)
+
     offset = re.search('[ATCGN]', germ_final)
     if offset is None:
         raise AlignmentException('Entire germline gapped.')
+
     offset = offset.start()
     germ_final = germ_final[offset:]
     seq_final = seq_final[offset:]
 
-    end = _find_cdr3_start(germ_final)
-    germ_final = germ_final[:end]
-    seq_final = seq_final
-
-    return map(lambda e: e[0], max_v), germ_final, seq_final, end
+    return (map(lambda e: e[0], max_v), germ_final, seq_final,
+        max_align['v_length'])
 
 
 def run_fix_indels(session, args):
@@ -93,20 +94,19 @@ def run_fix_indels(session, args):
     fixed = 0
 
     for i, seq in enumerate(indels):
-        quality = seq.quality
-        if quality is not None:
-            quality = seq.quality.replace(' ', '')
-            quality = map(lambda q: ord(q) - 33, quality)
+        quality = None
+        if seq.original_quality is not None:
+            quality = map(lambda q: ord(q) - 33, seq.original_quality)
+        v = VDJSequence(seq.seq_id, seq.original_sequence, v_germlines,
+                        j_germlines, quality=quality, skip_align=True)
 
-        v = VDJSequence(seq.seq_id, seq.sequence.replace('-', ''), v_germlines,
-                        j_germlines, quality, skip_align=True)
         try:
             avg_mut, avg_len = session.query(
-                1 - func.avg(Sequence.v_match / Sequence.v_length),
+                func.avg(Sequence.v_mutation_fraction),
                 func.avg(Sequence.v_length)
             ).filter(Sequence.sample == seq.sample).first()
-            v.locally_align(align_v(seq.sequence.replace('-', ''),
-                                    v_germlines), avg_mut, avg_len)
+            v.locally_align(align_v(seq.original_sequence, v_germlines),
+                            avg_mut, avg_len)
             if not v.has_possible_indel:
                 fixed += 1
                 existing = session.query(
@@ -118,13 +118,13 @@ def run_fix_indels(session, args):
                 ).first()
                 if existing is not None:
                     existing.copy_number += 1
+                    # TODO: Delete linked sequences
                     session.delete(seq)
                     session.add(DuplicateSequence(
                         duplicate_seq_id=existing.seq_id,
                         sample_id=existing.sample_id))
                 else:
-                    r = SequenceRecord(seq.sequence.replace('-', ''),
-                                       seq.sample)
+                    r = SequenceRecord(v.sequence, seq.sample)
                     r.seq_ids = map(lambda e: e.seq_id, session.query(
                         DuplicateSequence.seq_id
                     ).filter(
@@ -136,7 +136,7 @@ def run_fix_indels(session, args):
                     session.flush()
                     r.add_as_sequence(session, seq.sample, seq.paired)
         except AlignmentException as e:
-            pass
+            raise e
         if i > 0 and i % 10 == 0:
             print 'Aligned {}/{} (fixed {}, {}%)'.format(
                 i, total, fixed, round(100 * fixed / i))
