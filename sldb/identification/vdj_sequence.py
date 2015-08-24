@@ -71,8 +71,6 @@ class VDJSequence(object):
         if self._v_length is None:
             raise AlignmentException('Germline was too small.')
 
-        #self._v_end = self._v_length + self._pad_len
-
         self.insertions = get_gap_differences(self._germline, self._seq)
         self.deletions = get_gap_differences(self._seq, self._germline)
 
@@ -113,14 +111,10 @@ class VDJSequence(object):
         self._seq = self._seq.replace('.', '-')
         self._germline = self._germline.replace('.', '-')
 
-        '''
         if self._quality is not None:
-            self._quality = self._quality[len(germ) - CDR3_OFFSET:]
-
             for i, c in enumerate(self._seq):
                 if c in ('-', '.'):
                     self._quality.insert(i, None)
-        '''
 
     @property
     def id(self):

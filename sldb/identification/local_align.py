@@ -46,6 +46,7 @@ def align_v(sequence, v_germlines, insert_penalty=-50, delete_penalty=-50,
                 g += germ[len(g) - g.count('-'):]
             if len(sequence) > len(s):
                 s += sequence[seq_omit + len(s) - s.count('-'):]
+
             max_align = {
                 'original_germ': germr.sequence,
                 'seq': s,
