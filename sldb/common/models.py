@@ -462,7 +462,8 @@ class Sequence(Base):
     def original_quality(self):
         if self.quality is None:
             return None
-        return '{}{}'.format(self.removed_prefix_qual, self.quality)
+        return '{}{}'.format(self.removed_prefix_qual or '',
+                             self.quality.replace(' ', ''))
 
     @property
     def region_boundaries(self):
