@@ -396,8 +396,10 @@ class Sequence(Base):
 
     probable_indel_or_misalign = Column(Boolean, index=True)
     regions = Column(String(25))
-    deletions = Column(String(128), index=True)   # POS:LENGTH[,POS:LENGTH ...]
-    insertions = Column(String(256), index=True)  # POS:NTS[,POS:NTS ...]
+
+    # POS:LENGTH[,POS:LENGTH ...]
+    deletions = Column(String(128), index=True)
+    insertions = Column(String(128), index=True)
 
     v_gene = Column(String(512), index=True)
     j_gene = Column(String(512), index=True)

@@ -4,6 +4,20 @@ import re
 from sldb.common.models import Sequence
 
 
+def format_gaps(gaps):
+    if gaps is None or len(gaps) == 0:
+        return None
+    return ','.join(
+        ['{}-{}'.format(start, end) for (start, end) in sorted(gaps)]
+    )
+
+
+def gaps_to_list(gaps):
+    if gaps is None:
+        return None
+    return map(lambda e: map(int, e.split('-')), gaps.split(','))
+
+
 def ord_to_quality(quality):
     if quality is None:
         return None
