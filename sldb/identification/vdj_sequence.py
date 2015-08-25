@@ -125,13 +125,15 @@ class VDJSequence(object):
                 continue
             if max_align is None or score >= max_align['score']:
                 v_length = len(s)
-                q = self.quality[seq_omit:]
+                q = None
+                if self.quality is not None:
+                    q = self.quality[seq_omit:]
                 if len(germ) > len(g):
                     g = germ[:germ_omit].lower() + g
                     g += germ[len(g) - g.count('-'):]
 
                 if len(self.sequence) > len(s):
-                    s += self.sequence[seq_omit + len(s) - s.count('-')]
+                    s += self.sequence[seq_omit + len(s) - s.count('-'):]
 
                 max_align = {
                     'original_germ': germr.sequence,
@@ -161,9 +163,11 @@ class VDJSequence(object):
         )
         self.sequence = list(max_align['seq'].replace('-', '.'))
 
-        for i, c in enumerate(self.sequence):
-            if c == '.':
-                self.quality.insert(i, None)
+        if self.quality is not None:
+            self.quality = max_align['qual']
+            for i, c in enumerate(self.sequence):
+                if c == '.':
+                    self.quality.insert(i, None)
 
         for gap in imgt_gaps:
             self.germline.insert(gap, '-')
