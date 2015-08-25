@@ -111,7 +111,9 @@ class VDJSequence(object):
 
     def _locally_align(self, avg_mut, avg_len, insert_penalty=-50,
                       delete_penalty=-50, extend_penalty=-10,
-                      mismatch_penalty=-20, match_score=40):
+                      mismatch_penalty=-20, match_score=40, rev_comp=False):
+        if rev_comp:
+            self.sequence = str(Seq(self.sequence).reverse_complement())
         max_align = None
         for name, germr in self.v_germlines.iteritems():
             germ = germr.sequence.replace('-', '')
@@ -148,7 +150,18 @@ class VDJSequence(object):
                 max_align['vs'].append((name, g))
 
         if max_align is None:
-            raise AlignmentException('Could not locally align sequence.')
+            if rev_comp:
+                self.sequence = str(Seq(self.sequence).reverse_complement())
+                raise AlignmentException('Could not locally align sequence.')
+            else:
+                return self._locally_align(
+                    avg_mut, avg_len,
+                    insert_penalty=insert_penalty,
+                    delete_penalty=delete_penalty,
+                    extend_penalty=extend_penalty,
+                    mismatch_penalty=mismatch_penalty,
+                    match_score=match_score,
+                    rev_comp=True)
 
         self._v = map(lambda e: e[0], max_align['vs'])
 

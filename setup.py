@@ -24,7 +24,7 @@ setup(
         'bin/sldb_clone_stats',
         'bin/sldb_clone_trees',
         'bin/sldb_collapse',
-        'bin/sldb_fix_indels',
+        'bin/sldb_local_align',
         'bin/sldb_identify',
         'bin/sldb_import_delim',
         'bin/sldb_hvquest',

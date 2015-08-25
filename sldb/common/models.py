@@ -538,6 +538,8 @@ class NoResult(Base):
                           order_by=seq_id))
 
     sequence = Column(String(length=1024))
+    quality = Column(String(length=1024))
+    paired = Column(Boolean)
 
 
 class ModificationLog(Base):
