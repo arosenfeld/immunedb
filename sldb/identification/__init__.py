@@ -26,7 +26,8 @@ class SequenceRecord(object):
                 session.add(NoResult(
                     seq_id=seq_id,
                     sample=sample,
-                    sequence=self.sequence))
+                    sequence=self.sequence,
+                    quality=funcs.ord_to_quality(self.quality)))
         except ValueError as ex:
             pass
 

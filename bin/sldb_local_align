@@ -3,11 +3,13 @@ import sys
 import argparse
 
 import sldb.common.config as config
-from sldb.identification.local_align import run_fix_indels
+from sldb.identification.local_align import run_fix_sequences
 
 if __name__ == '__main__':
-    parser = config.get_base_arg_parser('Attempts to fix indels.',
-            multiproc=True)
+    parser = config.get_base_arg_parser('Attempts to locally align sequences '
+                                        'that could not be properly aligned '
+                                        'with the anchoring method.',
+                                        multiproc=True)
     parser.add_argument('v_germlines', help='FASTA file with IMGT gapped '
                         'V-gene germlines')
     parser.add_argument('j_germlines', help='FASTA file with J-gene '
@@ -24,4 +26,4 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     session = config.init_db(args.db_config)
-    sys.exit(run_fix_indels(session, args))
+    sys.exit(run_fix_sequences(session, args))

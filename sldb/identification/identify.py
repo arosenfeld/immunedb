@@ -12,8 +12,8 @@ from sqlalchemy.sql import desc, func
 
 import sldb.common.config as config
 import sldb.common.modification_log as mod_log
-from sldb.common.models import (HashExtension, DuplicateSequence, NoResult,
-                                Sample, Sequence, Study, Subject)
+from sldb.common.models import (HashExtension, DuplicateSequence, Sample,
+                                Sequence, Study, Subject)
 from sldb.identification import AlignmentException, SequenceRecord
 from sldb.identification.vdj_sequence import VDJSequence
 from sldb.identification.v_genes import VGermlines

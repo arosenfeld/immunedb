@@ -5,20 +5,22 @@ from sldb.identification import AlignmentException, SequenceRecord
 from sldb.identification.j_genes import JGermlines
 from sldb.identification.v_genes import VGermlines
 from sldb.identification.vdj_sequence import VDJSequence
-from sldb.common.models import HashExtension, DuplicateSequence, Sequence
+from sldb.common.models import (HashExtension, DuplicateSequence, NoResult,
+                                Sequence)
 
 
-def run_fix_indels(session, args):
+def run_fix_sequences(session, args):
     v_germlines = VGermlines(args.v_germlines)
     j_germlines = JGermlines(args.j_germlines, args.upstream_of_cdr3,
                              args.anchor_len, args.min_anchor_len)
 
+    mutation_cache = {}
     indels = session.query(Sequence).filter(
         Sequence.probable_indel_or_misalign == 1)
     total = indels.count()
-    mutation_cache = {}
-
-    for i, seq in enumerate(indels):
+    fixed = 0
+    print 'Locally aligning {} indels'.format(total)
+    for i, seq in enumerate(funcs.periodic_commit(session, indels)):
         try:
             if seq.sample_id not in mutation_cache:
                 mutation_cache[seq.sample_id] = session.query(
@@ -27,10 +29,11 @@ def run_fix_indels(session, args):
                 ).filter(Sequence.sample == seq.sample).first()
             avg_mut, avg_len = mutation_cache[seq.sample_id]
 
-            v = VDJSequence(seq.seq_id, seq.original_sequence, v_germlines,
-                            j_germlines,
-                            quality=funcs.quality_to_ord(seq.original_quality),
-                            locally_align=(avg_mut, avg_len))
+            v = VDJSequence(
+                seq.seq_id, seq.original_sequence, v_germlines,
+                j_germlines, quality=funcs.quality_to_ord(
+                    seq.original_quality
+                ), locally_align=(avg_mut, avg_len))
             if not v.has_possible_indel:
                 existing = session.query(
                     Sequence.seq_id,
@@ -65,6 +68,11 @@ def run_fix_indels(session, args):
                     session.delete(seq)
                     session.flush()
                     r.add_as_sequence(session, seq.sample, seq.paired)
+                fixed += 1
         except AlignmentException as e:
             pass
+        if i > 0 and i % 10 == 0:
+            print ('Fixed {} of {} processed indel sequences, {} '
+                   'remaining').format(fixed, i + 1, total - i + 1)
+
     session.commit()
