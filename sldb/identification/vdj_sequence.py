@@ -10,7 +10,7 @@ from sldb.identification import AlignmentException
 from sldb.identification.v_genes import VGene, get_common_seq, find_v_position
 
 
-def get_gap_differences(reference, seq):
+def get_gap_differences(reference):
     diffs = []
     for diff in re.finditer('[.]+', reference):
         start, end = diff.span()
@@ -208,11 +208,10 @@ class VDJSequence(object):
         if self.v_length is None:
             raise AlignmentException('Germline was too small.')
 
-        self.insertions = get_gap_differences(self.germline, self.sequence)
-        self.deletions = get_gap_differences(self.sequence, self.germline)
+        self.insertions = get_gap_differences(self.germline)
+        self.deletions = get_gap_differences(self.sequence)
 
         self._v = self.v_germlines.get_ties(self.v_gene, avg_len, avg_mut)
-        insertion_total = sum(map(lambda e: e[1], self.insertions))
         common_v = get_common_seq(
             [self.v_germlines[v].sequence for v in self._v]
         )[:CDR3_OFFSET]

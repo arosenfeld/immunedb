@@ -43,8 +43,8 @@ class SequenceRecord(object):
 
                 probable_indel_or_misalign=indel,
                 regions='.'.join(map(str, self.vdj.regions)),
-                deletions=self._format_gaps(self.vdj.deletions),
-                insertions=self._format_gaps(self.vdj.insertions),
+                deletions=funcs.format_gaps(self.vdj.deletions),
+                insertions=funcs.format_gaps(self.vdj.insertions),
 
                 v_gene=funcs.format_ties(self.vdj.v_gene, 'IGHV'),
                 j_gene=funcs.format_ties(self.vdj.j_gene, 'IGHJ'),
@@ -94,10 +94,3 @@ class SequenceRecord(object):
                 pass
         except ValueError as ex:
             self.add_as_noresult(session, sample)
-
-    def _format_gaps(self, gaps):
-        if gaps is None:
-            return None
-        return ','.join(
-            ['{}-{}'.format(start, end) for (start, end) in gaps]
-        )
