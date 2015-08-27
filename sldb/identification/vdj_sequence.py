@@ -10,13 +10,16 @@ from sldb.identification import AlignmentException
 from sldb.identification.v_genes import VGene, get_common_seq, find_v_position
 
 
-def get_gap_differences(reference):
-    diffs = []
-    for diff in re.finditer('[.]+', reference):
+def gap_positions(seq):
+    gaps = []
+    for diff in re.finditer('[.]+', seq):
         start, end = diff.span()
-        diffs.append((start, end - start))
+        gaps.append((start, end - start))
+    return gaps
 
-    return diffs
+
+def gaps_before(gaps, pos):
+    return sum((e[1] for e in gaps if e[0] <= pos))
 
 
 class VDJSequence(object):
@@ -164,32 +167,34 @@ class VDJSequence(object):
                     rev_comp=True)
 
         self._v = map(lambda e: e[0], max_align['vs'])
+        self.germline = get_common_seq(
+            map(lambda e: e[1], max_align['vs']), cutoff=False
+        )
+        self.sequence = max_align['seq']
 
+        self.germline = self.germline.replace('-', '.')
+        self.sequence = self.sequence.replace('-', '.')
+
+        germ_gaps = gap_positions(self.germline)
         imgt_gaps = [
-            i for i, c in enumerate(max_align['original_germ']) if c == '-'
+            i + gaps_before(germ_gaps, i)
+            for i, c in enumerate(max_align['original_germ']) if c == '-'
         ]
 
-        self.germline = list(
-            get_common_seq(
-                map(lambda e: e[1], max_align['vs']), cutoff=False
-            ).replace('-', '.')
-        )
-        self.sequence = list(max_align['seq'].replace('-', '.'))
+        for gap in imgt_gaps:
+            self.germline = self.germline[:gap] + '-' + self.germline[gap:]
+            self.sequence = self.sequence[:gap] + '-' + self.sequence[gap:]
+
+        self.insertions = gap_positions(self.germline)
+        self.deletions = gap_positions(self.sequence)
+        self.germline = self.germline.replace('.', '-')
+        self.sequence = self.sequence.replace('.', '-')
 
         if self.quality is not None:
             self.quality = max_align['qual']
             for i, c in enumerate(self.sequence):
-                if c == '.':
+                if c == '-':
                     self.quality.insert(i, None)
-
-        for gap in imgt_gaps:
-            self.germline.insert(gap, '-')
-            self.sequence.insert(gap, '-')
-            if self.quality is not None:
-                self.quality.insert(gap, None)
-
-        self.germline = ''.join(self.germline)
-        self.sequence = ''.join(self.sequence)
 
         offset = re.search('[ATCGN]', self.germline)
         if offset is None:
@@ -208,29 +213,14 @@ class VDJSequence(object):
         if self.v_length is None:
             raise AlignmentException('Germline was too small.')
 
-        self.insertions = get_gap_differences(self.germline)
-        self.deletions = get_gap_differences(self.sequence)
-
         self._v = self.v_germlines.get_ties(self.v_gene, avg_len, avg_mut)
         common_v = get_common_seq(
             [self.v_germlines[v].sequence for v in self._v]
-        )[:CDR3_OFFSET]
+        )[:CDR3_OFFSET].replace('-', '')
 
-        for (start, size) in self.insertions:
-            common_v = ''.join([
-                common_v[:start],
-                '.' * size,
-                common_v[start:]
-            ])
-
-        common_v = common_v.replace('-', '')
-        for gap in re.finditer('[-]+', self.germline):
-            start, end = gap.span()
-            common_v = ''.join([
-                common_v[:start],
-                '-' * (end - start),
-                common_v[start:]
-            ])
+        for i, c in enumerate(self.germline):
+            if c == '-':
+                common_v = common_v[:i] + '-' + common_v[i:]
 
         self.germline = common_v
         self._v_end = len(self.germline)
@@ -243,9 +233,6 @@ class VDJSequence(object):
                 if offset <= start < offset + region_size:
                     self.regions[i] += size
             offset += region_size
-
-        self.sequence = self.sequence.replace('.', '-')
-        self.germline = self.germline.replace('.', '-')
 
     def _find_j(self, offset=0):
         '''Finds the location and type of J gene'''

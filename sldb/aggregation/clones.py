@@ -6,11 +6,13 @@ from sqlalchemy import and_, desc, distinct
 from sqlalchemy.sql import exists, func, text
 
 import dnautils
-from sldb.common.models import Clone, Sequence, Subject
+from sldb.common.models import (CDR3_OFFSET, Clone, CloneStats, Sequence,
+                                Subject)
 import sldb.common.modification_log as mod_log
 from sldb.identification.identify import VDJSequence
-from sldb.identification.v_genes import VGene
+from sldb.identification.v_genes import get_common_seq, VGene, VGermlines
 import sldb.util.lookups as lookups
+import sldb.util.funcs as funcs
 
 
 def _consensus(strings):
@@ -140,6 +142,32 @@ def _get_subject_clones(session, subject_id, min_similarity, include_indels,
     return to_update
 
 
+def _generate_germline(seqs, clone):
+    insertions = set([])
+    for seq in seqs:
+        if seq.insertions is not None:
+            insertions.update(set(tuple(funcs.gaps_to_list(seq.insertions))))
+    clone.insertions = funcs.format_gaps(insertions)
+
+    for seq in seqs:
+        seq.clone_insertions = funcs.format_gaps(insertions)
+
+    rep_seq = seqs[0]
+    rep_ins = funcs.gaps_to_list(rep_seq.insertions) or 0
+    if rep_ins != 0:
+        rep_ins = sum((e[1] for e in rep_ins))
+    germline = rep_seq.sequence[:CDR3_OFFSET + rep_ins]
+
+    for pos, size in insertions:
+        germline = germline[:pos] + ('-' * size) + germline[pos:]
+    germline += '-' * clone.cdr3_num_nts
+
+    j_region = rep_seq.germline.replace('-', '')[-rep_seq.post_cdr3_length:]
+    germline += j_region
+
+    return germline
+
+
 def _generate_consensus(session, subject_id, to_update):
     """Generates consensus CDR3s for clones.
 
@@ -150,7 +178,9 @@ def _generate_consensus(session, subject_id, to_update):
     """
     for i, clone in enumerate(session.query(Clone).filter(
             Clone.id.in_(to_update))):
-        seqs = session.query(Sequence.cdr3_nt, Sequence.germline).filter(
+        seqs = session.query(
+            Sequence
+        ).filter(
             Sequence.clone_id == clone.id,
             Sequence.copy_number_in_subject > 0
         ).all()
@@ -160,7 +190,8 @@ def _generate_consensus(session, subject_id, to_update):
         if i > 0 and i % 1000 == 0:
             print 'Committed {}/{}'.format(i, len(to_update))
             session.commit()
-        clone.germline = seqs[0].germline
+
+        clone.germline = _generate_germline(seqs, clone)
 
     session.commit()
 

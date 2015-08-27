@@ -150,8 +150,8 @@ def run_clone_stats(session, args):
         tasks.add_task(cid)
 
     for i in range(0, args.nproc):
-        session = config.init_db(args.master_db_config, args.data_db_config)
-        tasks.add_worker(CloneStatsWorker(
-            session, args.baseline_path, args.temp))
+        session = config.init_db(args.db_config)
+        tasks.add_worker(CloneStatsWorker(session, args.baseline_path,
+                                          args.temp))
 
     tasks.start()

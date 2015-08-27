@@ -1,7 +1,9 @@
 #!/usr/bin/env python2
 import sys
 import argparse
+
 import sldb.common.config as config
+from sldb.aggregation.clones import run_clones
 
 if __name__ == '__main__':
     parser = config.get_base_arg_parser('Clusters sequences into clones')
@@ -31,7 +33,6 @@ if __name__ == '__main__':
                         'new clones')
     args = parser.parse_args()
 
-    session = config.init_db(args.master_db_config, args.data_db_config)
+    session = config.init_db(args.db_config)
 
-    from sldb.aggregation.clones import run_clones
     sys.exit(run_clones(session, args))
