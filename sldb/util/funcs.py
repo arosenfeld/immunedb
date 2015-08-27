@@ -1,7 +1,16 @@
 import hashlib
 import re
 
-from sldb.common.models import Sequence
+
+def get_regions(insertions):
+    regions = [78, 36, 51, 30, 114]
+    offset = 0
+    for i, region_size in enumerate(regions):
+        for (start, size) in insertions:
+            if offset <= start < offset + region_size:
+                regions[i] += size
+        offset += region_size
+    return regions
 
 
 def format_gaps(gaps):
@@ -36,46 +45,6 @@ def periodic_commit(session, query, interval=100):
             session.commit()
         yield r
     session.commit()
-
-
-def trace_seq_collapses(session, seq):
-    ret = {}
-    sample_col = session.query(
-        Sequence.seq_id,
-        Sequence.sample_id,
-        Sequence.copy_number_in_sample,
-
-        Sequence.collapse_to_subject_seq_id,
-        Sequence.collapse_to_subject_sample_id,
-    ).filter(
-        Sequence.seq_id == seq.collapse_to_sample_seq_id,
-        Sequence.sample_id == seq.sample_id
-    ).first()
-
-    if sample_col is not None:
-        ret['sample'] = {
-            'seq_id': sample_col.seq_id,
-            'sample_id': sample_col.sample_id,
-            'copy_number': sample_col.copy_number_in_sample
-        }
-
-        subject_col = session.query(
-            Sequence.seq_id,
-            Sequence.sample_id,
-            Sequence.copy_number_in_subject
-        ).filter(
-            Sequence.seq_id == sample_col.collapse_to_subject_seq_id,
-            Sequence.sample_id == sample_col.collapse_to_subject_sample_id,
-        ).first()
-
-        if subject_col is not None:
-            ret['subject'] = {
-                'seq_id': subject_col.seq_id,
-                'sample_id': subject_col.sample_id,
-                'copy_number': subject_col.copy_number_in_subject
-            }
-
-    return ret
 
 
 def get_or_create(session, model, **kwargs):

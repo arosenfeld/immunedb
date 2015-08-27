@@ -617,6 +617,46 @@ def get_stats(session, samples, include_outliers, include_partials, grouping):
     return {'samples': sample_info, 'counts': counts, 'stats': stats}
 
 
+def trace_seq_collapses(session, seq):
+    ret = {}
+    sample_col = session.query(
+        Sequence.seq_id,
+        Sequence.sample_id,
+        Sequence.copy_number_in_sample,
+
+        Sequence.collapse_to_subject_seq_id,
+        Sequence.collapse_to_subject_sample_id,
+    ).filter(
+        Sequence.seq_id == seq.collapse_to_sample_seq_id,
+        Sequence.sample_id == seq.sample_id
+    ).first()
+
+    if sample_col is not None:
+        ret['sample'] = {
+            'seq_id': sample_col.seq_id,
+            'sample_id': sample_col.sample_id,
+            'copy_number': sample_col.copy_number_in_sample
+        }
+
+        subject_col = session.query(
+            Sequence.seq_id,
+            Sequence.sample_id,
+            Sequence.copy_number_in_subject
+        ).filter(
+            Sequence.seq_id == sample_col.collapse_to_subject_seq_id,
+            Sequence.sample_id == sample_col.collapse_to_subject_sample_id,
+        ).first()
+
+        if subject_col is not None:
+            ret['subject'] = {
+                'seq_id': subject_col.seq_id,
+                'sample_id': subject_col.sample_id,
+                'copy_number': subject_col.copy_number_in_subject
+            }
+
+    return ret
+
+
 def get_sequence(session, sample_id, seq_id):
     seq = session.query(Sequence)\
         .filter(Sequence.sample_id == sample_id,
@@ -648,7 +688,7 @@ def get_sequence(session, sample_id, seq_id):
     ret['mutations'] = []
 
     ret['clone'] = _clone_to_dict(seq.clone) if seq.clone is not None else None
-    ret['collapse_info'] = funcs.trace_seq_collapses(session, seq)
+    ret['collapse_info'] = trace_seq_collapses(session, seq)
 
     return ret
 
