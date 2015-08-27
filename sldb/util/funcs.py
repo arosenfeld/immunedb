@@ -5,12 +5,30 @@ import re
 def get_regions(insertions):
     regions = [78, 36, 51, 30, 114]
     offset = 0
-    for i, region_size in enumerate(regions):
-        for (start, size) in insertions:
-            if offset <= start < offset + region_size:
-                regions[i] += size
-        offset += region_size
+    if insertions is not None and len(insertions) > 0:
+        for i, region_size in enumerate(regions):
+            for (start, size) in insertions:
+                if offset <= start < offset + region_size:
+                    regions[i] += size
+            offset += region_size
     return regions
+
+
+def get_pos_region(regions, cdr3_len, pos):
+    cdr3_start = sum(regions)
+    j_start = cdr3_start + cdr3_len
+    if pos >= j_start:
+        return 'FR4'
+    elif pos >= cdr3_start:
+        return 'CDR3'
+
+    total = 0
+    for i, length in enumerate(regions):
+        total += length
+        if pos < total:
+            rtype = 'FW' if i % 2 == 0 else 'CDR'
+            rnum = (i // 2) + 1
+            return '{}{}'.format(rtype, rnum)
 
 
 def format_gaps(gaps):

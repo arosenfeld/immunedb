@@ -53,7 +53,7 @@ def _sample_to_dict(sample):
 
 def _clone_to_dict(clone):
     d = _fields_to_dict(['id', 'cdr3_nt', 'v_gene', 'j_gene', 'cdr3_aa',
-                         'cdr3_num_nts'], clone)
+                         'cdr3_num_nts', 'regions'], clone)
     d['subject'] = _subject_to_dict(clone.subject)
     d['germline'] = clone.consensus_germline
 
@@ -212,8 +212,6 @@ def get_clone(session, clone_id, sample_ids, thresholds=None):
         'clone': _clone_to_dict(clone),
         'quality': [],
         'seqs': {},
-        # TODO: Fix this for clones with indels
-        'region_boundaries': [77, 113, 164, 194, 308, 347, 378]
     }
 
     start_ptrn = re.compile('[N\-]*')
@@ -675,7 +673,7 @@ def get_sequence(session, sample_id, seq_id):
         'sequence', 'pre_cdr3_length', 'pre_cdr3_match', 'post_cdr3_length',
         'post_cdr3_match', 'pad_length', 'num_gaps',
         'probable_indel_or_misalign', 'insertions', 'deletions',
-        'quality', 'region_boundaries'
+        'quality', 'regions'
     ], seq)
     ret['sample'] = _sample_to_dict(seq.sample)
     ret['read_start'] = re.compile('[N\-]*').match(

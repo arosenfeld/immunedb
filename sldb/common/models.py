@@ -9,6 +9,8 @@ from sqlalchemy.orm import ColumnProperty, relationship, backref
 from sqlalchemy.orm.interfaces import MapperExtension
 from sqlalchemy.dialects.mysql import TEXT, MEDIUMTEXT, BINARY
 
+import sldb.util.funcs as funcs
+
 Base = declarative_base()
 MAX_CDR3_NTS = 96
 MAX_CDR3_AAS = int(MAX_CDR3_NTS / 3)
@@ -210,7 +212,6 @@ class Clone(Base):
     v_gene = Column(String(length=512), index=True)
     j_gene = Column(String(length=128), index=True)
 
-    regions = Column(String(25))
     insertions = Column(String(128), index=True)
 
     cdr3_nt = Column(String(length=MAX_CDR3_NTS))
@@ -225,11 +226,22 @@ class Clone(Base):
     tree = Column(MEDIUMTEXT)
 
     @property
+    def regions(self):
+        regions = funcs.get_regions(funcs.gaps_to_list(self.insertions))
+        regions.append(self.cdr3_num_nts)
+        regions.append(len(self.germline) - sum(regions))
+        return regions
+
+    @property
     def consensus_germline(self):
+        cdr3_start = CDR3_OFFSET
+        if self.insertions is not None:
+            cdr3_start += sum(
+                (e[1] for e in funcs.gaps_to_list(self.insertions)))
         return ''.join([
-            self.germline[0:CDR3_OFFSET],
+            self.germline[0:cdr3_start],
             self.cdr3_nt,
-            self.germline[CDR3_OFFSET + self.cdr3_num_nts:]
+            self.germline[cdr3_start + self.cdr3_num_nts:]
         ])
 
 
@@ -405,7 +417,6 @@ class Sequence(Base):
     partial = Column(Boolean, index=True)
 
     probable_indel_or_misalign = Column(Boolean, index=True)
-    regions = Column(String(25))
 
     # POS:LENGTH[,POS:LENGTH ...]
     deletions = Column(String(128), index=True)
@@ -478,18 +489,6 @@ class Sequence(Base):
                              self.quality.replace(' ', ''))
 
     @property
-    def region_boundaries(self):
-        boundaries = []
-        offset = 0
-        for region_size in map(int, self.regions.split('.')):
-            boundaries.append(offset + region_size - 1)
-            offset += region_size
-        cdr3_end = offset + self.cdr3_num_nts
-        boundaries.append(cdr3_end - 1)
-        boundaries.append(len(self.sequence) - 1)
-        return boundaries
-
-    @property
     def clone_sequence(self):
         seq = self.sequence
         if self.clone is None or self.clone.insertions is None:
@@ -508,6 +507,12 @@ class Sequence(Base):
 
         return seq
 
+    @property
+    def regions(self):
+        regions = funcs.get_regions(funcs.gaps_to_list(self.insertions))
+        regions.append(self.cdr3_num_nts)
+        regions.append(len(self.germline) - sum(regions))
+        return regions
 
 
 class DuplicateSequence(Base):
