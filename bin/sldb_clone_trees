@@ -3,6 +3,7 @@ import argparse
 import sys
 
 import sldb.common.config as config
+from sldb.trees.clearcut import run_clearcut
 
 if __name__ == '__main__':
     parser = config.get_base_arg_parser('Generates JSON trees for clones')
@@ -23,7 +24,5 @@ if __name__ == '__main__':
                         'calculation. (Default: 1)')
     args = parser.parse_args()
 
-    session = config.init_db(args.master_db_config, args.data_db_config)
-
-    from sldb.trees.clearcut import run_clearcut
+    session = config.init_db(args.db_config)
     sys.exit(run_clearcut(session, args))
