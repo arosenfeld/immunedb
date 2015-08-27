@@ -56,10 +56,7 @@ class ClearcutWorker(concurrent.Worker):
         seqs = {}
         mut_counts = {}
         q = self._session.query(
-            Sequence.seq_id,
-            Sequence.sample_id,
-            Sequence.sequence,
-            Sequence.mutations_from_clone
+            Sequence
         ).filter(
             Sequence.clone_id == clone_id,
             Sequence.copy_number_in_subject > 0
@@ -67,7 +64,7 @@ class ClearcutWorker(concurrent.Worker):
             Sequence.v_length
         )
         for seq in q:
-            seqs[base64.b64encode(seq.seq_id)] = seq.sequence
+            seqs[base64.b64encode(seq.seq_id)] = seq.clone_sequence
             if seq.mutations_from_clone is None:
                 raise Exception(
                     'Mutation information not available for sequence '
@@ -76,7 +73,7 @@ class ClearcutWorker(concurrent.Worker):
                 )
 
             mutations = _get_mutations(
-                germline_seq, seq.sequence, map(
+                germline_seq, seq.clone_sequence, map(
                     int, json.loads(seq.mutations_from_clone).keys())
             )
             for mut in mutations:
@@ -119,7 +116,7 @@ class ClearcutWorker(concurrent.Worker):
                 node.add_feature('copy_number', seq.copy_number_in_subject)
                 node.add_feature('tissues', map(str, tissues))
                 node.add_feature('subsets', map(str, subsets))
-                modified_seq = _remove_muts(seq.sequence, remove_muts,
+                modified_seq = _remove_muts(seq.clone_sequence, remove_muts,
                                             germline_seq)
                 node.add_feature('mutations', _get_mutations(
                     germline_seq, modified_seq,
@@ -311,7 +308,7 @@ def run_clearcut(session, args):
         tasks.add_task(clone_inst)
 
     for _ in range(0, args.nproc):
-        session = config.init_db(args.master_db_config, args.data_db_config)
+        session = config.init_db(args.db_config)
         tasks.add_worker(ClearcutWorker(session, args.clearcut_path,
                                         args.min_count, args.min_samples))
 
