@@ -42,7 +42,6 @@ class SequenceRecord(object):
                 partial=self.vdj.partial,
 
                 probable_indel_or_misalign=indel,
-                regions='.'.join(map(str, self.vdj.regions)),
                 deletions=funcs.format_gaps(self.vdj.deletions),
                 insertions=funcs.format_gaps(self.vdj.insertions),
 

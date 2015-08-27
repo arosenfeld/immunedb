@@ -5,7 +5,7 @@ from Bio.Seq import Seq
 
 import dnautils
 from sldb.common.models import CDR3_OFFSET
-from sldb.util.funcs import find_streak_position, get_regions
+from sldb.util.funcs import find_streak_position
 from sldb.identification import AlignmentException
 from sldb.identification.v_genes import VGene, get_common_seq, find_v_position
 
@@ -50,7 +50,6 @@ class VDJSequence(object):
         self.germline = None
 
         self._possible_indel = False
-        self.regions = get_regions([])
 
         self.insertions = None
         self.deletions = None
@@ -229,8 +228,6 @@ class VDJSequence(object):
         self.germline = common_v
         self._find_j(self.cdr3_start)
         self.calculate_stats()
-
-        self.regions = get_regions(self.insertions)
 
     def _find_j(self, offset=0):
         '''Finds the location and type of J gene'''

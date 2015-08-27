@@ -5,34 +5,21 @@ from sqlalchemy import distinct
 from sldb.common.models import Sequence
 from sldb.identification.v_genes import VGene
 import sldb.util.lookups as lookups
+import sldb.util.funcs as funcs
 
 
 class ContextualMutations(object):
-    def __init__(self):
+    def __init__(self, regions):
         self._seen = {}
+        self._regions = regions
         self._pos_seen = set([])
         self.region_muts = {}
         self.position_muts = {}
 
-    def _get_region(self, index, cdr3_num_nts):
-        if index <= 77:
-            return 'FR1'
-        elif index <= 113:
-            return 'CDR1'
-        elif index <= 164:
-            return 'FR2'
-        elif index <= 194:
-            return 'CDR2'
-        elif index <= 308:
-            return 'FR3'
-        elif index <= 308 + cdr3_num_nts:
-            return 'CDR3'
-        return 'FR4'
-
     def add_mutation(self, seq, cdr3_num_nts, mutation, from_aa,
                      intermediate_seq_aa, final_seq_aa, copy_number):
         pos, _, _, mtype = mutation
-        region = self._get_region(pos, cdr3_num_nts)
+        region = funcs.get_pos_region(self._regions, cdr3_num_nts, pos)
         self._add_to_region(seq, cdr3_num_nts, mutation, from_aa,
                             intermediate_seq_aa, final_seq_aa, copy_number,
                             region)
@@ -131,7 +118,7 @@ class CloneMutations(object):
 
     def calculate(self, commit_seqs=False, limit_samples=None):
         sample_mutations = {}
-        clone_mutations = ContextualMutations()
+        clone_mutations = ContextualMutations(self._clone.regions)
 
         if limit_samples is not None:
             sample_ids = limit_samples
@@ -162,7 +149,7 @@ class CloneMutations(object):
         return sample_mutations
 
     def _get_contextual_mutations(self, seqs, commit_seqs):
-        context_mutations = ContextualMutations()
+        context_mutations = ContextualMutations(self._clone.regions)
         for seq in seqs:
             seq_mutations = {}
             for i in range(0, len(seq.clone_sequence)):
