@@ -208,6 +208,9 @@ class Clone(Base):
     v_gene = Column(String(length=512), index=True)
     j_gene = Column(String(length=128), index=True)
 
+    regions = Column(String(25))
+    insertions = Column(String(128), index=True)
+
     cdr3_nt = Column(String(length=MAX_CDR3_NTS))
     cdr3_num_nts = Column(Integer, index=True)
     cdr3_aa = Column(String(length=MAX_CDR3_AAS))
@@ -380,11 +383,16 @@ class Sequence(Base):
               'copy_number_in_subject'),
         {'mysql_row_format': 'DYNAMIC'}
     )
-    __mapper_args__ = {'extension': HashExtension(
-        'sample_seq_hash', ('sample_id', 'sequence')
-    )}
+    __mapper_args__ = {
+        'extension': [
+            HashExtension('sample_seq_hash', ('sample_id', 'sequence')),
+            HashExtension('bucket_hash', ('v_gene', 'j_gene', 'cdr3_num_nts',
+                                          'insertions', 'deletions'))
+        ]
+    }
 
     sample_seq_hash = Column(String(40), unique=True, index=True)
+    bucket_hash = Column(String(40), index=True)
 
     seq_id = Column(String(128), primary_key=True, index=True)
     sample_id = Column(Integer, ForeignKey(Sample.id), primary_key=True,
@@ -478,6 +486,26 @@ class Sequence(Base):
         boundaries.append(cdr3_end - 1)
         boundaries.append(len(self.sequence) - 1)
         return boundaries
+
+    @property
+    def clone_sequence(self):
+        seq = self.sequence
+        if self.clone is None or self.clone.insertions is None:
+            return seq
+        # TODO: Use funcs function
+        if self.insertions is None:
+            skip = []
+        else:
+            skip = self.insertions.split(',')
+
+        for record in self.clone.insertions.split(','):
+            if record in skip:
+                continue
+            pos, size = map(int, record.split('-', 1))
+            seq = seq[:pos] + ('-' * size) + seq[pos:]
+
+        return seq
+
 
 
 class DuplicateSequence(Base):

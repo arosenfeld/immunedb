@@ -234,7 +234,7 @@ def get_clone(session, clone_id, sample_ids, thresholds=None):
                 'name': seq.sample.name,
             },
             'cdr3_nt': seq.cdr3_nt,
-            'sequence': seq.sequence,
+            'sequence': seq.clone_sequence,
             'read_start': read_start,
             'copy_number_in_subject': int(seq.copy_number_in_subject),
             'mutations': json.loads(seq.mutations_from_clone),
@@ -645,10 +645,7 @@ def get_sequence(session, sample_id, seq_id):
     ret['deletions'] = funcs.gaps_to_list(ret['deletions'])
 
     ret['v_extent'] = ret['v_length'] + ret['num_gaps'] + ret['pad_length']
-    if seq.mutations_from_clone is not None:
-        ret['mutations'] = json.loads(seq.mutations_from_clone)
-    else:
-        ret['mutations'] = []
+    ret['mutations'] = []
 
     ret['clone'] = _clone_to_dict(seq.clone) if seq.clone is not None else None
     ret['collapse_info'] = funcs.trace_seq_collapses(session, seq)

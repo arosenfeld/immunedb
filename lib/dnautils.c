@@ -30,8 +30,7 @@ static PyObject *dnautils_equal(PyObject *self, PyObject *args) {
     }
 
     for (i = 0; i < PyString_Size(s1); i++) {
-        if (str1[i] != str2[i] && str1[i] != 'N' && str2[i] != 'N' &&
-                str1[i] !='-' && str2[i] != '-') {
+        if (str1[i] != str2[i] && str1[i] != 'N' && str2[i] != 'N') {
             return Py_BuildValue("O", Py_False);
         }
     }

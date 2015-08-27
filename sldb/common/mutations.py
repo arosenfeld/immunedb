@@ -165,19 +165,20 @@ class CloneMutations(object):
         context_mutations = ContextualMutations()
         for seq in seqs:
             seq_mutations = {}
-            for i in range(0, len(seq.sequence)):
-                mtype, intermediate_aa = self._get_mutation(seq.sequence, i)
+            for i in range(0, len(seq.clone_sequence)):
+                mtype, intermediate_aa = self._get_mutation(
+                    seq.clone_sequence, i)
                 if mtype is None:
                     continue
 
                 from_aa = self._get_aa_at(self._germline, i)
                 seq_mutations[i] = mtype
 
-                mutation = (i, self._germline[i], seq.sequence[i], mtype)
+                mutation = (i, self._germline[i], seq.clone_sequence[i], mtype)
                 context_mutations.add_mutation(
-                    seq.sequence, self._clone.cdr3_num_nts,
+                    seq.clone_sequence, self._clone.cdr3_num_nts,
                     mutation, from_aa, intermediate_aa,
-                    self._get_aa_at(seq.sequence, i), seq.copy_number)
+                    self._get_aa_at(seq.clone_sequence, i), seq.copy_number)
 
             if commit_seqs:
                 seq.mutations_from_clone = json.dumps(seq_mutations)

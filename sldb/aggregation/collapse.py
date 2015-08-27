@@ -28,19 +28,17 @@ class CollapseWorker(concurrent.Worker):
             self._collapse_subject(args)
 
     def _collapse_sample(self, args):
-        """Collapses sequences in sample ``args['sample_id']`` and bucket
-        ``(v_gene, j_gene, cdr3_num_nts)``
-        :param dict args: A dictionary with the keys ``sample_id``, ``v_gene``,
-            ``j_gene``, and ``cdr3_num_nts``
+        """Collapses sequences in sample ``args['sample_id']`` with bucket hash
+        ``args['bucket_hash``
+        :param dict args: A dictionary with the keys ``sample_id``,
+            ``bucket_hash``
         """
         seqs = self._session.query(
             Sequence.sample_id, Sequence.seq_id, Sequence.sequence,
             Sequence.copy_number
         ).filter(
             Sequence.sample_id == args['sample_id'],
-            Sequence.v_gene == args['v_gene'],
-            Sequence.j_gene == args['j_gene'],
-            Sequence.cdr3_num_nts == args['cdr3_num_nts']
+            Sequence.bucket_hash == args['bucket_hash'],
         ).all()
         self._print('Collapsing bucket in sample {} with {} '
                     'seqs'.format(args['sample_id'], len(seqs)))
@@ -66,10 +64,7 @@ class CollapseWorker(concurrent.Worker):
         ).filter(
             Sequence.sample.has(subject_id=args['subject_id']),
             Sequence.copy_number_in_sample > 0,
-
-            Sequence.v_gene == args['v_gene'],
-            Sequence.j_gene == args['j_gene'],
-            Sequence.cdr3_num_nts == args['cdr3_num_nts']
+            Sequence.bucket_hash == args['bucket_hash'],
         ).all()
         self._print('Collapsing bucket in subject {} with {} '
                     'seqs'.format(args['subject_id'], len(seqs)))
@@ -158,9 +153,8 @@ def collapse_seqs(session, seqs, copy_field, collapse_copy_field,
         ).update(update_dict)
 
 
-def collapse_samples(master_db_config, data_db_config, sample_ids,
-                     nproc):
-    session = config.init_db(master_db_config, data_db_config)
+def collapse_samples(db_config, sample_ids, nproc):
+    session = config.init_db(db_config)
     print 'Creating task queue to collapse {} samples.'.format(len(sample_ids))
 
     session.commit()
@@ -169,31 +163,28 @@ def collapse_samples(master_db_config, data_db_config, sample_ids,
 
     for sample_id in sample_ids:
         buckets = session.query(
-            Sequence.v_gene, Sequence.j_gene, Sequence.cdr3_num_nts,
+            Sequence.bucket_hash
         ).filter(
             Sequence.sample_id == sample_id
         ).group_by(
-            Sequence.v_gene, Sequence.j_gene, Sequence.cdr3_num_nts,
+            Sequence.bucket_hash
         )
         for bucket in buckets:
             tasks.add_task({
                 'type': 'sample',
                 'sample_id': sample_id,
-                'v_gene': bucket.v_gene,
-                'j_gene': bucket.j_gene,
-                'cdr3_num_nts': bucket.cdr3_num_nts
+                'bucket_hash': bucket.bucket_hash
             })
     session.close()
 
     for i in range(0, nproc):
-        worker_session = config.init_db(master_db_config, data_db_config)
+        worker_session = config.init_db(db_config)
         tasks.add_worker(CollapseWorker(worker_session))
     tasks.start()
 
 
-def collapse_subjects(master_db_config, data_db_config, subject_ids,
-                      nproc):
-    session = config.init_db(master_db_config, data_db_config)
+def collapse_subjects(db_config, subject_ids, nproc):
+    session = config.init_db(db_config)
     print 'Creating task queue to collapse {} subjects.'.format(
         len(subject_ids))
 
@@ -201,25 +192,22 @@ def collapse_subjects(master_db_config, data_db_config, subject_ids,
 
     for subject_id in subject_ids:
         buckets = session.query(
-            Sequence.v_gene, Sequence.j_gene, Sequence.cdr3_num_nts
+            Sequence.bucket_hash
         ).filter(
             Sequence.sample.has(subject_id=subject_id),
         ).group_by(
-            Sequence.v_gene, Sequence.j_gene, Sequence.cdr3_num_nts
+            Sequence.bucket_hash
         )
         for bucket in buckets:
             tasks.add_task({
                 'type': 'subject',
                 'subject_id': subject_id,
-                'v_gene': bucket.v_gene,
-                'j_gene': bucket.j_gene,
-                'cdr3_num_nts': bucket.cdr3_num_nts
+                'bucket_hash': bucket.bucket_hash
             })
 
     session.close()
     for i in range(0, nproc):
-        worker_session = config.init_db(master_db_config,
-                                        data_db_config)
+        worker_session = config.init_db(db_config)
         tasks.add_worker(CollapseWorker(worker_session))
     tasks.start()
 
@@ -257,8 +245,6 @@ def run_collapse(session, args):
 
     session.close()
     print 'Collapsing {} samples'.format(len(samples))
-    collapse_samples(args.master_db_config, args.data_db_config, samples,
-                     args.nproc)
+    collapse_samples(args.db_config, samples, args.nproc)
     print 'Collapsing {} subjects'.format(len(subjects))
-    collapse_subjects(args.master_db_config, args.data_db_config, subjects,
-                      args.nproc)
+    collapse_subjects(args.db_config, subjects, args.nproc)

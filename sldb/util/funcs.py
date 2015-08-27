@@ -15,7 +15,7 @@ def format_gaps(gaps):
 def gaps_to_list(gaps):
     if gaps is None:
         return None
-    return map(lambda e: map(int, e.split('-')), gaps.split(','))
+    return map(lambda e: tuple(map(int, e.split('-'))), gaps.split(','))
 
 
 def ord_to_quality(quality):
