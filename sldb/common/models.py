@@ -5,6 +5,7 @@ from sqlalchemy import (Column, Boolean, Float, Integer, String, Text, Date,
                         DateTime, ForeignKey, UniqueConstraint, Index, event,
                         func)
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import ColumnProperty, relationship, backref
 from sqlalchemy.orm.interfaces import MapperExtension
 from sqlalchemy.dialects.mysql import TEXT, MEDIUMTEXT, BINARY
@@ -15,6 +16,18 @@ Base = declarative_base()
 MAX_CDR3_NTS = 96
 MAX_CDR3_AAS = int(MAX_CDR3_NTS / 3)
 CDR3_OFFSET = 309
+
+def _deserialize_gaps(gaps):
+    if gaps is None:
+        return []
+    return map(lambda e: tuple(map(int, e.split('-'))), gaps.split(','))
+
+def _serialize_gaps(gaps):
+    if gaps is None or len(gaps) == 0:
+        return None
+    return ','.join(
+        ['{}-{}'.format(start, end) for (start, end) in sorted(gaps)]
+    )
 
 
 class Study(Base):
@@ -210,7 +223,7 @@ class Clone(Base):
     v_gene = Column(String(length=512), index=True)
     j_gene = Column(String(length=128), index=True)
 
-    insertions = Column(String(128), index=True)
+    _insertions = Column('insertions', String(128), index=True)
 
     cdr3_nt = Column(String(length=MAX_CDR3_NTS))
     cdr3_num_nts = Column(Integer, index=True)
@@ -223,9 +236,17 @@ class Clone(Base):
     germline = Column(String(length=1024))
     tree = Column(MEDIUMTEXT)
 
+    @hybrid_property
+    def insertions(self):
+        return _deserialize_gaps(self._insertions)
+
+    @insertions.setter
+    def insertions(self, value):
+        self._insertions = _serialize_gaps(value)
+
     @property
     def regions(self):
-        regions = funcs.get_regions(funcs.gaps_to_list(self.insertions))
+        regions = funcs.get_regions(self.insertions)
         regions.append(self.cdr3_num_nts)
         regions.append(len(self.germline) - sum(regions))
         return regions
@@ -234,8 +255,7 @@ class Clone(Base):
     def consensus_germline(self):
         cdr3_start = CDR3_OFFSET
         if self.insertions is not None:
-            cdr3_start += sum(
-                (e[1] for e in funcs.gaps_to_list(self.insertions)))
+            cdr3_start += sum((e[1] for e in self.insertions))
         return ''.join([
             self.germline[0:cdr3_start],
             self.cdr3_nt,
@@ -403,6 +423,11 @@ class Sequence(Base):
         ]
     }
 
+    def __init__(self, **kwargs):
+        self.insertions = kwargs.pop('insertions', None)
+        self.deletions = kwargs.pop('deletions', None)
+        super(Sequence, self).__init__(**kwargs)
+
     sample_seq_hash = Column(String(40), unique=True, index=True)
     bucket_hash = Column(String(40), index=True)
 
@@ -416,9 +441,8 @@ class Sequence(Base):
 
     probable_indel_or_misalign = Column(Boolean, index=True)
 
-    # POS:LENGTH[,POS:LENGTH ...]
-    deletions = Column(String(128), index=True)
-    insertions = Column(String(128), index=True)
+    _deletions = Column('deletions', String(128), index=True)
+    _insertions = Column('insertions', String(128), index=True)
 
     v_gene = Column(String(512), index=True)
     j_gene = Column(String(512), index=True)
@@ -472,6 +496,22 @@ class Sequence(Base):
     collapse_to_subject_sample_id = Column(Integer)
     collapse_to_subject_seq_id = Column(String(128))
 
+    @hybrid_property
+    def deletions(self):
+        return _deserialize_gaps(self._deletions)
+
+    @deletions.setter
+    def deletions(self, value):
+        self._deletions = _serialize_gaps(value)
+
+    @hybrid_property
+    def insertions(self):
+        return _deserialize_gaps(self._insertions)
+
+    @insertions.setter
+    def insertions(self, value):
+        self._insertions = _serialize_gaps(value)
+
     @property
     def original_sequence(self):
         return '{}{}'.format(
@@ -489,28 +529,32 @@ class Sequence(Base):
     @property
     def clone_sequence(self):
         seq = self.sequence
-        if self.clone is None or self.clone.insertions is None:
+        if self.clone is None:
             return seq
-        # TODO: Use funcs function
-        if self.insertions is None:
-            skip = []
-        else:
-            skip = self.insertions.split(',')
-
-        for record in self.clone.insertions.split(','):
-            if record in skip:
+        for ins in self.clone.insertions:
+            if ins in self.insertions:
                 continue
-            pos, size = map(int, record.split('-', 1))
+            pos, size = ins
             seq = seq[:pos] + ('-' * size) + seq[pos:]
 
         return seq
 
     @property
     def regions(self):
-        regions = funcs.get_regions(funcs.gaps_to_list(self.insertions))
+        regions = funcs.get_regions(self.insertions)
         regions.append(self.cdr3_num_nts)
         regions.append(len(self.germline) - sum(regions))
         return regions
+
+    def get_v_extent(self, in_clone):
+        extent = self.v_length + self.num_gaps + self.pad_length
+
+        if self.deletions is not None:
+            extent -= sum((e[1] for e in self.deletions))
+        if not in_clone:
+            return extent
+
+        return extent + len(self.clone_sequence) - len(self.sequence)
 
 
 class DuplicateSequence(Base):

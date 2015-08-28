@@ -42,8 +42,8 @@ class SequenceRecord(object):
                 partial=self.vdj.partial,
 
                 probable_indel_or_misalign=indel,
-                deletions=funcs.format_gaps(self.vdj.deletions),
-                insertions=funcs.format_gaps(self.vdj.insertions),
+                deletions=self.vdj.deletions,
+                insertions=self.vdj.insertions,
 
                 v_gene=funcs.format_ties(self.vdj.v_gene, 'IGHV'),
                 j_gene=funcs.format_ties(self.vdj.j_gene, 'IGHJ'),
