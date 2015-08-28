@@ -236,7 +236,7 @@ def get_clone(session, clone_id, sample_ids, thresholds=None):
             'read_start': read_start,
             'copy_number_in_subject': int(seq.copy_number_in_subject),
             'mutations': json.loads(seq.mutations_from_clone),
-            'v_extent': seq.v_length + seq.num_gaps + seq.pad_length,
+            'v_extent': seq.get_v_extent(in_clone=True),
             'j_length': seq.j_length,
             'collapse_to': []
         }
@@ -679,10 +679,7 @@ def get_sequence(session, sample_id, seq_id):
     ret['read_start'] = re.compile('[N\-]*').match(
         seq.sequence).span()[1] or 0
 
-    ret['insertions'] = funcs.gaps_to_list(ret['insertions'])
-    ret['deletions'] = funcs.gaps_to_list(ret['deletions'])
-
-    ret['v_extent'] = ret['v_length'] + ret['num_gaps'] + ret['pad_length']
+    ret['v_extent'] = seq.get_v_extent(in_clone=False)
     ret['mutations'] = []
 
     ret['clone'] = _clone_to_dict(seq.clone) if seq.clone is not None else None

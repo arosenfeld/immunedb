@@ -12,7 +12,6 @@ import sldb.common.modification_log as mod_log
 from sldb.identification.identify import VDJSequence
 from sldb.identification.v_genes import get_common_seq, VGene, VGermlines
 import sldb.util.lookups as lookups
-import sldb.util.funcs as funcs
 
 
 def _consensus(strings):
@@ -146,17 +145,17 @@ def _generate_germline(seqs, clone):
     insertions = set([])
     for seq in seqs:
         if seq.insertions is not None:
-            insertions.update(set(tuple(funcs.gaps_to_list(seq.insertions))))
-    clone.insertions = funcs.format_gaps(insertions)
+            insertions.update(set(seq.insertions))
+    clone.insertions = insertions
 
     for seq in seqs:
-        seq.clone_insertions = funcs.format_gaps(insertions)
+        seq.clone_insertions = insertions
 
     rep_seq = seqs[0]
-    rep_ins = funcs.gaps_to_list(rep_seq.insertions) or 0
+    rep_ins = rep_seq.insertions or 0
     if rep_ins != 0:
         rep_ins = sum((e[1] for e in rep_ins))
-    germline = rep_seq.sequence[:CDR3_OFFSET + rep_ins]
+    germline = rep_seq.germline[:CDR3_OFFSET + rep_ins]
 
     for pos, size in insertions:
         germline = germline[:pos] + ('-' * size) + germline[pos:]
