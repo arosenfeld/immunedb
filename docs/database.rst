@@ -1,6 +1,6 @@
 Directly Querying the Database
 ==============================
-SLDB is backed by MySQL databases that can be queried directly to gather
+SLDB is backed by a MySQL database that can be queried directly to gather
 information, bypassing the Python API.
 
 Accessing the Database
@@ -14,8 +14,6 @@ directly from the command line with:
     $ myqsql -u USERNAME -p DATABASE
 
 This will connect to the database ``DATABASE`` with the username ``USERNAME``.
-Remember that each SLDB instance generally has two underlying databases (but
-they could be the same).
 
 This method of access is useful for quickly querying the database.  To save
 results of a query ``QUERY`` run the command:

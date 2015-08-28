@@ -14,20 +14,18 @@ installed on the system.
 
 SLDB Instance Creation
 ----------------------
-To create a new SLDB instance, first two empty databases must be created, one
-master and one data.  To do so run the following replacing ``USER`` with a
-username that has privileges to create databases, ``MASTER`` with the name for
-the master database, and ``DATA`` with the name for the data database.
+To create a new SLDB instance, first an empty database must be created.  To do
+so run the following replacing ``USER`` with a username that has privileges to
+create databases and ``NAME`` with a database name.
 
 .. code-block:: bash
 
-    $ mysql -u USER -p -e "create database MASTER; create database DATA;"
+    $ mysql -u USER -p -e "create database NAME"
 
-Then two configuration files must be made for SLDB to access each of these
-databases.  Create a file ``master.json`` with the following contents, replacing
-``HOST`` with the MySQL hostname (probably `localhost`), ``DATABASE`` with the
-name of the **master** database, ``USER`` with the name of the user, and
-``PASSWORD`` with the user's password.
+Then a configuration file must be made for SLDB to access the database.  Create
+a file ``sldb.json`` with the following contents, replacing ``HOST`` with the
+MySQL hostname (probably `localhost`), ``NAME`` with the name of the database,
+``USER`` with the name of the user, and ``PASSWORD`` with the user's password.
 
 .. code-block:: json
 
@@ -37,9 +35,6 @@ name of the **master** database, ``USER`` with the name of the user, and
         "username": "USER",
         "password": "PASSWORD"
     }
-
-Then, create the file ``data.json`` with the same contents except replace
-``DATABASE`` with the **data** database name.
 
 Data Preparation
 ----------------
@@ -75,6 +70,7 @@ The following are optional for each file:
   (the filename prior to the first ".") will be used.
 - ``subset``: The subset of the sample (e.g. Plasmablast, CD19+).  If none is
   specified, the field will be left blank.
+- ``ig_class``: The isotype of the sample (e.g. IgE).
 - ``tissue``: The tissue of the sample (e.g. Lung, Spleen).  If none is
   specified, the field will be left blank.
 - ``disease``: Any disease(s) present in the subject when the sample was taken
@@ -133,6 +129,28 @@ After creating the metadata file, the directory should look like:
     subjectDEF_blood.fasta
     subjectXYZ_liver.fasta
 
+Germline Files
+--------------
+SLDB requires that V and J germlines be specified in two separate FASTA files.
+There are a number of restrictions on their format.
+
+For V Germlines
+^^^^^^^^^^^^^^^
+
+- Genes must be in the format IGHVX*Y where X is the gene name and Y is the
+  allele.  For example, IGHV1-18*01, IGHV5-a*03, and IGHV7-4-1*05 are all valid.
+  However, IGHV1-18 and V1-18*01 are not.
+- Germlines starting with gaps are excluded from alignment.
+- Germlines must be IMGT gapped.
+- V germlines must have have one of the following anchors with their last ``C``
+  being the first base in the CDR3: ``D...Y[YCH]C``, ``Y[YHC]C`` or ``D.....C``.
+
+For J Germlines
+^^^^^^^^^^^^^^^
+- Gene names follow the same rules as for V genes except they must start with
+  ``IGHJ`` instead of ``IGHV``.
+- There must be a fixed number of bases upstream of the CDR3 in all genes.
+
 Sequence Identification
 -----------------------
 The first step of the pipeline is sequence identification.  Primarily this
@@ -151,39 +169,54 @@ identify:
 
 .. code-block:: bash
 
-    $ sldb_identify /path/to/master.json /path/to/data.json /path/to/sequence-data-directory /path/to/v_germlines
+    $ sldb_identify /path/to/config.json /path/to/sequence-data-directory /path/to/v_germlines /path/to/j_germlines \
+                    J_NTS_UPSTREAM_OF_CDR3 J_ANCHOR_SIZE J_MIN_ANCHOR_LEN
 
-Sample & Subject Sequence Collapsing
+Where ``J_NTS_UPSTREAM_OF_CDR3`` are the fixed number of nucleotides in each
+germline J gene upstream of the CDR3, J_ANCHOR_SIZE is the number of nucleotides
+to use as an anchor, and J_MIN_ANCHOR_LEN dictates how many bases must match.
+Their values for humans are 31, 18, and 12 respectively.  Graphically:
+
+.. code-block:: bash
+
+                                                |---- J_MIN_ANCHOR_LEN ----|
+                                           |-------- J_ANCHOR_SIZE --------|
+                 ...-- V --|-- CDR3 --|------ J_NTS_UPSTREAM_OF_CDR3 ------|
+    j_germline:                 ATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCG
+    seq:         ...ATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCG
+
+
+Local Alignment of Indel Sequences (Optional)
+---------------------------------------------
+After identification, certain sequences will be marked as being probable indels
+(or misalignments).  To fix these, ``sldb_local_align`` can **optionally** be
+used to properly gap sequences or germlines.  This process is inherently slow
+and therefor may not be necessary in many cases.
+
+.. code-block:: bash
+
+    $ sldb_local_align /path/to/config.json /path/to/j_germlines \
+                       J_NTS_UPSTREAM_OF_CDR3 J_ANCHOR_SIZE J_MIN_ANCHOR_LEN
+
+
+Sequence Collapsing
 ------------------------------------
 SLDB collapses sequences at two levels: the sample and the subject.  Collapsing
-two sequences at a given level means that they are considered the same.  This is
-not necessarily a simple task of checking for exactly matching sequences because
-sequences may contain unknown bases, represented by the character ``N``.
+two sequences at a given level means that they are exactly the same when
+excluding the positions where either sequence has an unknown base (``N``).
+Thus, the sequences ``ATNN`` and ``ANCN`` would be collapsed.
 
-To collapse sequences, SLDB compares sequences pairwise, ignoring positions that
-either sequences has an ``N`` with the ``sldb_collapse`` command.  This process
-is highly optimized due to its computational complexity, and written in C rather
-than Python.
+This process is has been written in C rather than Python due to its
+computational complexity.  This fact is transparent to the user, however.
 
-Sequences must be collapsed at both levels immediately after identification.  To
-collapse within samples:
+To collapse sequences, run:
 
 .. code-block:: bash
 
-    $ sldb_collapse /path/to/master.json /path/to/data.json samples
+    $ sldb_collapse /path/to/config.json
 
-The optional ``--sample-ids`` flag can specify that only certain samples should be
-collapsed.
-
-After this, the sequences must be collapsed to the subject level with a similar
-command:
-
-.. code-block:: bash
-
-    $ sldb_collapse /path/to/master.json /path/to/data.json subjects
-
-Similarly, the ``--subject-ids`` flag can be used to limit which subjects are
-collapsed.
+The optional ``--subject-ids`` flag can specify that only samples from certain
+subjects should be collapsed.
 
 Clonal Assignment
 -----------------
@@ -195,11 +228,7 @@ A basic example of clonal assignment, not using all possible arguments:
 
 .. code-block:: bash
 
-    $ sldb_clones /path/to/master.json /path/to/data.json --similarity 65 -order
-
-This will assign each sequence with at least 2 copies to a clone.  Additionally,
-it will establish clone-groups in the master database which make associating
-clones across versions simpler.
+    $ sldb_clones /path/to/config.json
 
 .. _stats_generation:
 
@@ -224,14 +253,14 @@ for samples which do not already have them:
 
 .. code-block:: bash
 
-    $ sldb_sample_stats /path/to/master.json /path/to/data.json
+    $ sldb_sample_stats /path/to/config.json
 
 Clone statistics require the path to the `Baseline
 <http://selection.med.yale.edu/baseline/Archive>`_ main script.
 
 .. code-block:: bash
 
-    $ sldb_clone_stats /path/to/master.json /path/to/data.json /path/to/Baseline_Main.r
+    $ sldb_clone_stats /path/to/config.json /path/to/Baseline_Main.r
 
 .. _tree_generation:
 
@@ -280,24 +309,6 @@ An example call to this command with only the required metadata:
     and the tied germline cannot be properly aligned to a sequence, it will be
     considered a no-result.
 
-sldb_modify_clone
-^^^^^^^^^^^^^^^^^
-In some cases, manually changing clone attributes may be desired.  For example,
-some individuals may have clones with insertions or deletions in their germline
-which requires a change to the V gene.  This can be achieved with
-``sldb_modify_clone``.
-
-For example, to add three gaps at position 70 to clone 1234:
-
-.. code-block:: bash
-
-    $ sldb_modify_clone /path/to/master.json /path/to/data.json 1234 70,3 --v-name IGHV3-34*01_deletion
-
-It is necessary to specify a new V gene name since SLDB assumes germlines with
-the same name have the exact same sequence.
-
-Other operations are possible with ``sldb_modify_clone`` which can be shown with
-the ``--help`` flag.
 
 sldb_rest
 ^^^^^^^^^

@@ -5,34 +5,6 @@ Terminology
 In this documentation the term **database** will always refer to a MySQL database
 and **instance** or **SLDB instance** will always refer to a deployment of SLDB.
 
-This is an important distinction as each SLDB instance utilizes at least two
-database: the **master** database and one or more **data** database.
-
-The reason for this is comparability.  Many times it is desirable to analyze the
-same data in multiple ways, by either varying the implementation of or parameters
-for different steps of the analysis pipeline.  For example, comparing clonal
-assignment at different CDR3 identity thresholds.
-
-In SLDB each of these variations is termed a **version** of the data.  The
-master database holds information which does not change across versions
-[#clone_groups]_ where the data databases contain that which does.
-Specifically the master database contains information about:
-
-- **Studies:** Study name, metadata, etc.
-- **Samples:** Sample name, date, tissue, etc.
-- **Subjects:** Identifier, metadata, etc.
-
-Where the data database contains information about:
-
-- **Sequences:** V, J, CDR3, etc.
-- **Clones:** CDR3, mutations, etc.
-- **Statistics:** Clone frequencies, aggregate sample data, etc.
-
-As more versions of the SLDB instance are added, more data databases will be
-created, but the master will remain constant [#clone_groups]_.  This allows for
-simpler comparisons as the IDs and ordering of records in the master database
-remain constant.
-
 Dependency Installation
 ---------------------
 MySQL
