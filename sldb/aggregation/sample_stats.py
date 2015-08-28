@@ -370,7 +370,7 @@ def run_sample_stats(session, args):
         _queue_tasks(session, sample_id, args.clones_only, args.force, tasks)
 
     for i in range(0, args.nproc):
-        session = config.init_db(args.master_db_config, args.data_db_config)
+        session = config.init_db(args.db_config)
         tasks.add_worker(SampleStatsWorker(session))
 
     tasks.start()

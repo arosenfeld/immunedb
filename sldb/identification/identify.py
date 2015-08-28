@@ -153,7 +153,8 @@ class IdentificationWorker(concurrent.Worker):
             sample.date = meta.get('date')
             self._print('\tCreated new sample "{}" in MASTER'.format(
                 sample.name))
-            for key in ('subset', 'tissue', 'disease', 'lab', 'experimenter'):
+            for key in ('subset', 'tissue', 'disease', 'lab', 'experimenter',
+                        'ig_class'):
                 setattr(sample, key, meta.get(key, require=False))
             subject, new = funcs.get_or_create(
                 self._session, Subject, study=study,
