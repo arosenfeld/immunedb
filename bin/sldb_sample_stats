@@ -2,6 +2,7 @@
 import sys
 import argparse
 import sldb.common.config as config
+from sldb.aggregation.sample_stats import run_sample_stats
 
 if __name__ == '__main__':
     parser = config.get_base_arg_parser('Generates statistics for samples')
@@ -13,7 +14,6 @@ if __name__ == '__main__':
                         'regeneration of stats even if they already exist')
     args = parser.parse_args()
 
-    session = config.init_db(args.master_db_config, args.data_db_config)
+    session = config.init_db(args.db_config)
 
-    from sldb.aggregation.sample_stats import run_sample_stats
     sys.exit(run_sample_stats(session, args))
