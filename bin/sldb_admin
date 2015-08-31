@@ -1,0 +1,144 @@
+#!/usr/bin/env python2
+import argparse
+import getpass
+import json
+import pymysql
+import os
+import re
+
+import sldb.common.config as config
+
+def _yn_prompt(prompt):
+    while True:
+        print '{} [Y/N]'.format(prompt),
+        v = raw_input().lower()
+        if v in ('y', 'n'):
+            return v == 'y'
+
+def _get_root_connection(host, user):
+    password = getpass.getpass('MySQL password for ({}):'.format(
+        user))
+    return pymysql.connect(host=host, user=user, password=password,
+                           cursorclass=pymysql.cursors.DictCursor)
+
+
+def _create_user_if_not_exists(conn, host, user, password):
+    with conn.cursor() as cursor:
+        cursor.execute('select host, user, password from mysql.user where '
+                           'user=%s and host=%s', (user, host))
+        existing = cursor.fetchone()
+        if existing is None:
+            cursor.execute('CREATE USER \'{}\'@\'%\' IDENTIFIED BY '
+                           '\'{}\''.format(user, password))
+            return None
+        return existing['password']
+
+
+def _get_user_pass(conn, host, user, existing_password):
+    with conn.cursor() as cursor:
+        while True:
+            db_pass = getpass.getpass()
+            cursor.execute('select password(%s) as password', db_pass)
+            if cursor.fetchone()['password'] != existing_password:
+                print 'Password does not match.'
+            else:
+                print 'Correct password'
+                return db_pass
+
+
+def _create(main_parser, args):
+    if re.search('[^A-Za-z0-9_\-]', args.db_name) is not None:
+        main_parser.error('Database name must only contain letters, numbers, '
+                          'dashes and underscores.')
+
+    try:
+        connection = _get_root_connection(args.db_host, args.admin_user)
+
+        db_user = args.db_user or args.db_name
+        if args.db_pass:
+            db_pass = getpass.getpass('New MySQL password for ({}):'.format(
+                db_user))
+        else:
+            db_pass = 'CHANGEME'
+
+
+        with connection.cursor() as cursor:
+            print 'Creating user "{}"'.format(db_user)
+            existing_password = _create_user_if_not_exists(connection, '%',
+                                                           db_user, db_pass)
+            if existing_password is not None:
+                print ('Warning: User {} already exists.  To generate the '
+                       'configuration file, you must enter it\'s '
+                       'password.').format(db_user)
+                db_pass = _get_user_pass(connection, args.db_host, db_user,
+                                         existing_password)
+
+            print 'Creating database "{}"'.format(args.db_name)
+            cursor.execute('CREATE DATABASE {}'.format(args.db_name))
+
+            cursor.execute(
+                'GRANT ALL PRIVILEGES ON {}.* TO \'{}\'@\'%\''.format(
+                    args.db_name, db_user))
+
+        config_path = os.path.join(args.config_dir, '{}.json'.format(
+            args.db_name))
+        print 'Creating config at {}'.format(config_path)
+        with open(config_path, 'w+') as fh:
+            json.dump({
+                'host': args.db_host,
+                'database': args.db_name,
+                'username': db_user,
+                'password': db_pass
+            }, fh, sort_keys=True, indent=4, separators=(',', ': '))
+
+        print 'Initializing tables'
+        config.init_db(config_path)
+        print 'Success!'
+    except Exception as e:
+        print 'ERROR: {}'.format(e)
+
+
+'''
+def _delete(main_parser, args):
+    try:
+        connection = _get_root_connection(args.db_host, args.admin_user)
+
+'''
+
+if __name__ == '__main__':
+    main_parser = argparse.ArgumentParser(
+        description='Administrative tools for SLDB database instances')
+    subparsers = main_parser.add_subparsers(dest='cmd',
+                                            help='The task to begin')
+
+    parser = subparsers.add_parser(
+        'create', help='Creates a new SLDB database')
+    parser.add_argument('admin_user', help='MySQL user with rights to create '
+                        'databases')
+    parser.add_argument('db_name', help='Database name (letters, numbers, '
+                        'dashes and underscores only)')
+    parser.add_argument('config_dir', help='The directory in which to store '
+                        'the generated configuration file.')
+    parser.add_argument('--db-host', default='localhost', help='Hostname or '
+                        'IP of the MySQL server. (Default: localhost)')
+    parser.add_argument('--db-user', default=None, help='Name of MySQL user '
+                        'to generate for the database.  (Default: name of '
+                        'database)')
+    parser.add_argument('--db-pass', action='store_true', help='Prompt for '
+                        'MySQL user password.  (Default: randomly generated)')
+
+    parser = subparsers.add_parser(
+        'delete', help='Deletes an existing SLDB database')
+    parser.add_argument('admin_user', help='MySQL user with rights to create '
+                        'databases')
+    parser.add_argument('db_name', help='Database name to delete')
+    parser.add_argument('--db-host', default='localhost', help='Hostname or '
+                        'IP of the MySQL server. (Default: localhost)')
+    args = main_parser.parse_args()
+
+    cmds = {
+        'create': _create,
+        #'delete': _delete
+    }
+
+    cmds[args.cmd](main_parser, args)
