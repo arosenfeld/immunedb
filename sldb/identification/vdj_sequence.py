@@ -116,8 +116,8 @@ class VDJSequence(object):
         return self.in_frame and not self.stop
 
     def _locally_align(self, avg_mut, avg_len, insert_penalty=-50,
-                      delete_penalty=-50, extend_penalty=-10,
-                      mismatch_penalty=-20, match_score=40, rev_comp=False):
+                       delete_penalty=-50, extend_penalty=-10,
+                       mismatch_penalty=-20, match_score=40, rev_comp=False):
         if rev_comp:
             self.sequence = str(Seq(self.sequence).reverse_complement())
         max_align = None
@@ -402,7 +402,7 @@ class VDJSequence(object):
             self.sequence += 'N' * (len(self.germline) - len(self.sequence))
             if self.quality is not None:
                 self.quality.extend([None] * (len(self.germline) -
-                                     len(self.quality)))
+                                    len(self.quality)))
             self._possible_indel = True
 
         # Get the pre-CDR3 germline

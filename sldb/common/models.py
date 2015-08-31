@@ -17,10 +17,12 @@ MAX_CDR3_NTS = 96
 MAX_CDR3_AAS = int(MAX_CDR3_NTS / 3)
 CDR3_OFFSET = 309
 
+
 def _deserialize_gaps(gaps):
     if gaps is None:
         return []
     return map(lambda e: tuple(map(int, e.split('-'))), gaps.split(','))
+
 
 def _serialize_gaps(gaps):
     if gaps is None or len(gaps) == 0:
@@ -408,6 +410,7 @@ class Sequence(Base):
     __tablename__ = 'sequences'
     __table_args__ = (
         Index('genes', 'v_gene', 'j_gene'),
+        Index('sample_seq_id', 'seq_id', 'sample_id'),
         Index('sample_collapse', 'collapse_to_sample_seq_id',
               'sample_id'),
         Index('subject_collapse',
@@ -415,6 +418,7 @@ class Sequence(Base):
               'collapse_to_subject_seq_id'),
         Index('clone_by_subject', 'clone_id',
               'copy_number_in_subject'),
+        UniqueConstraint('sample_id', 'seq_id'),
         {'mysql_row_format': 'DYNAMIC'}
     )
     __mapper_args__ = {
@@ -430,12 +434,13 @@ class Sequence(Base):
         self.deletions = kwargs.pop('deletions', None)
         super(Sequence, self).__init__(**kwargs)
 
+    id = Column(Integer, primary_key=True)
+
     sample_seq_hash = Column(String(40), unique=True, index=True)
     bucket_hash = Column(String(40), index=True)
 
-    seq_id = Column(String(128), primary_key=True, index=True)
-    sample_id = Column(Integer, ForeignKey(Sample.id), primary_key=True,
-                       index=True)
+    seq_id = Column(String(128), index=True)
+    sample_id = Column(Integer, ForeignKey(Sample.id), index=True)
     sample = relationship(Sample, backref=backref('sequences'))
 
     paired = Column(Boolean, index=True)
@@ -655,7 +660,7 @@ def check_string_length(cls, key, inst):
                 if value is not None and len(value) > max_length:
                     raise ValueError(
                         'Length {} exceeds allowed {} for {}'.format(
-                        len(value), max_length, col.name)
+                            len(value), max_length, col.name)
                     )
             event.listen(inst, 'set', set_)
 

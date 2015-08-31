@@ -2,6 +2,7 @@ from sldb.common.models import DuplicateSequence, NoResult, Sequence
 import sldb.util.funcs as funcs
 import sldb.util.lookups as lookups
 
+
 class AlignmentException(Exception):
     pass
 
@@ -59,7 +60,7 @@ class SequenceRecord(object):
                 removed_prefix=self.vdj.removed_prefix,
                 removed_prefix_qual=funcs.ord_to_quality(
                     self.vdj.removed_prefix_qual),
-                v_mutation_fraction = self.vdj.mutation_fraction,
+                v_mutation_fraction=self.vdj.mutation_fraction,
 
                 pre_cdr3_length=self.vdj.pre_cdr3_length,
                 pre_cdr3_match=self.vdj.pre_cdr3_match,

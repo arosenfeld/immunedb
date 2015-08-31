@@ -20,6 +20,7 @@ setup(
         'sldb.util',
     ],
     scripts=[
+        'bin/sldb_admin',
         'bin/sldb_clones',
         'bin/sldb_clone_stats',
         'bin/sldb_clone_trees',

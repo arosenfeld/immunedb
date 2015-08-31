@@ -217,7 +217,7 @@ def run_identify(session, args):
             fail = True
         elif meta.get('sample_name') in sample_names:
             print ('Sample {} exists more than once in metadata. Cannot '
-                    'continue.').format(meta.get('sample_name'))
+                   'continue.').format(meta.get('sample_name'))
             return
         else:
             tasks.add_task({
