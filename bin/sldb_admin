@@ -4,7 +4,9 @@ import getpass
 import json
 import pymysql
 import os
+import random
 import re
+import string
 
 import sldb.common.config as config
 
@@ -24,7 +26,7 @@ def _get_root_connection(host, user):
 
 def _create_user_if_not_exists(conn, host, user, password):
     with conn.cursor() as cursor:
-        cursor.execute('select host, user, password from mysql.user where '
+        cursor.execute('SELECT host, user, password from mysql.user WHERE '
                            'user=%s and host=%s', (user, host))
         existing = cursor.fetchone()
         if existing is None:
@@ -38,7 +40,7 @@ def _get_user_pass(conn, host, user, existing_password):
     with conn.cursor() as cursor:
         while True:
             db_pass = getpass.getpass()
-            cursor.execute('select password(%s) as password', db_pass)
+            cursor.execute('SELECT PASSWORD(%s) as password', db_pass)
             if cursor.fetchone()['password'] != existing_password:
                 print 'Password does not match.'
             else:
@@ -52,25 +54,27 @@ def _create(main_parser, args):
                           'dashes and underscores.')
 
     try:
-        connection = _get_root_connection(args.db_host, args.admin_user)
+        conn = _get_root_connection(args.db_host, args.admin_user)
 
         db_user = args.db_user or args.db_name
         if args.db_pass:
             db_pass = getpass.getpass('New MySQL password for ({}):'.format(
                 db_user))
         else:
-            db_pass = 'CHANGEME'
+            db_pass = ''.join(
+                random.choice(string.ascii_uppercase + string.ascii_lowercase +
+                              string.digits) for _ in range(10))
 
 
-        with connection.cursor() as cursor:
+        with conn.cursor() as cursor:
             print 'Creating user "{}"'.format(db_user)
-            existing_password = _create_user_if_not_exists(connection, '%',
-                                                           db_user, db_pass)
+            existing_password = _create_user_if_not_exists(conn, '%', db_user,
+                                                           db_pass)
             if existing_password is not None:
                 print ('Warning: User {} already exists.  To generate the '
                        'configuration file, you must enter it\'s '
                        'password.').format(db_user)
-                db_pass = _get_user_pass(connection, args.db_host, db_user,
+                db_pass = _get_user_pass(conn, args.db_host, db_user,
                                          existing_password)
 
             print 'Creating database "{}"'.format(args.db_name)
@@ -98,12 +102,20 @@ def _create(main_parser, args):
         print 'ERROR: {}'.format(e)
 
 
-'''
 def _delete(main_parser, args):
     try:
-        connection = _get_root_connection(args.db_host, args.admin_user)
+        with open(args.db_config) as fh:
+            db_config = json.load(fh)
+        conn = _get_root_connection(db_config['host'], args.admin_user)
+        with conn.cursor() as cursor:
+            print 'Deleting database {}'.format(db_config['database'])
+            cursor.execute('DROP DATABASE `{}`'.format(db_config['database']))
+            if args.delete_user:
+                print 'Deleting user {}'.format(db_config['username'])
+                cursor.execute('DROP USER `{}`'.format(db_config['username']))
+    except Exception as e:
+        print 'ERROR: {}'.format(e)
 
-'''
 
 if __name__ == '__main__':
     main_parser = argparse.ArgumentParser(
@@ -131,14 +143,18 @@ if __name__ == '__main__':
         'delete', help='Deletes an existing SLDB database')
     parser.add_argument('admin_user', help='MySQL user with rights to create '
                         'databases')
-    parser.add_argument('db_name', help='Database name to delete')
-    parser.add_argument('--db-host', default='localhost', help='Hostname or '
-                        'IP of the MySQL server. (Default: localhost)')
+    parser.add_argument('db_config', help='Path to database config')
+    parser.add_argument('--delete-user', action='store_true', help='If '
+                        'specified will also delete the user associated '
+                        'with the database.  Deleting the user will '
+                        'also delete it for other database, so only use if '
+                        'you\'re deleting those other databases or the user '
+                        'is only associated with this database.')
     args = main_parser.parse_args()
 
     cmds = {
         'create': _create,
-        #'delete': _delete
+        'delete': _delete
     }
 
     cmds[args.cmd](main_parser, args)
