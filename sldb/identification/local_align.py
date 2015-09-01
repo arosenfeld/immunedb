@@ -42,6 +42,9 @@ class LocalAlignmentWorker(concurrent.Worker):
         except AlignmentException:
             pass
 
+    def cleanup(self):
+        self._completed_tasks.put(None)
+
 
 def run_fix_sequences(session, args):
     v_germlines = VGermlines(args.v_germlines)
@@ -74,20 +77,27 @@ def run_fix_sequences(session, args):
             'avg_len': avg_len
         })
 
-    for i in range(0, min(args.nproc, tasks.num_tasks)):
+    workers = min(args.nproc, tasks.num_tasks)
+    for i in range(0, workers):
         tasks.add_worker(LocalAlignmentWorker(v_germlines, j_germlines,
                                               completed_tasks,
                                               args.max_deletions,
                                               args.max_insertions))
 
-    tasks.start()
+    tasks.start(block=False)
     i = 0
+    stops = 0
     while True:
         i += 1
         try:
-            task = completed_tasks.get(block=False)
+            task = completed_tasks.get()
         except Queue.Empty:
             break
+        if task is None:
+            stops += 1
+            if stops >= workers:
+                break
+            continue
 
         vdj = task['vdj']
         sample_id = task['sample_id']
@@ -95,12 +105,10 @@ def run_fix_sequences(session, args):
         paired = task['paired']
 
         # Check if there is an existing sequence with the same aligned sequence
-        existing = session.query(
-            Sequence.seq_id,
-            Sequence.sample_id
-        ).filter(
+        existing = session.query(Sequence).filter(
             Sequence.sample_seq_hash == HashExtension.hash_fields(
-                (sample_id, vdj.sequence))
+                (sample_id, vdj.sequence)),
+            Sequence.seq_id != vdj.id
         ).first()
         if existing is not None:
             # There is an existing sequence; add the aligned sequence as a
@@ -108,17 +116,16 @@ def run_fix_sequences(session, args):
             existing.copy_number += copy_number
             # Set duplicates of the aligned sequence to duplicates of the
             # existing sequence
-            session.update(DuplicateSequence).filter(
-                DuplicateSequence.sample_id == sample_id,
-                DuplicateSequence.duplicate_seq_id == seq_id
-            ).update({
-                'duplicate_seq_id': existing.seq_id
-            })
+            for dup in session.query(DuplicateSequence).filter(
+                    DuplicateSequence.sample_id == sample_id,
+                    DuplicateSequence.duplicate_seq_id == vdj.id):
+                        dup.duplicate_seq_id, existing.seq_id)
+                dup.duplicate_seq_id = existing.seq_id
 
             # Add the sequence as a duplicate
             session.add(DuplicateSequence(
                 duplicate_seq_id=existing.seq_id,
-                sample_id=existing.sample_id,
+                sample_id=sample_id,
                 seq_id=vdj.id))
 
             # Delete the original sequence
