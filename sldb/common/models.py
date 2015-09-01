@@ -544,7 +544,7 @@ class Sequence(Base):
         seq = self.sequence
         if self.clone is None:
             return seq
-        for ins in self.clone.insertions:
+        for ins in sorted(self.clone.insertions):
             if ins in self.insertions:
                 continue
             pos, size = ins

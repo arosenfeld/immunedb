@@ -40,8 +40,6 @@ class CollapseWorker(concurrent.Worker):
             Sequence.sample_id == args['sample_id'],
             Sequence.bucket_hash == args['bucket_hash'],
         ).all()
-        self._print('Collapsing bucket in sample {} with {} '
-                    'seqs'.format(args['sample_id'], len(seqs)))
 
         collapse_seqs(
             self._session, seqs, 'copy_number', 'copy_number_in_sample',
@@ -50,6 +48,7 @@ class CollapseWorker(concurrent.Worker):
         self._tasks += 1
         if self._tasks % 100 == 0:
             self._session.commit()
+            self._print('Collapsed {} buckets'.format(self._tasks))
 
     def _collapse_subject(self, args):
         """Collapses all clones in the subject with ID ``args['subject_id']``

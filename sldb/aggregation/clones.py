@@ -157,8 +157,10 @@ def _generate_germline(seqs, clone):
         rep_ins = sum((e[1] for e in rep_ins))
     germline = rep_seq.germline[:CDR3_OFFSET + rep_ins]
 
-    for pos, size in insertions:
-        germline = germline[:pos] + ('-' * size) + germline[pos:]
+    for ins in insertions:
+        if ins not in rep_seq.insertions:
+            pos, size = ins
+            germline = germline[:pos] + ('-' * size) + germline[pos:]
     germline += '-' * clone.cdr3_num_nts
 
     j_region = rep_seq.germline.replace('-', '')[-rep_seq.post_cdr3_length:]
