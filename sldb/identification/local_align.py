@@ -9,13 +9,17 @@ from sldb.identification.v_genes import VGermlines
 from sldb.identification.vdj_sequence import VDJSequence
 from sldb.common.models import (HashExtension, DuplicateSequence, NoResult,
                                 Sample, Sequence)
+import sldb.util.lookups as lookups
 import sldb.util.concurrent as concurrent
 
 
 class LocalAlignmentWorker(concurrent.Worker):
-    def __init__(self, v_germlines, j_germlines, completed_tasks):
+    def __init__(self, v_germlines, j_germlines, completed_tasks,
+                 max_deletions, max_insertions):
         self._v_germlines = v_germlines
         self._j_germlines = j_germlines
+        self._max_deletions = max_deletions
+        self._max_insertions = max_insertions
         self._completed_tasks = completed_tasks
 
     def do_task(self, args):
@@ -28,8 +32,9 @@ class LocalAlignmentWorker(concurrent.Worker):
                 ), locally_align=(args['avg_mut'], args['avg_len'])
             )
 
-            if not v.has_possible_indel:
-                self._print('Adding {}'.format(v.id))
+            if (not v.has_possible_indel and len(v.insertions) <=
+                    self._max_insertions and len(v.deletions) <=
+                    self._max_deletions):
                 args.update({
                     'vdj': v
                 })
@@ -71,14 +76,16 @@ def run_fix_sequences(session, args):
 
     for i in range(0, min(args.nproc, tasks.num_tasks)):
         tasks.add_worker(LocalAlignmentWorker(v_germlines, j_germlines,
-                                              completed_tasks))
+                                              completed_tasks,
+                                              args.max_deletions,
+                                              args.max_insertions))
 
     tasks.start()
     i = 0
     while True:
         i += 1
         try:
-            task = completed_tasks.get()
+            task = completed_tasks.get(block=False)
         except Queue.Empty:
             break
 
@@ -86,13 +93,6 @@ def run_fix_sequences(session, args):
         sample_id = task['sample_id']
         copy_number = task['copy_number']
         paired = task['paired']
-
-        # Delete the sequence which was successfully locally aligned
-        session.query(Sequence).filter(
-            Sequence.sample_id == sample_id,
-            Sequence.seq_id == vdj.id
-        ).delete()
-        session.flush()
 
         # Check if there is an existing sequence with the same aligned sequence
         existing = session.query(
@@ -120,21 +120,59 @@ def run_fix_sequences(session, args):
                 duplicate_seq_id=existing.seq_id,
                 sample_id=existing.sample_id,
                 seq_id=vdj.id))
+
+            # Delete the original sequence
+            session.query(Sequence).filter(
+                Sequence.sample_id == sample_id,
+                Sequence.seq_id == vdj.id
+            ).delete()
         else:
             # The aligned sequence is unique; add it as a regular sequence
-            r = SequenceRecord(vdj.sequence, sample_id)
-            r.seq_ids = map(lambda e: e.seq_id, session.query(
-                DuplicateSequence.seq_id
-            ).filter(
-                DuplicateSequence.sample_id == sample_id,
-                DuplicateSequence.duplicate_seq_id == vdj.id
-            ).all())
-            r.seq_ids.append(vdj.id)
-            r.vdj = vdj
-            sample = session.query(Sample).filter(Sample.id == sample_id).one()
-            r.add_as_sequence(session, sample, paired)
+            old_seq = session.query(Sequence).filter(
+                Sequence.seq_id == vdj.id,
+                Sequence.sample_id == sample_id
+            ).one()
+
+            old_seq.probable_indel_or_misalign = vdj.has_possible_indel
+            old_seq.deletions = vdj.deletions
+            old_seq.insertions = vdj.insertions
+            old_seq.v_gene = funcs.format_ties(vdj.v_gene, 'IGHV')
+            old_seq.j_gene = funcs.format_ties(vdj.j_gene, 'IGHJ')
+
+            old_seq.num_gaps = vdj.num_gaps
+            old_seq.pad_length = vdj.pad_length
+
+            old_seq.v_match = vdj.v_match
+            old_seq.v_length = vdj.v_length
+            old_seq.j_match = vdj.j_match
+            old_seq.j_length = vdj.j_length
+
+            old_seq.removed_prefix = vdj.removed_prefix
+            old_seq.removed_prefix_qual = funcs.ord_to_quality(
+               vdj.removed_prefix_qual)
+            old_seq.v_mutation_fraction = vdj.mutation_fraction
+
+            old_seq.pre_cdr3_length = vdj.pre_cdr3_length
+            old_seq.pre_cdr3_match = vdj.pre_cdr3_match
+            old_seq.post_cdr3_length = vdj.post_cdr3_length
+            old_seq.post_cdr3_match = vdj.post_cdr3_match
+
+            old_seq.in_frame = vdj.in_frame
+            old_seq.functional = vdj.functional
+            old_seq.stop = vdj.stop
+
+            old_seq.cdr3_nt = vdj.cdr3
+            old_seq.cdr3_num_nts = len(vdj.cdr3)
+            old_seq.cdr3_aa = lookups.aas_from_nts(vdj.cdr3)
+
+            old_seq.sequence = str(vdj.sequence)
+            old_seq.quality = funcs.ord_to_quality(vdj.quality)
+
+            old_seq.germline = vdj.germline
+
         fixed += 1
 
         if i > 0 and i % 10 == 0:
             print 'Processed {} indels'.format(i)
             session.commit()
+    session.commit()

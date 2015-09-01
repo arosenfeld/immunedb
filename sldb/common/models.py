@@ -282,9 +282,15 @@ class HashExtension(MapperExtension):
         self._store_name = store_name
         self._hash_fields = hash_fields
 
-    def before_insert(self, mapper, connection, instance):
+    def _hash(self, mapper, connection, instance):
         fields = map(lambda f: str(getattr(instance, f)), self._hash_fields)
         setattr(instance, self._store_name, HashExtension.hash_fields(fields))
+
+    def before_insert(self, mapper, connection, instance):
+        self._hash(mapper, connection, instance)
+
+    def before_update(self, mapper, connection, instance):
+        self._hash(mapper, connection, instance)
 
     @staticmethod
     def hash_fields(fields):

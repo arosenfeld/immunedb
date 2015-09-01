@@ -23,6 +23,12 @@ if __name__ == '__main__':
     parser.add_argument('min_anchor_len', type=int, help='The minimum number '
                         'of nucleotides in the J germline anchors required '
                         'to match the sequence.')
+    parser.add_argument('--max-deletions', type=int, default=3,
+                        help='Maximum number of deletion blocks allowed.  '
+                        '(Default: 3)')
+    parser.add_argument('--max-insertions', type=int, default=3,
+                        help='Maximum number of insertion blocks allowed.  '
+                        '(Default: 3)')
     args = parser.parse_args()
 
     session = config.init_db(args.db_config)

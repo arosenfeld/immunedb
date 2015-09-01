@@ -34,15 +34,14 @@ class SequenceRecord(object):
 
     def add_as_sequence(self, session, sample, paired):
         try:
-            indel = self.vdj.has_possible_indel
-            session.add(Sequence(
+            seq = Sequence(
                 seq_id=self.vdj.id,
                 sample_id=sample.id,
 
                 paired=paired,
                 partial=self.vdj.partial,
 
-                probable_indel_or_misalign=indel,
+                probable_indel_or_misalign=self.vdj.has_possible_indel,
                 deletions=self.vdj.deletions,
                 insertions=self.vdj.insertions,
 
@@ -79,7 +78,8 @@ class SequenceRecord(object):
                 sequence=str(self.vdj.sequence),
                 quality=funcs.ord_to_quality(self.vdj.quality),
 
-                germline=self.vdj.germline))
+                germline=self.vdj.germline)
+            session.add(seq)
 
             # Add duplicate sequences
             try:
