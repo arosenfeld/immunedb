@@ -1,4 +1,42 @@
 # CHANGELOG
+## v0.12.0
+* `sldb_admin` has been added to simplify creating, deleting, backing up, and
+  restoring SLDB instances.
+* `sldb_local_align` has been added for locally aligning sequences marked as
+  having insertions or deletions.
+* SLDB no longer uses two databases and now only requires one configuration
+  file.
+* Identification speed has been increased.
+* Samples can now be annotated with an `ig_class` specifying the isotype of the
+  sample (e.g. IgA, IgE).
+* Exporting should no longer have a long startup-delay when exporting a large
+  number of sequences.
+
+## v0.11.4
+* Exporting clone overlap now includes selected and all samples.
+* Identification will no longer fail for samples with zero identifiable reads.
+* It is no longer possible to have multiple input files for one sample.
+  Additionally, identification will not allow sequences to be added to existing
+  samples.
+* Hypergeometric probabilities for V-ties are now cached, greatly improving
+  identification performance.
+* A `--trim INT`` parameter has been added to identification allowing reads to
+  be trimmed prior to identification.
+
+## v0.10.0
+* TokuDB has been dropped in favor of InnoDB for the purpose of easier
+  installation.
+* Identification tests have been re-written.
+* Sequences that cannot be inserted due to a field-length restriction are added
+  as `NoResult`s whenever possible.
+* Clonal assignment now includes partial reads by default.
+* Collapsing of sequences now occurs within V, J, CDR3 length buckets for
+  efficiency.
+* Identification now looks for `D.....C` in sequences if all other anchors
+  fail.
+* Sample-level duplicate sequences now have the correct clone ID after.
+* V-match percentage is now correct for partial sequences.
+
 ## v0.9.0
 * Quality strings are now properly oriented for reverse-complement sequences.
 * Trees will no longer have zero-mutation roots.
