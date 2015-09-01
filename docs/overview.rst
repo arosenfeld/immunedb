@@ -91,7 +91,3 @@ If instead a global install is desired, run:
     $ python setup.py install
 
 .. rubric:: Footnotes
-
-.. [#clone_groups]
-    With the exception of the ``clone_groups`` table which will potentially
-    change.

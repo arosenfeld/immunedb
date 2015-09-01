@@ -1,40 +1,42 @@
 Data Analysis Pipeline
 ======================
-One of the primary components of SLDB is its clonal identification pipeline
-which has the capability to take as input raw sequences, determine likely V and
-J genes, and finally group similar sequences into clones.
+The primary component of SLDB is its clonal identification pipeline which has
+the capability to take as input raw sequences, determine likely V and J genes,
+and finally group similar sequences into clones.
 
-The pipeline is comprised of a number of steps, however, which allows any
-portion of this process to be replaced by another system.  For example,
-HighV-Quest could be used for V and J assignment portion.  Further, the SLDB API
-allows developers to integrate other tools into each step of the pipeline.
+The pipeline is comprised of a number of steps which allows any portion of this
+process to be replaced by another system.  For example, HighV-Quest could be
+used for V and J assignment portion.  Further, the SLDB API allows developers to
+integrate other tools into each step of the pipeline.
 
 This page explains the basic workflow and assumes MySQL and SLDB are already
-installed on the system.
+installed on the system.  It does not attempt to detail all the possible options
+at each stage of the pipeline and users are encouraged to review the usage
+documentation of each command.
 
 SLDB Instance Creation
 ----------------------
-To create a new SLDB instance, first an empty database must be created.  To do
-so run the following replacing ``USER`` with a username that has privileges to
-create databases and ``NAME`` with a database name.
+It is assumed that the root user's username and password for MySQL is known.
+To create a new SLDB instance, one can use ``sldb_admin``:
 
 .. code-block:: bash
 
-    $ mysql -u USER -p -e "create database NAME"
+    $ sldb_admin create root DB_NAME CONFIG_DIR
 
-Then a configuration file must be made for SLDB to access the database.  Create
-a file ``sldb.json`` with the following contents, replacing ``HOST`` with the
-MySQL hostname (probably `localhost`), ``NAME`` with the name of the database,
-``USER`` with the name of the user, and ``PASSWORD`` with the user's password.
+Replacing ``DB_NAME`` with an appropriate database name and ``CONFIG_DIR`` with
+a directory in which the database configuration will be stored will initialize
+the instance.
 
-.. code-block:: json
+.. note::
 
-    {
-        "host": "HOST",
-        "database": "DATABASE",
-        "username": "USER",
-        "password": "PASSWORD"
-    }
+    You may use a user other than ``root`` so long as it has permissions to
+    create databases, create users, and grant users permission to manipulate
+    database in any way.
+
+After running this, a database with the specified name will be created.  Further
+a configuration file with the same name and a ``.json`` extension will be placed
+in ``CONFIG_DIR``.  This configuration file will be the method of referencing
+the database for the rest of the pipeline steps.
 
 Data Preparation
 ----------------
@@ -52,22 +54,18 @@ directory.  For example:
 SLDB needs some metadata about each of the FASTA files to process it.
 Specifically, it **requires** the following information
 
-- ``read_type``: The type of read.  If the sequences are full reads including
-  the entire V and J (as defined by IMGT germlines), use ``R1+R2``.  If the
-  reads are partial from the 3' (J gene) end use ``R1``, and if the reads are
-  from the 5' (V gene) end use ``R2``.
 - ``study_name``: The name of study for the sample (e.g. Lupus)
+- ``sample_name``: The name of the sample.
+- ``date``: The date the sample was acquired in the format YYYY-MM-DD.
 - ``subject``: A unique identifier for the subject.  This must be unique to the
   entire SLDB instance as they are not contextual to the study.  Therefore if
   two studies use the same identifier for different subjects, they must be
   given new distinct identifiers.
+- ``paired``: A ``true`` or ``false`` value (**not a string***) indicating if
+  the reads in the sample are paired-end.
 
 The following are optional for each file:
 
-- ``date``: The date the sample was acquired in the format YYYY-MM-DD.  If none
-  is specified, the field is left blank.
-- ``sample_name``: The name of the sample.  If none is specified, the basename
-  (the filename prior to the first ".") will be used.
 - ``subset``: The subset of the sample (e.g. Plasmablast, CD19+).  If none is
   specified, the field will be left blank.
 - ``ig_class``: The isotype of the sample (e.g. IgE).
@@ -88,8 +86,8 @@ metadata file:
 
     {
         "all": {
-            "read_type": "R1+R2",
-            "study_name": "Lupus"
+            "study_name": "Lupus",
+            "paired": true
         },
         "subjectABC_spleen.fasta": {
             "subject": "ABC",
@@ -115,9 +113,10 @@ the ``all`` block and the block for a file, the value specified for the file is
 used.
 
 .. warning::
-    Do not use terms like "None", "N/A", or an empty string to specify missing
-    metadata.  Various portions of SLDB group information based on metadata, and
-    will consider strings like these distinct from null metadata.
+    It's advisable to not use terms like "None", "N/A", or an empty string to
+    specify missing metadata.  Various portions of SLDB group information based
+    on metadata, and will consider strings like these distinct from null
+    metadata.
 
 After creating the metadata file, the directory should look like:
 
@@ -160,12 +159,6 @@ deletion, and how far into the CDR3 the V and J likely extend.
 
 For identification a  FASTA file with IMGT aligned V germlines is required.
 This can be downloaded from `IMGT's Gene-DB <http://imgt.org/genedb>`_ directly.
-
-To run identification, the ``sldb_identify`` command is used.  All SLDB commands
-can be passed the ``--help`` flag to print the usage instructions.  The basic
-usage for identification requires the master config, data config, the germline
-FASTA file, and the path to the directory with the metadata and FASTA files to
-identify:
 
 .. code-block:: bash
 
@@ -276,7 +269,7 @@ error.
 
 .. code-block:: bash
 
-    $ sldb_clone_trees /path/to/master.json /path/to/data.json /path/to/clearcut --min-count 2
+    $ sldb_clone_trees /path/to/config.json /path/to/clearcut --min-count 2
 
 .. _supplemental_tools:
 
@@ -299,7 +292,7 @@ An example call to this command with only the required metadata:
 
 .. code-block:: bash
 
-    $ sldb_hvquest /path/to/master.json /path/to/data.json /path/to/summary_file \
+    $ sldb_hvquest /path/to/config.json /path/to/summary_file \
         /path/to/gapped_nt_file /path/to/v_germlines STUDY_NAME SAMPLE_NAME
         READ_TYPE SUBJECT DATE
 
@@ -324,4 +317,4 @@ To run on port 3000:
 
 .. code-block::
 
-    $ sldb_rest /path/to/master.json /path/to/data.json /path/to/diversity -p 3000
+    $ sldb_rest /path/to/config.json /path/to/diversity -p 3000
