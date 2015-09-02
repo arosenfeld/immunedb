@@ -17,11 +17,9 @@ from sldb.identification.v_genes import VGene
 
 
 _clone_filters = {
-    'clones_all': lambda q: q,
-    'clones_functional': lambda q: q.filter(
-        Clone.cdr3_num_nts % 3 == 0),
-    'clones_nonfunctional': lambda q: q.filter(
-        Clone.cdr3_num_nts % 3 != 0),
+    'clones_all': lambda c: True,
+    'clones_functional': lambda c: c.cdr3_num_nts % 3 == 0,
+    'clones_nonfunctional': lambda c: c.cdr3_num_nts % 3 != 0
 }
 
 
@@ -373,29 +371,35 @@ def get_clone_overlap(session, filter_type, ctype, limit,
     res = []
 
     if ctype == 'samples':
-        clones = session.query(
-            Clone,
+        statq = session.query(
+            CloneStats.clone_id,
             func.sum(CloneStats.unique_cnt).label('unique_cnt'),
             func.sum(CloneStats.total_cnt).label('total_cnt')
-        ).join(CloneStats).filter(
+        ).filter(
             CloneStats.sample_id.in_(limit),
         ).group_by(CloneStats.clone_id)
     elif ctype == 'subject':
-        clones = session.query(
-            Clone, CloneStats.unique_cnt.label('unique_cnt'),
-            CloneStats.total_cnt.label('total_cnt')
-        ).join(CloneStats).filter(
+        statq = session.query(
+            CloneStats.clone_id,
+            func.sum(CloneStats.unique_cnt).label('unique_cnt'),
+            func.sum(CloneStats.total_cnt).label('total_cnt')
+        ).join(Clone).filter(
             CloneStats.sample_id.is_(None),
             Clone.subject_id == limit
-        )
+        ).group_by(CloneStats.clone_id)
 
-    clones = fltr(clones.order_by(desc('unique_cnt')))
+    statq = statq.order_by(desc('unique_cnt'))
 
-    for clone in _page_query(clones, paging):
+    for total_stats in _page_query(statq, paging):
+        clone = session.query(Clone).filter(
+            Clone.id == total_stats.clone_id
+        ).one()
+        if not _clone_filters[filter_type](clone):
+            continue
         selected_samples = []
         other_samples = []
         query = session.query(CloneStats).filter(
-            CloneStats.clone_id == clone.Clone.id,
+            CloneStats.clone_id == clone.id,
             ~CloneStats.sample_id.is_(None)
         ).order_by(
             desc(CloneStats.total_cnt)
@@ -413,9 +417,9 @@ def get_clone_overlap(session, filter_type, ctype, limit,
                 other_samples.append(data)
 
         res.append({
-            'unique_sequences': int(clone.unique_cnt),
-            'total_sequences': int(clone.total_cnt),
-            'clone': _clone_to_dict(clone.Clone),
+            'unique_sequences': int(total_stats.unique_cnt),
+            'total_sequences': int(total_stats.total_cnt),
+            'clone': _clone_to_dict(clone),
             'selected_samples': selected_samples,
             'other_samples': other_samples,
         })
