@@ -5,9 +5,10 @@ from Bio.Seq import Seq
 
 import dnautils
 from sldb.common.models import CDR3_OFFSET
-from sldb.util.funcs import find_streak_position
 from sldb.identification import AlignmentException
 from sldb.identification.v_genes import VGene, get_common_seq, find_v_position
+from sldb.util.funcs import find_streak_position
+import sldb.util.lookups as lookups
 
 
 def gap_positions(seq):
@@ -106,10 +107,7 @@ class VDJSequence(object):
 
     @property
     def stop(self):
-        for i in range(0, len(self.sequence), 3):
-            if self.sequence[i:i+3] in ['TAG', 'TAA', 'TGA']:
-                return True
-        return False
+        return lookups.has_stop(self.sequence)
 
     @property
     def functional(self):

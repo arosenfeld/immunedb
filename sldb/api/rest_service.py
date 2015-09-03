@@ -277,8 +277,9 @@ def clone_overlap(filter_type, samples=None, subject=None):
         yield json.dumps({'clones': clones})
 
 
-@route('/api/stats/<samples>/<include_outliers>/<include_partials>/<grouping>')
-def stats(samples, include_outliers, include_partials, grouping):
+@route('/api/stats/<samples>/<filter_type>/<include_outliers>/'
+       '<include_partials>/<grouping>')
+def stats(samples, filter_type, include_outliers, include_partials, grouping):
     """Gets the statistics for a given set of samples both including and
     excluding outliers.
 
@@ -291,7 +292,8 @@ def stats(samples, include_outliers, include_partials, grouping):
     """
     session = scoped_session(session_factory)()
     samples = _split(samples)
-    ret = queries.get_stats(session, samples, include_outliers == 'true',
+    ret = queries.get_stats(session, samples, filter_type,
+                            include_outliers == 'true',
                             include_partials == 'true', grouping)
     session.close()
     return json.dumps(ret)

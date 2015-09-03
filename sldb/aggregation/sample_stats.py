@@ -305,7 +305,7 @@ def _get_cdr3_bounds(session, sample_id):
     return float(q25 - 1.5 * iqr), float(q75 + 1.5 * iqr)
 
 
-def _queue_tasks(session, sample_id, clones_only, force, tasks):
+def _queue_tasks(session, sample_id, force, tasks):
     print 'Creating task queue to generate stats for sample {}.'.format(
         sample_id)
     existing_seq = session.query(Sequence).filter(
@@ -328,15 +328,14 @@ def _queue_tasks(session, sample_id, clones_only, force, tasks):
     min_cdr3, max_cdr3 = _get_cdr3_bounds(session, sample_id)
     for include_outliers in [True, False]:
         for only_full_reads in [True, False]:
-            if not clones_only:
-                tasks.add_task({
-                    'func': 'seq',
-                    'sample_id': sample_id,
-                    'min_cdr3': min_cdr3,
-                    'max_cdr3': max_cdr3,
-                    'include_outliers': include_outliers,
-                    'only_full_reads': only_full_reads
-                })
+            tasks.add_task({
+                'func': 'seq',
+                'sample_id': sample_id,
+                'min_cdr3': min_cdr3,
+                'max_cdr3': max_cdr3,
+                'include_outliers': include_outliers,
+                'only_full_reads': only_full_reads
+            })
             tasks.add_task({
                 'func': 'clone',
                 'sample_id': sample_id,
@@ -360,14 +359,12 @@ def run_sample_stats(session, args):
     if args.force:
         q = session.query(SampleStats).filter(
             SampleStats.sample_id.in_(samples))
-        if args.clones_only:
-            q = q.filter(SampleStats.filter_type.like('clones%'))
         q.delete(synchronize_session=False)
         session.commit()
 
     tasks = concurrent.TaskQueue()
     for sample_id in samples:
-        _queue_tasks(session, sample_id, args.clones_only, args.force, tasks)
+        _queue_tasks(session, sample_id, args.force, tasks)
 
     for i in range(0, args.nproc):
         session = config.init_db(args.db_config)

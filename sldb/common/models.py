@@ -224,6 +224,8 @@ class Clone(Base):
                       {'mysql_row_format': 'DYNAMIC'})
     id = Column(Integer, primary_key=True)
 
+    functional = Column(Boolean, index=True)
+
     v_gene = Column(String(length=512), index=True)
     j_gene = Column(String(length=128), index=True)
 

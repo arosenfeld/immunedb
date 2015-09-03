@@ -1,4 +1,4 @@
-from sqlalchemy import and_, distinct, or_
+from sqlalchemy import and_, distinct
 from sqlalchemy.sql import desc, exists, text
 
 import dnautils
@@ -65,8 +65,6 @@ class CollapseWorker(concurrent.Worker):
             Sequence.copy_number_in_sample > 0,
             Sequence.bucket_hash == args['bucket_hash'],
         ).all()
-        self._print('Collapsing bucket in subject {} with {} '
-                    'seqs'.format(args['subject_id'], len(seqs)))
 
         collapse_seqs(
             self._session, seqs, 'copy_number_in_sample',
@@ -77,6 +75,7 @@ class CollapseWorker(concurrent.Worker):
         self._tasks += 1
         if self._tasks % 100 == 0:
             self._session.commit()
+            self._print('Collapsed {} buckets'.format(self._tasks))
 
     def cleanup(self):
         self._print('Committing collapsed sequences')
@@ -219,31 +218,44 @@ def run_collapse(session, args):
         lambda e: e.id, session.query(Subject.id).all()
     )
 
-    samples = map(lambda e: e.id, session.query(
-        Sample.id
+    potential_samples = session.query(
+        Sample,
+        exists().where(
+            and_(
+                Sequence.sample_id == Sample.id,
+                Sequence.copy_number_in_sample > 0
+            )
+        )
     ).filter(
-        Sample.subject_id.in_(subjects)).all()
-    )
-    for sample in samples:
-        if session.query(Sequence).filter(
-                Sequence.sample_id == sample,
-                or_(Sequence.copy_number_in_sample > 0,
-                    Sequence.copy_number_in_subject > 0)).first() is None:
-            continue
-        print 'Clearing old collapse information for sample {}'.format(sample)
-        session.query(Sequence).filter(Sequence.sample_id == sample).filter(
-        ).update({
-            'collapse_to_sample_seq_id': None,
-            'copy_number_in_sample': 0,
+        Sample.subject_id.in_(subjects)
+    ).all()
 
-            'collapse_to_subject_seq_id': None,
-            'collapse_to_subject_sample_id': None,
-            'copy_number_in_subject': 0
-        })
-        session.commit()
+    if len(filter(lambda e: not e[1], potential_samples)) == 0:
+        print 'All samples for subjects {} are already collapsed'.format(
+            ','.join(map(str, subjects))
+        )
+        return
+
+    to_collapse = []
+    print 'Samples to process:'
+    for sample, already_collapsed in potential_samples:
+        if already_collapsed:
+            print ('\tSample {} is not new.  Erasing old subject collapse '
+                   'information.  Will re-collapse.').format(sample.id)
+            session.query(Sequence).filter(
+                Sequence.sample_id == sample.id
+            ).update({
+                'collapse_to_subject_seq_id': None,
+                'collapse_to_subject_sample_id': None,
+                'copy_number_in_subject': 0
+            })
+        else:
+            print ('\tSample {} is new.  Collapsing at sample and subject '
+                   'level.').format(sample.id)
+            to_collapse.append(sample.id)
 
     session.close()
-    print 'Collapsing {} samples'.format(len(samples))
-    collapse_samples(args.db_config, samples, args.nproc)
+    print 'Collapsing {} samples'.format(len(to_collapse))
+    collapse_samples(args.db_config, to_collapse, args.nproc)
     print 'Collapsing {} subjects'.format(len(subjects))
     collapse_subjects(args.db_config, subjects, args.nproc)

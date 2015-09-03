@@ -163,6 +163,11 @@ def _generate_germline(seqs, clone):
             germline = germline[:pos] + ('-' * size) + germline[pos:]
     germline += '-' * clone.cdr3_num_nts
 
+    clone.functional = (
+        len(germline) % 3 == 0 and
+        not lookups.has_stop(germline)
+    )
+
     j_region = rep_seq.germline.replace('-', '')[-rep_seq.post_cdr3_length:]
     germline += j_region
 

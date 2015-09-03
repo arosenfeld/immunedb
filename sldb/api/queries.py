@@ -18,10 +18,8 @@ from sldb.identification.v_genes import VGene
 
 _clone_filters = {
     'clones_all': lambda q: q,
-    'clones_functional': lambda q: q.filter(
-        Clone.cdr3_num_nts % 3 == 0),
-    'clones_nonfunctional': lambda q: q.filter(
-        Clone.cdr3_num_nts % 3 != 0),
+    'clones_functional': lambda q: q.filter(Clone.functional == 1),
+    'clones_nonfunctional': lambda q: q.filter(Clone.functional == 0)
 }
 
 
@@ -551,8 +549,10 @@ def get_subject(session, sid):
     return subject
 
 
-def get_stats(session, samples, include_outliers, include_partials, grouping):
+def get_stats(session, samples, filter_type, include_outliers,
+              include_partials, grouping):
     counts = {}
+
     stats = {}
     sample_info = {}
     dist_fields = [
@@ -569,6 +569,17 @@ def get_stats(session, samples, include_outliers, include_partials, grouping):
             SampleStats.sample_id.in_(samples),
             SampleStats.outliers == include_outliers,
             SampleStats.full_reads != include_partials):
+
+        if stat.filter_type not in counts:
+            counts[stat.filter_type] = {'total': 0}
+        if stat.sample.id not in counts[stat.filter_type]:
+            counts[stat.filter_type][stat.sample.id] = 0
+        counts[stat.filter_type][stat.sample.id] = stat.sequence_cnt
+        counts[stat.filter_type]['total'] += stat.sequence_cnt
+
+        if stat.filter_type != filter_type:
+            continue
+
         if grouping == 'subject':
             group_key = stat.sample.subject.identifier
         else:
@@ -580,37 +591,26 @@ def get_stats(session, samples, include_outliers, include_partials, grouping):
         if stat.sample.id not in sample_info:
             sample_info[stat.sample.id] = _sample_to_dict(stat.sample)
 
-        if stat.filter_type not in counts:
-            counts[stat.filter_type] = {'total': 0}
-        if stat.sample.id not in counts[stat.filter_type]:
-            counts[stat.filter_type][stat.sample.id] = 0
-        counts[stat.filter_type][stat.sample.id] = stat.sequence_cnt
-        counts[stat.filter_type]['total'] += stat.sequence_cnt
-
         fields = _fields_to_dict(dist_fields + cnt_fields, stat)
-        if stat.filter_type not in stats[group_key]:
-            stats[group_key][stat.filter_type] = {}
 
         for field, values in fields.iteritems():
             if field.endswith('cnt'):
-                if stat.filter_type == 'all':
-                    sample_info[stat.sample.id][field] = values
+                sample_info[stat.sample.id][field] = values
                 continue
-            if field not in stats[group_key][stat.filter_type]:
-                stats[group_key][stat.filter_type][field] = {}
+            if field not in stats[group_key]:
+                stats[group_key][field] = {}
 
             for (x, freq) in json.loads(values):
-                if x not in stats[group_key][stat.filter_type][field]:
-                    stats[group_key][stat.filter_type][field][x] = 0
-                stats[group_key][stat.filter_type][field][x] += freq
+                if x not in stats[group_key][field]:
+                    stats[group_key][field][x] = 0
+                stats[group_key][field][x] += freq
 
-    for group, filter_dict in stats.iteritems():
-        for filter_name, key_dict in filter_dict.iteritems():
-            for key, vals in key_dict.iteritems():
-                reduced = []
-                for x in sorted(vals.keys()):
-                    reduced.append((x, vals[x]))
-                key_dict[key] = reduced
+    for group, key_dict in stats.iteritems():
+        for key, vals in key_dict.iteritems():
+            reduced = []
+            for x in sorted(vals.keys()):
+                reduced.append((x, vals[x]))
+            key_dict[key] = reduced
 
     return {'samples': sample_info, 'counts': counts, 'stats': stats}
 
