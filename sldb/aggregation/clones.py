@@ -6,7 +6,7 @@ from sqlalchemy import and_, desc, distinct
 from sqlalchemy.sql import exists, func, text
 
 import dnautils
-from sldb.common.models import Clone, Sequence, Subject
+from sldb.common.models import Clone, CloneStats, Sequence, Subject
 import sldb.common.modification_log as mod_log
 from sldb.identification.identify import VDJSequence
 from sldb.identification.v_genes import VGene
