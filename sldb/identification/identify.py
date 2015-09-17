@@ -96,7 +96,6 @@ class IdentificationWorker(concurrent.Worker):
                                               traceback.format_exc()))
 
         if len(sequences) > 0:
-            sample.status = 'reads'
             avg_len = sum(
                 map(lambda r: r.vdj.v_length, sequences.values())
             ) / float(len(sequences))
@@ -130,8 +129,6 @@ class IdentificationWorker(concurrent.Worker):
                                                 sequences.values()):
                 record.add_as_sequence(self._session, sample,
                                        meta.get('paired'))
-        else:
-            sample.status = 'noreads'
 
         self._session.commit()
         self._print('Completed sample {}'.format(sample.name))
@@ -157,13 +154,12 @@ class IdentificationWorker(concurrent.Worker):
             self._print('\tCreated new sample "{}" in MASTER'.format(
                 sample.name))
             for key in ('subset', 'tissue', 'disease', 'lab', 'experimenter',
-                        'ig_class'):
+                        'ig_class', 'v_primer', 'j_primer'):
                 setattr(sample, key, meta.get(key, require=False))
             subject, new = funcs.get_or_create(
                 self._session, Subject, study=study,
                 identifier=meta.get('subject'))
             sample.subject = subject
-            sample.status = 'processing'
             self._session.commit()
 
         self._sync_lock.release()

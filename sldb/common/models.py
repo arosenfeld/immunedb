@@ -15,6 +15,7 @@ import sldb.util.funcs as funcs
 Base = declarative_base()
 MAX_CDR3_NTS = 96
 MAX_CDR3_AAS = int(MAX_CDR3_NTS / 3)
+MAX_SEQ_LEN = 512
 CDR3_OFFSET = 309
 
 
@@ -127,12 +128,15 @@ class Sample(Base):
     lab = Column(String(128))
     experimenter = Column(String(128))
 
+    v_primer = Column(String(32))
+    j_primer = Column(String(32))
+
     library = Column(Integer, server_default='1', nullable=False)
 
     v_ties_mutations = Column(Float)
     v_ties_len = Column(Float)
 
-    status = Column(String(length=64))
+    status = Column(String(length=64), server_default='processing')
 
 
 class SampleStats(Base):
@@ -241,7 +245,7 @@ class Clone(Base):
     subject = relationship(Subject, backref=backref('clones',
                            order_by=(v_gene, j_gene, cdr3_num_nts, cdr3_aa)))
 
-    germline = Column(String(length=1024))
+    germline = Column(String(length=MAX_SEQ_LEN))
     tree = Column(MEDIUMTEXT)
 
     @hybrid_property
@@ -426,6 +430,8 @@ class Sequence(Base):
         Index('subject_collapse',
               'collapse_to_subject_sample_id',
               'collapse_to_subject_seq_id'),
+        Index('sample_collapse_cover', 'id', 'sample_id', 'bucket_hash',
+              'seq_id', 'sequence', 'copy_number'),
         Index('clone_by_subject', 'clone_id',
               'copy_number_in_subject'),
         Index('bucket_sample', 'bucket_hash',
@@ -449,7 +455,7 @@ class Sequence(Base):
     id = Column(Integer, primary_key=True)
 
     sample_seq_hash = Column(String(40), unique=True, index=True)
-    bucket_hash = Column(String(40), index=True)
+    bucket_hash = Column(String(40))
 
     seq_id = Column(String(128), index=True)
     sample_id = Column(Integer, ForeignKey(Sample.id), index=True)
@@ -496,10 +502,10 @@ class Sequence(Base):
     cdr3_nt = Column(String(MAX_CDR3_NTS))
     cdr3_aa = Column(String(MAX_CDR3_AAS), index=True)
 
-    sequence = Column(String(length=1024), index=True)
-    quality = Column(String(length=1024))
+    sequence = Column(String(length=MAX_SEQ_LEN), index=True)
+    quality = Column(String(length=MAX_SEQ_LEN))
 
-    germline = Column(String(length=1024))
+    germline = Column(String(length=MAX_SEQ_LEN))
 
     clone_id = Column(Integer, ForeignKey(Clone.id), index=True)
     clone = relationship(Clone, backref=backref('sequences',
@@ -635,8 +641,8 @@ class NoResult(Base):
     sample = relationship(Sample, backref=backref('noresults',
                           order_by=seq_id))
 
-    sequence = Column(String(length=1024))
-    quality = Column(String(length=1024))
+    sequence = Column(String(length=MAX_SEQ_LEN))
+    quality = Column(String(length=MAX_SEQ_LEN))
     paired = Column(Boolean)
 
 
