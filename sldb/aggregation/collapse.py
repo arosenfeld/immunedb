@@ -153,26 +153,19 @@ def collapse_seqs(session, seqs, copy_field, collapse_copy_field,
 
 def collapse_samples(db_config, sample_ids, nproc):
     session = config.init_db(db_config)
-    print 'Creating task queue to collapse {} samples.'.format(len(sample_ids))
-
-    session.commit()
-
     tasks = concurrent.TaskQueue()
 
-    for sample_id in sample_ids:
-        buckets = session.query(
-            Sequence.bucket_hash
-        ).filter(
-            Sequence.sample_id == sample_id
-        ).group_by(
-            Sequence.bucket_hash
-        )
-        for bucket in buckets:
-            tasks.add_task({
-                'type': 'sample',
-                'sample_id': sample_id,
-                'bucket_hash': bucket.bucket_hash
-            })
+    buckets = session.query(
+        Sequence.bucket_hash, Sequence.sample_id
+    ).group_by(
+        Sequence.bucket_hash, Sequence.sample_id
+    )
+    for bucket in buckets:
+        tasks.add_task({
+            'type': 'sample',
+            'sample_id': bucket.sample_id,
+            'bucket_hash': bucket.bucket_hash
+        })
     session.close()
 
     for i in range(0, nproc):

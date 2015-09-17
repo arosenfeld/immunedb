@@ -3,20 +3,24 @@ import sys
 import argparse
 
 import sldb.common.config as config
-from sldb.aggregation.clone_stats import run_clone_stats
+from sldb.common.baseline import run_clone_stats
 
 if __name__ == '__main__':
-    parser = config.get_base_arg_parser('Generates statistics for clones',
+    parser = config.get_base_arg_parser('Calculates clonal selection pressure',
                                         multiproc=True)
+    parser.add_argument('baseline-path', help='Path to Baseline main '
+                        'script.')
     parser.add_argument('--clone-ids', nargs='+', type=int, help='Limit '
                         'to certain clone IDS')
     parser.add_argument('--subject-ids', nargs='+', type=int, help='Limit '
                         'to certain subjects')
     parser.add_argument('--force', action='store_true', help='Force '
-                        'regeneration of stats even if they already exist')
+                        'recalculation of selection pressure')
+    parser.add_argument('--temp', default='/tmp', help='Path for temporary '
+                        'baseline files')
     args = parser.parse_args()
     if args.subject_ids is not None and args.clone_ids is not None:
         parser.error('May only specify subject or clone IDs')
 
     session = config.init_db(args.db_config)
-    sys.exit(run_clone_stats(session, args))
+    sys.exit(run_selection_pressure(session, args))

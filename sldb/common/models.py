@@ -132,6 +132,8 @@ class Sample(Base):
     v_ties_mutations = Column(Float)
     v_ties_len = Column(Float)
 
+    status = Column(String(length=64))
+
 
 class SampleStats(Base):
     """Aggregate statistics for a sample.  This exists to reduce the time
@@ -426,6 +428,8 @@ class Sequence(Base):
               'collapse_to_subject_seq_id'),
         Index('clone_by_subject', 'clone_id',
               'copy_number_in_subject'),
+        Index('bucket_sample', 'bucket_hash',
+              'sample_id'),
         UniqueConstraint('sample_id', 'seq_id'),
         {'mysql_row_format': 'DYNAMIC'}
     )

@@ -7,9 +7,10 @@ import subprocess
 
 from sqlalchemy.sql import distinct
 
+import sldb.common.config as config
 from sldb.common.models import Clone, Sequence
 from sldb.identification.v_genes import VGene
-import sldb.common.config as config
+import sldb.util.concurrent as concurrent
 
 TEST_FOCUSED = 1
 TEST_LOCAL = 2
@@ -129,3 +130,122 @@ def _parse_output(session, clone, fh):
                 row.iteritems()
             }
             return row
+
+
+class SelectionPressureWorker(concurrent.Worker):
+    """A worker class for calculating selection pressure.  This worker will
+    accept one clone at a time for parallelization.
+
+    :param Session session: The database session
+
+    """
+    def __init__(self, session, baseline_path, baseline_temp):
+        self._session = session
+
+    def do_task(self, clone_id):
+        """Starts the task of calculation of clonal selection pressure.
+
+        :param int args: The clone_id
+
+        """
+
+        self._print('Clone {}'.format(clone_id))
+        sample_ids = map(lambda c: c.sample_id, self._session.query(
+                distinct(Sequence.sample_id).label('sample_id')
+            ).filter(
+                Sequence.clone_id == clone_id,
+                Sequence.copy_number_in_sample > 0
+            )
+        )
+
+        if len(sample_ids) > 1:
+            sample_ids.append(None)
+
+        for sample_id in sample_ids:
+            self._process_sample(clone_id, sample_id,
+                                 single=len(sample_ids) == 1)
+        session.commit()
+
+    def _process_sample(self, clone_id, sample_id, single):
+        """Processes selection pressure for one sample (or the aggregate of all
+        samples).  If ``sample_id`` is None the pressure for all sequences in
+        the clone is calculated.  If ``single`` is specified, the clone only
+        occurs in one sample and the entry with ``sample_id=None`` should be
+        the same as for the one sample.
+
+        :param int clone_id: The ID of the clone
+        :param int sample_id: The ID of a sample in which the clone exists
+        :param bool single: If the clone only occurs in one sample
+
+        """
+        existing = self._session.query(CloneStats).filter(
+            CloneStats.clone_id == clone_id,
+            CloneStats.sample_id == sample_id).first()
+
+        if existing is None:
+            return
+
+        selection_pressure = {
+            'all': baseline.get_selection(
+                self._session, clone_id, self._baseline_path,
+                samples=[sample_id] if sample_id is not None else None,
+                remove_single_mutations=False,
+                temp_dir=self._baseline_temp),
+            'multiples': baseline.get_selection(
+                self._session, clone_id, self._baseline_path,
+                samples=[sample_id] if sample_id is not None else None,
+                remove_single_mutations=True,
+                temp_dir=self._baseline_temp)
+        }
+
+        existing.selection_pressure = selection_pressure
+
+        # If this clone only appears in one sample, the 'total clone' pressure
+        # is the same as for the single sample
+        if single:
+            self._session.query(CloneStats).filter(
+                CloneStats.clone_id == clone_id,
+                CloneStats.sample_id.is_(None)
+            ).first().selection_pressure = selection_pressure
+
+    def cleanup(self):
+        self._session.commit()
+        self._session.close()
+
+
+def run_selection_pressure(session, args):
+    mod_log.make_mod('clone_pressure', session=session, commit=True,
+                     info=vars(args))
+
+    if args.clone_ids is not None:
+        clones = args.clone_ids
+    elif args.subject_ids is not None:
+        clones = map(lambda c: c.id, session.query(Clone.id).filter(
+            Clone.subject_id.in_(args.subject_ids)).all())
+    else:
+        clones = map(lambda c: c.id, session.query(Clone.id).all())
+    clones.sort()
+
+    if args.force:
+        print 'Deleting old selection pressure for {} clones'.format(
+            len(clones)
+        )
+        session.query(CloneStats).filter(
+            CloneStats.clone_id.in_(clones)
+        ).update({
+            'selection_pressure': None,
+        })
+        session.commit()
+
+    tasks = concurrent.TaskQueue()
+    print ('Creating task queue to calculate selection pressure for {} '
+           'clones.').format(len(clones))
+    for cid in clones:
+        tasks.add_task(cid)
+
+    for i in range(0, args.nproc):
+        session = config.init_db(args.db_config)
+        tasks.add_worker(CloneStatsWorker(session, args.baseline_path,
+                                          args.temp))
+
+    tasks.start()

@@ -43,7 +43,7 @@ def _subject_to_dict(subject):
 
 def _sample_to_dict(sample):
     d = _fields_to_dict(['id', 'name', 'info', 'subset', 'tissue', 'ig_class',
-                         'disease', 'lab', 'experimenter'], sample)
+                         'disease', 'lab', 'experimenter', 'status'], sample)
     d['date'] = sample.date.strftime('%Y-%m-%d')
     d['subject'] = _subject_to_dict(sample.subject)
     return d
@@ -68,43 +68,30 @@ def _page_query(q, paging):
 def get_all_studies(session):
     result = {}
     for sample in session.query(Sample).order_by(Sample.date):
-        if session.query(Sequence.seq_id).filter(
-                Sequence.sample == sample).first() > 0:
-            status = 'reads'
-        elif session.query(NoResult.seq_id).filter(
-                NoResult.sample == sample).first() > 0:
-            status = 'noreads'
-        else:
-            status = 'unprocessed'
-
-        if status in ('reads', 'noreads'):
-            if sample.study.id not in result:
-                result[sample.study.id] = {
-                    'id': sample.study.id,
-                    'name': sample.study.name,
-                    'info': sample.study.info,
-                    'samples': []
-                }
-            sample_dict = _sample_to_dict(sample)
-            stats = session.query(SampleStats.sequence_cnt,
-                                  SampleStats.in_frame_cnt,
-                                  SampleStats.stop_cnt,
-                                  SampleStats.functional_cnt,
-                                  SampleStats.no_result_cnt).filter(
-                SampleStats.sample_id == sample.id,
-                SampleStats.outliers == true(),
-                SampleStats.full_reads == false(),
-                SampleStats.filter_type == 'all').first()
-            if stats is not None:
-                sample_dict['status'] = status
-                sample_dict['sequence_cnt'] = stats.sequence_cnt
-                sample_dict['in_frame_cnt'] = stats.in_frame_cnt
-                sample_dict['stop_cnt'] = stats.stop_cnt
-                sample_dict['functional_cnt'] = stats.functional_cnt
-                sample_dict['no_result_cnt'] = stats.no_result_cnt
-            else:
-                sample_dict['status'] = 'processing'
-            result[sample.study.id]['samples'].append(sample_dict)
+        if sample.study.id not in result:
+            result[sample.study.id] = {
+                'id': sample.study.id,
+                'name': sample.study.name,
+                'info': sample.study.info,
+                'samples': []
+            }
+        sample_dict = _sample_to_dict(sample)
+        stats = session.query(SampleStats.sequence_cnt,
+                              SampleStats.in_frame_cnt,
+                              SampleStats.stop_cnt,
+                              SampleStats.functional_cnt,
+                              SampleStats.no_result_cnt).filter(
+            SampleStats.sample_id == sample.id,
+            SampleStats.outliers == true(),
+            SampleStats.full_reads == false(),
+            SampleStats.filter_type == 'all').first()
+        if stats is not None:
+            sample_dict['sequence_cnt'] = stats.sequence_cnt
+            sample_dict['in_frame_cnt'] = stats.in_frame_cnt
+            sample_dict['stop_cnt'] = stats.stop_cnt
+            sample_dict['functional_cnt'] = stats.functional_cnt
+            sample_dict['no_result_cnt'] = stats.no_result_cnt
+        result[sample.study.id]['samples'].append(sample_dict)
 
     return result
 

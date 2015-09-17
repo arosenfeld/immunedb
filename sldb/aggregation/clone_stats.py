@@ -3,7 +3,6 @@ import json
 from sqlalchemy import distinct, func
 from sqlalchemy.orm import scoped_session
 
-import sldb.common.baseline as baseline
 import sldb.common.config as config
 from sldb.common.models import Clone, CloneStats, Sequence
 import sldb.common.modification_log as mod_log
@@ -16,15 +15,10 @@ class CloneStatsWorker(concurrent.Worker):
     one clone at a time for parallelization.
 
     :param Session session: The database session
-    :param str baseline_path: The path to the main baseline run script
-    :param str baseline_temp: The path to a directory where temporary files may
-        be placed.
 
     """
     def __init__(self, session, baseline_path, baseline_temp):
         self._session = session
-        self._baseline_path = baseline_path
-        self._baseline_temp = baseline_temp
 
     def do_task(self, clone_id):
         """Starts the task of generating clone statistics for a given

@@ -162,8 +162,8 @@ This can be downloaded from `IMGT's Gene-DB <http://imgt.org/genedb>`_ directly.
 
 .. code-block:: bash
 
-    $ sldb_identify /path/to/config.json /path/to/sequence-data-directory /path/to/v_germlines /path/to/j_germlines \
-                    J_NTS_UPSTREAM_OF_CDR3 J_ANCHOR_SIZE J_MIN_ANCHOR_LEN
+    $ sldb_identify /path/to/config.json /path/to/v_germlines /path/to/j_germlines \
+                    J_NTS_UPSTREAM_OF_CDR3 J_ANCHOR_SIZE J_MIN_ANCHOR_LEN /path/to/sequence-data-directory
 
 Where ``J_NTS_UPSTREAM_OF_CDR3`` are the fixed number of nucleotides in each
 germline J gene upstream of the CDR3, J_ANCHOR_SIZE is the number of nucleotides
