@@ -217,23 +217,6 @@ def run_clones(session, args):
                      info=vars(args))
 
     if args.regen:
-        print 'Unassigning existing clones'
-        session.query(Sequence).filter(
-            exists().where(
-                and_(Clone.id == Sequence.clone_id,
-                     Clone.subject_id.in_(subjects))
-            )
-        ).update({
-            'clone_id': None,
-            'mutations_from_clone': None,
-        }, synchronize_session=False)
-        print 'Deleting existing clone stats'
-        session.query(CloneStats).filter(
-            exists().where(
-                and_(CloneStats.clone_id == Clone.id,
-                     Clone.subject_id.in_(subjects))
-            )
-        ).delete(synchronize_session=False)
         print 'Deleting existing clones'
         session.query(Clone).filter(
             Clone.subject_id.in_(subjects)

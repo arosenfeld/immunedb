@@ -278,8 +278,9 @@ def clone_overlap(filter_type, samples=None, subject=None):
 
 
 @route('/api/stats/<samples>/<filter_type>/<include_outliers>/'
-       '<include_partials>/<grouping>')
-def stats(samples, filter_type, include_outliers, include_partials, grouping):
+       '<include_partials>/<percentages>/<grouping>')
+def stats(samples, filter_type, include_outliers, include_partials, percentages,
+          grouping):
     """Gets the statistics for a given set of samples both including and
     excluding outliers.
 
@@ -294,7 +295,9 @@ def stats(samples, filter_type, include_outliers, include_partials, grouping):
     samples = _split(samples)
     ret = queries.get_stats(session, samples, filter_type,
                             include_outliers == 'true',
-                            include_partials == 'true', grouping)
+                            include_partials == 'true',
+                            percentages == 'true',
+                            grouping)
     session.close()
     return json.dumps(ret)
 

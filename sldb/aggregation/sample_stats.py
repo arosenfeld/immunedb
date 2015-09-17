@@ -371,3 +371,8 @@ def run_sample_stats(session, args):
         tasks.add_worker(SampleStatsWorker(session))
 
     tasks.start()
+
+    for sample_id in samples:
+        session.query(Sample).filter(
+            Sample.id == sample_id
+        ).status = 'complete'

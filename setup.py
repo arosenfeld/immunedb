@@ -23,6 +23,7 @@ setup(
         'bin/sldb_admin',
         'bin/sldb_clones',
         'bin/sldb_clone_stats',
+        'bin/sldb_clone_pressure',
         'bin/sldb_clone_trees',
         'bin/sldb_collapse',
         'bin/sldb_local_align',

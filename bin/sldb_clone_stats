@@ -12,8 +12,8 @@ if __name__ == '__main__':
                         'to certain clone IDS')
     parser.add_argument('--subject-ids', nargs='+', type=int, help='Limit '
                         'to certain subjects')
-    parser.add_argument('--force', action='store_true', help='Force '
-                        'regeneration of stats even if they already exist')
+    parser.add_argument('--regen', action='store_true', help='Regenerates '
+                        'stats even if they already exist')
     args = parser.parse_args()
     if args.subject_ids is not None and args.clone_ids is not None:
         parser.error('May only specify subject or clone IDs')

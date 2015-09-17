@@ -537,7 +537,7 @@ def get_subject(session, sid):
 
 
 def get_stats(session, samples, filter_type, include_outliers,
-              include_partials, grouping):
+              include_partials, percentages, grouping):
     counts = {}
 
     stats = {}
@@ -594,9 +594,13 @@ def get_stats(session, samples, filter_type, include_outliers,
 
     for group, key_dict in stats.iteritems():
         for key, vals in key_dict.iteritems():
+            if percentages and sum(vals.values()) > 0:
+                mfunc = lambda v: round(100 * v / float(sum(vals.values())), 2)
+            else:
+                mfunc = lambda v: v
             reduced = []
             for x in sorted(vals.keys()):
-                reduced.append((x, vals[x]))
+                reduced.append((x, mfunc(vals[x])))
             key_dict[key] = reduced
 
     return {'samples': sample_info, 'counts': counts, 'stats': stats}

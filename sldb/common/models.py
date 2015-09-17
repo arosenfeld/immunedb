@@ -328,16 +328,14 @@ class CloneStats(Base):
 
     """
     __tablename__ = 'clone_stats'
-    __table_args__ = {'mysql_row_format': 'DYNAMIC'}
-    __mapper_args__ = {'extension': HashExtension(
-        'clone_sample_hash', ('clone_id', 'sample_id')
-    )}
+    __table_args__ = (Index('clone_sample', 'clone_id', 'sample_id'),
+                     {'mysql_row_format': 'DYNAMIC'})
 
-    clone_sample_hash = Column(String(40), primary_key=True)
-    clone_id = Column(Integer, ForeignKey(Clone.id), index=True)
+    id = Column(Integer, primary_key=True)
+    clone_id = Column(Integer, ForeignKey(Clone.id, ondelete='CASCADE'))
     clone = relationship(Clone)
 
-    sample_id = Column(Integer, ForeignKey(Sample.id), index=True)
+    sample_id = Column(Integer, ForeignKey(Sample.id))
     sample = relationship(Sample, backref=backref('clone_stats'))
 
     unique_cnt = Column(Integer)
@@ -384,9 +382,6 @@ class Sequence(Base):
         germline after to the CDR3
 
     :param bool in_frame: If the sequence's CDR3 has a length divisible by 3
-    :param bool functional: If the sequence is in-frame and contains no stop \
-        codons
-    :param bool stop: If the sequence contains a stop codon
     :param int copy_number: Number of reads identical to the sequence in the \
         same sample
 
@@ -507,7 +502,8 @@ class Sequence(Base):
 
     germline = Column(String(length=MAX_SEQ_LEN))
 
-    clone_id = Column(Integer, ForeignKey(Clone.id), index=True)
+    clone_id = Column(Integer, ForeignKey(Clone.id, ondelete='SET NULL'),
+                      index=True)
     clone = relationship(Clone, backref=backref('sequences',
                          order_by=seq_id))
     mutations_from_clone = Column(MEDIUMTEXT)

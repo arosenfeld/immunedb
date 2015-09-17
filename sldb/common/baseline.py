@@ -8,7 +8,8 @@ import subprocess
 from sqlalchemy.sql import distinct
 
 import sldb.common.config as config
-from sldb.common.models import Clone, Sequence
+from sldb.common.models import Clone, CloneStats, Sequence
+import sldb.common.modification_log as mod_log
 from sldb.identification.v_genes import VGene
 import sldb.util.concurrent as concurrent
 
@@ -139,8 +140,11 @@ class SelectionPressureWorker(concurrent.Worker):
     :param Session session: The database session
 
     """
-    def __init__(self, session, baseline_path, baseline_temp):
+    def __init__(self, session, baseline_path, baseline_temp, regen):
         self._session = session
+        self._baseline_path = baseline_path
+        self._baseline_temp = baseline_temp
+        self._regen = regen
 
     def do_task(self, clone_id):
         """Starts the task of calculation of clonal selection pressure.
@@ -149,22 +153,25 @@ class SelectionPressureWorker(concurrent.Worker):
 
         """
 
+        if not self._regen:
+            if self._session.query(CloneStats).filter(
+                    CloneStats.clone_id == clone_id,
+                    ~CloneStats.selection_pressure.is_(None)
+                    ).first() is not None:
+                return
+
         self._print('Clone {}'.format(clone_id))
         sample_ids = map(lambda c: c.sample_id, self._session.query(
-                distinct(Sequence.sample_id).label('sample_id')
+                CloneStats.sample_id
             ).filter(
-                Sequence.clone_id == clone_id,
-                Sequence.copy_number_in_sample > 0
+                CloneStats.clone_id == clone_id
             )
         )
-
-        if len(sample_ids) > 1:
-            sample_ids.append(None)
 
         for sample_id in sample_ids:
             self._process_sample(clone_id, sample_id,
                                  single=len(sample_ids) == 1)
-        session.commit()
+        self._session.commit()
 
     def _process_sample(self, clone_id, sample_id, single):
         """Processes selection pressure for one sample (or the aggregate of all
@@ -178,27 +185,23 @@ class SelectionPressureWorker(concurrent.Worker):
         :param bool single: If the clone only occurs in one sample
 
         """
-        existing = self._session.query(CloneStats).filter(
-            CloneStats.clone_id == clone_id,
-            CloneStats.sample_id == sample_id).first()
-
-        if existing is None:
-            return
 
         selection_pressure = {
-            'all': baseline.get_selection(
+            'all': get_selection(
                 self._session, clone_id, self._baseline_path,
                 samples=[sample_id] if sample_id is not None else None,
                 remove_single_mutations=False,
                 temp_dir=self._baseline_temp),
-            'multiples': baseline.get_selection(
+            'multiples': get_selection(
                 self._session, clone_id, self._baseline_path,
                 samples=[sample_id] if sample_id is not None else None,
                 remove_single_mutations=True,
                 temp_dir=self._baseline_temp)
         }
-
-        existing.selection_pressure = selection_pressure
+        self._session.query(CloneStats).filter(
+            CloneStats.clone_id == clone_id,
+            CloneStats.sample_id == sample_id
+        ).first().selection_pressure = json.dumps(selection_pressure)
 
         # If this clone only appears in one sample, the 'total clone' pressure
         # is the same as for the single sample
@@ -206,7 +209,7 @@ class SelectionPressureWorker(concurrent.Worker):
             self._session.query(CloneStats).filter(
                 CloneStats.clone_id == clone_id,
                 CloneStats.sample_id.is_(None)
-            ).first().selection_pressure = selection_pressure
+            ).first().selection_pressure = json.dumps(selection_pressure)
 
     def cleanup(self):
         self._session.commit()
@@ -226,17 +229,6 @@ def run_selection_pressure(session, args):
         clones = map(lambda c: c.id, session.query(Clone.id).all())
     clones.sort()
 
-    if args.force:
-        print 'Deleting old selection pressure for {} clones'.format(
-            len(clones)
-        )
-        session.query(CloneStats).filter(
-            CloneStats.clone_id.in_(clones)
-        ).update({
-            'selection_pressure': None,
-        })
-        session.commit()
-
     tasks = concurrent.TaskQueue()
     print ('Creating task queue to calculate selection pressure for {} '
            'clones.').format(len(clones))
@@ -245,7 +237,7 @@ def run_selection_pressure(session, args):
 
     for i in range(0, args.nproc):
         session = config.init_db(args.db_config)
-        tasks.add_worker(CloneStatsWorker(session, args.baseline_path,
-                                          args.temp))
+        tasks.add_worker(SelectionPressureWorker(session, args.baseline_path,
+                                                 args.temp, args.regen))
 
     tasks.start()
