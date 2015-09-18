@@ -4,9 +4,16 @@
   restoring SLDB instances.
 * `sldb_local_align` has been added for locally aligning sequences marked as
   having insertions or deletions.
+* `sldb_clone_selection_pressure` has been added to calculate clonal selection
+  pressure.  `sldb_clone_stats` now only calculates mutations and overlap, but
+  much more quickly.
+* Collapsing subjects will no longer re-collapse samples which have already been
+  collapsed.
+* API call `get_stats` now takes a `percentages` parameter which will return
+  statistics as percentages.
 * SLDB no longer uses two databases and now only requires one configuration
   file.
-* Identification speed has been increased.
+* Identification speed has been increased..
 * Samples can now be annotated with an `ig_class` specifying the isotype of the
   sample (e.g. IgA, IgE).
 * Exporting should no longer have a long startup-delay when exporting a large

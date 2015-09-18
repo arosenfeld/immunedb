@@ -165,7 +165,7 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
     return res
 
 
-def get_clone(session, clone_id, sample_ids, thresholds=None):
+def get_clone(session, clone_id, thresholds=None):
     """Compares sequences within clones by determining their mutations"""
 
     if thresholds is None:
@@ -184,47 +184,11 @@ def get_clone(session, clone_id, sample_ids, thresholds=None):
     result = {}
     clone = session.query(Clone).filter(Clone.id == clone_id).first()
 
-    q = session.query(
-        Sequence
-    ).filter(
-        Sequence.clone_id == clone_id,
-        Sequence.copy_number_in_subject > 0
-    )
-    if sample_ids is not None:
-        q = q.filter(Sequence.sample_id.in_(sample_ids))
-
     result = {
         'clone': _clone_to_dict(clone),
         'quality': [],
         'seqs': {},
     }
-
-    start_ptrn = re.compile('[N\-]*')
-    for seq in q:
-        read_start = start_ptrn.match(seq.sequence).span()[1] or 0
-        if seq.quality is not None:
-            diff = len(seq.quality) - len(result['quality'])
-            if diff > 0:
-                result['quality'].extend([[] for _ in range(0, diff)])
-            for i, b in enumerate(seq.quality):
-                if b is not ' ':
-                    result['quality'][i].append(ord(b) - 33)
-
-        result['seqs'][(seq.sample.id, seq.seq_id)] = {
-            'seq_id': seq.seq_id,
-            'sample': {
-                'id': seq.sample.id,
-                'name': seq.sample.name,
-            },
-            'cdr3_nt': seq.cdr3_nt,
-            'sequence': seq.clone_sequence,
-            'read_start': read_start,
-            'copy_number_in_subject': int(seq.copy_number_in_subject),
-            'mutations': json.loads(seq.mutations_from_clone),
-            'v_extent': seq.get_v_extent(in_clone=True),
-            'j_length': seq.j_length,
-            'collapse_to': []
-        }
 
     q = session.query(
         Sequence
@@ -253,8 +217,7 @@ def get_clone(session, clone_id, sample_ids, thresholds=None):
             res_qual.append((i, round(np.mean(quals), 2)))
     result['quality'] = res_qual
 
-    all_mutations, total_seqs = get_clone_mutations(session, clone_id,
-                                                    sample_ids)
+    all_mutations, total_seqs = get_clone_mutations(session, clone_id)
     mut_dict = {
         'positions': all_mutations['positions'],
         'regions': {}
@@ -285,17 +248,49 @@ def get_clone(session, clone_id, sample_ids, thresholds=None):
     return result
 
 
-def get_selection_pressure(session, clone_id, sample_ids):
+def get_clone_sequences(session, clone_id, paging):
+    q = _page_query(session.query(
+        Sequence
+    ).filter(
+        Sequence.clone_id == clone_id,
+        Sequence.copy_number_in_subject > 0
+    ))
+
+    sequences = {}
+    start_ptrn = re.compile('[N\-]*')
+    for seq in q:
+        read_start = start_ptrn.match(seq.sequence).span()[1] or 0
+        if seq.quality is not None:
+            diff = len(seq.quality) - len(result['quality'])
+            if diff > 0:
+                result['quality'].extend([[] for _ in range(0, diff)])
+            # TODO: use quality_to_ord
+            for i, b in enumerate(seq.quality):
+                if b is not ' ':
+                    result['quality'][i].append(ord(b) - 33)
+
+        result['seqs'][(seq.sample.id, seq.seq_id)] = {
+            'seq_id': seq.seq_id,
+            'sample': {
+                'id': seq.sample.id,
+                'name': seq.sample.name,
+            },
+            'cdr3_nt': seq.cdr3_nt,
+            'sequence': seq.clone_sequence,
+            'read_start': read_start,
+            'copy_number_in_subject': int(seq.copy_number_in_subject),
+            'mutations': json.loads(seq.mutations_from_clone),
+            'v_extent': seq.get_v_extent(in_clone=True),
+            'j_length': seq.j_length,
+            'collapse_to': []
+        }
+
+    return sequences
+
+def get_selection_pressure(session, clone_id):
     query = session.query(
         CloneStats.sample_id, CloneStats.selection_pressure
     ).filter(CloneStats.clone_id == clone_id)
-    if sample_ids is not None:
-        query = query.filter(
-            or_(
-                CloneStats.sample_id.in_(sample_ids),
-                CloneStats.sample_id.is_(None)
-            )
-        )
 
     pressure = []
     for row in query:
@@ -315,32 +310,16 @@ def get_selection_pressure(session, clone_id, sample_ids):
     return pressure
 
 
-def get_clone_mutations(session, clone_id, sample_ids=None):
-    if sample_ids is None or type(sample_ids) is int or len(sample_ids) == 1:
-        if sample_ids is None:
-            sample_id = None
-        elif type(sample_ids) is int:
-            sample_id = sample_ids
-        elif len(sample_ids) == 1:
-            sample_id = sample_ids[0]
-
-        clone_stats = session.query(
-            CloneStats.mutations,
-            CloneStats.unique_cnt
-        ).filter(
-            CloneStats.clone_id == clone_id,
-            CloneStats.sample_id == sample_id
-        ).first()
-        all_mutations = json.loads(clone_stats.mutations)
-        total_seqs = clone_stats.unique_cnt
-    else:
-        clone = session.query(Clone).filter(Clone.id == clone_id).first()
-        all_mutations = CloneMutations(session, clone).calculate(
-            limit_samples=sample_ids
-        ).get_all()
-        total_seqs = session.query(func.count(Sequence.seq_id)).filter(
-            Sequence.clone_id == clone_id,
-            Sequence.sample_id.in_(sample_ids)).scalar()
+def get_clone_mutations(session, clone_id):
+    clone_stats = session.query(
+        CloneStats.mutations,
+        CloneStats.unique_cnt
+    ).filter(
+        CloneStats.clone_id == clone_id,
+        CloneStats.sample_id == None
+    ).first()
+    all_mutations = json.loads(clone_stats.mutations)
+    total_seqs = clone_stats.unique_cnt
 
     return all_mutations, total_seqs
 

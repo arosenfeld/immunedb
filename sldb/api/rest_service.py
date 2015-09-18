@@ -167,28 +167,33 @@ def clones():
 
 
 @route('/api/clone/<clone_id:int>')
-@route('/api/clone/<clone_id:int>/<sample_ids>')
-def clone(clone_id, sample_ids=None):
+def clone(clone_id):
     """Gets a clone clones, outputting its mutations and other pertinent
     information.
 
     :param int clone_id: The clone ID
-    :param str sample_ids: A comma-separated list of samples to restrict
-    analysis
 
     :returns: Clone information
     :rtype: str
 
     """
     session = scoped_session(session_factory)()
-    clone = queries.get_clone(session, clone_id, sample_ids)
-    pressure = queries.get_selection_pressure(session, clone_id, sample_ids)
+    clone = queries.get_clone(session, clone_id)
+    pressure = queries.get_selection_pressure(session, clone_id)
     session.close()
 
     return json.dumps({
         'clone': clone,
         'selection_pressure': pressure
     })
+
+@route('/api/clone_seqs/<cid:int>')
+def clone_seqs(cid):
+    paging = _get_paging()
+    session = scoped_session(session_factory)()
+    seqs = queries.get_clone_sequences(session, cid)
+    session.close()
+    return json.dumps(seqs)
 
 
 @route('/api/clone_tree/<cid:int>')
