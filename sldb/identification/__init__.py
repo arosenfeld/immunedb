@@ -38,6 +38,8 @@ class SequenceRecord(object):
                 seq_id=self.vdj.id,
                 sample_id=sample.id,
 
+                subject_id=sample.subject.id,
+
                 paired=paired,
                 partial=self.vdj.partial,
 

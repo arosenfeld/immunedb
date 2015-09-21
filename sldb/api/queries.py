@@ -336,28 +336,28 @@ def get_clone_overlap(session, filter_type, ctype, limit,
 
     if ctype == 'samples':
         clones = session.query(
-            Clone,
+            CloneStats.clone_id,
             func.sum(CloneStats.unique_cnt).label('unique_cnt'),
             func.sum(CloneStats.total_cnt).label('total_cnt')
-        ).join(CloneStats).filter(
+        ).filter(
             CloneStats.sample_id.in_(limit),
         ).group_by(CloneStats.clone_id)
     elif ctype == 'subject':
         clones = session.query(
-            Clone, CloneStats.unique_cnt.label('unique_cnt'),
+            CloneStats.unique_cnt.label('unique_cnt'),
             CloneStats.total_cnt.label('total_cnt')
-        ).join(CloneStats).filter(
+        ).join(Clone).filter(
             CloneStats.sample_id.is_(None),
             Clone.subject_id == limit
         )
 
     clones = fltr(clones.order_by(desc('unique_cnt')))
 
-    for clone in _page_query(clones, paging):
+    for clone_id, unique_cnt, total_cnt in _page_query(clones, paging):
         selected_samples = []
         other_samples = []
         query = session.query(CloneStats).filter(
-            CloneStats.clone_id == clone.Clone.id,
+            CloneStats.clone_id == clone_id,
             ~CloneStats.sample_id.is_(None)
         ).order_by(
             desc(CloneStats.total_cnt)
@@ -377,7 +377,8 @@ def get_clone_overlap(session, filter_type, ctype, limit,
         res.append({
             'unique_sequences': int(clone.unique_cnt),
             'total_sequences': int(clone.total_cnt),
-            'clone': _clone_to_dict(clone.Clone),
+            'clone': _clone_to_dict(session.query(Clone).filter(
+                Clone.id == clone_id).one()),
             'selected_samples': selected_samples,
             'other_samples': other_samples,
         })
