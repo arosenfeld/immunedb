@@ -60,7 +60,7 @@ class CollapseWorker(concurrent.Worker):
             Sequence.pk, Sequence.sequence, Sequence.copy_number_in_sample
         ).filter(
             Sequence.subject_id == args['subject_id'],
-            Sequence.bucket_hash == args['bucket_hash']
+            Sequence.bucket_hash == args['bucket_hash'],
             Sequence.copy_number_in_sample > 0,
         ).all()
 
