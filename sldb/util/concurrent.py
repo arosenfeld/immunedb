@@ -65,3 +65,76 @@ class TaskQueue(object):
 
     def num_tasks(self):
         return self._num_tasks
+
+
+def iterate_queue(queue):
+    while True:
+        val = queue.get()
+        if val is None:
+            return
+        yield val
+
+
+def _task_wrapper(func, read_queue, args=None):
+    for val in iterate_queue(read_queue):
+        if args is not None:
+            func(val, *args)
+        else:
+            func(val)
+
+def setup_tasking(task_gen_func, worker_func, agg_func, num_workers=None):
+    if num_workers is None:
+        num_workers = mp.cpu_count()
+    # Make the task and result queues
+    task_queue = mp.Queue()
+    result_queue = mp.Queue()
+
+    # The task_creator generates tasks to process
+    task_creator = mp.Process(target=task_gen_func, args=(task_queue,))
+    task_creator.start()
+
+    aggregate_processor = mp.Process(target=_task_wrapper,
+                              args=(agg_func, result_queue))
+    aggregate_processor.start()
+
+
+    # Make workers to process the tasks
+    workers = []
+    for i in range(0, num_workers):
+        worker = mp.Process(target=_task_wrapper,
+                            args=(worker_func, task_queue, (result_queue,)))
+        worker.start()
+        workers.append(worker)
+
+    # Keep processing until no more tasks are added
+    task_creator.join()
+    # Add kill sentinels to the task queue
+    for i in range(0, num_workers):
+        task_queue.put(None)
+
+    # Wait for all workers to complete
+    for worker in workers:
+        worker.join()
+    result_queue.put(None)
+
+def setup_tasking_from_queue(queue, worker_func, agg_func, num_workers=None):
+    def task_issuer(task_queue):
+        for item in iterate_queue(queue):
+            task_queue.put(item)
+    setup_tasking(task_issuer, worker_func, agg_func, num_workers)
+
+
+if __name__ == '__main__':
+    def task_gen_func(task_queue):
+        for i in range(0, 100):
+            task_queue.put(i)
+        print 'task gen stopped'
+
+    def worker_func(task, result_queue):
+        result_queue.put((task, sum(range(0, task + 1))))
+
+    def agg_func(result):
+        print 'Sum of 0..{} is {}'.format(*result)
+
+
+    setup_tasking(task_gen_func, worker_func, agg_func)

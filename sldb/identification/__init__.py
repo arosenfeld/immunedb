@@ -91,8 +91,12 @@ class SequenceRecord(object):
                     session.add(DuplicateSequence(
                         seq_id=seq_id,
                         sample=sample,
-                        duplicate_seq_id=self.vdj.id))
+                        duplicate_seq=seq))
             except ValueError as ex:
                 pass
         except ValueError as ex:
             self.add_as_noresult(session, sample)
+
+
+    def __hash__(self):
+        return hash(self.sequence)

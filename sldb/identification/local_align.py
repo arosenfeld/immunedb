@@ -119,7 +119,6 @@ def run_fix_sequences(session, args):
             for dup in session.query(DuplicateSequence).filter(
                     DuplicateSequence.sample_id == sample_id,
                     DuplicateSequence.duplicate_seq_id == vdj.id):
-                        dup.duplicate_seq_id, existing.seq_id)
                 dup.duplicate_seq_id = existing.seq_id
 
             # Add the sequence as a duplicate

@@ -1,26 +1,20 @@
-import dnautils
 import json
 import multiprocessing as mp
 import os
-import re
+import Queue
 import traceback
 
 from Bio import SeqIO
 
-from sqlalchemy import distinct
-from sqlalchemy.sql import desc, func
-
 import sldb.common.config as config
 import sldb.common.modification_log as mod_log
-from sldb.common.models import (HashExtension, DuplicateSequence, Sample,
-                                Sequence, Study, Subject)
+from sldb.common.models import Sample, Study, Subject
 from sldb.identification import AlignmentException, SequenceRecord
 from sldb.identification.vdj_sequence import VDJSequence
 from sldb.identification.v_genes import VGermlines
 from sldb.identification.j_genes import JGermlines
 import sldb.util.concurrent as concurrent
 import sldb.util.funcs as funcs
-import sldb.util.lookups as lookups
 
 
 class SampleMetadata(object):
@@ -172,6 +166,130 @@ class IdentificationWorker(concurrent.Worker):
                 len(vdj.v_gene) > self._max_vties):
             raise AlignmentException('V-match too low or too many V-ties')
 
+def _setup_sample(session, meta):
+    study, new = funcs.get_or_create(
+        session, Study, name=meta.get('study_name')
+    )
+
+    if new:
+        print 'Created new study "{}"'.format(study.name)
+        session.commit()
+
+    sample, new = funcs.get_or_create(
+        session, Sample, name=meta.get('sample_name'),
+        study=study
+    )
+    if new:
+        sample.date = meta.get('date')
+        print 'Created new sample "{}"'.format(sample.name)
+        for key in ('subset', 'tissue', 'disease', 'lab',
+                    'experimenter', 'ig_class', 'v_primer',
+                    'j_primer'):
+            setattr(sample, key, meta.get(key, require=False))
+        subject, new = funcs.get_or_create(
+            session, Subject, study=study,
+            identifier=meta.get('subject')
+        )
+        sample.subject = subject
+        session.commit()
+    return study, sample
+
+
+def get_sample_task_gen_func(session, path, trim):
+    def sample_task_gen_func(task_queue):
+        # Collapse identical samples
+        sequence_records = {}
+        parser = SeqIO.parse(
+            path,
+            'fasta' if path.endswith('.fasta') else 'fastq'
+        )
+        print 'Collapsing identical sequences'
+        for record in parser:
+            seq = str(record.seq)[trim:]
+            if seq not in sequence_records:
+                sequence_records[seq] = SequenceRecord(
+                    seq, record.letter_annotations.get('phred_quality')
+                )
+            sequence_records[seq].seq_ids.append(record.description)
+        print 'Identifying {} sequences'.format(len(sequence_records))
+        for seq_record in sequence_records.values():
+            task_queue.put(seq_record)
+
+    return sample_task_gen_func
+
+
+def get_align_worker_func(v_germlines, j_germlines):
+    def worker_func(record, result_queue):
+        try:
+            vdj = VDJSequence(
+                record.seq_ids[0],
+                record.sequence,
+                v_germlines,
+                j_germlines,
+                quality=record.quality
+            )
+            # The alignment was successful.  If the aligned sequence
+            # already exists, append the seq_ids.  Otherwise add it as a
+            # new unique sequence.
+            record.vdj = vdj
+            result_queue.put({
+                'status': 'success',
+                'record': record
+            })
+        except AlignmentException:
+            result_queue.put({
+                'status': 'noresult',
+                'record': record
+            })
+        except:
+            result_queue.put({
+                'status': 'error',
+                'message': traceback.format_exc(),
+                'record': record
+            })
+
+    return worker_func
+
+
+def get_collapse_func(session, sample, next_queue):
+    sequence_records = {}
+    def collapse_func(result):
+        status = result['status']
+        record = result['record']
+        if status == 'success':
+            if record.sequence in sequence_records:
+                sequence_records[record.sequence].seq_ids.extend(
+                    record.seq_ids)
+            else:
+                sequence_records[record.sequence] = record
+                next_queue.put(result['record'])
+        elif status == 'noresult':
+            record.add_as_noresult(session, sample)
+        elif status == 'error':
+            print 'Error processing {}:\n\n{}'.format(
+                record.seq_ids[0], result['message'])
+    return collapse_func
+
+
+def get_vties_worker_func(avg_length, avg_mut, min_similarity, max_vties):
+    def vties_worker_func(record, result_queue):
+        try:
+            vdj = record.vdj
+            vdj.align_to_germline(avg_length, avg_mut)
+            if (vdj.v_match / float(vdj.v_length) < min_similarity or
+                    len(vdj.v_gene) > max_vties):
+                raise AlignmentException('V-match too low or too many V-ties')
+            result_queue.put({
+                'status': 'success',
+                'record': record
+            })
+        except AlignmentException:
+            result_queue.put({
+                'status': 'noresult',
+                'record': record
+            })
+
+    return vties_worker_func
 
 def run_identify(session, args):
     mod_log.make_mod('identification', session=session, commit=True,
@@ -181,7 +299,6 @@ def run_identify(session, args):
     v_germlines = VGermlines(args.v_germlines)
     j_germlines = JGermlines(args.j_germlines, args.upstream_of_cdr3,
                              args.anchor_len, args.min_anchor_len)
-    tasks = concurrent.TaskQueue()
 
     # If metadata is not specified, assume it is "metadata.json" in the
     # samples_dir directory
@@ -199,14 +316,15 @@ def run_identify(session, args):
         metadata = json.load(fh)
 
     # Create the tasks for each file
-    sample_names = set([])
+    samples_to_process = {}
     fail = False
     for fn in sorted(metadata.keys()):
         if fn == 'all':
             continue
         meta = SampleMetadata(
             metadata[fn],
-            metadata['all'] if 'all' in metadata else None)
+            metadata['all'] if 'all' in metadata else None
+        )
         if session.query(Sample).filter(
                 Sample.name == meta.get('sample_name')
                 ).first() is not None:
@@ -215,32 +333,77 @@ def run_identify(session, args):
                 args.warn_existing else 'Cannot continue.'
             )
             fail = True
-        elif meta.get('sample_name') in sample_names:
+        elif meta.get('sample_name') in samples_to_process:
             print ('Sample {} exists more than once in metadata. Cannot '
                    'continue.').format(meta.get('sample_name'))
             return
         else:
-            tasks.add_task({
-                'path': args.samples_dir,
-                'fn': fn,
+            samples_to_process[meta.get('sample_name')] = {
+                'path': os.path.join(args.samples_dir, fn),
                 'meta': meta
-            })
-            sample_names.add(meta.get('sample_name'))
+            }
 
     if fail and not args.warn_existing:
         print ('Encountered errors.  Not running any identification.  To '
                'skip samples that are already in the database use '
                '--warn-existing.')
         return
-    lock = mp.RLock()
-    for i in range(0, min(args.nproc, tasks.num_tasks())):
-        worker_session = config.init_db(args.db_config)
-        tasks.add_worker(IdentificationWorker(worker_session,
-                                              v_germlines,
-                                              j_germlines,
-                                              args.trim,
-                                              args.max_vties,
-                                              args.min_similarity / float(100),
-                                              lock))
 
-    tasks.start()
+    for sample_info in samples_to_process.values():
+        # Create the study, sample, and subject if necessary
+        _, sample = _setup_sample(session, sample_info['meta'])
+        # Create a queue for identified sequences to be re-aligned to V-ties
+
+        vties_queue = mp.Queue()
+        # Identify sequences
+        concurrent.setup_tasking(
+            task_gen_func=get_sample_task_gen_func(
+                session, sample_info['path'], args.trim),
+            # Identify the sequences
+            worker_func=get_align_worker_func(
+                v_germlines=v_germlines,
+                j_germlines=j_germlines,
+            ),
+            agg_func=get_collapse_func(session, sample, vties_queue)
+        )
+        vties_queue.put(None)
+
+        # Determine average mutation rate and length
+        print 'Calculating average length and mutation rate'
+        realign_queue = mp.Queue()
+        totals = []
+        for seq in concurrent.iterate_queue(vties_queue):
+            totals.append((seq.vdj.v_length, seq.vdj.mutation_fraction))
+            realign_queue.put(seq)
+        avg_length = sum(map(lambda r: r[0], totals)) / float(len(totals))
+        avg_mut = sum(map(lambda r: r[1], totals)) / float(len(totals))
+        realign_queue.put(None)
+
+        # Realign to v-ties
+        print ('Realigning {} seqs to V-ties: Avg Length={}, '
+              'Avg Mut={}').format(len(totals), round(avg_length, 2),
+                                   round(avg_mut, 2))
+        commit_queue = mp.Queue()
+        concurrent.setup_tasking_from_queue(
+            realign_queue,
+            worker_func=get_vties_worker_func(
+                avg_length=avg_length,
+                avg_mut=avg_mut,
+                min_similarity=args.min_similarity / 100.0,
+                max_vties=args.max_vties
+            ),
+            agg_func=get_collapse_func(session, sample, commit_queue)
+        )
+        commit_queue.put(None)
+
+        # Finally commit the sequences
+        print 'Adding final sequences to database'
+        for i, record in enumerate(concurrent.iterate_queue(commit_queue)):
+            record.add_as_sequence(
+                session, sample, sample_info['meta'].get('paired')
+            )
+            if i % 100 == 0:
+                print '\tCommitted {}'.format(i)
+                session.commit()
+        print 'Finished sample {}'.format(sample.name)
+        break
