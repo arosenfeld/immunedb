@@ -8,11 +8,11 @@ class AlignmentException(Exception):
 
 
 class SequenceRecord(object):
-    def __init__(self, sequence, quality):
+    def __init__(self, sequence, quality, seq_ids=None):
         self._orig_sequence = sequence
         self.quality = quality
 
-        self.seq_ids = []
+        self.seq_ids = [] if seq_ids is None else seq_ids
         self.vdj = None
 
     @property
@@ -90,13 +90,8 @@ class SequenceRecord(object):
                         continue
                     session.add(DuplicateSequence(
                         seq_id=seq_id,
-                        sample=sample,
                         duplicate_seq=seq))
             except ValueError as ex:
                 pass
         except ValueError as ex:
             self.add_as_noresult(session, sample)
-
-
-    def __hash__(self):
-        return hash(self.sequence)

@@ -4,11 +4,12 @@ import hashlib
 from sqlalchemy import (Column, Boolean, Float, Integer, String, Text, Date,
                         DateTime, ForeignKey, UniqueConstraint, Index, event,
                         func)
+from sqlalchemy.dialects.mysql import BINARY, CHAR, MEDIUMTEXT, TEXT
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import ColumnProperty, relationship, backref
 from sqlalchemy.orm.interfaces import MapperExtension
-from sqlalchemy.dialects.mysql import BINARY, CHAR, MEDIUMTEXT, TEXT
+from sqlalchemy.schema import ForeignKeyConstraint, PrimaryKeyConstraint
 
 import sldb.util.funcs as funcs
 
@@ -136,7 +137,7 @@ class Sample(Base):
     v_ties_mutations = Column(Float)
     v_ties_len = Column(Float)
 
-    status = Column(String(length=64), server_default='processing')
+    status = Column(String(length=64), server_default='identifying')
 
 
 class SampleStats(Base):
@@ -405,19 +406,16 @@ class Sequence(Base):
     """
     __tablename__ = 'sequences'
     __table_args__ = (
-        #Index('genes', 'v_gene', 'j_gene'),
-        #Index('sample_seq_id', 'seq_id', 'sample_id'),
-        # Used for collapsing samples
-        Index('bucket_sample', 'bucket_hash',
-              'sample_id'),
+        Index('collapse_bucket', 'bucket_hash', 'sample_id'),
         UniqueConstraint('sample_id', 'seq_id'),
+        PrimaryKeyConstraint('sample_id', 'ai'),
         {'mysql_row_format': 'DYNAMIC'}
     )
     __mapper_args__ = {
         'extension': [
-            #HashExtension('sample_seq_hash', ('sample_id', 'sequence')),
-            HashExtension('bucket_hash', ('v_gene', 'j_gene', 'cdr3_num_nts',
-                                          'insertions', 'deletions'))
+            HashExtension('bucket_hash', ('subject_id', 'v_gene', 'j_gene',
+                                          'cdr3_num_nts', 'insertions',
+                                          'deletions'))
         ]
     }
 
@@ -426,15 +424,14 @@ class Sequence(Base):
         self.deletions = kwargs.pop('deletions', None)
         super(Sequence, self).__init__(**kwargs)
 
-    pk = Column(Integer, primary_key=True)
+    sample_id = Column(Integer, ForeignKey(Sample.id))
+    ai = Column(Integer, autoincrement=True, unique=True)
 
     subject_id = Column(Integer, ForeignKey(Subject.id), index=True)
 
-    #sample_seq_hash = Column(CHAR(40), unique=True)
-    bucket_hash = Column(CHAR(40))
+    bucket_hash = Column(CHAR(40), index=True)
 
     seq_id = Column(String(64))
-    sample_id = Column(Integer, ForeignKey(Sample.id), index=True)
     sample = relationship(Sample, backref=backref('sequences'))
 
     paired = Column(Boolean)
@@ -569,17 +566,21 @@ class DuplicateSequence(Base):
 
     """
     __tablename__ = 'duplicate_sequences'
-    __table_args__ = {'mysql_row_format': 'DYNAMIC'}
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ['sample_id', 'duplicate_seq_ai'],
+            ['sequences.sample_id', 'sequences.ai']
+        ),
+        {'mysql_row_format': 'DYNAMIC'})
 
     pk = Column(Integer, primary_key=True)
 
     seq_id = Column(String(length=64))
 
-    duplicate_seq_pk = Column(Integer, ForeignKey('sequences.pk'), index=True)
+    duplicate_seq_ai = Column(Integer, index=True)
     duplicate_seq = relationship(Sequence)
 
-    sample_id = Column(Integer, ForeignKey(Sample.id), index=True)
-    sample = relationship(Sample)
+    sample_id = Column(Integer, index=True)
 
 
 class NoResult(Base):
@@ -605,7 +606,6 @@ class NoResult(Base):
 
     sequence = Column(String(length=MAX_SEQ_LEN))
     quality = Column(String(length=MAX_SEQ_LEN))
-    paired = Column(Boolean)
 
 
 class ModificationLog(Base):
@@ -628,45 +628,18 @@ class ModificationLog(Base):
 
 
 class SequenceCollapse(Base):
-    """Collapse information for sequences.
-
-    :param int copy_number_in_sample: The copy number of the sequence after \
-        collapsing at the sample level.  Will be 0 if the sequence is \
-        collapsed to another.
-    :param str collapse_to_sample_seq_id: The sequence ID of the sequence \
-        to which this sequence is collapsed at the sample level
-
-    :param int copy_number_in_subject: The copy number of the sequence after \
-        collapsing at the subject level.  Will be 0 if the sequence is \
-        collapsed to another.
-    :param int collapse_to_subject_sample_id: The sample ID of the sequence \
-        to which this sequence is collapsed at the subject level
-    :param str collapse_to_subject_seq_id: The sequence ID of the sequence \
-        to which this sequence is collapsed at the subject level
-
-    """
-
     __tablename__ = 'sequence_collapse'
-    __table_args__ = (Index(
-        'cover', 'pk', 'seq_pk', 'sample_id',
-        'copy_number_in_sample', 'collapse_to_sample_seq_pk',
-        'copy_number_in_subject', 'collapse_to_subject_seq_pk'
-        ), {'mysql_row_format': 'DYNAMIC',})
+    __table_args__ = (
+        PrimaryKeyConstraint('sample_id', 'seq_ai'),
+        {'mysql_row_format': 'DYNAMIC',}
+    )
 
-    pk = Column(Integer, primary_key=True)
-
-    seq_pk = Column(Integer, ForeignKey(Sequence.pk), index=True)
-    sample_id = Column(Integer, ForeignKey(Sample.id), index=True)
-
-    seq = relationship(Sequence, backref=backref('collapse'))
-
-    copy_number_in_sample = Column(Integer, server_default='0',
-                                   nullable=False)
-    collapse_to_sample_seq_pk = Column(Integer)
+    sample_id = Column(Integer, autoincrement=False)
+    seq_ai = Column(Integer, autoincrement=False)
 
     copy_number_in_subject = Column(Integer, server_default='0',
                                     nullable=False)
-    collapse_to_subject_seq_pk = Column(Integer)
+    collapse_to_subject_seq_ai = Column(Integer)
 
 
 def check_string_length(cls, key, inst):
