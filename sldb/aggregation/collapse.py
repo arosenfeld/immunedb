@@ -19,8 +19,8 @@ class CollapseWorker(concurrent.Worker):
 
     def do_task(self, bucket_hash):
         seqs = self._session.query(
-            Sequence.sample_id, Sequence.ai, Sequence.sequence,
-            Sequence.copy_number
+            Sequence.sample_id, Sequence.ai, Sequence.seq_id,
+            Sequence.sequence, Sequence.copy_number
         ).filter(
             Sequence.bucket_hash == bucket_hash
         ).all()
@@ -28,6 +28,7 @@ class CollapseWorker(concurrent.Worker):
         to_process = sorted([{
             'sample_id': s.sample_id,
             'ai': s.ai,
+            'seq_id': s.seq_id,
             'sequence': s.sequence,
             'cn': s.copy_number
         } for s in seqs], key=lambda e: -e['cn'])
@@ -36,6 +37,7 @@ class CollapseWorker(concurrent.Worker):
             # Get the largest sequence in the list
             larger = to_process.pop(0)
             # Iterate over all smaller sequences to find matches
+            instances = 1
             for i in reversed(range(0, len(to_process))):
                 smaller = to_process[i]
                 if dnautils.equal(larger['sequence'], smaller['sequence']):
@@ -47,8 +49,12 @@ class CollapseWorker(concurrent.Worker):
                         'sample_id': smaller['sample_id'],
                         'seq_ai': smaller['ai'],
                         'copy_number_in_subject': 0,
-                        'collapse_to_subject_seq_ai': larger['ai']
+                        'collapse_to_subject_seq_ai': larger['ai'],
+                        'collapse_to_subject_sample_id': larger['sample_id'],
+                        'collapse_to_subject_seq_id': larger['seq_id'],
+                        'instances_in_subject': 0
                     }))
+                    instances += 1
                     # Delete the smaller sequence from the list to process
                     # since it's been collapsed
                     del to_process[i]
@@ -58,7 +64,10 @@ class CollapseWorker(concurrent.Worker):
                 'sample_id': larger['sample_id'],
                 'seq_ai': larger['ai'],
                 'copy_number_in_subject': larger['cn'],
-                'collapse_to_subject_seq_ai': larger['ai']
+                'collapse_to_subject_sample_id': larger['sample_id'],
+                'collapse_to_subject_seq_id': larger['seq_id'],
+                'collapse_to_subject_seq_ai': larger['ai'],
+                'instances_in_subject': instances,
             }))
 
         self._tasks += 1
@@ -109,7 +118,7 @@ def run_collapse(session, args):
         for bucket in buckets:
             tasks.add_task(bucket.bucket_hash)
 
-    for i in range(0, args.nproc):
+    for i in range(0, min(tasks.num_tasks(), args.nproc)):
         tasks.add_worker(CollapseWorker(config.init_db(args.db_config)))
     tasks.start()
 

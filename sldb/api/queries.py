@@ -62,7 +62,7 @@ def _page_query(q, paging):
     if paging is None:
         return q
     page, per_page = paging
-    return q.offset((page - 1) * per_page).limit(per_page)
+    return q.offset(max(0, (page - 1) * per_page)).limit(per_page)
 
 
 def get_all_studies(session):
@@ -190,24 +190,6 @@ def get_clone(session, clone_id, thresholds=None):
         'seqs': {},
     }
 
-    q = session.query(
-        Sequence
-    ).join(SequenceCollapse).filter(
-        Sequence.clone_id == clone_id,
-        SequenceCollapse.copy_number_in_subject == 0
-    )
-
-    for seq in q:
-        key = (seq.collapse_to_subject_sample_id,
-               seq.collapse_to_subject_seq_id)
-        if key in result['seqs']:
-            result['seqs'][key]['collapse_to'].append({
-                'sample_id': seq.sample.id,
-                'sample_name': seq.sample.name,
-                'seq_id': seq.seq_id,
-                'copy_number_in_sample': seq.copy_number_in_sample
-            })
-
     result['seqs'] = result['seqs'].values()
 
     res_qual = []
@@ -247,28 +229,21 @@ def get_clone(session, clone_id, thresholds=None):
     return result
 
 
-def get_clone_sequences(session, clone_id, paging):
-    q = _page_query(session.query(
-        Sequence
-    ).filter(
+def get_clone_sequences(session, clone_id, get_collapse, paging):
+    all_seqs = session.query(
+        Sequence, SequenceCollapse.copy_number_in_subject,
+    ).join(SequenceCollapse).filter(
         Sequence.clone_id == clone_id,
-        Sequence.copy_number_in_subject > 0
-    ))
+        SequenceCollapse.copy_number_in_subject > 0
+    ).order_by(
+        desc(SequenceCollapse.copy_number_in_subject)
+    )
+    q = _page_query(all_seqs, paging)
 
     sequences = {}
     start_ptrn = re.compile('[N\-]*')
-    for seq in q:
-        read_start = start_ptrn.match(seq.sequence).span()[1] or 0
-        if seq.quality is not None:
-            diff = len(seq.quality) - len(result['quality'])
-            if diff > 0:
-                result['quality'].extend([[] for _ in range(0, diff)])
-            # TODO: use quality_to_ord
-            for i, b in enumerate(seq.quality):
-                if b is not ' ':
-                    result['quality'][i].append(ord(b) - 33)
-
-        result['seqs'][(seq.sample.id, seq.seq_id)] = {
+    for seq, copy_number_in_subject in q:
+        sequences[(seq.sample.id, seq.seq_id)] = {
             'seq_id': seq.seq_id,
             'sample': {
                 'id': seq.sample.id,
@@ -276,15 +251,37 @@ def get_clone_sequences(session, clone_id, paging):
             },
             'cdr3_nt': seq.cdr3_nt,
             'sequence': seq.clone_sequence,
-            'read_start': read_start,
-            'copy_number_in_subject': int(seq.copy_number_in_subject),
+            'read_start': start_ptrn.match(seq.sequence).span()[1] or 0,
+            'copy_number_in_subject': int(copy_number_in_subject),
             'mutations': json.loads(seq.mutations_from_clone),
             'v_extent': seq.get_v_extent(in_clone=True),
             'j_length': seq.j_length,
             'collapse_to': []
         }
 
-    return sequences
+    if get_collapse:
+        q = session.query(
+            Sequence, SequenceCollapse
+        ).join(SequenceCollapse).filter(
+            Sequence.clone_id == clone_id,
+            SequenceCollapse.copy_number_in_subject == 0
+        )
+
+        for seq, collapse in q:
+            key = (collapse.collapse_to_subject_sample_id,
+                   collapse.collapse_to_subject_seq_id)
+            if key in sequences:
+                sequences[key]['collapse_to'].append({
+                    'sample_id': seq.sample.id,
+                    'sample_name': seq.sample.name,
+                    'seq_id': seq.seq_id,
+                    'copy_number_in_sample': seq.copy_number
+                })
+
+    return sorted(
+        sequences.values(),
+        cmp=lambda a, b: cmp(a['copy_number_in_subject'],
+            b['copy_number_in_subject']), reverse=True)
 
 def get_selection_pressure(session, clone_id):
     query = session.query(
@@ -597,9 +594,9 @@ def trace_seq_collapses(session, seq):
     ).first()
 
     return {
-        'sample_id': collapse_info.collapse_to_seq.sample_id,
-        'ai': collapse_info.collapse_to_seq.ai,
-        'seq_id': collapse_info.collapse_to_seq.seq_id,
+        'sample_id': collapse_info.collapse_to_subject_sample_id,
+        'ai': collapse_info.collapse_to_subject_seq_ai,
+        'seq_id': collapse_info.collapse_to_subject_seq_id,
         'copy_number':
             collapse_info.collapse_to_seq.collapse.copy_number_in_subject
     }
@@ -696,9 +693,10 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
              'copy_number'],
             row)
         if row.collapse is not None:
-            fields['copy_number_in_subject'] = (
-                row.collapse.copy_number_in_subject
-            )
+            fields.update({
+                'copy_number_in_subject': row.collapse.copy_number_in_subject,
+                'instances_in_subject': row.collapse.instances_in_subject
+            })
 
         fields['sample'] = _sample_to_dict(row.sample)
         res.append(fields)

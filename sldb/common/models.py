@@ -133,8 +133,6 @@ class Sample(Base):
     v_primer = Column(String(32))
     j_primer = Column(String(32))
 
-    library = Column(Integer, server_default='1', nullable=False)
-
     v_ties_mutations = Column(Float)
     v_ties_len = Column(Float)
 
@@ -643,13 +641,17 @@ class SequenceCollapse(Base):
     seq_ai = Column(Integer, autoincrement=False)
     seq = relationship(Sequence, backref=backref('collapse', uselist=False))
 
+    collapse_to_subject_sample_id = Column(Integer)
+    collapse_to_subject_seq_ai = Column(Integer)
+    collapse_to_subject_seq_id = Column(String(64)) # Denormalized
+    instances_in_subject = Column(Integer, server_default='0', nullable=False)
     copy_number_in_subject = Column(Integer, server_default='0',
                                     nullable=False)
-    collapse_to_subject_seq_ai = Column(Integer)
 
     @property
     def collapse_to_seq(self):
         return Session.object_session(self).query(Sequence).filter(
+            Sequence.sample_id == self.collapse_to_subject_sample_id,
             Sequence.ai == self.collapse_to_subject_seq_ai
         ).one()
 

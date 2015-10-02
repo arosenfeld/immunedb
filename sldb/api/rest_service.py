@@ -190,8 +190,9 @@ def clone(clone_id):
 @route('/api/clone_seqs/<cid:int>')
 def clone_seqs(cid):
     paging = _get_paging()
+    get_collapse = _get_arg('collapse', False) == 'true'
     session = scoped_session(session_factory)()
-    seqs = queries.get_clone_sequences(session, cid)
+    seqs = queries.get_clone_sequences(session, cid, get_collapse, paging)
     session.close()
     return json.dumps(seqs)
 
