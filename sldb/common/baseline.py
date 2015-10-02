@@ -8,7 +8,7 @@ import subprocess
 from sqlalchemy.sql import distinct
 
 import sldb.common.config as config
-from sldb.common.models import Clone, CloneStats, Sequence
+from sldb.common.models import Clone, CloneStats, Sequence, SequenceCollapse
 import sldb.common.modification_log as mod_log
 from sldb.identification.v_genes import VGene
 import sldb.util.concurrent as concurrent
@@ -81,14 +81,14 @@ def _make_input_file(session, input_path, clone, samples,
         seqs = session.query(
             Sequence.sequence,
             Sequence.mutations_from_clone
-        ).filter(
+        ).join(SequenceCollapse).filter(
             Sequence.clone == clone
         )
         if samples is None:
-            seqs = seqs.filter(Sequence.copy_number_in_subject > 0)
+            seqs = seqs.filter(SequenceCollapse.copy_number_in_subject > 0)
         else:
-            seqs = seqs.filter(Sequence.copy_number_in_sample > 0,
-                               Sequence.sample_id.in_(samples))
+            seqs = seqs.filter(Sequence.sample_id.in_(samples),
+                               Sequence.copy_number > 0)
 
         if remove_single_mutations:
             removes = collections.Counter()

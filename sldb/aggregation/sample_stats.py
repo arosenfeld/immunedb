@@ -21,7 +21,7 @@ _dist_fields = [
     'j_length',
     'v_gene',
     'j_gene',
-    ('copy_number', lambda s: s.copy_number_in_sample),
+    'copy_number',
     'v_length',
     'v_identity',
     'cdr3_length'
@@ -45,8 +45,7 @@ _seq_contexts = {
         'use_copy': False
     },
     'unique_multiple': {
-        'record_filter': lambda seq: seq.functional and
-        seq.copy_number_in_sample > 1,
+        'record_filter': lambda seq: seq.functional and seq.copy_number > 1,
         'use_copy': False
     },
 }
@@ -127,7 +126,7 @@ class SeqContextStats(ContextStats):
         if not self._record_filter(seq_record):
             return
 
-        add = int(seq_record.copy_number_in_sample) if self._use_copy else 1
+        add = int(seq_record.copy_number) if self._use_copy else 1
 
         self._update(seq_record, seq_record.in_frame, seq_record.stop,
                      seq_record.functional, add)
@@ -214,15 +213,14 @@ class SampleStatsWorker(concurrent.Worker):
             Sequence.in_frame,
             Sequence.stop,
             Sequence.functional,
-            Sequence.copy_number_in_sample,
+            Sequence.copy_number,
             (Sequence.v_length + Sequence.num_gaps).label('v_length'),
             (
                 func.ceil(100 * Sequence.v_match / Sequence.v_length)
             ).label('v_identity'),
             Sequence.cdr3_num_nts.label('cdr3_length'),
         ).filter(
-            Sequence.sample_id == sample_id,
-            Sequence.copy_number_in_sample > 0
+            Sequence.sample_id == sample_id
         )
 
         if not include_outliers and min_cdr3 is not None:
@@ -252,7 +250,7 @@ class SampleStatsWorker(concurrent.Worker):
             func.round(func.avg(Sequence.j_length)).label('j_length'),
             Sequence.v_gene,
             Sequence.j_gene,
-            func.count(Sequence.seq_id).label('copy_number_in_sample'),
+            func.count(Sequence.seq_id).label('copy_number'),
             func.round(
                 func.avg(Sequence.v_length + Sequence.num_gaps)
             ).label('v_length'),
@@ -287,17 +285,16 @@ def _get_cdr3_bounds(session, sample_id):
     cdr3s = []
 
     query = session.query(
-        func.sum(Sequence.copy_number_in_sample).label(
-            'copy_number_in_sample'),
+        func.sum(Sequence.copy_number).label('copy_number'),
         cdr3_fld.label('cdr3_len')
     ).filter(
         Sequence.sample_id == sample_id,
-        Sequence.copy_number_in_sample > 1,
+        Sequence.copy_number > 1,
         Sequence.functional == 1
     ).group_by(cdr3_fld)
 
     for seq in query:
-        cdr3s += [seq.cdr3_len] * int(seq.copy_number_in_sample)
+        cdr3s += [seq.cdr3_len] * int(seq.copy_number)
     if len(cdr3s) == 0:
         return None, None
     q25, q75 = np.percentile(cdr3s, [25, 75])
@@ -372,7 +369,9 @@ def run_sample_stats(session, args):
 
     tasks.start()
 
-    for sample_id in samples:
-        session.query(Sample).filter(
-            Sample.id == sample_id
-        ).status = 'complete'
+    session.query(Sample).filter(
+        Sample.id.in_(samples)
+    ).update({
+        'status': 'complete'
+    }, synchronize_session=False)
+    session.commit()

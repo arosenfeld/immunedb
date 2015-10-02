@@ -338,8 +338,8 @@ def get_clone_overlap(session, filter_type, ctype, limit,
             CloneStats.clone_id,
             func.sum(CloneStats.unique_cnt).label('unique_cnt'),
             func.sum(CloneStats.total_cnt).label('total_cnt')
-        ).filter(
-            CloneStats.sample_id.in_(limit),
+        ).join(Clone).filter(
+            CloneStats.sample_id.in_(limit)
         ).group_by(CloneStats.clone_id)
     elif ctype == 'subject':
         clones = session.query(
@@ -374,16 +374,15 @@ def get_clone_overlap(session, filter_type, ctype, limit,
                 other_samples.append(data)
 
         res.append({
-            'unique_sequences': int(clone.unique_cnt),
-            'total_sequences': int(clone.total_cnt),
-            'clone': _clone_to_dict(session.query(Clone).filter(
-                Clone.id == clone_id).one()),
+            'unique_sequences': int(unique_cnt),
+            'total_sequences': int(total_cnt),
+            'clone': _clone_to_dict(
+                session.query(Clone).filter(Clone.id == clone_id).one()
+            ),
             'selected_samples': selected_samples,
             'other_samples': other_samples,
         })
 
-    if paging:
-        return res
     return res
 
 
