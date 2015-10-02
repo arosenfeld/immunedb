@@ -204,64 +204,61 @@ def run_identify(session, args):
                              args.anchor_len, args.min_anchor_len)
     tasks = concurrent.TaskQueue()
 
-    # If metadata is not specified, assume it is "metadata.json" in the
-    # samples_dir directory
-    if args.metadata is None:
-        meta_fn = '{}/metadata.json'.format(args.samples_dir)
-    else:
-        meta_fn = args.metadata
-
-    # Verify the metadata file exists
-    if not os.path.isfile(meta_fn):
-        print 'Metadata file not found.'
-        return
-
-    with open(meta_fn) as fh:
-        metadata = json.load(fh)
-
-    # Create the tasks for each file
-    sample_names = set([])
-    fail = False
-    for fn in sorted(metadata.keys()):
-        if fn == 'all':
-            continue
-        meta = SampleMetadata(
-            metadata[fn],
-            metadata['all'] if 'all' in metadata else None)
-        if session.query(Sample).filter(
-                Sample.name == meta.get('sample_name')
-                ).first() is not None:
-            print 'Sample {} already exists. {}'.format(
-                meta.get('sample_name'), 'Skipping.' if
-                args.warn_existing else 'Cannot continue.'
-            )
-            fail = True
-        elif meta.get('sample_name') in sample_names:
-            print ('Sample {} exists more than once in metadata. Cannot '
-                   'continue.').format(meta.get('sample_name'))
-            return
+    for directory in args.sample_dirs:
+        # If metadata is not specified, assume it is "metadata.json" in the
+        # directory
+        if args.metadata is None:
+            meta_fn = os.path.join(directory, 'metadata.json')
         else:
-            tasks.add_task({
-                'path': args.samples_dir,
-                'fn': fn,
-                'meta': meta
-            })
-            sample_names.add(meta.get('sample_name'))
+            meta_fn = args.metadata
 
-    if fail and not args.warn_existing:
-        print ('Encountered errors.  Not running any identification.  To '
-               'skip samples that are already in the database use '
-               '--warn-existing.')
-        return
-    lock = mp.RLock()
-    for i in range(0, min(args.nproc, tasks.num_tasks())):
-        worker_session = config.init_db(args.db_config)
-        tasks.add_worker(IdentificationWorker(worker_session,
-                                              v_germlines,
-                                              j_germlines,
-                                              args.trim,
-                                              args.max_vties,
-                                              args.min_similarity / float(100),
-                                              lock))
+        # Verify the metadata file exists
+        if not os.path.isfile(meta_fn):
+            print 'Metadata file not found.'
+            return
 
-    tasks.start()
+        with open(meta_fn) as fh:
+            metadata = json.load(fh)
+
+        # Create the tasks for each file
+        sample_names = set([])
+        fail = False
+        for fn in sorted(metadata.keys()):
+            if fn == 'all':
+                continue
+            meta = SampleMetadata(
+                metadata[fn],
+                metadata['all'] if 'all' in metadata else None)
+            if session.query(Sample).filter(
+                    Sample.name == meta.get('sample_name')
+                    ).first() is not None:
+                print 'Sample {} already exists. {}'.format(
+                    meta.get('sample_name'), 'Skipping.' if
+                    args.warn_existing else 'Cannot continue.'
+                )
+                fail = True
+            elif meta.get('sample_name') in sample_names:
+                print ('Sample {} exists more than once in metadata. Cannot '
+                       'continue.').format(meta.get('sample_name'))
+                return
+            else:
+                tasks.add_task({
+                    'path': directory,
+                    'fn': fn,
+                    'meta': meta
+                })
+                sample_names.add(meta.get('sample_name'))
+
+        if fail and not args.warn_existing:
+            print ('Encountered errors.  Not running any identification.  To '
+                   'skip samples that are already in the database use '
+                   '--warn-existing.')
+            return
+        lock = mp.RLock()
+        for i in range(0, min(args.nproc, tasks.num_tasks())):
+            worker_session = config.init_db(args.db_config)
+            tasks.add_worker(IdentificationWorker(
+                worker_session, v_germlines, j_germlines, args.trim,
+                args.max_vties, args.min_similarity / float(100), lock))
+
+        tasks.start()
