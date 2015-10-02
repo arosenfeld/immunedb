@@ -2,7 +2,7 @@ import json
 
 from sqlalchemy import distinct
 
-from sldb.common.models import Sequence
+from sldb.common.models import Sequence, SequenceCollapse
 from sldb.identification.v_genes import VGene
 import sldb.util.lookups as lookups
 import sldb.util.funcs as funcs
@@ -135,20 +135,19 @@ class CloneMutations(object):
             seqs = self._session.query(Sequence).filter(
                 Sequence.clone == self._clone)
             if sample_id is None:
-                seqs = seqs.filter(
-                    Sequence.copy_number_in_subject > 0
+                seqs = seqs.join(SequenceCollapse).filter(
+                    SequenceCollapse.copy_number_in_subject > 0
                 )
             else:
                 seqs = seqs.filter(
-                    Sequence.sample_id == sample_id,
-                    Sequence.copy_number_in_sample > 0
+                    Sequence.sample_id == sample_id
                 )
             sample_mutations[sample_id] = self._get_contextual_mutations(
-                seqs, commit_seqs)
+                seqs, commit_seqs, use_sample_copy=sample_id is not None)
 
         return sample_mutations
 
-    def _get_contextual_mutations(self, seqs, commit_seqs):
+    def _get_contextual_mutations(self, seqs, commit_seqs, use_sample_copy):
         context_mutations = ContextualMutations(self._clone.regions)
         for seq in seqs:
             seq_mutations = {}
@@ -162,10 +161,14 @@ class CloneMutations(object):
                 seq_mutations[i] = mtype
 
                 mutation = (i, self._germline[i], seq.clone_sequence[i], mtype)
+                copy_field = (
+                    seq.copy_number if use_sample_copy else
+                        seq.collapse.copy_number_in_subject
+                )
                 context_mutations.add_mutation(
                     seq.clone_sequence, self._clone.cdr3_num_nts,
                     mutation, from_aa, intermediate_aa,
-                    self._get_aa_at(seq.clone_sequence, i), seq.copy_number)
+                    self._get_aa_at(seq.clone_sequence, i), copy_field)
 
             if commit_seqs:
                 seq.mutations_from_clone = json.dumps(seq_mutations)

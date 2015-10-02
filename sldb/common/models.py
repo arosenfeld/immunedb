@@ -9,6 +9,7 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import ColumnProperty, relationship, backref
 from sqlalchemy.orm.interfaces import MapperExtension
+from sqlalchemy.orm.session import Session
 from sqlalchemy.schema import ForeignKeyConstraint, PrimaryKeyConstraint
 
 import sldb.util.funcs as funcs
@@ -631,15 +632,26 @@ class SequenceCollapse(Base):
     __tablename__ = 'sequence_collapse'
     __table_args__ = (
         PrimaryKeyConstraint('sample_id', 'seq_ai'),
+        ForeignKeyConstraint(
+            ['sample_id', 'seq_ai'],
+            ['sequences.sample_id', 'sequences.ai'],
+            name='seq_fkc'),
         {'mysql_row_format': 'DYNAMIC',}
     )
 
     sample_id = Column(Integer, autoincrement=False)
     seq_ai = Column(Integer, autoincrement=False)
+    seq = relationship(Sequence, backref=backref('collapse', uselist=False))
 
     copy_number_in_subject = Column(Integer, server_default='0',
                                     nullable=False)
     collapse_to_subject_seq_ai = Column(Integer)
+
+    @property
+    def collapse_to_seq(self):
+        return Session.object_session(self).query(Sequence).filter(
+            Sequence.ai == self.collapse_to_subject_seq_ai
+        ).one()
 
 
 def check_string_length(cls, key, inst):

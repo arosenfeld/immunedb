@@ -7,7 +7,7 @@ from sqlalchemy.sql import exists, func, text
 
 import dnautils
 from sldb.common.models import (CDR3_OFFSET, Clone, CloneStats, Sequence,
-                                Subject)
+                                SequenceCollapse, Subject)
 import sldb.common.modification_log as mod_log
 from sldb.identification.identify import VDJSequence
 from sldb.identification.v_genes import get_common_seq, VGene, VGermlines
@@ -69,13 +69,13 @@ def _get_subject_clones(session, subject_id, min_similarity, include_indels,
     to_update = set([])
     query = session.query(
         Sequence
-    ).filter(
+    ).join(SequenceCollapse).filter(
         Sequence.clone_id.is_(None),
 
-        Sequence.sample.has(subject_id=subject_id),
+        Sequence.subject_id == subject_id,
         ~Sequence.cdr3_aa.like('%*%'),
 
-        Sequence.copy_number_in_subject >= min_copy
+        SequenceCollapse.copy_number_in_subject >= min_copy
     )
     if min_identity > 0:
         query = query.filter(
@@ -86,7 +86,7 @@ def _get_subject_clones(session, subject_id, min_similarity, include_indels,
     if exclude_partials:
         query = query.filter(Sequence.partial == 0)
 
-    query = query.order_by(desc(Sequence.copy_number_in_subject))
+    query = query.order_by(desc(SequenceCollapse.copy_number_in_subject))
 
     total = query.count()
     for i, seq in enumerate(query):
@@ -96,23 +96,22 @@ def _get_subject_clones(session, subject_id, min_similarity, include_indels,
                                                            new_clones)
 
         # Key for cache has implicit subject_id due to function parameter
-        key = (seq.v_gene, seq.j_gene, seq.cdr3_num_nts,
-               seq.cdr3_aa)
+        key = (seq.v_gene, seq.j_gene, seq.cdr3_num_nts, seq.cdr3_aa)
         if key in clone_cache:
             seq.clone = clone_cache[key]
             continue
 
         seq_clone = None
-        for clone in session.query(Clone)\
-                .filter(Clone.subject_id == subject_id,
-                        Clone.v_gene == seq.v_gene,
-                        Clone.j_gene == seq.j_gene,
-                        Clone.cdr3_num_nts == seq.cdr3_num_nts):
+        for clone in session.query(Clone).filter(
+                Clone.subject_id == subject_id,
+                Clone.v_gene == seq.v_gene,
+                Clone.j_gene == seq.j_gene,
+                Clone.cdr3_num_nts == seq.cdr3_num_nts):
             seqs_in_clone = session.query(
                 Sequence.cdr3_aa
-            ).filter(
+            ).join(SequenceCollapse).filter(
                 Sequence.clone == clone,
-                Sequence.copy_number_in_subject >= min_copy
+                SequenceCollapse.copy_number_in_subject >= min_copy
             ).group_by(
                 Sequence.cdr3_aa
             )
@@ -186,9 +185,9 @@ def _generate_consensus(session, subject_id, to_update):
             Clone.id.in_(to_update))):
         seqs = session.query(
             Sequence
-        ).filter(
+        ).join(SequenceCollapse).filter(
             Sequence.clone_id == clone.id,
-            Sequence.copy_number_in_subject > 0
+            SequenceCollapse.copy_number_in_subject > 0
         ).all()
 
         clone.cdr3_nt = _consensus(map(lambda s: s.cdr3_nt, seqs))
@@ -235,34 +234,14 @@ def run_clones(session, args):
 
     print 'Pushing clone IDs to sample sequences'
     session.connection(mapper=Sequence).execute(text('''
-        update
-            sequences as s
-        join
-            (select seq_id, sample_id, clone_id from sequences where
-                copy_number_in_subject > 0) as j
-        on
-            (s.collapse_to_subject_seq_id=j.seq_id and
-                s.collapse_to_subject_sample_id=j.sample_id)
-        set
-            s.clone_id=j.clone_id
-        where
-            s.copy_number_in_subject=0
-    '''))
-
-    print 'Pushing clone IDs to individual sequences'
-    session.connection(mapper=Sequence).execute(text('''
-        update
-            sequences as s
-        join
-            (select seq_id, sample_id, clone_id from sequences where
-                copy_number_in_sample > 0) as j
-        on
-            (s.collapse_to_sample_seq_id=j.seq_id and
-                s.sample_id=j.sample_id)
-        set
-            s.clone_id=j.clone_id
-        where
-            s.copy_number_in_sample=0
+    UPDATE
+        sequences AS s
+    JOIN sequence_collapse AS c
+        ON s.sample_id=c.sample_id AND s.ai=c.seq_ai
+    JOIN (SELECT seq_id, ai, clone_id from sequences) as s2
+        ON c.collapse_to_subject_seq_ai=s2.ai
+    SET s.clone_id=s2.clone_id
+    WHERE s.seq_id!=s2.seq_id
     '''))
 
     session.commit()

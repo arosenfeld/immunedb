@@ -192,10 +192,9 @@ def get_clone(session, clone_id, thresholds=None):
 
     q = session.query(
         Sequence
-    ).filter(
+    ).join(SequenceCollapse).filter(
         Sequence.clone_id == clone_id,
-        Sequence.copy_number_in_sample > 0,
-        Sequence.copy_number_in_subject == 0
+        SequenceCollapse.copy_number_in_subject == 0
     )
 
     for seq in q:
@@ -290,7 +289,10 @@ def get_clone_sequences(session, clone_id, paging):
 def get_selection_pressure(session, clone_id):
     query = session.query(
         CloneStats.sample_id, CloneStats.selection_pressure
-    ).filter(CloneStats.clone_id == clone_id)
+    ).filter(
+        CloneStats.clone_id == clone_id,
+        ~CloneStats.selection_pressure.is_(None)
+    )
 
     pressure = []
     for row in query:
@@ -587,43 +589,20 @@ def get_stats(session, samples, filter_type, include_outliers,
 
 
 def trace_seq_collapses(session, seq):
-    ret = {}
-    sample_col = session.query(
-        Sequence.seq_id,
-        Sequence.sample_id,
-        Sequence.copy_number_in_sample,
-
-        Sequence.collapse_to_subject_seq_id,
-        Sequence.collapse_to_subject_sample_id,
+    collapse_info = session.query(
+        SequenceCollapse
     ).filter(
-        Sequence.seq_id == seq.collapse_to_sample_seq_id,
-        Sequence.sample_id == seq.sample_id
+        SequenceCollapse.sample_id == seq.sample_id,
+        SequenceCollapse.seq_ai == seq.ai,
     ).first()
 
-    if sample_col is not None:
-        ret['sample'] = {
-            'seq_id': sample_col.seq_id,
-            'sample_id': sample_col.sample_id,
-            'copy_number': sample_col.copy_number_in_sample
-        }
-
-        subject_col = session.query(
-            Sequence.seq_id,
-            Sequence.sample_id,
-            Sequence.copy_number_in_subject
-        ).filter(
-            Sequence.seq_id == sample_col.collapse_to_subject_seq_id,
-            Sequence.sample_id == sample_col.collapse_to_subject_sample_id,
-        ).first()
-
-        if subject_col is not None:
-            ret['subject'] = {
-                'seq_id': subject_col.seq_id,
-                'sample_id': subject_col.sample_id,
-                'copy_number': subject_col.copy_number_in_subject
-            }
-
-    return ret
+    return {
+        'sample_id': collapse_info.collapse_to_seq.sample_id,
+        'ai': collapse_info.collapse_to_seq.ai,
+        'seq_id': collapse_info.collapse_to_seq.seq_id,
+        'copy_number':
+            collapse_info.collapse_to_seq.collapse.copy_number_in_subject
+    }
 
 
 def get_sequence(session, sample_id, seq_id):
@@ -661,24 +640,17 @@ def get_sequence(session, sample_id, seq_id):
 
 def get_all_sequences(session, filters, order_field, order_dir, paging=None):
     """Gets a list of all clones"""
-    def get_field(key):
-        tbls = [Sequence, Subject, Clone]
-        for t in tbls:
-            if hasattr(t, key):
-                return getattr(t, key)
-
     res = []
-    query = session.query(Sequence).join(Sample).outerjoin(Clone)
+    query = session.query(Sequence).outerjoin(SequenceCollapse)
 
     copy_number_field = 'copy_number'
     if filters is not None:
         if 'collapsed' in filters:
-            if filters['collapsed'] == 'all':
+            if filters['collapsed'] == 'sample':
                 copy_number_field = Sequence.copy_number
             else:
-                copy_number_field = getattr(
-                    Sequence, 'copy_number_in_{}'.format(filters['collapsed'])
-                )
+                copy_number_field = SequenceCollapse.copy_number_in_subject
+
         for key, value in filters.iteritems():
             if value in [None, True, False]:
                 continue
@@ -695,7 +667,7 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
                 elif key == 'collapsed':
                     query = query.filter(copy_number_field > 0)
                 else:
-                    query = query.filter(get_field(key).like(value))
+                    query = query.filter(getattr(Sequence, key).like(value))
 
     if (filters is None or
             'show_partials' not in filters or
@@ -720,10 +692,13 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
         fields = _fields_to_dict(
             ['seq_id', 'paired', 'v_gene', 'j_gene', 'v_match', 'j_match',
              'v_length', 'j_length', 'cdr3_num_nts', 'cdr3_aa', 'in_frame',
-             'functional', 'stop', 'partial',
-             'probable_indel_or_misalign', 'copy_number',
-             'copy_number_in_sample', 'copy_number_in_subject'],
+             'functional', 'stop', 'partial', 'probable_indel_or_misalign',
+             'copy_number'],
             row)
+        if row.collapse is not None:
+            fields['copy_number_in_subject'] = (
+                row.collapse.copy_number_in_subject
+            )
 
         fields['sample'] = _sample_to_dict(row.sample)
         res.append(fields)
