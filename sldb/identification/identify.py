@@ -204,6 +204,8 @@ def run_identify(session, args):
                              args.anchor_len, args.min_anchor_len)
     tasks = concurrent.TaskQueue()
 
+    sample_names = set([])
+    fail = False
     for directory in args.sample_dirs:
         # If metadata is not specified, assume it is "metadata.json" in the
         # directory
@@ -221,8 +223,6 @@ def run_identify(session, args):
             metadata = json.load(fh)
 
         # Create the tasks for each file
-        sample_names = set([])
-        fail = False
         for fn in sorted(metadata.keys()):
             if fn == 'all':
                 continue
@@ -254,11 +254,11 @@ def run_identify(session, args):
                    'skip samples that are already in the database use '
                    '--warn-existing.')
             return
-        lock = mp.RLock()
-        for i in range(0, min(args.nproc, tasks.num_tasks())):
-            worker_session = config.init_db(args.db_config)
-            tasks.add_worker(IdentificationWorker(
-                worker_session, v_germlines, j_germlines, args.trim,
-                args.max_vties, args.min_similarity / float(100), lock))
+    lock = mp.RLock()
+    for i in range(0, min(args.nproc, tasks.num_tasks())):
+        worker_session = config.init_db(args.db_config)
+        tasks.add_worker(IdentificationWorker(
+            worker_session, v_germlines, j_germlines, args.trim,
+            args.max_vties, args.min_similarity / float(100), lock))
 
-        tasks.start()
+    tasks.start()
