@@ -123,7 +123,6 @@ class Sample(Base):
 
     subset = Column(String(128))
     tissue = Column(String(16))
-    site = Column(String(16))
     ig_class = Column(String(8))
 
     disease = Column(String(32))
@@ -171,7 +170,11 @@ class SampleStats(Base):
 
     """
     __tablename__ = 'sample_stats'
-    __table_args__ = {'mysql_row_format': 'DYNAMIC'}
+    __table_args__ = (
+        Index('stat_cover', 'sample_id', 'outliers', 'full_reads',
+            'filter_type', 'sequence_cnt', 'in_frame_cnt', 'stop_cnt',
+            'functional_cnt', 'no_result_cnt'),
+        {'mysql_row_format': 'DYNAMIC'})
 
     sample_id = Column(Integer, ForeignKey(Sample.id),
                        primary_key=True)

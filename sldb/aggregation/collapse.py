@@ -85,18 +85,20 @@ def run_collapse(session, args):
         lambda e: e.id, session.query(Subject.id).all()
     )
 
-    to_set_status = []
     for subject in subject_ids:
         if session.query(Sample).filter(
                 Sample.subject_id == subject,
-                Sample.status == 'identified').first() is None:
+                ~exists().where(
+                    SequenceCollapse.sample_id == Sample.id
+                )).first() is None:
+
             print 'Subject {} already collapsed.  Skipping.'.format(subject)
             subject_ids.remove(subject)
         else:
             print 'Resetting collapse info for subject {}'.format(subject)
             samples = session.query(Sample).filter(
-                  Sample.subject_id == subject).all()
-            to_set_status.extend(samples)
+                  Sample.subject_id == subject
+            ).all()
             session.query(SequenceCollapse).filter(
                 SequenceCollapse.sample_id.in_(map(lambda e: e.id, samples))
             ).delete(synchronize_session=False)
@@ -122,7 +124,4 @@ def run_collapse(session, args):
         tasks.add_worker(CollapseWorker(config.init_db(args.db_config)))
     tasks.start()
 
-    for sample in to_set_status:
-        sample.status = 'collapsed'
-    session.commit()
     session.close()

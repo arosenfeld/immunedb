@@ -92,8 +92,7 @@ def _get_subject_clones(session, subject_id, min_similarity, include_indels,
     for i, seq in enumerate(query):
         if i > 0 and i % 1000 == 0:
             session.commit()
-            print 'Committed {}/{} (new clones={})'.format(i, total,
-                                                           new_clones)
+            print 'Committed {}/{} (clones={})'.format(i, total, new_clones)
 
         # Key for cache has implicit subject_id due to function parameter
         key = (seq.v_gene, seq.j_gene, seq.cdr3_num_nts, seq.cdr3_aa)
@@ -234,14 +233,14 @@ def run_clones(session, args):
 
     print 'Pushing clone IDs to sample sequences'
     session.connection(mapper=Sequence).execute(text('''
-    UPDATE
-        sequences AS s
-    JOIN sequence_collapse AS c
-        ON s.sample_id=c.sample_id AND s.ai=c.seq_ai
-    JOIN (SELECT seq_id, ai, clone_id from sequences) as s2
-        ON c.collapse_to_subject_seq_ai=s2.ai
-    SET s.clone_id=s2.clone_id
-    WHERE s.seq_id!=s2.seq_id
+        UPDATE
+            sequences AS s
+        JOIN sequence_collapse AS c
+            ON s.sample_id=c.sample_id AND s.ai=c.seq_ai
+        JOIN (SELECT seq_id, ai, clone_id from sequences) as s2
+            ON c.collapse_to_subject_seq_ai=s2.ai
+        SET s.clone_id=s2.clone_id
+        WHERE s.seq_id!=s2.seq_id
     '''))
 
     session.commit()

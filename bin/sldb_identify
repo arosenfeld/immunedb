@@ -44,7 +44,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
     if args.min_anchor_len > args.anchor_len:
         parser.error('Minimum anchor length must be <= total anchor length')
-    if args.metadata and len(args.sample_dirs) > 0:
+    if args.metadata and len(args.sample_dirs) > 1:
         parser.error('Cannot specify \'metadata\' with multiple input '
                      'directories.')
 

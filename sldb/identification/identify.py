@@ -150,7 +150,6 @@ class IdentificationWorker(concurrent.Worker):
                     larger.add_as_sequence(self._session, sample,
                                            meta.get('paired'))
 
-        sample.status = 'identified'
         self._session.commit()
         self._print('Completed sample {}'.format(sample.name))
 
@@ -172,7 +171,7 @@ class IdentificationWorker(concurrent.Worker):
             self._session, Sample, name=name, study=study)
         if new:
             sample.date = meta.get('date')
-            self._print('\tCreated new sample "{}" in MASTER'.format(
+            self._print('\tCreated new sample "{}"'.format(
                 sample.name))
             for key in ('subset', 'tissue', 'disease', 'lab', 'experimenter',
                         'ig_class', 'v_primer', 'j_primer'):

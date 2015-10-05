@@ -7,8 +7,8 @@
 * `sldb_clone_selection_pressure` has been added to calculate clonal selection
   pressure.  `sldb_clone_stats` now only calculates mutations and overlap, but
   much more quickly.
-* Collapsing subjects will no longer re-collapse samples which have already been
-  collapsed.
+* Duplicate sequences, regardless of ambiguous characters, are automatically
+  collapsed during identification.
 * API call `get_stats` now takes a `percentages` parameter which will return
   statistics as percentages.
 * SLDB no longer uses two databases and now only requires one configuration
@@ -16,8 +16,7 @@
 * Identification speed has been increased..
 * Samples can now be annotated with an `ig_class` specifying the isotype of the
   sample (e.g. IgA, IgE).
-* Exporting should no longer have a long startup-delay when exporting a large
-  number of sequences.
+* Sequences instances are now counted at the subject level.
 
 ## v0.11.4
 * Exporting clone overlap now includes selected and all samples.
