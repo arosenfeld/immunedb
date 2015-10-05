@@ -1,0 +1,10 @@
+dependencies:
+    pre:
+        - sudo apt-get install python-pip python-dev build-essential
+        - pip install numpy
+        - sudo apt-get install libatlas-base-dev gfortran
+        - pip install scipy
+
+test:
+    override:
+        - nosetests
