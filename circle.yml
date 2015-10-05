@@ -7,5 +7,5 @@ dependencies:
 
 test:
     override:
-        - ./tests/setup_db.sh
+        - sudo ./tests/setup_db.sh
         - nosetests
