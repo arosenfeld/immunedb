@@ -8,7 +8,7 @@ dependencies:
 test:
     override:
 
-        - sudo echo "innodb_large_prefix = ON" >> /etc/mysql/my.cnf
-        - sudo echo "innodb_file_format = Barracuda" >> /etc/mysql/my.cnf
+        - echo "innodb_large_prefix = ON" | sudo tee -a /etc/mysql/my.cnf
+        - echo "innodb_file_format = Barracuda" | sudo tee -a /etc/mysql/my.cnf
         - ./tests/setup_db.sh
         - nosetests
