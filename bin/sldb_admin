@@ -26,6 +26,9 @@ if __name__ == '__main__':
                         'database)')
     parser.add_argument('--db-pass', action='store_true', help='Prompt for '
                         'MySQL user password.  (Default: randomly generated)')
+    parser.add_argument('--admin-pass', type=str, default=None,
+                        help='Specify the admin password at the command line '
+                        'instead of prompting.')
 
     parser = subparsers.add_parser(
         'delete', help='Deletes an existing SLDB database')
@@ -38,6 +41,9 @@ if __name__ == '__main__':
                         'also delete it for other database, so only use if '
                         'you\'re deleting those other databases or the user '
                         'is only associated with this database.')
+    parser.add_argument('--admin-pass', type=str, default=None,
+                        help='Specify the admin password at the command line '
+                        'instead of prompting.')
 
     parser = subparsers.add_parser('backup', help='Backs up an SLDB database')
     parser.add_argument('db_config', help='Path to database config')
@@ -54,6 +60,6 @@ if __name__ == '__main__':
         'backup': admin.backup,
         'restore': admin.restore
     }
-
     args = main_parser.parse_args()
+
     cmds[args.cmd](main_parser, args)

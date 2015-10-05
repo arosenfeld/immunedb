@@ -50,14 +50,14 @@ def _get_user_pass(conn, host, user, existing_password):
                 return db_pass
 
 
-def create(main_parser, args, admin_pass=None):
+def create(main_parser, args):
     if re.search('[^A-Za-z0-9_\-]', args.db_name) is not None:
         main_parser.error('Database name must only contain letters, numbers, '
                           'dashes and underscores.')
 
     try:
         conn = _get_root_connection(args.db_host, args.admin_user,
-                                    admin_pass=admin_pass)
+                                    args.admin_pass)
 
         db_user = args.db_user or args.db_name
         if args.db_pass:
@@ -77,7 +77,7 @@ def create(main_parser, args, admin_pass=None):
                 print ('Warning: User {} already exists.  To generate the '
                        'configuration file, you must enter it\'s '
                        'password.').format(db_user)
-                if not admin_pass:
+                if not args.admin_pass:
                     db_pass = _get_user_pass(conn, args.db_host, db_user,
                                              existing_password)
                 else:
@@ -110,12 +110,12 @@ def create(main_parser, args, admin_pass=None):
         return False
 
 
-def delete(main_parser, args, admin_pass=None):
+def delete(main_parser, args):
     try:
         with open(args.db_config) as fh:
             db_config = json.load(fh)
         conn = _get_root_connection(db_config['host'], args.admin_user,
-                                    admin_pass)
+                                    args.admin_pass)
         with conn.cursor() as cursor:
             print 'Deleting database {}'.format(db_config['database'])
             cursor.execute('DROP DATABASE `{}`'.format(db_config['database']))
