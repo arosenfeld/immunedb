@@ -7,6 +7,7 @@ dependencies:
 
 test:
     override:
+        - echo "innodb_file_per_table = 1" | sudo tee -a /etc/mysql/my.cnf
         - echo "innodb_large_prefix = 1" | sudo tee -a /etc/mysql/my.cnf
         - echo "innodb_file_format = Barracuda" | sudo tee -a /etc/mysql/my.cnf
         - sudo service mysql restart
