@@ -593,6 +593,8 @@ def trace_seq_collapses(session, seq):
         SequenceCollapse.seq_ai == seq.ai,
     ).first()
 
+    if collapse_info is None:
+        return None
     return {
         'sample_id': collapse_info.collapse_to_subject_sample_id,
         'ai': collapse_info.collapse_to_subject_seq_ai,

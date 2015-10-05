@@ -28,6 +28,8 @@ def test_full_seq():
     j_germlines = JGermlines(j_germs, 31, 18, 12)
     vdj = VDJSequence(seq_id, seq, v_germlines, j_germlines)
     vdj.align_to_germline(vdj.v_length, vdj.mutation_fraction)
+    for k, v in vdj.__dict__.iteritems():
+        print k, v
     assert set(vdj.v_gene) == set(['IGHV4-59*01', 'IGHV4-59*02',
                                    'IGHV4-59*08'])
     assert set(vdj.j_gene) == set([
@@ -37,20 +39,40 @@ def test_full_seq():
                         'TCGACCCCTGG')
     assert lookups.aas_from_nts(vdj.cdr3, '') == 'CARENYDFWSSNLRGNWFDPW'
 
-    assert vdj.v_length == 293
-    assert vdj.v_match == 281
-    assert vdj.pre_cdr3_length == 282
-    assert vdj.pre_cdr3_match == 254
+    assert vdj.post_cdr3_length == 31
+    assert vdj.v_match == 265
+    assert vdj.j_match == 48
+    assert vdj.post_cdr3_match == 31
+    assert vdj.pre_cdr3_match == 281
     assert vdj.j_length == 48
-    assert vdj.j_match == 35
-    assert vdj.sequence == (
-        'CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGTCCTCGGAGACCCTGTCCCTCACCTGC'
-        'ACTGTCTCTGGGGGCTCCTTC------------GGTTCTTACAACTGGAACTGGATCCGGCAGCCCCCA'
-        'GGGAAGGGGCTGGAGTGGATTGGACACATCTACTACACT---------GGGAGCACCAACTACAACCCC'
-        'TCCCTCGAG---GGTCGAGTCGCCATATCACTGGACACGTCCAAGAATCAGTTCTTTCTGAACCTGAGC'
-        'TCGGCGACCGCTGCGGACACGGCCATTTATTATTGTGCGAGAGAGAATTACGATTTTTGGAGTAGTAAT'
-        'CTCCGAGGCAACTGGTTCGACCCCTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG'
+    assert vdj.v_length == 293
+    assert vdj.quality is None
+    assert vdj.id == 'M01651:98:000000000-A7TTB:1:1101:10239:17854'
+    assert vdj.removed_prefix_qual == ''
+    assert vdj.deletions is None
+    assert vdj.germline == (
+        'CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCGGAGACCCTGTCCCTCACC'
+        'TGCACTGTCTCTGGTGGCTCCNTC------------AGTAGTTACTACTGGAGCTGGATCCGGCAG'
+        'CCCCCAGGGAAGGGACTGGAGTGGATTGGGTATATCTATTACAGT---------GGGAGCACCAACT'
+        'ACAACCCCTCCCTCAAG---AGTCGAGTCACCATATCAGTAGACACGTCCAAGAACCAGTTCTCCCT'
+        'GAAGCTGAGCTCTGTGACCGCNGCNGACACGGCCGTGTATTAC------------------------'
+        '---------------------------------------GGCCANGGNACCCTGGTCACCGTCTCCT'
+        'CAG'
     )
+    assert vdj.pre_cdr3_length == 309
+    assert vdj.sequence == (
+        'CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGTCCTCGGAGACCCTGTCCCTCACCT'
+        'GCACTGTCTCTGGGGGCTCCTTC------------GGTTCTTACAACTGGAACTGGATCCGGCAGCC'
+        'CCCAGGGAAGGGGCTGGAGTGGATTGGACACATCTACTACACT---------GGGAGCACCAACTAC'
+        'AACCCCTCCCTCGAG---GGTCGAGTCGCCATATCACTGGACACGTCCAAGAATCAGTTCTTTCTGA'
+        'ACCTGAGCTCGGCGACCGCTGCGGACACGGCCATTTATTATTGTGCGAGAGAGAATTACGATTTTTG'
+        'GAGTAGTAATCTCCGAGGCAACTGGTTCGACCCCTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCA'
+        'G'
+    )
+    assert vdj.insertions is None
+    assert vdj.j_anchor_pos == 448
 
 if __name__ == '__main__':
     test_full_seq()
+
+

@@ -150,6 +150,7 @@ class IdentificationWorker(concurrent.Worker):
                     larger.add_as_sequence(self._session, sample,
                                            meta.get('paired'))
 
+        sample.status = 'identified'
         self._session.commit()
         self._print('Completed sample {}'.format(sample.name))
 
