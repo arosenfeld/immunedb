@@ -3,7 +3,7 @@ import Queue
 from sqlalchemy import func
 
 import sldb.util.funcs as funcs
-from sldb.identification import AlignmentException, SequenceRecord
+from sldb.identification import AlignmentException
 from sldb.identification.j_genes import JGermlines
 from sldb.identification.v_genes import VGermlines
 from sldb.identification.vdj_sequence import VDJSequence

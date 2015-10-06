@@ -26,7 +26,7 @@ def test_full_seq():
 
     v_germlines = VGermlines(v_germs)
     j_germlines = JGermlines(j_germs, 31, 18, 12)
-    vdj = VDJSequence(seq_id, seq, v_germlines, j_germlines)
+    vdj = VDJSequence(seq_id, seq, v_germlines, j_germlines, analyze=True)
     vdj.align_to_germline(vdj.v_length, vdj.mutation_fraction)
     for k, v in vdj.__dict__.iteritems():
         print k, v
@@ -47,7 +47,8 @@ def test_full_seq():
     assert vdj.j_length == 48
     assert vdj.v_length == 293
     assert vdj.quality is None
-    assert vdj.id == 'M01651:98:000000000-A7TTB:1:1101:10239:17854'
+    assert len(vdj.ids) == 1
+    assert vdj.ids[0] == 'M01651:98:000000000-A7TTB:1:1101:10239:17854'
     assert vdj.removed_prefix_qual == ''
     assert vdj.deletions is None
     assert vdj.germline == (
