@@ -3,6 +3,7 @@ import argparse
 import sys
 
 import sldb.common.config as config
+from sldb.trees.clearcut import run_clearcut
 
 if __name__ == '__main__':
     parser = config.get_base_arg_parser('Generates JSON trees for clones')
@@ -11,6 +12,9 @@ if __name__ == '__main__':
                         help='Force updating of trees')
     parser.add_argument('--clone-ids', nargs='+', type=int,
                         help='ID of clone from which to make a tree')
+    parser.add_argument('--subject-ids', nargs='+', type=int,
+                        help='ID of subject for which all clones should be '
+                        'make')
     parser.add_argument('--temp', default='/tmp', help='Path for temporary'
                         'files')
     parser.add_argument('--min-count', default=1, type=int,
@@ -23,7 +27,8 @@ if __name__ == '__main__':
                         'calculation. (Default: 1)')
     args = parser.parse_args()
 
-    session = config.init_db(args.master_db_config, args.data_db_config)
+    if args.subject_ids is not None and args.clone_ids is not None:
+        parser.error('May only specify subject or clone IDs')
 
-    from sldb.trees.clearcut import run_clearcut
+    session = config.init_db(args.db_config)
     sys.exit(run_clearcut(session, args))

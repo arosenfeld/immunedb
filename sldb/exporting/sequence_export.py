@@ -27,6 +27,7 @@ class SequenceExport(Exporter):
         ('subject_id', lambda seq: seq.sample.subject.id),
         ('subject_identifier', lambda seq: seq.sample.subject.identifier),
         ('subset', lambda seq: seq.sample.subset),
+        ('ig_class', lambda seq: seq.sample.ig_class),
         ('tissue', lambda seq: seq.sample.tissue),
         ('disease', lambda seq: seq.sample.disease),
         ('lab', lambda seq: seq.sample.lab),

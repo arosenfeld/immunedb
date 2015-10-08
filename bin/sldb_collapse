@@ -1,7 +1,9 @@
 #!/usr/bin/env python2
 import sys
 import argparse
+
 import sldb.common.config as config
+from sldb.aggregation.collapse import run_collapse
 
 if __name__ == '__main__':
     parser = config.get_base_arg_parser('Collapses sequences at the sample and'
@@ -10,6 +12,5 @@ if __name__ == '__main__':
                         help='Subject ID(s) to collapse.')
     args = parser.parse_args()
 
-    session = config.init_db(args.master_db_config, args.data_db_config)
-    from sldb.aggregation.collapse import run_collapse
+    session = config.init_db(args.db_config)
     sys.exit(run_collapse(session, args))

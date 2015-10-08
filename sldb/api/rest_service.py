@@ -167,28 +167,34 @@ def clones():
 
 
 @route('/api/clone/<clone_id:int>')
-@route('/api/clone/<clone_id:int>/<sample_ids>')
-def clone(clone_id, sample_ids=None):
+def clone(clone_id):
     """Gets a clone clones, outputting its mutations and other pertinent
     information.
 
     :param int clone_id: The clone ID
-    :param str sample_ids: A comma-separated list of samples to restrict
-    analysis
 
     :returns: Clone information
     :rtype: str
 
     """
     session = scoped_session(session_factory)()
-    clone = queries.get_clone(session, clone_id, sample_ids)
-    pressure = queries.get_selection_pressure(session, clone_id, sample_ids)
+    clone = queries.get_clone(session, clone_id)
+    pressure = queries.get_selection_pressure(session, clone_id)
     session.close()
 
     return json.dumps({
         'clone': clone,
         'selection_pressure': pressure
     })
+
+@route('/api/clone_seqs/<cid:int>')
+def clone_seqs(cid):
+    paging = _get_paging()
+    get_collapse = _get_arg('collapse', False) == 'true'
+    session = scoped_session(session_factory)()
+    seqs = queries.get_clone_sequences(session, cid, get_collapse, paging)
+    session.close()
+    return json.dumps(seqs)
 
 
 @route('/api/clone_tree/<cid:int>')
@@ -277,8 +283,10 @@ def clone_overlap(filter_type, samples=None, subject=None):
         yield json.dumps({'clones': clones})
 
 
-@route('/api/stats/<samples>/<include_outliers>/<include_partials>/<grouping>')
-def stats(samples, include_outliers, include_partials, grouping):
+@route('/api/stats/<samples>/<filter_type>/<include_outliers>/'
+       '<include_partials>/<percentages>/<grouping>')
+def stats(samples, filter_type, include_outliers, include_partials, percentages,
+          grouping):
     """Gets the statistics for a given set of samples both including and
     excluding outliers.
 
@@ -291,8 +299,11 @@ def stats(samples, include_outliers, include_partials, grouping):
     """
     session = scoped_session(session_factory)()
     samples = _split(samples)
-    ret = queries.get_stats(session, samples, include_outliers == 'true',
-                            include_partials == 'true', grouping)
+    ret = queries.get_stats(session, samples, filter_type,
+                            include_outliers == 'true',
+                            include_partials == 'true',
+                            percentages == 'true',
+                            grouping)
     session.close()
     return json.dumps(ret)
 

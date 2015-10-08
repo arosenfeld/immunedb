@@ -1,7 +1,9 @@
 #!/usr/bin/env python2
 import sys
 import argparse
+
 import sldb.common.config as config
+from sldb.identification.identify import run_identify
 
 if __name__ == '__main__':
     parser = config.get_base_arg_parser('Identifies V and J genes from '
@@ -19,7 +21,8 @@ if __name__ == '__main__':
     parser.add_argument('min_anchor_len', type=int, help='The minimum number '
                         'of nucleotides in the J germline anchors required '
                         'to match the sequence.')
-    parser.add_argument('samples_dir', help='Base directory for samples.')
+    parser.add_argument('sample_dirs', nargs='+', help='Base directories for '
+                        'samples.')
     parser.add_argument('--metadata', default=None, help='Path to metadata '
                         'file.  If not specified, expects "metadata.json" to '
                         'exist in the base_dir')
@@ -41,8 +44,9 @@ if __name__ == '__main__':
     args = parser.parse_args()
     if args.min_anchor_len > args.anchor_len:
         parser.error('Minimum anchor length must be <= total anchor length')
+    if args.metadata and len(args.sample_dirs) > 1:
+        parser.error('Cannot specify \'metadata\' with multiple input '
+                     'directories.')
 
-    session = config.init_db(args.master_db_config, args.data_db_config)
-
-    from sldb.identification.identify import run_identify
+    session = config.init_db(args.db_config)
     sys.exit(run_identify(session, args))

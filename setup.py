@@ -5,7 +5,7 @@ dnautils = Extension('dnautils', sources=['lib/dnautils.c'],
 
 setup(
     name='SLDB',
-    version='0.11.4',
+    version='0.12.0',
     author='Aaron M. Rosenfeld',
     author_email='ar374@drexel.edu',
     packages=[
@@ -20,11 +20,13 @@ setup(
         'sldb.util',
     ],
     scripts=[
+        'bin/sldb_admin',
         'bin/sldb_clones',
         'bin/sldb_clone_stats',
+        'bin/sldb_clone_pressure',
         'bin/sldb_clone_trees',
         'bin/sldb_collapse',
-        'bin/sldb_fix_indels',
+        'bin/sldb_local_align',
         'bin/sldb_identify',
         'bin/sldb_import_delim',
         'bin/sldb_hvquest',

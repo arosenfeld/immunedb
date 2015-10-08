@@ -56,10 +56,7 @@ class ClearcutWorker(concurrent.Worker):
         seqs = {}
         mut_counts = {}
         q = self._session.query(
-            Sequence.seq_id,
-            Sequence.sample_id,
-            Sequence.sequence,
-            Sequence.mutations_from_clone
+            Sequence
         ).filter(
             Sequence.clone_id == clone_id,
             Sequence.copy_number_in_subject > 0
@@ -67,7 +64,7 @@ class ClearcutWorker(concurrent.Worker):
             Sequence.v_length
         )
         for seq in q:
-            seqs[base64.b64encode(seq.seq_id)] = seq.sequence
+            seqs[base64.b64encode(seq.seq_id)] = seq.clone_sequence
             if seq.mutations_from_clone is None:
                 raise Exception(
                     'Mutation information not available for sequence '
@@ -76,7 +73,7 @@ class ClearcutWorker(concurrent.Worker):
                 )
 
             mutations = _get_mutations(
-                germline_seq, seq.sequence, map(
+                germline_seq, seq.clone_sequence, map(
                     int, json.loads(seq.mutations_from_clone).keys())
             )
             for mut in mutations:
@@ -109,16 +106,19 @@ class ClearcutWorker(concurrent.Worker):
                 ).first()
                 tissues = set([])
                 subsets = set([])
+                ig_classes = set([])
                 for collapsed_seq in _get_seqs_collapsed_to(
                         self._session, seq):
                     tissues.add(collapsed_seq.sample.tissue)
                     subsets.add(collapsed_seq.sample.subset)
+                    ig_classes.add(collapsed_seq.sample.ig_class)
 
                 node.name = name
                 node.add_feature('seq_ids', [seq.seq_id])
                 node.add_feature('copy_number', seq.copy_number_in_subject)
                 node.add_feature('tissues', map(str, tissues))
                 node.add_feature('subsets', map(str, subsets))
+                node.add_feature('ig_classes', map(str, ig_classes))
                 modified_seq = _remove_muts(seq.sequence, remove_muts,
                                             germline_seq)
                 node.add_feature('mutations', _get_mutations(
@@ -164,6 +164,7 @@ def _instantiate_node(node):
     node.add_feature('sequence', None)
     node.add_feature('tissues', [])
     node.add_feature('subsets', [])
+    node.add_feature('ig_classes', [])
     node.add_feature('mutations', set([]))
 
     return node
@@ -176,6 +177,7 @@ def _get_json(tree, root=True):
             'copy_number': tree.copy_number,
             'tissues': ','.join(sorted(set(tree.tissues))),
             'subsets': ','.join(sorted(set(tree.subsets))),
+            'ig_classes': ','.join(sorted(set(tree.ig_classes))),
             'mutations': [{
                 'pos': mut[0],
                 'from': mut[1],
@@ -196,6 +198,7 @@ def _get_json(tree, root=True):
             'copy_number': 0,
             'tissues': '',
             'subsets': '',
+            'ig_classes': '',
             'mutations': [],
         },
         'children': [node]
@@ -234,6 +237,7 @@ def _remove_null_nodes(tree):
         if node.up is not None and len(node.mutations) == 0:
             node.up.tissues.extend(node.tissues)
             node.up.subsets.extend(node.subsets)
+            node.up.ig_classes.extend(node.ig_classes)
             node.up.seq_ids.extend(node.seq_ids)
             node.up.copy_number += node.copy_number
             node.delete(prevent_nondicotomic=False)
@@ -288,13 +292,18 @@ def _get_total_muts(tree):
 
 
 def run_clearcut(session, args):
-    if args.clone_ids is None:
-        clones = session.query(Clone.id)
+    if args.clone_ids is not None:
+        clones = args.clone_ids
+    else:
+        if args.subject_ids is not None:
+            clones = session.query(Clone.id).filter(
+                Clone.subject_id.in_(args.subject_ids))
+        else:
+            clones = session.query(Clone.id)
+
         if not args.force:
             clones = clones.filter(Clone.tree.is_(None))
         clones = map(lambda c: c.id, clones)
-    else:
-        clones = args.clone_ids
     mod_log.make_mod('clone_tree', session=session, commit=True,
                      info=vars(args))
 
@@ -311,7 +320,7 @@ def run_clearcut(session, args):
         tasks.add_task(clone_inst)
 
     for _ in range(0, args.nproc):
-        session = config.init_db(args.master_db_config, args.data_db_config)
+        session = config.init_db(args.db_config)
         tasks.add_worker(ClearcutWorker(session, args.clearcut_path,
                                         args.min_count, args.min_samples))
 

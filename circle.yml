@@ -1,0 +1,15 @@
+dependencies:
+    pre:
+        - sudo apt-get install python-pip python-dev build-essential
+        - pip install numpy
+        - sudo apt-get install libatlas-base-dev gfortran
+        - pip install scipy
+
+test:
+    override:
+        - echo "innodb_file_per_table = 1" | sudo tee -a /etc/mysql/my.cnf
+        - echo "innodb_large_prefix = 1" | sudo tee -a /etc/mysql/my.cnf
+        - echo "innodb_file_format = Barracuda" | sudo tee -a /etc/mysql/my.cnf
+        - sudo service mysql restart
+        - ./tests/setup_db.sh
+        - nosetests

@@ -1,25 +1,41 @@
 import datetime
 import hashlib
 
-from sqlalchemy import (Column, Boolean, Integer, String, Text, Date, DateTime,
-                        ForeignKey, UniqueConstraint, Index, event, func)
+from sqlalchemy import (Column, Boolean, Float, Integer, String, Text, Date,
+                        DateTime, ForeignKey, UniqueConstraint, Index, event,
+                        func)
+from sqlalchemy.dialects.mysql import BINARY, CHAR, MEDIUMTEXT, TEXT
 from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import ColumnProperty, relationship, backref
 from sqlalchemy.orm.interfaces import MapperExtension
-from sqlalchemy.dialects.mysql import TEXT, MEDIUMTEXT, BINARY
+from sqlalchemy.orm.session import Session
+from sqlalchemy.schema import ForeignKeyConstraint, PrimaryKeyConstraint
 
-from sldb.common.settings import DATABASE_SETTINGS
+import sldb.util.funcs as funcs
 
-BaseMaster = declarative_base(
-    metadata=DATABASE_SETTINGS['master_metadata'])
-BaseData = declarative_base(
-    metadata=DATABASE_SETTINGS['data_metadata'])
+Base = declarative_base()
 MAX_CDR3_NTS = 96
 MAX_CDR3_AAS = int(MAX_CDR3_NTS / 3)
+MAX_SEQ_LEN = 512
 CDR3_OFFSET = 309
 
 
-class Study(BaseMaster):
+def _deserialize_gaps(gaps):
+    if gaps is None:
+        return []
+    return map(lambda e: tuple(map(int, e.split('-'))), gaps.split(','))
+
+
+def _serialize_gaps(gaps):
+    if gaps is None or len(gaps) == 0:
+        return None
+    return ','.join(
+        ['{}-{}'.format(start, end) for (start, end) in sorted(gaps)]
+    )
+
+
+class Study(Base):
     """A high-level study such as one studying Lupus.
 
     :param int id: An auto-assigned unique identifier for the study
@@ -37,7 +53,7 @@ class Study(BaseMaster):
     info = Column(String(length=1024))
 
 
-class Subject(BaseMaster):
+class Subject(Base):
     """A subject which was sampled for a study.
 
     :param int id: An auto-assigned unique identifier for the subject
@@ -61,7 +77,7 @@ class Subject(BaseMaster):
                          order_by=identifier))
 
 
-class Sample(BaseMaster):
+class Sample(Base):
     """A sample taken from a single subject, tissue, and subset.
 
     :param int id: An auto-assigned unique identifier for the sample
@@ -107,15 +123,22 @@ class Sample(BaseMaster):
 
     subset = Column(String(128))
     tissue = Column(String(16))
-    site = Column(String(16))
+    ig_class = Column(String(8))
+
     disease = Column(String(32))
     lab = Column(String(128))
     experimenter = Column(String(128))
 
-    library = Column(Integer, server_default='1', nullable=False)
+    v_primer = Column(String(32))
+    j_primer = Column(String(32))
+
+    v_ties_mutations = Column(Float)
+    v_ties_len = Column(Float)
+
+    status = Column(String(length=64), server_default='identifying')
 
 
-class SampleStats(BaseData):
+class SampleStats(Base):
     """Aggregate statistics for a sample.  This exists to reduce the time
     queries take for a sample.
 
@@ -147,7 +170,11 @@ class SampleStats(BaseData):
 
     """
     __tablename__ = 'sample_stats'
-    __table_args__ = {'mysql_row_format': 'DYNAMIC'}
+    __table_args__ = (
+        Index('stat_cover', 'sample_id', 'outliers', 'full_reads',
+            'filter_type', 'sequence_cnt', 'in_frame_cnt', 'stop_cnt',
+            'functional_cnt', 'no_result_cnt'),
+        {'mysql_row_format': 'DYNAMIC'})
 
     sample_id = Column(Integer, ForeignKey(Sample.id),
                        primary_key=True)
@@ -181,7 +208,7 @@ class SampleStats(BaseData):
     no_result_cnt = Column(Integer)
 
 
-class Clone(BaseData):
+class Clone(Base):
     """A group of sequences likely originating from the same germline
 
     :param int id: An auto-assigned unique identifier for the clone
@@ -206,8 +233,12 @@ class Clone(BaseData):
                       {'mysql_row_format': 'DYNAMIC'})
     id = Column(Integer, primary_key=True)
 
+    functional = Column(Boolean, index=True)
+
     v_gene = Column(String(length=512), index=True)
     j_gene = Column(String(length=128), index=True)
+
+    _insertions = Column('insertions', String(128), index=True)
 
     cdr3_nt = Column(String(length=MAX_CDR3_NTS))
     cdr3_num_nts = Column(Integer, index=True)
@@ -217,15 +248,33 @@ class Clone(BaseData):
     subject = relationship(Subject, backref=backref('clones',
                            order_by=(v_gene, j_gene, cdr3_num_nts, cdr3_aa)))
 
-    germline = Column(String(length=1024))
+    germline = Column(String(length=MAX_SEQ_LEN))
     tree = Column(MEDIUMTEXT)
+
+    @hybrid_property
+    def insertions(self):
+        return _deserialize_gaps(self._insertions)
+
+    @insertions.setter
+    def insertions(self, value):
+        self._insertions = _serialize_gaps(value)
+
+    @property
+    def regions(self):
+        regions = funcs.get_regions(self.insertions)
+        regions.append(self.cdr3_num_nts)
+        regions.append(len(self.germline) - sum(regions))
+        return regions
 
     @property
     def consensus_germline(self):
+        cdr3_start = CDR3_OFFSET
+        if self.insertions is not None:
+            cdr3_start += sum((e[1] for e in self.insertions))
         return ''.join([
-            self.germline[0:CDR3_OFFSET],
+            self.germline[0:cdr3_start],
             self.cdr3_nt,
-            self.germline[CDR3_OFFSET + self.cdr3_num_nts:]
+            self.germline[cdr3_start + self.cdr3_num_nts:]
         ])
 
 
@@ -244,16 +293,22 @@ class HashExtension(MapperExtension):
         self._store_name = store_name
         self._hash_fields = hash_fields
 
-    def before_insert(self, mapper, connection, instance):
+    def _hash(self, mapper, connection, instance):
         fields = map(lambda f: str(getattr(instance, f)), self._hash_fields)
         setattr(instance, self._store_name, HashExtension.hash_fields(fields))
+
+    def before_insert(self, mapper, connection, instance):
+        self._hash(mapper, connection, instance)
+
+    def before_update(self, mapper, connection, instance):
+        self._hash(mapper, connection, instance)
 
     @staticmethod
     def hash_fields(fields):
         return hashlib.sha1(' '.join(map(str, fields))).hexdigest()
 
 
-class CloneStats(BaseData):
+class CloneStats(Base):
     """Stores statistics for a given clone and sample.  If sample is zero (0)
     the statistics are for the specified clone in all samples.
 
@@ -276,16 +331,14 @@ class CloneStats(BaseData):
 
     """
     __tablename__ = 'clone_stats'
-    __table_args__ = {'mysql_row_format': 'DYNAMIC'}
-    __mapper_args__ = {'extension': HashExtension(
-        'clone_sample_hash', ('clone_id', 'sample_id')
-    )}
+    __table_args__ = (Index('clone_sample', 'clone_id', 'sample_id'),
+                     {'mysql_row_format': 'DYNAMIC'})
 
-    clone_sample_hash = Column(String(40), primary_key=True)
-    clone_id = Column(Integer, ForeignKey(Clone.id), index=True)
+    id = Column(Integer, primary_key=True)
+    clone_id = Column(Integer, ForeignKey(Clone.id, ondelete='CASCADE'))
     clone = relationship(Clone)
 
-    sample_id = Column(Integer, ForeignKey(Sample.id), index=True)
+    sample_id = Column(Integer, ForeignKey(Sample.id))
     sample = relationship(Sample, backref=backref('clone_stats'))
 
     unique_cnt = Column(Integer)
@@ -295,7 +348,7 @@ class CloneStats(BaseData):
     selection_pressure = Column(MEDIUMTEXT)
 
 
-class Sequence(BaseData):
+class Sequence(Base):
     """Represents a single unique sequence.
 
     :param str sample_seq_hash: A key over ``sample_id`` and ``sequence`` so \
@@ -332,9 +385,6 @@ class Sequence(BaseData):
         germline after to the CDR3
 
     :param bool in_frame: If the sequence's CDR3 has a length divisible by 3
-    :param bool functional: If the sequence is in-frame and contains no stop \
-        codons
-    :param bool stop: If the sequence contains a stop codon
     :param int copy_number: Number of reads identical to the sequence in the \
         same sample
 
@@ -354,54 +404,48 @@ class Sequence(BaseData):
         instance
     :param str mutations_from_clone: A JSON stanza with mutation information
 
-    :param int copy_number_in_sample: The copy number of the sequence after \
-        collapsing at the sample level.  Will be 0 if the sequence is \
-        collapsed to another.
-    :param str collapse_to_sample_seq_id: The sequence ID of the sequence \
-        to which this sequence is collapsed at the sample level
-
-    :param int copy_number_in_subject: The copy number of the sequence after \
-        collapsing at the subject level.  Will be 0 if the sequence is \
-        collapsed to another.
-    :param int collapse_to_subject_sample_id: The sample ID of the sequence \
-        to which this sequence is collapsed at the subject level
-    :param str collapse_to_subject_seq_id: The sequence ID of the sequence \
-        to which this sequence is collapsed at the subject level
 
     """
     __tablename__ = 'sequences'
     __table_args__ = (
-        Index('genes', 'v_gene', 'j_gene'),
-        Index('sample_collapse', 'collapse_to_sample_seq_id',
-              'sample_id'),
-        Index('subject_collapse',
-              'collapse_to_subject_sample_id',
-              'collapse_to_subject_seq_id'),
-        Index('clone_by_subject', 'clone_id',
-              'copy_number_in_subject'),
+        Index('collapse_bucket', 'bucket_hash', 'sample_id'),
+        UniqueConstraint('sample_id', 'seq_id'),
+        PrimaryKeyConstraint('sample_id', 'ai'),
         {'mysql_row_format': 'DYNAMIC'}
     )
-    __mapper_args__ = {'extension': HashExtension(
-        'sample_seq_hash', ('sample_id', 'sequence')
-    )}
+    __mapper_args__ = {
+        'extension': [
+            HashExtension('bucket_hash', ('subject_id', 'v_gene', 'j_gene',
+                                          'cdr3_num_nts', 'insertions',
+                                          'deletions'))
+        ]
+    }
 
-    sample_seq_hash = Column(String(40), unique=True, index=True)
+    def __init__(self, **kwargs):
+        self.insertions = kwargs.pop('insertions', None)
+        self.deletions = kwargs.pop('deletions', None)
+        super(Sequence, self).__init__(**kwargs)
 
-    seq_id = Column(String(128), primary_key=True, index=True)
-    sample_id = Column(Integer, ForeignKey(Sample.id), primary_key=True,
-                       index=True)
+    sample_id = Column(Integer, ForeignKey(Sample.id))
+    ai = Column(Integer, autoincrement=True, unique=True)
+
+    subject_id = Column(Integer, ForeignKey(Subject.id), index=True)
+
+    bucket_hash = Column(CHAR(40), index=True)
+
+    seq_id = Column(String(64))
     sample = relationship(Sample, backref=backref('sequences'))
 
-    paired = Column(Boolean, index=True)
+    paired = Column(Boolean)
     partial = Column(Boolean, index=True)
 
-    probable_indel_or_misalign = Column(Boolean, index=True)
-    regions = Column(String(25))
-    deletions = Column(String(128), index=True)   # POS:LENGTH[,POS:LENGTH ...]
-    insertions = Column(String(256), index=True)  # POS:NTS[,POS:NTS ...]
+    probable_indel_or_misalign = Column(Boolean)
 
-    v_gene = Column(String(512), index=True)
-    j_gene = Column(String(512), index=True)
+    _deletions = Column('deletions', String(128))
+    _insertions = Column('insertions', String(128))
+
+    v_gene = Column(String(512))
+    j_gene = Column(String(512))
 
     num_gaps = Column(Integer)
     pad_length = Column(Integer)
@@ -411,57 +455,100 @@ class Sequence(BaseData):
     j_match = Column(Integer)
     j_length = Column(Integer)
 
+    removed_prefix = Column(String(256))
+    removed_prefix_qual = Column(String(256))
+    v_mutation_fraction = Column(Float)
+
     pre_cdr3_length = Column(Integer)
     pre_cdr3_match = Column(Integer)
     post_cdr3_length = Column(Integer)
     post_cdr3_match = Column(Integer)
 
     in_frame = Column(Boolean)
-    functional = Column(Boolean, index=True)
+    functional = Column(Boolean)
     stop = Column(Boolean)
-    copy_number = Column(Integer, index=True, server_default='0',
-                         nullable=False)
+    copy_number = Column(Integer, server_default='0', nullable=False)
 
     # This is just length(cdr3_nt) but is included for fast statistics
     # generation over the index
-    cdr3_num_nts = Column(Integer, index=True)
+    cdr3_num_nts = Column(Integer)
 
     cdr3_nt = Column(String(MAX_CDR3_NTS))
-    cdr3_aa = Column(String(MAX_CDR3_AAS), index=True)
+    cdr3_aa = Column(String(MAX_CDR3_AAS))
 
-    sequence = Column(String(length=1024), index=True)
-    quality = Column(String(length=1024))
+    sequence = Column(String(length=MAX_SEQ_LEN))
+    quality = Column(String(length=MAX_SEQ_LEN))
 
-    germline = Column(String(length=1024))
+    germline = Column(String(length=MAX_SEQ_LEN))
 
-    clone_id = Column(Integer, ForeignKey(Clone.id), index=True)
+    clone_id = Column(Integer, ForeignKey(Clone.id, ondelete='SET NULL'),
+                      index=True)
     clone = relationship(Clone, backref=backref('sequences',
                          order_by=seq_id))
     mutations_from_clone = Column(MEDIUMTEXT)
 
-    copy_number_in_sample = Column(Integer, index=True, server_default='0',
-                                   nullable=False)
-    collapse_to_sample_seq_id = Column(String(128), index=True)
+    @hybrid_property
+    def deletions(self):
+        return _deserialize_gaps(self._deletions)
 
-    copy_number_in_subject = Column(Integer, index=True, server_default='0',
-                                    nullable=False)
-    collapse_to_subject_sample_id = Column(Integer)
-    collapse_to_subject_seq_id = Column(String(128))
+    @deletions.setter
+    def deletions(self, value):
+        self._deletions = _serialize_gaps(value)
+
+    @hybrid_property
+    def insertions(self):
+        return _deserialize_gaps(self._insertions)
+
+    @insertions.setter
+    def insertions(self, value):
+        self._insertions = _serialize_gaps(value)
 
     @property
-    def region_boundaries(self):
-        boundaries = []
-        offset = 0
-        for region_size in map(int, self.regions.split('.')):
-            boundaries.append(offset + region_size - 1)
-            offset += region_size
-        cdr3_end = offset + self.cdr3_num_nts
-        boundaries.append(cdr3_end - 1)
-        boundaries.append(len(self.sequence) - 1)
-        return boundaries
+    def original_sequence(self):
+        return '{}{}'.format(
+            self.removed_prefix,
+            self.sequence.replace('-', '')
+        )
+
+    @property
+    def original_quality(self):
+        if self.quality is None:
+            return None
+        return '{}{}'.format(self.removed_prefix_qual or '',
+                             self.quality.replace(' ', ''))
+
+    @property
+    def clone_sequence(self):
+        seq = self.sequence
+        if self.clone is None:
+            return seq
+        for ins in sorted(self.clone.insertions):
+            if ins in self.insertions:
+                continue
+            pos, size = ins
+            seq = seq[:pos] + ('-' * size) + seq[pos:]
+
+        return seq
+
+    @property
+    def regions(self):
+        regions = funcs.get_regions(self.insertions)
+        regions.append(self.cdr3_num_nts)
+        regions.append(len(self.germline) - sum(regions))
+        return regions
+
+    def get_v_extent(self, in_clone):
+        extent = self.v_length + self.num_gaps + self.pad_length
+
+        if self.deletions is not None:
+            extent -= sum((e[1] for e in self.deletions))
+        if not in_clone:
+            return extent
+
+        return extent + len(self.clone_sequence) - len(self.sequence)
 
 
-class DuplicateSequence(BaseData):
+class DuplicateSequence(Base):
     """A sequence which is a duplicate of a :py:class:`Sequence`.  This is
     used to minimize the size of the sequences table.  The ``copy_number``
     attribute of :py:class:`Sequence` instances is equal to the number of
@@ -481,25 +568,24 @@ class DuplicateSequence(BaseData):
 
     """
     __tablename__ = 'duplicate_sequences'
-    __table_args__ = {'mysql_row_format': 'DYNAMIC'}
+    __table_args__ = (
+        ForeignKeyConstraint(
+            ['sample_id', 'duplicate_seq_ai'],
+            ['sequences.sample_id', 'sequences.ai']
+        ),
+        {'mysql_row_format': 'DYNAMIC'})
 
-    seq_id = Column(String(length=128), primary_key=True)
+    pk = Column(Integer, primary_key=True)
 
-    duplicate_seq_id = Column(String(length=128),
-                              ForeignKey('sequences.seq_id'),
-                              primary_key=True,
-                              index=True)
-    duplicate_seq = relationship(Sequence,
-                                 backref=backref('duplicate_sequences',
-                                                 order_by=duplicate_seq_id))
+    seq_id = Column(String(length=64))
 
-    sample_id = Column(Integer, ForeignKey(Sample.id),
-                       primary_key=True)
-    sample = relationship(Sample, backref=backref('duplicate_sequences',
-                          order_by=seq_id))
+    duplicate_seq_ai = Column(Integer, index=True)
+    duplicate_seq = relationship(Sequence)
+
+    sample_id = Column(Integer, index=True)
 
 
-class NoResult(BaseData):
+class NoResult(Base):
     """A sequence which could not be match with a V or J.
 
     :param str seq_id: A unique identifier for the sequence as output by the \
@@ -513,17 +599,18 @@ class NoResult(BaseData):
     __tablename__ = 'noresults'
     __table_args__ = {'mysql_row_format': 'DYNAMIC'}
 
-    seq_id = Column(String(length=128), primary_key=True)
+    pk = Column(Integer, primary_key=True)
 
-    sample_id = Column(Integer, ForeignKey(Sample.id),
-                       primary_key=True)
-    sample = relationship(Sample, backref=backref('noresults',
-                          order_by=seq_id))
+    seq_id = Column(String(length=64))
 
-    sequence = Column(String(length=1024))
+    sample_id = Column(Integer, ForeignKey(Sample.id))
+    sample = relationship(Sample)
+
+    sequence = Column(String(length=MAX_SEQ_LEN))
+    quality = Column(String(length=MAX_SEQ_LEN))
 
 
-class ModificationLog(BaseData):
+class ModificationLog(Base):
     """A log message for a database modification
 
     :param int id: The ID of the log message
@@ -542,6 +629,36 @@ class ModificationLog(BaseData):
     info = Column(String(length=1024))
 
 
+class SequenceCollapse(Base):
+    __tablename__ = 'sequence_collapse'
+    __table_args__ = (
+        PrimaryKeyConstraint('sample_id', 'seq_ai'),
+        ForeignKeyConstraint(
+            ['sample_id', 'seq_ai'],
+            ['sequences.sample_id', 'sequences.ai'],
+            name='seq_fkc'),
+        {'mysql_row_format': 'DYNAMIC',}
+    )
+
+    sample_id = Column(Integer, autoincrement=False)
+    seq_ai = Column(Integer, autoincrement=False)
+    seq = relationship(Sequence, backref=backref('collapse', uselist=False))
+
+    collapse_to_subject_sample_id = Column(Integer)
+    collapse_to_subject_seq_ai = Column(Integer)
+    collapse_to_subject_seq_id = Column(String(64)) # Denormalized
+    instances_in_subject = Column(Integer, server_default='0', nullable=False)
+    copy_number_in_subject = Column(Integer, server_default='0',
+                                    nullable=False)
+
+    @property
+    def collapse_to_seq(self):
+        return Session.object_session(self).query(Sequence).filter(
+            Sequence.sample_id == self.collapse_to_subject_sample_id,
+            Sequence.ai == self.collapse_to_subject_seq_ai
+        ).one()
+
+
 def check_string_length(cls, key, inst):
     prop = inst.prop
     # Only interested in simple columns, not relations
@@ -553,9 +670,10 @@ def check_string_length(cls, key, inst):
 
             def set_(instance, value, oldvalue, initiator):
                 if value is not None and len(value) > max_length:
-                    raise ValueError('Length {} exceeds allowed {}'.format(
-                        len(value), max_length))
+                    raise ValueError(
+                        'Length {} exceeds allowed {} for {}'.format(
+                            len(value), max_length, col.name)
+                    )
             event.listen(inst, 'set', set_)
 
-event.listen(BaseMaster, 'attribute_instrument', check_string_length)
-event.listen(BaseData, 'attribute_instrument', check_string_length)
+event.listen(Base, 'attribute_instrument', check_string_length)

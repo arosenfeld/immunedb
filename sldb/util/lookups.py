@@ -41,6 +41,13 @@ def aa_to_all_nts(aas):
     return map(lambda arr: ''.join(arr), itertools.product(*nts))
 
 
+def has_stop(seq):
+    for i in range(0, len(seq), 3):
+        if seq[i:i+3] in ['TAG', 'TAA', 'TGA']:
+            return True
+    return False
+
+
 _aa_lookup = {'TTT': 'F', 'TTC': 'F', 'TTA': 'L', 'TTG': 'L', 'TCT': 'S',
               'TCC': 'S', 'TCA': 'S', 'TCG': 'S', 'TAT': 'Y', 'TAC': 'Y',
               'TAA': '*', 'TAG': '*', 'TGT': 'C', 'TGC': 'C', 'TGA': '*',
