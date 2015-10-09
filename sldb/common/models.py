@@ -408,7 +408,7 @@ class Sequence(Base):
     """
     __tablename__ = 'sequences'
     __table_args__ = (
-        Index('collapse_bucket', 'bucket_hash', 'sample_id'),
+        Index('subject_bucket', 'subject_id', 'bucket_hash'),
         UniqueConstraint('sample_id', 'seq_id'),
         PrimaryKeyConstraint('sample_id', 'ai'),
         {'mysql_row_format': 'DYNAMIC'}
