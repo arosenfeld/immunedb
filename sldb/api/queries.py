@@ -4,7 +4,8 @@ import math
 import numpy as np
 import re
 
-from sqlalchemy import desc, distinct, inspect, or_
+from sqlalchemy import and_, desc, distinct, inspect, or_
+from sqlalchemy.orm.strategy_options import Load
 from sqlalchemy.sql import func
 from sqlalchemy.sql.expression import false, true
 from sqlalchemy.ext.declarative import DeclarativeMeta
@@ -68,7 +69,25 @@ def _page_query(q, paging):
 
 def get_all_studies(session):
     result = {}
-    for sample in session.query(Sample).order_by(Sample.date):
+    query = session.query(
+        Sample, SampleStats
+    ).outerjoin(
+        SampleStats,
+        and_(
+            SampleStats.sample_id == Sample.id,
+            SampleStats.outliers == true(),
+            SampleStats.full_reads == false(),
+            SampleStats.filter_type == 'all'
+        )
+    ).order_by(Sample.date).options(
+        Load(SampleStats).load_only(
+            'sequence_cnt', 'in_frame_cnt', 'stop_cnt', 'functional_cnt',
+            'no_result_cnt'
+        )
+    )
+
+    start = time.time()
+    for sample, stats in query:
         if sample.study.id not in result:
             result[sample.study.id] = {
                 'id': sample.study.id,
@@ -77,15 +96,6 @@ def get_all_studies(session):
                 'samples': []
             }
         sample_dict = _sample_to_dict(sample)
-        stats = session.query(SampleStats.sequence_cnt,
-                              SampleStats.in_frame_cnt,
-                              SampleStats.stop_cnt,
-                              SampleStats.functional_cnt,
-                              SampleStats.no_result_cnt).filter(
-            SampleStats.sample_id == sample.id,
-            SampleStats.outliers == true(),
-            SampleStats.full_reads == false(),
-            SampleStats.filter_type == 'all').first()
         if stats is not None:
             sample_dict['sequence_cnt'] = stats.sequence_cnt
             sample_dict['in_frame_cnt'] = stats.in_frame_cnt
