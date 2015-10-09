@@ -57,14 +57,13 @@ class VDJSequence(object):
 
         self.removed_prefix = ''
         self.removed_prefix_qual = ''
-
-        if not all(map(lambda c: c in 'ATCGN', self.sequence)):
-            raise AlignmentException('Invalid characters in sequence.')
-
         if analyze:
             self.analyze(locally_align)
 
     def analyze(self, locally_align=False):
+        if not all(map(lambda c: c in 'ATCGN', self.sequence)):
+            raise AlignmentException('Invalid characters in sequence.')
+
         if locally_align:
             self._locally_align(*locally_align)
         else:

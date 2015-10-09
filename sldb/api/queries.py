@@ -86,7 +86,6 @@ def get_all_studies(session):
         )
     )
 
-    start = time.time()
     for sample, stats in query:
         if sample.study.id not in result:
             result[sample.study.id] = {

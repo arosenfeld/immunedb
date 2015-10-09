@@ -8,7 +8,7 @@ import traceback
 from Bio import SeqIO
 
 from sqlalchemy import distinct
-from sqlalchemy.sql import desc, func
+from sqlalchemy.sql import desc, exists, func
 
 import sldb.common.config as config
 import sldb.common.modification_log as mod_log
@@ -304,8 +304,10 @@ def run_identify(session, args):
                 metadata[fn],
                 metadata['all'] if 'all' in metadata else None)
             if session.query(Sample).filter(
-                    Sample.name == meta.get('sample_name')
-                    ).first() is not None:
+                    Sample.name == meta.get('sample_name'),
+                    exists().where(
+                        Sequence.sample_id == Sample.id
+                    )).first() is not None:
                 print 'Sample {} already exists. {}'.format(
                     meta.get('sample_name'), 'Skipping.' if
                     args.warn_existing else 'Cannot continue.'
