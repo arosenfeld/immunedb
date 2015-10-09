@@ -3,6 +3,8 @@ import argparse
 import sys
 import sldb.common.config as config
 
+from sldb.importing.high_v_quest import run_high_v_quest_import
+
 if __name__ == '__main__':
     parser = config.get_base_arg_parser(
         'Imports V/J identifications from HighV-Quest output')
@@ -25,7 +27,6 @@ if __name__ == '__main__':
                         help='If V-ties should be calculated for V genes')
     args = parser.parse_args()
 
-    session = config.init_db(args.master_db_config, args.data_db_config)
+    session = config.init_db(args.db_config)
 
-    from sldb.importing.high_v_quest import run_high_v_quest_import
     sys.exit(run_high_v_quest_import(session, args))

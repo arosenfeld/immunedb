@@ -3,7 +3,7 @@ import argparse
 import textwrap
 import sys
 import sldb.common.config as config
-from sldb.importing.delimited import IMPORT_HEADERS
+from sldb.importing.delimited import IMPORT_HEADERS, run_delimited_import
 
 class FieldsAction(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
@@ -57,7 +57,6 @@ if __name__ == '__main__':
     if args.fail_action not in ('pass', 'warn', 'fail'):
         parser.error('--fail-action must be pass, warn, or fail')
 
-    session = config.init_db(args.master_db_config, args.data_db_config)
+    session = config.init_db(args.db_config)
 
-    from sldb.importing.delimited import run_delimited_import
     sys.exit(run_delimited_import(session, args))
