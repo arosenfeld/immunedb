@@ -11,5 +11,5 @@ test:
         - echo "innodb_large_prefix = 1" | sudo tee -a /etc/mysql/my.cnf
         - echo "innodb_file_format = Barracuda" | sudo tee -a /etc/mysql/my.cnf
         - sudo service mysql restart
-        - ./tests/setup_db.sh
+        - ./tests/run.sh
         - nosetests

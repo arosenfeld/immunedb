@@ -409,6 +409,7 @@ class Sequence(Base):
     __tablename__ = 'sequences'
     __table_args__ = (
         Index('subject_bucket', 'subject_id', 'bucket_hash'),
+        Index('subject_clone_bucket', 'subject_id', 'clone_id', 'bucket_hash'),
         UniqueConstraint('sample_id', 'seq_id'),
         PrimaryKeyConstraint('sample_id', 'ai'),
         {'mysql_row_format': 'DYNAMIC'}
