@@ -383,10 +383,8 @@ class VDJSequence(object):
             self.j_germlines.upstream_of_cdr3 - self.cdr3_start
         )
 
-        if self._cdr3_len <= 0:
-            self._v = None
-            raise AlignmentException('CDR3 has non-positive length: {}'
-                                     '.'.format(self._cdr3_len))
+        if self._cdr3_len < 3:
+            raise AlignmentException('CDR3 has not AAs'.format(self._cdr3_len))
 
         self.j_anchor_pos += self._cdr3_len
         # Fill germline CDR3 with gaps

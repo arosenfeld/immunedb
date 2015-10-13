@@ -32,7 +32,7 @@ if __name__ == '__main__':
 
     parser = subparsers.add_parser(
         'delete', help='Deletes an existing SLDB database')
-    parser.add_argument('admin_user', help='MySQL user with rights to create '
+    parser.add_argument('admin_user', help='MySQL user with rights to drop '
                         'databases')
     parser.add_argument('db_config', help='Path to database config')
     parser.add_argument('--delete-user', action='store_true', help='If '

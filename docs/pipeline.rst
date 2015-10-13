@@ -31,7 +31,7 @@ the instance.
 
     You may use a user other than ``root`` so long as it has permissions to
     create databases, create users, and grant users permission to manipulate
-    database in any way.
+    the database in any way.
 
 After running this, a database with the specified name will be created.  Further
 a configuration file with the same name and a ``.json`` extension will be placed
@@ -42,7 +42,7 @@ Data Preparation
 ----------------
 Before running the SLDB pipeline, the input sequence data must be properly
 structured.  All the FASTA files for analysis must be placed in a single
-directory.  For example:
+directory and each file must represent a single sample.  For example:
 
 .. code-block:: bash
 
@@ -52,31 +52,34 @@ directory.  For example:
     subjectXYZ_liver.fasta
 
 SLDB needs some metadata about each of the FASTA files to process it.
-Specifically, it **requires** the following information
+Specifically, it **requires** the following information (the maximum number of
+characters, when applicable, is shown in parenthesis):
 
-- ``study_name``: The name of study for the sample (e.g. Lupus)
-- ``sample_name``: The name of the sample.
-- ``date``: The date the sample was acquired in the format YYYY-MM-DD.
-- ``subject``: A unique identifier for the subject.  This must be unique to the
-  entire SLDB instance as they are not contextual to the study.  Therefore if
-  two studies use the same identifier for different subjects, they must be
+- ``sample_name`` (128): The name of the sample.
+- ``study_name`` (128): The name of study the sample belongs to.
+- ``date``: The date the sample was acquired in YYYY-MM-DD format.
+- ``subject`` (64): A unique identifier for the subject.  This must be unique to
+  the entire SLDB instance as they are not contextual to the study.  Therefore
+  if two studies use the same identifier for different subjects, they must be
   given new distinct identifiers.
 - ``paired``: A ``true`` or ``false`` value (**not a string***) indicating if
   the reads in the sample are paired-end.
 
-The following are optional for each file:
+The following are **optional** for each file:
 
-- ``subset``: The subset of the sample (e.g. Plasmablast, CD19+).  If none is
+- ``subset`` (128): The subset of the sample (e.g. Plasmablast, CD19+).  If none is
   specified, the field will be left blank.
-- ``ig_class``: The isotype of the sample (e.g. IgE).
-- ``tissue``: The tissue of the sample (e.g. Lung, Spleen).  If none is
+- ``tissue`` (16): The tissue of the sample (e.g. Lung, Spleen).  If none is
   specified, the field will be left blank.
-- ``disease``: Any disease(s) present in the subject when the sample was taken
+- ``ig_class`` (8): The isotype of the sample (e.g. IgE).
+- ``disease`` (32): Any disease(s) present in the subject when the sample was taken
   (e.g. Lupus).  If none is specified, the field will be left blank.
-- ``lab``: The name of the lab sequencing the sample. If none is specified, the
+- ``lab`` (128): The name of the lab sequencing the sample. If none is specified, the
   field will be left blank.
-- ``experimenter``: The individual who sequenced the sample. If none is
+- ``experimenter`` (128): The individual who sequenced the sample. If none is
   specified, the field will be left blank.
+- ``v_primer`` (32): An arbitrary string indicating the V-gene primer used.
+- ``j_primer`` (32): An arbitrary string indicating the J-gene primer used.
 
 This information is specified in a ``metadata.json`` file which must be placed
 in the same directory as the FASTA files.  The following is an example of such a
@@ -107,10 +110,9 @@ metadata file:
     }
 
 
-The ``all`` block applies the specified keys to all files in the directory (even
-if they are not included in the metadata file).  If a key is specified both in
-the ``all`` block and the block for a file, the value specified for the file is
-used.
+The ``all`` block applies the specified keys to all files.  If a key is
+specified both in the ``all`` block and the block for a file, the value
+specified for the file is used.
 
 .. warning::
     It's advisable to not use terms like "None", "N/A", or an empty string to
@@ -141,8 +143,10 @@ For V Germlines
   However, IGHV1-18 and V1-18*01 are not.
 - Germlines starting with gaps are excluded from alignment.
 - Germlines must be IMGT gapped.
-- V germlines must have have one of the following anchors with their last ``C``
-  being the first base in the CDR3: ``D...Y[YCH]C``, ``Y[YHC]C`` or ``D.....C``.
+- V germlines must have have one of the following amino-acid anchors with the
+  trailing ``C`` being the first residue in the CDR3: ``D...Y[YCH]C``,
+  ``Y[YHC]C`` or ``D.....C``.  The ``.`` character represents any amino acid,
+  and ``[YHC]`` indicates any one of ``Y``, ``H``, or ``C``.
 
 For J Germlines
 ^^^^^^^^^^^^^^^
@@ -166,9 +170,11 @@ This can be downloaded from `IMGT's Gene-DB <http://imgt.org/genedb>`_ directly.
                     J_NTS_UPSTREAM_OF_CDR3 J_ANCHOR_SIZE J_MIN_ANCHOR_LEN /path/to/sequence-data-directory
 
 Where ``J_NTS_UPSTREAM_OF_CDR3`` are the fixed number of nucleotides in each
-germline J gene upstream of the CDR3, J_ANCHOR_SIZE is the number of nucleotides
-to use as an anchor, and J_MIN_ANCHOR_LEN dictates how many bases must match.
-Their values for humans are 31, 18, and 12 respectively.  Graphically:
+germline J gene upstream of the CDR3, ``J_ANCHOR_SIZE`` is the number of nucleotides
+to use as an anchor, and ``J_MIN_ANCHOR_LEN`` dictates how many bases must match.
+**Their values for IMGT human germlines are 31, 18, and 12 respectively**.  When
+using other germlines, these values may be different.  The regions are shown
+graphically below:
 
 .. code-block:: bash
 
@@ -194,10 +200,10 @@ and therefor may not be necessary in many cases.
 
 Sequence Collapsing
 ------------------------------------
-SLDB collapses sequences at two levels: the sample and the subject.  Collapsing
-two sequences at a given level means that they are exactly the same when
-excluding the positions where either sequence has an unknown base (``N``).
-Thus, the sequences ``ATNN`` and ``ANCN`` would be collapsed.
+SLDB determines the uniqueness of a sequence both at the sample and subject
+level.  For the latter, ``sldb_collapse`` is used to find sequences that are the
+same except at positions that have an ``N``.  Thus, the sequences ``ATNN`` and
+``ANCN`` would be collapsed.
 
 This process is has been written in C rather than Python due to its
 computational complexity.  This fact is transparent to the user, however.
@@ -234,8 +240,7 @@ Two sets of statistics can be calculated in SLDB:
   copy number, V length, and CDR3 length.  It calculates all of these with and
   without outliers, and including and excluding partial reads.
 - **Clone Statistics:** For each clone and sample combination, how many unique
-  and total sequences appear, mutations from the germline, and selection
-  pressure.
+  and total sequences appear as well as the mutations from the germline.
 
 These are calculated with the ``sldb_sample_stats`` and ``sldb_clone_stats``
 commands.
@@ -248,12 +253,21 @@ for samples which do not already have them:
 
     $ sldb_sample_stats /path/to/config.json
 
-Clone statistics require the path to the `Baseline
-<http://selection.med.yale.edu/baseline/Archive>`_ main script.
+.. code-block:: bash
+
+    $ sldb_clone_stats /path/to/config.json
+
+
+Selection Pressure (Optional)
+------------------
+Selection pressure of clones can be calculated with `Baseline
+<http://selection.med.yale.edu/baseline/Archive>`_.  After installing, run:
 
 .. code-block:: bash
 
-    $ sldb_clone_stats /path/to/config.json /path/to/Baseline_Main.r
+    $ sldb_clone_pressure /path/to/config.json /path/to/Baseline_Main.r
+
+This process is relatively slow and may take some time to complete.
 
 .. _tree_generation:
 
@@ -277,31 +291,6 @@ Supplemental Tools
 ------------------
 In addition to the aforementioned pipeline commands, SLDB provides a number of
 other commands.
-
-sldb_hvquest
-^^^^^^^^^^^^
-This command can be used in place of ``sldb_identify`` to assign sequences V and
-J genes from `HighV-Quest <http://www.imgt.org/HighV-QUEST>`_ output.  Since
-there is no metadata file, all fields (e.g. subject, date, tissue) must be
-manually specified.
-
-Importing requires only two of the files output by HighV-Quest: the summary and
-gapped nucleotides.
-
-An example call to this command with only the required metadata:
-
-.. code-block:: bash
-
-    $ sldb_hvquest /path/to/config.json /path/to/summary_file \
-        /path/to/gapped_nt_file /path/to/v_germlines STUDY_NAME SAMPLE_NAME
-        READ_TYPE SUBJECT DATE
-
-.. warning::
-    SLDB may not be able to process some sequences from HighV-Quest, especially
-    if it assigned a null CDR3.  Further, if the ``--v-ties`` flag is specified
-    and the tied germline cannot be properly aligned to a sequence, it will be
-    considered a no-result.
-
 
 sldb_rest
 ^^^^^^^^^

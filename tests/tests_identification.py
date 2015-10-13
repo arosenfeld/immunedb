@@ -8,7 +8,8 @@ from sldb.identification.j_genes import JGermlines
 import sldb.util.lookups as lookups
 
 
-def test_full_seq():
+def test_vdj():
+    '''Tests VDJ identification on one sequence'''
     v_germs = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                            'imgt_human_v.fasta')
     j_germs = os.path.join(os.path.dirname(os.path.abspath(__file__)),
@@ -72,8 +73,3 @@ def test_full_seq():
     )
     assert vdj.insertions is None
     assert vdj.j_anchor_pos == 448
-
-if __name__ == '__main__':
-    test_full_seq()
-
-
