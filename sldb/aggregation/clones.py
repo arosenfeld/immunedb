@@ -231,8 +231,6 @@ def run_clones(session, args):
             args.exclude_partials, args.min_identity / 100.0, args.min_copy))
     tasks.start()
 
-    return
-
     print 'Pushing clone IDs to sample sequences'
     session.connection(mapper=Sequence).execute(text('''
         UPDATE
