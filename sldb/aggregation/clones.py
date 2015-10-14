@@ -198,8 +198,7 @@ def run_clones(session, args):
         subject_ids = map(lambda s: s.id, session.query(Subject.id).all())
     else:
         subject_ids = args.subject_ids
-    mod_log.make_mod('clones', session=session, commit=True,
-                     info=vars(args))
+    mod_log.make_mod('clones', session=session, commit=True, info=vars(args))
 
     if args.regen:
         print 'Deleting existing clones'
@@ -237,7 +236,7 @@ def run_clones(session, args):
             sequences AS s
         JOIN sequence_collapse AS c
             ON s.sample_id=c.sample_id AND s.ai=c.seq_ai
-        JOIN (SELECT seq_id, ai, clone_id from sequences) as s2
+        JOIN sequences as s2
             ON c.collapse_to_subject_seq_ai=s2.ai
         SET s.clone_id=s2.clone_id
         WHERE s.seq_id!=s2.seq_id

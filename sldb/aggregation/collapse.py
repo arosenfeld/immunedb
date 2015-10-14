@@ -102,6 +102,8 @@ def run_collapse(session, args):
             session.query(SequenceCollapse).filter(
                 SequenceCollapse.sample_id.in_(map(lambda e: e.id, samples))
             ).delete(synchronize_session=False)
+            print 'Resetting clone info for subject {}'.format(subject)
+            session.query(Clone).filter(Clone.subject_id == subject).delete()
     session.commit()
 
     print 'Creating task queue to collapse {} subjects.'.format(

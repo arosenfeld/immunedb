@@ -240,7 +240,7 @@ def get_clone(session, clone_id, thresholds=None):
 
 
 def get_clone_sequences(session, clone_id, get_collapse, paging):
-    all_seqs = session.query(
+    query = session.query(
         Sequence, SequenceCollapse.copy_number_in_subject,
     ).join(SequenceCollapse).filter(
         Sequence.clone_id == clone_id,
@@ -248,11 +248,11 @@ def get_clone_sequences(session, clone_id, get_collapse, paging):
     ).order_by(
         desc(SequenceCollapse.copy_number_in_subject)
     )
-    q = _page_query(all_seqs, paging)
+    query = _page_query(query, paging)
 
     sequences = {}
     start_ptrn = re.compile('[N\-]*')
-    for seq, copy_number_in_subject in q:
+    for seq, copy_number_in_subject in query:
         sequences[(seq.sample.id, seq.seq_id)] = {
             'seq_id': seq.seq_id,
             'sample': {
@@ -272,7 +272,7 @@ def get_clone_sequences(session, clone_id, get_collapse, paging):
     if get_collapse:
         q = session.query(
             Sequence, SequenceCollapse
-        ).join(SequenceCollapse).filter(
+        ).outerjoin(SequenceCollapse).filter(
             Sequence.clone_id == clone_id,
             SequenceCollapse.copy_number_in_subject == 0
         )
