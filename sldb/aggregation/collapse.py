@@ -70,9 +70,9 @@ class CollapseWorker(concurrent.Worker):
                 'instances_in_subject': instances,
             }))
 
+        self._session.commit()
         self._tasks += 1
-        if self._tasks % 100 == 0:
-            self._session.commit()
+        if self._tasks > 0 and self._tasks % 100 == 0:
             self._print('Collapsed {} buckets'.format(self._tasks))
 
     def cleanup(self):
@@ -81,29 +81,29 @@ class CollapseWorker(concurrent.Worker):
         self._session.close()
 
 def run_collapse(session, args):
-    subject_ids = args.subject_ids or map(
-        lambda e: e.id, session.query(Subject.id).all()
-    )
+    subject_ids = []
 
-    for subject in subject_ids:
+    for subject in (args.subject_ids or map(
+                lambda e: e.id, session.query(Subject.id).all()
+                )):
         if session.query(Sample).filter(
                 Sample.subject_id == subject,
                 ~exists().where(
                     SequenceCollapse.sample_id == Sample.id
                 )).first() is None:
-
             print 'Subject {} already collapsed.  Skipping.'.format(subject)
-            subject_ids.remove(subject)
         else:
             print 'Resetting collapse info for subject {}'.format(subject)
             samples = session.query(Sample).filter(
                   Sample.subject_id == subject
             ).all()
-            session.query(SequenceCollapse).filter(
-                SequenceCollapse.sample_id.in_(map(lambda e: e.id, samples))
-            ).delete(synchronize_session=False)
+            for sample in samples:
+                session.query(SequenceCollapse).filter(
+                    SequenceCollapse.sample_id == sample.id
+                ).delete(synchronize_session=False)
             print 'Resetting clone info for subject {}'.format(subject)
             session.query(Clone).filter(Clone.subject_id == subject).delete()
+            subject_ids.append(subject)
     session.commit()
 
     print 'Creating task queue to collapse {} subjects.'.format(

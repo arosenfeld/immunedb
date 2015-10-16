@@ -331,8 +331,9 @@ class CloneStats(Base):
 
     """
     __tablename__ = 'clone_stats'
-    __table_args__ = (Index('clone_sample', 'clone_id', 'sample_id'),
-                     {'mysql_row_format': 'DYNAMIC'})
+    __table_args__ = (
+        Index('clone_sample', 'sample_id', 'clone_id'),
+        {'mysql_row_format': 'DYNAMIC'})
 
     id = Column(Integer, primary_key=True)
     clone_id = Column(Integer, ForeignKey(Clone.id, ondelete='CASCADE'))
@@ -468,7 +469,8 @@ class Sequence(Base):
     in_frame = Column(Boolean)
     functional = Column(Boolean)
     stop = Column(Boolean)
-    copy_number = Column(Integer, server_default='0', nullable=False)
+    copy_number = Column(Integer, server_default='0', nullable=False,
+                         index=True)
 
     # This is just length(cdr3_nt) but is included for fast statistics
     # generation over the index
@@ -650,7 +652,7 @@ class SequenceCollapse(Base):
     collapse_to_subject_seq_id = Column(String(64)) # Denormalized
     instances_in_subject = Column(Integer, server_default='0', nullable=False)
     copy_number_in_subject = Column(Integer, server_default='0',
-                                    nullable=False)
+                                    nullable=False, index=True)
 
     @property
     def collapse_to_seq(self):

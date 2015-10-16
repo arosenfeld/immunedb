@@ -117,7 +117,7 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
     res = []
     clone_q = session.query(
         Clone, CloneStats.unique_cnt, CloneStats.total_cnt
-    ).join(CloneStats).filter(
+    ).outerjoin(CloneStats).filter(
         CloneStats.sample_id.is_(None)
     )
     if filters is not None:
