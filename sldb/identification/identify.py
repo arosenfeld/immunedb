@@ -195,7 +195,7 @@ class IdentificationWorker(concurrent.Worker):
             self._session.bulk_save_objects([
                 NoResult(
                     seq_id=seq_id,
-                    sample=sample,
+                    sample_id=sample.id,
                     sequence=vdj.sequence,
                     quality=quality
                 ) for seq_id in vdj.ids

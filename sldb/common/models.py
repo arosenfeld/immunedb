@@ -609,8 +609,10 @@ class NoResult(Base):
     sample_id = Column(Integer, ForeignKey(Sample.id))
     sample = relationship(Sample)
 
-    sequence = Column(String(length=MAX_SEQ_LEN))
-    quality = Column(String(length=MAX_SEQ_LEN))
+    # Allow longer sequences here since they aren't aligned and we don't know
+    # the length.
+    sequence = Column(String(length=MAX_SEQ_LEN * 2))
+    quality = Column(String(length=MAX_SEQ_LEN * 2))
 
 
 class ModificationLog(Base):
