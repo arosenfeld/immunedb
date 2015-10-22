@@ -357,8 +357,8 @@ def get_clone_overlap(session, filter_type, ctype, limit,
             CloneStats.sample_id.in_(limit),
             j_alias.sample_id.is_(None)
         ).group_by(CloneStats.clone_id).all()
+        clones.sort(key=lambda e: e.unique_cnt, reverse=True)
         cache[tuple(limit)] = clones
-        clones.sort(key=lambda e: e.unique_cnt)
 
     clones = cache[limit]
     if paging:
