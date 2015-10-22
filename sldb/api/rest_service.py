@@ -559,7 +559,6 @@ def export_clones(rtype, rids):
 
     session = scoped_session(session_factory)()
     fields = _get_arg('fields', False).split(',')
-    include_total_row = _get_arg('include_total_row', False) == 'true' or False
 
     name = '{}_{}.csv'.format(
         rtype,
@@ -568,8 +567,7 @@ def export_clones(rtype, rids):
     response.headers['Content-Disposition'] = 'attachment;filename={}'.format(
         name)
 
-    export = CloneExport(session, rtype, _split(rids), fields,
-                         include_total_row)
+    export = CloneExport(session, rtype, _split(rids), fields)
     for line in export.get_data():
         yield line
 
@@ -603,8 +601,6 @@ def export_sequences(eformat, rtype, rids, level):
     session = scoped_session(session_factory)()
 
     fields = _get_arg('fields', False).split(',')
-    min_copy = _get_arg('min_copy_number', False)
-    min_copy = int(min_copy) if min_copy is not None else 1
 
     time_str = time.strftime('%Y-%m-%d-%H-%M')
     ext = eformat.split('-', 1)[0]
@@ -623,10 +619,7 @@ def export_sequences(eformat, rtype, rids, level):
 
     export = SequenceExport(
         session, writer, rtype, _split(rids), fields,
-        min_copy=min_copy,
-        duplicates=_get_arg('duplicates', False) == 'true',
-        noresults=_get_arg('noresults', False) == 'true',
-        level=level,
+        subject_uniques=_get_arg('subject_uniques', False) == 'true',
         only_with_clones=_get_arg('only_with_clones', False) == 'true')
     for line in export.get_data():
         yield line
