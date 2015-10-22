@@ -1,14 +1,13 @@
 import base64
 import json
 import shlex
-from subprocess import Popen, PIPE, STDOUT
+from subprocess import Popen, PIPE
 
 import ete2
 
 import sldb.common.config as config
 from sldb.common.models import Clone, Sequence
 import sldb.common.modification_log as mod_log
-from sldb.identification.v_genes import VGene
 import sldb.util.concurrent as concurrent
 
 

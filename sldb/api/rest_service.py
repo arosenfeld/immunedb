@@ -1,23 +1,20 @@
-import argparse
 import json
-import math
 import subprocess
 import time
 
-from sqlalchemy import create_engine, desc, distinct
-from sqlalchemy.orm import sessionmaker, scoped_session
+from sqlalchemy import desc, distinct
+from sqlalchemy.orm import scoped_session
 
 import bottle
-from bottle import route, response, request, install, run
+from bottle import route, response, request
 
 from sldb.exporting.clone_export import CloneExport
 from sldb.exporting.sequence_export import SequenceExport
 from sldb.exporting.mutation_export import MutationExporter
 import sldb.api.queries as queries
-from sldb.common.models import *
-from sldb.common.mutations import threshold_mutations
-from sldb.exporting.writers import (CLIPWriter, SequenceWriter, FASTAWriter,
-                                    FASTQWriter, CSVWriter)
+from sldb.common.models import CloneStats, Sequence
+from sldb.exporting.writers import (CLIPWriter, FASTAWriter, FASTQWriter,
+                                    CSVWriter)
 import sldb.util.lookups as lookups
 from sldb.util.nested_writer import NestedCSVWriter
 
@@ -285,8 +282,8 @@ def clone_overlap(filter_type, samples=None, subject=None):
 
 @route('/api/stats/<samples>/<filter_type>/<include_outliers>/'
        '<include_partials>/<percentages>/<grouping>')
-def stats(samples, filter_type, include_outliers, include_partials, percentages,
-          grouping):
+def stats(samples, filter_type, include_outliers, include_partials,
+          percentages, grouping):
     """Gets the statistics for a given set of samples both including and
     excluding outliers.
 
@@ -533,7 +530,6 @@ def export_v_usage(samples, filter_type, include_outliers, include_partials,
 
     x_categories.sort()
     y_categories = sorted(data.keys())
-    array = []
     yield ' ,{}\n'.format(','.join(map(
         lambda v: 'IGHV{}'.format(v), x_categories)))
     for y in y_categories:

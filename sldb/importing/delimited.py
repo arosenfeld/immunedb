@@ -4,7 +4,7 @@ import re
 from Bio import SeqIO
 
 from sldb.common.models import CDR3_OFFSET, Sample, Sequence, Study, Subject
-from sldb.identification.v_genes import VGene, get_common_seq
+from sldb.identification.v_genes import get_common_seq
 import sldb.util.funcs as funcs
 import sldb.util.lookups as lookups
 

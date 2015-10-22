@@ -3,7 +3,6 @@ import json
 from sqlalchemy import distinct
 
 from sldb.common.models import Sequence, SequenceCollapse
-from sldb.identification.v_genes import VGene
 import sldb.util.lookups as lookups
 import sldb.util.funcs as funcs
 
@@ -118,7 +117,6 @@ class CloneMutations(object):
 
     def calculate(self, commit_seqs=False, limit_samples=None):
         sample_mutations = {}
-        clone_mutations = ContextualMutations(self._clone.regions)
 
         if limit_samples is not None:
             sample_ids = limit_samples

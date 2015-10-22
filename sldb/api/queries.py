@@ -1,20 +1,18 @@
-import datetime
 import json
 import math
 import numpy as np
 import re
 
-from sqlalchemy import and_, desc, distinct, inspect, or_
+from sqlalchemy import and_, desc, distinct
+from sqlalchemy.orm import aliased
 from sqlalchemy.orm.strategy_options import Load
 from sqlalchemy.sql import func
 from sqlalchemy.sql.expression import false, true
-from sqlalchemy.ext.declarative import DeclarativeMeta
 
-import sldb.util.lookups as lookups
-import sldb.util.funcs as funcs
-from sldb.common.models import *
-from sldb.common.mutations import CloneMutations, threshold_mutations
-from sldb.identification.v_genes import VGene
+from sldb.common.models import (Clone, CloneStats, DuplicateSequence, Sample,
+                                SampleStats, Sequence, SequenceCollapse,
+                                Subject)
+from sldb.common.mutations import threshold_mutations
 
 
 _clone_filters = {
@@ -22,7 +20,6 @@ _clone_filters = {
     'clones_functional': lambda q: q.filter(Clone.functional == 1),
     'clones_nonfunctional': lambda q: q.filter(Clone.functional == 0)
 }
-
 
 def _fields_to_dict(fields, row):
     d = {}
@@ -338,31 +335,38 @@ def get_clone_tree(session, clone_id):
 
 
 def get_clone_overlap(session, filter_type, ctype, limit,
-                      paging=None):
+                      paging=None, cache={}):
     """Gets a list of clones and the samples in `samples` which they appear"""
-    fltr = _clone_filters[filter_type]
     res = []
 
-    if ctype == 'samples':
+    if ctype == 'subject':
+        limit = map(lambda e: e.id, session.query(
+            Sample.id
+        ).filter(
+            Sample.subject_id == limit
+        ).all())
+    limit = tuple(limit)
+
+    if limit not in cache:
+        j_alias = aliased(CloneStats)
         clones = session.query(
             CloneStats.clone_id,
-            func.sum(CloneStats.unique_cnt).label('unique_cnt'),
-            func.sum(CloneStats.total_cnt).label('total_cnt')
-        ).join(Clone).filter(
-            CloneStats.sample_id.in_(limit)
-        ).group_by(CloneStats.clone_id)
-    elif ctype == 'subject':
-        clones = session.query(
-            CloneStats.unique_cnt.label('unique_cnt'),
-            CloneStats.total_cnt.label('total_cnt')
-        ).join(Clone).filter(
-            CloneStats.sample_id.is_(None),
-            Clone.subject_id == limit
-        ).group_by(CloneStats.clone_id)
+            j_alias.unique_cnt,
+            j_alias.total_cnt
+        ).join(j_alias, CloneStats.clone_id == j_alias.clone_id).filter(
+            CloneStats.sample_id.in_(limit),
+            j_alias.sample_id.is_(None)
+        ).group_by(CloneStats.clone_id).all()
+        cache[tuple(limit)] = clones
+        clones.sort(key=lambda e: e.unique_cnt)
 
-    statq = statq.order_by(desc('unique_cnt'))
+    clones = cache[limit]
+    if paging:
+        page, per_page = paging
+        page = max(0, (page - 1) * per_page)
+        clones = clones[page:page + per_page]
 
-    for clone_id, unique_cnt, total_cnt in _page_query(clones, paging):
+    for clone_id, unique_cnt, total_cnt in clones:
         selected_samples = []
         other_samples = []
         query = session.query(CloneStats).filter(
@@ -383,12 +387,18 @@ def get_clone_overlap(session, filter_type, ctype, limit,
             else:
                 other_samples.append(data)
 
+        clone = session.query(Clone).filter(Clone.id == clone_id).one()
         res.append({
             'unique_sequences': int(unique_cnt),
             'total_sequences': int(total_cnt),
-            'clone': _clone_to_dict(
-                session.query(Clone).filter(Clone.id == clone_id).one()
-            ),
+            'clone': {
+                'id': clone.id,
+                'v_gene': clone.v_gene,
+                'j_gene': clone.j_gene,
+                'cdr3_num_nts': clone.cdr3_num_nts,
+                'cdr3_aa': clone.cdr3_aa,
+                'subject': _subject_to_dict(clone.subject),
+            },
             'selected_samples': selected_samples,
             'other_samples': other_samples,
         })

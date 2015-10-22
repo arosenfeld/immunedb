@@ -1,7 +1,6 @@
 import json
 
 from sqlalchemy import distinct, func
-from sqlalchemy.orm import scoped_session
 
 import sldb.common.config as config
 from sldb.common.models import Clone, CloneStats, Sequence, SequenceCollapse

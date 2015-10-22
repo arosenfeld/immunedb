@@ -1,13 +1,11 @@
-import argparse
 from collections import Counter
-import re
 
 from sqlalchemy import desc
 from sqlalchemy.sql import text
 
 import dnautils
-from sldb.common.models import (CDR3_OFFSET, Clone, CloneStats, Sequence,
-                                SequenceCollapse, Subject)
+from sldb.common.models import (CDR3_OFFSET, Clone, Sequence, SequenceCollapse,
+                                Subject)
 import sldb.common.modification_log as mod_log
 import sldb.common.config as config
 import sldb.util.concurrent as concurrent

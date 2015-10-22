@@ -2,18 +2,16 @@ import dnautils
 import json
 import multiprocessing as mp
 import os
-import re
 import traceback
 
 from Bio import SeqIO
 
-from sqlalchemy import distinct
-from sqlalchemy.sql import desc, exists, func
+from sqlalchemy.sql import exists
 
 import sldb.common.config as config
 import sldb.common.modification_log as mod_log
-from sldb.common.models import (HashExtension, DuplicateSequence, NoResult,
-                                Sample, Sequence, Study, Subject)
+from sldb.common.models import (DuplicateSequence, NoResult, Sample, Sequence,
+                                Study, Subject)
 from sldb.identification import AlignmentException
 from sldb.identification.vdj_sequence import VDJSequence
 from sldb.identification.v_genes import VGermlines
@@ -200,7 +198,7 @@ class IdentificationWorker(concurrent.Worker):
                     quality=quality
                 ) for seq_id in vdj.ids
             ])
-        except ValueError as ex:
+        except ValueError:
             pass
 
     def add_as_sequence(self, vdj, sample, paired):
@@ -264,7 +262,7 @@ class IdentificationWorker(concurrent.Worker):
                 ])
             except ValueError as ex:
                 pass
-        except ValueError as ex:
+        except ValueError:
             self.add_as_noresult(vdj, sample)
 
 

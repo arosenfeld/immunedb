@@ -1,10 +1,9 @@
 import datetime
 import hashlib
 
-from sqlalchemy import (Column, Boolean, Float, Integer, String, Text, Date,
-                        DateTime, ForeignKey, UniqueConstraint, Index, event,
-                        func)
-from sqlalchemy.dialects.mysql import BINARY, CHAR, MEDIUMTEXT, TEXT
+from sqlalchemy import (Column, Boolean, Float, Integer, String, Date,
+                        DateTime, ForeignKey, UniqueConstraint, Index, event)
+from sqlalchemy.dialects.mysql import CHAR, MEDIUMTEXT
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import ColumnProperty, relationship, backref

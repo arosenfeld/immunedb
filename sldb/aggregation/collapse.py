@@ -1,5 +1,4 @@
-from sqlalchemy import and_, distinct
-from sqlalchemy.sql import desc, exists, text
+from sqlalchemy.sql import exists
 
 import dnautils
 import sldb.common.config as config
@@ -81,6 +80,8 @@ class CollapseWorker(concurrent.Worker):
         self._session.close()
 
 def run_collapse(session, args):
+    mod_log.make_mod('collapse', session=session, commit=True,
+                     info=vars(args))
     subject_ids = []
 
     for subject in (args.subject_ids or map(

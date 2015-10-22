@@ -1,12 +1,8 @@
-import argparse
 import json
 
 import numpy as np
 
-from sqlalchemy import distinct, func, and_
-from sqlalchemy.sql import exists
-from sqlalchemy.orm import aliased
-from sqlalchemy.sql.expression import literal
+from sqlalchemy import func
 
 import sldb.common.config as config
 import sldb.common.modification_log as mod_log
@@ -161,8 +157,6 @@ class SampleStatsWorker(concurrent.Worker):
                     args['only_full_reads']))
         func(args['sample_id'], args['min_cdr3'], args['max_cdr3'],
              args['include_outliers'], args['only_full_reads'])
-
-    def cleanup(self):
         self._session.commit()
 
     def _add_stat(self, stats, sample_id, include_outliers,

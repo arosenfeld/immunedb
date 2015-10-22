@@ -5,7 +5,7 @@ import dnautils
 import sldb.common.modification_log as mod_log
 from sldb.common.models import (CDR3_OFFSET, DuplicateSequence, NoResult,
                                 Sample, Study, Subject, Sequence)
-from sldb.identification.v_genes import VGene, VGermlines, get_common_seq
+from sldb.identification.v_genes import VGermlines, get_common_seq
 import sldb.util.funcs as funcs
 import sldb.util.lookups as lookups
 import sldb.identification.germlines as j_germlines

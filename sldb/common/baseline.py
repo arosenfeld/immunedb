@@ -5,12 +5,9 @@ import json
 import shlex
 import subprocess
 
-from sqlalchemy.sql import distinct
-
 import sldb.common.config as config
 from sldb.common.models import Clone, CloneStats, Sequence, SequenceCollapse
 import sldb.common.modification_log as mod_log
-from sldb.identification.v_genes import VGene
 import sldb.util.concurrent as concurrent
 
 TEST_FOCUSED = 1
