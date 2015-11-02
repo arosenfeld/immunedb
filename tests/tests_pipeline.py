@@ -2,8 +2,9 @@ import csv
 import unittest
 
 import sldb.common.config as config
-from sldb.common.models import Sequence
+from sldb.common.models import Sequence, SequenceCollapse
 from sldb.identification.identify import run_identify
+from sldb.aggregation.collapse import run_collapse
 
 DB_NAME = 'test_db'
 CONFIG_PATH = '{}.json'.format(DB_NAME)
@@ -17,6 +18,7 @@ class TestPipeline(unittest.TestCase):
 
     def testAll(self):
         self.identification()
+        self.collapse()
 
     def identification(self):
         run_identify(
@@ -33,12 +35,15 @@ class TestPipeline(unittest.TestCase):
                 min_similarity=60,
                 trim=0,
                 warn_existing=False,
-                nproc=1,
-                db_config=CONFIG_PATH
             )
         )
         self.session.commit()
-        self.assertTrue(self.session.query(Sequence).count() == 330)
+        self.assertTrue(
+            self.session.query(Sequence).count() == 1092,
+            self._err(
+                'ALL', 'count', 1092, self.session.query(Sequence).count()
+            )
+        )
         with open('tests/data/post_identification.csv') as fh:
             checks = csv.DictReader(fh, delimiter='\t')
             for record in checks:
@@ -46,6 +51,33 @@ class TestPipeline(unittest.TestCase):
                     Sequence.seq_id == record['seq_id']
                 ).one()
                 self._seq_checks(record, seq)
+
+    def collapse(self):
+        run_collapse(
+            self.session,
+            NamespaceMimic(
+                subject_ids=None
+            )
+        )
+        with open('tests/data/post_collapse.csv') as fh:
+            checks = csv.DictReader(fh, delimiter='\t')
+            simple_fields = (
+                'collapse_to_subject_sample_id',
+                'collapse_to_subject_seq_ai',
+                'collapse_to_subject_seq_id',
+                'instances_in_subject',
+                'copy_number_in_subject'
+            )
+            for record in checks:
+                collapse = self.session.query(SequenceCollapse).filter(
+                    SequenceCollapse.sample_id == int(record['sample_id']),
+                    SequenceCollapse.seq_ai == int(record['seq_ai'])
+                ).one()
+                for field in simple_fields:
+                    self.assertEqual(
+                        record[field],
+                        str(getattr(collapse, field))
+                    )
 
     def _seq_checks(self, reference, seq):
         simple_fields = (
@@ -73,7 +105,6 @@ class TestPipeline(unittest.TestCase):
         for field in bool_fields:
             self.assertEqual(reference[field] == '1', getattr(seq, field))
 
-
     def _err(self, seq_id, field, ref, val):
         return '{}: {} should equal {}; instead {}'.format(
             seq_id,
@@ -85,5 +116,7 @@ class TestPipeline(unittest.TestCase):
 
 class NamespaceMimic(object):
     def __init__(self, **kwargs):
+        self.nproc = 1
+        self.db_config = CONFIG_PATH
         for k, v in kwargs.iteritems():
             setattr(self, k, v)
