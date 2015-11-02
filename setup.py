@@ -34,14 +34,7 @@ setup(
         'bin/sldb_sample_stats',
     ],
     install_requires=[
-        'gevent',
-        'sqlalchemy',
-        'biopython',
-        'bottle',
-        'ete2',
-        'numpy',
-        'scipy',
-        'PyMySQL',
+        req for req in open('requirements.txt')
     ],
     ext_modules=[dnautils],
     license='LICENSE.txt',
