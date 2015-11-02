@@ -12,4 +12,3 @@ test:
         - echo "innodb_file_format = Barracuda" | sudo tee -a /etc/mysql/my.cnf
         - sudo service mysql restart
         - ./tests/run.sh
-        - nosetests
