@@ -9,5 +9,5 @@ function teardown() {
 }
 
 setup
-nosetests
+nosetests -s
 teardown

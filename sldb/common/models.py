@@ -434,7 +434,7 @@ class Sequence(Base):
 
     bucket_hash = Column(CHAR(40), index=True)
 
-    seq_id = Column(String(64))
+    seq_id = Column(String(64), index=True)
     sample = relationship(Sample, backref=backref('sequences'))
 
     paired = Column(Boolean)
