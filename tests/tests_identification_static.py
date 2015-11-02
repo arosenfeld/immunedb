@@ -29,8 +29,6 @@ def test_vdj():
     j_germlines = JGermlines(j_germs, 31, 18, 12)
     vdj = VDJSequence(seq_id, seq, v_germlines, j_germlines, analyze=True)
     vdj.align_to_germline(vdj.v_length, vdj.mutation_fraction)
-    for k, v in vdj.__dict__.iteritems():
-        print k, v
     assert set(vdj.v_gene) == set(['IGHV4-59*01', 'IGHV4-59*02',
                                    'IGHV4-59*08'])
     assert set(vdj.j_gene) == set([

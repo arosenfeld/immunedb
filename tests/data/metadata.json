@@ -1,0 +1,14 @@
+{
+    "input.fastq": {
+        "sample_name": "input",
+        "subject": "D123",
+        "tissue": "Colon"
+    },
+    "all": {
+        "date": "2015-09-13",
+        "experimenter": "Someone",
+        "lab": "The Lab",
+        "paired": true,
+        "study_name": "Test Study"
+    }
+}
