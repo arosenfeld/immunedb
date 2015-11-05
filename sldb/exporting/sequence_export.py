@@ -40,6 +40,8 @@ class SequenceExport(Exporter):
         'disease': lambda seq: seq.sample.disease,
         'lab': lambda seq: seq.sample.lab,
         'experimenter': lambda seq: seq.sample.experimenter,
+        'v_primer': lambda seq: seq.sample.v_primer,
+        'j_primer': lambda seq: seq.sample.j_primer,
         'date': lambda seq: seq.sample.date,
 
         'sample_id': lambda seq: seq.sample_id,
