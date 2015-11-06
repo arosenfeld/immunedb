@@ -12,7 +12,8 @@ import sldb.common.config as config
 import sldb.common.modification_log as mod_log
 from sldb.common.models import (DuplicateSequence, NoResult, Sample, Sequence,
                                 Study, Subject)
-from sldb.identification import AlignmentException
+from sldb.identification import (add_as_noresult, add_as_sequence, add_uniques,
+                                 AlignmentException)
 from sldb.identification.vdj_sequence import VDJSequence
 from sldb.identification.v_genes import VGermlines
 from sldb.identification.j_genes import JGermlines
@@ -84,7 +85,7 @@ class IdentificationWorker(concurrent.Worker):
                 else:
                     vdjs[vdj.sequence] = vdj
             except AlignmentException:
-                self.add_as_noresult(vdj, sample)
+                add_as_noresult(self._session, vdj, sample)
             except:
                 self._print('\tUnexpected error processing sequence '
                             '{}\n\t{}'.format(vdj.ids[0],
@@ -102,47 +103,10 @@ class IdentificationWorker(concurrent.Worker):
                         'Length={}'.format(
                             len(vdjs), round(avg_mut, 2), round(avg_len, 2)))
 
-            bucketed_seqs = {}
-            for vdj in funcs.periodic_commit(self._session,
-                                                vdjs.values()):
-                del vdjs[vdj.sequence]
-                try:
-                    self._realign_sequence(vdj, avg_len, avg_mut)
-                    bucket_key = (
-                        funcs.format_ties(vdj.v_gene, 'IGHV'),
-                        funcs.format_ties(vdj.j_gene, 'IGHJ'),
-                        len(vdj.cdr3)
-                    )
-                    if bucket_key not in bucketed_seqs:
-                        bucketed_seqs[bucket_key] = {}
-                    bucket = bucketed_seqs[bucket_key]
-
-                    if vdj.sequence in bucket:
-                        bucket[vdj.sequence].ids += vdj.ids
-                    else:
-                        bucket[vdj.sequence] = vdj
-                except AlignmentException:
-                    self.add_as_noresult(vdj, sample)
-                except:
-                    self._print('\tUnexpected error processing sequence '
-                                '{}\n\t{}'.format(vdj.ids[0],
-                                                  traceback.format_exc()))
-
-            # Collapse sequences that are the same except for Ns
             self._print('\tCollapsing ambiguous character sequences')
-            for sequences in funcs.periodic_commit(self._session,
-                                                   bucketed_seqs.values()):
-                sequences = sorted(sequences.values(), cmp=lambda a, b:
-                                   cmp(len(a.ids), len(b.ids)))
-                while len(sequences) > 0:
-                    larger = sequences.pop(0)
-                    for i in reversed(range(len(sequences))):
-                        smaller = sequences[i]
-
-                        if dnautils.equal(larger.sequence, smaller.sequence):
-                            larger.ids += smaller.ids
-                            del sequences[i]
-                    self.add_as_sequence(larger, sample, meta.get('paired'))
+            add_uniques(self._session, sample, vdjs.values(),
+                    meta.get('paired'), avg_len, avg_mut, self._min_similarity,
+                    self._max_vties)
 
         sample.status = 'identified'
         self._session.commit()
@@ -180,90 +144,6 @@ class IdentificationWorker(concurrent.Worker):
         self._sync_lock.release()
 
         return study, sample
-
-    def _realign_sequence(self, vdj, avg_len, avg_mut):
-        vdj.align_to_germline(avg_len, avg_mut)
-        if (vdj.v_match / float(vdj.v_length) < self._min_similarity or
-                len(vdj.v_gene) > self._max_vties):
-            raise AlignmentException('V-match too low or too many V-ties')
-
-    def add_as_noresult(self, vdj, sample):
-        try:
-            quality = funcs.ord_to_quality(vdj.quality)
-            self._session.bulk_save_objects([
-                NoResult(
-                    seq_id=seq_id,
-                    sample_id=sample.id,
-                    sequence=vdj.sequence,
-                    quality=quality
-                ) for seq_id in vdj.ids
-            ])
-        except ValueError:
-            pass
-
-    def add_as_sequence(self, vdj, sample, paired):
-        try:
-            seq = Sequence(
-                seq_id=vdj.ids[0],
-                sample_id=sample.id,
-
-                subject_id=sample.subject.id,
-
-                paired=paired,
-                partial=vdj.partial,
-
-                probable_indel_or_misalign=vdj.has_possible_indel,
-                deletions=vdj.deletions,
-                insertions=vdj.insertions,
-
-                v_gene=funcs.format_ties(vdj.v_gene, 'IGHV'),
-                j_gene=funcs.format_ties(vdj.j_gene, 'IGHJ'),
-
-                num_gaps=vdj.num_gaps,
-                pad_length=vdj.pad_length,
-
-                v_match=vdj.v_match,
-                v_length=vdj.v_length,
-                j_match=vdj.j_match,
-                j_length=vdj.j_length,
-
-                removed_prefix=vdj.removed_prefix,
-                removed_prefix_qual=funcs.ord_to_quality(
-                    vdj.removed_prefix_qual),
-                v_mutation_fraction=vdj.mutation_fraction,
-
-                pre_cdr3_length=vdj.pre_cdr3_length,
-                pre_cdr3_match=vdj.pre_cdr3_match,
-                post_cdr3_length=vdj.post_cdr3_length,
-                post_cdr3_match=vdj.post_cdr3_match,
-
-                in_frame=vdj.in_frame,
-                functional=vdj.functional,
-                stop=vdj.stop,
-                copy_number=len(vdj.ids),
-
-                cdr3_nt=vdj.cdr3,
-                cdr3_num_nts=len(vdj.cdr3),
-                cdr3_aa=lookups.aas_from_nts(vdj.cdr3),
-
-                sequence=str(vdj.sequence),
-                quality=funcs.ord_to_quality(vdj.quality),
-
-                germline=vdj.germline)
-            self._session.add(seq)
-
-            # Add duplicate sequences
-            try:
-                self._session.bulk_save_objects([
-                    DuplicateSequence(
-                        seq_id=seq_id,
-                        duplicate_seq=seq
-                    ) for seq_id in vdj.ids[1:]
-                ])
-            except ValueError as ex:
-                pass
-        except ValueError:
-            self.add_as_noresult(vdj, sample)
 
 
 def run_identify(session, args):

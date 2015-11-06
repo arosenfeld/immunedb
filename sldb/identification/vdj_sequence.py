@@ -29,7 +29,7 @@ class VDJSequence(object):
     INDEL_MISMATCH_THRESHOLD = .6
 
     def __init__(self, ids, seq, v_germlines, j_germlines,
-                 force_vs=None, force_j=None, quality=None,
+                 force_vs=None, force_js=None, quality=None,
                  locally_align=False, analyze=False):
         self.ids = [ids] if type(ids) == str else ids
         self.sequence = seq.upper()
@@ -37,7 +37,7 @@ class VDJSequence(object):
         self.j_germlines = j_germlines
 
         self._force_vs = force_vs
-        self._force_j = force_j
+        self._force_js = force_js
         self.quality = quality
 
         self._j = None
@@ -242,7 +242,7 @@ class VDJSequence(object):
         # TGGTCACCGTCT
 
         for match, full_anchor, j_gene in self.j_germlines.get_all_anchors(
-                limit_genes=self._force_j):
+                allowed_genes=self._force_js):
             i = self.sequence[offset:].rfind(match)
             if i >= 0:
                 return self._found_j(i + offset, j_gene, match, full_anchor)
@@ -297,7 +297,8 @@ class VDJSequence(object):
             self.j_anchor_pos = None
             raise AlignmentException('Germline extended past end of J')
 
-        self._j = self.j_germlines.get_ties(self.j_gene[0], match)
+        self._j = self.j_germlines.get_ties(self.j_gene[0], match,
+                                            self._force_js)
         self.j_length = len(j_full)
 
     def _find_v(self):

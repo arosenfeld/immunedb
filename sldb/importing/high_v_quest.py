@@ -1,253 +1,105 @@
 import csv
 import re
 
-import dnautils
-import sldb.common.modification_log as mod_log
-from sldb.common.models import (CDR3_OFFSET, DuplicateSequence, NoResult,
-                                Sample, Study, Subject, Sequence)
-from sldb.identification.v_genes import VGermlines, get_common_seq
+from sldb.identification import (add_as_noresult, add_as_sequence, add_uniques,
+                                 AlignmentException)
+from sldb.identification.vdj_sequence import VDJSequence
+from sldb.identification.j_genes import JGermlines
+from sldb.identification.v_genes import VGermlines
+from sldb.common.models import NoResult, Sample, Study, Subject
 import sldb.util.funcs as funcs
-import sldb.util.lookups as lookups
-import sldb.identification.germlines as j_germlines
-
-
-def _get_value(line, key):
-    _HEADERS = {
-        'seq_id': 'Sequence ID',
-        'v_gene': 'V-GENE and allele',
-        'j_gene': 'J-GENE and allele',
-        'v_info': 'V-REGION identity nt',
-        'j_info': 'J-REGION identity nt',
-        'functional': 'Functionality',
-        'in_frame': 'JUNCTION frame',
-        'functional_comment': 'Functionality comment',
-        'indel': 'V-REGION potential ins/del',
-        'cdr3': 'JUNCTION',
-        'sequence': 'Sequence',
-
-        'v_region': 'V-REGION',
-        'cdr3': 'JUNCTION',
-        'gapped_sequence': 'V-D-J-REGION',
-    }
-    return line[_HEADERS.get(key)]
-
-
-def _match(s1, s2):
-    return len(s1), len(s1) - dnautils.hamming(s1, s2)
-
 
 class ImportException(Exception):
     pass
 
-
-def _setup_import(session, args):
-    study, new = funcs.get_or_create(session, Study,
-                                     name=args.study_name)
-    if new:
-        print 'Created new study "{}"'.format(study.name)
-
-    subject, new = funcs.get_or_create(session, Subject,
-                                       study=study,
-                                       identifier=args.subject)
-    if new:
-        print 'Created new subject "{}"'.format(subject.identifier)
-
-    sample, new = funcs.get_or_create(session, Sample,
-                                      study=study,
-                                      name=args.sample_name)
-    if new:
-        print 'Created new sample "{}"'.format(sample.name)
-        sample.date = args.date
-        sample.subject = subject
-        sample.subset = args.subset
-        sample.tissue = args.tissue
-        sample.disease = args.disease
-        sample.lab = args.lab
-        sample.experimenter = args.experimenter
-    elif sample.subject != subject:
-            raise ImportException('Tried to use existing sample with '
-                                  'same name and different subject')
-    session.commit()
-
-    return sample
-
-
-def _split_info(line):
-    return map(int, line.split(' ')[0].split('/'))
-
-
-def _pad_replace(seq):
-    return seq.upper().replace('.', '-')
-
-
-def _read_summary(session, summary_reader, read_type, sample):
-    print 'Reading Summary'
-    reads = {}
-    avg_mutations = 0
-    avg_length = 0
-    for i, line in enumerate(summary_reader):
-        if _get_value(line, 'sequence') is None:
+def _collapse_seqs(session, sample, reader):
+    seqs = {}
+    for record in reader:
+        if record['V-D-J-REGION'] is None:
+            NoResult(seq_id=record['Sequence ID'], sample_id=sample.id)
             continue
-        if i > 0 and i % 1000 == 0:
-            print '\tRead {}'.format(i)
-        seq_id = _get_value(line, 'seq_id')
 
-        v_gene = map(
-            lambda g: g[0],
-            re.findall('(\d+-\d+((-\d)+)?(\*\d+)?)',
-                       _get_value(line, 'v_gene')))
+        record['V-D-J-REGION'] = record['V-D-J-REGION'].replace(
+            '.', '').upper()
+        if record['V-D-J-REGION'] not in seqs:
+            seqs[record['V-D-J-REGION']] = {
+                'record': record,
+                'seq_ids': []
+            }
+        seqs[record['V-D-J-REGION']]['seq_ids'].append(record['Sequence ID'])
+    return seqs.values()
 
-        j_gene = map(
-            lambda g: g[0],
-            re.findall('(\d+)(\*\d+)?',
-                       _get_value(line, 'j_gene')))
+def read_file(session, handle, sample, v_germlines, j_germlines,
+              paired):
+    seqs = _collapse_seqs(session, sample, csv.DictReader(handle,
+                          delimiter='\t'))
 
-        try:
-            j_match, j_length = _split_info(_get_value(line, 'j_info'))
-            v_match, v_length = _split_info(_get_value(line, 'v_info'))
-        except:
-            session.add(NoResult(
-                seq_id=seq_id,
-                sample=sample))
-            continue
-        reads[seq_id] = Sequence(
-            seq_id=seq_id,
-            sample_id=sample.id,
-
-            alignment=read_type,
-            probable_indel_or_misalign=len(_get_value(line, 'indel')) > 0,
-
-            v_gene=v_gene,
-            j_gene=j_gene,
-
-            v_match=v_match,
-            v_length=v_length,
-            j_match=j_match,
-            j_length=j_length,
-
-            in_frame=_get_value(line, 'in_frame') == 'in-frame',
-            functional=_get_value(line, 'functional').startswith('productive'),
-            stop='stop codons' in _get_value(line, 'functional_comment'),
-            copy_number=1,
-
-            gap_method='IGMT',
-        )
-        avg_length += reads[seq_id].v_length
-        avg_mutations += 1 - reads[seq_id].v_match / float(
-            reads[seq_id].v_length)
-
-    return reads, avg_mutations / float(len(reads)), avg_length / float(len(
-        reads))
-
-
-def _read_gapped(session, reads, gapped_reader, germlines, sample, use_v_ties,
-                 muts, lens):
-    print 'Reading Gapped'
-    for i, line in enumerate(gapped_reader):
-        if i > 0 and i % 1000 == 0:
-            print '\tCommitted {}'.format(i)
+    aligned_seqs = {}
+    missed = 0
+    total = 0
+    for total, seq in enumerate(seqs):
+        if total > 0 and total % 1000 == 0:
+            print 'Finished {}'.format(total)
             session.commit()
-        seq_id = _get_value(line, 'seq_id')
-        sequence = _get_value(line, 'gapped_sequence')
-        if seq_id not in reads or sequence is None:
-            continue
-        sequence = _pad_replace(sequence)
-
-        v_region = _pad_replace(_get_value(line, 'v_region'))
-        cdr3 = _get_value(line, 'cdr3')
-        read = reads[seq_id]
-
-        pad = re.match('-*', v_region)
-        if pad is None:
-            read.pad_length = 0
-        else:
-            read.pad_length = pad.end()
-        read.num_gaps = v_region[read.pad_length:].count('-')
-
-        read.cdr3_num_nts = len(cdr3)
-        if len(cdr3) == 0:
-            continue
-        read.cdr3_nt = cdr3.upper()
-        read.cdr3_aa = lookups.aas_from_nts(read.cdr3_nt)
-
-        read.sequence = 'N' * read.pad_length + sequence[read.pad_length:]
-
-        existing = session.query(Sequence).filter(
-            Sequence.sequence == read.sequence,
-            Sequence.sample == sample).first()
-
-        if existing is not None:
-            existing.copy_number += 1
-            session.add(DuplicateSequence(duplicate_seq_id=existing.seq_id,
-                                          sample_id=sample.id,
-                                          seq_id=seq_id))
-            continue
-
+        v_genes = set(
+            re.findall('IGHV[^ ]+', seq['record']['V-GENE and allele'])
+        )
+        j_genes = set(
+            re.findall('IGHJ[^ ]+', seq['record']['J-GENE and allele'])
+        )
+        v_genes = filter(lambda v: v in v_germlines, v_genes)
+        j_genes = filter(lambda j: j in j_germlines, j_genes)
+        vdj = VDJSequence(
+            seq['seq_ids'], seq['record']['V-D-J-REGION'], v_germlines,
+            j_germlines, force_vs=v_genes, force_js=j_genes
+        )
         try:
-            if use_v_ties:
-                read.v_gene = germlines.get_ties(read.v_gene, lens, muts)
-            vs = [germlines['IGHV{}'.format(v)].sequence
-                  for v in read.v_gene][:CDR3_OFFSET]
-            read.germline = get_common_seq(vs)
-            read.germline += '-' * read.cdr3_num_nts
-            read.germline += j_germlines.j['IGHJ{}'.format(
-                read.j_gene[0])][-j_germlines.j_offset:]
-            read.germline = read.germline[:len(read.sequence)]
-        except:
-            session.add(NoResult(
-                seq_id=read.seq_id,
-                sample=sample))
-            continue
-        read.v_gene = funcs.format_ties(read.v_gene, 'IGHV')
-        read.j_gene = funcs.format_ties(read.j_gene, 'IGHJ')
+            if len(v_genes) == 0 or len(j_genes) == 0:
+                raise AlignmentException('No V or J gene in input')
+            vdj.analyze()
+            vdj.align_to_germline()
+            if vdj.sequence in aligned_seqs:
+                aligned_seqs[vdj.sequence].ids += vdj.ids
+            else:
+                aligned_seqs[vdj.sequence] = vdj
+        except AlignmentException as e:
+            add_as_noresult(session, vdj, sample)
+            missed += 1
+    print 'Aligned {} / {} sequences'.format(total - missed, total)
 
-        try:
-            read.pre_cdr3_length, read.pre_cdr3_match = _match(
-                sequence[:CDR3_OFFSET],
-                read.germline[:CDR3_OFFSET]
-            )
-            read.pre_cdr3_length -= read.pad_length
-            read.post_cdr3_length, read.post_cdr3_match = _match(
-                sequence[
-                    CDR3_OFFSET + read.cdr3_num_nts:],
-                read.germline[
-                    CDR3_OFFSET + read.cdr3_num_nts:]
-            )
-        except:
-            session.add(NoResult(
-                seq_id=read.seq_id,
-                sample=sample))
-
-        session.add(read)
+    print 'Collapsing ambiguous character sequences'
+    add_uniques(session, sample, aligned_seqs.values(), paired)
     session.commit()
 
 
 def run_high_v_quest_import(session, args):
-    try:
-        sample = _setup_import(session, args)
-    except ImportException as ex:
-        print '[ERROR] Unable setup import: \n\t{}'.format(
-            ex.message)
+    v_germlines = VGermlines(args.v_germlines)
+    j_germlines = JGermlines(args.j_germlines, args.upstream_of_cdr3,
+                             args.anchor_len, args.min_anchor_len)
+
+    study, new = funcs.get_or_create(session, Study, name=args.study_name)
+
+    if new:
+        print 'Created new study "{}"'.format(study.name)
+        session.commit()
+
+    sample, new = funcs.get_or_create(session, Sample, name=args.sample_name,
+                                      study=study)
+    if new:
+        sample.date = args.date
+        print 'Created new sample "{}"'.format(sample.name)
+        for key in ('subset', 'tissue', 'disease', 'lab', 'experimenter',
+                    'ig_class', 'v_primer', 'j_primer'):
+            setattr(sample, key, vars(args).get(key, None))
+        subject, new = funcs.get_or_create(
+            session, Subject, study=study,
+            identifier=args.subject)
+        sample.subject = subject
+        session.commit()
+    else:
+        print 'Sample already exists'
         return
-    with open(args.summary_file) as summary_fh:
-        reads, muts, lens = _read_summary(
-            session,
-            csv.DictReader(summary_fh, delimiter='\t'),
-            args.read_type,
-            sample)
 
-    germlines = VGermlines(args.v_germlines, include_prepadded=True)
-
-    mod_log.make_mod('hvquest_import', session=session, commit=True,
-                     info=vars(args))
-
-    with open(args.gapped_nt_file) as gapped_fh:
-        _read_gapped(
-            session,
-            reads,
-            csv.DictReader(gapped_fh, delimiter='\t'),
-            germlines,
-            sample,
-            args.v_ties,
-            muts,
-            lens)
+    with open(args.gapped_nt_file) as fh:
+        read_file(session, fh, sample, v_germlines, j_germlines,
+                  not args.unpaired)

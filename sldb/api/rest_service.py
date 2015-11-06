@@ -12,7 +12,7 @@ from sldb.exporting.clone_export import CloneExport
 from sldb.exporting.sequence_export import SequenceExport
 from sldb.exporting.mutation_export import MutationExporter
 import sldb.api.queries as queries
-from sldb.common.models import CloneStats, Sequence
+from sldb.common.models import CloneStats, ModificationLog, Sequence
 from sldb.exporting.writers import (CLIPWriter, FASTAWriter, FASTQWriter,
                                     CSVWriter)
 import sldb.util.lookups as lookups
