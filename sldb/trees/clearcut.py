@@ -1,4 +1,3 @@
-import base64
 import json
 import shlex
 from subprocess import Popen, PIPE
@@ -6,7 +5,7 @@ from subprocess import Popen, PIPE
 import ete2
 
 import sldb.common.config as config
-from sldb.common.models import Clone, Sequence
+from sldb.common.models import Clone, Sequence, SequenceCollapse
 import sldb.common.modification_log as mod_log
 import sldb.util.concurrent as concurrent
 
@@ -56,14 +55,14 @@ class ClearcutWorker(concurrent.Worker):
         mut_counts = {}
         q = self._session.query(
             Sequence
-        ).filter(
+        ).join(SequenceCollapse).filter(
             Sequence.clone_id == clone_id,
-            Sequence.copy_number_in_subject > 0
+            SequenceCollapse.copy_number_in_subject > 0
         ).order_by(
             Sequence.v_length
         )
         for seq in q:
-            seqs[base64.b64encode(seq.seq_id)] = seq.clone_sequence
+            seqs[seq.ai] = seq.clone_sequence
             if seq.mutations_from_clone is None:
                 raise Exception(
                     'Mutation information not available for sequence '
@@ -99,25 +98,23 @@ class ClearcutWorker(concurrent.Worker):
         tree = ete2.Tree(newick)
         for node in tree.traverse():
             if node.name not in ('NoName', 'germline', ''):
-                name = base64.b64decode(node.name)
                 seq = self._session.query(Sequence).filter(
-                    Sequence.seq_id == name
+                    Sequence.ai == node.name
                 ).first()
-                tissues = set([])
-                subsets = set([])
-                ig_classes = set([])
+                seq_ids = {}
                 for collapsed_seq in _get_seqs_collapsed_to(
                         self._session, seq):
-                    tissues.add(collapsed_seq.sample.tissue)
-                    subsets.add(collapsed_seq.sample.subset)
-                    ig_classes.add(collapsed_seq.sample.ig_class)
+                    seq_ids[collapsed_seq.seq_id] = {
+                        'tissue': collapsed_seq.sample.tissue,
+                        'subset': collapsed_seq.sample.subset,
+                        'ig_class': collapsed_seq.sample.ig_class,
+                        'copy_number': collapsed_seq.copy_number,
+                        'sample_name': collapsed_seq.sample.name
+                    }
 
-                node.name = name
-                node.add_feature('seq_ids', [seq.seq_id])
-                node.add_feature('copy_number', seq.copy_number_in_subject)
-                node.add_feature('tissues', map(str, tissues))
-                node.add_feature('subsets', map(str, subsets))
-                node.add_feature('ig_classes', map(str, ig_classes))
+                node.name = seq.seq_id
+                node.add_feature('seq_ids', seq_ids)
+                node.add_feature('copy_number', seq.copy_number)
                 modified_seq = _remove_muts(seq.sequence, remove_muts,
                                             germline_seq)
                 node.add_feature('mutations', _get_mutations(
@@ -130,12 +127,13 @@ class ClearcutWorker(concurrent.Worker):
 
 
 def _get_seqs_collapsed_to(session, seq):
-    sample_level_seqs = session.query(Sequence).filter(
-        Sequence.collapse_to_subject_seq_id == seq.seq_id,
-        Sequence.collapse_to_subject_sample_id == seq.sample_id
+    sample_level_seqs = session.query(SequenceCollapse.seq_ai).filter(
+        SequenceCollapse.collapse_to_subject_seq_ai == seq.ai
     )
     for sample_seq in sample_level_seqs:
-        yield sample_seq
+        yield session.query(
+            Sequence
+        ).filter(Sequence.ai == sample_seq.seq_ai).one()
 
 
 def _remove_muts(seq, removes, germline_seq):
@@ -158,25 +156,29 @@ def _get_mutations(s1, s2, positions):
 
 
 def _instantiate_node(node):
-    node.add_feature('seq_ids', [])
+    node.add_feature('seq_ids', {})
     node.add_feature('copy_number', 0)
     node.add_feature('sequence', None)
-    node.add_feature('tissues', [])
-    node.add_feature('subsets', [])
-    node.add_feature('ig_classes', [])
     node.add_feature('mutations', set([]))
 
     return node
 
 
+def _get_nested(seqs, key):
+    ret = set([])
+    for s in seqs.values():
+        ret.add(s.get(key, set([])))
+    return sorted(list(ret))
+
+
 def _get_json(tree, root=True):
     node = {
         'data': {
-            'seq_ids': sorted(set(tree.seq_ids)),
+            'seq_ids': tree.seq_ids,
             'copy_number': tree.copy_number,
-            'tissues': ','.join(sorted(set(tree.tissues))),
-            'subsets': ','.join(sorted(set(tree.subsets))),
-            'ig_classes': ','.join(sorted(set(tree.ig_classes))),
+            'tissues': _get_nested(tree.seq_ids, 'tissue'),
+            'subsets': _get_nested(tree.seq_ids, 'subset'),
+            'ig_classes': _get_nested(tree.seq_ids, 'ig_class'),
             'mutations': [{
                 'pos': mut[0],
                 'from': mut[1],
@@ -193,7 +195,7 @@ def _get_json(tree, root=True):
 
     return {
         'data': {
-            'seq_ids': [],
+            'seq_ids': {},
             'copy_number': 0,
             'tissues': '',
             'subsets': '',
@@ -234,10 +236,7 @@ def _remove_null_nodes(tree):
     removed = False
     for node in tree.traverse():
         if node.up is not None and len(node.mutations) == 0:
-            node.up.tissues.extend(node.tissues)
-            node.up.subsets.extend(node.subsets)
-            node.up.ig_classes.extend(node.ig_classes)
-            node.up.seq_ids.extend(node.seq_ids)
+            node.up.seq_ids.update(node.seq_ids)
             node.up.copy_number += node.copy_number
             node.delete(prevent_nondicotomic=False)
             removed = True

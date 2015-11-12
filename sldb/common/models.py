@@ -649,7 +649,7 @@ class SequenceCollapse(Base):
     seq = relationship(Sequence, backref=backref('collapse', uselist=False))
 
     collapse_to_subject_sample_id = Column(Integer)
-    collapse_to_subject_seq_ai = Column(Integer)
+    collapse_to_subject_seq_ai = Column(Integer, index=True)
     collapse_to_subject_seq_id = Column(String(64)) # Denormalized
     instances_in_subject = Column(Integer, server_default='0', nullable=False)
     copy_number_in_subject = Column(Integer, server_default='0',
