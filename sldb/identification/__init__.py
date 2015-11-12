@@ -75,13 +75,15 @@ def add_as_sequence(session, vdj, sample, paired):
 
             germline=vdj.germline)
         session.add(seq)
+        session.flush()
 
         # Add duplicate sequences
         try:
             session.bulk_save_objects([
                 DuplicateSequence(
+                    sample_id=sample.id,
                     seq_id=seq_id,
-                    duplicate_seq=seq
+                    duplicate_seq_ai=seq.ai
                 ) for seq_id in vdj.ids[1:]
             ])
         except ValueError as ex:
