@@ -65,7 +65,6 @@ def _page_query(q, paging):
 
 
 def get_all_studies(session):
-    result = {}
     query = session.query(
         Sample, SampleStats
     ).outerjoin(
@@ -83,22 +82,15 @@ def get_all_studies(session):
         )
     )
 
+    result = []
     for sample, stats in query:
-        if sample.study.id not in result:
-            result[sample.study.id] = {
-                'id': sample.study.id,
-                'name': sample.study.name,
-                'info': sample.study.info,
-                'samples': []
-            }
         sample_dict = _sample_to_dict(sample)
         if stats is not None:
             sample_dict['sequence_cnt'] = stats.sequence_cnt
-            sample_dict['in_frame_cnt'] = stats.in_frame_cnt
-            sample_dict['stop_cnt'] = stats.stop_cnt
             sample_dict['functional_cnt'] = stats.functional_cnt
             sample_dict['no_result_cnt'] = stats.no_result_cnt
-        result[sample.study.id]['samples'].append(sample_dict)
+            sample_dict['total_cnt'] = stats.sequence_cnt + stats.no_result_cnt
+        result.append(sample_dict)
 
     return result
 
@@ -616,24 +608,20 @@ def trace_seq_collapses(session, seq):
         return None
     return {
         'sample_id': collapse_info.collapse_to_subject_sample_id,
+        'sample_name': collapse_info.collapse_to_seq.sample.name,
         'ai': collapse_info.collapse_to_subject_seq_ai,
         'seq_id': collapse_info.collapse_to_subject_seq_id,
         'copy_number':
-            collapse_info.collapse_to_seq.collapse.copy_number_in_subject
+            collapse_info.collapse_to_seq.collapse.copy_number_in_subject,
+        'instances':
+            collapse_info.collapse_to_seq.collapse.instances_in_subject,
     }
 
 
 def get_sequence(session, sample_id, seq_id):
     seq = session.query(Sequence)\
         .filter(Sequence.sample_id == sample_id,
-                Sequence.seq_id == seq_id).first()
-    if seq is None:
-        dup_seq = session.query(DuplicateSequence.duplicate_seq_id)\
-            .filter(DuplicateSequence.seq_id == seq_id).first()
-        seq = session.query(Sequence)\
-            .filter(Sequence.sample_id == sample_id,
-                    Sequence.seq_id == dup_seq.duplicate_seq_id).first()
-
+                Sequence.seq_id == seq_id).one()
     ret = _fields_to_dict([
         'seq_id', 'partial', 'paired', 'v_gene', 'j_gene', 'cdr3_nt',
         'cdr3_aa', 'germline', 'v_match', 'j_match', 'v_length',
@@ -663,11 +651,11 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
 
     copy_number_field = 'copy_number'
     if filters is not None:
-        if 'collapsed' in filters:
-            if filters['collapsed'] == 'sample':
-                copy_number_field = Sequence.copy_number
-            else:
-                copy_number_field = SequenceCollapse.copy_number_in_subject
+        print filters
+        if filters.get('copy_type', 'sample') == 'sample':
+            copy_number_field = Sequence.copy_number
+        else:
+            copy_number_field = SequenceCollapse.copy_number_in_subject
 
         for key, value in filters.iteritems():
             if value in [None, True, False]:
