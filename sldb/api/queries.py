@@ -130,12 +130,12 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
                 else:
                     clone_q = clone_q.filter(getattr(Clone, key).like(value))
 
-    order_field = get_field(order_field)
-
-    if order_dir == 'asc':
-        clone_q = clone_q.order_by(order_field)
-    else:
-        clone_q = clone_q.order_by(desc(order_field))
+    if order_field:
+        order_field = get_field(order_field)
+        if order_dir == 'asc':
+            clone_q = clone_q.order_by(order_field)
+        else:
+            clone_q = clone_q.order_by(desc(order_field))
 
     for c, unique_cnt, total_cnt in _page_query(clone_q, paging):
         stats_comb = []
@@ -164,21 +164,20 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
     return res
 
 
-def get_clone(session, clone_id, thresholds=None):
+def get_clone(session, clone_id):
     """Compares sequences within clones by determining their mutations"""
 
-    if thresholds is None:
-        thresholds = [
-            ('percent', 100),
-            ('percent', 80),
-            ('percent', 50),
-            ('percent', 20),
-            ('percent', 0),
-            ('seqs', 2),
-            ('seqs', 5),
-            ('seqs', 10),
-            ('seqs', 25)
-        ]
+    thresholds = [
+        ('percent', 100),
+        ('percent', 80),
+        ('percent', 50),
+        ('percent', 20),
+        ('percent', 0),
+        ('seqs', 2),
+        ('seqs', 5),
+        ('seqs', 10),
+        ('seqs', 25)
+    ]
 
     result = {}
     clone = session.query(Clone).filter(Clone.id == clone_id).first()
@@ -186,10 +185,7 @@ def get_clone(session, clone_id, thresholds=None):
     result = {
         'clone': _clone_to_dict(clone),
         'quality': [],
-        'seqs': {},
     }
-
-    result['seqs'] = result['seqs'].values()
 
     res_qual = []
     for i, quals in enumerate(result['quality']):
@@ -216,14 +212,23 @@ def get_clone(session, clone_id, thresholds=None):
         CloneStats
     ).filter(
         CloneStats.clone_id == clone.id,
-        ~CloneStats.sample_id.is_(None)
     ).order_by(desc(CloneStats.unique_cnt))
-    result['samples'] = []
+    result['samples'] = {
+        'all': {},
+        'single': []
+    }
+
     for stat in stats:
-        sample = _sample_to_dict(stat.sample)
-        sample['unique'] = stat.unique_cnt
-        sample['total'] = stat.total_cnt
-        result['samples'].append(sample)
+        if stat.sample_id is None:
+            result['samples']['all'] = {
+                'unique': stat.unique_cnt,
+                'total': stat.total_cnt
+            }
+        else:
+            sample = _sample_to_dict(stat.sample)
+            sample['unique'] = stat.unique_cnt
+            sample['total'] = stat.total_cnt
+            result['samples']['single'].append(sample)
 
     return result
 
@@ -231,6 +236,7 @@ def get_clone(session, clone_id, thresholds=None):
 def get_clone_sequences(session, clone_id, get_collapse, paging):
     query = session.query(
         Sequence, SequenceCollapse.copy_number_in_subject,
+        SequenceCollapse.instances_in_subject
     ).join(SequenceCollapse).filter(
         Sequence.clone_id == clone_id,
         SequenceCollapse.copy_number_in_subject > 0
@@ -241,7 +247,7 @@ def get_clone_sequences(session, clone_id, get_collapse, paging):
 
     sequences = {}
     start_ptrn = re.compile('[N\-]*')
-    for seq, copy_number_in_subject in query:
+    for seq, copy_number_in_subject, instances_in_subject in query:
         sequences[(seq.sample.id, seq.seq_id)] = {
             'seq_id': seq.seq_id,
             'sample': {
@@ -252,6 +258,7 @@ def get_clone_sequences(session, clone_id, get_collapse, paging):
             'sequence': seq.clone_sequence,
             'read_start': start_ptrn.match(seq.sequence).span()[1] or 0,
             'copy_number_in_subject': int(copy_number_in_subject),
+            'instances_in_subject': int(instances_in_subject),
             'mutations': json.loads(seq.mutations_from_clone),
             'v_extent': seq.get_v_extent(in_clone=True),
             'j_length': seq.j_length,
@@ -264,7 +271,7 @@ def get_clone_sequences(session, clone_id, get_collapse, paging):
         ).outerjoin(SequenceCollapse).filter(
             Sequence.clone_id == clone_id,
             SequenceCollapse.copy_number_in_subject == 0
-        )
+        ).order_by(desc(Sequence.copy_number))
 
         for seq, collapse in q:
             key = (collapse.collapse_to_subject_sample_id,
@@ -636,7 +643,9 @@ def get_sequence(session, sample_id, seq_id):
         seq.sequence).span()[1] or 0
 
     ret['v_extent'] = seq.get_v_extent(in_clone=False)
-    ret['mutations'] = []
+    ret['mutations'] = {}
+    if seq.mutations_from_clone:
+        ret['mutations'] = json.loads(seq.mutations_from_clone)
 
     ret['clone'] = _clone_to_dict(seq.clone) if seq.clone is not None else None
     ret['collapse_info'] = trace_seq_collapses(session, seq)
@@ -651,7 +660,6 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
 
     copy_number_field = 'copy_number'
     if filters is not None:
-        print filters
         if filters.get('copy_type', 'sample') == 'sample':
             copy_number_field = Sequence.copy_number
         else:
