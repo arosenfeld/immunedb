@@ -115,8 +115,34 @@ def sequences_list(session):
 
 @app.route('/sequence/<sample_id>/<seq_id>', method=['POST', 'OPTIONS'])
 @with_session
-def samples_list(session, sample_id, seq_id):
+def sequence(session, sample_id, seq_id):
     return create_response(queries.get_sequence(session, sample_id, seq_id))
+
+
+@app.route('/clones/list', method=['POST', 'OPTIONS'])
+@with_session
+def clones_list(session):
+    fields = bottle.request.json or {}
+    return create_response(queries.get_all_clones(
+        session,
+        fields.get('filters', {}),
+        fields.get('order_field', None),
+        fields.get('order_dir', 'asc'),
+        get_paging()))
+
+
+@app.route('/clone/<clone_id>', method=['POST', 'OPTIONS'])
+@with_session
+def clone(session, clone_id):
+    return create_response(queries.get_clone(session, clone_id))
+
+@app.route('/clone/sequences/<clone_id>', method=['POST', 'OPTIONS'])
+@with_session
+def clone_sequences(session, clone_id):
+    fields = bottle.request.json or {}
+    return create_response(queries.get_clone_sequences(
+        session, clone_id, fields.get('get_collapse', False), get_paging()
+    ))
 
 
 def run_rest_service(session_maker, args):
