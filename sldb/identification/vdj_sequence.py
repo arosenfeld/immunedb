@@ -397,13 +397,10 @@ class VDJSequence(object):
             if self.quality is not None:
                 self.quality = self.quality[:len(self.germline)]
         elif len(self.sequence) < len(self.germline):
-            # If the germline is longer than the sequence, there was probably a
-            # deletion, so flag it as such
             self.sequence += 'N' * (len(self.germline) - len(self.sequence))
             if self.quality is not None:
                 self.quality.extend([None] * (len(self.germline) -
                                     len(self.quality)))
-            self._possible_indel = True
 
         # Get the pre-CDR3 germline
         pre_cdr3_germ = self.germline[:self.cdr3_start]

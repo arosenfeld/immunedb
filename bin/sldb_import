@@ -3,12 +3,13 @@ import argparse
 import sys
 import sldb.common.config as config
 
-from sldb.importing.high_v_quest import run_high_v_quest_import
+from sldb.importing.delimited import DEFAULT_MAPPINGS, run_import
+
 
 if __name__ == '__main__':
     parser = config.get_base_arg_parser(
-        'Imports V/J identifications from HighV-Quest output')
-    parser.add_argument('gapped_nt_file', help='Gapped NT file')
+        'Imports V/J identifications from delimited output')
+    parser.add_argument('input_file', help='Gapped NT file')
     parser.add_argument('v_germlines', help='FASTA file with IMGT gapped '
                         'V-gene germlines')
     parser.add_argument('j_germlines', help='FASTA file with J-gene '
@@ -35,7 +36,20 @@ if __name__ == '__main__':
         parser.add_argument('--{}'.format(key), default=None,
                             help='Metadata for {}'.format(key))
 
+    for key, value in DEFAULT_MAPPINGS.iteritems():
+        if value is None:
+            parser.add_argument(
+                '--{}'.format(key.replace('_', '-')),
+                help='Header for {}'.format(key)
+            )
+        else:
+            parser.add_argument(
+                '--{}'.format(key.replace('_', '-')),
+                default=value,
+                help='Header for {} (Default: {})'.format(key, value)
+            )
+
     args = parser.parse_args()
     session = config.init_db(args.db_config)
 
-    sys.exit(run_high_v_quest_import(session, args))
+    sys.exit(run_import(session, args))
