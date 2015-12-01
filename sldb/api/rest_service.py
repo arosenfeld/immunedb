@@ -1,5 +1,6 @@
 import json
 from functools import wraps
+import re
 import subprocess
 import time
 
@@ -144,6 +145,47 @@ def clone_sequences(session, clone_id):
         session, clone_id, fields.get('get_collapse', False), get_paging()
     ))
 
+
+@app.route('/clone/mutations/<clone_id>', method=['POST', 'OPTIONS'])
+@with_session
+def clone_mutations(session, clone_id):
+    fields = bottle.request.json or {}
+    return create_response(queries.get_clone_mutations(
+        session,
+        clone_id,
+        fields.get('type', 'percent'),
+        int(fields.get('value', 0))
+    ))
+
+
+@app.route('/clone/lineage/<clone_id>', method=['POST', 'OPTIONS'])
+@with_session
+def clone_lineage(session, clone_id):
+    return create_response(queries.get_clone_tree(session, clone_id))
+
+
+@app.route('/samples/analyze/<sample_encoding>', method=['POST', 'OPTIONS'])
+@with_session
+def analyze_samples(session, sample_encoding):
+    fields = bottle.request.json or {}
+    ids = []
+    offset = 1
+    for match in re.finditer('(T|F)(\d+)', sample_encoding.upper()):
+        size = int(match.group(2))
+        if match.group(1) == 'T':
+            ids.extend(range(offset, offset + size))
+        offset += size
+    return create_response(
+        queries.analyze_samples(
+            session,
+            sample_encoding,
+            fields.get('filter_type', 'unique_multiple'),
+            fields.get('include_outliers', True),
+            fields.get('include_partials', True),
+            fields.get('percentages', False),
+            fields.get('grouping', 'name'),
+        )
+    )
 
 def run_rest_service(session_maker, args):
     app.config['session_maker'] = session_maker
