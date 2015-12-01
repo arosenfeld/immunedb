@@ -178,7 +178,7 @@ def analyze_samples(session, sample_encoding):
     return create_response(
         queries.analyze_samples(
             session,
-            sample_encoding,
+            ids,
             fields.get('filter_type', 'unique_multiple'),
             fields.get('include_outliers', True),
             fields.get('include_partials', True),
