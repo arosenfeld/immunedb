@@ -165,57 +165,20 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
 
 
 def get_clone(session, clone_id):
-    """Compares sequences within clones by determining their mutations"""
-
-    thresholds = [
-        ('percent', 100),
-        ('percent', 80),
-        ('percent', 50),
-        ('percent', 20),
-        ('percent', 0),
-        ('seqs', 2),
-        ('seqs', 5),
-        ('seqs', 10),
-        ('seqs', 25)
-    ]
-
     result = {}
     clone = session.query(Clone).filter(Clone.id == clone_id).first()
-
-    result = {
-        'clone': _clone_to_dict(clone),
-        'quality': [],
-    }
-
-    res_qual = []
-    for i, quals in enumerate(result['quality']):
-        if len(quals) > 0:
-            res_qual.append((i, round(np.mean(quals), 2)))
-    result['quality'] = res_qual
-
-    all_mutations, total_seqs = get_clone_mutations(session, clone_id)
-    mut_dict = {
-        'positions': all_mutations['positions'],
-        'regions': {}
-    }
-    for threshold in thresholds:
-        if threshold[0] == 'seqs':
-            seq_min = threshold[1]
-        else:
-            seq_min = int(math.ceil(threshold[1] / 100.0 * total_seqs))
-        tname = '_'.join(map(str, threshold))
-        mut_dict['regions'][tname] = threshold_mutations(all_mutations,
-                                                         seq_min)
-    result['mutation_stats'] = mut_dict
 
     stats = session.query(
         CloneStats
     ).filter(
         CloneStats.clone_id == clone.id,
     ).order_by(desc(CloneStats.unique_cnt))
-    result['samples'] = {
-        'all': {},
-        'single': []
+
+    result = {
+        'clone': _clone_to_dict(clone),
+        'samples': {
+            'single': []
+        }
     }
 
     for stat in stats:
@@ -232,6 +195,29 @@ def get_clone(session, clone_id):
 
     return result
 
+def get_clone_mutations(session, clone_id, threshold_type, threshold_val):
+    clone_stats = session.query(
+        CloneStats.mutations,
+        CloneStats.unique_cnt
+    ).filter(
+        CloneStats.clone_id == clone_id,
+        CloneStats.sample_id == None
+    ).first()
+    all_mutations = json.loads(clone_stats.mutations)
+    total_seqs = clone_stats.unique_cnt
+
+    result = {
+        'positions': all_mutations['positions'],
+        'regions': {},
+        'total_seqs': total_seqs
+    }
+    if threshold_type == 'seqs':
+        seq_min = threshold_val
+    else:
+        seq_min = int(math.ceil(threshold_val / 100.0 * total_seqs))
+    result['regions'] = threshold_mutations(all_mutations, seq_min)
+
+    return result
 
 def get_clone_sequences(session, clone_id, get_collapse, paging):
     query = session.query(
@@ -315,22 +301,11 @@ def get_selection_pressure(session, clone_id):
     return pressure
 
 
-def get_clone_mutations(session, clone_id):
-    clone_stats = session.query(
-        CloneStats.mutations,
-        CloneStats.unique_cnt
-    ).filter(
-        CloneStats.clone_id == clone_id,
-        CloneStats.sample_id == None
-    ).first()
-    all_mutations = json.loads(clone_stats.mutations)
-    total_seqs = clone_stats.unique_cnt
-
-    return all_mutations, total_seqs
-
-
 def get_clone_tree(session, clone_id):
-    return session.query(Clone.tree).filter(Clone.id == clone_id).first()
+    return json.loads(
+        session.query(Clone.tree).filter(Clone.id == clone_id).first().tree
+    )
+
 
 
 def get_clone_overlap(session, filter_type, ctype, limit,
@@ -533,8 +508,8 @@ def get_subject(session, sid):
     return subject
 
 
-def get_stats(session, samples, filter_type, include_outliers,
-              include_partials, percentages, grouping):
+def analyze_samples(session, samples, filter_type, include_outliers,
+                    include_partials, percentages, grouping):
     counts = {}
 
     stats = {}
