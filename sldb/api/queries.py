@@ -524,45 +524,69 @@ def analyze_samples(session, samples, filter_type, include_outliers,
         'no_result_cnt'
     ]
 
+    # Iterate over all filter types in the samples
     for stat in session.query(SampleStats).filter(
             SampleStats.sample_id.in_(samples),
             SampleStats.outliers == include_outliers,
             SampleStats.full_reads != include_partials):
-
+        # Update the number of sequences in each filter
         if stat.filter_type not in counts:
-            counts[stat.filter_type] = {'total': 0}
-        if stat.sample.id not in counts[stat.filter_type]:
-            counts[stat.filter_type][stat.sample.id] = 0
-        counts[stat.filter_type][stat.sample.id] = stat.sequence_cnt
-        counts[stat.filter_type]['total'] += stat.sequence_cnt
+            counts[stat.filter_type] = 0
+        counts[stat.filter_type] += stat.sequence_cnt
 
-        if stat.filter_type != filter_type:
-            continue
-
-        if grouping == 'subject':
-            group_key = stat.sample.subject.identifier
-        else:
-            group_key = getattr(stat.sample, grouping)
-
-        if group_key not in stats:
-            stats[group_key] = {}
-
+        # If the sample is not already in the sample_info dictionary, add it
         if stat.sample.id not in sample_info:
             sample_info[stat.sample.id] = _sample_to_dict(stat.sample)
 
-        fields = _fields_to_dict(dist_fields + cnt_fields, stat)
+        if stat.filter_type == 'all':
+            # If the filter is for all sequences, add the count fields to the
+            # sample dictionary.
+            for field in cnt_fields:
+                sample_info[stat.sample.id][field] = getattr(stat, field)
+            sample_info[stat.sample.id]['total_cnt'] = (
+                sample_info[stat.sample.id]['sequence_cnt'] +
+                sample_info[stat.sample.id]['no_result_cnt']
+            )
+        elif stat.filter_type == 'clones_all':
+            # If it's the clones_all filter, update the total number of clones
+            # in the samples
+            sample_info[stat.sample_id].update({
+                'clones_cnt': stat.sequence_cnt,
+                'clones_functional_cnt': stat.functional_cnt
+            })
+        elif stat.filter_type == 'unique':
+            # If it's the unique filter, update the total number of unique
+            # sequences in the sample
+            sample_info[stat.sample_id].update({
+                'unique_cnt': stat.functional_cnt
+            })
+        elif stat.filter_type == 'unique_multiple':
+            # If it's the unique_multiple filter, update the total number of
+            # unique sequences that occur multiple times in the sample
+            sample_info[stat.sample_id].update({
+                'unique_multiple_cnt': stat.functional_cnt
+            })
 
-        for field, values in fields.iteritems():
-            if field.endswith('cnt'):
-                sample_info[stat.sample.id][field] = values
-                continue
-            if field not in stats[group_key]:
-                stats[group_key][field] = {}
+        # If this is the selected filter, group and tally the statistics
+        if stat.filter_type == filter_type:
+            if grouping == 'subject':
+                group_key = stat.sample.subject.identifier
+            else:
+                group_key = getattr(stat.sample, grouping)
 
-            for (x, freq) in json.loads(values):
-                if x not in stats[group_key][field]:
-                    stats[group_key][field][x] = 0
-                stats[group_key][field][x] += freq
+            if group_key not in stats:
+                stats[group_key] = {}
+
+            fields = _fields_to_dict(dist_fields, stat)
+
+            for field, values in fields.iteritems():
+                if field not in stats[group_key]:
+                    stats[group_key][field] = {}
+
+                for (x, freq) in json.loads(values):
+                    if x not in stats[group_key][field]:
+                        stats[group_key][field][x] = 0
+                    stats[group_key][field][x] += freq
 
     for group, key_dict in stats.iteritems():
         for key, vals in key_dict.iteritems():
