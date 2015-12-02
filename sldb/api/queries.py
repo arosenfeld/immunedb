@@ -524,6 +524,7 @@ def analyze_samples(session, samples, filter_type, include_outliers,
         'no_result_cnt'
     ]
 
+    group_sizes = {}
     # Iterate over all filter types in the samples
     for stat in session.query(SampleStats).filter(
             SampleStats.sample_id.in_(samples),
@@ -576,6 +577,8 @@ def analyze_samples(session, samples, filter_type, include_outliers,
 
             if group_key not in stats:
                 stats[group_key] = {}
+                group_sizes[group_key] = 0
+            group_sizes[group_key] += 1
 
             fields = _fields_to_dict(dist_fields, stat)
 
@@ -590,6 +593,8 @@ def analyze_samples(session, samples, filter_type, include_outliers,
 
     for group, key_dict in stats.iteritems():
         for key, vals in key_dict.iteritems():
+            vals = {k: v / float(group_sizes[group])
+                for k, v in vals.iteritems()}
             if percentages and sum(vals.values()) > 0:
                 mfunc = lambda v: round(100 * v / float(sum(vals.values())), 2)
             else:
