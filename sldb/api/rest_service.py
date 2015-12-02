@@ -43,26 +43,10 @@ class EnableCors(object):
 
         return _enable_cors
 
+
 app = bottle.default_app()
 app.install(EnableCors())
 
-'''
-def check_missing_fields(*fields):
-    @wraps(f)
-    def _wrapper(*args, **kwargs):
-        data = bottle.request.json
-        missing = [
-            f for f in fields
-            if f not in data or (type(data[f]) in (str, unicode) and
-                len(data[f].strip()) == 0)
-        ]
-        if len(missing) > 0:
-            return create_response({
-                'missing_fields': missing
-            }, code=422)
-        return f(*args, **kwargs)
-    return _wrapper
-'''
 
 def with_session(f):
     @wraps(f)
@@ -137,6 +121,7 @@ def clones_list(session):
 def clone(session, clone_id):
     return create_response(queries.get_clone(session, clone_id))
 
+
 @app.route('/clone/sequences/<clone_id>', method=['POST', 'OPTIONS'])
 @with_session
 def clone_sequences(session, clone_id):
@@ -186,6 +171,7 @@ def analyze_samples(session, sample_encoding):
             fields.get('grouping', 'name'),
         )
     )
+
 
 def run_rest_service(session_maker, args):
     app.config['session_maker'] = session_maker
