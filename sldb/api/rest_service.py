@@ -43,8 +43,10 @@ class EnableCors(object):
 
         return _enable_cors
 
+
 app = bottle.default_app()
 app.install(EnableCors())
+
 
 def with_session(f):
     @wraps(f)
