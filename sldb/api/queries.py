@@ -581,12 +581,12 @@ def analyze_samples(session, samples, filter_type, include_outliers,
 
     for group, key_dict in stats.iteritems():
         for key, vals in key_dict.iteritems():
-            vals = {k: v / float(group_sizes[group])
-                for k, v in vals.iteritems()}
-            if percentages and sum(vals.values()) > 0:
+            mfunc = lambda v: v
+            if key == 'quality_dist':
+                vals = {k: v / float(group_sizes[group])
+                    for k, v in vals.iteritems()}
+            elif percentages and sum(vals.values()) > 0:
                 mfunc = lambda v: round(100 * v / float(sum(vals.values())), 2)
-            else:
-                mfunc = lambda v: v
             reduced = []
             for x in sorted(vals.keys()):
                 reduced.append((x, mfunc(vals[x])))

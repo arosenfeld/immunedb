@@ -185,6 +185,39 @@ def overlap(session, sample_encoding):
         get_paging())
     )
 
+@app.route('/samples/v_usage/<sample_encoding>', method=['POST', 'OPTIONS'])
+@with_session
+def v_usage(session, sample_encoding):
+    fields = bottle.request.json or {}
+    data, x_categories, totals = queries.get_v_usage(
+        session,
+        decode_run_length(sample_encoding),
+        fields.get('filter_type', 'unique_multiple'),
+        fields.get('include_outliers', True),
+        fields.get('include_partials', True),
+        fields.get('grouping', 'name'),
+        fields.get('by_family', False)
+    )
+
+    x_categories.sort()
+    y_categories = sorted(data.keys())
+    array = []
+    for i, x in enumerate(x_categories):
+        for j, y in enumerate(y_categories):
+            usage_for_y = data[y]
+            if x in usage_for_y:
+                array.append([i, j, usage_for_y[x]])
+            else:
+                array.append([i, j, 0])
+
+    return create_response({
+        'x_categories': map(lambda e: 'IGHV{}'.format(e), x_categories),
+        'y_categories': y_categories,
+        'totals': totals,
+        'data': array
+    })
+
+
 def run_rest_service(session_maker, args):
     app.config['session_maker'] = session_maker
     app.run(host='0.0.0.0',
