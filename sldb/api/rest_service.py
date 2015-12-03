@@ -80,6 +80,15 @@ def get_paging():
         data.get('per_page', 10)
     ))
 
+def decode_run_length(encoding):
+    ids = []
+    offset = 1
+    for match in re.finditer('(T|F)(\d+)', encoding.upper()):
+        size = int(match.group(2))
+        if match.group(1) == 'T':
+            ids.extend(range(offset, offset + size))
+        offset += size
+    return ids
 
 def decode_run_length(encoding):
     ids = []
@@ -185,6 +194,16 @@ def analyze_samples(session, sample_encoding):
         )
     )
 
+@app.route('/samples/overlap/<sample_encoding>', method=['POST', 'OPTIONS'])
+@with_session
+def overlap(session, sample_encoding):
+    fields = bottle.request.json or {}
+    return create_response(queries.get_clone_overlap(
+        session,
+        decode_run_length(sample_encoding),
+        fields.get('filter_type', 'unique_multiple'),
+        get_paging())
+    )
 
 @app.route('/samples/overlap/<sample_encoding>', method=['POST', 'OPTIONS'])
 @with_session
