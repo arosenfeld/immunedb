@@ -22,6 +22,5 @@ class Exporter(object):
         """
         return {
             name: accessor(seq) for name, accessor in
-                self.export_fields.iteritems()
-                if name in self.selected_fields
+            self.export_fields.iteritems() if name in self.selected_fields
         }

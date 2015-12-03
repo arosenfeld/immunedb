@@ -161,7 +161,7 @@ class CloneMutations(object):
                 mutation = (i, self._germline[i], seq.clone_sequence[i], mtype)
                 copy_field = (
                     seq.copy_number if use_sample_copy else
-                        seq.collapse.copy_number_in_subject
+                    seq.collapse.copy_number_in_subject
                 )
                 context_mutations.add_mutation(
                     seq.clone_sequence, self._clone.cdr3_num_nts,
