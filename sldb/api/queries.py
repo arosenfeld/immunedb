@@ -6,7 +6,7 @@ import re
 from sqlalchemy import and_, desc, distinct
 from sqlalchemy.orm import aliased
 from sqlalchemy.orm.strategy_options import Load
-from sqlalchemy.sql import func
+from sqlalchemy.sql import exists, func
 from sqlalchemy.sql.expression import false, true
 
 from sldb.common.models import (Clone, CloneStats, DuplicateSequence, Sample,
@@ -308,37 +308,25 @@ def get_clone_tree(session, clone_id):
 
 
 
-def get_clone_overlap(session, filter_type, ctype, limit,
-                      paging=None, cache={}):
+def get_clone_overlap(session, sample_ids, filter_type, paging=None):
     """Gets a list of clones and the samples in `samples` which they appear"""
     res = []
 
-    if ctype == 'subject':
-        limit = map(lambda e: e.id, session.query(
-            Sample.id
-        ).filter(
-            Sample.subject_id == limit
-        ).all())
-    limit = tuple(limit)
-
-    if limit not in cache:
-        j_alias = aliased(CloneStats)
-        clones = session.query(
-            CloneStats.clone_id,
-            j_alias.unique_cnt,
-            j_alias.total_cnt
-        ).join(j_alias, CloneStats.clone_id == j_alias.clone_id).filter(
-            CloneStats.sample_id.in_(limit),
-            j_alias.sample_id.is_(None)
-        ).group_by(CloneStats.clone_id).all()
-        clones.sort(key=lambda e: e.unique_cnt, reverse=True)
-        cache[tuple(limit)] = clones
-
-    clones = cache[limit]
-    if paging:
-        page, per_page = paging
-        page = max(0, (page - 1) * per_page)
-        clones = clones[page:page + per_page]
+    sq_alias = aliased(CloneStats)
+    clones = session.query(
+        CloneStats.clone_id,
+        CloneStats.unique_cnt,
+        CloneStats.total_cnt
+    ).filter(
+        exists().where(
+            and_(
+                CloneStats.clone_id == sq_alias.clone_id,
+                sq_alias.sample_id.in_(sample_ids)
+            )
+        ),
+        CloneStats.sample_id.is_(None)
+    ).order_by(desc(CloneStats.unique_cnt))
+    clones = _page_query(clones, paging)
 
     for clone_id, unique_cnt, total_cnt in clones:
         selected_samples = []
@@ -347,7 +335,7 @@ def get_clone_overlap(session, filter_type, ctype, limit,
             CloneStats.clone_id == clone_id,
             ~CloneStats.sample_id.is_(None)
         ).order_by(
-            desc(CloneStats.total_cnt)
+            desc(CloneStats.unique_cnt)
         )
         for stat in query:
             data = {
@@ -356,7 +344,7 @@ def get_clone_overlap(session, filter_type, ctype, limit,
                 'unique_sequences': stat.unique_cnt,
                 'total_sequences': stat.total_cnt
             }
-            if ctype == 'subject' or stat.sample_id in limit:
+            if stat.sample_id in sample_ids:
                 selected_samples.append(data)
             else:
                 other_samples.append(data)

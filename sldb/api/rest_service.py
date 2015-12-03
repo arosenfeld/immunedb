@@ -79,6 +79,15 @@ def get_paging():
         data.get('per_page', 10)
     ))
 
+def decode_run_length(encoding):
+    ids = []
+    offset = 1
+    for match in re.finditer('(T|F)(\d+)', encoding.upper()):
+        size = int(match.group(2))
+        if match.group(1) == 'T':
+            ids.extend(range(offset, offset + size))
+        offset += size
+    return ids
 
 @app.route('/samples/list', method=['POST', 'OPTIONS'])
 @with_session
@@ -153,17 +162,10 @@ def clone_lineage(session, clone_id):
 @with_session
 def analyze_samples(session, sample_encoding):
     fields = bottle.request.json or {}
-    ids = []
-    offset = 1
-    for match in re.finditer('(T|F)(\d+)', sample_encoding.upper()):
-        size = int(match.group(2))
-        if match.group(1) == 'T':
-            ids.extend(range(offset, offset + size))
-        offset += size
     return create_response(
         queries.analyze_samples(
             session,
-            ids,
+            decode_run_length(sample_encoding),
             fields.get('filter_type', 'unique_multiple'),
             fields.get('include_outliers', True),
             fields.get('include_partials', True),
@@ -172,6 +174,16 @@ def analyze_samples(session, sample_encoding):
         )
     )
 
+@app.route('/samples/overlap/<sample_encoding>', method=['POST', 'OPTIONS'])
+@with_session
+def overlap(session, sample_encoding):
+    fields = bottle.request.json or {}
+    return create_response(queries.get_clone_overlap(
+        session,
+        decode_run_length(sample_encoding),
+        fields.get('filter_type', 'unique_multiple'),
+        get_paging())
+    )
 
 def run_rest_service(session_maker, args):
     app.config['session_maker'] = session_maker
