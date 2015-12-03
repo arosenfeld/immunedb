@@ -80,6 +80,7 @@ def get_paging():
         data.get('per_page', 10)
     ))
 
+
 def decode_run_length(encoding):
     ids = []
     offset = 1
@@ -193,6 +194,7 @@ def analyze_samples(session, sample_encoding):
             fields.get('grouping', 'name'),
         )
     )
+
 
 @app.route('/samples/overlap/<sample_encoding>', method=['POST', 'OPTIONS'])
 @with_session

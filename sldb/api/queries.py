@@ -206,13 +206,14 @@ def get_clone(session, clone_id):
 
     return result
 
+
 def get_clone_mutations(session, clone_id, threshold_type, threshold_val):
     clone_stats = session.query(
         CloneStats.mutations,
         CloneStats.unique_cnt
     ).filter(
         CloneStats.clone_id == clone_id,
-        CloneStats.sample_id == None
+        CloneStats.sample_id.is_(None)
     ).first()
     all_mutations = json.loads(clone_stats.mutations)
     total_seqs = clone_stats.unique_cnt
@@ -346,7 +347,6 @@ def get_clone_tree(session, clone_id):
     return json.loads(
         session.query(Clone.tree).filter(Clone.id == clone_id).first().tree
     )
-
 
 
 def get_clone_overlap(session, sample_ids, filter_type, paging=None):
