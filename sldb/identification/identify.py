@@ -104,7 +104,7 @@ class IdentificationWorker(concurrent.Worker):
 
             bucketed_seqs = {}
             for vdj in funcs.periodic_commit(self._session,
-                                                vdjs.values()):
+                                             vdjs.values()):
                 del vdjs[vdj.sequence]
                 try:
                     self._realign_sequence(vdj, avg_len, avg_mut)

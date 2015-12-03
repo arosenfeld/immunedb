@@ -21,6 +21,7 @@ _clone_filters = {
     'clones_nonfunctional': lambda q: q.filter(Clone.functional == 0)
 }
 
+
 def _fields_to_dict(fields, row):
     d = {}
     for f in fields:
@@ -195,13 +196,14 @@ def get_clone(session, clone_id):
 
     return result
 
+
 def get_clone_mutations(session, clone_id, threshold_type, threshold_val):
     clone_stats = session.query(
         CloneStats.mutations,
         CloneStats.unique_cnt
     ).filter(
         CloneStats.clone_id == clone_id,
-        CloneStats.sample_id == None
+        CloneStats.sample_id.is_(None)
     ).first()
     all_mutations = json.loads(clone_stats.mutations)
     total_seqs = clone_stats.unique_cnt
@@ -218,6 +220,7 @@ def get_clone_mutations(session, clone_id, threshold_type, threshold_val):
     result['regions'] = threshold_mutations(all_mutations, seq_min)
 
     return result
+
 
 def get_clone_sequences(session, clone_id, get_collapse, paging):
     query = session.query(
@@ -272,8 +275,13 @@ def get_clone_sequences(session, clone_id, get_collapse, paging):
 
     return sorted(
         sequences.values(),
-        cmp=lambda a, b: cmp(a['copy_number_in_subject'],
-            b['copy_number_in_subject']), reverse=True)
+        cmp=lambda a, b: cmp(
+            a['copy_number_in_subject'],
+            b['copy_number_in_subject']
+            ),
+        reverse=True
+    )
+
 
 def get_selection_pressure(session, clone_id):
     query = session.query(
@@ -307,22 +315,22 @@ def get_clone_tree(session, clone_id):
     )
 
 
-
 def get_clone_overlap(session, sample_ids, filter_type, paging=None):
     """Gets a list of clones and the samples in `samples` which they appear"""
     res = []
 
     sq_alias = aliased(CloneStats)
+    exists_clauses = [
+        CloneStats.clone_id == sq_alias.clone_id,
+        sq_alias.sample_id.in_(sample_ids),
+    ]
     clones = session.query(
         CloneStats.clone_id,
         CloneStats.unique_cnt,
         CloneStats.total_cnt
     ).filter(
         exists().where(
-            and_(
-                CloneStats.clone_id == sq_alias.clone_id,
-                sq_alias.sample_id.in_(sample_ids)
-            )
+            and_(*exists_clauses)
         ),
         CloneStats.sample_id.is_(None)
     ).order_by(desc(CloneStats.unique_cnt))
@@ -581,15 +589,16 @@ def analyze_samples(session, samples, filter_type, include_outliers,
 
     for group, key_dict in stats.iteritems():
         for key, vals in key_dict.iteritems():
-            mfunc = lambda v: v
             if key == 'quality_dist':
                 vals = {k: v / float(group_sizes[group])
-                    for k, v in vals.iteritems()}
-            elif percentages and sum(vals.values()) > 0:
-                mfunc = lambda v: round(100 * v / float(sum(vals.values())), 2)
+                        for k, v in vals.iteritems()}
             reduced = []
             for x in sorted(vals.keys()):
-                reduced.append((x, mfunc(vals[x])))
+                val = vals[x]
+                if (key != 'quality_dist' and
+                        percentages and sum(vals.values()) > 0):
+                    val = round(100 * vals[x] / float(sum(vals.values())), 2)
+                reduced.append((x, val))
             key_dict[key] = reduced
 
     return {'samples': sample_info, 'counts': counts, 'stats': stats}

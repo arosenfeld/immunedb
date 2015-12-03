@@ -7,6 +7,7 @@ from sldb.common.models import (Clone, Sample, Sequence, SequenceCollapse,
 import sldb.common.modification_log as mod_log
 import sldb.util.concurrent as concurrent
 
+
 class CollapseWorker(concurrent.Worker):
     """A worker for collapsing sequences without including positions where
     either sequences has an 'N'.
@@ -78,6 +79,7 @@ class CollapseWorker(concurrent.Worker):
         self._print('Committing collapsed sequences')
         self._session.commit()
         self._session.close()
+
 
 def run_collapse(session, args):
     mod_log.make_mod('collapse', session=session, commit=True,

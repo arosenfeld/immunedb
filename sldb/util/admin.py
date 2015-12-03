@@ -10,6 +10,7 @@ import subprocess
 
 import sldb.common.config as config
 
+
 def _yn_prompt(prompt):
     while True:
         print '{} [Y/N]'.format(prompt),
@@ -29,7 +30,7 @@ def _get_root_connection(host, user, admin_pass=None):
 def _create_user_if_not_exists(conn, host, user, password):
     with conn.cursor() as cursor:
         cursor.execute('SELECT host, user, password from mysql.user WHERE '
-                           'user=%s and host=%s', (user, host))
+                       'user=%s and host=%s', (user, host))
         existing = cursor.fetchone()
         if existing is None:
             cursor.execute('CREATE USER \'{}\'@\'%\' IDENTIFIED BY '
@@ -67,7 +68,6 @@ def create(main_parser, args):
             db_pass = ''.join(
                 random.choice(string.ascii_uppercase + string.ascii_lowercase +
                               string.digits) for _ in range(10))
-
 
         with conn.cursor() as cursor:
             print 'Creating user "{}"'.format(db_user)
@@ -134,9 +134,9 @@ def backup(main_parser, args):
     with open(args.backup_path, 'w+') as fh:
         cmd = shlex.split(
             'mysqldump -h {} -u {} -p{} {}'.format(db_config['host'],
-                                                db_config['username'],
-                                                db_config['password'],
-                                                db_config['database']))
+                                                   db_config['username'],
+                                                   db_config['password'],
+                                                   db_config['database']))
         proc = subprocess.Popen(cmd, stdout=fh)
         proc.communicate()
 
@@ -149,9 +149,9 @@ def restore(main_parser, args):
     with open(args.backup_path, 'r') as fh:
         cmd = shlex.split(
             'mysql -h {} -u {} -p{} {}'.format(db_config['host'],
-                                                db_config['username'],
-                                                db_config['password'],
-                                                db_config['database']))
+                                               db_config['username'],
+                                               db_config['password'],
+                                               db_config['database']))
         proc = subprocess.Popen(cmd, stdin=fh, stdout=subprocess.PIPE,
                                 stderr=subprocess.PIPE)
         stdout, stderr = proc.communicate()

@@ -72,12 +72,14 @@ def create_response(j=None, code=200, ctype='application/json'):
         return json.dumps(j)
     return j
 
+
 def get_paging():
     data = bottle.request.json or {}
     return map(int, (
         data.get('page', 1),
         data.get('per_page', 10)
     ))
+
 
 def decode_run_length(encoding):
     ids = []
@@ -88,6 +90,7 @@ def decode_run_length(encoding):
             ids.extend(range(offset, offset + size))
         offset += size
     return ids
+
 
 @app.route('/samples/list', method=['POST', 'OPTIONS'])
 @with_session
@@ -174,6 +177,7 @@ def analyze_samples(session, sample_encoding):
         )
     )
 
+
 @app.route('/samples/overlap/<sample_encoding>', method=['POST', 'OPTIONS'])
 @with_session
 def overlap(session, sample_encoding):
@@ -184,6 +188,7 @@ def overlap(session, sample_encoding):
         fields.get('filter_type', 'unique_multiple'),
         get_paging())
     )
+
 
 @app.route('/samples/v_usage/<sample_encoding>', method=['POST', 'OPTIONS'])
 @with_session

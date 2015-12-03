@@ -123,7 +123,6 @@ class ClonalWorker(concurrent.Worker):
                 return False
         return True
 
-
     def _generate_germline(self, seqs, clone):
         insertions = set([])
         for seq in seqs:
@@ -151,11 +150,11 @@ class ClonalWorker(concurrent.Worker):
             not lookups.has_stop(germline)
         )
 
-        j_region = rep_seq.germline.replace('-', '')[-rep_seq.post_cdr3_length:]
+        j_region = rep_seq.germline.replace(
+            '-', '')[-rep_seq.post_cdr3_length:]
         germline += j_region
 
         return germline
-
 
     def _generate_consensus(self, to_update):
         """Generates consensus CDR3s for clones.
