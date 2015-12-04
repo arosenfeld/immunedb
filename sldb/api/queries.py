@@ -443,13 +443,16 @@ def get_v_usage(session, samples, filter_type, include_outliers,
 
 def get_all_subjects(session, paging=None):
     subjects = []
-    for subject in _page_query(session.query(Subject), paging):
-        seqs = session.query(func.sum(SampleStats.sequence_cnt))\
-            .filter(
-                SampleStats.sample.has(subject=subject),
-                SampleStats.filter_type == 'all',
-                SampleStats.outliers == true(),
-                SampleStats.full_reads == false()).scalar()
+    for subject in _page_query(
+            session.query(Subject).order_by(Subject.identifier), paging):
+        seqs = session.query(
+            func.sum(SampleStats.sequence_cnt)
+        ).filter(
+            SampleStats.sample.has(subject=subject),
+            SampleStats.filter_type == 'all',
+            SampleStats.outliers == true(),
+            SampleStats.full_reads == false()
+        ).scalar()
         info = {
             'id': subject.id,
             'identifier': subject.identifier,
