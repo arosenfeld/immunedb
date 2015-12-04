@@ -203,7 +203,7 @@ def overlap(session, sample_encoding):
     return create_response(queries.get_clone_overlap(
         session,
         decode_run_length(sample_encoding),
-        fields.get('filter_type', 'unique_multiple'),
+        fields.get('filter_type', 'clones_all'),
         get_paging())
     )
 
