@@ -185,7 +185,7 @@ def overlap(session, sample_encoding):
     return create_response(queries.get_clone_overlap(
         session,
         decode_run_length(sample_encoding),
-        fields.get('filter_type', 'unique_multiple'),
+        fields.get('filter_type', 'clones_all'),
         get_paging())
     )
 
@@ -207,10 +207,14 @@ def v_usage(session, sample_encoding):
     x_categories.sort()
     y_categories = sorted(data.keys())
     array = []
+    min_v = 100
+    max_v = 0
     for i, x in enumerate(x_categories):
         for j, y in enumerate(y_categories):
             usage_for_y = data[y]
             if x in usage_for_y:
+                min_v = min(min_v, usage_for_y[x])
+                max_v = max(max_v, usage_for_y[x])
                 array.append([i, j, usage_for_y[x]])
             else:
                 array.append([i, j, 0])
@@ -219,7 +223,9 @@ def v_usage(session, sample_encoding):
         'x_categories': map(lambda e: 'IGHV{}'.format(e), x_categories),
         'y_categories': y_categories,
         'totals': totals,
-        'data': array
+        'data': array,
+        'min': min_v,
+        'max': max_v
     })
 
 
