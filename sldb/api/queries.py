@@ -324,6 +324,11 @@ def get_clone_overlap(session, sample_ids, filter_type, paging=None):
         CloneStats.clone_id == sq_alias.clone_id,
         sq_alias.sample_id.in_(sample_ids),
     ]
+    if filter_type != 'clones_all':
+        exists_clauses.append(
+            CloneStats.functional == (filter_type == 'clones_functional')
+        )
+
     clones = session.query(
         CloneStats.clone_id,
         CloneStats.unique_cnt,
