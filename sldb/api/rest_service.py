@@ -229,6 +229,18 @@ def v_usage(session, sample_encoding):
     })
 
 
+@app.route('/subjects/list', method=['POST', 'OPTIONS'])
+@with_session
+def subjects_list(session):
+    return create_response(queries.get_all_subjects(session, get_paging()))
+
+
+@app.route('/subject/<subject_id>', method=['POST', 'OPTIONS'])
+@with_session
+def subjects_list(session, subject_id):
+    return create_response(queries.get_subject(session, subject_id))
+
+
 def run_rest_service(session_maker, args):
     app.config['session_maker'] = session_maker
     app.run(host='0.0.0.0',
