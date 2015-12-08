@@ -1,4 +1,4 @@
-from collections import Counter
+from collections import Counter, OrderedDict
 
 from sqlalchemy import desc
 from sqlalchemy.sql import text
@@ -39,7 +39,7 @@ class ClonalWorker(concurrent.Worker):
         self._tasks = 0
 
     def do_task(self, bucket_hash):
-        clones = {}
+        clones = OrderedDict()
         consensus_needed = set([])
         query = self._session.query(
             Sequence.sample_id, Sequence.ai, Sequence.clone_id,
@@ -58,7 +58,10 @@ class ClonalWorker(concurrent.Worker):
             query = query.filter(Sequence.probable_indel_or_misalign == 0)
         if self._exclude_partials:
             query = query.filter(Sequence.partial == 0)
-        query = query.order_by(desc(SequenceCollapse.copy_number_in_subject))
+        query = query.order_by(
+            desc(SequenceCollapse.copy_number_in_subject),
+            Sequence.ai
+        )
 
         if query.count() > 0:
             for seq in query:

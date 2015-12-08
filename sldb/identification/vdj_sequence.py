@@ -122,8 +122,9 @@ class VDJSequence(object):
         if rev_comp:
             self.sequence = str(Seq(self.sequence).reverse_complement())
         max_align = None
-        for name, germr in self.v_germlines.iteritems():
-            germ = germr.sequence.replace('-', '')
+        for name, germr in self.v_germlines.all_ties(
+                avg_len, avg_mut).iteritems():
+            germ = germr.replace('-', '')
             try:
                 g, s, germ_omit, seq_omit, score = dnautils.align(
                     germ, self.sequence, insert_penalty, delete_penalty,
@@ -145,16 +146,14 @@ class VDJSequence(object):
                     s += self.sequence[seq_omit + len(s) - s.count('-'):]
 
                 max_align = {
-                    'original_germ': germr.sequence,
+                    'original_germ': germr,
                     'seq': s,
                     'qual': q,
                     'germ': g,
                     'score': score,
                     'v_length': v_length,
-                    'vs': [(name, g)]
+                    'vs': (name, g)
                 }
-            elif score == max_align['score']:
-                max_align['vs'].append((name, g))
 
         if max_align is None:
             if rev_comp:
@@ -170,10 +169,8 @@ class VDJSequence(object):
                     match_score=match_score,
                     rev_comp=True)
 
-        self._v = map(lambda e: e[0], max_align['vs'])
-        self.germline = get_common_seq(
-            map(lambda e: e[1], max_align['vs']), cutoff=False
-        )
+        self._v = max_align['vs'][0]
+        self.germline = max_align['vs'][1]
         self.sequence = max_align['seq']
 
         self.germline = self.germline.replace('-', '.')

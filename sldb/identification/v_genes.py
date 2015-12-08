@@ -126,6 +126,16 @@ class VGermlines(dict):
                 except:
                     pass
 
+    def all_ties(self, length, mutation):
+        ties = {}
+        for name in self:
+            tie_name = tuple(sorted(self.get_ties([name], length, mutation)))
+            if tie_name not in ties:
+                ties[tie_name] = get_common_seq(
+                    [self[n].sequence for n in tie_name]
+                )
+        return ties
+
     def get_ties(self, genes, length, mutation):
         ties = set(genes)
         for gene in genes:
