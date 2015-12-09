@@ -102,11 +102,12 @@ def samples_list(session):
 @with_session
 def sequences_list(session):
     fields = bottle.request.json or {}
-    return create_response(queries.get_all_sequences(
+    return create_response(queries.get_sequences(
         session,
         fields.get('filters', {}),
         fields.get('order_field', None),
         fields.get('order_dir', 'asc'),
+        fields.get('subject_id', None),
         get_paging()))
 
 
@@ -165,7 +166,7 @@ def clone_lineage(session, clone_id):
 
 @app.route('/clone/pressure/<clone_id>', method=['POST', 'OPTIONS'])
 @with_session
-def clone_lineage(session, clone_id):
+def clone_pressure(session, clone_id):
     return create_response(queries.get_selection_pressure(session, clone_id))
 
 

@@ -657,7 +657,8 @@ def get_sequence(session, sample_id, seq_id):
     return ret
 
 
-def get_all_sequences(session, filters, order_field, order_dir, paging=None):
+def get_sequences(session, filters, order_field, order_dir, subject_id=None,
+                  paging=None):
     """Gets a list of all clones"""
     res = []
     query = session.query(Sequence).outerjoin(SequenceCollapse)
@@ -686,6 +687,9 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
                     query = query.filter(copy_number_field > 0)
                 else:
                     query = query.filter(getattr(Sequence, key).like(value))
+
+    if subject_id is not None:
+        query = query.filter(Sequence.subject_id == subject_id)
 
     if (filters is None or
             'show_partials' not in filters or
