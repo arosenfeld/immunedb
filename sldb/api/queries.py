@@ -490,9 +490,10 @@ def get_all_subjects(session, paging=None):
 
 def get_subject(session, sid):
     s = session.query(Subject).filter(Subject.id == sid).first()
-    samples = get_samples(session,
-            map(lambda e: e.id, session.query(Sample.id).filter(
-                Sample.subject_id == sid)))
+    samples = get_samples(
+        session,
+        map(lambda e: e.id, session.query(Sample.id).filter(
+            Sample.subject_id == sid)))
 
     subject = {
         'id': s.id,

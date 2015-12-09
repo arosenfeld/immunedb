@@ -105,8 +105,8 @@ class IdentificationWorker(concurrent.Worker):
 
             self._print('\tCollapsing ambiguous character sequences')
             add_uniques(self._session, sample, vdjs.values(),
-                    meta.get('paired'), avg_len, avg_mut, self._min_similarity,
-                    self._max_vties)
+                        meta.get('paired'), avg_len, avg_mut,
+                        self._min_similarity, self._max_vties)
 
         sample.status = 'identified'
         self._session.commit()

@@ -9,6 +9,7 @@ from sldb.identification.v_genes import VGermlines
 from sldb.common.models import NoResult, Sample, Study, Subject
 import sldb.util.funcs as funcs
 
+
 class ImportException(Exception):
     pass
 
