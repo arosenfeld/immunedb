@@ -231,30 +231,6 @@ def get_clone_mutations(session, clone_id, threshold_type, threshold_val):
 
     return result
 
-def get_clone_mutations(session, clone_id, threshold_type, threshold_val):
-    clone_stats = session.query(
-        CloneStats.mutations,
-        CloneStats.unique_cnt
-    ).filter(
-        CloneStats.clone_id == clone_id,
-        CloneStats.sample_id.is_(None)
-    ).first()
-    all_mutations = json.loads(clone_stats.mutations)
-    total_seqs = clone_stats.unique_cnt
-
-    result = {
-        'positions': all_mutations['positions'],
-        'regions': {},
-        'total_seqs': total_seqs
-    }
-    if threshold_type == 'seqs':
-        seq_min = threshold_val
-    else:
-        seq_min = int(math.ceil(threshold_val / 100.0 * total_seqs))
-    result['regions'] = threshold_mutations(all_mutations, seq_min)
-
-    return result
-
 
 def get_clone_sequences(session, clone_id, get_collapse, paging):
     query = session.query(
