@@ -95,7 +95,7 @@ def decode_run_length(encoding):
 @app.route('/samples/list', method=['POST', 'OPTIONS'])
 @with_session
 def samples_list(session):
-    return create_response(queries.get_all_studies(session))
+    return create_response(queries.get_samples(session))
 
 
 @app.route('/sequences/list', method=['POST', 'OPTIONS'])
@@ -117,14 +117,16 @@ def sequence(session, sample_id, seq_id):
 
 
 @app.route('/clones/list', method=['POST', 'OPTIONS'])
+@app.route('/clones/list/<subject_id>', method=['POST', 'OPTIONS'])
 @with_session
-def clones_list(session):
+def clones_list(session, subject_id=None):
     fields = bottle.request.json or {}
-    return create_response(queries.get_all_clones(
+    return create_response(queries.get_clones(
         session,
         fields.get('filters', {}),
         fields.get('order_field', None),
         fields.get('order_dir', 'asc'),
+        subject_id,
         get_paging()))
 
 
@@ -159,6 +161,12 @@ def clone_mutations(session, clone_id):
 @with_session
 def clone_lineage(session, clone_id):
     return create_response(queries.get_clone_tree(session, clone_id))
+
+
+@app.route('/clone/pressure/<clone_id>', method=['POST', 'OPTIONS'])
+@with_session
+def clone_lineage(session, clone_id):
+    return create_response(queries.get_selection_pressure(session, clone_id))
 
 
 @app.route('/samples/analyze/<sample_encoding>', method=['POST', 'OPTIONS'])
@@ -237,7 +245,7 @@ def subjects_list(session):
 
 @app.route('/subject/<subject_id>', method=['POST', 'OPTIONS'])
 @with_session
-def subjects_list(session, subject_id):
+def subject(session, subject_id):
     return create_response(queries.get_subject(session, subject_id))
 
 

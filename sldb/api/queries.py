@@ -65,7 +65,7 @@ def _page_query(q, paging):
     return q.offset(max(0, (page - 1) * per_page)).limit(per_page)
 
 
-def get_all_studies(session):
+def get_samples(session, sample_ids=None):
     query = session.query(
         Sample, SampleStats
     ).outerjoin(
@@ -76,7 +76,12 @@ def get_all_studies(session):
             SampleStats.full_reads == false(),
             SampleStats.filter_type == 'all'
         )
-    ).order_by(Sample.date).options(
+    )
+
+    if sample_ids is not None:
+        query = query.filter(SampleStats.sample_id.in_(sample_ids))
+
+    query = query.order_by(Sample.date).options(
         Load(SampleStats).load_only(
             'sequence_cnt', 'in_frame_cnt', 'stop_cnt', 'functional_cnt',
             'no_result_cnt'
@@ -96,7 +101,8 @@ def get_all_studies(session):
     return result
 
 
-def get_all_clones(session, filters, order_field, order_dir, paging=None):
+def get_clones(session, filters, order_field, order_dir, subject_limit=None,
+               paging=None):
     """Gets a list of all clones"""
     def get_field(key):
         tbls = [Clone, CloneStats]
@@ -110,6 +116,10 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
     ).outerjoin(CloneStats).filter(
         CloneStats.sample_id.is_(None)
     )
+
+    if subject_limit is not None:
+        clone_q = clone_q.filter(Clone.subject_id == subject_limit)
+
     if filters is not None:
         for key, value in filters.iteritems():
             if value is None:
@@ -480,24 +490,9 @@ def get_all_subjects(session, paging=None):
 
 def get_subject(session, sid):
     s = session.query(Subject).filter(Subject.id == sid).first()
-    samples = []
-
-    for sample in session.query(Sample).filter(Sample.subject_id == sid):
-        stats = session.query(SampleStats).filter(
-            SampleStats.filter_type == 'all',
-            SampleStats.sample_id == sample.id,
-            SampleStats.outliers == true(),
-            SampleStats.full_reads == false()).first()
-        sample_dict = {
-            'id': sample.id,
-            'name': sample.name,
-            'date': sample.date.strftime('%Y-%m-%d'),
-        }
-        if stats is not None:
-            sample_dict['valid_cnt'] = stats.sequence_cnt
-            sample_dict['no_result_cnt'] = stats.no_result_cnt
-            sample_dict['functional_cnt'] = stats.functional_cnt
-        samples.append(sample_dict)
+    samples = get_samples(session,
+            map(lambda e: e.id, session.query(Sample.id).filter(
+                Sample.subject_id == sid)))
 
     subject = {
         'id': s.id,
