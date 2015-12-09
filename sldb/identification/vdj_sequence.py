@@ -20,7 +20,7 @@ def gap_positions(seq):
 
 
 def gaps_before(gaps, pos):
-    return sum((e[1] for e in gaps if e[0] <= pos))
+    return sum((e[1] for e in gaps if e[0] < pos))
 
 
 class VDJSequence(object):

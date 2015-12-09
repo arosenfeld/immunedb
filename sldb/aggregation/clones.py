@@ -131,7 +131,7 @@ class ClonalWorker(concurrent.Worker):
         insertions = set([])
         for seq in seqs:
             if seq.insertions is not None:
-                insertions.update(set(seq.insertions))
+                insertions.update(set(map(tuple, seq.insertions)))
         clone.insertions = insertions
 
         for seq in seqs:
@@ -144,7 +144,7 @@ class ClonalWorker(concurrent.Worker):
         germline = rep_seq.germline[:CDR3_OFFSET + rep_ins]
 
         for ins in insertions:
-            if ins not in rep_seq.insertions:
+            if ins not in map(tuple, rep_seq.insertions):
                 pos, size = ins
                 germline = germline[:pos] + ('-' * size) + germline[pos:]
         germline += '-' * clone.cdr3_num_nts

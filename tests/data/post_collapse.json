@@ -4839,15 +4839,15 @@
     "692": {
         "collapse_to_subject_sample_id": 2,
         "collapse_to_subject_seq_ai": 692,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:19097:13460",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:21975:11768",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "693": {
         "collapse_to_subject_sample_id": 2,
         "collapse_to_subject_seq_ai": 693,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:21975:11768",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:19097:13460",
+        "copy_number_in_subject": 2,
         "instances_in_subject": 1
     },
     "694": {
