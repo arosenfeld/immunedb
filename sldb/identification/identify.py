@@ -103,6 +103,32 @@ class IdentificationWorker(concurrent.Worker):
                         'Length={}'.format(
                             len(vdjs), round(avg_mut, 2), round(avg_len, 2)))
 
+            bucketed_seqs = {}
+            for vdj in funcs.periodic_commit(self._session,
+                                             vdjs.values()):
+                del vdjs[vdj.sequence]
+                try:
+                    self._realign_sequence(vdj, avg_len, avg_mut)
+                    bucket_key = (
+                        funcs.format_ties(vdj.v_gene, 'IGHV'),
+                        funcs.format_ties(vdj.j_gene, 'IGHJ'),
+                        len(vdj.cdr3)
+                    )
+                    if bucket_key not in bucketed_seqs:
+                        bucketed_seqs[bucket_key] = {}
+                    bucket = bucketed_seqs[bucket_key]
+
+                    if vdj.sequence in bucket:
+                        bucket[vdj.sequence].ids += vdj.ids
+                    else:
+                        bucket[vdj.sequence] = vdj
+                except AlignmentException:
+                    self.add_as_noresult(vdj, sample)
+                except:
+                    self._print('\tUnexpected error processing sequence '
+                                '{}\n\t{}'.format(vdj.ids[0],
+                                                  traceback.format_exc()))
+
             self._print('\tCollapsing ambiguous character sequences')
             add_uniques(self._session, sample, vdjs.values(),
                     meta.get('paired'), avg_len, avg_mut, self._min_similarity,
