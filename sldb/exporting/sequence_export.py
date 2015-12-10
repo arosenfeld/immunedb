@@ -93,7 +93,6 @@ class SequenceExport(Exporter):
 
     def __init__(self, session, writer, rtype, rids, selected_fields,
                  subject_uniques, only_with_clones):
-        print rtype, rids, selected_fields, subject_uniques, only_with_clones
         super(SequenceExport, self).__init__(
             session, rtype, rids, SequenceExport._allowed_fields,
             selected_fields)
