@@ -32,24 +32,16 @@ class MutationExporter(object):
         }, streaming=True)
 
     def _sample_rows(self, cid, sample_id):
-        try:
-            all_mutations, total_seqs = queries.get_clone_mutations(
-                self._session, cid, sample_id)
-        except Exception as ex:
-            return
+        result = queries.get_clone_mutations(
+            self._session, cid, self._thresh_type,
+            self._thresh_value, sample_id=sample_id)
 
-        if self._thresh_type == 'seqs':
-            min_seqs = self._thresh_value
-        else:
-            min_seqs = int(math.ceil(self._thresh_value / 100.0 * total_seqs))
-
-        mutations = threshold_mutations(all_mutations, min_seqs)
-        for region, stats in mutations.iteritems():
+        for region, stats in result['regions'].iteritems():
             row = {
                 'clone_id': cid,
                 'region': region,
                 'sample_id': sample_id,
-                'total_seqs': total_seqs,
+                'total_seqs': result['total_seqs'],
             }
 
             for number in self._numbers:

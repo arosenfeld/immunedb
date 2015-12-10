@@ -59,6 +59,7 @@ class CloneExport(Exporter):
             )
         else:
             clone_ids = self.rids
+
         clone_ids = set(clone_ids)
         for clone_id in clone_ids:
             clone = self.session.query(Clone).filter(
