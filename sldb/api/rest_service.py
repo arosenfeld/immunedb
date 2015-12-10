@@ -250,8 +250,45 @@ def subject(session, subject_id):
     return create_response(queries.get_subject(session, subject_id))
 
 
+@app.route('/export/sequences/<from_type>/<encoding>', method=['POST'])
+@with_session
+def export_sequences(session, from_type, encoding):
+    fields = request.forms or {}
+    eformat = fields.get('format')
+
+    time_str = time.strftime('%Y-%m-%d-%H-%M')
+    ext = eformat.split('-', 1)[0]
+    response.headers['Content-Disposition'] = 'attachment;filename={}'.format(
+        '{}_{}.{}'.format(from_type, time_str, ext))
+
+    if eformat == 'csv':
+        writer = CSVWriter()
+    elif eformat.startswith('fasta'):
+        writer = FASTAWriter(replaced_sequences='fill' in eformat)
+    elif eformat.startswith('fastq'):
+        writer = FASTQWriter(replaced_sequences='fill' in eformat)
+    elif eformat.startswith('clip'):
+        writer = CLIPWriter(replaced_sequences='fill' in eformat)
+
+    if from_type == 'sample':
+        ids = decode_run_length(encoding)
+    else:
+        ids = [int(encoding)]
+
+    export = SequenceExport(
+        session, writer, from_type, ids,
+        selected_fields=fields.get('fields').split(','),
+        subject_uniques=fields.get('subject_uniques', False),
+        only_with_clones=fields.get('only_with_clones', False)
+    )
+    for line in export.get_data():
+        yield line
+
+
 def run_rest_service(session_maker, args):
     app.config['session_maker'] = session_maker
+    if args.debug:
+        app.catchall = False
     app.run(host='0.0.0.0',
             port=args.port,
             server='gevent',

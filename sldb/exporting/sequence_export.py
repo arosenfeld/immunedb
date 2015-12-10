@@ -86,11 +86,14 @@ class SequenceExport(Exporter):
         'collapse_to_subject_sample_id': lambda seq:
             seq.collapse.collapse_to_subject_sample_id,
         'collapse_to_subject_seq_id': lambda seq:
-            seq.collapse.collapse_to_subject_seq_id
+            seq.collapse.collapse_to_subject_seq_id,
+        'instances_in_subject': lambda seq:
+            seq.collapse.collapse_to_subject_seq_id,
     })
 
     def __init__(self, session, writer, rtype, rids, selected_fields,
                  subject_uniques, only_with_clones):
+        print rtype, rids, selected_fields, subject_uniques, only_with_clones
         super(SequenceExport, self).__init__(
             session, rtype, rids, SequenceExport._allowed_fields,
             selected_fields)
