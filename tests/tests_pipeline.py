@@ -4,11 +4,13 @@ import unittest
 
 from sldb.aggregation.clone_stats import run_clone_stats
 import sldb.common.config as config
-from sldb.common.models import Clone, CloneStats, Sequence, SequenceCollapse
+from sldb.common.models import (Clone, CloneStats, Sequence, SampleStats,
+                                SequenceCollapse)
 from sldb.identification.identify import run_identify
 from sldb.identification.local_align import run_fix_sequences
 from sldb.aggregation.clones import run_clones
 from sldb.aggregation.collapse import run_collapse
+from sldb.aggregation.sample_stats import run_sample_stats
 
 DB_NAME = 'test_db'
 CONFIG_PATH = '{}.json'.format(DB_NAME)
@@ -26,6 +28,7 @@ class TestPipeline(unittest.TestCase):
         self.collapse()
         self.clones()
         self.clone_stats()
+        self.sample_stats()
 
     def identification(self):
         run_identify(
@@ -75,6 +78,8 @@ class TestPipeline(unittest.TestCase):
                 max_insertions=3
             )
         )
+        self.session.commit()
+
         self.assertEqual(
             self.session.query(Sequence).filter(
                 Sequence.probable_indel_or_misalign == 1
@@ -88,6 +93,8 @@ class TestPipeline(unittest.TestCase):
                 subject_ids=None
             )
         )
+        self.session.commit()
+
         self._regression(
             'tests/data/post_collapse.json',
             self.session.query(SequenceCollapse),
@@ -112,6 +119,7 @@ class TestPipeline(unittest.TestCase):
                 regen=False
             )
         )
+        self.session.commit()
 
         self._regression(
             'tests/data/post_clones_clones.json',
@@ -136,6 +144,7 @@ class TestPipeline(unittest.TestCase):
                 regen=False
             )
         )
+        self.session.commit()
 
         self._regression(
             'tests/data/post_clone_stats.json',
@@ -144,16 +153,40 @@ class TestPipeline(unittest.TestCase):
             ('clone_id', 'sample_id', 'unique_cnt', 'total_cnt')
         )
 
+    def sample_stats(self):
+        run_sample_stats(
+            self.session,
+            NamespaceMimic(
+                sample_ids=None,
+                force=False
+            )
+        )
+        self.session.commit()
+
+        self._regression(
+            'tests/data/post_sample_stats.json',
+            self.session.query(SampleStats),
+            ('sample_id', 'filter_type', 'outliers', 'full_reads'),
+            ('sequence_cnt', 'in_frame_cnt', 'stop_cnt', 'functional_cnt',
+             'no_result_cnt')
+        )
+
     def _err(self, path, key, key_val, field, ref, val):
         return '{} @ {}={}: {} is {} instead of {}'.format(
             path, key, key_val, field, val, ref
         )
 
+    def _get_key(self, obj, key):
+        if type(key) == str:
+            return getattr(obj, key)
+        return '-'.join([str(getattr(obj, k)) for k in key])
+
+
     def _generate(self, path, query, key, fields):
         print 'Generating regression for {}'.format(path)
         data = {}
         for record in query:
-            data[getattr(record, key)] = {
+            data[self._get_key(record, key)] = {
                 f: getattr(record, f) for f in fields
             }
         with open(path, 'w+') as fh:
@@ -167,12 +200,13 @@ class TestPipeline(unittest.TestCase):
         with open(path) as fh:
             checks = json.load(fh)
         for record in query:
-            for fld, value in checks[str(getattr(record, key))].iteritems():
+            agg_key = str(self._get_key(record, key))
+            for fld, value in checks[agg_key].iteritems():
                 self.assertEqual(
                     getattr(record, fld),
                     value,
-                    self._err(path, key, getattr(record, key), fld, value,
-                              getattr(record, fld))
+                    self._err(path, key, self._get_key(record, key), fld,
+                              value, getattr(record, fld))
                 )
 
 class NamespaceMimic(object):
