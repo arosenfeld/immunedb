@@ -342,7 +342,4 @@ def run_rest_service(session_maker, args):
     app.config['session_maker'] = session_maker
     if args.debug:
         app.catchall = False
-    app.run(host='0.0.0.0',
-            port=args.port,
-            server='gevent',
-            debug=args.debug)
+    app.run(host='0.0.0.0', port=args.port, server='gevent', debug=args.debug)

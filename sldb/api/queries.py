@@ -321,9 +321,8 @@ def get_selection_pressure(session, clone_id):
 
 
 def get_clone_tree(session, clone_id):
-    return json.loads(
-        session.query(Clone.tree).filter(Clone.id == clone_id).first().tree
-    )
+    tree = session.query(Clone.tree).filter(Clone.id == clone_id).first().tree
+    return json.loads(tree) if tree is not None else None
 
 
 def get_clone_overlap(session, sample_ids, filter_type, paging=None):
