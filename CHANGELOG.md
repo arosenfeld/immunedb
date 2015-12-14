@@ -1,4 +1,17 @@
 # CHANGELOG
+## v0.14.0
+* The API has been simplified and re-organized.
+* URLs for API calls now use run length encoding to specify which samples to
+  analyze.  This fixes issues when many samples are selected and cause the URL
+  to be too long.
+* Grouped quality scores are now properly calculated.
+* Rarefaction calculations have been removed.
+
+## v0.13.0
+* Clone mutations can now have arbitrary thresholds.
+* The clone overlap query has been optimized and now properly filters
+  functional and non-functional clones.
+
 ## v0.12.0
 * `sldb_admin` has been added to simplify creating, deleting, backing up, and
   restoring SLDB instances.
