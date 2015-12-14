@@ -10,4 +10,10 @@ function teardown() {
 
 setup
 nosetests -s
-teardown
+
+if [ -z "$NO_TEARDOWN" ]
+then
+    teardown
+else
+    echo 'Not tearing down since NO_TEARDOWN is set'
+fi

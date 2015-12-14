@@ -121,8 +121,7 @@ def add_uniques(session, sample, vdjs, paired, realign_len=None,
             add_as_noresult(session, vdj, sample)
         except:
             print ('\tUnexpected error processing sequence '
-                        '{}\n\t{}'.format(vdj.ids[0],
-                                          traceback.format_exc()))
+                   '{}\n\t{}'.format(vdj.ids[0], traceback.format_exc()))
 
     # Collapse sequences that are the same except for Ns
     for sequences in funcs.periodic_commit(session, bucketed_seqs.values()):

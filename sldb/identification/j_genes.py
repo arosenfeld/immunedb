@@ -37,7 +37,7 @@ class JGermlines(dict):
             allowed_genes = self
         else:
             allowed_genes = {k: v for k, v in self.iteritems() if k in
-                           allowed_genes}
+                             allowed_genes}
         max_len = max(map(len, allowed_genes.values()))
         for trim_len in range(0, max_len, 3):
             for j, seq in allowed_genes.iteritems():
@@ -50,7 +50,7 @@ class JGermlines(dict):
             allowed_genes = self
         else:
             allowed_genes = {k: v for k, v in self.iteritems() if k in
-                           allowed_genes}
+                             allowed_genes}
 
         tied = set([name])
         for j, other_seq in sorted(allowed_genes.iteritems()):

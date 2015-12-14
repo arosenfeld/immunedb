@@ -75,15 +75,18 @@ class CloneStatsWorker(concurrent.Worker):
                 Sequence.clone_id == clone_id
             ).first()
 
+        clone_inst = self._session.query(Clone).filter(
+            Clone.id == clone_id).first()
         sample_mutations = CloneMutations(
             self._session,
-            self._session.query(Clone).filter(Clone.id == clone_id).first()
+            clone_inst
         ).calculate(
             commit_seqs=sample_id is not None, limit_samples=[sample_id],
         )[sample_id]
 
         record_values = {
             'clone_id': clone_id,
+            'functional': clone_inst.functional,
             'unique_cnt': counts.unique,
             'total_cnt': counts.total,
             'mutations': json.dumps(sample_mutations.get_all()),

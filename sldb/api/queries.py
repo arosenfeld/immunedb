@@ -6,7 +6,7 @@ import re
 from sqlalchemy import and_, desc, distinct
 from sqlalchemy.orm import aliased
 from sqlalchemy.orm.strategy_options import Load
-from sqlalchemy.sql import func
+from sqlalchemy.sql import exists, func
 from sqlalchemy.sql.expression import false, true
 
 from sldb.common.models import (Clone, CloneStats, DuplicateSequence, Sample,
@@ -20,6 +20,7 @@ _clone_filters = {
     'clones_functional': lambda q: q.filter(Clone.functional == 1),
     'clones_nonfunctional': lambda q: q.filter(Clone.functional == 0)
 }
+
 
 def _fields_to_dict(fields, row):
     d = {}
@@ -64,8 +65,7 @@ def _page_query(q, paging):
     return q.offset(max(0, (page - 1) * per_page)).limit(per_page)
 
 
-def get_all_studies(session):
-    result = {}
+def get_samples(session, sample_ids=None):
     query = session.query(
         Sample, SampleStats
     ).outerjoin(
@@ -76,34 +76,33 @@ def get_all_studies(session):
             SampleStats.full_reads == false(),
             SampleStats.filter_type == 'all'
         )
-    ).order_by(Sample.date).options(
+    )
+
+    if sample_ids is not None:
+        query = query.filter(SampleStats.sample_id.in_(sample_ids))
+
+    query = query.order_by(Sample.date).options(
         Load(SampleStats).load_only(
             'sequence_cnt', 'in_frame_cnt', 'stop_cnt', 'functional_cnt',
             'no_result_cnt'
         )
     )
 
+    result = []
     for sample, stats in query:
-        if sample.study.id not in result:
-            result[sample.study.id] = {
-                'id': sample.study.id,
-                'name': sample.study.name,
-                'info': sample.study.info,
-                'samples': []
-            }
         sample_dict = _sample_to_dict(sample)
         if stats is not None:
             sample_dict['sequence_cnt'] = stats.sequence_cnt
-            sample_dict['in_frame_cnt'] = stats.in_frame_cnt
-            sample_dict['stop_cnt'] = stats.stop_cnt
             sample_dict['functional_cnt'] = stats.functional_cnt
             sample_dict['no_result_cnt'] = stats.no_result_cnt
-        result[sample.study.id]['samples'].append(sample_dict)
+            sample_dict['total_cnt'] = stats.sequence_cnt + stats.no_result_cnt
+        result.append(sample_dict)
 
     return result
 
 
-def get_all_clones(session, filters, order_field, order_dir, paging=None):
+def get_clones(session, filters, order_field, order_dir, subject_limit=None,
+               paging=None):
     """Gets a list of all clones"""
     def get_field(key):
         tbls = [Clone, CloneStats]
@@ -117,6 +116,10 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
     ).outerjoin(CloneStats).filter(
         CloneStats.sample_id.is_(None)
     )
+
+    if subject_limit is not None:
+        clone_q = clone_q.filter(Clone.subject_id == subject_limit)
+
     if filters is not None:
         for key, value in filters.iteritems():
             if value is None:
@@ -138,12 +141,12 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
                 else:
                     clone_q = clone_q.filter(getattr(Clone, key).like(value))
 
-    order_field = get_field(order_field)
-
-    if order_dir == 'asc':
-        clone_q = clone_q.order_by(order_field)
-    else:
-        clone_q = clone_q.order_by(desc(order_field))
+    if order_field:
+        order_field = get_field(order_field)
+        if order_dir == 'asc':
+            clone_q = clone_q.order_by(order_field)
+        else:
+            clone_q = clone_q.order_by(desc(order_field))
 
     for c, unique_cnt, total_cnt in _page_query(clone_q, paging):
         stats_comb = []
@@ -172,66 +175,60 @@ def get_all_clones(session, filters, order_field, order_dir, paging=None):
     return res
 
 
-def get_clone(session, clone_id, thresholds=None):
-    """Compares sequences within clones by determining their mutations"""
-
-    if thresholds is None:
-        thresholds = [
-            ('percent', 100),
-            ('percent', 80),
-            ('percent', 50),
-            ('percent', 20),
-            ('percent', 0),
-            ('seqs', 2),
-            ('seqs', 5),
-            ('seqs', 10),
-            ('seqs', 25)
-        ]
-
+def get_clone(session, clone_id):
     result = {}
     clone = session.query(Clone).filter(Clone.id == clone_id).first()
-
-    result = {
-        'clone': _clone_to_dict(clone),
-        'quality': [],
-        'seqs': {},
-    }
-
-    result['seqs'] = result['seqs'].values()
-
-    res_qual = []
-    for i, quals in enumerate(result['quality']):
-        if len(quals) > 0:
-            res_qual.append((i, round(np.mean(quals), 2)))
-    result['quality'] = res_qual
-
-    all_mutations, total_seqs = get_clone_mutations(session, clone_id)
-    mut_dict = {
-        'positions': all_mutations['positions'],
-        'regions': {}
-    }
-    for threshold in thresholds:
-        if threshold[0] == 'seqs':
-            seq_min = threshold[1]
-        else:
-            seq_min = int(math.ceil(threshold[1] / 100.0 * total_seqs))
-        tname = '_'.join(map(str, threshold))
-        mut_dict['regions'][tname] = threshold_mutations(all_mutations,
-                                                         seq_min)
-    result['mutation_stats'] = mut_dict
 
     stats = session.query(
         CloneStats
     ).filter(
         CloneStats.clone_id == clone.id,
-        ~CloneStats.sample_id.is_(None)
     ).order_by(desc(CloneStats.unique_cnt))
-    result['samples'] = []
+
+    result = {
+        'clone': _clone_to_dict(clone),
+        'samples': {
+            'single': []
+        }
+    }
+
     for stat in stats:
-        sample = _sample_to_dict(stat.sample)
-        sample['unique'] = stat.unique_cnt
-        sample['total'] = stat.total_cnt
-        result['samples'].append(sample)
+        if stat.sample_id is None:
+            result['samples']['all'] = {
+                'unique': stat.unique_cnt,
+                'total': stat.total_cnt
+            }
+        else:
+            sample = _sample_to_dict(stat.sample)
+            sample['unique'] = stat.unique_cnt
+            sample['total'] = stat.total_cnt
+            result['samples']['single'].append(sample)
+
+    return result
+
+
+def get_clone_mutations(session, clone_id, threshold_type, threshold_val,
+                        sample_id=None):
+    clone_stats = session.query(
+        CloneStats.mutations,
+        CloneStats.unique_cnt
+    ).filter(
+        CloneStats.clone_id == clone_id,
+        CloneStats.sample_id == sample_id
+    ).first()
+    all_mutations = json.loads(clone_stats.mutations)
+    total_seqs = clone_stats.unique_cnt
+
+    result = {
+        'positions': all_mutations['positions'],
+        'regions': {},
+        'total_seqs': total_seqs
+    }
+    if threshold_type == 'sequences':
+        seq_min = threshold_val
+    else:
+        seq_min = int(math.ceil(threshold_val / 100.0 * total_seqs))
+    result['regions'] = threshold_mutations(all_mutations, seq_min)
 
     return result
 
@@ -239,6 +236,7 @@ def get_clone(session, clone_id, thresholds=None):
 def get_clone_sequences(session, clone_id, get_collapse, paging):
     query = session.query(
         Sequence, SequenceCollapse.copy_number_in_subject,
+        SequenceCollapse.instances_in_subject
     ).join(SequenceCollapse).filter(
         Sequence.clone_id == clone_id,
         SequenceCollapse.copy_number_in_subject > 0
@@ -249,7 +247,7 @@ def get_clone_sequences(session, clone_id, get_collapse, paging):
 
     sequences = {}
     start_ptrn = re.compile('[N\-]*')
-    for seq, copy_number_in_subject in query:
+    for seq, copy_number_in_subject, instances_in_subject in query:
         sequences[(seq.sample.id, seq.seq_id)] = {
             'seq_id': seq.seq_id,
             'sample': {
@@ -260,6 +258,7 @@ def get_clone_sequences(session, clone_id, get_collapse, paging):
             'sequence': seq.clone_sequence,
             'read_start': start_ptrn.match(seq.sequence).span()[1] or 0,
             'copy_number_in_subject': int(copy_number_in_subject),
+            'instances_in_subject': int(instances_in_subject),
             'mutations': json.loads(seq.mutations_from_clone),
             'v_extent': seq.get_v_extent(in_clone=True),
             'j_length': seq.j_length,
@@ -272,7 +271,7 @@ def get_clone_sequences(session, clone_id, get_collapse, paging):
         ).outerjoin(SequenceCollapse).filter(
             Sequence.clone_id == clone_id,
             SequenceCollapse.copy_number_in_subject == 0
-        )
+        ).order_by(desc(Sequence.copy_number))
 
         for seq, collapse in q:
             key = (collapse.collapse_to_subject_sample_id,
@@ -287,8 +286,13 @@ def get_clone_sequences(session, clone_id, get_collapse, paging):
 
     return sorted(
         sequences.values(),
-        cmp=lambda a, b: cmp(a['copy_number_in_subject'],
-            b['copy_number_in_subject']), reverse=True)
+        cmp=lambda a, b: cmp(
+            a['copy_number_in_subject'],
+            b['copy_number_in_subject']
+            ),
+        reverse=True
+    )
+
 
 def get_selection_pressure(session, clone_id):
     query = session.query(
@@ -316,55 +320,36 @@ def get_selection_pressure(session, clone_id):
     return pressure
 
 
-def get_clone_mutations(session, clone_id):
-    clone_stats = session.query(
-        CloneStats.mutations,
-        CloneStats.unique_cnt
-    ).filter(
-        CloneStats.clone_id == clone_id,
-        CloneStats.sample_id == None
-    ).first()
-    all_mutations = json.loads(clone_stats.mutations)
-    total_seqs = clone_stats.unique_cnt
-
-    return all_mutations, total_seqs
-
-
 def get_clone_tree(session, clone_id):
-    return session.query(Clone.tree).filter(Clone.id == clone_id).first()
+    tree = session.query(Clone.tree).filter(Clone.id == clone_id).first().tree
+    return json.loads(tree) if tree is not None else None
 
 
-def get_clone_overlap(session, filter_type, ctype, limit,
-                      paging=None, cache={}):
+def get_clone_overlap(session, sample_ids, filter_type, paging=None):
     """Gets a list of clones and the samples in `samples` which they appear"""
     res = []
 
-    if ctype == 'subject':
-        limit = map(lambda e: e.id, session.query(
-            Sample.id
-        ).filter(
-            Sample.subject_id == limit
-        ).all())
-    limit = tuple(limit)
+    sq_alias = aliased(CloneStats)
+    exists_clauses = [
+        CloneStats.clone_id == sq_alias.clone_id,
+        sq_alias.sample_id.in_(sample_ids),
+    ]
+    if filter_type != 'clones_all':
+        exists_clauses.append(
+            CloneStats.functional == (filter_type == 'clones_functional')
+        )
 
-    if limit not in cache:
-        j_alias = aliased(CloneStats)
-        clones = session.query(
-            CloneStats.clone_id,
-            j_alias.unique_cnt,
-            j_alias.total_cnt
-        ).join(j_alias, CloneStats.clone_id == j_alias.clone_id).filter(
-            CloneStats.sample_id.in_(limit),
-            j_alias.sample_id.is_(None)
-        ).group_by(CloneStats.clone_id).all()
-        clones.sort(key=lambda e: e.unique_cnt, reverse=True)
-        cache[tuple(limit)] = clones
-
-    clones = cache[limit]
-    if paging:
-        page, per_page = paging
-        page = max(0, (page - 1) * per_page)
-        clones = clones[page:page + per_page]
+    clones = session.query(
+        CloneStats.clone_id,
+        CloneStats.unique_cnt,
+        CloneStats.total_cnt
+    ).filter(
+        exists().where(
+            and_(*exists_clauses)
+        ),
+        CloneStats.sample_id.is_(None)
+    ).order_by(desc(CloneStats.unique_cnt))
+    clones = _page_query(clones, paging)
 
     for clone_id, unique_cnt, total_cnt in clones:
         selected_samples = []
@@ -373,7 +358,7 @@ def get_clone_overlap(session, filter_type, ctype, limit,
             CloneStats.clone_id == clone_id,
             ~CloneStats.sample_id.is_(None)
         ).order_by(
-            desc(CloneStats.total_cnt)
+            desc(CloneStats.unique_cnt)
         )
         for stat in query:
             data = {
@@ -382,7 +367,7 @@ def get_clone_overlap(session, filter_type, ctype, limit,
                 'unique_sequences': stat.unique_cnt,
                 'total_sequences': stat.total_cnt
             }
-            if ctype == 'subject' or stat.sample_id in limit:
+            if stat.sample_id in sample_ids:
                 selected_samples.append(data)
             else:
                 other_samples.append(data)
@@ -468,13 +453,16 @@ def get_v_usage(session, samples, filter_type, include_outliers,
 
 def get_all_subjects(session, paging=None):
     subjects = []
-    for subject in _page_query(session.query(Subject), paging):
-        seqs = session.query(func.sum(SampleStats.sequence_cnt))\
-            .filter(
-                SampleStats.sample.has(subject=subject),
-                SampleStats.filter_type == 'all',
-                SampleStats.outliers == true(),
-                SampleStats.full_reads == false()).scalar()
+    for subject in _page_query(
+            session.query(Subject).order_by(Subject.identifier), paging):
+        seqs = session.query(
+            func.sum(SampleStats.sequence_cnt)
+        ).filter(
+            SampleStats.sample.has(subject=subject),
+            SampleStats.filter_type == 'all',
+            SampleStats.outliers == true(),
+            SampleStats.full_reads == false()
+        ).scalar()
         info = {
             'id': subject.id,
             'identifier': subject.identifier,
@@ -502,24 +490,10 @@ def get_all_subjects(session, paging=None):
 
 def get_subject(session, sid):
     s = session.query(Subject).filter(Subject.id == sid).first()
-    samples = []
-
-    for sample in session.query(Sample).filter(Sample.subject_id == sid):
-        stats = session.query(SampleStats).filter(
-            SampleStats.filter_type == 'all',
-            SampleStats.sample_id == sample.id,
-            SampleStats.outliers == true(),
-            SampleStats.full_reads == false()).first()
-        sample_dict = {
-            'id': sample.id,
-            'name': sample.name,
-            'date': sample.date.strftime('%Y-%m-%d'),
-        }
-        if stats is not None:
-            sample_dict['valid_cnt'] = stats.sequence_cnt
-            sample_dict['no_result_cnt'] = stats.no_result_cnt
-            sample_dict['functional_cnt'] = stats.functional_cnt
-        samples.append(sample_dict)
+    samples = get_samples(
+        session,
+        map(lambda e: e.id, session.query(Sample.id).filter(
+            Sample.subject_id == sid)))
 
     subject = {
         'id': s.id,
@@ -534,8 +508,8 @@ def get_subject(session, sid):
     return subject
 
 
-def get_stats(session, samples, filter_type, include_outliers,
-              include_partials, percentages, grouping):
+def analyze_samples(session, samples, filter_type, include_outliers,
+                    include_partials, percentages, grouping):
     counts = {}
 
     stats = {}
@@ -550,55 +524,85 @@ def get_stats(session, samples, filter_type, include_outliers,
         'no_result_cnt'
     ]
 
+    group_sizes = {}
+    # Iterate over all filter types in the samples
     for stat in session.query(SampleStats).filter(
             SampleStats.sample_id.in_(samples),
             SampleStats.outliers == include_outliers,
             SampleStats.full_reads != include_partials):
-
+        # Update the number of sequences in each filter
         if stat.filter_type not in counts:
-            counts[stat.filter_type] = {'total': 0}
-        if stat.sample.id not in counts[stat.filter_type]:
-            counts[stat.filter_type][stat.sample.id] = 0
-        counts[stat.filter_type][stat.sample.id] = stat.sequence_cnt
-        counts[stat.filter_type]['total'] += stat.sequence_cnt
+            counts[stat.filter_type] = 0
+        counts[stat.filter_type] += stat.sequence_cnt
 
-        if stat.filter_type != filter_type:
-            continue
-
-        if grouping == 'subject':
-            group_key = stat.sample.subject.identifier
-        else:
-            group_key = getattr(stat.sample, grouping)
-
-        if group_key not in stats:
-            stats[group_key] = {}
-
+        # If the sample is not already in the sample_info dictionary, add it
         if stat.sample.id not in sample_info:
             sample_info[stat.sample.id] = _sample_to_dict(stat.sample)
 
-        fields = _fields_to_dict(dist_fields + cnt_fields, stat)
+        if stat.filter_type == 'all':
+            # If the filter is for all sequences, add the count fields to the
+            # sample dictionary.
+            for field in cnt_fields:
+                sample_info[stat.sample.id][field] = getattr(stat, field)
+            sample_info[stat.sample.id]['total_cnt'] = (
+                sample_info[stat.sample.id]['sequence_cnt'] +
+                sample_info[stat.sample.id]['no_result_cnt']
+            )
+        elif stat.filter_type == 'clones_all':
+            # If it's the clones_all filter, update the total number of clones
+            # in the samples
+            sample_info[stat.sample_id].update({
+                'clones_cnt': stat.sequence_cnt,
+                'clones_functional_cnt': stat.functional_cnt
+            })
+        elif stat.filter_type == 'unique':
+            # If it's the unique filter, update the total number of unique
+            # sequences in the sample
+            sample_info[stat.sample_id].update({
+                'unique_cnt': stat.functional_cnt
+            })
+        elif stat.filter_type == 'unique_multiple':
+            # If it's the unique_multiple filter, update the total number of
+            # unique sequences that occur multiple times in the sample
+            sample_info[stat.sample_id].update({
+                'unique_multiple_cnt': stat.functional_cnt
+            })
 
-        for field, values in fields.iteritems():
-            if field.endswith('cnt'):
-                sample_info[stat.sample.id][field] = values
-                continue
-            if field not in stats[group_key]:
-                stats[group_key][field] = {}
+        # If this is the selected filter, group and tally the statistics
+        if stat.filter_type == filter_type:
+            if grouping == 'subject':
+                group_key = stat.sample.subject.identifier
+            else:
+                group_key = getattr(stat.sample, grouping)
 
-            for (x, freq) in json.loads(values):
-                if x not in stats[group_key][field]:
-                    stats[group_key][field][x] = 0
-                stats[group_key][field][x] += freq
+            if group_key not in stats:
+                stats[group_key] = {}
+                group_sizes[group_key] = 0
+            group_sizes[group_key] += 1
+
+            fields = _fields_to_dict(dist_fields, stat)
+
+            for field, values in fields.iteritems():
+                if field not in stats[group_key]:
+                    stats[group_key][field] = {}
+
+                for (x, freq) in json.loads(values):
+                    if x not in stats[group_key][field]:
+                        stats[group_key][field][x] = 0
+                    stats[group_key][field][x] += freq
 
     for group, key_dict in stats.iteritems():
         for key, vals in key_dict.iteritems():
-            if percentages and sum(vals.values()) > 0:
-                mfunc = lambda v: round(100 * v / float(sum(vals.values())), 2)
-            else:
-                mfunc = lambda v: v
+            if key == 'quality_dist':
+                vals = {k: v / float(group_sizes[group])
+                        for k, v in vals.iteritems()}
             reduced = []
             for x in sorted(vals.keys()):
-                reduced.append((x, mfunc(vals[x])))
+                val = vals[x]
+                if (key != 'quality_dist' and
+                        percentages and sum(vals.values()) > 0):
+                    val = round(100 * vals[x] / float(sum(vals.values())), 2)
+                reduced.append((x, val))
             key_dict[key] = reduced
 
     return {'samples': sample_info, 'counts': counts, 'stats': stats}
@@ -616,24 +620,20 @@ def trace_seq_collapses(session, seq):
         return None
     return {
         'sample_id': collapse_info.collapse_to_subject_sample_id,
+        'sample_name': collapse_info.collapse_to_seq.sample.name,
         'ai': collapse_info.collapse_to_subject_seq_ai,
         'seq_id': collapse_info.collapse_to_subject_seq_id,
         'copy_number':
-            collapse_info.collapse_to_seq.collapse.copy_number_in_subject
+            collapse_info.collapse_to_seq.collapse.copy_number_in_subject,
+        'instances':
+            collapse_info.collapse_to_seq.collapse.instances_in_subject,
     }
 
 
 def get_sequence(session, sample_id, seq_id):
     seq = session.query(Sequence)\
         .filter(Sequence.sample_id == sample_id,
-                Sequence.seq_id == seq_id).first()
-    if seq is None:
-        dup_seq = session.query(DuplicateSequence.duplicate_seq_id)\
-            .filter(DuplicateSequence.seq_id == seq_id).first()
-        seq = session.query(Sequence)\
-            .filter(Sequence.sample_id == sample_id,
-                    Sequence.seq_id == dup_seq.duplicate_seq_id).first()
-
+                Sequence.seq_id == seq_id).one()
     ret = _fields_to_dict([
         'seq_id', 'partial', 'paired', 'v_gene', 'j_gene', 'cdr3_nt',
         'cdr3_aa', 'germline', 'v_match', 'j_match', 'v_length',
@@ -648,7 +648,9 @@ def get_sequence(session, sample_id, seq_id):
         seq.sequence).span()[1] or 0
 
     ret['v_extent'] = seq.get_v_extent(in_clone=False)
-    ret['mutations'] = []
+    ret['mutations'] = {}
+    if seq.mutations_from_clone:
+        ret['mutations'] = json.loads(seq.mutations_from_clone)
 
     ret['clone'] = _clone_to_dict(seq.clone) if seq.clone is not None else None
     ret['collapse_info'] = trace_seq_collapses(session, seq)
@@ -656,18 +658,18 @@ def get_sequence(session, sample_id, seq_id):
     return ret
 
 
-def get_all_sequences(session, filters, order_field, order_dir, paging=None):
+def get_sequences(session, filters, order_field, order_dir, subject_id=None,
+                  paging=None):
     """Gets a list of all clones"""
     res = []
     query = session.query(Sequence).outerjoin(SequenceCollapse)
 
     copy_number_field = 'copy_number'
     if filters is not None:
-        if 'collapsed' in filters:
-            if filters['collapsed'] == 'sample':
-                copy_number_field = Sequence.copy_number
-            else:
-                copy_number_field = SequenceCollapse.copy_number_in_subject
+        if filters.get('copy_type', 'sample') == 'sample':
+            copy_number_field = Sequence.copy_number
+        else:
+            copy_number_field = SequenceCollapse.copy_number_in_subject
 
         for key, value in filters.iteritems():
             if value in [None, True, False]:
@@ -686,6 +688,9 @@ def get_all_sequences(session, filters, order_field, order_dir, paging=None):
                     query = query.filter(copy_number_field > 0)
                 else:
                     query = query.filter(getattr(Sequence, key).like(value))
+
+    if subject_id is not None:
+        query = query.filter(Sequence.subject_id == subject_id)
 
     if (filters is None or
             'show_partials' not in filters or

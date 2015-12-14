@@ -23,7 +23,7 @@ CDR3_OFFSET = 309
 def _deserialize_gaps(gaps):
     if gaps is None:
         return []
-    return map(lambda e: tuple(map(int, e.split('-'))), gaps.split(','))
+    return map(lambda e: map(int, e.split('-')), gaps.split(','))
 
 
 def _serialize_gaps(gaps):
@@ -171,8 +171,8 @@ class SampleStats(Base):
     __tablename__ = 'sample_stats'
     __table_args__ = (
         Index('stat_cover', 'sample_id', 'outliers', 'full_reads',
-            'filter_type', 'sequence_cnt', 'in_frame_cnt', 'stop_cnt',
-            'functional_cnt', 'no_result_cnt'),
+              'filter_type', 'sequence_cnt', 'in_frame_cnt', 'stop_cnt',
+              'functional_cnt', 'no_result_cnt'),
         {'mysql_row_format': 'DYNAMIC'})
 
     sample_id = Column(Integer, ForeignKey(Sample.id),
@@ -337,6 +337,8 @@ class CloneStats(Base):
     id = Column(Integer, primary_key=True)
     clone_id = Column(Integer, ForeignKey(Clone.id, ondelete='CASCADE'))
     clone = relationship(Clone)
+
+    functional = Column(Boolean, index=True)  # Denormalized
 
     sample_id = Column(Integer, ForeignKey(Sample.id))
     sample = relationship(Sample, backref=backref('clone_stats'))
@@ -641,7 +643,7 @@ class SequenceCollapse(Base):
             ['sample_id', 'seq_ai'],
             ['sequences.sample_id', 'sequences.ai'],
             name='seq_fkc'),
-        {'mysql_row_format': 'DYNAMIC',}
+        {'mysql_row_format': 'DYNAMIC', }
     )
 
     sample_id = Column(Integer, autoincrement=False)
@@ -650,7 +652,7 @@ class SequenceCollapse(Base):
 
     collapse_to_subject_sample_id = Column(Integer)
     collapse_to_subject_seq_ai = Column(Integer, index=True)
-    collapse_to_subject_seq_id = Column(String(64)) # Denormalized
+    collapse_to_subject_seq_id = Column(String(64))  # Denormalized
     instances_in_subject = Column(Integer, server_default='0', nullable=False)
     copy_number_in_subject = Column(Integer, server_default='0',
                                     nullable=False, index=True)
