@@ -35,7 +35,7 @@ def _serialize_gaps(gaps):
 
 
 class Study(Base):
-    """A high-level study such as one studying Lupus.
+    """A study which aggregates related samples.
 
     :param int id: An auto-assigned unique identifier for the study
     :param str name: A unique name for the study
@@ -46,9 +46,7 @@ class Study(Base):
     __table_args__ = {'mysql_row_format': 'DYNAMIC'}
 
     id = Column(Integer, primary_key=True)
-    # The name of the study
     name = Column(String(length=128), unique=True)
-    # Some arbitrary information if necessary
     info = Column(String(length=1024))
 
 
@@ -96,11 +94,18 @@ class Sample(Base):
         :py:class:`Subject` instance
 
 
-    :param str tissue: The tissue of the sample
     :param str subset: The tissue subset of the sample
+    :param str tissue: The tissue of the sample
+    :param str ig_class: The class of cells of the sample (e.g. IgA)
     :param str disease: The known disease(s) present in the sample
     :param str lab: The lab which acquired the sample
     :param str experimenter: The experimenters name who took the sample
+    :param str v_primer: A description of the V gene primer used (if any)
+    :param str j_primer: A description of the J gene primer used (if any)
+    :param float v_ties_mutations: Average mutation rate of sequences in the \
+        sample
+    :param float v_ties_len: Average length of sequences in the sample
+    :param str status: The current status of the sample
 
     """
     __tablename__ = 'samples'
@@ -211,6 +216,7 @@ class Clone(Base):
     """A group of sequences likely originating from the same germline
 
     :param int id: An auto-assigned unique identifier for the clone
+    :param bool functional: If the clone is functional
     :param str v_gene: The V-gene assigned to the sequence
     :param str j_gene: The J-gene assigned to the sequence
     :param str cdr3_nt: The consensus nucleotides for the clone
@@ -222,6 +228,7 @@ class Clone(Base):
         :py:class:`Subject` instance
     :param str germline: The germline sequence for this sequence
     :param str tree: The textual representation of the clone's lineage tree
+    :
 
     """
     __tablename__ = 'clones'
@@ -252,14 +259,17 @@ class Clone(Base):
 
     @hybrid_property
     def insertions(self):
+        """Returns the list of insertion position/length pairs"""
         return _deserialize_gaps(self._insertions)
 
     @insertions.setter
     def insertions(self, value):
+        """Sets the list of insertion position/length pairs"""
         self._insertions = _serialize_gaps(value)
 
     @property
     def regions(self):
+        """Returns the IMGT region boundaries for the clone"""
         regions = funcs.get_regions(self.insertions)
         regions.append(self.cdr3_num_nts)
         regions.append(len(self.germline) - sum(regions))
@@ -267,6 +277,7 @@ class Clone(Base):
 
     @property
     def consensus_germline(self):
+        """Returns the consensus germline for the clone"""
         cdr3_start = CDR3_OFFSET
         if self.insertions is not None:
             cdr3_start += sum((e[1] for e in self.insertions))
@@ -315,6 +326,9 @@ class CloneStats(Base):
     :param Relationship clone: Reference to the associated \
         :py:class:`Clone` instance
 
+    :param bool functional: If the associated clone is functional.  This is a \
+        denormalized field.
+
     :param int sample_id: The sample ID
     :param Relationship sample: Reference to the associated \
         :py:class:`Sample` instance
@@ -353,14 +367,23 @@ class CloneStats(Base):
 class Sequence(Base):
     """Represents a single unique sequence.
 
-    :param str sample_seq_hash: A key over ``sample_id`` and ``sequence`` so \
-        the tuple can be maintained unique
+    :param int ai: An auto-incremented value for the sequence
+
+    :param int subject_id: The ID of the subject for this subject
+
+    :param str bucket_hash: An identifier for the sequence's (subject, \
+        v_gene, j_gene, cdr3_num_nts, insertions, deletions) used for clonal \
+        assignment
+
     :param str seq_id: A unique identifier for the sequence as output by the \
         sequencer
+
     :param int sample_id: The ID of the sample from which this sequence came
     :param Relationship sample: Reference to the associated \
         :py:class:`Sample` instance
-    :param str paired: If the sequence is from a paired-end read
+
+    :param bool paired: If the sequence is from a paired-end read
+    :param bool partial: If the sequence is a partial read
     :param bool probable_indel_or_misalign: If the sequence likely has an \
         indel or is a bad alignment
 
@@ -378,6 +401,13 @@ class Sequence(Base):
     :param int j_length: The length of the J-gene segment after a streak of \
         mismatches in the CDR3
 
+    :param str removed_prefix: The sequence (if any) which was removed from \
+        the beginning of the sequence during alignment.  Possibly used \
+        during indel correction
+    :param str removed_prefix_qual: The quality (if any) which was removed \
+        from the beginning of the sequence during alignment.  Possibly used \
+        during indel correction
+
     :param int pre_cdr3_length: The length of the V-gene prior to the CDR3
     :param int pre_cdr3_match: The number of V-gene nucleotides matching the \
         germline prior to the CDR3
@@ -387,13 +417,14 @@ class Sequence(Base):
         germline after to the CDR3
 
     :param bool in_frame: If the sequence's CDR3 has a length divisible by 3
-    :param int copy_number: Number of reads identical to the sequence in the \
-        same sample
+    :param bool functional: If the sequence is functional
+    :param bool stop: If the sequence contains a stop codon
+    :param int copy_number: Number of reads in the sample which collapsed to \
+        this sequence
 
     :param int cdr3_num_nts: The number of nucleotides in the CDR3
     :param str cdr3_nt: The nucleotides comprising the CDR3
     :param str cdr3_aa: The amino-acids comprising the CDR3
-    :param str gap_method: The method used to gap the sequence (e.g. IGMT)
 
     :param str sequence: The (possibly-padded) sequence
     :param str quality: Optional Phred quality score (in Sanger format) for \
@@ -493,22 +524,30 @@ class Sequence(Base):
 
     @hybrid_property
     def deletions(self):
+        """Returns the list of deletion position/length pairs"""
         return _deserialize_gaps(self._deletions)
 
     @deletions.setter
     def deletions(self, value):
+        """Sets the list of deletions position/length pairs"""
         self._deletions = _serialize_gaps(value)
 
     @hybrid_property
     def insertions(self):
+        """Returns the list of insertions position/length pairs"""
         return _deserialize_gaps(self._insertions)
 
     @insertions.setter
     def insertions(self, value):
+        """Sets the list of insertions position/length pairs"""
         self._insertions = _serialize_gaps(value)
 
     @property
     def original_sequence(self):
+        """Returns the original sequence given with the J end trimmed to the
+           germline
+
+        """
         return '{}{}'.format(
             self.removed_prefix,
             self.sequence.replace('-', '')
@@ -516,6 +555,10 @@ class Sequence(Base):
 
     @property
     def original_quality(self):
+        """Returns the original quality given with the J end trimmed to the
+           germline
+
+        """
         if self.quality is None:
             return None
         return '{}{}'.format(self.removed_prefix_qual or '',
@@ -523,6 +566,10 @@ class Sequence(Base):
 
     @property
     def clone_sequence(self):
+        """Gets the sequence within the context of the associated clone by
+        adding insertions from other sequences to this one.
+
+        """
         seq = self.sequence
         if self.clone is None:
             return seq
@@ -536,12 +583,17 @@ class Sequence(Base):
 
     @property
     def regions(self):
+        """Returns the IMGT region boundaries for the sequence"""
         regions = funcs.get_regions(self.insertions)
         regions.append(self.cdr3_num_nts)
         regions.append(len(self.germline) - sum(regions))
         return regions
 
     def get_v_extent(self, in_clone):
+        """Returns the estimated V length, including the portion in the
+           CDR3
+
+        """
         extent = self.v_length + self.num_gaps + self.pad_length
 
         if self.deletions is not None:
@@ -558,17 +610,16 @@ class DuplicateSequence(Base):
     attribute of :py:class:`Sequence` instances is equal to the number of
     its duplicate sequences plus one.
 
+    :param int pk: A primary key for this duplicate sequence
     :param str seq_id: A unique identifier for the sequence as output by the \
         sequencer
 
-    :param str duplicate_seq_id: The identifier of the sequence in the same \
-        sample with the same sequence
+    :param str duplicate_seq_ai: The auto-increment value of the sequence \
+        in the same sample with the same sequence
     :param Relationship duplicate_seq: Reference to the associated \
         :py:class:`Sequence` instance of which this is a duplicate
 
     :param int sample_id: The ID of the sample from which this sequence came
-    :param Relationship sample: Reference to the associated \
-        :py:class:`Sample` instance
 
     """
     __tablename__ = 'duplicate_sequences'
@@ -592,12 +643,14 @@ class DuplicateSequence(Base):
 class NoResult(Base):
     """A sequence which could not be match with a V or J.
 
+    :param int pk: A primary key for this no result
     :param str seq_id: A unique identifier for the sequence as output by the \
         sequencer
     :param int sample_id: The ID of the sample from which this sequence came
     :param Relationship sample: Reference to the associated \
         :py:class:`Sample` instance
     :param str sequence: The sequence of the non-identifiable input
+    :param str sequence: The quality of the non-identifiable input
 
     """
     __tablename__ = 'noresults'
@@ -636,6 +689,29 @@ class ModificationLog(Base):
 
 
 class SequenceCollapse(Base):
+    """A one to many table that links sequence from different samples that
+    collapse to one another.  This is used instead of a field in
+    :py:class:`Sequence` for performance reasons.
+
+    :param int sample_id: The ID of the sample with the sequence being
+       collapsed
+    :param int seq_ai: The auto-increment value of the sequence being
+       collapsed
+    :param Relationship clone: Reference to the associated \
+        :py:class:`Sequence` instance being collapsed
+
+    :param int collapse_to_subject_sample_id: The ID of the sample in which \
+        the collapse to sequence belongs
+    :param int collapse_to_subject_seq_ai: The auto-increment value of the \
+        sequence collapsing to
+    :param int collapse_to_subject_seq_id: The sequence ID of the \
+        sequence collapsing to.  This is a denormalized field.
+    :param int instances_in_subject: The number of instance of the sequence \
+        in the subject
+    :param int copy_number_in_subject: The aggregate copy number of the \
+        sequence in the subject
+
+    """
     __tablename__ = 'sequence_collapse'
     __table_args__ = (
         PrimaryKeyConstraint('sample_id', 'seq_ai'),
@@ -659,6 +735,7 @@ class SequenceCollapse(Base):
 
     @property
     def collapse_to_seq(self):
+        """Returns the sequence being collapse to"""
         return Session.object_session(self).query(Sequence).filter(
             Sequence.sample_id == self.collapse_to_subject_sample_id,
             Sequence.ai == self.collapse_to_subject_seq_ai
@@ -666,6 +743,11 @@ class SequenceCollapse(Base):
 
 
 def check_string_length(cls, key, inst):
+    """Checks if a string can properly fit into a given field.  If it is \
+    too long, a ValueError is raised.  This prevents MySQL from truncating \
+    fields that are too long.
+
+    """
     prop = inst.prop
     # Only interested in simple columns, not relations
     if isinstance(prop, ColumnProperty) and len(prop.columns) == 1:
