@@ -8,6 +8,7 @@ setup(
     version='0.14.0',
     author='Aaron M. Rosenfeld',
     author_email='ar374@drexel.edu',
+    url='https://github.com/arosenfeld/sldb',
     packages=[
         'sldb',
         'sldb.aggregation',
@@ -44,5 +45,14 @@ setup(
     ],
     ext_modules=[dnautils],
     license='LICENSE.txt',
-    description='Various utilities for Drexel\'s Systems Immunology Lab.'
+    description='A module for efficient storage and analysis of '
+                'high-throughput B-cell sequence data.',
+    classifiers=[
+	'Development Status :: 4 - Beta',
+	'Environment :: Console',
+	'Intended Audience :: Science/Research',
+	'Natural Language :: English',
+        'Programming Language :: Python :: 2.7',
+	'Topic :: Scientific/Engineering :: Bio-Informatics'
+    ]
 )
