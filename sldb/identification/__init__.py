@@ -12,13 +12,12 @@ class AlignmentException(Exception):
 
 def add_as_noresult(session, vdj, sample):
     try:
-        quality = funcs.ord_to_quality(vdj.quality)
         session.bulk_save_objects([
             NoResult(
                 seq_id=seq_id,
                 sample_id=sample.id,
                 sequence=vdj.sequence,
-                quality=quality
+                quality=vdj.quality
             ) for seq_id in vdj.ids
         ])
     except ValueError:
@@ -52,8 +51,7 @@ def add_as_sequence(session, vdj, sample, paired):
             j_length=vdj.j_length,
 
             removed_prefix=vdj.removed_prefix,
-            removed_prefix_qual=funcs.ord_to_quality(
-                vdj.removed_prefix_qual),
+            removed_prefix_qual= vdj.removed_prefix_qual,
             v_mutation_fraction=vdj.mutation_fraction,
 
             pre_cdr3_length=vdj.pre_cdr3_length,
@@ -71,7 +69,7 @@ def add_as_sequence(session, vdj, sample, paired):
             cdr3_aa=lookups.aas_from_nts(vdj.cdr3),
 
             sequence=str(vdj.sequence),
-            quality=funcs.ord_to_quality(vdj.quality),
+            quality=vdj.quality,
 
             germline=vdj.germline)
         session.add(seq)

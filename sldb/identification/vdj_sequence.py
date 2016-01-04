@@ -28,6 +28,16 @@ class VDJSequence(object):
     INDEL_WINDOW = 30
     INDEL_MISMATCH_THRESHOLD = .6
 
+    __slots__ = [
+        'ids', 'sequence', 'v_germlines', 'j_germlines', '_force_vs',
+        '_force_js', 'quality', '_j', '_j_start', 'j_anchor_pos', 'j_length',
+        'j_match', '_v', 'v_length', 'v_match', 'mutation_fraction',
+        'germline', '_possible_indel', 'insertions', 'deletions',
+        'removed_prefix', 'removed_prefix_qual', '_cdr3_len', '_pad_len',
+        'pre_cdr3_length', 'pre_cdr3_match', 'post_cdr3_length',
+        'post_cdr3_match'
+    ]
+
     def __init__(self, ids, seq, v_germlines, j_germlines,
                  force_vs=None, force_js=None, quality=None,
                  locally_align=False, analyze=False):
@@ -195,7 +205,7 @@ class VDJSequence(object):
             self.quality = max_align['qual']
             for i, c in enumerate(self.sequence):
                 if c == '-':
-                    self.quality.insert(i, None)
+                    self.quality = self.quality[:i] + ' ' + self.quality[i:]
 
         offset = re.search('[ATCGN]', self.germline)
         if offset is None:
@@ -248,7 +258,7 @@ class VDJSequence(object):
             if i >= 0:
                 self.sequence = str(Seq(self.sequence).reverse_complement())
                 if self.quality is not None:
-                    self.quality.reverse()
+                    self.quality = self.quality[::-1]
                 return self._found_j(i + offset, j_gene, match, full_anchor)
         raise AlignmentException('Could not find J anchor')
 
@@ -351,7 +361,7 @@ class VDJSequence(object):
         if self._pad_len >= 0:
             self.sequence = 'N' * self._pad_len + str(self.sequence)
             if self.quality is not None:
-                self.quality = ([None] * self._pad_len) + self.quality
+                self.quality = (' ' * self._pad_len) + self.quality
         else:
             self.removed_prefix = self.sequence[:-self._pad_len]
             self.sequence = str(self.sequence[-self._pad_len:])
@@ -366,7 +376,7 @@ class VDJSequence(object):
             if c == '-':
                 self.sequence = self.sequence[:i] + '-' + self.sequence[i:]
                 if self.quality is not None:
-                    self.quality.insert(i, None)
+                    self.quality = self.quality[:i] + ' ' + self.quality[i:]
                 self.j_anchor_pos += 1
 
         self.calculate_stats()
@@ -396,8 +406,7 @@ class VDJSequence(object):
         elif len(self.sequence) < len(self.germline):
             self.sequence += 'N' * (len(self.germline) - len(self.sequence))
             if self.quality is not None:
-                self.quality.extend([None] * (len(self.germline) -
-                                    len(self.quality)))
+                self.quality += ' ' * (len(self.germline) - len(self.quality))
 
         # Get the pre-CDR3 germline
         pre_cdr3_germ = self.germline[:self.cdr3_start]

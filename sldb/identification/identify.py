@@ -36,7 +36,6 @@ class SampleMetadata(object):
         if require:
             raise Exception(('Could not find metadata for key {}'.format(key)))
 
-
 class IdentificationWorker(concurrent.Worker):
     def __init__(self, session, v_germlines, j_germlines, trim, max_vties,
                  min_similarity, sync_lock):
@@ -56,6 +55,7 @@ class IdentificationWorker(concurrent.Worker):
         vdjs = {}
         parser = SeqIO.parse(os.path.join(args['path'], args['fn']), 'fasta' if
                              args['fn'].endswith('.fasta') else 'fastq')
+
         # Collapse identical sequences
         self._print('\tCollapsing identical sequences')
         for record in parser:
@@ -66,7 +66,9 @@ class IdentificationWorker(concurrent.Worker):
                     seq=seq,
                     v_germlines=self._v_germlines,
                     j_germlines=self._j_germlines,
-                    quality=record.letter_annotations.get('phred_quality')
+                    quality=funcs.ord_to_quality(
+                        record.letter_annotations.get('phred_quality')
+                    )
                 )
             vdjs[seq].ids.append(record.description)
 
@@ -90,7 +92,6 @@ class IdentificationWorker(concurrent.Worker):
                 self._print('\tUnexpected error processing sequence '
                             '{}\n\t{}'.format(vdj.ids[0],
                                               traceback.format_exc()))
-
         if len(vdjs) > 0:
             avg_len = sum(
                 map(lambda vdj: vdj.v_length, vdjs.values())
@@ -208,6 +209,7 @@ def run_identify(session, args):
                    'skip samples that are already in the database use '
                    '--warn-existing.')
             return
+
     lock = mp.RLock()
     for i in range(0, min(args.nproc, tasks.num_tasks())):
         worker_session = config.init_db(args.db_config)
