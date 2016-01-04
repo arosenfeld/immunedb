@@ -27,9 +27,8 @@ class LocalAlignmentWorker(concurrent.Worker):
         try:
             v = VDJSequence(
                 seq.seq_id, seq.original_sequence, self._v_germlines,
-                self._j_germlines, quality=funcs.quality_to_ord(
-                    seq.original_quality
-                ), locally_align=(args['avg_mut'], args['avg_len']),
+                self._j_germlines, quality=seq.original_quality ,
+                locally_align=(args['avg_mut'], args['avg_len']),
                 analyze=True
             )
 
@@ -126,8 +125,7 @@ def run_fix_sequences(session, args):
         old_seq.j_length = vdj.j_length
 
         old_seq.removed_prefix = vdj.removed_prefix
-        old_seq.removed_prefix_qual = funcs.ord_to_quality(
-           vdj.removed_prefix_qual)
+        old_seq.removed_prefix_qual = vdj.removed_prefix_qual
         old_seq.v_mutation_fraction = vdj.mutation_fraction
 
         old_seq.pre_cdr3_length = vdj.pre_cdr3_length
@@ -144,7 +142,7 @@ def run_fix_sequences(session, args):
         old_seq.cdr3_aa = lookups.aas_from_nts(vdj.cdr3)
 
         old_seq.sequence = str(vdj.sequence)
-        old_seq.quality = funcs.ord_to_quality(vdj.quality)
+        old_seq.quality = vdj.quality
 
         old_seq.germline = vdj.germline
 
