@@ -1,6 +1,7 @@
 import collections
 import csv
 from functools import partial
+import math
 import os
 import json
 import shlex
@@ -139,11 +140,13 @@ class SelectionPressureWorker(concurrent.Worker):
     :param Session session: The database session
 
     """
-    def __init__(self, session, baseline_path, baseline_temp, regen):
+    def __init__(self, session, baseline_path, baseline_temp, regen,
+                 thresholds):
         self._session = session
         self._baseline_path = baseline_path
         self._baseline_temp = baseline_temp
         self._regen = regen
+        self._thresholds = thresholds
 
     def do_task(self, clone_id):
         """Starts the task of calculation of clonal selection pressure.
@@ -185,10 +188,10 @@ class SelectionPressureWorker(concurrent.Worker):
 
         """
 
-        trunk_thresh = int(self._session.query(CloneStats.unique_cnt).filter(
+        total_seqs = int(self._session.query(CloneStats.unique_cnt).filter(
             CloneStats.clone_id == clone_id,
             CloneStats.sample_id == sample_id
-        ).one().unique_cnt * .85)
+        ).one().unique_cnt)
 
         base_call = partial(get_selection,
             session=self._session,
@@ -198,11 +201,15 @@ class SelectionPressureWorker(concurrent.Worker):
             temp_dir=self._baseline_temp
         )
 
-        selection_pressure = {
-            'all': base_call(min_mut_count=1),
-            'multiples': base_call(min_mut_count=2),
-            'trunk': base_call(min_mut_count=trunk_thresh),
-        }
+        selection_pressure = {}
+        for threshold in self._thresholds:
+            min_seqs = int(
+                math.ceil(int(threshold[:-1]) / 100.0 * total_seqs)
+                if '%' in threshold
+                else threshold
+            )
+            selection_pressure[threshold] = base_call(min_mut_count=min_seqs)
+
         self._session.query(CloneStats).filter(
             CloneStats.clone_id == clone_id,
             CloneStats.sample_id == sample_id
@@ -243,6 +250,7 @@ def run_selection_pressure(session, args):
     for i in range(0, args.nproc):
         session = config.init_db(args.db_config)
         tasks.add_worker(SelectionPressureWorker(session, args.baseline_path,
-                                                 args.temp, args.regen))
+                                                 args.temp, args.regen,
+                                                 args.thresholds))
 
     tasks.start()
