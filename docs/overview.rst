@@ -72,9 +72,9 @@ Finally, get and install SLDB:
 Global
 ^^^^^^
 .. warning::
-    Installing packages globally is many times not recommended.  Using virtual
+    Installing many packages globally is not recommended.  Using virtual
     environments keeps dependencies separated from the root filesystem.  Only in
-    specialized situations (within a VM) should SLDB installed globally.
+    specialized situations (e.g. within a VM) should SLDB installed globally.
 
 If instead a global install is desired, run:
 
