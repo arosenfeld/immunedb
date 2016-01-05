@@ -24,7 +24,7 @@ primary goals are to:
   database querying as well as a suite of Python classes for interacting directly
   with the database for customized querying.
 
-SLDB has three primary components:
+SLDB has four primary components:
 
 - **Clonal identification pipeline:** A series of steps which identify probable
   V- and J-genes from raw FASTA files and subsequently groups sequences from the
@@ -43,6 +43,10 @@ SLDB has three primary components:
   Second, the Python API which implements the data models and querying
   functionality.  This allows developers to write customized queries directly
   interacting with the database.
+
+- **Web interface:** Distributed separately of SLDB is a web interface which
+  utilizes the REST API to allow for easy browsing of analysis results.
+
 
 Each of the components can be used independently so long as the underlying
 database is properly populated.

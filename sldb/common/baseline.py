@@ -1,5 +1,7 @@
 import collections
 import csv
+from functools import partial
+import math
 import os
 import json
 import shlex
@@ -25,7 +27,7 @@ FIX_INDELS = 1
 
 
 def get_selection(session, clone_id, script_path, samples=None,
-                  remove_single_mutations=False,
+                  min_mut_count=1,
                   temp_dir='/tmp',
                   test_type=TEST_FOCUSED,
                   species=SPECIES_HUMAN,
@@ -44,8 +46,7 @@ def get_selection(session, clone_id, script_path, samples=None,
     read_path = os.path.join(temp_dir, 'output{}{}.txt'.format(unique_id,
                              clone.id))
 
-    _make_input_file(session, input_path, clone, samples,
-                     remove_single_mutations)
+    _make_input_file(session, input_path, clone, samples, min_mut_count)
     cmd = 'Rscript {} {} {} {} {} {} {} {} {} {} {}'.format(
         script_path, test_type, species,
         sub_model, mut_model, SEQ_CLONAL,
@@ -68,8 +69,7 @@ def get_selection(session, clone_id, script_path, samples=None,
     return output
 
 
-def _make_input_file(session, input_path, clone, samples,
-                     remove_single_mutations):
+def _make_input_file(session, input_path, clone, samples, min_mut_count):
     with open(input_path, 'w+') as fh:
         fh.write('>>>CLONE\n')
         fh.write('>>germline\n')
@@ -87,7 +87,7 @@ def _make_input_file(session, input_path, clone, samples,
             seqs = seqs.filter(Sequence.sample_id.in_(samples),
                                Sequence.copy_number > 0)
 
-        if remove_single_mutations:
+        if min_mut_count > 1:
             removes = collections.Counter()
             seqs = seqs.all()
             # Iterate over each sequence and increment the count for each
@@ -98,10 +98,13 @@ def _make_input_file(session, input_path, clone, samples,
                     map(int, json.loads(seq.mutations_from_clone).keys())
                 })
 
-            # Filter out the mutations which occur more than once
-            removes = [mut for mut, cnt in removes.iteritems() if cnt == 1]
+            # Filter out the mutations
+            removes = [
+                mut for mut, cnt in removes.iteritems()
+                if cnt < min_mut_count
+            ]
 
-            # Remove the remaining mutations, each of which only occurs once
+            # Remove the remaining mutations
             updated_seqs = []
             for seq in seqs:
                 ns = list(seq.sequence)
@@ -110,7 +113,7 @@ def _make_input_file(session, input_path, clone, samples,
                         ns[pos] = clone.consensus_germline[pos]
                 updated_seqs.append(''.join(ns))
         else:
-            updated_seqs = map(lambda s: s.sequence, seqs)
+            updated_seqs = [s.sequence for s in seqs]
 
         for i, seq in enumerate(updated_seqs):
             fh.write('>{}\n{}\n'.format(i, seq))
@@ -137,11 +140,13 @@ class SelectionPressureWorker(concurrent.Worker):
     :param Session session: The database session
 
     """
-    def __init__(self, session, baseline_path, baseline_temp, regen):
+    def __init__(self, session, baseline_path, baseline_temp, regen,
+                 thresholds):
         self._session = session
         self._baseline_path = baseline_path
         self._baseline_temp = baseline_temp
         self._regen = regen
+        self._thresholds = thresholds
 
     def do_task(self, clone_id):
         """Starts the task of calculation of clonal selection pressure.
@@ -183,18 +188,28 @@ class SelectionPressureWorker(concurrent.Worker):
 
         """
 
-        selection_pressure = {
-            'all': get_selection(
-                self._session, clone_id, self._baseline_path,
-                samples=[sample_id] if sample_id is not None else None,
-                remove_single_mutations=False,
-                temp_dir=self._baseline_temp),
-            'multiples': get_selection(
-                self._session, clone_id, self._baseline_path,
-                samples=[sample_id] if sample_id is not None else None,
-                remove_single_mutations=True,
-                temp_dir=self._baseline_temp)
-        }
+        total_seqs = int(self._session.query(CloneStats.unique_cnt).filter(
+            CloneStats.clone_id == clone_id,
+            CloneStats.sample_id == sample_id
+        ).one().unique_cnt)
+
+        base_call = partial(get_selection,
+            session=self._session,
+            clone_id=clone_id,
+            script_path=self._baseline_path,
+            samples=[sample_id] if sample_id is not None else None,
+            temp_dir=self._baseline_temp
+        )
+
+        selection_pressure = {}
+        for threshold in self._thresholds:
+            min_seqs = int(
+                math.ceil(int(threshold[:-1]) / 100.0 * total_seqs)
+                if '%' in threshold
+                else threshold
+            )
+            selection_pressure[threshold] = base_call(min_mut_count=min_seqs)
+
         self._session.query(CloneStats).filter(
             CloneStats.clone_id == clone_id,
             CloneStats.sample_id == sample_id
@@ -235,6 +250,7 @@ def run_selection_pressure(session, args):
     for i in range(0, args.nproc):
         session = config.init_db(args.db_config)
         tasks.add_worker(SelectionPressureWorker(session, args.baseline_path,
-                                                 args.temp, args.regen))
+                                                 args.temp, args.regen,
+                                                 args.thresholds))
 
     tasks.start()

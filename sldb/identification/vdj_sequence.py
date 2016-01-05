@@ -32,10 +32,9 @@ class VDJSequence(object):
         'ids', 'sequence', 'v_germlines', 'j_germlines', '_force_vs',
         '_force_js', 'quality', '_j', '_j_start', 'j_anchor_pos', 'j_length',
         'j_match', '_v', 'v_length', 'v_match', 'mutation_fraction',
-        'germline', '_possible_indel', 'insertions', 'deletions',
-        'removed_prefix', 'removed_prefix_qual', '_cdr3_len', '_pad_len',
-        'pre_cdr3_length', 'pre_cdr3_match', 'post_cdr3_length',
-        'post_cdr3_match'
+        'germline', 'insertions', 'deletions', 'removed_prefix',
+        'removed_prefix_qual', '_cdr3_len', '_pad_len', 'pre_cdr3_length',
+        'pre_cdr3_match', 'post_cdr3_length', 'post_cdr3_match'
     ]
 
     def __init__(self, ids, seq, v_germlines, j_germlines,
@@ -59,8 +58,6 @@ class VDJSequence(object):
 
         self.mutation_fraction = None
         self.germline = None
-
-        self._possible_indel = False
 
         self.insertions = None
         self.deletions = None
@@ -392,7 +389,7 @@ class VDJSequence(object):
         )
 
         if self._cdr3_len < 3:
-            raise AlignmentException('CDR3 has not AAs'.format(self._cdr3_len))
+            raise AlignmentException('CDR3 has no AAs'.format(self._cdr3_len))
 
         self.j_anchor_pos += self._cdr3_len
         # Fill germline CDR3 with gaps
@@ -447,9 +444,6 @@ class VDJSequence(object):
     def has_possible_indel(self):
         # Start comparison on first full AA to the INDEL_WINDOW or CDR3,
         # whichever comes first
-        if self._possible_indel:
-            return True
-
         start = re.search('[ATCG]', self.sequence).start()
         germ = self.germline[start:self.cdr3_start]
         seq = self.sequence[start:self.cdr3_start]

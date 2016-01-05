@@ -90,10 +90,6 @@ Other Example Queries
 
     > SELECT CONCAT('>', seq_id, '\n', sequence) from noresults;
 
-.. note::
-    To output to a file try ``mysql -r -u USER -p DATABASE -e "`SELECT
-    CONCAT('>', seq_id, '\n', sequence) from noresults`" > output.fasta``
-
 **How many indels and total sequences do I have?"**
 
 .. code-block:: sql

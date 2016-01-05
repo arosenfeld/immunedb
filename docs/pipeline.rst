@@ -41,8 +41,12 @@ the database for the rest of the pipeline steps.
 Data Preparation
 ----------------
 Before running the SLDB pipeline, the input sequence data must be properly
-structured.  All the FASTA files for analysis must be placed in a single
-directory and each file must represent a single sample.  For example:
+structured.  Sequences must be separated into one file per sample.  That is,
+sequences in the same file must be from the sequencing run or, conversely, that
+sequences in different files could not have originated from the same cell.  This
+is required for SLDB to properly count the number of unique sequences.
+
+For example, a directory of FASTA files may look like this:
 
 .. code-block:: bash
 
@@ -62,7 +66,7 @@ characters, when applicable, is shown in parenthesis):
   the entire SLDB instance as they are not contextual to the study.  Therefore
   if two studies use the same identifier for different subjects, they must be
   given new distinct identifiers.
-- ``paired``: A ``true`` or ``false`` value (**not a string***) indicating if
+- ``paired``: A ``true`` or ``false`` value (**not a string**) indicating if
   the reads in the sample are paired-end.
 
 The following are **optional** for each file:
@@ -93,16 +97,19 @@ metadata file:
             "paired": true
         },
         "subjectABC_spleen.fasta": {
+            "sample_name": "ABC_SPLEEN",
             "subject": "ABC",
             "tissue": "Spleen",
             "date": "2015-09-13"
         },
         "subjectDEF_blood.fasta": {
+            "sample_name": "DEF_BLOOD",
             "subject": "DEF",
             "tissue": "Blood",
             "date": "2015-09-14"
         },
         "subjectXYZ_liver.fasta": {
+            "sample_name": "XYZ_LIVER",
             "subject": "XYZ",
             "tissue": "Liver",
             "date": "2015-09-15"
@@ -133,7 +140,8 @@ After creating the metadata file, the directory should look like:
 Germline Files
 --------------
 SLDB requires that V and J germlines be specified in two separate FASTA files.
-There are a number of restrictions on their format.
+There are a number of restrictions on their format.  Most common germlines can
+be downloaded from `IMGT's Gene-DB <http://imgt.org/genedb>`_ directly.
 
 For V Germlines
 ^^^^^^^^^^^^^^^
@@ -161,12 +169,9 @@ assigns each sequence a V and J gene, but it also calculates statistics such as
 how well the sequence matches the germline, if there is a probable insertion or
 deletion, and how far into the CDR3 the V and J likely extend.
 
-For identification a  FASTA file with IMGT aligned V germlines is required.
-This can be downloaded from `IMGT's Gene-DB <http://imgt.org/genedb>`_ directly.
-
 .. code-block:: bash
 
-    $ sldb_identify /path/to/config.json /path/to/v_germlines /path/to/j_germlines \
+    $ sldb_identify /path/to/config.json /path/to/v_germlines.fasta /path/to/j_germlines.fasta \
                     J_NTS_UPSTREAM_OF_CDR3 J_ANCHOR_SIZE J_MIN_ANCHOR_LEN /path/to/sequence-data-directory
 
 Where ``J_NTS_UPSTREAM_OF_CDR3`` are the fixed number of nucleotides in each
@@ -235,31 +240,24 @@ Statistics Generation
 ---------------------
 Two sets of statistics can be calculated in SLDB:
 
+- **Clone Statistics:** For each clone and sample combination, how many unique
+  and total sequences appear as well as the mutations from the germline.
 - **Sample Statistics:** Distribution of sequence and clone features on a
   per-sample basis, including V and J usage, nucleotides matching the germline,
   copy number, V length, and CDR3 length.  It calculates all of these with and
   without outliers, and including and excluding partial reads.
-- **Clone Statistics:** For each clone and sample combination, how many unique
-  and total sequences appear as well as the mutations from the germline.
 
-These are calculated with the ``sldb_sample_stats`` and ``sldb_clone_stats``
-commands.
-
-For sample statistics there are only a few optional arguments which should be
-reviewed.  In general, however, the command is issued to calculate statistics
-for samples which do not already have them:
+These are calculated with the ``sldb_clone_stats`` and ``sldb_sample_stats``
+commands and must be run in that order.
 
 .. code-block:: bash
 
     $ sldb_sample_stats /path/to/config.json
-
-.. code-block:: bash
-
     $ sldb_clone_stats /path/to/config.json
 
 
 Selection Pressure (Optional)
-------------------
+-----------------------------
 Selection pressure of clones can be calculated with `Baseline
 <http://selection.med.yale.edu/baseline/Archive>`_.  After installing, run:
 
@@ -271,8 +269,8 @@ This process is relatively slow and may take some time to complete.
 
 .. _tree_generation:
 
-Clone Trees
------------
+Clone Trees (Optional)
+----------------------
 Lineage trees for clones is generated with the ``sldb_clone_trees`` command.  The
 only currently supported method is neighbor-joining as provided by `Clearcut
 <http://bioinformatics.hungry.com/clearcut>`_.  Among others, the ``min-count``
@@ -297,13 +295,10 @@ sldb_rest
 SLDB has a RESTful API that allows for language agnostic querying.  This is
 provided by the ``sldb_rest`` command.  It is specifically designed to provide
 the required calls for the associated `web-app
-<https://github.com/arosenfeld/simlab-web-database>`_.
+<https://github.com/arosenfeld/sldb-frontend>`_.
 
-It requires Haskell and the `diversity package
-<https://hackage.haskell.org/package/diversity>`_.
-
-To run on port 3000:
+To run on port 3000 for example:
 
 .. code-block::
 
-    $ sldb_rest /path/to/config.json /path/to/diversity -p 3000
+    $ sldb_rest /path/to/config.json -p 3000
