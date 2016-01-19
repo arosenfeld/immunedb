@@ -36,8 +36,6 @@ def add_as_sequence(session, vdj, sample, paired):
             partial=vdj.partial,
 
             probable_indel_or_misalign=vdj.has_possible_indel,
-            deletions=vdj.deletions,
-            insertions=vdj.insertions,
 
             v_gene=funcs.format_ties(vdj.v_gene, 'IGHV'),
             j_gene=funcs.format_ties(vdj.j_gene, 'IGHJ'),
@@ -51,7 +49,7 @@ def add_as_sequence(session, vdj, sample, paired):
             j_length=vdj.j_length,
 
             removed_prefix=vdj.removed_prefix,
-            removed_prefix_qual= vdj.removed_prefix_qual,
+            removed_prefix_qual=vdj.removed_prefix_qual,
             v_mutation_fraction=vdj.mutation_fraction,
 
             pre_cdr3_length=vdj.pre_cdr3_length,

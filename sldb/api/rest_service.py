@@ -329,7 +329,7 @@ def export_mutations(session, from_type, encoding):
     export = MutationExporter(
         session, clone_ids,
         decode_run_length(encoding)
-            if fields.get('only_sample_rows') else None,
+        if fields.get('only_sample_rows') else None,
         fields.get('thresh_type', 'sequences'),
         int(fields.get('thresh_value', 0))
     )

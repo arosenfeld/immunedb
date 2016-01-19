@@ -49,7 +49,6 @@ def test_vdj():
     assert len(vdj.ids) == 1
     assert vdj.ids[0] == 'M01651:98:000000000-A7TTB:1:1101:10239:17854'
     assert vdj.removed_prefix_qual == ''
-    assert vdj.deletions is None
     assert vdj.germline == (
         'CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCGGAGACCCTGTCCCTCACC'
         'TGCACTGTCTCTGGTGGCTCCNTC------------AGTAGTTACTACTGGAGCTGGATCCGGCAG'
@@ -69,5 +68,4 @@ def test_vdj():
         'GAGTAGTAATCTCCGAGGCAACTGGTTCGACCCCTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCA'
         'G'
     )
-    assert vdj.insertions is None
     assert vdj.j_anchor_pos == 448

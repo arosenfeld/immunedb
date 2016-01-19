@@ -193,7 +193,8 @@ class SelectionPressureWorker(concurrent.Worker):
             CloneStats.sample_id == sample_id
         ).one().unique_cnt)
 
-        base_call = partial(get_selection,
+        base_call = partial(
+            get_selection,
             session=self._session,
             clone_id=clone_id,
             script_path=self._baseline_path,

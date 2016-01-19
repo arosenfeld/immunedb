@@ -192,15 +192,23 @@ graphically below:
 
 Local Alignment of Indel Sequences (Optional)
 ---------------------------------------------
+.. warning::
+    This step is still considered in beta.  Some corner cases may not be
+    properly handled, and quality information from FASTQ files will not be
+    included in aligned sequences.  Use this only if you can tolerate the
+    possibility of errors or inconsistencies.
+
 After identification, certain sequences will be marked as being probable indels
 (or misalignments).  To fix these, ``sldb_local_align`` can **optionally** be
 used to properly gap sequences or germlines.  This process is inherently slow
-and therefor may not be necessary in many cases.
+and therefor may not be necessary in many cases.  To use, the `seq-align
+<https://github.com/noporpoise/seq-align>`_ package must be built and the path
+to the resulting `needleman_wunsch` binary passed to SLDB.
 
 .. code-block:: bash
 
-    $ sldb_local_align /path/to/config.json /path/to/j_germlines \
-                       J_NTS_UPSTREAM_OF_CDR3 J_ANCHOR_SIZE J_MIN_ANCHOR_LEN
+    $ sldb_local_align /path/to/config.json /path/to/needleman_wunsch /path/to/j_germlines \
+                       J_NTS_UPSTREAM_OF_CDR3
 
 
 Sequence Collapsing
@@ -285,13 +293,9 @@ error.
 
 .. _supplemental_tools:
 
-Supplemental Tools
-------------------
-In addition to the aforementioned pipeline commands, SLDB provides a number of
-other commands.
 
-sldb_rest
-^^^^^^^^^
+Web Service (Optional)
+----------------------
 SLDB has a RESTful API that allows for language agnostic querying.  This is
 provided by the ``sldb_rest`` command.  It is specifically designed to provide
 the required calls for the associated `web-app
@@ -299,6 +303,6 @@ the required calls for the associated `web-app
 
 To run on port 3000 for example:
 
-.. code-block::
+.. code-block:: bash
 
     $ sldb_rest /path/to/config.json -p 3000

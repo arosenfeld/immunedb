@@ -20,13 +20,13 @@ MAX_SEQ_LEN = 512
 CDR3_OFFSET = 309
 
 
-def _deserialize_gaps(gaps):
+def deserialize_gaps(gaps):
     if gaps is None:
         return []
     return map(lambda e: map(int, e.split('-')), gaps.split(','))
 
 
-def _serialize_gaps(gaps):
+def serialize_gaps(gaps):
     if gaps is None or len(gaps) == 0:
         return None
     return ','.join(
@@ -260,12 +260,12 @@ class Clone(Base):
     @hybrid_property
     def insertions(self):
         """Returns the list of insertion position/length pairs"""
-        return _deserialize_gaps(self._insertions)
+        return deserialize_gaps(self._insertions)
 
     @insertions.setter
     def insertions(self, value):
         """Sets the list of insertion position/length pairs"""
-        self._insertions = _serialize_gaps(value)
+        self._insertions = serialize_gaps(value)
 
     @property
     def regions(self):
@@ -525,22 +525,22 @@ class Sequence(Base):
     @hybrid_property
     def deletions(self):
         """Returns the list of deletion position/length pairs"""
-        return _deserialize_gaps(self._deletions)
+        return deserialize_gaps(self._deletions)
 
     @deletions.setter
     def deletions(self, value):
         """Sets the list of deletions position/length pairs"""
-        self._deletions = _serialize_gaps(value)
+        self._deletions = serialize_gaps(value)
 
     @hybrid_property
     def insertions(self):
         """Returns the list of insertions position/length pairs"""
-        return _deserialize_gaps(self._insertions)
+        return deserialize_gaps(self._insertions)
 
     @insertions.setter
     def insertions(self, value):
         """Sets the list of insertions position/length pairs"""
-        self._insertions = _serialize_gaps(value)
+        self._insertions = serialize_gaps(value)
 
     @property
     def original_sequence(self):

@@ -126,13 +126,13 @@ class VGermlines(dict):
                 except:
                     pass
 
-    def all_ties(self, length, mutation):
+    def all_ties(self, length, mutation, cutoff=True):
         ties = {}
         for name in self:
             tie_name = tuple(sorted(self.get_ties([name], length, mutation)))
             if tie_name not in ties:
                 ties[tie_name] = get_common_seq(
-                    [self[n].sequence for n in tie_name]
+                    [self[n].sequence for n in tie_name], cutoff=cutoff
                 )
         return ties
 

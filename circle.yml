@@ -4,6 +4,8 @@ dependencies:
         - pip install --upgrade numpy
         - sudo apt-get install libatlas-base-dev gfortran
         - pip install scipy
+        - git clone --recursive https://github.com/noporpoise/seq-align ~/seq-align
+        - cd ~/seq-align && make
 
 test:
     override:
@@ -11,4 +13,4 @@ test:
         - echo "innodb_large_prefix = 1" | sudo tee -a /etc/mysql/my.cnf
         - echo "innodb_file_format = Barracuda" | sudo tee -a /etc/mysql/my.cnf
         - sudo service mysql restart
-        - ./tests/run.sh
+        - LL_PATH=~/seq-align/bin/needleman_wunsch ./tests/run.sh

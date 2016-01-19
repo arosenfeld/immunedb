@@ -5,7 +5,7 @@ dnautils = Extension('dnautils', sources=['lib/dnautils.c'],
 
 setup(
     name='SLDB',
-    version='0.14.1',
+    version='0.15.0',
     author='Aaron M. Rosenfeld',
     author_email='ar374@drexel.edu',
     url='https://github.com/arosenfeld/sldb',
@@ -48,11 +48,11 @@ setup(
     description='A module for efficient storage and analysis of '
                 'high-throughput B-cell sequence data.',
     classifiers=[
-	'Development Status :: 4 - Beta',
-	'Environment :: Console',
-	'Intended Audience :: Science/Research',
-	'Natural Language :: English',
+        'Development Status :: 4 - Beta',
+        'Environment :: Console',
+        'Intended Audience :: Science/Research',
+        'Natural Language :: English',
         'Programming Language :: Python :: 2.7',
-	'Topic :: Scientific/Engineering :: Bio-Informatics'
+        'Topic :: Scientific/Engineering :: Bio-Informatics'
     ]
 )

@@ -36,6 +36,7 @@ class SampleMetadata(object):
         if require:
             raise Exception(('Could not find metadata for key {}'.format(key)))
 
+
 class IdentificationWorker(concurrent.Worker):
     def __init__(self, session, v_germlines, j_germlines, trim, max_vties,
                  min_similarity, sync_lock):

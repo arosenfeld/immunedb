@@ -10,6 +10,7 @@ if __name__ == '__main__':
                                         'that could not be properly aligned '
                                         'with the anchoring method.',
                                         multiproc=True)
+    parser.add_argument('align_path', help='Path to needleman_wunsch binary')
     parser.add_argument('v_germlines', help='FASTA file with IMGT gapped '
                         'V-gene germlines')
     parser.add_argument('j_germlines', help='FASTA file with J-gene '
@@ -17,12 +18,9 @@ if __name__ == '__main__':
                         'aligned. Sequence cannot contain any gaps.')
     parser.add_argument('upstream_of_cdr3', type=int, help='The number of '
                         ' nucleotides in the J germlines upstream of the CDR3')
-    parser.add_argument('anchor_len', type=int, help='The number of '
-                        'nucleotides at the end of the J germlines to use as '
-                        'anchors.')
-    parser.add_argument('min_anchor_len', type=int, help='The minimum number '
-                        'of nucleotides in the J germline anchors required '
-                        'to match the sequence.')
+    parser.add_argument('--min-similarity', type=int, default=60,
+                        help='Minimum percent similarity to germline required '
+                        'for valid sequences. (Default: 60)')
     parser.add_argument('--max-deletions', type=int, default=3,
                         help='Maximum number of deletion blocks allowed.  '
                         '(Default: 3)')

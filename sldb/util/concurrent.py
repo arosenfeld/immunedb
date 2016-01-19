@@ -24,6 +24,10 @@ class TaskQueue(object):
         self._num_tasks += 1
         self._task_queue.put(args)
 
+    def add_tasks(self, tasks):
+        for task in tasks:
+            self.add_task(task)
+
     def add_worker(self, worker):
         self._workers.append(
             mp.Process(
