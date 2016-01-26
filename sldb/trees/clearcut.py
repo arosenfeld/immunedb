@@ -114,7 +114,9 @@ class ClearcutWorker(concurrent.Worker):
 
                 node.name = seq.seq_id
                 node.add_feature('seq_ids', seq_ids)
-                node.add_feature('copy_number', seq.copy_number)
+                node.add_feature('copy_number', sum(
+                    [s['copy_number'] for s in seq_ids.values()]
+                ))
                 modified_seq = _remove_muts(seq.sequence, remove_muts,
                                             germline_seq)
                 node.add_feature('mutations', _get_mutations(
