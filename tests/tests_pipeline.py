@@ -5,7 +5,8 @@ import unittest
 from sldb.aggregation.clone_stats import run_clone_stats
 import sldb.common.config as config
 from sldb.common.models import (Clone, CloneStats, DuplicateSequence, NoResult,
-                                Sequence, SampleStats, SequenceCollapse)
+                                Sample, SampleStats, Sequence,
+                                SequenceCollapse)
 from sldb.identification.identify import run_identify
 from sldb.identification.local_align import run_fix_sequences
 from sldb.aggregation.clones import run_clones
@@ -61,6 +62,16 @@ class TestPipeline(unittest.TestCase):
              'cdr3_num_nts', 'cdr3_num_nts', 'cdr3_nt', 'cdr3_aa',
              'sequence', 'quality', 'germline')
         )
+
+        self._regression(
+            'tests/data/post_identification_samples.json',
+            self.session.query(Sample),
+            'id',
+            ('name', 'subject_id', 'subset', 'tissue', 'ig_class', 'disease',
+             'lab', 'experimenter', 'v_primer', 'j_primer',
+             'v_ties_mutations', 'v_ties_len')
+        )
+
 
     def local_align(self):
         checks = self.session.query(Sequence).filter(

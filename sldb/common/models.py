@@ -654,7 +654,10 @@ class NoResult(Base):
 
     """
     __tablename__ = 'noresults'
-    __table_args__ = {'mysql_row_format': 'DYNAMIC'}
+    __table_args__ = (
+        Index('sample_seq_id', 'sample_id', 'seq_id'),
+        {'mysql_row_format': 'DYNAMIC'}
+    )
 
     pk = Column(Integer, primary_key=True)
 

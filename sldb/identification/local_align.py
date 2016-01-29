@@ -257,15 +257,15 @@ def process_completes(session, complete_queue, num_workers):
                 break
             continue
 
-        if task['type'] == 'Sequence':
-            seq = session.query(Sequence).filter(
-                Sequence.sample_id == task['record']['sample_id'],
-                Sequence.seq_id == task['record']['seq_id']
-            ).one()
-            for key, value in task['record'].iteritems():
-                setattr(seq, key, value)
-        else:
-            try:
+        try:
+            if task['type'] == 'Sequence':
+                seq = session.query(Sequence).filter(
+                    Sequence.sample_id == task['record']['sample_id'],
+                    Sequence.seq_id == task['record']['seq_id']
+                ).one()
+                for key, value in task['record'].iteritems():
+                    setattr(seq, key, value)
+            else:
                 new_seq = Sequence(**task['record'])
                 session.add(new_seq)
                 # Delete primary NoResult
@@ -287,8 +287,8 @@ def process_completes(session, complete_queue, num_workers):
                             sample_id=old_nores.sample_id,
                             duplicate_seq=new_seq))
                         session.delete(old_nores)
-            except ValueError as e:
-                pass
+        except ValueError as e:
+            pass
 
         session.commit()
 

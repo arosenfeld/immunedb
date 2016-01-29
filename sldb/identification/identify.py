@@ -100,6 +100,8 @@ class IdentificationWorker(concurrent.Worker):
             avg_mut = sum(
                 map(lambda vdj: vdj.mutation_fraction, vdjs.values())
             ) / float(len(vdjs))
+            sample.v_ties_mutations = avg_mut
+            sample.v_ties_len = avg_len
 
             self._print('\tRe-aligning {} sequences to V-ties, Mutations={}, '
                         'Length={}'.format(
