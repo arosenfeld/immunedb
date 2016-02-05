@@ -13,6 +13,7 @@ from sldb.identification.v_genes import VGermlines
 from sldb.identification.vdj_sequence import VDJSequence
 from sldb.common.models import (CDR3_OFFSET, DuplicateSequence, NoResult,
                                 Sample, Sequence, serialize_gaps)
+import sldb.util.funcs as funcs
 import sldb.util.lookups as lookups
 import sldb.util.concurrent as concurrent
 
@@ -164,8 +165,10 @@ class LocalAlignmentWorker(concurrent.Worker):
         )
 
         record.update({
-            'v_gene': v_align['germ_name'],
-            'j_gene': j_align['germ_name'],
+            'v_gene': funcs.format_ties(
+                v_align['germ_name'].split('|'), 'IGHV'),
+            'j_gene': funcs.format_ties(
+                j_align['germ_name'].split('|'), 'IGHJ'),
 
             'cdr3_num_nts': cdr3_end - cdr3_start,
             'cdr3_nt': final_seq[cdr3_start:cdr3_end],

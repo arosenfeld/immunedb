@@ -91,6 +91,9 @@ class TestPipeline(unittest.TestCase):
         )
         self.session.commit()
 
+        for seq in self.session.query(Sequence.v_gene):
+            self.assertEqual(seq.v_gene.count('IGHV'), 1)
+
         self._regression(
             'tests/data/post_local_align_seqs.json',
             self.session.query(Sequence),
