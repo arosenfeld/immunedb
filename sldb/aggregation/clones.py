@@ -82,8 +82,7 @@ class ClonalWorker(concurrent.Worker):
                         self._session.add(new_clone)
                         self._session.flush()
                         clones[new_clone.id] = [seq_to_add]
-
-            del clones[None]
+                del clones[None]
 
             for clone_id, seqs in clones.iteritems():
                 to_update = [
