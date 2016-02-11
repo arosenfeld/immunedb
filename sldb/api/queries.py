@@ -361,7 +361,7 @@ def get_clone_overlap(session, sample_ids, filter_type, paging=None):
         clones = clones[start:start + per_page]
     # END NOTE
 
-    for clone_id, unique_cnt, total_cnt in clones:
+    for clone_id, functional, unique_cnt, total_cnt in clones:
         selected_samples = []
         other_samples = []
         query = session.query(CloneStats).filter(
@@ -702,10 +702,6 @@ def get_sequences(session, filters, order_field, order_dir, subject_id=None,
     if subject_id is not None:
         query = query.filter(Sequence.subject_id == subject_id)
 
-    if (filters is None or
-            'show_partials' not in filters or
-            not filters['show_partials']):
-        query = query.filter(Sequence.partial == 0)
     if (filters is None or 'show_indel' not in filters or
             not filters['show_indel']):
         query = query.filter(Sequence.probable_indel_or_misalign == 0)
