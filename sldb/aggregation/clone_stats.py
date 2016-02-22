@@ -61,7 +61,8 @@ class CloneStatsWorker(concurrent.Worker):
         if sample_id is None:
             counts = self._session.query(
                 func.count(Sequence.ai).label('unique'),
-                func.sum(Sequence.copy_number).label('total')
+                func.sum(SequenceCollapse.copy_number_in_subject).label(
+                    'total')
             ).join(SequenceCollapse).filter(
                 Sequence.clone_id == clone_id,
                 SequenceCollapse.copy_number_in_subject > 0
