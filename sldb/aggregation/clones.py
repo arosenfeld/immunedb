@@ -117,10 +117,11 @@ class ClonalWorker(concurrent.Worker):
 
         """
         for comp_seq in rest:
-            sim_frac = (
-                1 - dnautils.hamming(comp_seq.cdr3_aa, seq.cdr3_aa) / float(
-                    len(comp_seq))
+            dist = dnautils.hamming(
+                comp_seq.cdr3_aa.replace('X', '-'),
+                seq.cdr3_aa.replace('X', '-')
             )
+            sim_frac = 1 - dist / float(len(comp_seq))
             if sim_frac < self._min_similarity:
                 return False
         return True
