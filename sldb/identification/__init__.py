@@ -1,7 +1,12 @@
 import dnautils
+import itertools
 import traceback
 
-from sldb.common.models import DuplicateSequence, NoResult, Sequence
+import numpy as np
+from scipy.stats import hypergeom
+
+from sldb.common.models import (CDR3_OFFSET, DuplicateSequence, NoResult,
+                                Sequence)
 import sldb.util.funcs as funcs
 import sldb.util.lookups as lookups
 
@@ -133,3 +138,76 @@ def add_uniques(session, sample, vdjs, paired, realign_len=None,
                     del sequences[i]
             add_as_sequence(session, larger, sample, paired)
     session.commit()
+
+
+class GeneTies(dict):
+    def __init__(self, genes, remove_gaps=True, ties_prob_threshold=.01):
+        self.ties = {}
+        self.hypers = {}
+        self.ties_prob_threshold = ties_prob_threshold
+        self.remove_gaps = remove_gaps
+
+        self.update(genes)
+
+    def all_ties(self, length, mutation, cutoff=True):
+        ties = {}
+        for name in self:
+            tie_name = tuple(sorted(self.get_ties([name], length, mutation)))
+            if tie_name not in ties:
+                ties[tie_name] = get_common_seq(
+                    [self[n] for n in tie_name], cutoff=cutoff
+                )
+        return ties
+
+    def get_ties(self, genes, length, mutation):
+        ties = set(genes)
+        for gene in genes:
+            ties.update(self.get_single_tie(gene, length, mutation))
+        return ties
+
+    def get_single_tie(self, gene, length, mutation):
+        key = (length, mutation)
+
+        if key not in self.ties:
+            self.ties[key] = {}
+
+        if gene not in self:
+            return set([gene])
+
+        if gene not in self.ties[key]:
+            s_1 = (
+                self[gene].replace('-', '') if self.remove_gaps else self[gene]
+            )
+            self.ties[key][gene] = set([gene])
+
+            for name, v in self.iteritems():
+                s_2 = v.replace('-', '') if self.remove_gaps else v
+                K = dnautils.hamming(s_1[-length:], s_2[-length:])
+                p = self._hypergeom(length, mutation, K)
+                if p >= self.ties_prob_threshold:
+                    self.ties[key][gene].add(name)
+
+        return self.ties[key][gene]
+
+    def _hypergeom(self, length, mutation, K):
+        key = (length, mutation, K)
+        if key not in self.hypers:
+            dist = hypergeom(length, K, np.ceil(length * mutation))
+            p = np.sum(
+                [dist.pmf(k) * np.power(.33, k)
+                    for k in xrange(int(np.ceil(K / 2)), K)]
+            )
+            self.hypers[key] = p
+        return self.hypers[key]
+
+
+def get_common_seq(seqs, cutoff=True):
+    if len(seqs) == 0:
+        return seqs[0]
+    v_gene = []
+    for nts in itertools.izip_longest(*seqs, fillvalue='N'):
+        v_gene.append(nts[0] if all(map(lambda n: n == nts[0], nts)) else 'N')
+    v_gene = ''.join(v_gene)
+    if cutoff:
+        return v_gene[:CDR3_OFFSET]
+    return v_gene

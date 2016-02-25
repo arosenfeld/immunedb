@@ -5,8 +5,8 @@ from Bio.Seq import Seq
 
 import dnautils
 from sldb.common.models import CDR3_OFFSET
-from sldb.identification import AlignmentException
-from sldb.identification.v_genes import VGene, get_common_seq, find_v_position
+from sldb.identification import AlignmentException, get_common_seq
+from sldb.identification.v_genes import VGene, find_v_position
 from sldb.util.funcs import find_streak_position
 import sldb.util.lookups as lookups
 
@@ -199,7 +199,7 @@ class VDJSequence(object):
 
         aligned_v = VGene(self.sequence)
         v_score = None
-        for v, germ in sorted(germlines.iteritems()):
+        for v, germ in sorted(germlines.alignments.iteritems()):
             try:
                 dist, total_length = germ.compare(aligned_v, self.j_anchor_pos,
                                                   self.MISMATCH_THRESHOLD)
@@ -227,7 +227,7 @@ class VDJSequence(object):
             self._v = self.v_germlines.get_ties(self.v_gene, avg_len, avg_mut)
         # Set the germline to the V gene up to the CDR3
         self.germline = get_common_seq(
-            [self.v_germlines[v].sequence for v in self._v]
+            [self.v_germlines[v] for v in self._v]
         )[:CDR3_OFFSET]
         # If we need to pad the sequence, do so, otherwise trim the sequence to
         # the germline length

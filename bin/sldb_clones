@@ -26,6 +26,9 @@ if __name__ == '__main__':
     parser.add_argument('--min-copy', type=int, default=2, help='The minimum '
                         'copy number that sequences must have in the subject '
                         'to be included in clones. (Default: 2)')
+    parser.add_argument('--max-padding', type=int, default=None,
+                        help='Maximum V-padding a sequence may have to be '
+                        'added to a clone.  (Default: Any)')
     parser.add_argument('--regen', action='store_true', help='If specified '
                         'all clones (limited by subject if --subject is '
                         'specified) will be DELETED before creating new '

@@ -156,6 +156,7 @@ class TestPipeline(unittest.TestCase):
                 exclude_partials=False,
                 min_identity=0,
                 min_copy=2,
+                max_padding=None,
                 regen=False
             )
         )
@@ -238,8 +239,12 @@ class TestPipeline(unittest.TestCase):
         print 'Regression testing {}'.format(path)
         with open(path) as fh:
             checks = json.load(fh)
+        agg_keys = set([])
         for record in query:
             agg_key = str(self._get_key(record, key))
+            agg_keys.add(agg_key)
+            self.assertIn(agg_key, checks, '{} is in result but not in '
+                           'checks for {}'.format(agg_key, path))
             for fld, value in checks[agg_key].iteritems():
                 self.assertEqual(
                     getattr(record, fld),
@@ -247,6 +252,14 @@ class TestPipeline(unittest.TestCase):
                     self._err(path, key, self._get_key(record, key), fld,
                               value, getattr(record, fld))
                 )
+        check_keys = set(checks.keys())
+        if check_keys != agg_keys:
+            print 'Keys differ:'
+            print '\tIn checks but not result: {}'.format(
+                check_keys - agg_keys)
+            print '\tIn result but not checks: {}'.format(
+                agg_keys - checks_keys)
+            self.assertEqual(checks.keys(), set(agg_keys))
 
 
 class NamespaceMimic(object):

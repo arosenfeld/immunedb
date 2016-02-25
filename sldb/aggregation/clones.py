@@ -28,13 +28,14 @@ def _consensus(strings):
 
 class ClonalWorker(concurrent.Worker):
     def __init__(self, session, min_similarity, include_indels,
-                 exclude_partials, min_identity, min_copy):
+                 exclude_partials, min_identity, min_copy, max_padding):
         self._session = session
         self._min_similarity = min_similarity
         self._include_indels = include_indels
         self._exclude_partials = exclude_partials
         self._min_identity = min_identity
         self._min_copy = min_copy
+        self._max_padding = max_padding
 
         self._tasks = 0
 
@@ -48,7 +49,7 @@ class ClonalWorker(concurrent.Worker):
         ).join(SequenceCollapse).filter(
             Sequence.bucket_hash == bucket_hash,
             ~Sequence.cdr3_aa.like('%*%'),
-            SequenceCollapse.copy_number_in_subject >= self._min_copy
+            SequenceCollapse.copy_number_in_subject >= self._min_copy,
         )
         if self._min_identity > 0:
             query = query.filter(
@@ -58,6 +59,8 @@ class ClonalWorker(concurrent.Worker):
             query = query.filter(Sequence.probable_indel_or_misalign == 0)
         if self._exclude_partials:
             query = query.filter(Sequence.partial == 0)
+        if self._max_padding is not None:
+            query = query.filter(Sequence.pad_length <= self._max_padding)
         query = query.order_by(
             desc(SequenceCollapse.copy_number_in_subject),
             Sequence.ai
@@ -227,7 +230,8 @@ def run_clones(session, args):
         tasks.add_worker(ClonalWorker(
             config.init_db(args.db_config),
             args.similarity / 100.0, args.include_indels,
-            args.exclude_partials, args.min_identity / 100.0, args.min_copy))
+            args.exclude_partials, args.min_identity / 100.0, args.min_copy,
+            args.max_padding))
     tasks.start()
 
     print 'Pushing clone IDs to sample sequences'

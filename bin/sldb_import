@@ -30,6 +30,9 @@ if __name__ == '__main__':
     parser.add_argument('date', help='Date of sample')
     parser.add_argument('--unpaired', action='store_true', help='Sets if the '
                         'reads are unpaired')
+    parser.add_argument('--ties', action='store_true', help='If specified '
+                        'gene ties will be calculated from the imported '
+                        'sequences')
 
     for key in ('subset', 'tissue', 'disease', 'lab', 'experimenter',
                 'ig_class', 'v_primer', 'j_primer'):

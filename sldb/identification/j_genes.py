@@ -1,5 +1,5 @@
 from Bio import SeqIO
-from sldb.identification.v_genes import get_common_seq
+from sldb.identification import get_common_seq
 
 
 class JGermlines(dict):

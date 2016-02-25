@@ -1,15 +1,11 @@
 import dnautils
 import re
-import itertools
-
-import numpy as np
-from scipy.stats import hypergeom
 
 from Bio import SeqIO
 from Bio.Seq import Seq
 
 from sldb.common.models import CDR3_OFFSET
-from sldb.identification import AlignmentException
+from sldb.identification import AlignmentException, GeneTies
 from sldb.util.funcs import find_streak_position
 
 
@@ -104,13 +100,11 @@ class VGene(object):
                 self.__class__.__name__))
 
 
-class VGermlines(dict):
+class VGermlines(GeneTies):
     def __init__(self, path_to_germlines, ties_prob_threshold=.01,
                  include_prepadded=False):
-        self._prob_threshold = ties_prob_threshold
-        self._ties = {}
-        self._hypers = {}
         self._min_length = None
+        self.alignments = {}
 
         with open(path_to_germlines) as fh:
             for record in SeqIO.parse(fh, 'fasta'):
@@ -119,63 +113,25 @@ class VGermlines(dict):
                 assert record.id.startswith('IGHV')
                 try:
                     v = VGene(str(record.seq))
-                    self[record.id] = v
+                    self.alignments[record.id] = v
+                    self[record.id] = str(record.seq)
                     if (self._min_length is None or
                             self._min_length > len(v.sequence_ungapped)):
                         self._min_length = len(v.sequence_ungapped)
                 except:
-                    pass
+                    continue
 
-    def all_ties(self, length, mutation, cutoff=True):
-        ties = {}
-        for name in self:
-            tie_name = tuple(sorted(self.get_ties([name], length, mutation)))
-            if tie_name not in ties:
-                ties[tie_name] = get_common_seq(
-                    [self[n].sequence for n in tie_name], cutoff=cutoff
-                )
-        return ties
+        super(VGermlines, self).__init__(
+            {k: v for k, v in self.iteritems()},
+            ties_prob_threshold=ties_prob_threshold
+        )
 
-    def get_ties(self, genes, length, mutation):
-        ties = set(genes)
-        for gene in genes:
-            ties.update(self._get_single_tie(gene, length, mutation))
-        return ties
-
-    def _get_single_tie(self, gene, length, mutation):
-        length = min(self._min_length, self._length_bucket(length))
-        mutation = self._mut_bucket(mutation)
-        key = (length, mutation)
-
-        if key not in self._ties:
-            self._ties[key] = {}
-
-        if gene not in self:
-            return set([gene])
-
-        if gene not in self._ties[key]:
-            s_1 = self[gene].sequence_ungapped
-            self._ties[key][gene] = set([gene])
-
-            for name, v in self.iteritems():
-                s_2 = v.sequence_ungapped
-                K = dnautils.hamming(s_1[-length:], s_2[-length:])
-                p = self._hypergeom(length, mutation, K)
-                if p >= self._prob_threshold:
-                    self._ties[key][gene].add(name)
-
-        return self._ties[key][gene]
-
-    def _hypergeom(self, length, mutation, K):
-        key = (length, mutation, K)
-        if key not in self._hypers:
-            dist = hypergeom(length, K, np.ceil(length * mutation))
-            p = np.sum(
-                [dist.pmf(k) * np.power(.33, k)
-                    for k in xrange(int(np.ceil(K/2)), K)]
-            )
-            self._hypers[key] = p
-        return self._hypers[key]
+    def get_single_tie(self, gene, length, mutation):
+        return super(VGermlines, self).get_single_tie(
+            gene,
+            min(self._min_length, self._length_bucket(length)),
+            self._mut_bucket(mutation)
+        )
 
     def _length_bucket(self, length):
         if 0 < length <= 100:
@@ -192,18 +148,6 @@ class VGermlines(dict):
         if mut <= .15:
             return .15
         return .30
-
-
-def get_common_seq(seqs, cutoff=True):
-    if len(seqs) == 0:
-        return seqs[0]
-    v_gene = []
-    for nts in itertools.izip_longest(*seqs, fillvalue='N'):
-        v_gene.append(nts[0] if all(map(lambda n: n == nts[0], nts)) else 'N')
-    v_gene = ''.join(v_gene)
-    if cutoff:
-        return v_gene[:CDR3_OFFSET]
-    return v_gene
 
 
 def find_v_position(sequence):

@@ -44,7 +44,8 @@ class LocalAlignmentWorker(concurrent.Worker):
         self.max_insertions = max_insertions
 
         self.first_alleles = {
-            name: v.sequence for name, v in self.v_germlines.iteritems()
+            name: v.sequence
+            for name, v in self.v_germlines.alignments.iteritems()
             if int(name.split('*', 1)[1]) == 1
         }
 
