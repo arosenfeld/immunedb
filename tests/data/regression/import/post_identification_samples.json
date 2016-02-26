@@ -5,7 +5,7 @@
         "ig_class": "IgE",
         "j_primer": "Trailer",
         "lab": "Sanger",
-        "name": "Sample 1",
+        "name": "input",
         "subject_id": 1,
         "subset": "MN",
         "tissue": "PBL",

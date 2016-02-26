@@ -78,7 +78,6 @@ def read_file(session, handle, sample, v_germlines, j_germlines,
             if len(v_genes) == 0 or len(j_genes) == 0:
                 raise AlignmentException('No V or J gene in input')
             vdj.analyze()
-            vdj.align_to_germline()
             if vdj.sequence in aligned_seqs:
                 aligned_seqs[vdj.sequence].ids += vdj.ids
             else:

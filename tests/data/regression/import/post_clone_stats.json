@@ -1,0 +1,914 @@
+{
+    "1": {
+        "clone_id": 1,
+        "sample_id": 1,
+        "total_cnt": 11,
+        "unique_cnt": 1
+    },
+    "2": {
+        "clone_id": 1,
+        "sample_id": null,
+        "total_cnt": 11,
+        "unique_cnt": 1
+    },
+    "3": {
+        "clone_id": 2,
+        "sample_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "4": {
+        "clone_id": 2,
+        "sample_id": null,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "5": {
+        "clone_id": 3,
+        "sample_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "6": {
+        "clone_id": 3,
+        "sample_id": null,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "7": {
+        "clone_id": 4,
+        "sample_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "8": {
+        "clone_id": 4,
+        "sample_id": null,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "9": {
+        "clone_id": 5,
+        "sample_id": 1,
+        "total_cnt": 11,
+        "unique_cnt": 1
+    },
+    "10": {
+        "clone_id": 5,
+        "sample_id": null,
+        "total_cnt": 11,
+        "unique_cnt": 1
+    },
+    "11": {
+        "clone_id": 6,
+        "sample_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "12": {
+        "clone_id": 6,
+        "sample_id": null,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "13": {
+        "clone_id": 7,
+        "sample_id": 1,
+        "total_cnt": 5,
+        "unique_cnt": 1
+    },
+    "14": {
+        "clone_id": 7,
+        "sample_id": null,
+        "total_cnt": 5,
+        "unique_cnt": 1
+    },
+    "15": {
+        "clone_id": 8,
+        "sample_id": 1,
+        "total_cnt": 3,
+        "unique_cnt": 1
+    },
+    "16": {
+        "clone_id": 8,
+        "sample_id": null,
+        "total_cnt": 3,
+        "unique_cnt": 1
+    },
+    "17": {
+        "clone_id": 9,
+        "sample_id": 1,
+        "total_cnt": 7,
+        "unique_cnt": 1
+    },
+    "18": {
+        "clone_id": 9,
+        "sample_id": null,
+        "total_cnt": 7,
+        "unique_cnt": 1
+    },
+    "19": {
+        "clone_id": 10,
+        "sample_id": 1,
+        "total_cnt": 3,
+        "unique_cnt": 1
+    },
+    "20": {
+        "clone_id": 10,
+        "sample_id": null,
+        "total_cnt": 3,
+        "unique_cnt": 1
+    },
+    "21": {
+        "clone_id": 11,
+        "sample_id": 1,
+        "total_cnt": 3,
+        "unique_cnt": 1
+    },
+    "22": {
+        "clone_id": 11,
+        "sample_id": null,
+        "total_cnt": 3,
+        "unique_cnt": 1
+    },
+    "23": {
+        "clone_id": 12,
+        "sample_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "24": {
+        "clone_id": 12,
+        "sample_id": null,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "25": {
+        "clone_id": 13,
+        "sample_id": 1,
+        "total_cnt": 3,
+        "unique_cnt": 1
+    },
+    "26": {
+        "clone_id": 13,
+        "sample_id": null,
+        "total_cnt": 3,
+        "unique_cnt": 1
+    },
+    "27": {
+        "clone_id": 14,
+        "sample_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "28": {
+        "clone_id": 14,
+        "sample_id": null,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "29": {
+        "clone_id": 15,
+        "sample_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "30": {
+        "clone_id": 15,
+        "sample_id": null,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "31": {
+        "clone_id": 16,
+        "sample_id": 1,
+        "total_cnt": 8,
+        "unique_cnt": 1
+    },
+    "32": {
+        "clone_id": 16,
+        "sample_id": null,
+        "total_cnt": 8,
+        "unique_cnt": 1
+    },
+    "33": {
+        "clone_id": 17,
+        "sample_id": 1,
+        "total_cnt": 4,
+        "unique_cnt": 2
+    },
+    "34": {
+        "clone_id": 17,
+        "sample_id": null,
+        "total_cnt": 4,
+        "unique_cnt": 2
+    },
+    "35": {
+        "clone_id": 18,
+        "sample_id": 1,
+        "total_cnt": 3,
+        "unique_cnt": 1
+    },
+    "36": {
+        "clone_id": 18,
+        "sample_id": null,
+        "total_cnt": 3,
+        "unique_cnt": 1
+    },
+    "37": {
+        "clone_id": 19,
+        "sample_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "38": {
+        "clone_id": 19,
+        "sample_id": null,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "39": {
+        "clone_id": 20,
+        "sample_id": 1,
+        "total_cnt": 11,
+        "unique_cnt": 1
+    },
+    "40": {
+        "clone_id": 20,
+        "sample_id": null,
+        "total_cnt": 11,
+        "unique_cnt": 1
+    },
+    "41": {
+        "clone_id": 21,
+        "sample_id": 1,
+        "total_cnt": 3,
+        "unique_cnt": 1
+    },
+    "42": {
+        "clone_id": 21,
+        "sample_id": null,
+        "total_cnt": 3,
+        "unique_cnt": 1
+    },
+    "43": {
+        "clone_id": 22,
+        "sample_id": 1,
+        "total_cnt": 5,
+        "unique_cnt": 1
+    },
+    "44": {
+        "clone_id": 22,
+        "sample_id": null,
+        "total_cnt": 5,
+        "unique_cnt": 1
+    },
+    "45": {
+        "clone_id": 23,
+        "sample_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "46": {
+        "clone_id": 23,
+        "sample_id": null,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "47": {
+        "clone_id": 24,
+        "sample_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "48": {
+        "clone_id": 24,
+        "sample_id": null,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "49": {
+        "clone_id": 25,
+        "sample_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "50": {
+        "clone_id": 25,
+        "sample_id": null,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "51": {
+        "clone_id": 26,
+        "sample_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "52": {
+        "clone_id": 26,
+        "sample_id": null,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "53": {
+        "clone_id": 27,
+        "sample_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "54": {
+        "clone_id": 27,
+        "sample_id": null,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "55": {
+        "clone_id": 28,
+        "sample_id": 1,
+        "total_cnt": 4,
+        "unique_cnt": 1
+    },
+    "56": {
+        "clone_id": 28,
+        "sample_id": null,
+        "total_cnt": 4,
+        "unique_cnt": 1
+    },
+    "57": {
+        "clone_id": 29,
+        "sample_id": 1,
+        "total_cnt": 3,
+        "unique_cnt": 1
+    },
+    "58": {
+        "clone_id": 29,
+        "sample_id": null,
+        "total_cnt": 3,
+        "unique_cnt": 1
+    },
+    "59": {
+        "clone_id": 30,
+        "sample_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "60": {
+        "clone_id": 30,
+        "sample_id": null,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "61": {
+        "clone_id": 31,
+        "sample_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "62": {
+        "clone_id": 31,
+        "sample_id": null,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "63": {
+        "clone_id": 32,
+        "sample_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "64": {
+        "clone_id": 32,
+        "sample_id": null,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "65": {
+        "clone_id": 33,
+        "sample_id": 1,
+        "total_cnt": 3,
+        "unique_cnt": 1
+    },
+    "66": {
+        "clone_id": 33,
+        "sample_id": null,
+        "total_cnt": 3,
+        "unique_cnt": 1
+    },
+    "67": {
+        "clone_id": 34,
+        "sample_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "68": {
+        "clone_id": 34,
+        "sample_id": null,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "69": {
+        "clone_id": 35,
+        "sample_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "70": {
+        "clone_id": 35,
+        "sample_id": null,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "71": {
+        "clone_id": 36,
+        "sample_id": 1,
+        "total_cnt": 3,
+        "unique_cnt": 1
+    },
+    "72": {
+        "clone_id": 36,
+        "sample_id": null,
+        "total_cnt": 3,
+        "unique_cnt": 1
+    },
+    "73": {
+        "clone_id": 37,
+        "sample_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "74": {
+        "clone_id": 37,
+        "sample_id": null,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "75": {
+        "clone_id": 38,
+        "sample_id": 1,
+        "total_cnt": 4,
+        "unique_cnt": 1
+    },
+    "76": {
+        "clone_id": 38,
+        "sample_id": null,
+        "total_cnt": 4,
+        "unique_cnt": 1
+    },
+    "77": {
+        "clone_id": 39,
+        "sample_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "78": {
+        "clone_id": 39,
+        "sample_id": null,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "79": {
+        "clone_id": 40,
+        "sample_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "80": {
+        "clone_id": 40,
+        "sample_id": null,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "81": {
+        "clone_id": 41,
+        "sample_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "82": {
+        "clone_id": 41,
+        "sample_id": null,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "83": {
+        "clone_id": 42,
+        "sample_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "84": {
+        "clone_id": 42,
+        "sample_id": null,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "85": {
+        "clone_id": 43,
+        "sample_id": 1,
+        "total_cnt": 3,
+        "unique_cnt": 1
+    },
+    "86": {
+        "clone_id": 43,
+        "sample_id": null,
+        "total_cnt": 3,
+        "unique_cnt": 1
+    },
+    "87": {
+        "clone_id": 44,
+        "sample_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "88": {
+        "clone_id": 44,
+        "sample_id": null,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "89": {
+        "clone_id": 45,
+        "sample_id": 1,
+        "total_cnt": 4,
+        "unique_cnt": 1
+    },
+    "90": {
+        "clone_id": 45,
+        "sample_id": null,
+        "total_cnt": 4,
+        "unique_cnt": 1
+    },
+    "91": {
+        "clone_id": 46,
+        "sample_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "92": {
+        "clone_id": 46,
+        "sample_id": null,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "93": {
+        "clone_id": 47,
+        "sample_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "94": {
+        "clone_id": 47,
+        "sample_id": null,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "95": {
+        "clone_id": 48,
+        "sample_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "96": {
+        "clone_id": 48,
+        "sample_id": null,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "97": {
+        "clone_id": 49,
+        "sample_id": 1,
+        "total_cnt": 8,
+        "unique_cnt": 1
+    },
+    "98": {
+        "clone_id": 49,
+        "sample_id": null,
+        "total_cnt": 8,
+        "unique_cnt": 1
+    },
+    "99": {
+        "clone_id": 50,
+        "sample_id": 1,
+        "total_cnt": 3,
+        "unique_cnt": 1
+    },
+    "100": {
+        "clone_id": 50,
+        "sample_id": null,
+        "total_cnt": 3,
+        "unique_cnt": 1
+    },
+    "101": {
+        "clone_id": 51,
+        "sample_id": 1,
+        "total_cnt": 5,
+        "unique_cnt": 1
+    },
+    "102": {
+        "clone_id": 51,
+        "sample_id": null,
+        "total_cnt": 5,
+        "unique_cnt": 1
+    },
+    "103": {
+        "clone_id": 52,
+        "sample_id": 1,
+        "total_cnt": 5,
+        "unique_cnt": 1
+    },
+    "104": {
+        "clone_id": 52,
+        "sample_id": null,
+        "total_cnt": 5,
+        "unique_cnt": 1
+    },
+    "105": {
+        "clone_id": 53,
+        "sample_id": 1,
+        "total_cnt": 4,
+        "unique_cnt": 1
+    },
+    "106": {
+        "clone_id": 53,
+        "sample_id": null,
+        "total_cnt": 4,
+        "unique_cnt": 1
+    },
+    "107": {
+        "clone_id": 54,
+        "sample_id": 1,
+        "total_cnt": 4,
+        "unique_cnt": 1
+    },
+    "108": {
+        "clone_id": 54,
+        "sample_id": null,
+        "total_cnt": 4,
+        "unique_cnt": 1
+    },
+    "109": {
+        "clone_id": 55,
+        "sample_id": 1,
+        "total_cnt": 4,
+        "unique_cnt": 1
+    },
+    "110": {
+        "clone_id": 55,
+        "sample_id": null,
+        "total_cnt": 4,
+        "unique_cnt": 1
+    },
+    "111": {
+        "clone_id": 56,
+        "sample_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "112": {
+        "clone_id": 56,
+        "sample_id": null,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "113": {
+        "clone_id": 57,
+        "sample_id": 1,
+        "total_cnt": 3,
+        "unique_cnt": 1
+    },
+    "114": {
+        "clone_id": 57,
+        "sample_id": null,
+        "total_cnt": 3,
+        "unique_cnt": 1
+    },
+    "115": {
+        "clone_id": 58,
+        "sample_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "116": {
+        "clone_id": 58,
+        "sample_id": null,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "117": {
+        "clone_id": 59,
+        "sample_id": 1,
+        "total_cnt": 3,
+        "unique_cnt": 1
+    },
+    "118": {
+        "clone_id": 59,
+        "sample_id": null,
+        "total_cnt": 3,
+        "unique_cnt": 1
+    },
+    "119": {
+        "clone_id": 60,
+        "sample_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "120": {
+        "clone_id": 60,
+        "sample_id": null,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "121": {
+        "clone_id": 61,
+        "sample_id": 1,
+        "total_cnt": 6,
+        "unique_cnt": 1
+    },
+    "122": {
+        "clone_id": 61,
+        "sample_id": null,
+        "total_cnt": 6,
+        "unique_cnt": 1
+    },
+    "123": {
+        "clone_id": 62,
+        "sample_id": 1,
+        "total_cnt": 20,
+        "unique_cnt": 1
+    },
+    "124": {
+        "clone_id": 62,
+        "sample_id": null,
+        "total_cnt": 20,
+        "unique_cnt": 1
+    },
+    "125": {
+        "clone_id": 63,
+        "sample_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "126": {
+        "clone_id": 63,
+        "sample_id": null,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "127": {
+        "clone_id": 64,
+        "sample_id": 1,
+        "total_cnt": 14,
+        "unique_cnt": 1
+    },
+    "128": {
+        "clone_id": 64,
+        "sample_id": null,
+        "total_cnt": 14,
+        "unique_cnt": 1
+    },
+    "129": {
+        "clone_id": 65,
+        "sample_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "130": {
+        "clone_id": 65,
+        "sample_id": null,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "131": {
+        "clone_id": 66,
+        "sample_id": 1,
+        "total_cnt": 3,
+        "unique_cnt": 1
+    },
+    "132": {
+        "clone_id": 66,
+        "sample_id": null,
+        "total_cnt": 3,
+        "unique_cnt": 1
+    },
+    "133": {
+        "clone_id": 67,
+        "sample_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "134": {
+        "clone_id": 67,
+        "sample_id": null,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "135": {
+        "clone_id": 68,
+        "sample_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "136": {
+        "clone_id": 68,
+        "sample_id": null,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "137": {
+        "clone_id": 69,
+        "sample_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "138": {
+        "clone_id": 69,
+        "sample_id": null,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "139": {
+        "clone_id": 70,
+        "sample_id": 1,
+        "total_cnt": 3,
+        "unique_cnt": 1
+    },
+    "140": {
+        "clone_id": 70,
+        "sample_id": null,
+        "total_cnt": 3,
+        "unique_cnt": 1
+    },
+    "141": {
+        "clone_id": 71,
+        "sample_id": 1,
+        "total_cnt": 4,
+        "unique_cnt": 1
+    },
+    "142": {
+        "clone_id": 71,
+        "sample_id": null,
+        "total_cnt": 4,
+        "unique_cnt": 1
+    },
+    "143": {
+        "clone_id": 72,
+        "sample_id": 1,
+        "total_cnt": 13,
+        "unique_cnt": 2
+    },
+    "144": {
+        "clone_id": 72,
+        "sample_id": null,
+        "total_cnt": 13,
+        "unique_cnt": 2
+    },
+    "145": {
+        "clone_id": 73,
+        "sample_id": 1,
+        "total_cnt": 4,
+        "unique_cnt": 1
+    },
+    "146": {
+        "clone_id": 73,
+        "sample_id": null,
+        "total_cnt": 4,
+        "unique_cnt": 1
+    },
+    "147": {
+        "clone_id": 74,
+        "sample_id": 1,
+        "total_cnt": 3,
+        "unique_cnt": 1
+    },
+    "148": {
+        "clone_id": 74,
+        "sample_id": null,
+        "total_cnt": 3,
+        "unique_cnt": 1
+    },
+    "149": {
+        "clone_id": 75,
+        "sample_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "150": {
+        "clone_id": 75,
+        "sample_id": null,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "151": {
+        "clone_id": 76,
+        "sample_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "152": {
+        "clone_id": 76,
+        "sample_id": null,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    }
+}
