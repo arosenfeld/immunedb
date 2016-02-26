@@ -99,6 +99,9 @@ class CloneStatsWorker(concurrent.Worker):
         # the same as for the single sample
         if single:
             self._session.add(CloneStats(sample_id=None, **record_values))
+        if single or sample_id is None:
+            clone_inst.overall_unique_cnt = counts.unique
+            clone_inst.overall_total_cnt = counts.total
         self._session.commit()
 
     def cleanup(self):

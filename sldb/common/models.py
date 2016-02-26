@@ -258,6 +258,9 @@ class Clone(Base):
     germline = Column(String(length=MAX_SEQ_LEN))
     tree = Column(MEDIUMTEXT)
 
+    overall_unique_cnt = Column(Integer, index=True) # Denormalized
+    overall_total_cnt = Column(Integer, index=True) # Denormalized
+
     @hybrid_property
     def insertions(self):
         """Returns the list of insertion position/length pairs"""

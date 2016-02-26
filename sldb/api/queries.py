@@ -104,18 +104,8 @@ def get_samples(session, sample_ids=None):
 def get_clones(session, filters, order_field, order_dir, subject_limit=None,
                paging=None):
     """Gets a list of all clones"""
-    def get_field(key):
-        tbls = [Clone, CloneStats]
-        for t in tbls:
-            if hasattr(t, key):
-                return getattr(t, key)
-
     res = []
-    clone_q = session.query(
-        Clone, CloneStats.unique_cnt, CloneStats.total_cnt
-    ).outerjoin(CloneStats).filter(
-        CloneStats.sample_id.is_(None)
-    )
+    clone_q = session.query(Clone)
 
     if subject_limit is not None:
         clone_q = clone_q.filter(Clone.subject_id == subject_limit)
@@ -132,23 +122,23 @@ def get_clones(session, filters, order_field, order_dir, subject_limit=None,
                     clone_q = clone_q.filter(Clone.cdr3_num_nts <= int(value))
                 elif key == 'min_unique':
                     clone_q = clone_q.filter(
-                        CloneStats.unique_cnt >= int(value))
+                        Clone.overall_unique_cnt >= int(value))
                 elif key == 'max_unique':
                     clone_q = clone_q.filter(
-                        CloneStats.unique_cnt <= int(value))
+                        Clone.overall_unique_cnt <= int(value))
                 elif key == 'id':
                     clone_q = clone_q.filter(Clone.id == int(value))
                 else:
                     clone_q = clone_q.filter(getattr(Clone, key).like(value))
 
     if order_field:
-        order_field = get_field(order_field)
+        order_field = getattr(Clone, order_field)
         if order_dir == 'asc':
             clone_q = clone_q.order_by(order_field)
         else:
             clone_q = clone_q.order_by(desc(order_field))
 
-    for c, unique_cnt, total_cnt in _page_query(clone_q, paging):
+    for c in _page_query(clone_q, paging):
         stats_comb = []
 
         query = session.query(
@@ -167,8 +157,8 @@ def get_clones(session, filters, order_field, order_dir, subject_limit=None,
                 'total_sequences': int(stat.total_cnt)
             })
         clone_dict = _clone_to_dict(c)
-        clone_dict['unique_sequences'] = unique_cnt
-        clone_dict['total_sequences'] = total_cnt
+        clone_dict['unique_sequences'] = c.overall_unique_cnt
+        clone_dict['total_sequences'] = c.overall_total_cnt
         clone_dict['stats'] = stats_comb
         res.append(clone_dict)
 
