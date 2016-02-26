@@ -89,7 +89,20 @@ def read_file(session, handle, sample, v_germlines, j_germlines,
     print 'Aligned {} / {} sequences'.format(total - missed + 1, total)
 
     print 'Collapsing ambiguous character sequences'
-    add_uniques(session, sample, aligned_seqs.values(), paired)
+    if len(aligned_seqs) > 0:
+        avg_mut = sum(
+            [vdj.mutation_fraction for vdj in aligned_seqs.values()]
+        ) / float(len(aligned_seqs))
+        avg_len = sum(
+            [vdj.v_length for vdj in aligned_seqs.values()]
+        ) / float(len(aligned_seqs))
+        sample.v_ties_mutations = avg_mut
+        sample.v_ties_len = avg_len
+        if columns.ties:
+            add_uniques(session, sample, aligned_seqs.values(), paired,
+                        realign_mut=avg_mut, realign_len=avg_len)
+        else:
+            add_uniques(session, sample, aligned_seqs.values(), paired)
     session.commit()
 
 

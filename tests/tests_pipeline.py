@@ -1,9 +1,8 @@
-import json
 import os
-import unittest
+
+from regression import NamespaceMimic, RegressionTest
 
 from sldb.aggregation.clone_stats import run_clone_stats
-import sldb.common.config as config
 from sldb.common.models import (Clone, CloneStats, DuplicateSequence, NoResult,
                                 Sample, SampleStats, Sequence,
                                 SequenceCollapse)
@@ -13,35 +12,30 @@ from sldb.aggregation.clones import run_clones
 from sldb.aggregation.collapse import run_collapse
 from sldb.aggregation.sample_stats import run_sample_stats
 
-DB_NAME = 'test_db'
-CONFIG_PATH = '{}.json'.format(DB_NAME)
-
-
-class TestPipeline(unittest.TestCase):
-    def setUp(self):
-        self.session = config.init_db(CONFIG_PATH)
-
-    def tearDown(self):
-        self.session.close()
+class TestPipeline(RegressionTest):
+    def __init__(self, *args, **kwargs):
+        super(TestPipeline, self).__init__('pipeline', *args, **kwargs)
 
     def testAll(self):
         self.identification()
+        '''
         self.local_align()
         self.collapse()
         self.clones()
         self.clone_stats()
         self.sample_stats()
+        '''
 
     def identification(self):
         run_identify(
             self.session,
             NamespaceMimic(
-                v_germlines='tests/imgt_human_v.fasta',
-                j_germlines='tests/imgt_human_j.fasta',
+                v_germlines='tests/data/germlines/imgt_human_v.fasta',
+                j_germlines='tests/data/germlines/imgt_human_j.fasta',
                 upstream_of_cdr3=31,
                 anchor_len=18,
                 min_anchor_len=12,
-                sample_dirs=['tests/data'],
+                sample_dirs=['tests/data/identification'],
                 metadata=None,
                 max_vties=50,
                 min_similarity=60,
@@ -49,29 +43,9 @@ class TestPipeline(unittest.TestCase):
                 warn_existing=False,
             )
         )
+
         self.session.commit()
-
-        self._regression(
-            'tests/data/post_identification.json',
-            self.session.query(Sequence),
-            'seq_id',
-            ('bucket_hash', 'ai', 'seq_id', 'v_gene', 'j_gene',
-             'num_gaps', 'pad_length', 'v_match', 'v_length', 'j_match',
-             'j_length', 'pre_cdr3_length', 'pre_cdr3_match',
-             'post_cdr3_length', 'post_cdr3_match', 'copy_number',
-             'cdr3_num_nts', 'cdr3_num_nts', 'cdr3_nt', 'cdr3_aa',
-             'sequence', 'quality', 'germline')
-        )
-
-        self._regression(
-            'tests/data/post_identification_samples.json',
-            self.session.query(Sample),
-            'id',
-            ('name', 'subject_id', 'subset', 'tissue', 'ig_class', 'disease',
-             'lab', 'experimenter', 'v_primer', 'j_primer',
-             'v_ties_mutations', 'v_ties_len')
-        )
-
+        self.initial_regression()
 
     def local_align(self):
         checks = self.session.query(Sequence).filter(
@@ -211,60 +185,3 @@ class TestPipeline(unittest.TestCase):
             ('sequence_cnt', 'in_frame_cnt', 'stop_cnt', 'functional_cnt',
              'no_result_cnt')
         )
-
-    def _err(self, path, key, key_val, field, ref, val):
-        return '{} @ {}={}: {} is {} instead of {}'.format(
-            path, key, key_val, field, val, ref
-        )
-
-    def _get_key(self, obj, key):
-        if type(key) == str:
-            return getattr(obj, key)
-        return '-'.join([str(getattr(obj, k)) for k in key])
-
-    def _generate(self, path, query, key, fields):
-        print 'Generating regression for {}'.format(path)
-        data = {}
-        for record in query:
-            data[self._get_key(record, key)] = {
-                f: getattr(record, f) for f in fields
-            }
-        with open(path, 'w+') as fh:
-            json.dump(data, fh, sort_keys=True, indent=4,
-                      separators=(',', ': '))
-
-    def _regression(self, path, query, key, fields):
-        if os.getenv('GENERATE'):
-            self._generate(path, query, key, fields)
-        print 'Regression testing {}'.format(path)
-        with open(path) as fh:
-            checks = json.load(fh)
-        agg_keys = set([])
-        for record in query:
-            agg_key = str(self._get_key(record, key))
-            agg_keys.add(agg_key)
-            self.assertIn(agg_key, checks, '{} is in result but not in '
-                           'checks for {}'.format(agg_key, path))
-            for fld, value in checks[agg_key].iteritems():
-                self.assertEqual(
-                    getattr(record, fld),
-                    value,
-                    self._err(path, key, self._get_key(record, key), fld,
-                              value, getattr(record, fld))
-                )
-        check_keys = set(checks.keys())
-        if check_keys != agg_keys:
-            print 'Keys differ:'
-            print '\tIn checks but not result: {}'.format(
-                check_keys - agg_keys)
-            print '\tIn result but not checks: {}'.format(
-                agg_keys - checks_keys)
-            self.assertEqual(checks.keys(), set(agg_keys))
-
-
-class NamespaceMimic(object):
-    def __init__(self, **kwargs):
-        self.nproc = 1
-        self.db_config = CONFIG_PATH
-        for k, v in kwargs.iteritems():
-            setattr(self, k, v)

@@ -192,14 +192,11 @@ class VDJSequence(object):
 
     def _found_v(self, anchor_pos):
         '''Finds the V gene closest to that of the sequence'''
-        if self._force_vs is not None:
-            germlines = {vg: self.v_germlines[vg] for vg in self._force_vs}
-        else:
-            germlines = self.v_germlines
-
         aligned_v = VGene(self.sequence)
         v_score = None
-        for v, germ in sorted(germlines.alignments.iteritems()):
+        for v, germ in sorted(self.v_germlines.alignments.iteritems()):
+            if self._force_vs is not None and v not in self._force_vs:
+                continue
             try:
                 dist, total_length = germ.compare(aligned_v, self.j_anchor_pos,
                                                   self.MISMATCH_THRESHOLD)
