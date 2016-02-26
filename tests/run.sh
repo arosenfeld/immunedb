@@ -9,8 +9,8 @@ function teardown() {
 }
 
 setup
-#nosetests -s tests/tests_import.py
 nosetests -s tests/tests_pipeline.py
+#nosetests -s tests/tests_import.py
 
 if [ -z "$NO_TEARDOWN" ]
 then

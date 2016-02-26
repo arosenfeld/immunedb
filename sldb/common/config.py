@@ -33,7 +33,7 @@ def get_base_arg_parser(desc='', multiproc=True, **kwargs):
     return parser
 
 
-def init_db(database_config, as_maker=False):
+def init_db(database_config, drop_all=False, as_maker=False):
     """Initializes a session with the specified database.
 
     :param str database_config: If ``from_dict`` is ``False``, the path to
@@ -56,7 +56,10 @@ def init_db(database_config, as_maker=False):
         'cursorclass': SSCursor
     })
 
+    if drop_all:
+        Base.metadata.drop_all(engine)
     Base.metadata.create_all(engine)
+
     session = sessionmaker()
     session.configure(bind=engine)
 

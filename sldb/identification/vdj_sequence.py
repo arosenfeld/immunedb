@@ -25,24 +25,26 @@ class VDJSequence(object):
     INDEL_MISMATCH_THRESHOLD = .6
 
     __slots__ = [
-        'ids', 'sequence', 'v_germlines', 'j_germlines', '_force_vs',
-        '_force_js', 'quality', '_j', '_j_start', 'j_anchor_pos', 'j_length',
-        'j_match', '_v', 'v_length', 'v_match', 'mutation_fraction',
-        'germline', 'removed_prefix', 'removed_prefix_qual', '_cdr3_len',
-        '_pad_len', 'pre_cdr3_length', 'pre_cdr3_match', 'post_cdr3_length',
-        'post_cdr3_match'
+        'ids', 'sequence', 'orig_sequence', 'v_germlines', 'j_germlines',
+        '_force_vs', '_force_js', 'quality', 'orig_quality', '_j', '_j_start',
+        'j_anchor_pos', 'j_length', 'j_match', '_v', 'v_length', 'v_match',
+        'mutation_fraction', 'germline', 'removed_prefix',
+        'removed_prefix_qual', '_cdr3_len', '_pad_len', 'pre_cdr3_length',
+        'pre_cdr3_match', 'post_cdr3_length', 'post_cdr3_match'
     ]
 
     def __init__(self, ids, seq, v_germlines, j_germlines,
                  force_vs=None, force_js=None, quality=None, analyze=False):
         self.ids = [ids] if type(ids) == str else ids
         self.sequence = seq.upper()
+        self.orig_sequence = seq.upper()
         self.v_germlines = v_germlines
         self.j_germlines = j_germlines
 
         self._force_vs = force_vs
         self._force_js = force_js
         self.quality = quality
+        self.orig_quality = quality
 
         self._j = None
         self.j_anchor_pos = None

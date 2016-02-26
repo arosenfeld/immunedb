@@ -1,12 +1,12 @@
-from regression import NamespaceMimic, RegressionTest
+from regression import BaseTest, NamespaceMimic
 
 from sldb.importing.delimited import DEFAULT_MAPPINGS, run_import
 
-class TestImport(RegressionTest):
-    def testAll(self):
-        self.imgt_import()
+class TestImport(BaseTest.RegressionTest):
+    def __init__(self, *args, **kwargs):
+        super(TestImport, self).__init__('import', *args, **kwargs)
 
-    def imgt_import(self):
+    def identification(self):
         ns = NamespaceMimic(
             input_file='tests/data/imgt/input/'
                '2_IMGT-gapped-nt-sequences.txt',
@@ -35,4 +35,3 @@ class TestImport(RegressionTest):
 
         run_import(self.session, ns)
         self.session.commit()
-        populate_regression()

@@ -15,14 +15,15 @@ class AlignmentException(Exception):
     pass
 
 
-def add_as_noresult(session, vdj, sample):
+def add_as_noresult(session, vdj, sample, reason):
     try:
         session.bulk_save_objects([
             NoResult(
                 seq_id=seq_id,
                 sample_id=sample.id,
-                sequence=vdj.sequence,
-                quality=vdj.quality
+                sequence=vdj.orig_sequence,
+                quality=vdj.orig_quality,
+                reason=reason
             ) for seq_id in vdj.ids
         ])
     except ValueError:
@@ -89,22 +90,25 @@ def add_as_sequence(session, vdj, sample, paired):
             ])
         except ValueError as ex:
             pass
-    except ValueError:
-        add_as_noresult(session, vdj, sample)
+    except ValueError as e:
+        add_as_noresult(session, vdj, sample, str(e))
 
 
 def add_uniques(session, sample, vdjs, paired, realign_len=None,
-                realign_mut=None, min_similarity=None, max_vties=None):
+                realign_mut=None, min_similarity=0, max_vties=50):
     bucketed_seqs = {}
     for vdj in funcs.periodic_commit(session, vdjs):
         try:
             if realign_len is not None and realign_mut is not None:
                 vdj.align_to_germline(realign_len, realign_mut)
-                if (vdj.v_match / float(vdj.v_length) < min_similarity or
-                        len(vdj.v_gene) > max_vties):
+                if vdj.v_match / float(vdj.v_length) < min_similarity:
                     raise AlignmentException(
-                        'V-match too low or too many V-ties'
-                    )
+                        'V-identity too low {} < {}'.format(
+                            vdj.v_match / float(vdj.v_length), min_similarity
+                    ))
+                if len(vdj.v_gene) > max_vties:
+                    raise AlignmentException('Too many V-ties {} > {}'.format(
+                        len(vdj.v_gene), max_vties))
             bucket_key = (
                 funcs.format_ties(vdj.v_gene, 'IGHV'),
                 funcs.format_ties(vdj.j_gene, 'IGHJ'),
@@ -118,8 +122,8 @@ def add_uniques(session, sample, vdjs, paired, realign_len=None,
                 bucket[vdj.sequence].ids += vdj.ids
             else:
                 bucket[vdj.sequence] = vdj
-        except AlignmentException:
-            add_as_noresult(session, vdj, sample)
+        except AlignmentException as e:
+            add_as_noresult(session, vdj, sample, str(e))
         except:
             print ('\tUnexpected error processing sequence '
                    '{}\n\t{}'.format(vdj.ids[0], traceback.format_exc()))

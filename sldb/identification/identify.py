@@ -87,8 +87,8 @@ class IdentificationWorker(concurrent.Worker):
                     vdjs[vdj.sequence].ids += vdj.ids
                 else:
                     vdjs[vdj.sequence] = vdj
-            except AlignmentException:
-                add_as_noresult(self._session, vdj, sample)
+            except AlignmentException as e:
+                add_as_noresult(self._session, vdj, sample, str(e))
             except:
                 self._print('\tUnexpected error processing sequence '
                             '{}\n\t{}'.format(vdj.ids[0],

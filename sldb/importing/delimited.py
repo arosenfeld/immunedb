@@ -84,7 +84,7 @@ def read_file(session, handle, sample, v_germlines, j_germlines,
             else:
                 aligned_seqs[vdj.sequence] = vdj
         except AlignmentException as e:
-            add_as_noresult(session, vdj, sample)
+            add_as_noresult(session, vdj, sample, str(e))
             missed += 1
     print 'Aligned {} / {} sequences'.format(total - missed + 1, total)
 

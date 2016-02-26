@@ -671,6 +671,8 @@ class NoResult(Base):
     sequence = Column(String(length=MAX_SEQ_LEN * 2))
     quality = Column(String(length=MAX_SEQ_LEN * 2))
 
+    reason = Column(String(256))
+
 
 class ModificationLog(Base):
     """A log message for a database modification

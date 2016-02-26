@@ -321,7 +321,7 @@ def run_fix_sequences(session, args):
         avg_mut, avg_len = session.query(
             Sample.v_ties_mutations,
             Sample.v_ties_len
-        ).filter(Sequence.sample_id == sample_id).first()
+        ).filter(Sample.id == sample_id).one()
 
         # Get all the unique sequences
         uniques = {}
