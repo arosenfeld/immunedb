@@ -236,6 +236,7 @@ class Clone(Base):
                             'subject_id', 'cdr3_num_nts'),
                       Index('aa_bucket', 'v_gene', 'j_gene',
                             'subject_id', 'cdr3_aa'),
+                      Index('tree', 'tree', mysql_length=1),
                       {'mysql_row_format': 'DYNAMIC'})
     id = Column(Integer, primary_key=True)
 

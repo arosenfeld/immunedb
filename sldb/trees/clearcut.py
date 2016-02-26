@@ -17,7 +17,12 @@ class ClearcutWorker(concurrent.Worker):
         self._min_count = min_count
         self._min_samples = min_samples
 
-    def do_task(self, clone_inst):
+    def do_task(self, clone_id):
+        clone_inst = self._session.query(Clone).filter(
+            Clone.id == clone_id).first()
+        if clone_inst is None:
+            return
+
         self._print('Running clone {}'.format(clone_inst.id))
 
         germline_seq = clone_inst.consensus_germline
@@ -303,21 +308,15 @@ def run_clearcut(session, args):
 
         if not args.force:
             clones = clones.filter(Clone.tree.is_(None))
-        clones = map(lambda c: c.id, clones)
+        clones = [c.id for c in clones]
     mod_log.make_mod('clone_tree', session=session, commit=True,
                      info=vars(args))
 
     tasks = concurrent.TaskQueue()
 
     print 'Creating task queue for clones'
-    for clone in clones:
-        clone_inst = session.query(Clone).filter(
-            Clone.id == clone).first()
-        if clone_inst.tree is not None and not args.force:
-            print ('Not regenerating tree for clone {}.  Use --force to '
-                   'override.').format(clone)
-            continue
-        tasks.add_task(clone_inst)
+    for clone_id in clones:
+        tasks.add_task(clone_id)
 
     for _ in range(0, args.nproc):
         session = config.init_db(args.db_config)
