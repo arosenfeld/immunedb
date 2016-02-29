@@ -1,3 +1,4 @@
+import dnautils
 from Bio import SeqIO
 from sldb.identification import get_common_seq
 
@@ -54,6 +55,9 @@ class JGermlines(dict):
         seq = self[gene][-self.anchor_len:][:match_length]
         tied = set([gene])
         for j, other_seq in sorted(self.iteritems()):
-            if other_seq[-self.anchor_len:][:len(seq)] == seq:
+            other_seq = other_seq[-self.anchor_len:][:len(seq)]
+            if other_seq == seq:
+                tied.add(j)
+            elif dnautils.hamming(other_seq, seq) == 0:
                 tied.add(j)
         return tied

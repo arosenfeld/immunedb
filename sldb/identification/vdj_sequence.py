@@ -113,6 +113,15 @@ class VDJSequence(object):
     def functional(self):
         return self.in_frame and not self.stop
 
+    def _check_j_with_missing(self, sequence, match, offset):
+        for pos in range(len(sequence[offset:])):
+            if pos + len(match) > len(sequence):
+                return False
+            ss = sequence[pos + offset:pos + offset + len(match)]
+            if dnautils.equal(ss, match):
+                return pos
+        return False
+
     def _find_j(self, offset=0):
         '''Finds the location and type of J gene'''
         # Iterate over every possible J anchor.  For each germline, try its
@@ -130,9 +139,21 @@ class VDJSequence(object):
             if i >= 0:
                 return self._found_j(i + offset, j_gene, match)
 
-            i = Seq(self.sequence).reverse_complement().rfind(match)
+            rc = str(Seq(self.sequence).reverse_complement())
+            i = rc.rfind(match)
             if i >= 0:
-                self.sequence = str(Seq(self.sequence).reverse_complement())
+                self.sequence = rc
+                if self.quality is not None:
+                    self.quality = self.quality[::-1]
+                return self._found_j(i + offset, j_gene, match)
+
+            i = self._check_j_with_missing(self.sequence, match, offset)
+            if i >= 0:
+                return self._found_j(i + offset, j_gene, match)
+
+            i = self._check_j_with_missing(rc, match, offset)
+            if i >= 0:
+                self.sequence = rc
                 if self.quality is not None:
                     self.quality = self.quality[::-1]
                 return self._found_j(i + offset, j_gene, match)
@@ -143,7 +164,6 @@ class VDJSequence(object):
         self.j_anchor_pos = i
         self.j_anchor_len = len(match)
         self._j = [j_gene]
-
 
         # Get the full germline J gene
         j_full = self.j_germlines[self.j_gene[0]]
@@ -226,7 +246,6 @@ class VDJSequence(object):
     def align_to_germline(self, avg_len=None, avg_mut=None):
         if avg_len is not None and avg_mut is not None:
             self._v = self.v_germlines.get_ties(self.v_gene, avg_len, avg_mut)
-            #self._j = self.j_germlines.get_ties(self.j_gene, avg_len, avg_mut)
             self._j = self.j_germlines.get_single_tie(
                 self.j_gene[0], self.j_anchor_len
             )

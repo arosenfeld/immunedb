@@ -99,16 +99,15 @@ def add_uniques(session, sample, vdjs, paired, realign_len=None,
     bucketed_seqs = {}
     for vdj in funcs.periodic_commit(session, vdjs):
         try:
-            if realign_len is not None and realign_mut is not None:
-                vdj.align_to_germline(realign_len, realign_mut)
-                if vdj.v_match / float(vdj.v_length) < min_similarity:
-                    raise AlignmentException(
-                        'V-identity too low {} < {}'.format(
-                            vdj.v_match / float(vdj.v_length), min_similarity
-                    ))
-                if len(vdj.v_gene) > max_vties:
-                    raise AlignmentException('Too many V-ties {} > {}'.format(
-                        len(vdj.v_gene), max_vties))
+            vdj.align_to_germline(realign_len, realign_mut)
+            if vdj.v_match / float(vdj.v_length) < min_similarity:
+                raise AlignmentException(
+                    'V-identity too low {} < {}'.format(
+                        vdj.v_match / float(vdj.v_length), min_similarity
+                ))
+            if len(vdj.v_gene) > max_vties:
+                raise AlignmentException('Too many V-ties {} > {}'.format(
+                    len(vdj.v_gene), max_vties))
             bucket_key = (
                 funcs.format_ties(vdj.v_gene, 'IGHV'),
                 funcs.format_ties(vdj.j_gene, 'IGHJ'),

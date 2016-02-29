@@ -107,8 +107,6 @@ def read_file(session, handle, sample, v_germlines, j_germlines,
             add_uniques(session, sample, aligned_seqs.values(), paired,
                         realign_mut=avg_mut, realign_len=avg_len)
         else:
-            for vdj in aligned_seqs.values():
-                vdj.align_to_germline()
             add_uniques(session, sample, aligned_seqs.values(), paired)
     session.commit()
 
