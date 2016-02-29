@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+set -e
 function setup() {
     sldb_admin create root test_db . --admin-pass "$DB_ADMIN_PASS"
 }
@@ -8,13 +9,13 @@ function teardown() {
     rm test_db.json
 }
 
-setup
-nosetests -s tests/tests_pipeline.py
-nosetests -s tests/tests_import.py
-
 if [ -z "$NO_TEARDOWN" ]
 then
-    teardown
+    trap teardown 0
 else
     echo 'Not tearing down since NO_TEARDOWN is set'
 fi
+
+setup
+nosetests -s tests/tests_pipeline.py
+nosetests -s tests/tests_import.py
