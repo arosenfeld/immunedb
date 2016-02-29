@@ -33,6 +33,8 @@ if __name__ == '__main__':
     parser.add_argument('--ties', action='store_true', help='If specified '
                         'gene ties will be calculated from the imported '
                         'sequences')
+    parser.add_argument('--max-padding', default=None, type=int, help='If '
+                        'specified discards sequences with too much padding.')
 
     for key in ('subset', 'tissue', 'disease', 'lab', 'experimenter',
                 'ig_class', 'v_primer', 'j_primer'):

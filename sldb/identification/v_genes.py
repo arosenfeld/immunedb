@@ -128,12 +128,10 @@ class VGermlines(GeneTies):
 
     def get_single_tie(self, gene, length, mutation):
         return super(VGermlines, self).get_single_tie(
-            gene,
-            min(self._min_length, self._length_bucket(length)),
-            self._mut_bucket(mutation)
+            gene, min(self.length_bucket(length), self._min_length), mutation
         )
 
-    def _length_bucket(self, length):
+    def length_bucket(self, length):
         if 0 < length <= 100:
             return 100
         if 100 < length <= 150:
@@ -141,13 +139,6 @@ class VGermlines(GeneTies):
         if 150 < length <= 200:
             return 200
         return 300
-
-    def _mut_bucket(self, mut):
-        if 0 < mut <= .05:
-            return .05
-        if mut <= .15:
-            return .15
-        return .30
 
 
 def find_v_position(sequence):

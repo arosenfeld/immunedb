@@ -78,6 +78,12 @@ def read_file(session, handle, sample, v_germlines, j_germlines,
             if len(v_genes) == 0 or len(j_genes) == 0:
                 raise AlignmentException('No V or J gene in input')
             vdj.analyze()
+            if (columns.max_padding is not None and
+                    vdj.pad_length > columns.max_padding):
+                raise AlignmentException('Too much padding {} (max {})'.format(
+                    vdj.pad_length, columns.max_padding
+                ))
+
             if vdj.sequence in aligned_seqs:
                 aligned_seqs[vdj.sequence].ids += vdj.ids
             else:
@@ -101,6 +107,8 @@ def read_file(session, handle, sample, v_germlines, j_germlines,
             add_uniques(session, sample, aligned_seqs.values(), paired,
                         realign_mut=avg_mut, realign_len=avg_len)
         else:
+            for vdj in aligned_seqs.values():
+                vdj.align_to_germline()
             add_uniques(session, sample, aligned_seqs.values(), paired)
     session.commit()
 

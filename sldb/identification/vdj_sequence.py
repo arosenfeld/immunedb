@@ -27,10 +27,11 @@ class VDJSequence(object):
     __slots__ = [
         'ids', 'sequence', 'orig_sequence', 'v_germlines', 'j_germlines',
         '_force_vs', '_force_js', 'quality', 'orig_quality', '_j', '_j_start',
-        'j_anchor_pos', 'j_length', 'j_match', '_v', 'v_length', 'v_match',
-        'mutation_fraction', 'germline', 'removed_prefix',
-        'removed_prefix_qual', '_cdr3_len', '_pad_len', 'pre_cdr3_length',
-        'pre_cdr3_match', 'post_cdr3_length', 'post_cdr3_match'
+        'j_anchor_pos', 'j_anchor_len', 'j_length', 'j_match', '_v',
+        'v_length', 'v_match', 'mutation_fraction', 'germline',
+        'removed_prefix', 'removed_prefix_qual', '_cdr3_len', '_pad_len',
+        'pre_cdr3_length', 'pre_cdr3_match', 'post_cdr3_length',
+        'post_cdr3_match'
     ]
 
     def __init__(self, ids, seq, v_germlines, j_germlines,
@@ -123,24 +124,26 @@ class VDJSequence(object):
         # TGGTCACCGTCTCCT
         # TGGTCACCGTCT
 
-        for match, full_anchor, j_gene in self.j_germlines.get_all_anchors(
+        for match, j_gene in self.j_germlines.get_all_anchors(
                 allowed_genes=self._force_js):
             i = self.sequence[offset:].rfind(match)
             if i >= 0:
-                return self._found_j(i + offset, j_gene, match, full_anchor)
+                return self._found_j(i + offset, j_gene, match)
 
             i = Seq(self.sequence).reverse_complement().rfind(match)
             if i >= 0:
                 self.sequence = str(Seq(self.sequence).reverse_complement())
                 if self.quality is not None:
                     self.quality = self.quality[::-1]
-                return self._found_j(i + offset, j_gene, match, full_anchor)
+                return self._found_j(i + offset, j_gene, match)
         raise AlignmentException('Could not find J anchor')
 
-    def _found_j(self, i, j_gene, match, full_anchor):
+    def _found_j(self, i, j_gene, match):
         # If a match is found, record its location and gene
         self.j_anchor_pos = i
+        self.j_anchor_len = len(match)
         self._j = [j_gene]
+
 
         # Get the full germline J gene
         j_full = self.j_germlines[self.j_gene[0]]
@@ -179,9 +182,8 @@ class VDJSequence(object):
             self.j_anchor_pos = None
             raise AlignmentException('Germline extended past end of J')
 
-        self._j = self.j_germlines.get_ties(self.j_gene[0], match,
-                                            self._force_js)
         self.j_length = len(j_full)
+        self._j = set(self._j)
 
     def _find_v(self):
         for anchor_pos in find_v_position(self.sequence):
@@ -224,6 +226,10 @@ class VDJSequence(object):
     def align_to_germline(self, avg_len=None, avg_mut=None):
         if avg_len is not None and avg_mut is not None:
             self._v = self.v_germlines.get_ties(self.v_gene, avg_len, avg_mut)
+            #self._j = self.j_germlines.get_ties(self.j_gene, avg_len, avg_mut)
+            self._j = self.j_germlines.get_single_tie(
+                self.j_gene[0], self.j_anchor_len
+            )
         # Set the germline to the V gene up to the CDR3
         self.germline = get_common_seq(
             [self.v_germlines[v] for v in self._v]

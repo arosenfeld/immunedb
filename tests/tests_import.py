@@ -33,6 +33,7 @@ class TestImport(BaseTest.RegressionTest):
             v_primer='Leader',
             j_primer='Trailer',
             unpaired=False,
+            max_padding=None
         )
         for k, v in DEFAULT_MAPPINGS.iteritems():
             setattr(ns, k, v)

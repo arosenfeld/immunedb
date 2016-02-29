@@ -170,6 +170,7 @@ class GeneTies(dict):
         return ties
 
     def get_single_tie(self, gene, length, mutation):
+        mutation = self.mut_bucket(mutation)
         key = (length, mutation)
 
         if key not in self.ties:
@@ -203,6 +204,13 @@ class GeneTies(dict):
             )
             self.hypers[key] = p
         return self.hypers[key]
+
+    def mut_bucket(self, mut):
+        if 0 < mut <= .05:
+            return .05
+        if mut <= .15:
+            return .15
+        return .30
 
 
 def get_common_seq(seqs, cutoff=True):
