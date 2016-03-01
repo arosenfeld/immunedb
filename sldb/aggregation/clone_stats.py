@@ -87,6 +87,7 @@ class CloneStatsWorker(concurrent.Worker):
 
         record_values = {
             'clone_id': clone_id,
+            'subject_id': clone_inst.subject_id,
             'functional': clone_inst.functional,
             'unique_cnt': counts.unique,
             'total_cnt': counts.total,

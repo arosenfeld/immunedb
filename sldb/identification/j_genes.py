@@ -1,9 +1,9 @@
 import dnautils
 from Bio import SeqIO
-from sldb.identification import get_common_seq
+from sldb.identification import GeneTies, get_common_seq
 
 
-class JGermlines(dict):
+class JGermlines(GeneTies):
     def __init__(self, path_to_germlines, upstream_of_cdr3, anchor_len,
                  min_anchor_len, ties_prob_threshold=.01):
         self._upstream_of_cdr3 = upstream_of_cdr3
@@ -22,6 +22,10 @@ class JGermlines(dict):
 
         self._anchors = {name: seq[-anchor_len:] for name, seq in
                          self.iteritems()}
+        super(JGermlines, self).__init__(
+            {k: v for k, v in self.iteritems()},
+            ties_prob_threshold=ties_prob_threshold
+        )
 
     @property
     def upstream_of_cdr3(self):
@@ -51,13 +55,7 @@ class JGermlines(dict):
                 if len(trimmed_seq) >= self._min_anchor_len:
                     yield trimmed_seq, j
 
-    def get_single_tie(self, gene, match_length):
-        seq = self[gene][-self.anchor_len:][:match_length]
-        tied = set([gene])
-        for j, other_seq in sorted(self.iteritems()):
-            other_seq = other_seq[-self.anchor_len:][:len(seq)]
-            if other_seq == seq:
-                tied.add(j)
-            elif dnautils.hamming(other_seq, seq) == 0:
-                tied.add(j)
-        return tied
+    def get_single_tie(self, gene, length, mutation):
+        return super(JGermlines, self).get_single_tie(
+            gene, self._min_length, mutation
+        )

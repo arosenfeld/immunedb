@@ -43,7 +43,7 @@ def _subject_to_dict(subject):
 def _sample_to_dict(sample):
     d = _fields_to_dict(['id', 'name', 'info', 'subset', 'tissue', 'ig_class',
                          'disease', 'lab', 'experimenter', 'v_primer',
-                         'j_primer', 'status'], sample)
+                         'j_primer'], sample)
     d['date'] = sample.date.strftime('%Y-%m-%d')
     d['subject'] = _subject_to_dict(sample.subject)
     return d

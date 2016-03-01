@@ -68,7 +68,9 @@ class ClonalWorker(concurrent.Worker):
 
         if query.count() > 0:
             for seq in query:
-                clones.setdefault(seq.clone_id, []).append(seq)
+                if seq.clone_id not in clones:
+                    clones[seq.clone_id] = []
+                clones[seq.clone_id].append(seq)
             if None in clones:
                 for seq_to_add in clones[None]:
                     for clone_id, existing_seqs in clones.iteritems():
@@ -124,7 +126,7 @@ class ClonalWorker(concurrent.Worker):
                 comp_seq.cdr3_aa.replace('X', '-'),
                 seq.cdr3_aa.replace('X', '-')
             )
-            sim_frac = 1 - dist / float(len(comp_seq))
+            sim_frac = 1 - dist / float(len(comp_seq.cdr3_aa))
             if sim_frac < self._min_similarity:
                 return False
         return True

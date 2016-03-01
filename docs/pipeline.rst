@@ -183,7 +183,7 @@ graphically below:
 
 .. code-block:: bash
 
-                                                |---- J_MIN_ANCHOR_LEN ----|
+                                           |---- J_MIN_ANCHOR_LEN ----|
                                            |-------- J_ANCHOR_SIZE --------|
                  ...-- V --|-- CDR3 --|------ J_NTS_UPSTREAM_OF_CDR3 ------|
     j_germline:                 ATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCG

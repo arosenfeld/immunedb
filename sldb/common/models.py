@@ -105,7 +105,6 @@ class Sample(Base):
     :param float v_ties_mutations: Average mutation rate of sequences in the \
         sample
     :param float v_ties_len: Average length of sequences in the sample
-    :param str status: The current status of the sample
 
     """
     __tablename__ = 'samples'
@@ -138,8 +137,6 @@ class Sample(Base):
 
     v_ties_mutations = Column(Float)
     v_ties_len = Column(Float)
-
-    status = Column(String(length=64), server_default='identifying')
 
 
 class SampleStats(Base):
@@ -349,12 +346,15 @@ class CloneStats(Base):
     """
     __tablename__ = 'clone_stats'
     __table_args__ = (
-        Index('clone_sample', 'sample_id', 'clone_id'),
+        Index('stats_cover', 'sample_id', 'clone_id', 'functional',
+              'total_cnt', 'unique_cnt'),
         {'mysql_row_format': 'DYNAMIC'})
 
     id = Column(Integer, primary_key=True)
     clone_id = Column(Integer, ForeignKey(Clone.id, ondelete='CASCADE'))
     clone = relationship(Clone)
+    subject_id = Column(
+        Integer, ForeignKey(Subject.id, ondelete='CASCADE')) # Denormalized
 
     functional = Column(Boolean, index=True)  # Denormalized
 

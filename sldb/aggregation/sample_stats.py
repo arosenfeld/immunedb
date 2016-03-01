@@ -362,10 +362,4 @@ def run_sample_stats(session, args):
         tasks.add_worker(SampleStatsWorker(session))
 
     tasks.start()
-
-    session.query(Sample).filter(
-        Sample.id.in_(samples)
-    ).update({
-        'status': 'complete'
-    }, synchronize_session=False)
     session.commit()

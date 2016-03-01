@@ -112,7 +112,6 @@ class IdentificationWorker(concurrent.Worker):
                         meta.get('paired'), avg_len, avg_mut,
                         self._min_similarity, self._max_vties)
 
-        sample.status = 'identified'
         self._session.commit()
         self._print('Completed sample {}'.format(sample.name))
 
