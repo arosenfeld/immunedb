@@ -11,11 +11,13 @@ import sldb.util.concurrent as concurrent
 
 
 class ClearcutWorker(concurrent.Worker):
-    def __init__(self, session, tree_prog, min_count, min_samples):
+    def __init__(self, session, tree_prog, min_count, min_samples,
+                 exclude_stops):
         self._session = session
         self._tree_prog = tree_prog
         self._min_count = min_count
         self._min_samples = min_samples
+        self._exclude_stops = exclude_stops
 
     def do_task(self, clone_id):
         clone_inst = self._session.query(Clone).filter(
@@ -67,6 +69,8 @@ class ClearcutWorker(concurrent.Worker):
             Sequence.v_length
         )
         for seq in q:
+            if self._exclude_stops and seq.stop:
+                continue
             seqs[seq.ai] = seq.clone_sequence
             if seq.mutations_from_clone is None:
                 raise Exception(
@@ -225,10 +229,11 @@ def _push_common_mutations_up(tree, first):
         else:
             common_muts = common_muts.intersection(child_muts)
 
-    if first:
-        tree.mutations = common_muts or tree.mutations
-    else:
-        tree.mutations = common_muts.union(tree.mutations)
+    if len(tree.seq_ids) == 0:
+        if first:
+            tree.mutations = common_muts or tree.mutations
+        else:
+            tree.mutations = common_muts.union(tree.mutations)
 
     return tree.mutations
 
@@ -321,6 +326,7 @@ def run_clearcut(session, args):
     for _ in range(0, args.nproc):
         session = config.init_db(args.db_config)
         tasks.add_worker(ClearcutWorker(session, args.clearcut_path,
-                                        args.min_count, args.min_samples))
+                                        args.min_count, args.min_samples,
+                                        args.exclude_stops))
 
     tasks.start()
