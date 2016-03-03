@@ -317,8 +317,10 @@ class VDJSequence(object):
             new_prefix = ''.join([
                 c if c == '-' else 'N' for c in self.sequence[:trim_to]
             ])
+            old_padding = self._pad_len
             self._pad_len += new_prefix.count('N')
             self.sequence = new_prefix + self.sequence[trim_to:]
+            self.v_length -= self._pad_len - old_padding
 
         # Get the pre-CDR3 germline
         pre_cdr3_germ = self.germline[:self.cdr3_start]
