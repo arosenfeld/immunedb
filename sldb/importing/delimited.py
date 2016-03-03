@@ -105,7 +105,8 @@ def read_file(session, handle, sample, v_germlines, j_germlines,
         sample.v_ties_len = avg_len
         if columns.ties:
             add_uniques(session, sample, aligned_seqs.values(), paired,
-                        realign_mut=avg_mut, realign_len=avg_len)
+                        realign_mut=avg_mut, realign_len=avg_len,
+                        trim_to=columns.trim_to)
         else:
             add_uniques(session, sample, aligned_seqs.values(), paired)
     session.commit()

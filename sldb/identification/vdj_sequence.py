@@ -255,7 +255,7 @@ class VDJSequence(object):
             # Mutation ratio is the distance divided by the length of overlap
             self.mutation_fraction = v_score / float(self.v_length)
 
-    def align_to_germline(self, avg_len=None, avg_mut=None):
+    def align_to_germline(self, avg_len=None, avg_mut=None, trim_to=None):
         if avg_len is not None and avg_mut is not None:
             self._v = self.v_germlines.get_ties(self.v_gene, avg_len, avg_mut)
             self._j = self.j_germlines.get_ties(self.j_gene, avg_len, avg_mut)
@@ -311,6 +311,14 @@ class VDJSequence(object):
             self.sequence += 'N' * (len(self.germline) - len(self.sequence))
             if self.quality is not None:
                 self.quality += ' ' * (len(self.germline) - len(self.quality))
+
+        if trim_to is not None:
+            self._pad_len = max(self._pad_len, 0)
+            new_prefix = ''.join([
+                c if c == '-' else 'N' for c in self.sequence[:trim_to]
+            ])
+            self._pad_len += new_prefix.count('N')
+            self.sequence = new_prefix + self.sequence[trim_to:]
 
         # Get the pre-CDR3 germline
         pre_cdr3_germ = self.germline[:self.cdr3_start]

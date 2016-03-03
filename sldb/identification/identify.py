@@ -38,12 +38,13 @@ class SampleMetadata(object):
 
 
 class IdentificationWorker(concurrent.Worker):
-    def __init__(self, session, v_germlines, j_germlines, trim, max_vties,
-                 min_similarity, sync_lock):
+    def __init__(self, session, v_germlines, j_germlines, trim_to, max_padding,
+                 max_vties, min_similarity, sync_lock):
         self._session = session
         self._v_germlines = v_germlines
         self._j_germlines = j_germlines
-        self._trim = trim
+        self._trim_to = trim_to
+        self._max_padding = max_padding
         self._min_similarity = min_similarity
         self._max_vties = max_vties
         self._sync_lock = sync_lock
@@ -60,7 +61,7 @@ class IdentificationWorker(concurrent.Worker):
         # Collapse identical sequences
         self._print('\tCollapsing identical sequences')
         for record in parser:
-            seq = str(record.seq)[self._trim:]
+            seq = str(record.seq)
             if seq not in vdjs:
                 vdjs[seq] = VDJSequence(
                     ids=[],
@@ -83,6 +84,11 @@ class IdentificationWorker(concurrent.Worker):
                 # already exists, append the seq_ids.  Otherwise add it as a
                 # new unique sequence.
                 vdj.analyze()
+                if (self._max_padding is not None and
+                        vdj.pad_length > self._max_padding):
+                    raise AlignmentException(
+                        'Too much padding {} (max {})'.format(
+                            vdj.pad_length, self._max_padding))
                 if vdj.sequence in vdjs:
                     vdjs[vdj.sequence].ids += vdj.ids
                 else:
@@ -110,7 +116,7 @@ class IdentificationWorker(concurrent.Worker):
             self._print('\tCollapsing ambiguous character sequences')
             add_uniques(self._session, sample, vdjs.values(),
                         meta.get('paired'), avg_len, avg_mut,
-                        self._min_similarity, self._max_vties)
+                        self._min_similarity, self._max_vties, self._trim_to)
 
         self._session.commit()
         self._print('Completed sample {}'.format(sample.name))
@@ -216,7 +222,8 @@ def run_identify(session, args):
     for i in range(0, min(args.nproc, tasks.num_tasks())):
         worker_session = config.init_db(args.db_config)
         tasks.add_worker(IdentificationWorker(
-            worker_session, v_germlines, j_germlines, args.trim,
-            args.max_vties, args.min_similarity / float(100), lock))
+            worker_session, v_germlines, j_germlines, args.trim_to,
+            args.max_padding, args.max_vties, args.min_similarity / float(100),
+            lock))
 
     tasks.start()

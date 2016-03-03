@@ -95,11 +95,12 @@ def add_as_sequence(session, vdj, sample, paired):
 
 
 def add_uniques(session, sample, vdjs, paired, realign_len=None,
-                realign_mut=None, min_similarity=0, max_vties=50):
+                realign_mut=None, min_similarity=0, max_vties=50,
+                trim_to=None):
     bucketed_seqs = {}
     for vdj in funcs.periodic_commit(session, vdjs):
         try:
-            vdj.align_to_germline(realign_len, realign_mut)
+            vdj.align_to_germline(realign_len, realign_mut, trim_to)
             if vdj.v_match / float(vdj.v_length) < min_similarity:
                 raise AlignmentException(
                     'V-identity too low {} < {}'.format(
