@@ -50,6 +50,9 @@ if __name__ == '__main__':
     if args.metadata and len(args.sample_dirs) > 1:
         parser.error('Cannot specify \'metadata\' with multiple input '
                      'directories.')
+    if args.max_padding and args.trim_to:
+        if args.max_padding < args.trim_to:
+            parser.error('--max-padding cannot be less than --trim-to')
 
     session = config.init_db(args.db_config)
     sys.exit(run_identify(session, args))

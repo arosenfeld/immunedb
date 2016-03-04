@@ -59,6 +59,11 @@ if __name__ == '__main__':
             )
 
     args = parser.parse_args()
+
+    if args.max_padding and args.trim_to:
+        if args.max_padding < args.trim_to:
+            parser.error('--max-padding cannot be less than --trim-to')
+
     session = config.init_db(args.db_config)
 
     sys.exit(run_import(session, args))

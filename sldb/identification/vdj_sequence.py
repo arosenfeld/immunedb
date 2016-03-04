@@ -131,8 +131,8 @@ class VDJSequence(object):
         # TGGTCACCGTCTCCT
         # TGGTCACCGTCT
 
-        for match, j_gene in self.j_germlines.get_all_anchors(
-                allowed_genes=self._force_js):
+        for match, j_gene in self.j_germlines.get_all_anchors():
+            #allowed_genes=self._force_js):
             i = self.sequence.rfind(match)
             if i >= 0:
                 return self._found_j(i, j_gene, match)
@@ -313,13 +313,13 @@ class VDJSequence(object):
                 self.quality += ' ' * (len(self.germline) - len(self.quality))
 
         if trim_to is not None:
-            self._pad_len = max(self._pad_len, 0)
+            old_padding = max(self._pad_len, 0)
             new_prefix = ''.join([
                 c if c == '-' else 'N' for c in self.sequence[:trim_to]
             ])
-            old_padding = self._pad_len
-            self._pad_len += new_prefix.count('N')
             self.sequence = new_prefix + self.sequence[trim_to:]
+            v_start = re.match('[N\-]*', self.sequence).span()[1]
+            self._pad_len = self.sequence[:v_start].count('N')
             self.v_length -= self._pad_len - old_padding
 
         # Get the pre-CDR3 germline

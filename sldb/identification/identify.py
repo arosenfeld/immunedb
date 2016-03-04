@@ -84,11 +84,6 @@ class IdentificationWorker(concurrent.Worker):
                 # already exists, append the seq_ids.  Otherwise add it as a
                 # new unique sequence.
                 vdj.analyze()
-                if (self._max_padding is not None and
-                        vdj.pad_length > self._max_padding):
-                    raise AlignmentException(
-                        'Too much padding {} (max {})'.format(
-                            vdj.pad_length, self._max_padding))
                 if vdj.sequence in vdjs:
                     vdjs[vdj.sequence].ids += vdj.ids
                 else:
@@ -112,11 +107,10 @@ class IdentificationWorker(concurrent.Worker):
             self._print('\tRe-aligning {} sequences to V-ties, Mutations={}, '
                         'Length={}'.format(
                             len(vdjs), round(avg_mut, 2), round(avg_len, 2)))
-
-            self._print('\tCollapsing ambiguous character sequences')
             add_uniques(self._session, sample, vdjs.values(),
                         meta.get('paired'), avg_len, avg_mut,
-                        self._min_similarity, self._max_vties, self._trim_to)
+                        self._min_similarity, self._max_vties, self._trim_to,
+                        self._max_padding)
 
         self._session.commit()
         self._print('Completed sample {}'.format(sample.name))

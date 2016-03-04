@@ -96,7 +96,7 @@ def add_as_sequence(session, vdj, sample, paired):
 
 def add_uniques(session, sample, vdjs, paired, realign_len=None,
                 realign_mut=None, min_similarity=0, max_vties=50,
-                trim_to=None):
+                trim_to=None, max_padding=None):
     bucketed_seqs = {}
     for vdj in funcs.periodic_commit(session, vdjs):
         try:
@@ -109,6 +109,10 @@ def add_uniques(session, sample, vdjs, paired, realign_len=None,
             if len(vdj.v_gene) > max_vties:
                 raise AlignmentException('Too many V-ties {} > {}'.format(
                     len(vdj.v_gene), max_vties))
+            if max_padding is not None and vdj.pad_length > max_padding:
+                raise AlignmentException('Too much padding {} (max {})'.format(
+                    vdj.pad_length, max_padding
+                ))
             bucket_key = (
                 funcs.format_ties(vdj.v_gene, 'IGHV'),
                 funcs.format_ties(vdj.j_gene, 'IGHJ'),
