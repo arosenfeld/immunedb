@@ -49,8 +49,8 @@ def _collapse_seqs(session, sample, reader, columns):
     return seqs.values()
 
 
-def read_file(session, handle, sample, v_germlines, j_germlines,
-              paired, columns):
+def read_file(session, handle, sample, v_germlines, j_germlines, columns,
+              remaps):
     seqs = _collapse_seqs(session, sample, csv.DictReader(handle,
                           delimiter='\t'), columns)
 
@@ -61,22 +61,40 @@ def read_file(session, handle, sample, v_germlines, j_germlines,
         if total > 0 and total % 1000 == 0:
             print 'Finished {}'.format(total)
             session.commit()
-        v_genes = set(
+
+        orig_v_genes = set(
             re.findall('IGHV[^ ,]+', seq['record'][columns.v_gene])
         )
-        j_genes = set(
+        orig_j_genes = set(
             re.findall('IGHJ[^ ,]+', seq['record'][columns.j_gene])
         )
-        v_genes = filter(lambda v: v in v_germlines, v_genes)
-        j_genes = filter(lambda j: j in j_germlines, j_genes)
+        if remaps is not None:
+            remapped_j_genes = set([])
+            for j in orig_j_genes:
+                for remap_from, remap_to in remaps.iteritems():
+                    if j.startswith(remap_from):
+                        remapped_j_genes.add(remap_to)
+                        break
+                else:
+                    remapped_j_genes.add(j)
+            orig_j_genes = remapped_j_genes
+
+        v_genes = filter(lambda v: v in v_germlines, orig_v_genes)
+        j_genes = filter(lambda j: j in j_germlines, orig_j_genes)
 
         vdj = VDJSequence(
             seq['seq_ids'], seq['record'][columns.full_sequence], v_germlines,
             j_germlines, force_vs=v_genes, force_js=j_genes
         )
         try:
-            if len(v_genes) == 0 or len(j_genes) == 0:
-                raise AlignmentException('No V or J gene in input')
+            if len(v_genes) == 0:
+                raise AlignmentException('No valid V germline for {}'.format(
+                    ','.join(sorted(orig_v_genes))
+                ))
+            if len(j_genes) == 0:
+                raise AlignmentException('No valid J germline for {}'.format(
+                    ','.join(sorted(orig_j_genes))
+                ))
             vdj.analyze()
 
             if vdj.sequence in aligned_seqs:
@@ -99,16 +117,16 @@ def read_file(session, handle, sample, v_germlines, j_germlines,
         sample.v_ties_mutations = avg_mut
         sample.v_ties_len = avg_len
         if columns.ties:
-            add_uniques(session, sample, aligned_seqs.values(), paired,
+            add_uniques(session, sample, aligned_seqs.values(),
                         realign_mut=avg_mut, realign_len=avg_len,
                         trim_to=columns.trim_to,
                         max_padding=columns.max_padding)
         else:
-            add_uniques(session, sample, aligned_seqs.values(), paired)
+            add_uniques(session, sample, aligned_seqs.values())
     session.commit()
 
 
-def run_import(session, args):
+def run_import(session, args, remaps=None):
     v_germlines = VGermlines(args.v_germlines)
     j_germlines = JGermlines(args.j_germlines, args.upstream_of_cdr3,
                              args.anchor_len, args.min_anchor_len)
@@ -137,5 +155,4 @@ def run_import(session, args):
         return
 
     with open(args.input_file) as fh:
-        read_file(session, fh, sample, v_germlines, j_germlines,
-                  not args.unpaired, args)
+        read_file(session, fh, sample, v_germlines, j_germlines, args, remaps)

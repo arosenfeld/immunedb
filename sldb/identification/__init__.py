@@ -30,7 +30,7 @@ def add_as_noresult(session, vdj, sample, reason):
         pass
 
 
-def add_as_sequence(session, vdj, sample, paired):
+def add_as_sequence(session, vdj, sample):
     try:
         seq = Sequence(
             seq_id=vdj.ids[0],
@@ -38,13 +38,12 @@ def add_as_sequence(session, vdj, sample, paired):
 
             subject_id=sample.subject.id,
 
-            paired=paired,
             partial=vdj.partial,
 
             probable_indel_or_misalign=vdj.has_possible_indel,
 
-            v_gene=funcs.format_ties(vdj.v_gene, 'IGHV'),
-            j_gene=funcs.format_ties(vdj.j_gene, 'IGHJ'),
+            v_gene=funcs.format_ties(vdj.v_gene, 'IGHV', strip_alleles=True),
+            j_gene=funcs.format_ties(vdj.j_gene, 'IGHJ', strip_alleles=True),
 
             num_gaps=vdj.num_gaps,
             pad_length=vdj.pad_length,
@@ -94,7 +93,7 @@ def add_as_sequence(session, vdj, sample, paired):
         add_as_noresult(session, vdj, sample, str(e))
 
 
-def add_uniques(session, sample, vdjs, paired, realign_len=None,
+def add_uniques(session, sample, vdjs, realign_len=None,
                 realign_mut=None, min_similarity=0, max_vties=50,
                 trim_to=None, max_padding=None):
     bucketed_seqs = {}
@@ -114,8 +113,8 @@ def add_uniques(session, sample, vdjs, paired, realign_len=None,
                     vdj.pad_length, max_padding
                 ))
             bucket_key = (
-                funcs.format_ties(vdj.v_gene, 'IGHV'),
-                funcs.format_ties(vdj.j_gene, 'IGHJ'),
+                funcs.format_ties(vdj.v_gene, 'IGHV', strip_alleles=True),
+                funcs.format_ties(vdj.j_gene, 'IGHJ', strip_alleles=True),
                 len(vdj.cdr3)
             )
             if bucket_key not in bucketed_seqs:
@@ -144,7 +143,7 @@ def add_uniques(session, sample, vdjs, paired, realign_len=None,
                 if dnautils.equal(larger.sequence, smaller.sequence):
                     larger.ids += smaller.ids
                     del sequences[i]
-            add_as_sequence(session, larger, sample, paired)
+            add_as_sequence(session, larger, sample)
     session.commit()
 
 
@@ -157,6 +156,13 @@ class GeneTies(dict):
 
         self.update(genes)
 
+        self.allele_lookup = {}
+        for name in self.keys():
+            self.allele_lookup[name] = set([])
+            for name2 in self.keys():
+                if name2.split('*')[0] == name.split('*')[0]:
+                    self.allele_lookup[name].add(name2)
+
     def all_ties(self, length, mutation, cutoff=True):
         ties = {}
         for name in self:
@@ -168,7 +174,7 @@ class GeneTies(dict):
         return ties
 
     def get_ties(self, genes, length, mutation):
-        ties = set(genes)
+        ties = set([])
         for gene in genes:
             ties.update(self.get_single_tie(gene, length, mutation))
         return ties
@@ -195,6 +201,7 @@ class GeneTies(dict):
                 p = self._hypergeom(length, mutation, K)
                 if p >= self.ties_prob_threshold:
                     self.ties[key][gene].add(name)
+            self.ties[key][gene] = self.all_alleles(self.ties[key][gene])
 
         return self.ties[key][gene]
 
@@ -210,11 +217,17 @@ class GeneTies(dict):
         return self.hypers[key]
 
     def mut_bucket(self, mut):
-        if 0 < mut <= .05:
+        if 0 <= mut <= .05:
             return .05
         if mut <= .15:
             return .15
         return .30
+
+    def all_alleles(self, genes):
+        all_genes = set([])
+        for gene in genes:
+            all_genes.update(self.allele_lookup[gene])
+        return all_genes
 
 
 def get_common_seq(seqs, cutoff=True):

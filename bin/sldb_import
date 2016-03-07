@@ -28,8 +28,6 @@ if __name__ == '__main__':
     parser.add_argument('sample_name', help='Name of sample')
     parser.add_argument('subject', help='Subject identifier')
     parser.add_argument('date', help='Date of sample')
-    parser.add_argument('--unpaired', action='store_true', help='Sets if the '
-                        'reads are unpaired')
     parser.add_argument('--ties', action='store_true', help='If specified '
                         'gene ties will be calculated from the imported '
                         'sequences')
@@ -39,6 +37,12 @@ if __name__ == '__main__':
                         help='If specified, trims the beginning N bases of '
                         'each sequence.  Useful for removing primers within '
                         'the V sequence (Default: None)')
+    parser.add_argument('--remap-js', nargs='+', default=None,
+                        help='Remaps J genes to others in the germline file. '
+                        'Format is FROM:TO[ FROM:TO[...]].  For example '
+                        'IGHJ1:IGHJ2 will remap any IGHJ1 gene to IGHJ2. The '
+                        'FROM gene can be a prefix but TO must be the full '
+                        'gene name')
 
     for key in ('subset', 'tissue', 'disease', 'lab', 'experimenter',
                 'ig_class', 'v_primer', 'j_primer'):
@@ -64,6 +68,14 @@ if __name__ == '__main__':
         if args.max_padding < args.trim_to:
             parser.error('--max-padding cannot be less than --trim-to')
 
+    if args.remap_js:
+        remaps = {}
+        for rm in args.remap_js:
+            rm = rm.split(':')
+            if len(rm) != 2:
+                parser.error('--remap-js must be in format FROM:TO')
+            remaps[rm[0]] = rm[1]
+
     session = config.init_db(args.db_config)
 
-    sys.exit(run_import(session, args))
+    sys.exit(run_import(session, args, remaps))

@@ -1,6 +1,6 @@
 import dnautils
 from Bio import SeqIO
-from sldb.identification import GeneTies, get_common_seq
+from sldb.identification import GeneTies
 
 
 class JGermlines(GeneTies):
@@ -14,7 +14,7 @@ class JGermlines(GeneTies):
         with open(path_to_germlines) as fh:
             for record in SeqIO.parse(fh, 'fasta'):
                 assert record.id.startswith('IGHJ')
-                if all(map(lambda c: c in 'ATCG', record.seq)):
+                if all(map(lambda c: c in 'ATCGN-', record.seq)):
                     self[record.id] = str(record.seq).upper()
                     if (self._min_length is None or
                             len(self[record.id]) < self._min_length):
@@ -56,6 +56,12 @@ class JGermlines(GeneTies):
                     yield trimmed_seq, j
 
     def get_single_tie(self, gene, length, mutation):
-        return super(JGermlines, self).get_single_tie(
-            gene, self._min_length, mutation
-        )
+        seq = self[gene][-self.anchor_len:]
+        tied = self.all_alleles(set([gene]))
+        for j, other_seq in sorted(self.iteritems()):
+            other_seq = other_seq[-self.anchor_len:][:len(seq)]
+            if other_seq == seq:
+                tied.add(j)
+            elif dnautils.hamming(other_seq, seq) == 0:
+                tied.add(j)
+        return tied

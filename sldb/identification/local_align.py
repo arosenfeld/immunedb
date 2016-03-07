@@ -185,9 +185,6 @@ class LocalAlignmentWorker(concurrent.Worker):
             # TODO: Quality
             'germline': final_germ,
 
-            # NOTE: These  may not be correct
-            'paired': True,
-
             'stop': stop,
             'in_frame': in_frame,
             'functional': stop and in_frame,

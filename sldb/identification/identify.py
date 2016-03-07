@@ -107,8 +107,7 @@ class IdentificationWorker(concurrent.Worker):
             self._print('\tRe-aligning {} sequences to V-ties, Mutations={}, '
                         'Length={}'.format(
                             len(vdjs), round(avg_mut, 2), round(avg_len, 2)))
-            add_uniques(self._session, sample, vdjs.values(),
-                        meta.get('paired'), avg_len, avg_mut,
+            add_uniques(self._session, sample, vdjs.values(), avg_len, avg_mut,
                         self._min_similarity, self._max_vties, self._trim_to,
                         self._max_padding)
 

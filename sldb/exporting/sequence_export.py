@@ -49,7 +49,6 @@ class SequenceExport(Exporter):
         'study_id': lambda seq: seq.sample.study.id,
         'study_name': lambda seq: seq.sample.study.name,
 
-        'paired': lambda seq: seq.paired,
         'partial': lambda seq: seq.partial,
         'probable_indel_or_misalign':
             lambda seq: seq.probable_indel_or_misalign,

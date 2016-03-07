@@ -62,7 +62,7 @@ class VDJSequence(object):
         if analyze:
             self.analyze()
 
-    def analyze(self, ):
+    def analyze(self):
         if not all(map(lambda c: c in 'ATCGN', self.sequence)):
             raise AlignmentException('Invalid characters in sequence.')
 
@@ -131,8 +131,7 @@ class VDJSequence(object):
         # TGGTCACCGTCTCCT
         # TGGTCACCGTCT
 
-        for match, j_gene in self.j_germlines.get_all_anchors():
-            #allowed_genes=self._force_js):
+        for match, j_gene in self.j_germlines.get_all_anchors(self._force_js):
             i = self.sequence.rfind(match)
             if i >= 0:
                 return self._found_j(i, j_gene, match)
@@ -167,7 +166,14 @@ class VDJSequence(object):
         )
         best_dist = None
         self._j = []
-        for j_gene, j_seq in self.j_germlines.iteritems():
+        if self._force_js:
+            j_germs = {
+                k: v for k, v in self.j_germlines.iteritems()
+                if k in self._force_js
+            }
+        else:
+            j_germs = self.j_germlines
+        for j_gene, j_seq in j_germs.iteritems():
             seq_j = self.sequence[end_of_j - len(j_seq):end_of_j]
             dist = dnautils.hamming(seq_j, j_seq[:len(seq_j)])
             if best_dist is None or dist < best_dist:

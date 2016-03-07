@@ -386,7 +386,6 @@ class Sequence(Base):
     :param Relationship sample: Reference to the associated \
         :py:class:`Sample` instance
 
-    :param bool paired: If the sequence is from a paired-end read
     :param bool partial: If the sequence is a partial read
     :param bool probable_indel_or_misalign: If the sequence likely has an \
         indel or is a bad alignment
@@ -474,7 +473,6 @@ class Sequence(Base):
     seq_id = Column(String(64), index=True)
     sample = relationship(Sample, backref=backref('sequences'))
 
-    paired = Column(Boolean)
     partial = Column(Boolean, index=True)
 
     probable_indel_or_misalign = Column(Boolean)

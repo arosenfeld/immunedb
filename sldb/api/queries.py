@@ -637,7 +637,7 @@ def get_sequence(session, sample_id, seq_id):
         .filter(Sequence.sample_id == sample_id,
                 Sequence.seq_id == seq_id).one()
     ret = _fields_to_dict([
-        'seq_id', 'partial', 'paired', 'v_gene', 'j_gene', 'cdr3_nt',
+        'seq_id', 'partial', 'v_gene', 'j_gene', 'cdr3_nt',
         'cdr3_aa', 'germline', 'v_match', 'j_match', 'v_length',
         'j_length', 'in_frame', 'functional', 'stop', 'copy_number',
         'sequence', 'pre_cdr3_length', 'pre_cdr3_match', 'post_cdr3_length',
@@ -711,7 +711,7 @@ def get_sequences(session, filters, order_field, order_dir, subject_id=None,
 
     for row in _page_query(query, paging):
         fields = _fields_to_dict(
-            ['seq_id', 'paired', 'v_gene', 'j_gene', 'v_match', 'j_match',
+            ['seq_id', 'v_gene', 'j_gene', 'v_match', 'j_match',
              'v_length', 'j_length', 'cdr3_num_nts', 'cdr3_aa', 'in_frame',
              'functional', 'stop', 'partial', 'probable_indel_or_misalign',
              'copy_number'],
