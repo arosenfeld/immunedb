@@ -32,7 +32,6 @@ class TestImport(BaseTest.RegressionTest):
             ig_class='IgE',
             v_primer='Leader',
             j_primer='Trailer',
-            unpaired=False,
             trim_to=None,
             max_padding=None
         )

@@ -66,8 +66,6 @@ characters, when applicable, is shown in parenthesis):
   the entire SLDB instance as they are not contextual to the study.  Therefore
   if two studies use the same identifier for different subjects, they must be
   given new distinct identifiers.
-- ``paired``: A ``true`` or ``false`` value (**not a string**) indicating if
-  the reads in the sample are paired-end.
 
 The following are **optional** for each file:
 
@@ -94,7 +92,6 @@ metadata file:
     {
         "all": {
             "study_name": "Lupus",
-            "paired": true
         },
         "subjectABC_spleen.fasta": {
             "sample_name": "ABC_SPLEEN",
