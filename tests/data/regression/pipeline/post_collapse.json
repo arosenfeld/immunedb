@@ -3202,7 +3202,7 @@
         "collapse_to_subject_sample_id": 2,
         "collapse_to_subject_seq_ai": 458,
         "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:19097:13460_DUPLICATED",
-        "copy_number_in_subject": 2,
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "459": {
@@ -7654,6 +7654,20 @@
         "collapse_to_subject_sample_id": 2,
         "collapse_to_subject_seq_ai": 1094,
         "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:19330:8949",
+        "copy_number_in_subject": 1,
+        "instances_in_subject": 1
+    },
+    "1095": {
+        "collapse_to_subject_sample_id": 1,
+        "collapse_to_subject_seq_ai": 1095,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:8273:23038",
+        "copy_number_in_subject": 1,
+        "instances_in_subject": 1
+    },
+    "1096": {
+        "collapse_to_subject_sample_id": 1,
+        "collapse_to_subject_seq_ai": 1096,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:7615:13908",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     }
