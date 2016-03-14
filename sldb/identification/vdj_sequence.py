@@ -177,6 +177,7 @@ class VDJSequence(object):
             seq_j = self.sequence[end_of_j - len(j_seq):end_of_j]
             dist = dnautils.hamming(seq_j, j_seq[:len(seq_j)])
             if best_dist is None or dist < best_dist:
+                best_dist = dist
                 self._j = set([j_gene])
             elif dist == best_dist:
                 self._j.add(j_gene)
