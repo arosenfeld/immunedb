@@ -1,15 +1,16 @@
 FROM ubuntu:14.04
 RUN apt-get install -y software-properties-common
 RUN apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xcbcb082a1bb943db
-RUN add-apt-repository 'deb [arch=amd64,i386] http://mirror.jmu.edu/pub/mariadb/repo/10.1/ubuntu trusty main'
-RUN apt-get update
-RUN sudo apt-get install -y python-numpy python-scipy python-setuptools supervisor mariadb-server
+RUN apt-get update && apt-get install -y python-numpy python-scipy python-setuptools wget
 COPY setup.py /app/
 COPY sldb/ /app/sldb
 COPY lib/ /app/lib
 COPY bin/ /app/bin
 WORKDIR /app
 RUN python setup.py install
-COPY docker/supervisord.conf /etc/supervisor
-COPY docker/my.cnf /etc/mysql
-CMD ["/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
+RUN wget https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh
+RUN chmod +x wait-for-it.sh
+RUN mkdir /configs
+CMD /app/./wait-for-it.sh -t 0 mariadb:3306 -- \
+    sldb_admin create root sldb /configs --db-host mariadb --admin-pass insecure_password && \
+    sldb_rest /configs/sldb.json
