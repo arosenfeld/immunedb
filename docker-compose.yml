@@ -1,0 +1,14 @@
+version: '2'
+services:
+  sldb:
+    build: .
+    ports:
+      - "5000:5000"
+    depends_on:
+      - mariadb
+  mariadb:
+    image: mariadb
+    volumes:
+        - ./docker/mariadb:/etc/mysql/conf.d
+    environment:
+      - MYSQL_ROOT_PASSWORD=insecure_password
