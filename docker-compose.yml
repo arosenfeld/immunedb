@@ -1,8 +1,7 @@
 version: '2'
 services:
   sldb:
-    build: .
-    #image: arosenfeld/sldb
+    image: arosenfeld/sldb
     ports:
       - 5000:${API_PORT}
     depends_on:
