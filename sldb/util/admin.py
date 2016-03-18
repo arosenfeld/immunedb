@@ -81,7 +81,7 @@ def create(main_parser, args):
                     db_pass = _get_user_pass(conn, args.db_host, db_user,
                                              existing_password)
                 else:
-                    return False
+                    return True
 
             print 'Creating database "{}"'.format(args.db_name)
             cursor.execute('CREATE DATABASE {}'.format(args.db_name))
