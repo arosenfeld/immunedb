@@ -31,7 +31,11 @@ class ClearcutWorker(concurrent.Worker):
 
         fasta, remove_muts = self._get_fasta_input(germline_seq, clone_inst.id)
         newick = _get_newick(fasta, self._tree_prog)
-        tree = self._get_tree(newick, germline_seq, remove_muts)
+        try:
+            tree = self._get_tree(newick, germline_seq, remove_muts)
+        except Exception as e:
+            self._print('Error running clone {}: {}'.format(clone_id, e))
+            return
 
         tree.set_outgroup('germline')
         tree.search_nodes(name='germline')[0].delete()
