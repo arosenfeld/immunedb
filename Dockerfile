@@ -11,6 +11,5 @@ RUN python setup.py install
 RUN wget https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh
 RUN chmod +x wait-for-it.sh
 RUN mkdir /configs
-CMD /app/./wait-for-it.sh -t 0 mariadb:3306 -- \
-    sldb_admin create root sldb /configs --db-host mariadb --admin-pass insecure_password && \
-    sldb_rest /configs/sldb.json
+COPY docker/configs/sldb.json /configs/sldb.json
+CMD /app/./wait-for-it.sh -t 0 mariadb:3306 -- sldb_rest /configs/sldb.json
