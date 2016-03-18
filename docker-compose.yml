@@ -1,7 +1,7 @@
 version: '2'
 services:
   sldb:
-    build: .
+    image: arosenfeld/sldb
     ports:
       - "5000:5000"
     depends_on:
@@ -10,5 +10,12 @@ services:
     image: mariadb
     volumes:
         - ./docker/mariadb:/etc/mysql/conf.d
+        - ~/.sldb-data:/var/lib/mysql
     environment:
       - MYSQL_ROOT_PASSWORD=insecure_password
+  frontend:
+      image: arosenfeld/sldb-frontend
+      environment:
+        - BASE_URL=${BASE_URL}
+      ports:
+        - "8080:8080"
