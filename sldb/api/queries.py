@@ -350,7 +350,7 @@ def get_clone_overlap(session, sample_ids, filter_type, paging=None):
 
     if paging:
         start, per_page = paging
-        clones = clones[start:start + per_page]
+        clones = clones[start * per_page:(start + 1) + per_page]
     # END NOTE
 
     for clone_id, functional, unique_cnt, total_cnt in clones:
