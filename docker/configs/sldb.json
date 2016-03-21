@@ -1,0 +1,7 @@
+{
+    "host": "mariadb",
+    "database": "sldb",
+    "username": "root",
+    "password": "insecure_password"
+}
+
