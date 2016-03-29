@@ -8,7 +8,9 @@
 
 static PyObject *DNAUtilError;
 
-static PyObject *dnautils_equal(PyObject *self, PyObject *args) {
+static PyObject*
+dnautils_equal(PyObject *self, PyObject *args)
+{
     PyObject *s1, *s2;
     char *str1, *str2;
     unsigned int i;
@@ -37,7 +39,9 @@ static PyObject *dnautils_equal(PyObject *self, PyObject *args) {
     return Py_BuildValue("O", Py_True);
 }
 
-static PyObject *dnautils_hamming(PyObject *self, PyObject *args) {
+static PyObject*
+dnautils_hamming(PyObject *self, PyObject *args)
+{
     PyObject *s1, *s2;
     char *str1, *str2;
     unsigned int i;
@@ -76,7 +80,8 @@ static PyMethodDef DNAUtilsMethods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-PyMODINIT_FUNC initdnautils(void)
+PyMODINIT_FUNC
+initdnautils(void)
 {
     PyObject *module;
     module = Py_InitModule("dnautils", DNAUtilsMethods);
