@@ -32,6 +32,7 @@ setup(
         'bin/sldb_import',
         'bin/sldb_rest',
         'bin/sldb_sample_stats',
+        'bin/sldb_sql',
     ],
     install_requires=[
         'gevent',
