@@ -1,8 +1,8 @@
 Common Classes & Functions --- ``sldb.common``
-================================
+==============================================
 
 Configuration --- ``sldb.common.config``
--------------
+----------------------------------------
 The ``sldb.common.config`` module provides methods to initialize a
 connection to a new or existing database.
 
@@ -49,14 +49,11 @@ database.
     :members:
 
 Mutations --- ``sldb.common.mutations``
----------
+---------------------------------------
 Mutation statistics are calculated with the :py:class:`Mutations
-<sldb.common.mutations.Mutations>` class.  This is generally done for clones
-only but can be done with any set of equal-length sequences for which a base
-(germline) sequence can be specified.
+<sldb.common.mutations.ContextualMutations>` class.  This is generally done for
+clones only but can be done with any set of equal-length sequences for which a
+base (germline) sequence can be specified.
 
-.. autoclass:: sldb.common.mutations.Mutations
-    :members:
-
-.. autoclass:: sldb.common.mutations.MutationType
+.. automodule:: sldb.common.mutations
     :members:

@@ -225,7 +225,6 @@ class Clone(Base):
         :py:class:`Subject` instance
     :param str germline: The germline sequence for this sequence
     :param str tree: The textual representation of the clone's lineage tree
-    :
 
     """
     __tablename__ = 'clones'
@@ -320,8 +319,8 @@ class HashExtension(MapperExtension):
 
 
 class CloneStats(Base):
-    """Stores statistics for a given clone and sample.  If sample is zero (0)
-    the statistics are for the specified clone in all samples.
+    """Stores statistics for a given clone and sample.  If sample is null the
+    statistics are for the specified clone in all samples.
 
     :param int clone_id: The clone ID
     :param Relationship clone: Reference to the associated \

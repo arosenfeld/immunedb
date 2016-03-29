@@ -5,22 +5,40 @@ information, bypassing the Python API.
 
 Accessing the Database
 ----------------------
-There are many ways to access the database directly for example through a DBAPI
-available for all commonly used languages.  Alternatively, one can access MySQL
-directly from the command line with:
+There are many ways to access the database directly.  The two introduced here
+are directly through MySQL or using ``sldb_sql`` which simply wraps a call to
+MySQL.
+
+Directly with MySQL
+^^^^^^^^^^^^^^^^^^^
+
+From the command line, you may access an SLDB database ``DATABASE`` from user
+``USERNAME`` with:
 
 .. code-block:: bash
 
-    $ myqsql -u USERNAME -p DATABASE
+    $ mysql -u USERNAME -p DATABASE
 
-This will connect to the database ``DATABASE`` with the username ``USERNAME``.
-
-This method of access is useful for quickly querying the database.  To save
-results of a query ``QUERY`` run the command:
+This will prompt for a password and then to the database.  This method of access
+is useful for quickly querying the database.  To save results of a query
+``QUERY`` run the command:
 
 .. code-block:: bash
 
-    $ myqsql -u USERNAME -p DATABASE -e "QUERY" > output
+    $ mysql -u USERNAME -p DATABASE -e "QUERY" > output
+
+Since SLDB stores usernames and passwords in config files ``sldb_sql`` is provided
+as a small wrapper around the ``mysql`` command.  It can be invoked with:
+
+With the ``sldb_sql`` wrapper
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: bash
+
+    $ sldb_sql PATH_TO_CONFIG
+
+This is entirely equivalent to using ``mysql`` and will drop to the MySQL
+interpreter.
 
 
 Querying

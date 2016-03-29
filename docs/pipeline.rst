@@ -142,13 +142,13 @@ be downloaded from `IMGT's Gene-DB <http://imgt.org/genedb>`_ directly.
 
 For V Germlines
 ^^^^^^^^^^^^^^^
-
-- Genes must be in the format IGHVX*Y where X is the gene name and Y is the
-  allele.  For example, IGHV1-18*01, IGHV5-a*03, and IGHV7-4-1*05 are all valid.
-  However, IGHV1-18 and V1-18*01 are not.
-- Germlines starting with gaps are excluded from alignment.
+- Genes must be in the format IGHVX*Y or IGHVX where X is the gene name and Y is the
+  allele.  For example, IGHV1-18*01, IGHV5-a*03, and IGHV7-4-1 are all valid.
+  However, V1-18*01 or Homosap IGHV4-34 are not.
 - Germlines must be IMGT gapped.
-- V germlines must have have one of the following amino-acid anchors with the
+- Germlines starting with gaps are excluded from alignment.
+- SLDB uses the V/J alignment method found in `PMID: 26529062`.  This requires V
+  germlines to have have one of the following amino-acid anchors with the
   trailing ``C`` being the first residue in the CDR3: ``D...Y[YCH]C``,
   ``Y[YHC]C`` or ``D.....C``.  The ``.`` character represents any amino acid,
   and ``[YHC]`` indicates any one of ``Y``, ``H``, or ``C``.
