@@ -53,7 +53,8 @@ class ClearcutWorker(concurrent.Worker):
         final = {
             'info': {
                 'min_count': self._min_count,
-                'min_samples': self._min_samples
+                'min_samples': self._min_samples,
+                'exclude_stops': self._exclude_stops
             },
             'tree': _get_json(tree)
         }

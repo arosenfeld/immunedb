@@ -16,7 +16,7 @@ def _if_sample(f, val=''):
 class CloneExport(Exporter):
     _allowed_fields = OrderedDict({
         'clone_id': lambda s: s.clone_id,
-        'sample_id': _if_sample(lambda s: s.sample_id),
+        'sample_id': _if_sample(lambda s: s.sample_id, 'Total'),
         'unique_sequences': lambda s: s.unique_cnt,
         'total_sequences': lambda s: s.total_cnt,
 
@@ -25,7 +25,7 @@ class CloneExport(Exporter):
         'cdr3_nt': lambda s: s.clone.cdr3_nt,
         'cdr3_aa': lambda s: s.clone.cdr3_aa,
         'cdr3_num_nts': lambda s: s.clone.cdr3_num_nts,
-        'functional': lambda s: s.clone.cdr3_num_nts % 3 == 0,
+        'functional': lambda s: s.clone.functional,
 
         'sample_name': _if_sample(lambda s: s.sample.name, 'Total'),
         'subject_id': _if_sample(lambda s: s.sample.subject.id),
@@ -40,7 +40,7 @@ class CloneExport(Exporter):
         'lab': _if_sample(lambda s: s.sample.lab),
         'experimenter': _if_sample(lambda s: s.sample.experimenter),
         'date': _if_sample(lambda s: s.sample.date),
-        'tree': _if_sample(lambda s: s.clone.tree),
+        'tree': lambda s: s.clone.tree,
     })
 
     def __init__(self, session, rtype, rids, selected_fields):
