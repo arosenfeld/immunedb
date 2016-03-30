@@ -10,7 +10,8 @@ services:
     image: mariadb
     volumes:
         - ./docker/mariadb:/etc/mysql/conf.d
-        - ${VOLUME}:/var/lib/mysql
+        - ${DB_VOLUME}:/var/lib/mysql
+        - ${DATA_VOLUME}:/data
     environment:
       - MYSQL_ROOT_PASSWORD=insecure_password
   frontend:
