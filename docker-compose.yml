@@ -1,8 +1,7 @@
 version: '2'
 services:
   sldb:
-    #image: arosenfeld/sldb
-    build: .
+    image: arosenfeld/sldb
     volumes:
       - ${DATA_VOLUME}:/root/data:ro
     ports:
