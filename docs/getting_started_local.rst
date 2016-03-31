@@ -1,9 +1,8 @@
-Overview
-============
-Terminology
------------
-In this documentation the term **database** will always refer to a MySQL database
-and **instance** or **SLDB instance** will always refer to a deployment of SLDB.
+Getting Started (Bare Metal)
+====================================
+This section details how to set SLDB up locally on a machine.  Alternatively,
+you can use :ref:`Docker Compose <docker_install>` to get up and running more
+quickly.
 
 Dependency Installation
 ---------------------

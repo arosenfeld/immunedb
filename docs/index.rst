@@ -51,12 +51,13 @@ SLDB has four primary components:
 Each of the components can be used independently so long as the underlying
 database is properly populated.
 
-Getting Started
+Table of Contents
 ---------------
 .. toctree::
     :maxdepth: 2
 
-    overview
+    getting_started_docker
+    getting_started_local
     pipeline
     database
 
