@@ -22,4 +22,4 @@ services:
         - API_ENDPOINT=${API_ENDPOINT}
         - PRODUCTION=${PRODUCTION}
       ports:
-        - 8080:${SERVE_PORT}
+          - ${SERVE_PORT}:8080
