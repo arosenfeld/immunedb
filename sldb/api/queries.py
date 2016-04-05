@@ -1,3 +1,4 @@
+from collections import OrderedDict
 import json
 import math
 import numpy as np
@@ -317,41 +318,51 @@ def get_clone_tree(session, clone_id):
     return json.loads(tree) if tree is not None else None
 
 
-def get_clone_overlap(session, sample_ids, filter_type, paging=None):
+def get_clone_overlap(session, sample_ids, filter_type, paging=None,
+                      all_clones_cache=[], query_cache=OrderedDict(),
+                      max_cache_size=5):
     """Gets a list of clones and the samples in `samples` which they appear"""
     res = []
+    key = (tuple(sample_ids), filter_type)
+    if key in query_cache:
+        clones = query_cache[key]
+    else:
+        if len(all_clones_cache) == 0:
+            clones = session.query(
+                CloneStats.clone_id,
+                CloneStats.functional,
+                CloneStats.unique_cnt,
+                CloneStats.total_cnt
+            ).filter(
+                CloneStats.sample_id.is_(None)
+            )
+            all_clones_cache.extend(clones.all())
+        clones = all_clones_cache
 
-    clones = session.query(
-        CloneStats.clone_id,
-        CloneStats.functional,
-        CloneStats.unique_cnt,
-        CloneStats.total_cnt
-    ).filter(
-        CloneStats.sample_id.is_(None)
-    )
+        # NOTE: This is not part of the above query since for very large datasets
+        # doing this in-memory drastically reduces processing time
+        clones_present = set([c.cid for c in
+            session.query(distinct(CloneStats.clone_id).label('cid')).filter(
+            CloneStats.sample_id.in_(sample_ids)
+            )
+        ])
 
-    # NOTE: This is not part of the above query since for very large datasets
-    # doing this in-memory drastically reduces processing time
-    clones_present = set([c.cid for c in
-        session.query(distinct(CloneStats.clone_id).label('cid')).filter(
-        CloneStats.sample_id.in_(sample_ids)
+        if filter_type != 'clones_all':
+            clones = [c for c in clones
+                if c.functional == (filter_type == 'clones_functional') and
+                c.clone_id in clones_present
+            ]
+        clones = sorted(
+            clones,
+            cmp=lambda a, b: cmp(b.unique_cnt, a.unique_cnt)
         )
-    ])
-
-    if filter_type != 'clones_all':
-        clones = [c for c in clones
-            if c.functional == (filter_type == 'clones_functional') and
-            c.clone_id in clones_present
-        ]
-    clones = sorted(
-        clones,
-        cmp=lambda a, b: cmp(b.unique_cnt, a.unique_cnt)
-    )
+        if len(query_cache) >= max_cache_size:
+            query_cache.pop(last=False)
+        query_cache[key] = clones
 
     if paging:
         start, per_page = paging
-        clones = clones[start * per_page:(start + 1) + per_page]
-    # END NOTE
+        clones = clones[(start - 1) * per_page:start * per_page]
 
     for clone_id, functional, unique_cnt, total_cnt in clones:
         selected_samples = []
