@@ -28,6 +28,7 @@ FIX_INDELS = 1
 
 def get_selection(session, clone_id, script_path, samples=None,
                   min_mut_count=1,
+                  max_mut_count=None,
                   temp_dir='/tmp',
                   test_type=TEST_FOCUSED,
                   species=SPECIES_HUMAN,
@@ -46,7 +47,8 @@ def get_selection(session, clone_id, script_path, samples=None,
     read_path = os.path.join(temp_dir, 'output{}{}.txt'.format(unique_id,
                              clone.id))
 
-    _make_input_file(session, input_path, clone, samples, min_mut_count)
+    _make_input_file(session, input_path, clone, samples, min_mut_count,
+                     max_mut_count)
     cmd = 'Rscript {} {} {} {} {} {} {} {} {} {} {}'.format(
         script_path, test_type, species,
         sub_model, mut_model, SEQ_CLONAL,
@@ -69,7 +71,8 @@ def get_selection(session, clone_id, script_path, samples=None,
     return output
 
 
-def _make_input_file(session, input_path, clone, samples, min_mut_count):
+def _make_input_file(session, input_path, clone, samples, min_mut_count,
+                     max_mut_count):
     with open(input_path, 'w+') as fh:
         fh.write('>>>CLONE\n')
         fh.write('>>germline\n')
@@ -87,7 +90,7 @@ def _make_input_file(session, input_path, clone, samples, min_mut_count):
             seqs = seqs.filter(Sequence.sample_id.in_(samples),
                                Sequence.copy_number > 0)
 
-        if min_mut_count > 1:
+        if min_mut_count > 1 or max_mut_count is not None:
             removes = collections.Counter()
             seqs = seqs.all()
             # Iterate over each sequence and increment the count for each
@@ -101,7 +104,7 @@ def _make_input_file(session, input_path, clone, samples, min_mut_count):
             # Filter out the mutations
             removes = [
                 mut for mut, cnt in removes.iteritems()
-                if cnt < min_mut_count
+                if cnt < min_mut_count or cnt > max_mut_count
             ]
 
             # Remove the remaining mutations
@@ -204,17 +207,32 @@ class SelectionPressureWorker(concurrent.Worker):
 
         selection_pressure = {}
         for threshold in self._thresholds:
-            min_seqs = int(
-                math.ceil(int(threshold[:-1]) / 100.0 * total_seqs)
-                if '%' in threshold
-                else threshold
+            if threshold.endswith('E'):
+                min_seqs = max_seqs = int(threshold[:-1])
+            else:
+                min_seqs = int(
+                    math.ceil(int(threshold[:-1]) / 100.0 * total_seqs)
+                    if '%' in threshold
+                    else threshold
+                )
+                max_seqs = None
+            selection_pressure[threshold] = base_call(
+                min_mut_count=min_seqs, max_mut_count=max_seqs
             )
-            selection_pressure[threshold] = base_call(min_mut_count=min_seqs)
 
-        self._session.query(CloneStats).filter(
+        cs = self._session.query(CloneStats).filter(
             CloneStats.clone_id == clone_id,
             CloneStats.sample_id == sample_id
-        ).first().selection_pressure = json.dumps(selection_pressure)
+        ).first()
+        if cs.selection_pressure is None:
+            cs.selection_pressure = json.dumps(selection_pressure)
+        else:
+            updated_pressure = json.loads(
+                cs.selection_pressure
+            )
+            updated_pressure.update(selection_pressure)
+            cs.selection_pressure = json.dumps(updated_pressure)
+
 
         # If this clone only appears in one sample, the 'total clone' pressure
         # is the same as for the single sample
@@ -222,7 +240,7 @@ class SelectionPressureWorker(concurrent.Worker):
             self._session.query(CloneStats).filter(
                 CloneStats.clone_id == clone_id,
                 CloneStats.sample_id.is_(None)
-            ).first().selection_pressure = json.dumps(selection_pressure)
+            ).first().selection_pressure = cs.selection_pressure
 
     def cleanup(self):
         self._session.commit()

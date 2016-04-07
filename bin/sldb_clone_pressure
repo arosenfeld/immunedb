@@ -25,18 +25,20 @@ if __name__ == '__main__':
                         'selection pressures.  Positive integers indicate the '
                         'minimum number of sequences.  If an argument ends '
                         'with %%, it specifies the minimum percentage of '
-                        'sequences.  For example, \'--thresholds 1 2 85%%"\' '
+                        'sequences.  If an argument ends with E, it specifies '
+                        'the exact number of times the mutation can occur.'
+                        'For example, \'--thresholds 1 1E 2 85%%"\' '
                         'will calculate selection pressure for mutations '
-                        'occurring at least once (all mutations), at least '
-                        'twice, and in at least 85%% of sequences. '
-                        '(Default: 1 2 85%%)',
+                        'occurring at least once (all mutations), exactly '
+                        'once, at least twice, and in at least 85%% of '
+                        'sequences. (Default: 1 2 85%%)',
                         default=['1', '2', '85%'])
     args = parser.parse_args()
     if args.subject_ids is not None and args.clone_ids is not None:
         parser.error('May only specify subject or clone IDs')
 
     for i, orig_threshold in enumerate(args.thresholds):
-        if orig_threshold.endswith('%'):
+        if orig_threshold.endswith('%') or orig_threshold.endswith('E'):
             threshold = orig_threshold[:-1]
         else:
             threshold = orig_threshold
