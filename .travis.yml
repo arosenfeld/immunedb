@@ -12,11 +12,10 @@ addons:
       - gfortran
       - python-numpy
       - python-scipy
-before_install:
-  - git clone --recursive https://github.com/noporpoise/seq-align ~/seq-align
-  - cd ~/seq-align && make
 install:
   - python setup.py install
+  - git clone --recursive https://github.com/noporpoise/seq-align ~/seq-align
+  - cd ~/seq-align && make
 before_script:
   - mysql -u root -e 'SET GLOBAL innodb_file_format=barracuda;';
   - mysql -u root -e 'SET GLOBAL innodb_file_per_table=ON;';
