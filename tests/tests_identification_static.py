@@ -2,10 +2,10 @@ import os
 
 from Bio.Seq import Seq
 
-from sldb.identification.vdj_sequence import VDJSequence
-from sldb.identification.v_genes import VGermlines
-from sldb.identification.j_genes import JGermlines
-import sldb.util.lookups as lookups
+from airrdb.identification.vdj_sequence import VDJSequence
+from airrdb.identification.v_genes import VGermlines
+from airrdb.identification.j_genes import JGermlines
+import airrdb.util.lookups as lookups
 
 
 def test_vdj():

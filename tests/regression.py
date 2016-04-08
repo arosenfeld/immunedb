@@ -2,15 +2,15 @@ import json
 import os
 import unittest
 
-import sldb.common.config as config
-from sldb.common.models import (Clone, CloneStats, DuplicateSequence, NoResult,
+import airrdb.common.config as config
+from airrdb.common.models import (Clone, CloneStats, DuplicateSequence, NoResult,
                                 Sample, SampleStats, Sequence,
                                 SequenceCollapse)
-from sldb.identification.local_align import run_fix_sequences
-from sldb.aggregation.clones import run_clones
-from sldb.aggregation.collapse import run_collapse
-from sldb.aggregation.clone_stats import run_clone_stats
-from sldb.aggregation.sample_stats import run_sample_stats
+from airrdb.identification.local_align import run_fix_sequences
+from airrdb.aggregation.clones import run_clones
+from airrdb.aggregation.collapse import run_collapse
+from airrdb.aggregation.clone_stats import run_clone_stats
+from airrdb.aggregation.sample_stats import run_sample_stats
 
 
 DB_NAME = 'test_db'

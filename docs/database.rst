@@ -1,18 +1,18 @@
 Directly Querying the Database
 ==============================
-SLDB is backed by a MySQL database that can be queried directly to gather
+AIRRDB is backed by a MySQL database that can be queried directly to gather
 information, bypassing the Python API.
 
 Accessing the Database
 ----------------------
 There are many ways to access the database directly.  The two introduced here
-are directly through MySQL or using ``sldb_sql`` which simply wraps a call to
+are directly through MySQL or using ``airrdb_sql`` which simply wraps a call to
 MySQL.
 
 Directly with MySQL
 ^^^^^^^^^^^^^^^^^^^
 
-From the command line, you may access an SLDB database ``DATABASE`` from user
+From the command line, you may access an AIRRDB database ``DATABASE`` from user
 ``USERNAME`` with:
 
 .. code-block:: bash
@@ -27,15 +27,15 @@ is useful for quickly querying the database.  To save results of a query
 
     $ mysql -u USERNAME -p DATABASE -e "QUERY" > output
 
-Since SLDB stores usernames and passwords in config files ``sldb_sql`` is provided
+Since AIRRDB stores usernames and passwords in config files ``airrdb_sql`` is provided
 as a small wrapper around the ``mysql`` command.  It can be invoked with:
 
-With the ``sldb_sql`` wrapper
+With the ``airrdb_sql`` wrapper
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
 .. code-block:: bash
 
-    $ sldb_sql PATH_TO_CONFIG
+    $ airrdb_sql PATH_TO_CONFIG
 
 This is entirely equivalent to using ``mysql`` and will drop to the MySQL
 interpreter.
@@ -58,7 +58,7 @@ count the rows:
 This query will work, but may be slow with large datasets.  Two tables can
 assist in some computationally-expensive queries by providing pre-aggregated
 information.  The ``CloneStats`` and ``SampleStats`` tables are pre-populated
-with the ``sldb_clone_stats`` and ``sldb_sample_stats`` :doc:`pipeline
+with the ``airrdb_clone_stats`` and ``airrdb_sample_stats`` :doc:`pipeline
 </pipeline>` commands.
 
 This same result could be achieved more quickly with:
