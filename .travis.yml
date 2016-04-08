@@ -7,6 +7,8 @@ install:
   - python setup.py install
   - git clone --recursive https://github.com/noporpoise/seq-align ~/seq-align
   - cd ~/seq-align && make
+before_install:
+  - apt-get install -qq python-numpy python-scipy
 before_script:
   - mysql -u root -e 'SET GLOBAL innodb_file_format=barracuda;';
   - mysql -u root -e 'SET GLOBAL innodb_file_per_table=ON;';
