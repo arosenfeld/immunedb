@@ -4,8 +4,6 @@ python:
 services:
   - mysql
 install:
-  - pip install numpy
-  - pip install scipy
   - python setup.py install
   - git clone --recursive https://github.com/noporpoise/seq-align ~/seq-align
   - cd ~/seq-align && make
