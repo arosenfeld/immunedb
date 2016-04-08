@@ -1,8 +1,8 @@
 AIRRDB Documentation
 ==================
-The SimLab Database (AIRRDB) package is a Python module that facilitate efficient
-storage and analysis of high-throughput B- and T-cell sequence data.  It's
-primary goals are to:
+The **Adaptive Immune Receptor Repertoire Database (AIRRDB)** package is a
+Python module that facilitate efficient storage and analysis of high-throughput
+B- and T-cell sequence data.  It's primary goals are to:
 
 - **Reduce ad-hoc scripting:** Data analysis performed on an ad-hoc basis with
   custom scripts and data formats is error-prone and leads to inconsistencies.
