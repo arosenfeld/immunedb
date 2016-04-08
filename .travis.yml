@@ -6,9 +6,9 @@ system_site_packages: true
 services:
   - mysql
 install:
-  - sudo apt-get install python-pip python-dev build-essential
+  - apt-get install python-pip python-dev build-essential
   - pip install --upgrade numpy
-  - sudo apt-get install libatlas-base-dev gfortran
+  - apt-get install libatlas-base-dev gfortran
   - pip install scipy
   - git clone --recursive https://github.com/noporpoise/seq-align ~/seq-align
   - cd ~/seq-align && make
