@@ -1,0 +1,17 @@
+language: python
+python:
+  - "2.7"
+services:
+  - mysql
+install:
+  - pip install numpy
+  - pip install scipy
+  - python setup.py install
+  - git clone --recursive https://github.com/noporpoise/seq-align ~/seq-align
+  - cd ~/seq-align && make
+before_script:
+  - mysql -u root -e 'SET GLOBAL innodb_file_format=barracuda;';
+  - mysql -u root -e 'SET GLOBAL innodb_file_per_table=ON;';
+  - mysql -u root -e 'SET GLOBAL innodb_large_prefix=ON;';
+script:
+  - LL_PATH=~/seq-align/bin/needleman_wunsch ./tests/run.sh
