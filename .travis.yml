@@ -3,11 +3,16 @@ python:
   - "2.7"
 services:
   - mysql
+addons:
+  apt:
+    packages:
+      - python-dev
+      - build-essential
+      - libatlas-base-dev
+      - gfortran
+      - python-numpy
+      - python-scipy
 before_install:
-  - apt-get install -y python-pip python-dev build-essential
-  - apt-get install -y libatlas-base-dev gfortran
-  - apt-get install -y python-numpy
-  - apt-get install -y python-scipy
   - git clone --recursive https://github.com/noporpoise/seq-align ~/seq-align
   - cd ~/seq-align && make
 install:
