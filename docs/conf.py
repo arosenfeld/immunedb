@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 #
-# SLDB documentation build configuration file, created by
+# AIRRDB documentation build configuration file, created by
 # sphinx-quickstart on Mon Jan  5 13:17:08 2015.
 #
 # This file is execfile()d with the current directory set to its
@@ -22,7 +22,7 @@ import sphinx_rtd_theme
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #sys.path.insert(0, os.path.abspath('.'))
-sys.path.insert(0, os.path.abspath('../sldb'))
+sys.path.insert(0, os.path.abspath('../airrdb'))
 
 # -- General configuration ------------------------------------------------
 
@@ -47,7 +47,7 @@ source_suffix = '.rst'
 master_doc = 'index'
 
 # General information about the project.
-project = 'SLDB'
+project = 'AIRRDB'
 copyright = '2016, Drexel University Systems Immunology Lab'
 
 # The version info for the project you're documenting, acts as replacement for
@@ -181,7 +181,7 @@ html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 #html_file_suffix = None
 
 # Output file base name for HTML help builder.
-htmlhelp_basename = 'SLDBdoc'
+htmlhelp_basename = 'AIRRDBdoc'
 
 
 # -- Options for LaTeX output ---------------------------------------------
@@ -201,7 +201,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-  ('index', 'SLDB.tex', 'SLDB Documentation',
+  ('index', 'AIRRDB.tex', 'AIRRDB Documentation',
    'Aaron Rosenfeld', 'manual'),
 ]
 
@@ -231,7 +231,7 @@ latex_documents = [
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
 man_pages = [
-    ('index', 'sldb', 'SLDB Documentation',
+    ('index', 'airrdb', 'AIRRDB Documentation',
      ['Aaron Rosenfeld'], 1)
 ]
 
@@ -245,8 +245,9 @@ man_pages = [
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-  ('index', 'SLDB', 'SLDB Documentation',
-   'Aaron Rosenfeld', 'SLDB', 'One line description of project.',
+  ('index', 'AIRRDB', 'AIRRDB Documentation',
+   'Aaron Rosenfeld', 'AIRRDB',
+    'Adaptive Immune Receptor Repertoire Database.',
    'Miscellaneous'),
 ]
 

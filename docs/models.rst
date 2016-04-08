@@ -1,6 +1,6 @@
-Data Models --- ``sldb.common.models``
+Data Models --- ``airrdb.common.models``
 ======================================
 
-.. automodule:: sldb.common.models
+.. automodule:: airrdb.common.models
     :members:
     :exclude-members: relationship

@@ -1,17 +1,17 @@
-Common Classes & Functions --- ``sldb.common``
+Common Classes & Functions --- ``airrdb.common``
 ==============================================
 
-Configuration --- ``sldb.common.config``
+Configuration --- ``airrdb.common.config``
 ----------------------------------------
-The ``sldb.common.config`` module provides methods to initialize a
+The ``airrdb.common.config`` module provides methods to initialize a
 connection to a new or existing database.
 
-Most programs using SLDB will start with code similar to:
+Most programs using AIRRDB will start with code similar to:
 
 .. code-block:: python
 
 
-    import sldb.common.config as config
+    import airrdb.common.config as config
     parser = config.get_base_arg_parser('Some description of the program')
     # ... add any additional arguments to the parser ...
     args = parser.parse_args()
@@ -25,7 +25,7 @@ manually specify the paths with simply:
 .. code-block:: python
 
 
-    import sldb.common.config as config
+    import airrdb.common.config as config
     session = config.init_db('path/to/config')
 
 To avoid using a configuration file, the ``from_dict`` argument can be set to
@@ -34,7 +34,7 @@ To avoid using a configuration file, the ``from_dict`` argument can be set to
 .. code-block:: python
 
 
-    import sldb.common.config as config
+    import airrdb.common.config as config
     session = config.init_db({
         'host': '...',
         'database': '...',
@@ -45,15 +45,15 @@ To avoid using a configuration file, the ``from_dict`` argument can be set to
 All will return a ``Session`` object which can be used to interact with the
 database.
 
-.. automodule:: sldb.common.config
+.. automodule:: airrdb.common.config
     :members:
 
-Mutations --- ``sldb.common.mutations``
+Mutations --- ``airrdb.common.mutations``
 ---------------------------------------
 Mutation statistics are calculated with the :py:class:`Mutations
-<sldb.common.mutations.ContextualMutations>` class.  This is generally done for
+<airrdb.common.mutations.ContextualMutations>` class.  This is generally done for
 clones only but can be done with any set of equal-length sequences for which a
 base (germline) sequence can be specified.
 
-.. automodule:: sldb.common.mutations
+.. automodule:: airrdb.common.mutations
     :members:

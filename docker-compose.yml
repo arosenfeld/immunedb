@@ -1,7 +1,7 @@
 version: '2'
 services:
-  sldb:
-    image: arosenfeld/sldb
+  airrdb:
+    image: arosenfeld/airrdb
     volumes:
       - ${DATA_VOLUME}:/root/data:ro
     ports:
@@ -16,7 +16,7 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=insecure_password
   frontend:
-      image: arosenfeld/sldb-frontend
+      image: arosenfeld/airrdb-frontend
       environment:
         - BASE_URL=${BASE_URL}
         - API_ENDPOINT=${API_ENDPOINT}
