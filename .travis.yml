@@ -13,7 +13,7 @@ addons:
       - gfortran
 install:
   - pip install numpy
-  - pip install scipy &> /dev/null
+  - travis_wait pip install scipy &> /dev/null
   - python setup.py install
   - pip install nose
   - git clone --recursive https://github.com/noporpoise/seq-align ~/seq-align
