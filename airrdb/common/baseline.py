@@ -233,7 +233,6 @@ class SelectionPressureWorker(concurrent.Worker):
             updated_pressure.update(selection_pressure)
             cs.selection_pressure = json.dumps(updated_pressure)
 
-
         # If this clone only appears in one sample, the 'total clone' pressure
         # is the same as for the single sample
         if single:

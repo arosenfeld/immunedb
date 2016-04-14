@@ -6,7 +6,7 @@ import numpy as np
 from scipy.stats import hypergeom
 
 from airrdb.common.models import (CDR3_OFFSET, DuplicateSequence, NoResult,
-                                Sequence)
+                                  Sequence)
 import airrdb.util.funcs as funcs
 import airrdb.util.lookups as lookups
 
@@ -103,8 +103,7 @@ def add_uniques(session, sample, vdjs, realign_len=None,
             if vdj.v_match / float(vdj.v_length) < min_similarity:
                 raise AlignmentException(
                     'V-identity too low {} < {}'.format(
-                        vdj.v_match / float(vdj.v_length), min_similarity
-                ))
+                        vdj.v_match / float(vdj.v_length), min_similarity))
             if len(vdj.v_gene) > max_vties:
                 raise AlignmentException('Too many V-ties {} > {}'.format(
                     len(vdj.v_gene), max_vties))

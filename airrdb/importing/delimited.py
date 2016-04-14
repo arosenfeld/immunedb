@@ -1,8 +1,8 @@
 import csv
 import re
 
-from airrdb.identification import (add_as_noresult, add_as_sequence, add_uniques,
-                                 AlignmentException)
+from airrdb.identification import (add_as_noresult, add_as_sequence,
+                                   add_uniques, AlignmentException)
 from airrdb.identification.vdj_sequence import VDJSequence
 from airrdb.identification.j_genes import JGermlines
 from airrdb.identification.v_genes import VGermlines

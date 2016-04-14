@@ -77,7 +77,6 @@ def format_ties(ties, name, strip_alleles=False):
     if ties is None:
         return None
 
-    #ties = [e.replace(name, '') for e in t.split('|') for t in ties]
     ties = [e.replace(name, '') for t in ties for e in t.split('|')]
     if strip_alleles:
         ties = [e.split('*', 1)[0] for e in ties]

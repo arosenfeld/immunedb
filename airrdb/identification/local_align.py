@@ -12,7 +12,7 @@ from airrdb.identification.j_genes import JGermlines
 from airrdb.identification.v_genes import VGermlines
 from airrdb.identification.vdj_sequence import VDJSequence
 from airrdb.common.models import (CDR3_OFFSET, DuplicateSequence, NoResult,
-                                Sample, Sequence, serialize_gaps)
+                                  Sample, Sequence, serialize_gaps)
 import airrdb.util.funcs as funcs
 import airrdb.util.lookups as lookups
 import airrdb.util.concurrent as concurrent

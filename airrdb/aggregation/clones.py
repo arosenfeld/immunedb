@@ -5,7 +5,7 @@ from sqlalchemy.sql import text
 
 import dnautils
 from airrdb.common.models import (CDR3_OFFSET, Clone, Sequence,
-                                 SequenceCollapse, Subject)
+                                  SequenceCollapse, Subject)
 import airrdb.common.modification_log as mod_log
 import airrdb.common.config as config
 import airrdb.util.concurrent as concurrent

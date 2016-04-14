@@ -11,8 +11,8 @@ from sqlalchemy.sql import exists, func
 from sqlalchemy.sql.expression import false, true
 
 from airrdb.common.models import (Clone, CloneStats, DuplicateSequence, Sample,
-                                SampleStats, Sequence, SequenceCollapse,
-                                Subject)
+                                  SampleStats, Sequence, SequenceCollapse,
+                                  Subject)
 from airrdb.common.mutations import threshold_mutations
 
 
@@ -339,16 +339,18 @@ def get_clone_overlap(session, sample_ids, filter_type, paging=None,
             all_clones_cache.extend(clones.all())
         clones = all_clones_cache
 
-        # NOTE: This is not part of the above query since for very large datasets
-        # doing this in-memory drastically reduces processing time
-        clones_present = set([c.cid for c in
+        # NOTE: This is not part of the above query since for very large
+        # datasets doing this in-memory drastically reduces processing time
+        clones_present = set([
+            c.cid for c in
             session.query(distinct(CloneStats.clone_id).label('cid')).filter(
-            CloneStats.sample_id.in_(sample_ids)
+                CloneStats.sample_id.in_(sample_ids)
             )
         ])
 
         if filter_type != 'clones_all':
-            clones = [c for c in clones
+            clones = [
+                c for c in clones
                 if c.functional == (filter_type == 'clones_functional') and
                 c.clone_id in clones_present
             ]

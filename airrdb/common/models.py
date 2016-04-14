@@ -254,8 +254,8 @@ class Clone(Base):
     germline = Column(String(length=MAX_SEQ_LEN))
     tree = Column(MEDIUMTEXT)
 
-    overall_unique_cnt = Column(Integer, index=True) # Denormalized
-    overall_total_cnt = Column(Integer, index=True) # Denormalized
+    overall_unique_cnt = Column(Integer, index=True)  # Denormalized
+    overall_total_cnt = Column(Integer, index=True)  # Denormalized
 
     @hybrid_property
     def insertions(self):
@@ -353,7 +353,7 @@ class CloneStats(Base):
     clone_id = Column(Integer, ForeignKey(Clone.id, ondelete='CASCADE'))
     clone = relationship(Clone)
     subject_id = Column(
-        Integer, ForeignKey(Subject.id, ondelete='CASCADE')) # Denormalized
+        Integer, ForeignKey(Subject.id, ondelete='CASCADE'))  # Denormalized
 
     functional = Column(Boolean, index=True)  # Denormalized
 

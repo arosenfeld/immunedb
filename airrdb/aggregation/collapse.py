@@ -3,7 +3,7 @@ from sqlalchemy.sql import exists
 import dnautils
 import airrdb.common.config as config
 from airrdb.common.models import (Clone, Sample, Sequence, SequenceCollapse,
-                                Subject)
+                                  Subject)
 import airrdb.common.modification_log as mod_log
 import airrdb.util.concurrent as concurrent
 

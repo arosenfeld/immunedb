@@ -1,7 +1,7 @@
 from collections import OrderedDict
 
-from airrdb.common.models import (Sequence, SequenceCollapse, DuplicateSequence,
-                                NoResult)
+from airrdb.common.models import (Sequence, SequenceCollapse,
+                                  DuplicateSequence, NoResult)
 from airrdb.exporting.export import Exporter
 from airrdb.util.nested_writer import NestedCSVWriter
 

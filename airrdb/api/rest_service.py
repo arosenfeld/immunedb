@@ -16,7 +16,7 @@ from airrdb.exporting.mutation_export import MutationExporter
 import airrdb.api.queries as queries
 from airrdb.common.models import CloneStats, ModificationLog, Sequence
 from airrdb.exporting.writers import (CLIPWriter, FASTAWriter, FASTQWriter,
-                                    CSVWriter)
+                                      CSVWriter)
 import airrdb.util.lookups as lookups
 from airrdb.util.nested_writer import NestedCSVWriter
 
