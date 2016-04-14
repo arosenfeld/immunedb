@@ -21,7 +21,7 @@ To create a new AIRRDB instance, one can use ``airrdb_admin``:
 
 .. code-block:: bash
 
-    $ airrdb_admin create root DB_NAME CONFIG_DIR
+    $ airrdb_admin create DB_NAME CONFIG_DIR
 
 Replacing ``DB_NAME`` with an appropriate database name and ``CONFIG_DIR`` with
 a directory in which the database configuration will be stored will initialize
@@ -29,9 +29,10 @@ the instance.
 
 .. note::
 
-    You may use a user other than ``root`` so long as it has permissions to
-    create databases, create users, and grant users permission to manipulate
-    the database in any way.
+    By default the root user is used to create the database.  You may use a user
+    other than ``root`` with the ``--admin-user`` flag, so long as it has
+    permissions to create databases, create users, and grant users permission to
+    manipulate the database in any way.
 
 After running this, a database with the specified name will be created.  Further
 a configuration file with the same name and a ``.json`` extension will be placed

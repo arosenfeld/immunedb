@@ -13,8 +13,6 @@ if __name__ == '__main__':
 
     parser = subparsers.add_parser(
         'create', help='Creates a new AIRRDB database')
-    parser.add_argument('admin_user', help='MySQL user with rights to create '
-                        'databases')
     parser.add_argument('db_name', help='Database name (letters, numbers, '
                         'dashes and underscores only)')
     parser.add_argument('config_dir', help='The directory in which to store '
@@ -26,6 +24,8 @@ if __name__ == '__main__':
                         'database)')
     parser.add_argument('--db-pass', action='store_true', help='Prompt for '
                         'MySQL user password.  (Default: randomly generated)')
+    parser.add_argument('--admin-user', help='MySQL user with rights to '
+                        'create databases (Default: root)', default='root')
     parser.add_argument('--admin-pass', type=str, default=None,
                         help='Specify the admin password at the command line '
                         'instead of prompting.')
