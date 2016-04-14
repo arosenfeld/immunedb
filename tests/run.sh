@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -e
 function setup() {
-    airrdb_admin create root test_db . --admin-pass "$DB_ADMIN_PASS"
+    airrdb_admin create test_db . --admin-pass "$DB_ADMIN_PASS"
 }
 
 function teardown() {
-    airrdb_admin delete root test_db.json --delete-user --admin-pass "$DB_ADMIN_PASS"
+    airrdb_admin delete test_db.json --delete-user --admin-pass "$DB_ADMIN_PASS"
     rm test_db.json
 }
 
