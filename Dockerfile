@@ -15,5 +15,5 @@ COPY docker/configs/airrdb.json /root/configs/airrdb.json
 COPY docker/germlines/ /root/germlines
 WORKDIR /root
 CMD /app/./wait-for-it.sh -t 0 mariadb:3306 -- \
-    airrdb_admin create root airrdb /root/configs --db-host mariadb --admin-pass insecure_password && \
+    airrdb_admin create airrdb /root/configs --db-host mariadb --admin-pass insecure_password && \
     airrdb_rest /root/configs/airrdb.json
