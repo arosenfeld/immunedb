@@ -170,22 +170,23 @@ deletion, and how far into the CDR3 the V and J likely extend.
 .. code-block:: bash
 
     $ airrdb_identify /path/to/config.json /path/to/v_germlines.fasta /path/to/j_germlines.fasta \
-                    J_NTS_UPSTREAM_OF_CDR3 J_ANCHOR_SIZE J_MIN_ANCHOR_LEN /path/to/sequence-data-directory
+        /path/to/sequence-data-directory
 
-Where ``J_NTS_UPSTREAM_OF_CDR3`` are the fixed number of nucleotides in each
-germline J gene upstream of the CDR3, ``J_ANCHOR_SIZE`` is the number of nucleotides
-to use as an anchor, and ``J_MIN_ANCHOR_LEN`` dictates how many bases must match.
-**Their values for IMGT human germlines are 31, 18, and 12 respectively**.  When
-using other germlines, these values may be different.  The regions are shown
-graphically below:
+.. note::
+    J-gene assignment requires three parameters, the number of nucleotides in
+    the J after (upstream) of the CDR3, a conserved anchor size starting at the
+    end of the J, and a minimum anchor length.  The J gene is searched for by
+    using these anchors which are 31, 18 and 12 respectively in humans (and are
+    the default values for AIRRDB).  For other species, these values may need to
+    be tweaked.  The regions are shown graphically below:
 
-.. code-block:: bash
+    .. code-block:: bash
 
-                                           |---- J_MIN_ANCHOR_LEN ----|
-                                           |-------- J_ANCHOR_SIZE --------|
-                 ...-- V --|-- CDR3 --|------ J_NTS_UPSTREAM_OF_CDR3 ------|
-    j_germline:                 ATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCG
-    seq:         ...ATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCG
+                                               |---- J_MIN_ANCHOR_LEN ----|
+                                               |-------- J_ANCHOR_SIZE --------|
+                     ...-- V --|-- CDR3 --|------ J_NTS_UPSTREAM_OF_CDR3 ------|
+        j_germline:                 ATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCG
+        seq:         ...ATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCG
 
 
 Local Alignment of Indel Sequences (Optional)
@@ -205,8 +206,7 @@ to the resulting `needleman_wunsch` binary passed to AIRRDB.
 
 .. code-block:: bash
 
-    $ airrdb_local_align /path/to/config.json /path/to/needleman_wunsch /path/to/j_germlines \
-                       J_NTS_UPSTREAM_OF_CDR3
+    $ airrdb_local_align /path/to/config.json /path/to/needleman_wunsch /path/to/j_germlines
 
 
 Sequence Collapsing

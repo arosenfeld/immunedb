@@ -16,8 +16,9 @@ if __name__ == '__main__':
     parser.add_argument('j_germlines', help='FASTA file with J-gene '
                         'germlines. The final nucleotide in all genes must be '
                         'aligned. Sequence cannot contain any gaps.')
-    parser.add_argument('upstream_of_cdr3', type=int, help='The number of '
-                        ' nucleotides in the J germlines upstream of the CDR3')
+    parser.add_argument('--upstream_of_cdr3', type=int, help='The number of '
+                        ' nucleotides in the J germlines upstream of the CDR3',
+                        default=31)
     parser.add_argument('--min-similarity', type=int, default=60,
                         help='Minimum percent similarity to germline required '
                         'for valid sequences. (Default: 60)')
