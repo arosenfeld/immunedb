@@ -13,13 +13,13 @@ if __name__ == '__main__':
     parser.add_argument('j_germlines', help='FASTA file with J-gene '
                         'germlines. The final nucleotide in all genes must be '
                         'aligned. Sequence cannot contain any gaps.')
-    parser.add_argument('--upstream_of_cdr3', type=int, help='The number of '
+    parser.add_argument('--upstream-of-cdr3', type=int, help='The number of '
                         ' nucleotides in the J germlines upstream of the CDR3',
                         default=31)
-    parser.add_argument('--anchor_len', type=int, help='The number of '
+    parser.add_argument('--anchor-len', type=int, help='The number of '
                         'nucleotides at the end of the J germlines to use as '
                         'anchors.', default=18)
-    parser.add_argument('--min_anchor_len', type=int, help='The minimum '
+    parser.add_argument('--min-anchor-len', type=int, help='The minimum '
                         'number of nucleotides in the J germline anchors '
                         'required to match the sequence.', default=12)
     parser.add_argument('sample_dirs', nargs='+', help='Base directories for '

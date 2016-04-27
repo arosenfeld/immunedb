@@ -15,16 +15,16 @@ Once docker is installed, clone the AIRRDB repository:
 
 .. code-block:: bash
 
-    $ git clone git@github.com:arosenfeld/airrdb.git
+    $ git clone git@github.com:arosenfeld/airrdb.git ~/airrdb-git
 
-In the resulting ``airrdb`` directory, there will be a ``run-docker.sh`` file
+In the resulting ``~/airrdb-git`` directory, there will be a ``run-docker.sh`` file
 which will be used to launch the Docker instance.
 
 
 Runnning AIRRDB
 -------------
 There are many ways to change the configuration of your Docker Compose AIRRDB
-instance but to get started, within ``~/airrdb-docker`` you can run:
+instance but to get started, within ``~/airrdb-git`` you can run:
 
 .. code-block:: bash
 
