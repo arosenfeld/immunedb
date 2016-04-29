@@ -13,6 +13,14 @@ is a drop-in replacement for MySQL, `MariaDB <http://mariadb.org>`_ can also be
 used and is recommended.  Please see the associated website for installation
 instructions.
 
+You must set the following variables under the ``[mysqld]`` header in your MySQL
+configuration (by default found at ``/etc/mysql/my.cnf``):
+
+.. code-block:: bash
+
+     innodb_large_prefix = ON
+     innodb_file_format = Barracuda
+
 Baseline & R (optional)
 ^^^^^^^^^^^^^^^^^^^^^^^
 AIRRDB can use `Baseline <http://selection.med.yale.edu/baseline>`_ to calculate
@@ -62,11 +70,9 @@ Finally, get and install AIRRDB:
 
 .. code-block:: bash
 
-    $ git clone https://github.com/arosenfeld/airrdb.git
-    $ cd airrdb
     $ pip install numpy
     $ pip install scipy
-    $ python setup.py install
+    $ pip install airrdb
 
 Global
 ^^^^^^
@@ -79,7 +85,6 @@ If instead a global install is desired, run:
 
 .. code-block:: bash
 
-    $ git clone https://github.com/arosenfeld/airrdb.git
-    $ cd airrdb
-    $ pip install numpy scipy
-    $ python setup.py install
+    $ pip install numpy
+    $ pip install scipy
+    $ pip install airrdb

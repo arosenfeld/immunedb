@@ -4,6 +4,7 @@ from regression import BaseTest, NamespaceMimic
 
 from airrdb.importing.delimited import DEFAULT_MAPPINGS, run_import
 
+
 class TestImport(BaseTest.RegressionTest):
     def __init__(self, *args, **kwargs):
         super(TestImport, self).__init__('import', *args, **kwargs)

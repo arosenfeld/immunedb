@@ -2,10 +2,8 @@ import os
 
 from regression import NamespaceMimic, BaseTest
 
-from airrdb.common.models import (Clone, CloneStats, DuplicateSequence, NoResult,
-                                Sample, SampleStats, Sequence,
-                                SequenceCollapse)
 from airrdb.identification.identify import run_identify
+
 
 class TestPipeline(BaseTest.RegressionTest):
     def __init__(self, *args, **kwargs):

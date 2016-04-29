@@ -3,9 +3,9 @@ import os
 import unittest
 
 import airrdb.common.config as config
-from airrdb.common.models import (Clone, CloneStats, DuplicateSequence, NoResult,
-                                Sample, SampleStats, Sequence,
-                                SequenceCollapse)
+from airrdb.common.models import (Clone, CloneStats, DuplicateSequence,
+                                  NoResult, Sample, SampleStats, Sequence,
+                                  SequenceCollapse)
 from airrdb.identification.local_align import run_fix_sequences
 from airrdb.aggregation.clones import run_clones
 from airrdb.aggregation.collapse import run_collapse
@@ -15,6 +15,7 @@ from airrdb.aggregation.sample_stats import run_sample_stats
 
 DB_NAME = 'test_db'
 CONFIG_PATH = '{}.json'.format(DB_NAME)
+
 
 class BaseTest(object):
     class RegressionTest(unittest.TestCase):
@@ -57,8 +58,8 @@ class BaseTest(object):
                 self.get_path('post_identification_samples.json'),
                 self.session.query(Sample),
                 'id',
-                ('name', 'subject_id', 'subset', 'tissue', 'ig_class', 'disease',
-                 'lab', 'experimenter', 'v_primer', 'j_primer',
+                ('name', 'subject_id', 'subset', 'tissue', 'ig_class',
+                 'disease', 'lab', 'experimenter', 'v_primer', 'j_primer',
                  'v_ties_mutations', 'v_ties_len')
             )
 
@@ -197,7 +198,6 @@ class BaseTest(object):
                  'no_result_cnt')
             )
 
-
         def _err(self, path, key, key_val, field, ref, val):
             return '{} @ {}={}: {} is {} instead of {}'.format(
                 path, key, key_val, field, val, ref
@@ -230,7 +230,7 @@ class BaseTest(object):
                 agg_key = str(self._get_key(record, key))
                 agg_keys.add(agg_key)
                 self.assertIn(agg_key, checks, '{} is in result but not in '
-                               'checks for {}'.format(agg_key, path))
+                              'checks for {}'.format(agg_key, path))
                 for fld, value in checks[agg_key].iteritems():
                     self.assertEqual(
                         getattr(record, fld),

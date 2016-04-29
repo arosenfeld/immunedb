@@ -1,12 +1,6 @@
 AIRRDB Documentation
 ==================
 
-.. warning::
-    AIRRDB has not yet been publicaly released and therefore accessing GitHub
-    repositories and fetching Docker images will only work with proper
-    credentials.  Please contact Aaron Rosenfeld at ``ar374@drexel.edu`` if you need
-    access prior to release.
-
 The **Adaptive Immune Receptor Repertoire Database (AIRRDB)** package is a
 Python module that facilitate efficient storage and analysis of high-throughput
 B- and T-cell sequence data.  It's primary goals are to:
