@@ -8,3 +8,6 @@ Develop | [![Circle CI](https://circleci.com/gh/arosenfeld/airrdb/tree/develop.s
 
 The Adaptive Immune Receptor Database package is a Python module that facilitate
 efficient storage and analysis of high-throughput B- and T-cell sequence data.
+
+# Documentation
+Installation and usage instructions can be found at [airrdb.com](http://airrdb.com)
