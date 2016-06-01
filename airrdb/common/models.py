@@ -257,6 +257,7 @@ class Clone(Base):
 
     overall_unique_cnt = Column(Integer, index=True)  # Denormalized
     overall_total_cnt = Column(Integer, index=True)  # Denormalized
+    overall_instance_cnt = Column(Integer, index=True)
 
     parent_id = Column(Integer, ForeignKey('clones.id'), index=True)
     parent = relationship('Clone')
@@ -422,10 +423,14 @@ class Sequence(Base):
     """
     __tablename__ = 'sequences'
     __table_args__ = (
+        Index('local_align_bucket', 'sample_id', 'locally_aligned', 'v_gene',
+              'j_gene', 'cdr3_num_nts', 'copy_number', 'ai'),
         Index('subject_bucket', 'subject_id', 'v_gene', 'j_gene',
               'cdr3_num_nts', 'insertions', 'deletions'),
         Index('subject_clone_bucket', 'subject_id', 'clone_id', 'v_gene',
               'j_gene', 'cdr3_num_nts', 'insertions', 'deletions'),
+        Index('locally_aligned', 'locally_aligned', 'v_gene', 'j_gene',
+              'cdr3_num_nts', 'sample_id'),
         UniqueConstraint('sample_id', 'seq_id'),
         PrimaryKeyConstraint('sample_id', 'ai'),
         {'mysql_row_format': 'DYNAMIC'}
@@ -447,6 +452,7 @@ class Sequence(Base):
     partial = Column(Boolean, index=True)
 
     probable_indel_or_misalign = Column(Boolean)
+    locally_aligned = Column(Boolean, default=False, nullable=False)
 
     _deletions = Column('deletions', String(32))
     _insertions = Column('insertions', String(32))

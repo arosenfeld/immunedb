@@ -3,7 +3,7 @@ import multiprocessing as mp
 import re
 import subprocess
 import shlex
-from sqlalchemy import func
+from sqlalchemy import desc, func
 
 import dnautils
 import airrdb.util.funcs as funcs
@@ -271,6 +271,7 @@ def process_completes(session, complete_queue, num_workers):
                     setattr(seq, key, value)
             else:
                 new_seq = Sequence(**task['record'])
+                new_seq.locally_aligned = True
                 session.add(new_seq)
                 # Delete primary NoResult
                 session.query(NoResult).filter(
@@ -295,6 +296,40 @@ def process_completes(session, complete_queue, num_workers):
             pass
 
         session.commit()
+
+def remove_duplicates(session, sample_id):
+    seqs = session.query(
+        Sequence.ai, Sequence.v_gene, Sequence.j_gene, Sequence.cdr3_num_nts,
+        Sequence.copy_number, Sequence.sequence
+    ).filter(
+        Sequence.locally_aligned.is_(True), Sequence.sample_id == sample_id
+    )
+
+    for seq in seqs:
+        potential_collapse = session.query(
+            Sequence.ai, Sequence.sequence
+        ).filter(
+            Sequence.sample_id == sample_id,
+            Sequence.v_gene == seq.v_gene,
+            Sequence.j_gene == seq.j_gene,
+            Sequence.cdr3_num_nts == seq.cdr3_num_nts
+        ).order_by(desc(Sequence.copy_number))
+
+        for other_seq in potential_collapse:
+            if (other_seq.ai == seq.ai or
+                    len(other_seq.sequence) != len(seq.sequence)):
+                continue
+
+            if dnautils.equal(other_seq.sequence, seq.sequence):
+                session.query(Sequence).filter(
+                    Sequence.ai == other_seq.ai
+                ).one().copy_number += seq.copy_number
+                session.query(DuplicateSequence).filter(
+                    DuplicateSequence.duplicate_seq_ai == seq.ai
+                ).update({
+                    'duplicate_seq_ai': other_seq.ai,
+                }, synchronize_session=False)
+                break
 
 
 def run_fix_sequences(session, args):
@@ -360,3 +395,4 @@ def run_fix_sequences(session, args):
         tasks.start(block=False)
 
         process_completes(session, complete_queue, workers)
+        remove_duplicates(session, sample_id)
