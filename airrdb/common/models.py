@@ -228,10 +228,10 @@ class Clone(Base):
 
     """
     __tablename__ = 'clones'
-    __table_args__ = (Index('size_bucket', 'v_gene', 'j_gene',
-                            'subject_id', 'cdr3_num_nts'),
-                      Index('aa_bucket', 'v_gene', 'j_gene',
-                            'subject_id', 'cdr3_aa'),
+    __table_args__ = (Index('bucket', 'v_gene', 'j_gene', 'subject_id',
+                            'cdr3_num_nts', 'insertions', 'deletions'),
+                      Index('aa_bucket', 'v_gene', 'j_gene', 'subject_id',
+                            'cdr3_aa'),
                       Index('tree', 'tree', mysql_length=1),
                       {'mysql_row_format': 'DYNAMIC'})
     id = Column(Integer, primary_key=True)
@@ -242,6 +242,7 @@ class Clone(Base):
     j_gene = Column(String(length=128), index=True)
 
     _insertions = Column('insertions', String(128), index=True)
+    _deletions = Column('deletions', String(128), index=True)
 
     cdr3_nt = Column(String(length=MAX_CDR3_NTS))
     cdr3_num_nts = Column(Integer, index=True)
@@ -257,6 +258,9 @@ class Clone(Base):
     overall_unique_cnt = Column(Integer, index=True)  # Denormalized
     overall_total_cnt = Column(Integer, index=True)  # Denormalized
 
+    parent_id = Column(Integer, ForeignKey('clones.id'), index=True)
+    parent = relationship('Clone')
+
     @hybrid_property
     def insertions(self):
         """Returns the list of insertion position/length pairs"""
@@ -266,6 +270,16 @@ class Clone(Base):
     def insertions(self, value):
         """Sets the list of insertion position/length pairs"""
         self._insertions = serialize_gaps(value)
+
+    @hybrid_property
+    def deletions(self):
+        """Returns the list of deletion position/length pairs"""
+        return deserialize_gaps(self._deletions)
+
+    @deletions.setter
+    def deletions(self, value):
+        """Sets the list of deletions position/length pairs"""
+        self._deletions = serialize_gaps(value)
 
     @property
     def regions(self):
@@ -286,36 +300,6 @@ class Clone(Base):
             self.cdr3_nt,
             self.germline[cdr3_start + self.cdr3_num_nts:]
         ])
-
-
-class HashExtension(MapperExtension):
-    """An extension to hash a set of fields into a field that has an index-able
-    length.
-
-    :param str store_name: The name of the hash field to populate.  Must be
-        able to store a 40 character string.
-    :param list hash_fields: An ordered iterable of field names whos values
-        should be hashed.  This is order dependant.
-
-    """
-
-    def __init__(self, store_name, hash_fields):
-        self._store_name = store_name
-        self._hash_fields = hash_fields
-
-    def _hash(self, mapper, connection, instance):
-        fields = map(lambda f: str(getattr(instance, f)), self._hash_fields)
-        setattr(instance, self._store_name, HashExtension.hash_fields(fields))
-
-    def before_insert(self, mapper, connection, instance):
-        self._hash(mapper, connection, instance)
-
-    def before_update(self, mapper, connection, instance):
-        self._hash(mapper, connection, instance)
-
-    @staticmethod
-    def hash_fields(fields):
-        return hashlib.sha1(' '.join(map(str, fields))).hexdigest()
 
 
 class CloneStats(Base):
@@ -373,11 +357,6 @@ class Sequence(Base):
     :param int ai: An auto-incremented value for the sequence
 
     :param int subject_id: The ID of the subject for this subject
-
-    :param str bucket_hash: An identifier for the sequence's (subject, \
-        v_gene, j_gene, cdr3_num_nts, insertions, deletions) used for clonal \
-        assignment
-
     :param str seq_id: A unique identifier for the sequence as output by the \
         sequencer
 
@@ -443,19 +422,14 @@ class Sequence(Base):
     """
     __tablename__ = 'sequences'
     __table_args__ = (
-        Index('subject_bucket', 'subject_id', 'bucket_hash'),
-        Index('subject_clone_bucket', 'subject_id', 'clone_id', 'bucket_hash'),
+        Index('subject_bucket', 'subject_id', 'v_gene', 'j_gene',
+              'cdr3_num_nts', 'insertions', 'deletions'),
+        Index('subject_clone_bucket', 'subject_id', 'clone_id', 'v_gene',
+              'j_gene', 'cdr3_num_nts', 'insertions', 'deletions'),
         UniqueConstraint('sample_id', 'seq_id'),
         PrimaryKeyConstraint('sample_id', 'ai'),
         {'mysql_row_format': 'DYNAMIC'}
     )
-    __mapper_args__ = {
-        'extension': [
-            HashExtension('bucket_hash', ('subject_id', 'v_gene', 'j_gene',
-                                          'cdr3_num_nts', 'insertions',
-                                          'deletions'))
-        ]
-    }
 
     def __init__(self, **kwargs):
         self.insertions = kwargs.pop('insertions', None)
@@ -467,8 +441,6 @@ class Sequence(Base):
 
     subject_id = Column(Integer, ForeignKey(Subject.id), index=True)
 
-    bucket_hash = Column(CHAR(40), index=True)
-
     seq_id = Column(String(64), index=True)
     sample = relationship(Sample, backref=backref('sequences'))
 
@@ -476,11 +448,11 @@ class Sequence(Base):
 
     probable_indel_or_misalign = Column(Boolean)
 
-    _deletions = Column('deletions', String(128))
-    _insertions = Column('insertions', String(128))
+    _deletions = Column('deletions', String(32))
+    _insertions = Column('insertions', String(32))
 
-    v_gene = Column(String(512))
-    j_gene = Column(String(512))
+    v_gene = Column(String(256))
+    j_gene = Column(String(256))
 
     num_gaps = Column(Integer)
     pad_length = Column(Integer)

@@ -39,7 +39,7 @@ class ClonalWorker(concurrent.Worker):
 
         self._tasks = 0
 
-    def do_task(self, bucket_hash):
+    def do_task(self, bucket):
         clones = OrderedDict()
         consensus_needed = set([])
         query = self._session.query(
@@ -47,7 +47,13 @@ class ClonalWorker(concurrent.Worker):
             Sequence.cdr3_aa, Sequence.subject_id, Sequence.v_gene,
             Sequence.j_gene, Sequence.cdr3_num_nts
         ).join(SequenceCollapse).filter(
-            Sequence.bucket_hash == bucket_hash,
+            Sequence.subject_id == bucket.subject_id,
+            Sequence.v_gene == bucket.v_gene,
+            Sequence.j_gene == bucket.j_gene,
+            Sequence.cdr3_num_nts == bucket.cdr3_num_nts,
+            Sequence._insertions == bucket._insertions,
+            Sequence._deletions == bucket._deletions,
+
             ~Sequence.cdr3_aa.like('%*%'),
             SequenceCollapse.copy_number_in_subject >= self._min_copy,
         )
@@ -216,15 +222,17 @@ def run_clones(session, args):
     for subject_id in subject_ids:
         print 'Generating task queue for subject {}'.format(subject_id)
         buckets = session.query(
-            Sequence.bucket_hash
+            Sequence.subject_id, Sequence.v_gene, Sequence.j_gene,
+            Sequence.cdr3_num_nts, Sequence._insertions, Sequence._deletions
         ).filter(
             Sequence.subject_id == subject_id,
             Sequence.clone_id.is_(None)
         ).group_by(
-            Sequence.bucket_hash
+            Sequence.subject_id, Sequence.v_gene, Sequence.j_gene,
+            Sequence.cdr3_num_nts, Sequence._insertions, Sequence._deletions
         )
         for bucket in buckets:
-            tasks.add_task(bucket.bucket_hash)
+            tasks.add_task(bucket)
 
     print 'Generated {} total tasks'.format(tasks.num_tasks())
 

@@ -39,22 +39,17 @@ class CloneStatsWorker(concurrent.Worker):
                 Sequence.clone_id == clone_id
             )
         )
-        if len(sample_ids) > 1:
-            sample_ids.append(None)
+        sample_ids.append(None)
         for sample_id in sample_ids:
-            self._process_sample(clone_id, sample_id,
-                                 single=len(sample_ids) == 1)
+            self._process_sample(clone_id, sample_id)
 
-    def _process_sample(self, clone_id, sample_id, single):
+    def _process_sample(self, clone_id, sample_id):
         """Processes clone statistics for one sample (or the aggregate of all
         samples).  If ``sample_id`` is None the statistics for all sequences in
-        the clone is generated.  If ``single`` is specified, the clone only
-        occurs in one sample and the entry with ``sample_id=None`` should be
-        the same as for the one sample.
+        the clone is generated.
 
         :param int clone_id: The ID of the clone
         :param int sample_id: The ID of a sample in which the clone exists
-        :param bool single: If the clone only occurs in one sample
 
         """
 
@@ -98,9 +93,7 @@ class CloneStatsWorker(concurrent.Worker):
 
         # If this clone only appears in one sample, the 'total clone' stats are
         # the same as for the single sample
-        if single:
-            self._session.add(CloneStats(sample_id=None, **record_values))
-        if single or sample_id is None:
+        if sample_id is None:
             clone_inst.overall_unique_cnt = counts.unique
             clone_inst.overall_total_cnt = counts.total
         self._session.commit()

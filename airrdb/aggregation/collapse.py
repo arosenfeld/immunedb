@@ -17,12 +17,17 @@ class CollapseWorker(concurrent.Worker):
         self._session = session
         self._tasks = 0
 
-    def do_task(self, bucket_hash):
+    def do_task(self, bucket):
         seqs = self._session.query(
             Sequence.sample_id, Sequence.ai, Sequence.seq_id,
             Sequence.sequence, Sequence.copy_number
         ).filter(
-            Sequence.bucket_hash == bucket_hash
+            Sequence.subject_id == bucket.subject_id,
+            Sequence.v_gene == bucket.v_gene,
+            Sequence.j_gene == bucket.j_gene,
+            Sequence.cdr3_num_nts == bucket.cdr3_num_nts,
+            Sequence._insertions == bucket._insertions,
+            Sequence._deletions == bucket._deletions
         ).all()
 
         to_process = sorted([{
@@ -116,14 +121,16 @@ def run_collapse(session, args):
 
     for subject_id in subject_ids:
         buckets = session.query(
-            Sequence.bucket_hash
+            Sequence.subject_id, Sequence.v_gene, Sequence.j_gene,
+            Sequence.cdr3_num_nts, Sequence._insertions, Sequence._deletions
         ).filter(
             Sequence.subject_id == subject_id
         ).group_by(
-            Sequence.bucket_hash
+            Sequence.subject_id, Sequence.v_gene, Sequence.j_gene,
+            Sequence.cdr3_num_nts, Sequence._insertions, Sequence._deletions
         )
         for bucket in buckets:
-            tasks.add_task(bucket.bucket_hash)
+            tasks.add_task(bucket)
 
     for i in range(0, min(tasks.num_tasks(), args.nproc)):
         tasks.add_worker(CollapseWorker(config.init_db(args.db_config)))

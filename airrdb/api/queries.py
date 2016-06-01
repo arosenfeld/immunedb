@@ -681,7 +681,7 @@ def get_sequences(session, filters, order_field, order_dir, subject_id=None,
 
     copy_number_field = 'copy_number'
     if filters is not None:
-        if filters.get('copy_type', 'sample') == 'sample':
+        if filters.pop('copy_type', 'sample') == 'sample':
             copy_number_field = Sequence.copy_number
         else:
             copy_number_field = SequenceCollapse.copy_number_in_subject

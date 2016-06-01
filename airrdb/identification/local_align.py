@@ -34,7 +34,7 @@ def gap_positions(seq):
 
 class LocalAlignmentWorker(concurrent.Worker):
     def __init__(self, complete_queue, v_germlines, j_germlines, align_path,
-                 min_similarity, max_deletions, max_insertions):
+                 min_similarity, max_deletions, max_insertions, max_padding):
         self.complete_queue = complete_queue
         self.v_germlines = v_germlines
         self.j_germlines = j_germlines
@@ -42,6 +42,7 @@ class LocalAlignmentWorker(concurrent.Worker):
         self.min_similarity = min_similarity
         self.max_deletions = max_deletions
         self.max_insertions = max_insertions
+        self.max_padding = max_padding
 
         self.first_alleles = {
             name: v.sequence
@@ -58,8 +59,10 @@ class LocalAlignmentWorker(concurrent.Worker):
         # Find best aligned first allele
         v_align = self.align_seq_to_germs(args['seq'], self.first_alleles)
 
-        if v_align is None or not self.alignment_passes(v_align['germ'],
-                                                        v_align['seq']):
+        if (v_align is None or
+                not self.alignment_passes(v_align['germ'], v_align['seq']) or
+                (self.max_padding is not None and
+                    v_align['seq_offset'] > self.max_padding)):
             return
 
         v_name = v_align['germ_name'].split('*', 1)[0]
@@ -167,9 +170,9 @@ class LocalAlignmentWorker(concurrent.Worker):
 
         record.update({
             'v_gene': funcs.format_ties(
-                v_align['germ_name'].split('|'), 'IGHV'),
+                v_align['germ_name'].split('|'), 'IGHV', strip_alleles=True),
             'j_gene': funcs.format_ties(
-                j_align['germ_name'].split('|'), 'IGHJ'),
+                j_align['germ_name'].split('|'), 'IGHJ', strip_alleles=True),
 
             'cdr3_num_nts': cdr3_end - cdr3_start,
             'cdr3_nt': final_seq[cdr3_start:cdr3_end],
@@ -350,7 +353,8 @@ def run_fix_sequences(session, args):
                 args.align_path,
                 args.min_similarity / 100.0,
                 args.max_deletions,
-                args.max_insertions)
+                args.max_insertions,
+                args.max_padding)
             )
 
         tasks.start(block=False)
