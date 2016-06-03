@@ -5,6 +5,7 @@ import subprocess
 import shlex
 from sqlalchemy import desc, func
 
+from Bio.Seq import Seq
 import dnautils
 import airrdb.util.funcs as funcs
 from airrdb.identification import AlignmentException
@@ -50,7 +51,10 @@ class LocalAlignmentWorker(concurrent.Worker):
             if int(name.split('*', 1)[1]) == 1
         }
 
-    def do_task(self, args):
+    def do_task(self, args, rc=False):
+        if rc:
+            args['seq'] = str(Seq(args['seq']).reverse_complement())
+
         record = {
             'seq_id': args['seq_ids'][0],
             'sample_id': args['sample_id'],
@@ -63,7 +67,7 @@ class LocalAlignmentWorker(concurrent.Worker):
                 not self.alignment_passes(v_align['germ'], v_align['seq']) or
                 (self.max_padding is not None and
                     v_align['seq_offset'] > self.max_padding)):
-            return
+            return None if rc else self.do_task(args, True)
 
         v_name = v_align['germ_name'].split('*', 1)[0]
         v_ties = {
@@ -108,7 +112,7 @@ class LocalAlignmentWorker(concurrent.Worker):
         v_length = len(pre_cdr3_seq)
         v_match = v_length - dnautils.hamming(pre_cdr3_germ, pre_cdr3_seq)
         if v_match / float(v_length) < self.min_similarity:
-            return
+            return None if rc else self.do_task(args, True)
 
         # NOTE: This doesn't look for a streak like VDJSequence
         record.update({
@@ -134,7 +138,7 @@ class LocalAlignmentWorker(concurrent.Worker):
         )
 
         if j_align is None:
-            return
+            return None if rc else self.do_task(args, True)
 
         final_germ = ''.join((
             v_align['germ'][:-len(j_align['germ'])],
@@ -149,7 +153,7 @@ class LocalAlignmentWorker(concurrent.Worker):
         cdr3_end = len(final_seq) - self.j_germlines.upstream_of_cdr3
 
         if cdr3_end - cdr3_start < 3:
-            return
+            return None if rc else self.do_task(args, True)
 
         final_germ = ''.join((
             final_germ[:cdr3_start],
