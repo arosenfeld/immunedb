@@ -46,7 +46,7 @@ class BaseTest(object):
                 self.get_path('post_identification.json'),
                 self.session.query(Sequence),
                 'seq_id',
-                ('bucket_hash', 'ai', 'seq_id', 'v_gene', 'j_gene',
+                ('ai', 'seq_id', 'v_gene', 'j_gene',
                  'num_gaps', 'pad_length', 'v_match', 'v_length', 'j_match',
                  'j_length', 'pre_cdr3_length', 'pre_cdr3_match',
                  'post_cdr3_length', 'post_cdr3_match', 'copy_number',
@@ -76,7 +76,8 @@ class BaseTest(object):
                     min_similarity=60,
                     upstream_of_cdr3=31,
                     max_deletions=3,
-                    max_insertions=3
+                    max_insertions=3,
+                    max_padding=None
                 )
             )
             self.session.commit()
@@ -88,7 +89,7 @@ class BaseTest(object):
                 self.get_path('post_local_align_seqs.json'),
                 self.session.query(Sequence),
                 'seq_id',
-                ('bucket_hash', 'ai', 'seq_id', 'v_gene', 'j_gene', 'num_gaps',
+                ('ai', 'seq_id', 'v_gene', 'j_gene', 'num_gaps',
                  'pad_length', 'v_match', 'v_length', 'j_match', 'j_length',
                  'pre_cdr3_length', 'pre_cdr3_match', 'post_cdr3_length',
                  'post_cdr3_match', 'copy_number', 'cdr3_num_nts',
