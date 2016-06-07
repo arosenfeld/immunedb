@@ -104,6 +104,10 @@ class LocalAlignmentWorker(concurrent.Worker):
                 if count > CDR3_OFFSET:
                     cdr3_start = i
                     break
+        v_align['seq'] = ''.join((
+            v_align['seq'][:cdr3_start],
+            v_align['seq'][cdr3_start:].replace('-', '')
+        ))
 
         pre_cdr3_germ = v_align['germ'][:cdr3_start].replace(
             GAP_PLACEHOLDER, '')
@@ -123,8 +127,8 @@ class LocalAlignmentWorker(concurrent.Worker):
             'pre_cdr3_match': v_match,
             'pre_cdr3_length': v_length,
             'probable_indel_or_misalign': False,
-            'insertions': gap_positions(v_align['germ'][:cdr3_start]),
-            'deletions': gap_positions(v_align['seq'][:cdr3_start]),
+            'insertions': set(gap_positions(v_align['germ'][:cdr3_start])),
+            'deletions': set(gap_positions(v_align['seq'][:cdr3_start])),
         })
 
         v_align['germ'] = v_align['germ'].replace(GAP_PLACEHOLDER, '-')
@@ -161,6 +165,12 @@ class LocalAlignmentWorker(concurrent.Worker):
             '-' * (cdr3_end - cdr3_start),
             final_germ[cdr3_end:]
         ))
+        record['insertions'].update([(p[0] + cdr3_end, p[1])
+            for p in gap_positions(final_germ[cdr3_end:])
+        ])
+        record['deletions'].update([(p[0] + cdr3_end, p[1])
+            for p in gap_positions(final_seq[cdr3_end:])
+        ])
 
         stop = lookups.has_stop(final_seq)
         in_frame = cdr3_start % 3 == 0 and cdr3_end % 3 == 0
@@ -215,7 +225,7 @@ class LocalAlignmentWorker(concurrent.Worker):
             stdin.append('>query\n{}\n'.format(seq.lstrip('N')))
 
         cmd = (
-            '{} --match 2 --mismatch -2 --gapopen -5 --gapextend -2 '
+            '{} --match 2 --mismatch -2 --gapopen -10 --gapextend -5 '
             '--wildcard N 2 --printfasta --printscores --freestartgap '
             '--freeendgap --file -'
         ).format(self.align_path)

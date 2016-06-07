@@ -45,7 +45,9 @@ class CollapseWorker(concurrent.Worker):
             instances = 1
             for i in reversed(range(0, len(to_process))):
                 smaller = to_process[i]
-                if dnautils.equal(larger['sequence'], smaller['sequence']):
+                if len(larger['sequence']) != len(smaller['sequence']):
+                    print larger['ai'], smaller['ai']
+                elif dnautils.equal(larger['sequence'], smaller['sequence']):
                     # Add the smaller sequence's copy number to the larger
                     larger['cn'] += smaller['cn']
                     # If the smaller sequence matches the larger, collapse it
