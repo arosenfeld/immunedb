@@ -116,6 +116,7 @@ class LocalAlignmentWorker(concurrent.Worker):
 
         # NOTE: This doesn't look for a streak like VDJSequence
         record.update({
+            'locally_aligned': True,
             'v_match': v_match,
             'v_length': v_length,
             'v_mutation_fraction': v_match / float(v_length),
@@ -303,10 +304,11 @@ def process_completes(session, complete_queue, num_workers):
 
 def remove_duplicates(session, sample_id):
     seqs = session.query(
-        Sequence.ai, Sequence.v_gene, Sequence.j_gene, Sequence.cdr3_num_nts,
-        Sequence.copy_number, Sequence.sequence
+        Sequence.ai, Sequence.seq_id, Sequence.v_gene, Sequence.j_gene,
+        Sequence.cdr3_num_nts, Sequence.copy_number, Sequence.sequence
     ).filter(
-        Sequence.locally_aligned.is_(True), Sequence.sample_id == sample_id
+        Sequence.locally_aligned.is_(True),
+        Sequence.sample_id == sample_id
     )
 
     for seq in seqs:
@@ -316,7 +318,7 @@ def remove_duplicates(session, sample_id):
             Sequence.sample_id == sample_id,
             Sequence.v_gene == seq.v_gene,
             Sequence.j_gene == seq.j_gene,
-            Sequence.cdr3_num_nts == seq.cdr3_num_nts
+            Sequence.cdr3_num_nts == seq.cdr3_num_nts,
         ).order_by(desc(Sequence.copy_number))
 
         for other_seq in potential_collapse:
@@ -333,7 +335,14 @@ def remove_duplicates(session, sample_id):
                 ).update({
                     'duplicate_seq_ai': other_seq.ai,
                 }, synchronize_session=False)
+                session.add(DuplicateSequence(
+                    seq_id=seq.seq_id,
+                    duplicate_seq_ai=other_seq.ai,
+                    sample_id=sample_id
+                ))
+                session.query(Sequence).filter(Sequence.ai == seq.ai).delete()
                 break
+    session.commit()
 
 
 def run_fix_sequences(session, args):
