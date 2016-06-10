@@ -1,4 +1,46 @@
 # CHANGELOG
+## v0.17.0
+* The package has been renamed from SLDB to AIRRDB.
+* J-gene offsets are now set to human values by default.
+* Local alignment has been updated and should properly work for most sequences.
+
+## v0.16.2
+* Selection pressure can now be calculated for mutations happening exactly a
+  specified number of times.
+* Clonal overlap calculations are now faster.
+* A `sldb_sql` command has been added to ease direct interface with MySQL.
+* API call for clonal overlap now properly pages.
+* Improved error handling in lineage construction.
+* Docker compose is now used to separate the different AIRRDB components.
+
+## v0.16.1
+* J-genes are now properly assigned.
+
+## v0.16.0
+* Alleles are no longer annotated.
+* Sequences can be optionally trimmed during identification or importing.
+* Sequences with stop codons can optionally be excluded from lineages.
+* Sequences are now properly assigned to clones regardless of CDR3 length.
+* Sequences with ambiguous bases in their J-genes are now properly identified.
+* V- and J-gene tie code has been consolidated.
+* Total clone copy number is now properly calculated for statistics.
+* Sequences with ambiguous CDR3s are now properly added to clones.
+* V-ties for locally-aligned sequences are now properly annotated.
+* Mutation rate for each sample is now stored in the underlying database.
+* Lineage node copy numbers are now correct for collapsed sequences
+* Clone overlap queries are now much faster.
+
+## v0.15.0
+* Local alignment now uses external libraries.
+* Insertions and deletions are now included in sequence records
+* A Dockerfile is now available for AIRRDB.
+
+## v0.14.1
+* Exporting clones by sample now works properly.
+* Memory usage and run-time for local-alignment has been reduced.
+* Documentation has been cleaned up.
+* Selection pressure can now be calculated at any level.
+
 ## v0.14.0
 * The API has been simplified and re-organized.
 * URLs for API calls now use run length encoding to specify which samples to

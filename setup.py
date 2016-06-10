@@ -5,7 +5,7 @@ dnautils = Extension('dnautils', sources=['lib/dnautils.c'],
 
 setup(
     name='airrdb',
-    version='0.16.0',
+    version='0.17.0',
     author='Aaron M. Rosenfeld',
     author_email='ar374@drexel.edu',
     url='https://github.com/arosenfeld/airrdb',
