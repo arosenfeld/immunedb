@@ -1,13 +1,11 @@
 import datetime
-import hashlib
 
 from sqlalchemy import (Column, Boolean, Float, Integer, String, Date,
                         DateTime, ForeignKey, UniqueConstraint, Index, event)
-from sqlalchemy.dialects.mysql import CHAR, MEDIUMTEXT
+from sqlalchemy.dialects.mysql import MEDIUMTEXT
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
 from sqlalchemy.orm import ColumnProperty, relationship, backref
-from sqlalchemy.orm.interfaces import MapperExtension
 from sqlalchemy.orm.session import Session
 from sqlalchemy.schema import ForeignKeyConstraint, PrimaryKeyConstraint
 

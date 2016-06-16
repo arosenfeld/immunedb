@@ -1,4 +1,3 @@
-import dnautils
 import json
 import multiprocessing as mp
 import os
@@ -10,16 +9,14 @@ from sqlalchemy.sql import exists
 
 import airrdb.common.config as config
 import airrdb.common.modification_log as mod_log
-from airrdb.common.models import (DuplicateSequence, NoResult, Sample,
-                                  Sequence, Study, Subject)
-from airrdb.identification import (add_as_noresult, add_as_sequence,
-                                   add_uniques, AlignmentException)
+from airrdb.common.models import Sample, Sequence, Study, Subject
+from airrdb.identification import (add_as_noresult, add_uniques,
+                                   AlignmentException)
 from airrdb.identification.vdj_sequence import VDJSequence
 from airrdb.identification.v_genes import VGermlines
 from airrdb.identification.j_genes import JGermlines
 import airrdb.util.concurrent as concurrent
 import airrdb.util.funcs as funcs
-import airrdb.util.lookups as lookups
 
 
 class SampleMetadata(object):

@@ -1,24 +1,21 @@
 import json
 from functools import wraps
 import re
-import subprocess
 import time
 
-from sqlalchemy import desc, distinct
+from sqlalchemy import distinct
 from sqlalchemy.orm import scoped_session
 
 import bottle
-from bottle import route, response, request
+from bottle import response, request
 
 from airrdb.exporting.clone_export import CloneExport
 from airrdb.exporting.sequence_export import SequenceExport
 from airrdb.exporting.mutation_export import MutationExporter
 import airrdb.api.queries as queries
-from airrdb.common.models import CloneStats, ModificationLog, Sequence
+from airrdb.common.models import CloneStats
 from airrdb.exporting.writers import (CLIPWriter, FASTAWriter, FASTQWriter,
                                       CSVWriter)
-import airrdb.util.lookups as lookups
-from airrdb.util.nested_writer import NestedCSVWriter
 
 
 class EnableCors(object):
@@ -292,7 +289,6 @@ def export_sequences(session, from_type, encoding):
 @with_session
 def export_clones(session, from_type, encoding):
     fields = request.forms or {}
-    eformat = fields.get('format')
 
     set_download('clones', 'csv')
 

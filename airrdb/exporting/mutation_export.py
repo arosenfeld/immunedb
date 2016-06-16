@@ -1,6 +1,5 @@
 import airrdb.api.queries as queries
 from airrdb.common.models import CloneStats
-from airrdb.common.mutations import threshold_mutations
 from airrdb.util.nested_writer import NestedCSVWriter
 
 

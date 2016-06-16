@@ -85,7 +85,7 @@ def add_as_sequence(session, vdj, sample):
                     duplicate_seq_ai=seq.ai
                 ) for seq_id in vdj.ids[1:]
             ])
-        except ValueError as ex:
+        except ValueError:
             pass
     except ValueError as e:
         add_as_noresult(session, vdj, sample, str(e))

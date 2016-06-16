@@ -1,7 +1,3 @@
-from airrdb.common.mutations import threshold_mutations
-import airrdb.util.funcs as funcs
-
-
 class Exporter(object):
     def __init__(self, session, rtype, rids, export_fields, selected_fields):
         self.session = session

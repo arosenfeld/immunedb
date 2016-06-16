@@ -1,18 +1,15 @@
 from collections import OrderedDict
 import json
 import math
-import numpy as np
 import re
 
 from sqlalchemy import and_, desc, distinct
-from sqlalchemy.orm import aliased
 from sqlalchemy.orm.strategy_options import Load
-from sqlalchemy.sql import exists, func
+from sqlalchemy.sql import func
 from sqlalchemy.sql.expression import false, true
 
-from airrdb.common.models import (Clone, CloneStats, DuplicateSequence, Sample,
-                                  SampleStats, Sequence, SequenceCollapse,
-                                  Subject)
+from airrdb.common.models import (Clone, CloneStats, Sample, SampleStats,
+                                  Sequence, SequenceCollapse, Subject)
 from airrdb.common.mutations import threshold_mutations
 
 

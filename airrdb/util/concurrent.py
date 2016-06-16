@@ -59,7 +59,7 @@ class TaskQueue(object):
                 else:
                     worker.do_task(args)
                     self._task_queue.task_done()
-            except Exception as ex:
+            except Exception:
                 worker._print(
                     '[TASK ERROR] The task was not completed '
                     'because:\n{}'.format(traceback.format_exc())

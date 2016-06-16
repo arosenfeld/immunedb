@@ -1,6 +1,6 @@
 from collections import OrderedDict
 
-from airrdb.common.models import Clone, CloneStats, Sample
+from airrdb.common.models import CloneStats
 from airrdb.exporting.export import Exporter
 from airrdb.util.nested_writer import NestedCSVWriter
 
@@ -62,9 +62,6 @@ class CloneExport(Exporter):
 
         clone_ids = set(clone_ids)
         for clone_id in clone_ids:
-            clone = self.session.query(Clone).filter(
-                Clone.id == clone_id
-            ).one()
             stats = self.session.query(CloneStats).filter(
                 CloneStats.clone_id == clone_id
             ).order_by(CloneStats.sample_id)

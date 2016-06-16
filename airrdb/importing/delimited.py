@@ -1,8 +1,8 @@
 import csv
 import re
 
-from airrdb.identification import (add_as_noresult, add_as_sequence,
-                                   add_uniques, AlignmentException)
+from airrdb.identification import (add_as_noresult, add_uniques,
+                                   AlignmentException)
 from airrdb.identification.vdj_sequence import VDJSequence
 from airrdb.identification.j_genes import JGermlines
 from airrdb.identification.v_genes import VGermlines
@@ -109,10 +109,10 @@ def read_file(session, handle, sample, v_germlines, j_germlines, columns,
     print 'Collapsing ambiguous character sequences'
     if len(aligned_seqs) > 0:
         avg_mut = sum(
-            [vdj.mutation_fraction for vdj in aligned_seqs.values()]
+            [v.mutation_fraction for v in aligned_seqs.values()]
         ) / float(len(aligned_seqs))
         avg_len = sum(
-            [vdj.v_length for vdj in aligned_seqs.values()]
+            [v.v_length for v in aligned_seqs.values()]
         ) / float(len(aligned_seqs))
         sample.v_ties_mutations = avg_mut
         sample.v_ties_len = avg_len

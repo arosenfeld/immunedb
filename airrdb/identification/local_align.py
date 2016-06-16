@@ -3,17 +3,14 @@ import multiprocessing as mp
 import re
 import subprocess
 import shlex
-from sqlalchemy import desc, func
+from sqlalchemy import desc
 
 from Bio.Seq import Seq
 import dnautils
-import airrdb.util.funcs as funcs
-from airrdb.identification import AlignmentException
 from airrdb.identification.j_genes import JGermlines
 from airrdb.identification.v_genes import VGermlines
-from airrdb.identification.vdj_sequence import VDJSequence
 from airrdb.common.models import (CDR3_OFFSET, DuplicateSequence, NoResult,
-                                  Sample, Sequence, serialize_gaps)
+                                  Sample, Sequence)
 import airrdb.util.funcs as funcs
 import airrdb.util.lookups as lookups
 import airrdb.util.concurrent as concurrent
@@ -165,10 +162,12 @@ class LocalAlignmentWorker(concurrent.Worker):
             '-' * (cdr3_end - cdr3_start),
             final_germ[cdr3_end:]
         ))
-        record['insertions'].update([(p[0] + cdr3_end, p[1])
+        record['insertions'].update([
+            (p[0] + cdr3_end, p[1])
             for p in gap_positions(final_germ[cdr3_end:])
         ])
-        record['deletions'].update([(p[0] + cdr3_end, p[1])
+        record['deletions'].update([(
+            p[0] + cdr3_end, p[1])
             for p in gap_positions(final_seq[cdr3_end:])
         ])
 
@@ -307,10 +306,11 @@ def process_completes(session, complete_queue, num_workers):
                             sample_id=old_nores.sample_id,
                             duplicate_seq=new_seq))
                         session.delete(old_nores)
-        except ValueError as e:
+        except ValueError:
             pass
 
         session.commit()
+
 
 def remove_duplicates(session, sample_id):
     seqs = session.query(
@@ -359,7 +359,6 @@ def run_fix_sequences(session, args):
     v_germlines = VGermlines(args.v_germlines)
     j_germlines = JGermlines(args.j_germlines, args.upstream_of_cdr3, 0, 0)
 
-    mutation_cache = {}
     for (sample_id, subject_id) in session.query(
             Sample.id, Sample.subject_id).order_by(Sample.id):
         # Get all the indels that were identified (poorly)

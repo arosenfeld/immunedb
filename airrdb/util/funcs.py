@@ -1,7 +1,3 @@
-import hashlib
-import re
-
-
 def get_regions(insertions):
     regions = [78, 36, 51, 30, 114]
     offset = 0
