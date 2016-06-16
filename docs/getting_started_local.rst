@@ -71,7 +71,6 @@ Finally, get and install AIRRDB:
 .. code-block:: bash
 
     $ pip install numpy
-    $ pip install scipy
     $ pip install airrdb
 
 Global
@@ -86,5 +85,4 @@ If instead a global install is desired, run:
 .. code-block:: bash
 
     $ pip install numpy
-    $ pip install scipy
     $ pip install airrdb

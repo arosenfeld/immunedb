@@ -1,7 +1,7 @@
 FROM ubuntu:14.04
 RUN apt-get install -y software-properties-common
 RUN apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xcbcb082a1bb943db
-RUN apt-get update && apt-get install -y python-numpy python-scipy python-setuptools wget
+RUN apt-get update && apt-get install -y python-numpy python-setuptools wget
 COPY setup.py /app/
 COPY airrdb/ /app/airrdb
 COPY lib/ /app/lib
