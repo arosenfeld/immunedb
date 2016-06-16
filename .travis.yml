@@ -15,7 +15,6 @@ virtualenv:
   system_site_packages: true
 install:
   - pip install numpy
-  - travis_wait pip install scipy | awk 'NR % 50 == 0'
   - python setup.py install
   - pip install nose
   - git clone --recursive https://github.com/noporpoise/seq-align ~/seq-align

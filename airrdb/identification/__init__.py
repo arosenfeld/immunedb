@@ -2,13 +2,11 @@ import dnautils
 import itertools
 import traceback
 
-import numpy as np
-from scipy.stats import hypergeom
-
 from airrdb.common.models import (CDR3_OFFSET, DuplicateSequence, NoResult,
                                   Sequence)
 import airrdb.util.funcs as funcs
 import airrdb.util.lookups as lookups
+from airrdb.util.hyper import hypergeom
 
 
 class AlignmentException(Exception):
@@ -208,12 +206,7 @@ class GeneTies(dict):
     def _hypergeom(self, length, mutation, K):
         key = (length, mutation, K)
         if key not in self.hypers:
-            dist = hypergeom(length, K, np.ceil(length * mutation))
-            p = np.sum(
-                [dist.pmf(k) * np.power(.33, k)
-                    for k in xrange(int(np.ceil(K / 2)), K)]
-            )
-            self.hypers[key] = p
+            self.hypers[key] = hypergeom(length, mutation, K)
         return self.hypers[key]
 
     def mut_bucket(self, mut):
