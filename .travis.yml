@@ -26,4 +26,3 @@ before_script:
 script:
   - cd $TRAVIS_BUILD_DIR
   - LL_PATH=~/seq-align/bin/needleman_wunsch ./tests/run.sh
-
