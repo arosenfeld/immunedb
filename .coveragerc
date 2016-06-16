@@ -1,0 +1,6 @@
+[run]
+concurrency = multiprocessing
+include = airrdb*
+
+[report]
+omit=airrdb/api/*,airrdb/exporting,airrdb/util/admin.py,airrdb/util/nested_writer.py,airrdb/trees/clearcut.py,airrdb/exporting/*,airrdb/common/baseline.py

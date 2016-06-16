@@ -23,5 +23,6 @@ else
 fi
 
 setup
-nosetests -s tests/tests_pipeline.py
-nosetests -s tests/tests_import.py
+coverage erase
+coverage run --source=airrdb -p -m nose -s tests/tests_pipeline.py
+coverage run --source=airrdb -p -m nose -s tests/tests_import.py

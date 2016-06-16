@@ -3,6 +3,7 @@ dependencies:
         - sudo apt-get update
         - sudo apt-get install python-pip python-dev build-essential
         - pip install --upgrade numpy
+        - pip install coverage
         - sudo apt-get install libatlas-base-dev gfortran
         - git clone --recursive https://github.com/noporpoise/seq-align ~/seq-align
         - cd ~/seq-align && make

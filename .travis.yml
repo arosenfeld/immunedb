@@ -15,8 +15,9 @@ virtualenv:
   system_site_packages: true
 install:
   - pip install numpy
-  - python setup.py install
   - pip install nose
+  - pip install coverage
+  - python setup.py install
   - git clone --recursive https://github.com/noporpoise/seq-align ~/seq-align
   - cd ~/seq-align && make
 before_script:
