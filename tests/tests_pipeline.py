@@ -2,7 +2,7 @@ import os
 
 from regression import NamespaceMimic, BaseTest
 
-from airrdb.identification.identify import run_identify
+from immunedb.identification.identify import run_identify
 
 
 class TestPipeline(BaseTest.RegressionTest):

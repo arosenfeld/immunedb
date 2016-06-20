@@ -1,7 +1,7 @@
-API --- ``airrdb.api``
+API --- ``immunedb.api``
 ====================
 
-REST Interface --- ``airrdb.api.rest_service``
+REST Interface --- ``immunedb.api.rest_service``
 --------------------------------------------
 The `REST <http://en.wikipedia.org/wiki/Representational_state_transfer>`_
 interface is a miniature HTTP server which serves JSON stanzas based on the
@@ -11,16 +11,16 @@ all studies in the database.
 The primary use of this is to provide an API for AJAX requests from a
 web-interface to the sequence database without the need for writing SQL.
 
-The ``airrdb.api.rest_service`` directly handles incoming connections using
+The ``immunedb.api.rest_service`` directly handles incoming connections using
 `gevent <http://www.gevent.org>`_, parses the URL and then calls the required
-functions in :py:class:`airrdb.api.queries`.
+functions in :py:class:`immunedb.api.queries`.
 
-.. automodule:: airrdb.api.rest_service
+.. automodule:: immunedb.api.rest_service
     :members:
     :exclude-members: relationship
 
-Queries --- ``airrdb.api.queries``
+Queries --- ``immunedb.api.queries``
 --------------------------------
-.. automodule:: airrdb.api.queries
+.. automodule:: immunedb.api.queries
     :members:
     :exclude-members: relationship, desc, distinct

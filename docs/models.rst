@@ -1,6 +1,6 @@
-Data Models --- ``airrdb.common.models``
+Data Models --- ``immunedb.common.models``
 ======================================
 
-.. automodule:: airrdb.common.models
+.. automodule:: immunedb.common.models
     :members:
     :exclude-members: relationship

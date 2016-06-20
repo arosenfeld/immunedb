@@ -1,0 +1,17 @@
+#!/usr/bin/env python2
+import sys
+import argparse
+import immunedb.common.config as config
+from immunedb.aggregation.sample_stats import run_sample_stats
+
+if __name__ == '__main__':
+    parser = config.get_base_arg_parser('Generates statistics for samples')
+    parser.add_argument('--sample-ids', nargs='+', type=int,
+                        help='Limit statistics updates to certain samples')
+    parser.add_argument('--force', action='store_true', help='Force '
+                        'regeneration of stats even if they already exist')
+    args = parser.parse_args()
+
+    session = config.init_db(args.db_config)
+
+    sys.exit(run_sample_stats(session, args))

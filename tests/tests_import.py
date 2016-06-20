@@ -2,7 +2,7 @@ import os
 
 from regression import BaseTest, NamespaceMimic
 
-from airrdb.importing.delimited import DEFAULT_MAPPINGS, run_import
+from immunedb.importing.delimited import DEFAULT_MAPPINGS, run_import
 
 
 class TestImport(BaseTest.RegressionTest):

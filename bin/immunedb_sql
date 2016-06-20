@@ -1,0 +1,21 @@
+#!/usr/bin/env python2
+import argparse
+import json
+import shlex
+import subprocess
+
+import immunedb.common.config as config
+
+if __name__ == '__main__':
+    parser = config.get_base_arg_parser('Starts a MySQL CLI session from a '
+                                        'configuration file', multiproc=False)
+    args = parser.parse_args()
+
+    with open(args.db_config) as fh:
+        config = json.load(fh)
+
+    proc = subprocess.Popen(shlex.split('mysql -h {} -u {} -p{} {}'.format(
+        config['host'], config['username'], config['password'],
+        config['database'])
+    ))
+    proc.communicate()

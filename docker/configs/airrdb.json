@@ -1,7 +1,0 @@
-{
-    "host": "mariadb",
-    "database": "airrdb",
-    "username": "root",
-    "password": "insecure_password"
-}
-

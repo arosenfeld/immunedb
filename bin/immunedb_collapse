@@ -1,0 +1,16 @@
+#!/usr/bin/env python2
+import sys
+import argparse
+
+import immunedb.common.config as config
+from immunedb.aggregation.collapse import run_collapse
+
+if __name__ == '__main__':
+    parser = config.get_base_arg_parser('Collapses sequences at the sample and'
+                                        'subject level.', multiproc=True)
+    parser.add_argument('--subject-ids', nargs='+', default=None, type=int,
+                        help='Subject ID(s) to collapse.')
+    args = parser.parse_args()
+
+    session = config.init_db(args.db_config)
+    sys.exit(run_collapse(session, args))

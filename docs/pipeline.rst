@@ -1,27 +1,27 @@
 Data Analysis Pipeline
 ======================
-The primary component of AIRRDB is its clonal identification pipeline which has
+The primary component of ImmuneDB is its clonal identification pipeline which has
 the capability to take as input raw sequences, determine likely V and J genes,
 and finally group similar sequences into clones.
 
 The pipeline is comprised of a number of steps which allows any portion of this
 process to be replaced by another system.  For example, HighV-Quest could be
-used for V and J assignment portion.  Further, the AIRRDB API allows developers to
+used for V and J assignment portion.  Further, the ImmuneDB API allows developers to
 integrate other tools into each step of the pipeline.
 
-This page explains the basic workflow and assumes MySQL and AIRRDB are already
+This page explains the basic workflow and assumes MySQL and ImmuneDB are already
 installed on the system.  It does not attempt to detail all the possible options
 at each stage of the pipeline and users are encouraged to review the usage
 documentation of each command.
 
-AIRRDB Instance Creation
+ImmuneDB Instance Creation
 ----------------------
 It is assumed that the root user's username and password for MySQL is known.
-To create a new AIRRDB instance, one can use ``airrdb_admin``:
+To create a new ImmuneDB instance, one can use ``immunedb_admin``:
 
 .. code-block:: bash
 
-    $ airrdb_admin create DB_NAME CONFIG_DIR
+    $ immunedb_admin create DB_NAME CONFIG_DIR
 
 Replacing ``DB_NAME`` with an appropriate database name and ``CONFIG_DIR`` with
 a directory in which the database configuration will be stored will initialize
@@ -41,11 +41,11 @@ the database for the rest of the pipeline steps.
 
 Data Preparation
 ----------------
-Before running the AIRRDB pipeline, the input sequence data must be properly
+Before running the ImmuneDB pipeline, the input sequence data must be properly
 structured.  Sequences must be separated into one file per sample.  That is,
 sequences in the same file must be from the sequencing run or, conversely, that
 sequences in different files could not have originated from the same cell.  This
-is required for AIRRDB to properly count the number of unique sequences.
+is required for ImmuneDB to properly count the number of unique sequences.
 
 For example, a directory of FASTA files may look like this:
 
@@ -56,7 +56,7 @@ For example, a directory of FASTA files may look like this:
     subjectDEF_blood.fasta
     subjectXYZ_liver.fasta
 
-AIRRDB needs some metadata about each of the FASTA files to process it.
+ImmuneDB needs some metadata about each of the FASTA files to process it.
 Specifically, it **requires** the following information (the maximum number of
 characters, when applicable, is shown in parenthesis):
 
@@ -64,7 +64,7 @@ characters, when applicable, is shown in parenthesis):
 - ``study_name`` (128): The name of study the sample belongs to.
 - ``date``: The date the sample was acquired in YYYY-MM-DD format.
 - ``subject`` (64): A unique identifier for the subject.  This must be unique to
-  the entire AIRRDB instance as they are not contextual to the study.  Therefore
+  the entire ImmuneDB instance as they are not contextual to the study.  Therefore
   if two studies use the same identifier for different subjects, they must be
   given new distinct identifiers.
 
@@ -121,7 +121,7 @@ specified for the file is used.
 
 .. warning::
     It's advisable to not use terms like "None", "N/A", or an empty string to
-    specify missing metadata.  Various portions of AIRRDB group information based
+    specify missing metadata.  Various portions of ImmuneDB group information based
     on metadata, and will consider strings like these distinct from null
     metadata.
 
@@ -137,7 +137,7 @@ After creating the metadata file, the directory should look like:
 
 Germline Files
 --------------
-AIRRDB requires that V and J germlines be specified in two separate FASTA files.
+ImmuneDB requires that V and J germlines be specified in two separate FASTA files.
 There are a number of restrictions on their format.  Most common germlines can
 be downloaded from `IMGT's Gene-DB <http://imgt.org/genedb>`_ directly.
 
@@ -148,7 +148,7 @@ For V Germlines
   However, V1-18*01 or Homosap IGHV4-34 are not.
 - Germlines must be IMGT gapped.
 - Germlines starting with gaps are excluded from alignment.
-- AIRRDB uses the V/J alignment method found in `PMID: 26529062`.  This requires V
+- ImmuneDB uses the V/J alignment method found in `PMID: 26529062`.  This requires V
   germlines to have have one of the following amino-acid anchors with the
   trailing ``C`` being the first residue in the CDR3: ``D...Y[YCH]C``,
   ``Y[YHC]C`` or ``D.....C``.  The ``.`` character represents any amino acid,
@@ -169,7 +169,7 @@ deletion, and how far into the CDR3 the V and J likely extend.
 
 .. code-block:: bash
 
-    $ airrdb_identify /path/to/config.json /path/to/v_germlines.fasta /path/to/j_germlines.fasta \
+    $ immunedb_identify /path/to/config.json /path/to/v_germlines.fasta /path/to/j_germlines.fasta \
         /path/to/sequence-data-directory
 
 .. note::
@@ -177,7 +177,7 @@ deletion, and how far into the CDR3 the V and J likely extend.
     the J after (upstream) of the CDR3, a conserved anchor size starting at the
     end of the J, and a minimum anchor length.  The J gene is searched for by
     using these anchors which are 31, 18 and 12 respectively in humans (and are
-    the default values for AIRRDB).  For other species, these values may need to
+    the default values for ImmuneDB).  For other species, these values may need to
     be tweaked.  The regions are shown graphically below:
 
     .. code-block:: bash
@@ -198,21 +198,21 @@ Local Alignment of Indel Sequences (Optional)
     possibility of errors or inconsistencies.
 
 After identification, certain sequences will be marked as being probable indels
-(or misalignments).  To fix these, ``airrdb_local_align`` can **optionally** be
+(or misalignments).  To fix these, ``immunedb_local_align`` can **optionally** be
 used to properly gap sequences or germlines.  This process is inherently slow
 and therefor may not be necessary in many cases.  To use, the `seq-align
 <https://github.com/noporpoise/seq-align>`_ package must be built and the path
-to the resulting `needleman_wunsch` binary passed to AIRRDB.
+to the resulting `needleman_wunsch` binary passed to ImmuneDB.
 
 .. code-block:: bash
 
-    $ airrdb_local_align /path/to/config.json /path/to/needleman_wunsch /path/to/j_germlines
+    $ immunedb_local_align /path/to/config.json /path/to/needleman_wunsch /path/to/j_germlines
 
 
 Sequence Collapsing
 ------------------------------------
-AIRRDB determines the uniqueness of a sequence both at the sample and subject
-level.  For the latter, ``airrdb_collapse`` is used to find sequences that are the
+ImmuneDB determines the uniqueness of a sequence both at the sample and subject
+level.  For the latter, ``immunedb_collapse`` is used to find sequences that are the
 same except at positions that have an ``N``.  Thus, the sequences ``ATNN`` and
 ``ANCN`` would be collapsed.
 
@@ -223,7 +223,7 @@ To collapse sequences, run:
 
 .. code-block:: bash
 
-    $ airrdb_collapse /path/to/config.json
+    $ immunedb_collapse /path/to/config.json
 
 The optional ``--subject-ids`` flag can specify that only samples from certain
 subjects should be collapsed.
@@ -231,20 +231,20 @@ subjects should be collapsed.
 Clonal Assignment
 -----------------
 After sequences are assigned V and J genes, they can be clustered into clones
-based on CDR3 Amino Acid similarity with the ``airrdb_clones`` command.  This
+based on CDR3 Amino Acid similarity with the ``immunedb_clones`` command.  This
 takes a number of arguments which should be read before use.
 
 A basic example of clonal assignment, not using all possible arguments:
 
 .. code-block:: bash
 
-    $ airrdb_clones /path/to/config.json
+    $ immunedb_clones /path/to/config.json
 
 .. _stats_generation:
 
 Statistics Generation
 ---------------------
-Two sets of statistics can be calculated in AIRRDB:
+Two sets of statistics can be calculated in ImmuneDB:
 
 - **Clone Statistics:** For each clone and sample combination, how many unique
   and total sequences appear as well as the mutations from the germline.
@@ -253,13 +253,13 @@ Two sets of statistics can be calculated in AIRRDB:
   copy number, V length, and CDR3 length.  It calculates all of these with and
   without outliers, and including and excluding partial reads.
 
-These are calculated with the ``airrdb_clone_stats`` and ``airrdb_sample_stats``
+These are calculated with the ``immunedb_clone_stats`` and ``immunedb_sample_stats``
 commands and must be run in that order.
 
 .. code-block:: bash
 
-    $ airrdb_sample_stats /path/to/config.json
-    $ airrdb_clone_stats /path/to/config.json
+    $ immunedb_sample_stats /path/to/config.json
+    $ immunedb_clone_stats /path/to/config.json
 
 
 Selection Pressure (Optional)
@@ -269,7 +269,7 @@ Selection pressure of clones can be calculated with `Baseline
 
 .. code-block:: bash
 
-    $ airrdb_clone_pressure /path/to/config.json /path/to/Baseline_Main.r
+    $ immunedb_clone_pressure /path/to/config.json /path/to/Baseline_Main.r
 
 This process is relatively slow and may take some time to complete.
 
@@ -277,7 +277,7 @@ This process is relatively slow and may take some time to complete.
 
 Clone Trees (Optional)
 ----------------------
-Lineage trees for clones is generated with the ``airrdb_clone_trees`` command.  The
+Lineage trees for clones is generated with the ``immunedb_clone_trees`` command.  The
 only currently supported method is neighbor-joining as provided by `Clearcut
 <http://bioinformatics.hungry.com/clearcut>`_.  Among others, the ``min-count``
 parameter allows for mutations to be omitted if they have not occurred at least
@@ -287,20 +287,20 @@ error.
 
 .. code-block:: bash
 
-    $ airrdb_clone_trees /path/to/config.json /path/to/clearcut --min-count 2
+    $ immunedb_clone_trees /path/to/config.json /path/to/clearcut --min-count 2
 
 .. _supplemental_tools:
 
 
 Web Service (Optional)
 ----------------------
-AIRRDB has a RESTful API that allows for language agnostic querying.  This is
-provided by the ``airrdb_rest`` command.  It is specifically designed to provide
+ImmuneDB has a RESTful API that allows for language agnostic querying.  This is
+provided by the ``immunedb_rest`` command.  It is specifically designed to provide
 the required calls for the associated `web-app
-<https://github.com/arosenfeld/airrdb-frontend>`_.
+<https://github.com/arosenfeld/immunedb-frontend>`_.
 
 To run on port 3000 for example:
 
 .. code-block:: bash
 
-    $ airrdb_rest /path/to/config.json -p 3000
+    $ immunedb_rest /path/to/config.json -p 3000

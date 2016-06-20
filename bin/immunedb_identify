@@ -1,0 +1,59 @@
+#!/usr/bin/env python2
+import sys
+import argparse
+
+import immunedb.common.config as config
+from immunedb.identification.identify import run_identify
+
+if __name__ == '__main__':
+    parser = config.get_base_arg_parser('Identifies V and J genes from '
+                                        'FASTA files', multiproc=True)
+    parser.add_argument('v_germlines', help='FASTA file with IMGT gapped '
+                        'V-gene germlines')
+    parser.add_argument('j_germlines', help='FASTA file with J-gene '
+                        'germlines. The final nucleotide in all genes must be '
+                        'aligned. Sequence cannot contain any gaps.')
+    parser.add_argument('--upstream-of-cdr3', type=int, help='The number of '
+                        ' nucleotides in the J germlines upstream of the CDR3',
+                        default=31)
+    parser.add_argument('--anchor-len', type=int, help='The number of '
+                        'nucleotides at the end of the J germlines to use as '
+                        'anchors.', default=18)
+    parser.add_argument('--min-anchor-len', type=int, help='The minimum '
+                        'number of nucleotides in the J germline anchors '
+                        'required to match the sequence.', default=12)
+    parser.add_argument('sample_dirs', nargs='+', help='Base directories for '
+                        'samples.')
+    parser.add_argument('--metadata', default=None, help='Path to metadata '
+                        'file.  If not specified, expects "metadata.json" to '
+                        'exist in the base_dir')
+    parser.add_argument('--max-vties', type=int, default=50, help='Maximum '
+                        'number of V-ties to allow in a valid sequence. '
+                        'V-ties resulting in a name longer than 512 characters'
+                        ' will be truncated. (Default: 50)')
+    parser.add_argument('--min-similarity', type=int, default=60,
+                        help='Minimum percent similarity to germline required '
+                        'for valid sequences. (Default: 60)')
+    parser.add_argument('--max-padding', default=None, type=int, help='If '
+                        'specified discards sequences with too much padding.')
+    parser.add_argument('--trim-to', type=int, default=None,
+                        help='If specified, trims the beginning N bases of '
+                        'each sequence.  Useful for removing primers within '
+                        'the V sequence (Default: None)')
+    parser.add_argument('--warn-existing', default=False, action='store_true',
+                        help='If specified, warns of existing samples and '
+                        'skips them.  Otherwise, an error is raised and '
+                        'identification will not begin.')
+
+    args = parser.parse_args()
+    if args.min_anchor_len > args.anchor_len:
+        parser.error('Minimum anchor length must be <= total anchor length')
+    if args.metadata and len(args.sample_dirs) > 1:
+        parser.error('Cannot specify \'metadata\' with multiple input '
+                     'directories.')
+    if args.max_padding and args.trim_to:
+        if args.max_padding < args.trim_to:
+            parser.error('--max-padding cannot be less than --trim-to')
+
+    session = config.init_db(args.db_config)
+    sys.exit(run_identify(session, args))

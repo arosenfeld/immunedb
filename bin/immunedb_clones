@@ -1,0 +1,41 @@
+#!/usr/bin/env python2
+import sys
+import argparse
+
+import immunedb.common.config as config
+from immunedb.aggregation.clones import run_clones
+
+if __name__ == '__main__':
+    parser = config.get_base_arg_parser('Clusters sequences into clones')
+    parser.add_argument('--similarity', type=int, default=85,
+                        dest='similarity', help='Minimum similarity between '
+                        'clone sequences. (Default: 85)')
+    parser.add_argument('--subject-ids', nargs='+', type=int,
+                        help='Limit generation to certain subjects')
+    parser.add_argument('--include-indels', action='store_true', default=False,
+                        help='If specified, includes indels (or poorly '
+                        'aligned sequences) in clones.')
+    parser.add_argument('--exclude-partials', action='store_true',
+                        default=False, help='If specified, excludes partial '
+                        'sequences in clones.  Note partial sequences which '
+                        'were collapse to a full sequence will always be '
+                        'included.')
+    parser.add_argument('--min-identity', type=int, default=0,
+                        help='Minimum V identity of sequences to germline '
+                        'required for inclusion in clones. (Default: 0)')
+    parser.add_argument('--min-copy', type=int, default=2, help='The minimum '
+                        'copy number that sequences must have in the subject '
+                        'to be included in clones. (Default: 2)')
+    parser.add_argument('--max-padding', type=int, default=None,
+                        help='Maximum V-padding a sequence may have to be '
+                        'added to a clone.  (Default: Any)')
+    parser.add_argument('--regen', action='store_true', help='If specified '
+                        'all clones (limited by subject if --subject is '
+                        'specified) will be DELETED before creating new '
+                        'clones.  Associated sequences will be re-assigned '
+                        'new clones')
+    args = parser.parse_args()
+
+    session = config.init_db(args.db_config)
+
+    sys.exit(run_clones(session, args))

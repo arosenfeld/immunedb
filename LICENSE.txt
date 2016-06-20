@@ -1,4 +1,4 @@
-AIRRDB
+ImmuneDB
 Copyright (C) 2016 Drexel University
 
 This program is free software: you can redistribute it and/or modify

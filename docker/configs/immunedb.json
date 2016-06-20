@@ -1,0 +1,7 @@
+{
+    "host": "mariadb",
+    "database": "immunedb",
+    "username": "root",
+    "password": "insecure_password"
+}
+

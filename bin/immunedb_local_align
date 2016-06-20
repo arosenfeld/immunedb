@@ -1,0 +1,36 @@
+#!/usr/bin/env python2
+import sys
+import argparse
+
+import immunedb.common.config as config
+from immunedb.identification.local_align import run_fix_sequences
+
+if __name__ == '__main__':
+    parser = config.get_base_arg_parser('Attempts to locally align sequences '
+                                        'that could not be properly aligned '
+                                        'with the anchoring method.',
+                                        multiproc=True)
+    parser.add_argument('align_path', help='Path to needleman_wunsch binary')
+    parser.add_argument('v_germlines', help='FASTA file with IMGT gapped '
+                        'V-gene germlines')
+    parser.add_argument('j_germlines', help='FASTA file with J-gene '
+                        'germlines. The final nucleotide in all genes must be '
+                        'aligned. Sequence cannot contain any gaps.')
+    parser.add_argument('--max-padding', default=None, type=int, help='If '
+                        'specified discards sequences with too much padding.')
+    parser.add_argument('--upstream_of_cdr3', type=int, help='The number of '
+                        ' nucleotides in the J germlines upstream of the CDR3',
+                        default=31)
+    parser.add_argument('--min-similarity', type=int, default=60,
+                        help='Minimum percent similarity to germline required '
+                        'for valid sequences. (Default: 60)')
+    parser.add_argument('--max-deletions', type=int, default=3,
+                        help='Maximum number of deletion blocks allowed.  '
+                        '(Default: 3)')
+    parser.add_argument('--max-insertions', type=int, default=3,
+                        help='Maximum number of insertion blocks allowed.  '
+                        '(Default: 3)')
+    args = parser.parse_args()
+
+    session = config.init_db(args.db_config)
+    sys.exit(run_fix_sequences(session, args))

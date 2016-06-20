@@ -1,0 +1,56 @@
+#!/usr/bin/env python2
+import sys
+import argparse
+
+import immunedb.common.config as config
+from immunedb.common.baseline import run_selection_pressure
+
+if __name__ == '__main__':
+    parser = config.get_base_arg_parser('Calculates clonal selection pressure',
+                                        multiproc=True)
+    parser.add_argument('baseline_path', help='Path to Baseline main '
+                        'script.')
+    parser.add_argument('--clone-ids', nargs='+', type=int, help='Limit '
+                        'to certain clone IDS')
+    parser.add_argument('--subject-ids', nargs='+', type=int, help='Limit '
+                        'to certain subjects')
+    parser.add_argument('--regen', action='store_true', help='Recalculate '
+                        'clone selection pressure even if it already exists')
+    parser.add_argument('--temp', default='/tmp', help='Path for temporary '
+                        'baseline files')
+    parser.add_argument('--thresholds', nargs='+', help='Specifies '
+                        'the minimum number(s) of sequences in which mutations'
+                        ' must occur to be included in analysis.  Multiple '
+                        'values are allowed and will calculate multiple '
+                        'selection pressures.  Positive integers indicate the '
+                        'minimum number of sequences.  If an argument ends '
+                        'with %%, it specifies the minimum percentage of '
+                        'sequences.  If an argument ends with E, it specifies '
+                        'the exact number of times the mutation can occur.'
+                        'For example, \'--thresholds 1 1E 2 85%%"\' '
+                        'will calculate selection pressure for mutations '
+                        'occurring at least once (all mutations), exactly '
+                        'once, at least twice, and in at least 85%% of '
+                        'sequences. (Default: 1 2 85%%)',
+                        default=['1', '2', '85%'])
+    args = parser.parse_args()
+    if args.subject_ids is not None and args.clone_ids is not None:
+        parser.error('May only specify subject or clone IDs')
+
+    for i, orig_threshold in enumerate(args.thresholds):
+        if orig_threshold.endswith('%') or orig_threshold.endswith('E'):
+            threshold = orig_threshold[:-1]
+        else:
+            threshold = orig_threshold
+        try:
+            int(threshold)
+        except ValueError:
+            parser.error('The threshold \'{}\' is not a valid integer.'.format(
+                orig_threshold))
+
+        if threshold < 0:
+            parser.error('The threshold \'{}\' is invalid.  Must be a '
+                         'positive integer.'.format(orig_threshold))
+
+    session = config.init_db(args.db_config)
+    sys.exit(run_selection_pressure(session, args))

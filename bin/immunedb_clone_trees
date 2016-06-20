@@ -1,0 +1,37 @@
+#!/usr/bin/env python2
+import argparse
+import sys
+
+import immunedb.common.config as config
+from immunedb.trees.clearcut import run_clearcut
+
+if __name__ == '__main__':
+    parser = config.get_base_arg_parser('Generates JSON trees for clones')
+    parser.add_argument('clearcut_path', help='Path to clearcut binary')
+    parser.add_argument('--force', action='store_true', default=False,
+                        help='Force updating of trees')
+    parser.add_argument('--clone-ids', nargs='+', type=int,
+                        help='ID of clone from which to make a tree')
+    parser.add_argument('--subject-ids', nargs='+', type=int,
+                        help='ID of subject for which all clones should be '
+                        'make')
+    parser.add_argument('--temp', default='/tmp', help='Path for temporary'
+                        'files')
+    parser.add_argument('--min-count', default=1, type=int,
+                        help='The minimum number of times a mutation must '
+                        'occur to be incorporated into tree calculation. '
+                        '(Default: 1)')
+    parser.add_argument('--min-samples', default=1, type=int,
+                        help='The minimum number of samples in which a '
+                        'mutation must occur to be incorporated into tree '
+                        'calculation. (Default: 1)')
+    parser.add_argument('--exclude-stops', action='store_true',
+                        help='If specified, excludes sequences with a stop '
+                        'codon from being included in trees.')
+    args = parser.parse_args()
+
+    if args.subject_ids is not None and args.clone_ids is not None:
+        parser.error('May only specify subject or clone IDs')
+
+    session = config.init_db(args.db_config)
+    sys.exit(run_clearcut(session, args))

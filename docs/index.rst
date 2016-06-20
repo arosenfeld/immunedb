@@ -1,13 +1,12 @@
-AIRRDB Documentation
+ImmuneDB Documentation
 ==================
 
-The **Adaptive Immune Receptor Repertoire Database (AIRRDB)** package is a
-Python module that facilitate efficient storage and analysis of high-throughput
-B- and T-cell sequence data.  It's primary goals are to:
+**ImmuneDB** is a Python module that facilitate efficient storage and analysis
+of high-throughput B- and T-cell sequence data.  It's primary goals are to:
 
 - **Reduce ad-hoc scripting:** Data analysis performed on an ad-hoc basis with
   custom scripts and data formats is error-prone and leads to inconsistencies.
-  AIRRDB provides a standardized analysis platform, performing many common tasks
+  ImmuneDB provides a standardized analysis platform, performing many common tasks
   automatically.
 
 - **Minimize flat-files:** Flat files are currently the standard method of
@@ -17,15 +16,15 @@ B- and T-cell sequence data.  It's primary goals are to:
   <http://en.wikipedia.org/wiki/Provenance#Data_provenance>`_, and
   non-standardized formats.
 
-  AIRRDB attempts to reduce the need for flat files, through the use of an
+  ImmuneDB attempts to reduce the need for flat files, through the use of an
   industry-leading database, MySQL.  When data must be exchanged as a flat-file,
   many export options, including FASTA and tab-delineation, are available.
 
-- **Provide a generic API:** AIRRDB provides both a REST API for language-agnostic
+- **Provide a generic API:** ImmuneDB provides both a REST API for language-agnostic
   database querying as well as a suite of Python classes for interacting directly
   with the database for customized querying.
 
-AIRRDB has four primary components:
+ImmuneDB has four primary components:
 
 - **Clonal identification pipeline:** A series of steps which identify probable
   V- and J-genes from raw FASTA files and subsequently groups sequences from the
@@ -36,7 +35,7 @@ AIRRDB has four primary components:
   This includes mutation analysis, gene utilization breakdowns, and feature
   distributions  (e.g. CDR3 length, V-gene utilization).
 
-- **API:**  AIRRDB includes two APIs.  First, the REST API allows native and web
+- **API:**  ImmuneDB includes two APIs.  First, the REST API allows native and web
   applications (via AJAX) to interact with the underlying database without writing
   any database specific code.  Further, the REST API is language agnostic, using
   HTTP to exchange data.
@@ -45,7 +44,7 @@ AIRRDB has four primary components:
   functionality.  This allows developers to write customized queries directly
   interacting with the database.
 
-- **Web interface:** Distributed separately of AIRRDB is a web interface which
+- **Web interface:** Distributed separately of ImmuneDB is a web interface which
   utilizes the REST API to allow for easy browsing of analysis results.
 
 
@@ -76,7 +75,7 @@ Underlying Technologies
 
 - `Bottle <http://bottlepy.org>`_: A lightweight web-framework for Python which
   serves content via the REST API allowing web-applications to issue AJAX requests
-  to the AIRRDB framework.
+  to the ImmuneDB framework.
 
 
 Modules

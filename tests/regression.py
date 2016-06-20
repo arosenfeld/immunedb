@@ -2,15 +2,15 @@ import json
 import os
 import unittest
 
-import airrdb.common.config as config
-from airrdb.common.models import (Clone, CloneStats, DuplicateSequence,
+import immunedb.common.config as config
+from immunedb.common.models import (Clone, CloneStats, DuplicateSequence,
                                   NoResult, Sample, SampleStats, Sequence,
                                   SequenceCollapse)
-from airrdb.identification.local_align import run_fix_sequences
-from airrdb.aggregation.clones import run_clones
-from airrdb.aggregation.collapse import run_collapse
-from airrdb.aggregation.clone_stats import run_clone_stats
-from airrdb.aggregation.sample_stats import run_sample_stats
+from immunedb.identification.local_align import run_fix_sequences
+from immunedb.aggregation.clones import run_clones
+from immunedb.aggregation.collapse import run_collapse
+from immunedb.aggregation.clone_stats import run_clone_stats
+from immunedb.aggregation.sample_stats import run_sample_stats
 
 
 DB_NAME = 'test_db'

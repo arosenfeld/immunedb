@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -e
 function setup() {
-    airrdb_admin create test_db . --admin-pass "$DB_ADMIN_PASS"
+    immunedb_admin create test_db . --admin-pass "$DB_ADMIN_PASS"
 }
 
 function teardown() {
-    airrdb_admin delete test_db.json --delete-user --admin-pass "$DB_ADMIN_PASS"
+    immunedb_admin delete test_db.json --delete-user --admin-pass "$DB_ADMIN_PASS"
     rm test_db.json
 }
 
@@ -24,5 +24,5 @@ fi
 
 setup
 coverage erase
-coverage run --source=airrdb -p -m nose -s tests/tests_pipeline.py
-coverage run --source=airrdb -p -m nose -s tests/tests_import.py
+coverage run --source=immunedb -p -m nose -s tests/tests_pipeline.py
+coverage run --source=immunedb -p -m nose -s tests/tests_import.py

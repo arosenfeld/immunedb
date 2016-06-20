@@ -1,0 +1,66 @@
+#!/usr/bin/env python2
+import argparse
+
+import immunedb.common.config as config
+import immunedb.util.admin as admin
+
+
+if __name__ == '__main__':
+    main_parser = argparse.ArgumentParser(
+        description='Administrative tools for ImmuneDB database instances')
+    subparsers = main_parser.add_subparsers(dest='cmd',
+                                            help='The task to begin')
+
+    parser = subparsers.add_parser(
+        'create', help='Creates a new ImmuneDB database')
+    parser.add_argument('db_name', help='Database name (letters, numbers, '
+                        'dashes and underscores only)')
+    parser.add_argument('config_dir', help='The directory in which to store '
+                        'the generated configuration file.')
+    parser.add_argument('--db-host', default='localhost', help='Hostname or '
+                        'IP of the MySQL server. (Default: localhost)')
+    parser.add_argument('--db-user', default=None, help='Name of MySQL user '
+                        'to generate for the database.  (Default: name of '
+                        'database)')
+    parser.add_argument('--db-pass', action='store_true', help='Prompt for '
+                        'MySQL user password.  (Default: randomly generated)')
+    parser.add_argument('--admin-user', help='MySQL user with rights to '
+                        'create databases (Default: root)', default='root')
+    parser.add_argument('--admin-pass', type=str, default=None,
+                        help='Specify the admin password at the command line '
+                        'instead of prompting.')
+
+    parser = subparsers.add_parser(
+        'delete', help='Deletes an existing ImmuneDB database')
+    parser.add_argument('db_config', help='Path to database config')
+    parser.add_argument('--delete-user', action='store_true', help='If '
+                        'specified will also delete the user associated '
+                        'with the database.  Deleting the user will '
+                        'also delete it for other database, so only use if '
+                        'you\'re deleting those other databases or the user '
+                        'is only associated with this database.')
+    parser.add_argument('--admin-user', help='MySQL user with rights to '
+                        'create databases (Default: root)', default='root')
+    parser.add_argument('--admin-pass', type=str, default=None,
+                        help='Specify the admin password at the command line '
+                        'instead of prompting.')
+
+    parser = subparsers.add_parser(
+        'backup', help='Backs up an ImmuneDB database')
+    parser.add_argument('db_config', help='Path to database config')
+    parser.add_argument('backup_path', help='Path to backup file')
+
+    parser = subparsers.add_parser('restore', help='Restores a backup of an '
+                                   'ImmuneDB database')
+    parser.add_argument('db_config', help='Path to database config')
+    parser.add_argument('backup_path', help='Path to backup file')
+
+    cmds = {
+        'create': admin.create,
+        'delete': admin.delete,
+        'backup': admin.backup,
+        'restore': admin.restore
+    }
+    args = main_parser.parse_args()
+
+    cmds[args.cmd](main_parser, args)

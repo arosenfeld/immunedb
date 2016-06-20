@@ -1,17 +1,17 @@
-Common Classes & Functions --- ``airrdb.common``
+Common Classes & Functions --- ``immunedb.common``
 ==============================================
 
-Configuration --- ``airrdb.common.config``
+Configuration --- ``immunedb.common.config``
 ----------------------------------------
-The ``airrdb.common.config`` module provides methods to initialize a
+The ``immunedb.common.config`` module provides methods to initialize a
 connection to a new or existing database.
 
-Most programs using AIRRDB will start with code similar to:
+Most programs using ImmuneDB will start with code similar to:
 
 .. code-block:: python
 
 
-    import airrdb.common.config as config
+    import immunedb.common.config as config
     parser = config.get_base_arg_parser('Some description of the program')
     # ... add any additional arguments to the parser ...
     args = parser.parse_args()
@@ -25,7 +25,7 @@ manually specify the paths with simply:
 .. code-block:: python
 
 
-    import airrdb.common.config as config
+    import immunedb.common.config as config
     session = config.init_db('path/to/config')
 
 To avoid using a configuration file, the ``from_dict`` argument can be set to
@@ -34,7 +34,7 @@ To avoid using a configuration file, the ``from_dict`` argument can be set to
 .. code-block:: python
 
 
-    import airrdb.common.config as config
+    import immunedb.common.config as config
     session = config.init_db({
         'host': '...',
         'database': '...',
@@ -45,15 +45,15 @@ To avoid using a configuration file, the ``from_dict`` argument can be set to
 All will return a ``Session`` object which can be used to interact with the
 database.
 
-.. automodule:: airrdb.common.config
+.. automodule:: immunedb.common.config
     :members:
 
-Mutations --- ``airrdb.common.mutations``
+Mutations --- ``immunedb.common.mutations``
 ---------------------------------------
 Mutation statistics are calculated with the :py:class:`Mutations
-<airrdb.common.mutations.ContextualMutations>` class.  This is generally done for
+<immunedb.common.mutations.ContextualMutations>` class.  This is generally done for
 clones only but can be done with any set of equal-length sequences for which a
 base (germline) sequence can be specified.
 
-.. automodule:: airrdb.common.mutations
+.. automodule:: immunedb.common.mutations
     :members:

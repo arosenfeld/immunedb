@@ -5,26 +5,26 @@ Getting Started (Docker Compose)
 
 Dependency Installation
 -----------------------
-Using AIRRDB with docker requires that both Docker `Docker <http://docker.com>`_
+Using ImmuneDB with docker requires that both Docker `Docker <http://docker.com>`_
 and `Docker Compose <https://www.docker.com/products/docker-compose>`_ be
 installed.  Please consult these websites to install them on your target system.
 
-AIRRDB Docker Files
+ImmuneDB Docker Files
 ----------------------
-Once docker is installed, clone the AIRRDB repository:
+Once docker is installed, clone the ImmuneDB repository:
 
 .. code-block:: bash
 
-    $ git clone git@github.com:arosenfeld/airrdb.git ~/airrdb-git
+    $ git clone git@github.com:arosenfeld/immunedb.git ~/immunedb-git
 
-In the resulting ``~/airrdb-git`` directory, there will be a ``run-docker.sh`` file
+In the resulting ``~/immunedb-git`` directory, there will be a ``run-docker.sh`` file
 which will be used to launch the Docker instance.
 
 
-Runnning AIRRDB
+Runnning ImmuneDB
 -------------
-There are many ways to change the configuration of your Docker Compose AIRRDB
-instance but to get started, within ``~/airrdb-git`` you can run:
+There are many ways to change the configuration of your Docker Compose ImmuneDB
+instance but to get started, within ``~/immunedb-git`` you can run:
 
 .. code-block:: bash
 
@@ -32,30 +32,30 @@ instance but to get started, within ``~/airrdb-git`` you can run:
 
 This will do the following:
 
-- Creates a directory ``~/airrdb/db`` which persistently stores the associated
-  AIRRDB database.
-- Creates a directory ``~/airrdb/data`` where you can place data in which you'd
+- Creates a directory ``~/immunedb/db`` which persistently stores the associated
+  ImmuneDB database.
+- Creates a directory ``~/immunedb/data`` where you can place data in which you'd
   like to access from within the Docker instance.
 - Starts a MariaDB (a MySQL drop-in replacement) database
 - Starts REST service serving data from the database to a local port.
-- Starts a ``airrdb-frontend`` process which serves a webpage in which to view
+- Starts a ``immunedb-frontend`` process which serves a webpage in which to view
   data.
 
 You can view the frontend website at ``http://localhost:8080``.  There will be
 no data there since this is a fresh installation.  To launch a bash shell into
-the AIRRDB Docker image run the following
+the ImmuneDB Docker image run the following
 
 .. code-block:: bash
 
     $ docker ps
 	CONTAINER ID        IMAGE                      COMMAND                  CREATED             STATUS              PORTS                    NAMES
-	106fa8a740b3        arosenfeld/airrdb            "/bin/sh -c '/app/./w"   5 seconds ago       Up 4 seconds        0.0.0.0:5000->5000/tcp   airrdb_airrdb_1
-	fe2895cf3be2        arosenfeld/airrdb-frontend   "npm run serve"          5 seconds ago       Up 4 seconds        0.0.0.0:8080->8080/tcp   airrdb_frontend_1
-	18a58f85551e        mariadb                      "/docker-entrypoint.s"   6 seconds ago       Up 5 seconds        3306/tcp                 airrdb_mariadb_1
+	106fa8a740b3        arosenfeld/immunedb            "/bin/sh -c '/app/./w"   5 seconds ago       Up 4 seconds        0.0.0.0:5000->5000/tcp   immunedb_immunedb_1
+	fe2895cf3be2        arosenfeld/immunedb-frontend   "npm run serve"          5 seconds ago       Up 4 seconds        0.0.0.0:8080->8080/tcp   immunedb_frontend_1
+	18a58f85551e        mariadb                      "/docker-entrypoint.s"   6 seconds ago       Up 5 seconds        3306/tcp                 immunedb_mariadb_1
 
 Note that there are three containers running; one for the front-end, one for the
-database, and one for the AIRRDB Docker instance itself.  The first one (named
-``airrdb_airrdb_1`` here, but may differ for each machine) is the AIRRDB Docker
+database, and one for the ImmuneDB Docker instance itself.  The first one (named
+``immunedb_immunedb_1`` here, but may differ for each machine) is the ImmuneDB Docker
 instance.  Let's launch a bash shell into it:
 
 .. code-block:: bash
@@ -64,10 +64,10 @@ instance.  Let's launch a bash shell into it:
 
 Note you need not type the entire ``CONTAINER ID`` but just enough of it to
 uniquely identify the container.  After running this, you will have a bash
-shell into the instance.  AIRRDB is installed here.
+shell into the instance.  ImmuneDB is installed here.
 
 To get data, such as germlines and sequences, into the container, copy them into
-the host machine's ``~/airrdb/data`` directory.  It will then be available in the
+the host machine's ``~/immunedb/data`` directory.  It will then be available in the
 Docker instance at ``~/data``.
 
 Advanced Configuration
@@ -76,8 +76,8 @@ The ``run-docker.sh`` script makes some assumptions about the host system:
 
 - The REST API is running on the same machine at port 5000.
 - That the URL used to access the frontend webpage is ``http://localhost:8080``.
-- The database files should be stored at ``~/airrdb/db``.
-- Shared data files are located on the host at ``~/airrdb/data``.
+- The database files should be stored at ``~/immunedb/db``.
+- Shared data files are located on the host at ``~/immunedb/data``.
 
 Any of these can be configured with the following environment variables:
 

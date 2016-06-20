@@ -1,0 +1,81 @@
+#!/usr/bin/env python2 -u
+import argparse
+import sys
+import immunedb.common.config as config
+
+from immunedb.importing.delimited import DEFAULT_MAPPINGS, run_import
+
+
+if __name__ == '__main__':
+    parser = config.get_base_arg_parser(
+        'Imports V/J identifications from delimited output')
+    parser.add_argument('input_file', help='Gapped NT file')
+    parser.add_argument('v_germlines', help='FASTA file with IMGT gapped '
+                        'V-gene germlines')
+    parser.add_argument('j_germlines', help='FASTA file with J-gene '
+                        'germlines. The final nucleotide in all genes must be '
+                        'aligned. Sequence cannot contain any gaps.')
+    parser.add_argument('upstream_of_cdr3', type=int, help='The number of '
+                        ' nucleotides in the J germlines upstream of the CDR3')
+    parser.add_argument('anchor_len', type=int, help='The number of '
+                        'nucleotides at the end of the J germlines to use as '
+                        'anchors.')
+    parser.add_argument('min_anchor_len', type=int, help='The minimum number '
+                        'of nucleotides in the J germline anchors required '
+                        'to match the sequence.')
+
+    parser.add_argument('study_name', help='Name of study')
+    parser.add_argument('sample_name', help='Name of sample')
+    parser.add_argument('subject', help='Subject identifier')
+    parser.add_argument('date', help='Date of sample')
+    parser.add_argument('--ties', action='store_true', help='If specified '
+                        'gene ties will be calculated from the imported '
+                        'sequences')
+    parser.add_argument('--max-padding', default=None, type=int, help='If '
+                        'specified discards sequences with too much padding.')
+    parser.add_argument('--trim-to', type=int, default=None,
+                        help='If specified, trims the beginning N bases of '
+                        'each sequence.  Useful for removing primers within '
+                        'the V sequence (Default: None)')
+    parser.add_argument('--remap-js', nargs='+', default=None,
+                        help='Remaps J genes to others in the germline file. '
+                        'Format is FROM:TO[ FROM:TO[...]].  For example '
+                        'IGHJ1:IGHJ2 will remap any IGHJ1 gene to IGHJ2. The '
+                        'FROM gene can be a prefix but TO must be the full '
+                        'gene name')
+
+    for key in ('subset', 'tissue', 'disease', 'lab', 'experimenter',
+                'ig_class', 'v_primer', 'j_primer'):
+        parser.add_argument('--{}'.format(key), default=None,
+                            help='Metadata for {}'.format(key))
+
+    for key, value in DEFAULT_MAPPINGS.iteritems():
+        if value is None:
+            parser.add_argument(
+                '--{}'.format(key.replace('_', '-')),
+                help='Header for {}'.format(key)
+            )
+        else:
+            parser.add_argument(
+                '--{}'.format(key.replace('_', '-')),
+                default=value,
+                help='Header for {} (Default: {})'.format(key, value)
+            )
+
+    args = parser.parse_args()
+
+    if args.max_padding and args.trim_to:
+        if args.max_padding < args.trim_to:
+            parser.error('--max-padding cannot be less than --trim-to')
+
+    if args.remap_js:
+        remaps = {}
+        for rm in args.remap_js:
+            rm = rm.split(':')
+            if len(rm) != 2:
+                parser.error('--remap-js must be in format FROM:TO')
+            remaps[rm[0]] = rm[1]
+
+    session = config.init_db(args.db_config)
+
+    sys.exit(run_import(session, args, remaps))

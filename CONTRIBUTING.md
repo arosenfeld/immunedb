@@ -1,5 +1,5 @@
 # How to contribute
-We welcome contributions to AIRRDB, whether small or large.  For non-developers,
+We welcome contributions to ImmuneDB, whether small or large.  For non-developers,
 reporting bugs and adding to documentation are both valuable ways to assist.
 Developers can help by submitting pull requests for open issues or implementing
 new features.
@@ -9,7 +9,7 @@ When reporting a bug make sure to include details about the environment being
 used and any error messages.
 
 ## Submitting Pull Requests
-Pull requests can be submitted for AIRRDB by anyone.  Before submitting a pull
+Pull requests can be submitted for ImmuneDB by anyone.  Before submitting a pull
 request, you should make sure they pass local tests by running:
 
         $ ./tests/run.sh
@@ -26,5 +26,5 @@ Further, we will **only** accept pull requests if they are
 for compliance, you may use [this](https://pypi.python.org/pypi/pep8) package.
 
 After completing these steps, please submit a pull request.  Tests will be run
-on [Travis](https://travis-ci.com/arosenfeld/airrdb).  After they pass, we'll
+on [Travis](https://travis-ci.com/arosenfeld/immunedb).  After they pass, we'll
 consider merging your changes or discuss further modifications.
