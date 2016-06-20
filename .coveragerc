@@ -1,0 +1,6 @@
+[run]
+concurrency = multiprocessing
+include = immunedb*
+
+[report]
+omit=immunedb/api/*,immunedb/exporting,immunedb/util/admin.py,immunedb/util/nested_writer.py,immunedb/trees/clearcut.py,immunedb/exporting/*,immunedb/common/baseline.py
