@@ -1,4 +1,10 @@
 # CHANGELOG
+## v0.18.0
+* The package has been renamed from AIRRDB to ImmuneDB.
+* Tests now check for the presence of a local-alignment binary.
+* SciPy has been removed as a dependency and a custom hypergeom function has
+  been included.
+
 ## v0.17.0
 * The package has been renamed from SLDB to AIRRDB.
 * J-gene offsets are now set to human values by default.
