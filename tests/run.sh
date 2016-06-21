@@ -24,5 +24,6 @@ fi
 
 setup
 coverage erase
+coverage run --source=immunedb -p -m nose -s tests/tests_parser.py
 coverage run --source=immunedb -p -m nose -s tests/tests_pipeline.py
 coverage run --source=immunedb -p -m nose -s tests/tests_import.py

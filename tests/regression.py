@@ -70,8 +70,8 @@ class BaseTest(object):
             run_fix_sequences(
                 self.session,
                 NamespaceMimic(
-                    v_germlines='tests/imgt_human_v.fasta',
-                    j_germlines='tests/imgt_human_j.fasta',
+                    v_germlines='tests/data/germlines/imgt_human_v.fasta',
+                    j_germlines='tests/data/germlines/imgt_human_j.fasta',
                     align_path=os.getenv('LL_PATH'),
                     min_similarity=60,
                     upstream_of_cdr3=31,

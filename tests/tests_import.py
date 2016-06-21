@@ -15,8 +15,8 @@ class TestImport(BaseTest.RegressionTest):
                 'tests', 'data', 'imgt', 'input',
                 '2_IMGT-gapped-nt-sequences.txt'
             ),
-            v_germlines='tests/imgt_human_v.fasta',
-            j_germlines='tests/imgt_human_j.fasta',
+            v_germlines='tests/data/germlines/imgt_human_v.fasta',
+            j_germlines='tests/data/germlines/imgt_human_j.fasta',
             upstream_of_cdr3=31,
             anchor_len=18,
             min_anchor_len=12,
