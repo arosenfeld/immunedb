@@ -8,3 +8,8 @@ high-throughput B- and T-cell sequence data.
 
 # Documentation
 Installation and usage instructions can be found at [immunedb.com](http://immunedb.com)
+
+# Citing
+If you use ImmuneDB, please cite the tool as:
+
+Aaron M. Rosenfeld, Wenzhao Meng, Eline T. Luning Prak, Uri Hershberg, *ImmuneDB: A system for the analysis and exploration of high-throughput adaptive immune receptor sequencing data*, Bioinformatics **(Under review)**
