@@ -2,7 +2,7 @@ import csv
 import re
 
 from immunedb.identification import (add_as_noresult, add_uniques,
-                                   AlignmentException)
+                                     AlignmentException)
 from immunedb.identification.vdj_sequence import VDJSequence
 from immunedb.identification.j_genes import JGermlines
 from immunedb.identification.v_genes import VGermlines

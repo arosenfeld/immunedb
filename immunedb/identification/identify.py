@@ -11,7 +11,7 @@ import immunedb.common.config as config
 import immunedb.common.modification_log as mod_log
 from immunedb.common.models import Sample, Sequence, Study, Subject
 from immunedb.identification import (add_as_noresult, add_uniques,
-                                   AlignmentException)
+                                     AlignmentException)
 from immunedb.identification.vdj_sequence import VDJSequence
 from immunedb.identification.v_genes import VGermlines
 from immunedb.identification.j_genes import JGermlines

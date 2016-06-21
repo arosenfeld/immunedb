@@ -8,7 +8,8 @@ import shlex
 import subprocess
 
 import immunedb.common.config as config
-from immunedb.common.models import Clone, CloneStats, Sequence, SequenceCollapse
+from immunedb.common.models import (Clone, CloneStats, Sequence,
+                                    SequenceCollapse)
 import immunedb.common.modification_log as mod_log
 import immunedb.util.concurrent as concurrent
 

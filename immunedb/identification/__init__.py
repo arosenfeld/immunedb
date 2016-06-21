@@ -3,7 +3,7 @@ import itertools
 import traceback
 
 from immunedb.common.models import (CDR3_OFFSET, DuplicateSequence, NoResult,
-                                  Sequence)
+                                    Sequence)
 import immunedb.util.funcs as funcs
 import immunedb.util.lookups as lookups
 from immunedb.util.hyper import hypergeom

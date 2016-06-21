@@ -10,7 +10,7 @@ import dnautils
 from immunedb.identification.j_genes import JGermlines
 from immunedb.identification.v_genes import VGermlines
 from immunedb.common.models import (CDR3_OFFSET, DuplicateSequence, NoResult,
-                                  Sample, Sequence)
+                                    Sample, Sequence)
 import immunedb.util.funcs as funcs
 import immunedb.util.lookups as lookups
 import immunedb.util.concurrent as concurrent

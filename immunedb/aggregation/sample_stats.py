@@ -6,7 +6,8 @@ from sqlalchemy import func
 
 import immunedb.common.config as config
 import immunedb.common.modification_log as mod_log
-from immunedb.common.models import Clone, NoResult, Sample, SampleStats, Sequence
+from immunedb.common.models import (Clone, NoResult, Sample, SampleStats,
+                                    Sequence)
 import immunedb.util.concurrent as concurrent
 import immunedb.util.lookups as lookups
 

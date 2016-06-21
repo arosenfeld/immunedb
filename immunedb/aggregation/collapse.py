@@ -3,7 +3,7 @@ from sqlalchemy.sql import exists
 import dnautils
 import immunedb.common.config as config
 from immunedb.common.models import (Clone, Sample, Sequence, SequenceCollapse,
-                                  Subject)
+                                    Subject)
 import immunedb.common.modification_log as mod_log
 import immunedb.util.concurrent as concurrent
 

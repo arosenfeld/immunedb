@@ -4,8 +4,8 @@ import unittest
 
 import immunedb.common.config as config
 from immunedb.common.models import (Clone, CloneStats, DuplicateSequence,
-                                  NoResult, Sample, SampleStats, Sequence,
-                                  SequenceCollapse)
+                                    NoResult, Sample, SampleStats, Sequence,
+                                    SequenceCollapse)
 from immunedb.identification.local_align import run_fix_sequences
 from immunedb.aggregation.clones import run_clones
 from immunedb.aggregation.collapse import run_collapse
@@ -64,9 +64,6 @@ class BaseTest(object):
             )
 
         def local_align(self):
-            checks = self.session.query(Sequence).filter(
-                Sequence.probable_indel_or_misalign == 1
-            ).all()
             run_fix_sequences(
                 self.session,
                 NamespaceMimic(
@@ -245,7 +242,7 @@ class BaseTest(object):
                 print '\tIn checks but not result: {}'.format(
                     check_keys - agg_keys)
                 print '\tIn result but not checks: {}'.format(
-                    agg_keys - checks_keys)
+                    agg_keys - check_keys)
                 self.assertEqual(check_keys, set(agg_keys))
 
 

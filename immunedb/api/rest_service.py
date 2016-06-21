@@ -15,7 +15,7 @@ from immunedb.exporting.mutation_export import MutationExporter
 import immunedb.api.queries as queries
 from immunedb.common.models import CloneStats
 from immunedb.exporting.writers import (CLIPWriter, FASTAWriter, FASTQWriter,
-                                      CSVWriter)
+                                        CSVWriter)
 
 
 class EnableCors(object):

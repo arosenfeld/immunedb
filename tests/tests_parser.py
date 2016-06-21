@@ -1,8 +1,8 @@
-import sys
 import multiprocessing as mp
 import unittest
 
 from immunedb.common.config import get_base_arg_parser
+
 
 class ParserTest(unittest.TestCase):
     def test_parser(self):

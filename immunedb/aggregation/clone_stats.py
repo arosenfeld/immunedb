@@ -3,7 +3,8 @@ import json
 from sqlalchemy import distinct, func
 
 import immunedb.common.config as config
-from immunedb.common.models import Clone, CloneStats, Sequence, SequenceCollapse
+from immunedb.common.models import (Clone, CloneStats, Sequence,
+                                    SequenceCollapse)
 import immunedb.common.modification_log as mod_log
 from immunedb.common.mutations import CloneMutations
 import immunedb.util.concurrent as concurrent

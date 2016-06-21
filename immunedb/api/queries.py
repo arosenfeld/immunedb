@@ -9,7 +9,7 @@ from sqlalchemy.sql import func
 from sqlalchemy.sql.expression import false, true
 
 from immunedb.common.models import (Clone, CloneStats, Sample, SampleStats,
-                                  Sequence, SequenceCollapse, Subject)
+                                    Sequence, SequenceCollapse, Subject)
 from immunedb.common.mutations import threshold_mutations
 
 
