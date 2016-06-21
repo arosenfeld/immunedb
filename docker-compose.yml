@@ -18,7 +18,7 @@ services:
   frontend:
       image: arosenfeld/immunedb-frontend
       environment:
-        - BASE_URL=${BASE_URL}
+        - BASENAME=${BASENAME}
         - API_ENDPOINT=${API_ENDPOINT}
         - PRODUCTION=${PRODUCTION}
       ports:
