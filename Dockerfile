@@ -1,7 +1,8 @@
 FROM ubuntu:14.04
+RUN apt-get update
 RUN apt-get install -y software-properties-common
 RUN apt-key adv --recv-keys --keyserver hkp://keyserver.ubuntu.com:80 0xcbcb082a1bb943db
-RUN apt-get update && apt-get install -y python-numpy python-setuptools wget
+RUN apt-get update && apt-get install -y python-numpy python-setuptools wget python-dev
 COPY setup.py /app/
 COPY immunedb/ /app/immunedb
 COPY lib/ /app/lib
