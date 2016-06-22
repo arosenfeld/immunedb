@@ -1,8 +1,14 @@
 ImmuneDB Documentation
 ==================
 
-**ImmuneDB** is a Python module that facilitate efficient storage and analysis
-of high-throughput B- and T-cell sequence data.  It's primary goals are to:
+**ImmuneDB** is a system that facilitate efficient storage and analysis
+of high-throughput B- and T-cell sequence data.  It provides V- and J-gene
+identification, clonal assignment, lineage construction, selection pressure
+calculation, and thorough exporting functionality.
+
+ImmuneDB is comprised of two code bases: `Python analysis tools
+<https://github.com/arosenfeld/immunedb>`_ and a `web frontend
+<https://github.com/arosenfeld/immunedb-frontend>`_ and aims to:
 
 - **Reduce ad-hoc scripting:** Data analysis performed on an ad-hoc basis with
   custom scripts and data formats is error-prone and leads to inconsistencies.
