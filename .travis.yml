@@ -27,5 +27,4 @@ script:
   - cd $TRAVIS_BUILD_DIR
   - LL_PATH=~/seq-align/bin/needleman_wunsch ./tests/run.sh
 after_success:
-  - coverage combine
-  - coveralls
+  - bash <(curl -s https://codecov.io/bash)
