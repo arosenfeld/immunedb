@@ -1,7 +1,7 @@
 ImmuneDB
 ========
 
-[![Build Status](https://travis-ci.org/arosenfeld/immunedb.svg?branch=master)](https://travis-ci.org/arosenfeld/immunedb) [![Coverage Status](https://coveralls.io/repos/github/arosenfeld/immunedb/badge.svg?branch=master&t=zaueUD)](https://coveralls.io/github/arosenfeld/immunedb?branch=master)
+[![Build Status](https://travis-ci.org/arosenfeld/immunedb.svg?branch=master)](https://travis-ci.org/arosenfeld/immunedb) [![codecov](https://codecov.io/gh/arosenfeld/immunedb/branch/master/graph/badge.svg)](https://codecov.io/gh/arosenfeld/immunedb)
 
 ImmuneDB is a Python module that facilitate efficient storage and analysis of
 high-throughput B- and T-cell sequence data.
