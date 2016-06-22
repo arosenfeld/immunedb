@@ -70,6 +70,11 @@ To get data, such as germlines and sequences, into the container, copy them into
 the host machine's ``~/immunedb/data`` directory.  It will then be available in the
 Docker instance at ``~/data``.
 
+**You're all set!** A configuration file for the database was automatically
+created at ``~/configs/immunedb.json``. You can now follow the
+:ref:`pipeline instructions <pipeline>`, skipping the database creation since
+that has been done for you.
+
 Advanced Configuration
 ----------------------
 The ``run-docker.sh`` script makes some assumptions about the host system:

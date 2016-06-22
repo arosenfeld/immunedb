@@ -1,3 +1,5 @@
+.. _pipeline:
+
 Data Analysis Pipeline
 ======================
 The primary component of ImmuneDB is its clonal identification pipeline which has
