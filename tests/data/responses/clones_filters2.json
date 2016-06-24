@@ -1,0 +1,40 @@
+[
+    {
+        "cdr3_aa": "CARAIPADYW",
+        "cdr3_nt": "TGTGCGAGAGCGATCCCCGCGGACTATTGG",
+        "cdr3_num_nts": 30,
+        "germline": "CAGGTTCAGCTGGTGCAGTCTGGAGCT---GAGGTGAAGAAGCCTGGGGCCTCAGTGAAGGTCTCCTGCAAGGCTTCTGGTTACACCTTT------------ACCAGCTATGGTATCAGCTGGGTGCGACAGGCCCCTGGACAAGGGCTTGAGTGGATGGGATGGATCAGCGCTTAC------AATGGTAACACAAACTATGCACAGAAGCTCCAG---GGCAGAGTCACCATGACCACAGACACATCCACGAGCACAGCCTACATGGAGCTGAGGAGCCTGAGATCTGACGACANGGCCGTGTATTACTGTGCGAGAGCGATCCCCGCGGACTATTGGGGCCANGGNACCCTGGTCACCGTCTCCTCAG",
+        "id": 1,
+        "j_gene": "IGHJ1|4|5",
+        "regions": [
+            78,
+            36,
+            51,
+            30,
+            114,
+            30,
+            31
+        ],
+        "stats": [
+            {
+                "sample": {
+                    "id": 2,
+                    "name": "input2"
+                },
+                "total_sequences": 5,
+                "unique_sequences": 1
+            }
+        ],
+        "subject": {
+            "id": 1,
+            "identifier": "D123",
+            "study": {
+                "id": 1,
+                "name": "Test Study"
+            }
+        },
+        "total_sequences": 5,
+        "unique_sequences": 1,
+        "v_gene": "IGHV1-18"
+    }
+]
