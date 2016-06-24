@@ -1,0 +1,13 @@
+[
+    {
+        "id": 1,
+        "identifier": "D123",
+        "study": {
+            "id": 1,
+            "name": "Test Study"
+        },
+        "total_clones": 232,
+        "total_samples": 2,
+        "unique_seqs": 2025
+    }
+]

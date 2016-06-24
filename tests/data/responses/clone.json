@@ -1,0 +1,60 @@
+{
+    "clone": {
+        "cdr3_aa": "CASLQLVLLLVRPL",
+        "cdr3_nt": "TGTGCGAGTTTGCAGCTGGTACTCTTGCTGGTTCGACCCCTGG",
+        "cdr3_num_nts": 43,
+        "germline": "CAGGTTCAGCTGGTGCAGTCTGGAGCT---GAGGTGAAGAAGCCTGGGGCCTCAGTGAAGGTCTCCTGCAAGGCTTCTGGTTACACCTTT------------ACCAGCTATGGTATCAGCTGGGTGCGACAGGCCCCTGGACAAGGGCTTGAGTGGATGGGATGGATCAGCGCTTAC------AATGGTAACACAAACTATGCACAGAAGCTCCAG---GGCAGAGTCACCATGACCACAGACACATCCACGAGCACAGCCTACATGGAGCTGAGGAGCCTGAGATCTGACGACANGGCCGTGTATTACTGTGCGAGTTTGCAGCTGGTACTCTTGCTGGTTCGACCCCTGGGGCCANGGNACCCTGGTCACCGTCTCCTCAG",
+        "id": 10,
+        "j_gene": "IGHJ1|4|5",
+        "regions": [
+            78,
+            36,
+            51,
+            30,
+            114,
+            43,
+            31
+        ],
+        "subject": {
+            "id": 1,
+            "identifier": "D123",
+            "study": {
+                "id": 1,
+                "name": "Test Study"
+            }
+        },
+        "v_gene": "IGHV1-18"
+    },
+    "samples": {
+        "all": {
+            "total": 2,
+            "unique": 1
+        },
+        "single": [
+            {
+                "date": "2015-09-13",
+                "disease": null,
+                "experimenter": "Someone",
+                "id": 2,
+                "ig_class": null,
+                "info": null,
+                "j_primer": null,
+                "lab": "The Lab",
+                "name": "input2",
+                "subject": {
+                    "id": 1,
+                    "identifier": "D123",
+                    "study": {
+                        "id": 1,
+                        "name": "Test Study"
+                    }
+                },
+                "subset": null,
+                "tissue": "SPL",
+                "total": 2,
+                "unique": 1,
+                "v_primer": null
+            }
+        ]
+    }
+}
