@@ -1,0 +1,306 @@
+[
+    {
+        "clone": {
+            "cdr3_aa": "CARGGQLQPLDLW",
+            "cdr3_num_nts": 39,
+            "id": 51,
+            "j_gene": "IGHJ1|4|5",
+            "subject": {
+                "id": 1,
+                "identifier": "D123",
+                "study": {
+                    "id": 1,
+                    "name": "Test Study"
+                }
+            },
+            "v_gene": "IGHV1-69"
+        },
+        "other_samples": [],
+        "selected_samples": [
+            {
+                "id": 2,
+                "name": "input2",
+                "total_sequences": 4,
+                "unique_sequences": 2
+            },
+            {
+                "id": 1,
+                "name": "input",
+                "total_sequences": 3,
+                "unique_sequences": 1
+            }
+        ],
+        "total_sequences": 7,
+        "unique_sequences": 3
+    },
+    {
+        "clone": {
+            "cdr3_aa": "CARGSVLAWEVLSRW",
+            "cdr3_num_nts": 45,
+            "id": 152,
+            "j_gene": "IGHJ1|4|5",
+            "subject": {
+                "id": 1,
+                "identifier": "D123",
+                "study": {
+                    "id": 1,
+                    "name": "Test Study"
+                }
+            },
+            "v_gene": "IGHV4-34"
+        },
+        "other_samples": [],
+        "selected_samples": [
+            {
+                "id": 1,
+                "name": "input",
+                "total_sequences": 13,
+                "unique_sequences": 2
+            },
+            {
+                "id": 2,
+                "name": "input2",
+                "total_sequences": 5,
+                "unique_sequences": 2
+            }
+        ],
+        "total_sequences": 18,
+        "unique_sequences": 3
+    },
+    {
+        "clone": {
+            "cdr3_aa": "CTGEKAGTIVDYW",
+            "cdr3_num_nts": 39,
+            "id": 172,
+            "j_gene": "IGHJ1|4|5",
+            "subject": {
+                "id": 1,
+                "identifier": "D123",
+                "study": {
+                    "id": 1,
+                    "name": "Test Study"
+                }
+            },
+            "v_gene": "IGHV4-39"
+        },
+        "other_samples": [],
+        "selected_samples": [
+            {
+                "id": 2,
+                "name": "input2",
+                "total_sequences": 22,
+                "unique_sequences": 3
+            }
+        ],
+        "total_sequences": 22,
+        "unique_sequences": 3
+    },
+    {
+        "clone": {
+            "cdr3_aa": "CARDPGNNGDYANWFDPW",
+            "cdr3_num_nts": 54,
+            "id": 57,
+            "j_gene": "IGHJ1|4|5",
+            "subject": {
+                "id": 1,
+                "identifier": "D123",
+                "study": {
+                    "id": 1,
+                    "name": "Test Study"
+                }
+            },
+            "v_gene": "IGHV1-69"
+        },
+        "other_samples": [],
+        "selected_samples": [
+            {
+                "id": 2,
+                "name": "input2",
+                "total_sequences": 9,
+                "unique_sequences": 2
+            }
+        ],
+        "total_sequences": 9,
+        "unique_sequences": 2
+    },
+    {
+        "clone": {
+            "cdr3_aa": "CTRGASYGGMGSW",
+            "cdr3_num_nts": 39,
+            "id": 90,
+            "j_gene": "IGHJ1|4|5",
+            "subject": {
+                "id": 1,
+                "identifier": "D123",
+                "study": {
+                    "id": 1,
+                    "name": "Test Study"
+                }
+            },
+            "v_gene": "IGHV3-21"
+        },
+        "other_samples": [],
+        "selected_samples": [
+            {
+                "id": 1,
+                "name": "input",
+                "total_sequences": 3,
+                "unique_sequences": 1
+            },
+            {
+                "id": 2,
+                "name": "input2",
+                "total_sequences": 4,
+                "unique_sequences": 1
+            }
+        ],
+        "total_sequences": 7,
+        "unique_sequences": 2
+    },
+    {
+        "clone": {
+            "cdr3_aa": "CVREKGRNFYW",
+            "cdr3_num_nts": 33,
+            "id": 190,
+            "j_gene": "IGHJ1|4|5",
+            "subject": {
+                "id": 1,
+                "identifier": "D123",
+                "study": {
+                    "id": 1,
+                    "name": "Test Study"
+                }
+            },
+            "v_gene": "IGHV4-4"
+        },
+        "other_samples": [],
+        "selected_samples": [
+            {
+                "id": 2,
+                "name": "input2",
+                "total_sequences": 8,
+                "unique_sequences": 2
+            }
+        ],
+        "total_sequences": 8,
+        "unique_sequences": 2
+    },
+    {
+        "clone": {
+            "cdr3_aa": "CAASRSYRYVDYW",
+            "cdr3_num_nts": 39,
+            "id": 194,
+            "j_gene": "IGHJ1|4|5",
+            "subject": {
+                "id": 1,
+                "identifier": "D123",
+                "study": {
+                    "id": 1,
+                    "name": "Test Study"
+                }
+            },
+            "v_gene": "IGHV4-4"
+        },
+        "other_samples": [],
+        "selected_samples": [
+            {
+                "id": 2,
+                "name": "input2",
+                "total_sequences": 39,
+                "unique_sequences": 2
+            }
+        ],
+        "total_sequences": 39,
+        "unique_sequences": 2
+    },
+    {
+        "clone": {
+            "cdr3_aa": "CTRSNSGSSVWTFW",
+            "cdr3_num_nts": 42,
+            "id": 197,
+            "j_gene": "IGHJ1|4|5",
+            "subject": {
+                "id": 1,
+                "identifier": "D123",
+                "study": {
+                    "id": 1,
+                    "name": "Test Study"
+                }
+            },
+            "v_gene": "IGHV4-4"
+        },
+        "other_samples": [],
+        "selected_samples": [
+            {
+                "id": 2,
+                "name": "input2",
+                "total_sequences": 17,
+                "unique_sequences": 2
+            },
+            {
+                "id": 1,
+                "name": "input",
+                "total_sequences": 2,
+                "unique_sequences": 1
+            }
+        ],
+        "total_sequences": 19,
+        "unique_sequences": 2
+    },
+    {
+        "clone": {
+            "cdr3_aa": "CARRVTDHGLYYDSW",
+            "cdr3_num_nts": 45,
+            "id": 200,
+            "j_gene": "IGHJ1|4|5",
+            "subject": {
+                "id": 1,
+                "identifier": "D123",
+                "study": {
+                    "id": 1,
+                    "name": "Test Study"
+                }
+            },
+            "v_gene": "IGHV4-4"
+        },
+        "other_samples": [],
+        "selected_samples": [
+            {
+                "id": 2,
+                "name": "input2",
+                "total_sequences": 9,
+                "unique_sequences": 2
+            }
+        ],
+        "total_sequences": 9,
+        "unique_sequences": 2
+    },
+    {
+        "clone": {
+            "cdr3_aa": "CARSSCTNGVCPFDNW",
+            "cdr3_num_nts": 48,
+            "id": 212,
+            "j_gene": "IGHJ1|4|5",
+            "subject": {
+                "id": 1,
+                "identifier": "D123",
+                "study": {
+                    "id": 1,
+                    "name": "Test Study"
+                }
+            },
+            "v_gene": "IGHV4-59"
+        },
+        "other_samples": [],
+        "selected_samples": [
+            {
+                "id": 2,
+                "name": "input2",
+                "total_sequences": 32,
+                "unique_sequences": 2
+            }
+        ],
+        "total_sequences": 32,
+        "unique_sequences": 2
+    }
+]

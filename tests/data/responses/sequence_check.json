@@ -1,0 +1,71 @@
+{
+    "cdr3_aa": "CARAGAAAGTRDSNWFDPW",
+    "cdr3_nt": "TGTGCGAGAGCGGGAGCAGCAGCTGGTACAAGGGACTCCAACTGGTTCGACCCCTGG",
+    "clone": null,
+    "collapse_info": {
+        "ai": 661,
+        "copy_number": 1,
+        "instances": 1,
+        "sample_id": 2,
+        "sample_name": "input2",
+        "seq_id": "M03592:18:000000000-AHJWK:1:1102:9856:7192"
+    },
+    "copy_number": 1,
+    "deletions": [],
+    "functional": true,
+    "germline": "CAGGTNCAGCTNGTGCAGTCTGGGGCT---GAGGTGAAGAAGCCTGGGGCCTCAGTGAAGGTTTCCTGCAAGGCTTCTGGATACACCTTC------------ACTAGCTATGCTATGCATTGGGTGCGCCAGGCCCCCGGACAAAGGCTTGAGTGGATGGGATGGANCAACGCTGGC------AATGGTAACACAAAATATTCACAGNAGTTCCAG---GGCAGAGTCACCATTACCAGGGACACATCCGCGAGCACAGCCTACATGGAGCTGAGCAGCCTGAGATCTGANGACANGGCTGTGTATTAC---------------------------------------------------------GGCCANGGNACCCTGGTCACCGTCTCCTCAG",
+    "in_frame": true,
+    "insertions": [],
+    "j_gene": "IGHJ1|4|5",
+    "j_length": 51,
+    "j_match": 51,
+    "mutations": {},
+    "num_gaps": 24,
+    "pad_length": 0,
+    "partial": false,
+    "post_cdr3_length": 31,
+    "post_cdr3_match": 31,
+    "pre_cdr3_length": 309,
+    "pre_cdr3_match": 308,
+    "probable_indel_or_misalign": false,
+    "quality": "FEFDFGGGFGGGDF8BEEGGCFCGGGG   GGGDGGG9E,@DGEGGGGGGGGGEGGFFFGGFFFFFGFGF:*<2?AFFFF4CE;:>BFFF            AFFBFBFFFFACF>B<?CFECFF@EFFFFB>8BEE>FFFFFGFGFBFGGGGGFGGGGGGGGGGF78GE5GCGGGG      GGGGGGGGGGGGGGGFGGFFGGGGGGGFFFGGG   GGFGGGGFCGGFGGFGGGGGGGGEGGGEGCGEGGGCGFGFCAEFFGFGGGGFGGGGFGGFGGGGGGGGGGGGGGGGDGGFGGFGFFCGGGGGGGGGGGGGEGGGGGGGF@GGGGGGGGGGGGGGGFGFEGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG",
+    "read_start": 0,
+    "regions": [
+        78,
+        36,
+        51,
+        30,
+        114,
+        57,
+        31
+    ],
+    "sample": {
+        "date": "2015-09-13",
+        "disease": null,
+        "experimenter": "Someone",
+        "id": 2,
+        "ig_class": null,
+        "info": null,
+        "j_primer": null,
+        "lab": "The Lab",
+        "name": "input2",
+        "subject": {
+            "id": 1,
+            "identifier": "D123",
+            "study": {
+                "id": 1,
+                "name": "Test Study"
+            }
+        },
+        "subset": null,
+        "tissue": "SPL",
+        "v_primer": null
+    },
+    "seq_id": "M03592:18:000000000-AHJWK:1:1102:9856:7192",
+    "sequence": "CAGGTCCAGCTTGCGCAGTCTGGGGCT---GAGGTGAAGNAGCCTGGGGCCTCAGTGAAGGTTTCCTGCAANGNTTCTGGNTACACCTTC------------ACTAGCTATGCTATGCATTGGGTGCGCCAGGCCCCCGGACAAAGGCTTGAGTGGATGGGATGGATCAACGCTGGC------AATGGTAACACAAAATATTCACAGAAGTTCCAG---GGCAGAGTCACCATTACCAGGGACACATCCGCGAGCACAGCCTACATGGAGCTGAGCAGCCTGAGATCTGAAGACACGGCTGTGTATTACTGTGCGAGAGCGGGAGCAGCAGCTGGTACAAGGGACTCCAACTGGTTCGACCCCTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
+    "stop": false,
+    "v_extent": 320,
+    "v_gene": "IGHV1-3",
+    "v_length": 296,
+    "v_match": 295
+}
