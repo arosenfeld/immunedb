@@ -15,6 +15,9 @@ if __name__ == '__main__':
                         help='API offer port')
     parser.add_argument('-d', action='store_true', default=False, dest='debug',
                         help='Use debug mode')
+    parser.add_argument('--allow-shutdown', action='store_true', default=False,
+                        help='Allows remote shutdown by accessing /shutdown.  '
+                        'Only use during testing!')
     args = parser.parse_args()
 
     session_maker = config.init_db(args.db_config, as_maker=True)

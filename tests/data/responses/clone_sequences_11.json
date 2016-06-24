@@ -1,0 +1,32 @@
+[
+    {
+        "cdr3_nt": "TGTGCGAGAAATACCGGAAACAGCCATGGTTTCTGGTCCTACTGG",
+        "collapse_to": [],
+        "copy_number_in_subject": 3,
+        "instances_in_subject": 1,
+        "j_length": 40,
+        "mutations": {
+            "106": "conservative",
+            "118": "nonconservative",
+            "169": "conservative",
+            "171": "conservative",
+            "194": "synonymous",
+            "210": "conservative",
+            "23": "synonymous",
+            "231": "conservative",
+            "239": "synonymous",
+            "276": "conservative",
+            "302": "synonymous",
+            "307": "nonconservative",
+            "308": "synonymous"
+        },
+        "read_start": 0,
+        "sample": {
+            "id": 1,
+            "name": "input"
+        },
+        "seq_id": "M03592:18:000000000-AHJWK:1:1103:13751:12159",
+        "sequence": "CAGGTTCAGCTGGTGCAGTCTGGGGCT---GAGGTGAANANNNCTGGGNNCTCAGTGAAGGTCTCCTGCAAGGCTTCTGGTTANACCTTT------------ACCACCTATGGTATCAACTGGGTGCGACAGGCCCCTGGACAAGGGCTTGAGTGGATGGGATGGATCACCCCTTAC------AATGGTAACACCAACTATGCACAGAAGTTCCAG---GGCAGAGTCACCCTGACCACCGACACATCCACGAGCACAGCCTACATGGAGCTGAGGGGCCTGAGATCTGACGACACGGCCGTTTATTTTTGTGCGAGAAATACCGGAAACAGCCATGGTTTCTGGTCCTACTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
+        "v_extent": 320
+    }
+]

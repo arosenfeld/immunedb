@@ -1,0 +1,62 @@
+{
+    "id": 1,
+    "identifier": "D123",
+    "samples": [
+        {
+            "date": "2015-09-13",
+            "disease": null,
+            "experimenter": "Someone",
+            "functional_cnt": 508,
+            "id": 1,
+            "ig_class": null,
+            "info": null,
+            "j_primer": null,
+            "lab": "The Lab",
+            "name": "input",
+            "no_result_cnt": 5,
+            "sequence_cnt": 557,
+            "subject": {
+                "id": 1,
+                "identifier": "D123",
+                "study": {
+                    "id": 1,
+                    "name": "Test Study"
+                }
+            },
+            "subset": null,
+            "tissue": "Colon",
+            "total_cnt": 562,
+            "v_primer": null
+        },
+        {
+            "date": "2015-09-13",
+            "disease": null,
+            "experimenter": "Someone",
+            "functional_cnt": 1362,
+            "id": 2,
+            "ig_class": null,
+            "info": null,
+            "j_primer": null,
+            "lab": "The Lab",
+            "name": "input2",
+            "no_result_cnt": 0,
+            "sequence_cnt": 1468,
+            "subject": {
+                "id": 1,
+                "identifier": "D123",
+                "study": {
+                    "id": 1,
+                    "name": "Test Study"
+                }
+            },
+            "subset": null,
+            "tissue": "SPL",
+            "total_cnt": 1468,
+            "v_primer": null
+        }
+    ],
+    "study": {
+        "id": 1,
+        "name": "Test Study"
+    }
+}
