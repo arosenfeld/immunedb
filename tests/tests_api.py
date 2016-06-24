@@ -68,7 +68,6 @@ class ApiTest(unittest.TestCase):
                 endpoints['_'.join(name)] = '/' + '/'.join(name)
         for check, endpoint in endpoints.iteritems():
             self.check(check, endpoint)
-
         self.check('clones_filters1', '/clones/list', {
             'filters': {
                 'min_cdr3_num_nts': 5,
