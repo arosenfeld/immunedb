@@ -30,11 +30,11 @@ class ApiTest(unittest.TestCase):
         self.request('/shutdown')
 
     def request(self, endpoint, data={}):
-        return requests.post('http://localhost:8891' + endpoint, data)
+        return requests.post('http://localhost:8891' + endpoint, json=data)
 
     def check(self, expected_path, url, data={}):
         path = 'tests/data/responses/' + expected_path + '.json'
-        response = self.request(url, {}).json()
+        response = self.request(url, data).json()
         if os.getenv('GENERATE'):
             with open(path, 'w+') as fh:
                 json.dump(response, fh, sort_keys=True,
@@ -68,3 +68,26 @@ class ApiTest(unittest.TestCase):
                 endpoints['_'.join(name)] = '/' + '/'.join(name)
         for check, endpoint in endpoints.iteritems():
             self.check(check, endpoint)
+
+        self.check('clones_filters1', '/clones/list', {
+            'filters': {
+                'min_cdr3_num_nts': 5,
+                'max_cdr3_num_nts': 30,
+                'min_unique': 2,
+                'max_unique': 100,
+            }
+        })
+        self.check('clones_filters2', '/clones/list', {
+            'filters': {
+                'subject_id': 1,
+                'id': 1
+            }
+        })
+        self.check('clones_filters3', '/clones/list', {
+            'order_field': 'id',
+            'order_dir': 'asc'
+        })
+        self.check('clones_filters4', '/clones/list', {
+            'order_field': 'id',
+            'order_dir': 'desc'
+        })
