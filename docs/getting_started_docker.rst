@@ -71,9 +71,12 @@ the host machine's ``~/immunedb/data`` directory.  It will then be available in 
 Docker instance at ``~/data``.
 
 **You're all set!** A configuration file for the database was automatically
-created at ``~/configs/immunedb.json``. You can now follow the
-:ref:`pipeline instructions <pipeline>`, skipping the database creation since
-that has been done for you.
+created at ``~/configs/immunedb.json``. You can now follow the :ref:`pipeline
+instructions <pipeline>`, skipping the database creation since that has been
+done for you.
+
+Place any input files you need in the created ``~/immunedb/data`` directory
+which will then be accessible at ``/root/data`` in the container.
 
 Advanced Configuration
 ----------------------
@@ -89,8 +92,9 @@ Any of these can be configured with the following environment variables:
 - ``API_ENDPOINT``: Change the location from which the REST API should be
   accessed.  For example, if the hostname of the machine is ``sub.abc.com`` you
   can set this to be ``http://sub.abc.com:5000``.
-- ``BASE_URL``: Change the location from which the website is accessed.  For
-  example ``http://sub.abc.com``
+- ``BASENAME``: Change the basename from which the website will be accessed.
+  For example, if you're forwarding traffic from ``http://abc.com/example``,
+  this would need to be set to ``example``.
 - ``DB_VOLUME``: Change the location on the host where the database files should
   be stored.
 - ``DATA_VOLUME``: Change the location on the host which is shared with the
@@ -98,12 +102,10 @@ Any of these can be configured with the following environment variables:
   ``~/sequence-data``.
 - ``API_PORT``: Change the port on which the REST API is served.  This should
   match the port on ``API_ENDPOINT``.
-- ``SERVE_PORT``: Change the port on which the website is served.  This should
-  match the port on ``BASE_URL``.  If no port is specified in ``BASE_URL`` set
-  this to 80 (default HTTP).
+- ``SERVE_PORT``: Change the port on which the website is served.
 
 For example:
 
 .. code-block:: bash
 
-    $ API_ENDPOINT=http://sub.abc.com:5000 BASE_URL=http://sub.abc.com SERVE_PORT=80 ./run-docker.sh
+    $ API_ENDPOINT=http://sub.abc.com:5000 BASENAME=example SERVE_PORT=80 ./run-docker.sh
