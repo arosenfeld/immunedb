@@ -28,7 +28,7 @@ class SequenceExport(Exporter):
 
     """
 
-    _allowed_fields = OrderedDict({
+    allowed_fields = OrderedDict({
         'seq_id': lambda seq: seq.seq_id,
         'subject_id': lambda seq: seq.sample.subject.id,
         'subject_identifier': lambda seq: seq.sample.subject.identifier,
@@ -91,7 +91,7 @@ class SequenceExport(Exporter):
     def __init__(self, session, writer, rtype, rids, selected_fields,
                  subject_uniques, only_with_clones):
         super(SequenceExport, self).__init__(
-            session, rtype, rids, SequenceExport._allowed_fields,
+            session, rtype, rids, SequenceExport.allowed_fields,
             selected_fields)
         self.writer = writer
         self.subject_uniques = subject_uniques

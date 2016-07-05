@@ -14,7 +14,7 @@ def _if_sample(f, val=''):
 
 
 class CloneExport(Exporter):
-    _allowed_fields = OrderedDict({
+    allowed_fields = OrderedDict({
         'clone_id': lambda s: s.clone_id,
         'sample_id': _if_sample(lambda s: s.sample_id, 'Total'),
         'unique_sequences': lambda s: s.unique_cnt,
@@ -45,7 +45,7 @@ class CloneExport(Exporter):
 
     def __init__(self, session, rtype, rids, selected_fields):
         super(CloneExport, self).__init__(
-            session, rtype, rids, CloneExport._allowed_fields,
+            session, rtype, rids, CloneExport.allowed_fields,
             selected_fields)
 
     def get_data(self):

@@ -22,13 +22,10 @@ def compare_objs(o1, o2):
         for item1, item2 in zip(o1, o2):
             compare_objs(item1, item2)
     else:
-        assert o1 == o2
+        assert o1 == o2, (o1, o2)
 
 
 class ApiTest(unittest.TestCase):
-    def tearDown(self):
-        self.request('/shutdown')
-
     def request(self, endpoint, data={}):
         return requests.post('http://localhost:8891' + endpoint, json=data)
 
@@ -41,7 +38,14 @@ class ApiTest(unittest.TestCase):
                           indent=4, separators=(',', ': '))
         else:
             with open(path) as fh:
-                compare_objs(json.loads(fh.read()), response)
+                expected = json.loads(fh.read())
+            try:
+                compare_objs(expected, response)
+            except AssertionError:
+                with open('assert.log', 'w+') as err:
+                    fh.write('Expected\n{}\n\nResponse\n{}'.format(
+                        json.loads(expected, response)))
+                raise
 
     def test_endpoints(self):
         endpoints = {
