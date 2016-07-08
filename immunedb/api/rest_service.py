@@ -334,12 +334,14 @@ def export_mutations(session, from_type, encoding):
     for line in export.get_data():
         yield line
 
+
 @app.route('/shutdown', method=['POST'])
 def shutdown():
     if app.config['allow_shutdown']:
         print 'Shutting down from remote request'
         sys.exit()
     return create_response(code=404)
+
 
 def run_rest_service(session_maker, args):
     app.config['session_maker'] = session_maker

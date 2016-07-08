@@ -6,6 +6,7 @@ import immunedb.common.config as config
 from immunedb.exporting.clone_export import CloneExport
 from immunedb.exporting.sequence_export import SequenceExport
 
+
 def request(endpoint, data={}):
     return requests.post('http://localhost:8891' + endpoint, data=data)
 
@@ -29,8 +30,7 @@ class ExportTest(unittest.TestCase):
         for ext in ('fasta', 'fastq', 'clip'):
             self.check(
                 'sequences.' + ext,
-                '/export/sequences/sample/T2',
-                 data={
+                '/export/sequences/sample/T2', data={
                     'format': ext,
                     'fields': ','.join(sorted(
                         SequenceExport.allowed_fields.keys()))
@@ -39,15 +39,13 @@ class ExportTest(unittest.TestCase):
     def test_clones(self):
         self.check(
             'clones.csv',
-            '/export/clones/sample/T2',
-             data={
+            '/export/clones/sample/T2', data={
                 'fields': ','.join(sorted(CloneExport.allowed_fields.keys()))
             })
 
     def test_mutations(self):
         self.check(
             'mutations.csv',
-            '/export/mutations/sample/T2',
-             data={
+            '/export/mutations/sample/T2', data={
                 'fields': ','.join(sorted(CloneExport.allowed_fields.keys())),
             })
