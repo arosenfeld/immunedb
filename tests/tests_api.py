@@ -25,6 +25,10 @@ def compare_objs(o1, o2):
         assert o1 == o2, (o1, o2)
 
 
+def pp(j):
+    return json.dumps(j, sort_keys=True,indent=4, separators=(',', ': '))
+
+
 class ApiTest(unittest.TestCase):
     def request(self, endpoint, data={}):
         return requests.post('http://localhost:8891' + endpoint, json=data)
@@ -34,8 +38,7 @@ class ApiTest(unittest.TestCase):
         response = self.request(url, data).json()
         if os.getenv('GENERATE'):
             with open(path, 'w+') as fh:
-                json.dump(response, fh, sort_keys=True,
-                          indent=4, separators=(',', ': '))
+                fh.write(pp(response))
         else:
             with open(path) as fh:
                 expected = json.loads(fh.read())
@@ -43,8 +46,8 @@ class ApiTest(unittest.TestCase):
                 compare_objs(expected, response)
             except AssertionError:
                 with open('assert.log', 'w+') as err:
-                    fh.write('Expected\n{}\n\nResponse\n{}'.format(
-                        json.loads(expected, response)))
+                    err.write('Expected\n{}\n\nResponse\n{}'.format(
+                        pp(expected), pp(response)))
                 raise
 
     def test_endpoints(self):
