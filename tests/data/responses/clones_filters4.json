@@ -208,18 +208,18 @@
         "stats": [
             {
                 "sample": {
-                    "id": 2,
-                    "name": "input2"
-                },
-                "total_sequences": 2,
-                "unique_sequences": 1
-            },
-            {
-                "sample": {
                     "id": 1,
                     "name": "input"
                 },
                 "total_sequences": 11,
+                "unique_sequences": 1
+            },
+            {
+                "sample": {
+                    "id": 2,
+                    "name": "input2"
+                },
+                "total_sequences": 2,
                 "unique_sequences": 1
             }
         ],
