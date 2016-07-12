@@ -1,6 +1,10 @@
 API --- ``immunedb.api``
 ====================
 
+.. note::
+
+    This documentation is still in-the-works and is incomplete.
+
 REST Interface --- ``immunedb.api.rest_service``
 --------------------------------------------
 The `REST <http://en.wikipedia.org/wiki/Representational_state_transfer>`_
