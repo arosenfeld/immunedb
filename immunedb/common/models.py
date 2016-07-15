@@ -446,6 +446,7 @@ class Sequence(Base):
     ai = Column(Integer, autoincrement=True, unique=True)
 
     subject_id = Column(Integer, ForeignKey(Subject.id), index=True)
+    subject = relationship(Subject)
 
     seq_id = Column(String(64), index=True)
     sample = relationship(Sample, backref=backref('sequences'))
