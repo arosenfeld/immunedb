@@ -23,6 +23,7 @@ setup(
     scripts=[
         'bin/immunedb_admin',
         'bin/immunedb_clones',
+        'bin/immunedb_clone_import',
         'bin/immunedb_clone_stats',
         'bin/immunedb_clone_pressure',
         'bin/immunedb_clone_trees',
