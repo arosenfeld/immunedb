@@ -16,8 +16,12 @@ if __name__ == '__main__':
     parser.add_argument('-d', action='store_true', default=False, dest='debug',
                         help='Use debug mode')
     parser.add_argument('--allow-shutdown', action='store_true', default=False,
-                        help='Allows remote shutdown by accessing /shutdown.  '
+                        help='Allows remote shutdown by accessing /shutdown. '
                         'Only use during testing!')
+    parser.add_argument('--rollbar-token', default=None, help='Token for '
+                        'rollbar reporting')
+    parser.add_argument('--rollbar-env', default='develop', help='Environment '
+                        'for rollbar reporting')
     args = parser.parse_args()
 
     session_maker = config.init_db(args.db_config, as_maker=True)
