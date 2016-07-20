@@ -9,10 +9,13 @@ if __name__ == '__main__':
     parser.add_argument('file')
     parser.add_argument('--action', choices=['import', 'export'],
                         required=True)
+    parser.add_argument('--regen', action='store_true', help='If all '
+                        'existing clones should be deleted.  Will also '
+                        'delete all clone stats and sample stats')
     args = parser.parse_args()
     session = config.init_db(args.db_config)
 
     if args.action == 'import':
-        import_template(session, args.file)
+        import_template(session, args.file, regen=args.regen)
     else:
         generate_template(session, args.file)

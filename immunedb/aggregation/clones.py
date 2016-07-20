@@ -17,15 +17,15 @@ def generate_consensus(session, clone_ids):
     """Generates consensus CDR3s for clones.
 
     :param Session session: The database session
-    :param list to_update: The list of clone IDs to assign to groups
+    :param list clone_ids: The list of clone IDs to assign to groups
 
     """
 
-    if len(to_update) == 0:
+    if len(clone_ids) == 0:
         return
     for clone in funcs.periodic_commit(
             session,
-            session.query(Clone).filter(Clone.id.in_(to_update)),
+            session.query(Clone).filter(Clone.id.in_(clone_ids)),
             interval=1000):
         seqs = session.query(
             Sequence
@@ -36,7 +36,7 @@ def generate_consensus(session, clone_ids):
         clone.cdr3_nt = consensus([s.cdr3_nt for s in seqs])
         clone.cdr3_aa = lookups.aas_from_nts(clone.cdr3_nt)
 
-        clone.germline = generate_germline(seqs, clone)
+        clone.germline = generate_germline(session, seqs, clone)
 
     session.commit()
 
