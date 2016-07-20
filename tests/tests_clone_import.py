@@ -14,6 +14,13 @@ class TestCloneImport(BaseTest.BaseRegression):
     def setUp(self):
         self.session = config.init_db(CONFIG_PATH)
 
+    def test_export(self):
+        export_path = '/tmp/test_unassigned'
+        generate_template(self.session, export_path)
+        with open(export_path) as result:
+            with open('tests/data/clone_import/unassigned.tsv') as expected:
+                assert result.read().strip() == expected.read().strip()
+
     def test_import(self):
         import_template(
             self.session,
