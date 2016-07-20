@@ -25,12 +25,12 @@ fi
 
 setup
 coverage erase
-#coverage run --source=immunedb -p -m nose -s tests/tests_parser.py
-#coverage run --source=immunedb -p -m nose -s tests/tests_import.py
+coverage run --source=immunedb -p -m nose -s tests/tests_parser.py
+coverage run --source=immunedb -p -m nose -s tests/tests_import.py
 coverage run --source=immunedb -p -m nose -s tests/tests_pipeline.py
+coverage run --source=immunedb --concurrency=gevent -p -m nose -s tests/run_server.py &
+REST_PID=$!
+sleep 2
+coverage run --source=immunedb -p -m nose -s tests/tests_api.py
+coverage run --source=immunedb -p -m nose -s tests/tests_export.py
 coverage run --source=immunedb -p -m nose -s tests/tests_clone_import.py
-#coverage run --source=immunedb --concurrency=gevent -p -m nose -s tests/run_server.py &
-#REST_PID=$!
-#sleep 2
-#coverage run --source=immunedb -p -m nose -s tests/tests_api.py
-#coverage run --source=immunedb -p -m nose -s tests/tests_export.py
