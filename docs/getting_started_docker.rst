@@ -17,8 +17,8 @@ Once docker is installed, clone the ImmuneDB repository:
 
     $ git clone https://github.com/arosenfeld/immunedb.git ~/immunedb-git
 
-In the resulting ``~/immunedb-git`` directory, there will be a ``run-docker.sh`` file
-which will be used to launch the Docker instance.
+In the resulting ``~/immunedb-git`` directory, there will be a ``run-docker.sh``
+file which will be used to launch the Docker instance.
 
 
 Runnning ImmuneDB

@@ -1,6 +1,6 @@
 ImmuneDB |travisci| |codecov| |pypi| |docker|
 ========
-.. |travisci| image:: https://img.shields.io/travis/arosenfeld/immunedb.svg
+.. |travisci| image:: https://img.shields.io/travis/arosenfeld/immunedb/master.svg
   :target: https://travis-ci.org/arosenfeld/immunedb
 .. |codecov| image:: https://img.shields.io/codecov/c/github/arosenfeld/immunedb.svg
   :target: https://codecov.io/gh/arosenfeld/immunedb
