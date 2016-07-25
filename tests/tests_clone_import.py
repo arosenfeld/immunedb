@@ -1,3 +1,5 @@
+import os
+
 from regression import NamespaceMimic, BaseTest
 
 import immunedb.common.config as config
@@ -15,11 +17,14 @@ class TestCloneImport(BaseTest.BaseRegression):
         self.session = config.init_db(CONFIG_PATH)
 
     def test_export(self):
-        export_path = '/tmp/test_unassigned'
+        export_path = 'test_unassigned'
         generate_template(self.session, export_path)
         with open(export_path) as result:
             with open('tests/data/clone_import/unassigned.tsv') as expected:
-                assert result.read().strip() == expected.read().strip()
+                try:
+                    assert result.read().strip() == expected.read().strip()
+                finally:
+                    os.remove(export_path)
 
     def test_import(self):
         import_template(

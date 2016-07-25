@@ -4,7 +4,7 @@ from sqlalchemy.orm import joinedload
 
 from immunedb.common.models import (Clone, CloneStats, SampleStats, Sequence,
                                     SequenceCollapse, Subject)
-from immunedb.aggregation.clones import generate_consensus
+from immunedb.aggregation.clones import generate_consensus, push_clone_ids
 from immunedb.importing import ImportException
 
 def generate_template(session, out_file):
@@ -28,7 +28,7 @@ def generate_template(session, out_file):
 
         writer.writeheader()
         template_seqs = session.query(Sequence).options(
-            joinedload(Sequence.collapse))
+            joinedload(Sequence.collapse)).order_by(Sequence.ai)
         for seq in template_seqs:
             if seq.collapse.copy_number_in_subject == 0:
                 continue
@@ -104,3 +104,4 @@ def import_template(session, in_file, regen):
         session.bulk_update_mappings(Sequence, to_update)
     session.commit()
     generate_consensus(session, db_clone_ids)
+    push_clone_ids(session)

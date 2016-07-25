@@ -75,6 +75,19 @@ def generate_germline(session, seqs, clone):
     return germline
 
 
+def push_clone_ids(session):
+    session.connection(mapper=Sequence).execute(text('''
+        UPDATE
+            sequences AS s
+        JOIN sequence_collapse AS c
+            ON s.sample_id=c.sample_id AND s.ai=c.seq_ai
+        JOIN sequences as s2
+            ON c.collapse_to_subject_seq_ai=s2.ai
+        SET s.clone_id=s2.clone_id
+        WHERE s.seq_id!=s2.seq_id
+    '''))
+
+
 def consensus(strings):
     """Gets the unweighted consensus from a list of strings
 
@@ -247,15 +260,5 @@ def run_clones(session, args):
     tasks.start()
 
     print 'Pushing clone IDs to sample sequences'
-    session.connection(mapper=Sequence).execute(text('''
-        UPDATE
-            sequences AS s
-        JOIN sequence_collapse AS c
-            ON s.sample_id=c.sample_id AND s.ai=c.seq_ai
-        JOIN sequences as s2
-            ON c.collapse_to_subject_seq_ai=s2.ai
-        SET s.clone_id=s2.clone_id
-        WHERE s.seq_id!=s2.seq_id
-    '''))
-
+    push_clone_ids(session)
     session.commit()
