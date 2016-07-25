@@ -13,7 +13,82 @@ import immunedb.util.funcs as funcs
 import immunedb.util.lookups as lookups
 
 
-def _consensus(strings):
+def generate_consensus(session, clone_ids):
+    """Generates consensus CDR3s for clones.
+
+    :param Session session: The database session
+    :param list clone_ids: The list of clone IDs to assign to groups
+
+    """
+
+    if len(clone_ids) == 0:
+        return
+    for clone in funcs.periodic_commit(
+            session,
+            session.query(Clone).filter(Clone.id.in_(clone_ids)),
+            interval=1000):
+        seqs = session.query(
+            Sequence
+        ).join(SequenceCollapse).filter(
+            Sequence.clone_id == clone.id,
+            SequenceCollapse.copy_number_in_subject > 0
+        ).all()
+        clone.cdr3_nt = consensus([s.cdr3_nt for s in seqs])
+        clone.cdr3_aa = lookups.aas_from_nts(clone.cdr3_nt)
+
+        clone.germline = generate_germline(session, seqs, clone)
+
+    session.commit()
+
+
+def generate_germline(session, seqs, clone):
+    insertions = set([])
+    for seq in seqs:
+        if seq.insertions is not None:
+            insertions.update(set(map(tuple, seq.insertions)))
+    clone.insertions = insertions
+
+    for seq in seqs:
+        seq.clone_insertions = insertions
+
+    rep_seq = seqs[0]
+    rep_ins = rep_seq.insertions or 0
+    if rep_ins != 0:
+        rep_ins = sum((e[1] for e in rep_ins))
+    germline = rep_seq.germline[:CDR3_OFFSET + rep_ins]
+
+    for ins in insertions:
+        if ins not in map(tuple, rep_seq.insertions):
+            pos, size = ins
+            germline = germline[:pos] + ('-' * size) + germline[pos:]
+    germline += '-' * clone.cdr3_num_nts
+
+    clone.functional = (
+        len(germline) % 3 == 0 and
+        not lookups.has_stop(germline)
+    )
+
+    j_region = rep_seq.germline.replace(
+        '-', '')[-rep_seq.post_cdr3_length:]
+    germline += j_region
+
+    return germline
+
+
+def push_clone_ids(session):
+    session.connection(mapper=Sequence).execute(text('''
+        UPDATE
+            sequences AS s
+        JOIN sequence_collapse AS c
+            ON s.sample_id=c.sample_id AND s.ai=c.seq_ai
+        JOIN sequences as s2
+            ON c.collapse_to_subject_seq_ai=s2.ai
+        SET s.clone_id=s2.clone_id
+        WHERE s.seq_id!=s2.seq_id
+    '''))
+
+
+def consensus(strings):
     """Gets the unweighted consensus from a list of strings
 
     :param list strings: A set of equal-length strings.
@@ -106,7 +181,7 @@ class ClonalWorker(concurrent.Worker):
                 if len(to_update) > 0:
                     self._session.bulk_update_mappings(Sequence, to_update)
                     consensus_needed.add(clone_id)
-        self._generate_consensus(consensus_needed)
+        generate_consensus(self._session, consensus_needed)
         self._tasks += 1
         if self._tasks % 100 == 0:
             self._session.commit()
@@ -136,66 +211,6 @@ class ClonalWorker(concurrent.Worker):
             if sim_frac < self._min_similarity:
                 return False
         return True
-
-    def _generate_germline(self, seqs, clone):
-        insertions = set([])
-        for seq in seqs:
-            if seq.insertions is not None:
-                insertions.update(set(map(tuple, seq.insertions)))
-        clone.insertions = insertions
-
-        for seq in seqs:
-            seq.clone_insertions = insertions
-
-        rep_seq = seqs[0]
-        rep_ins = rep_seq.insertions or 0
-        if rep_ins != 0:
-            rep_ins = sum((e[1] for e in rep_ins))
-        germline = rep_seq.germline[:CDR3_OFFSET + rep_ins]
-
-        for ins in insertions:
-            if ins not in map(tuple, rep_seq.insertions):
-                pos, size = ins
-                germline = germline[:pos] + ('-' * size) + germline[pos:]
-        germline += '-' * clone.cdr3_num_nts
-
-        clone.functional = (
-            len(germline) % 3 == 0 and
-            not lookups.has_stop(germline)
-        )
-
-        j_region = rep_seq.germline.replace(
-            '-', '')[-rep_seq.post_cdr3_length:]
-        germline += j_region
-
-        return germline
-
-    def _generate_consensus(self, to_update):
-        """Generates consensus CDR3s for clones.
-
-        :param Session session: The database session
-        :param list to_update: The list of clone IDs to assign to groups
-
-        """
-
-        if len(to_update) == 0:
-            return
-        for clone in funcs.periodic_commit(
-                self._session,
-                self._session.query(Clone).filter(Clone.id.in_(to_update)),
-                interval=1000):
-            seqs = self._session.query(
-                Sequence
-            ).join(SequenceCollapse).filter(
-                Sequence.clone_id == clone.id,
-                SequenceCollapse.copy_number_in_subject > 0
-            ).all()
-            clone.cdr3_nt = _consensus(map(lambda s: s.cdr3_nt, seqs))
-            clone.cdr3_aa = lookups.aas_from_nts(clone.cdr3_nt)
-
-            clone.germline = self._generate_germline(seqs, clone)
-
-        self._session.commit()
 
 
 def run_clones(session, args):
@@ -245,15 +260,5 @@ def run_clones(session, args):
     tasks.start()
 
     print 'Pushing clone IDs to sample sequences'
-    session.connection(mapper=Sequence).execute(text('''
-        UPDATE
-            sequences AS s
-        JOIN sequence_collapse AS c
-            ON s.sample_id=c.sample_id AND s.ai=c.seq_ai
-        JOIN sequences as s2
-            ON c.collapse_to_subject_seq_ai=s2.ai
-        SET s.clone_id=s2.clone_id
-        WHERE s.seq_id!=s2.seq_id
-    '''))
-
+    push_clone_ids(session)
     session.commit()
