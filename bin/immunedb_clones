@@ -34,6 +34,8 @@ if __name__ == '__main__':
                         'specified) will be DELETED before creating new '
                         'clones.  Associated sequences will be re-assigned '
                         'new clones')
+    parser.add_argument('--skip-subclones', action='store_true', help='If '
+                        'specified, does not calculate subclone relationships')
     args = parser.parse_args()
 
     session = config.init_db(args.db_config)

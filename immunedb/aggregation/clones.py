@@ -42,34 +42,16 @@ def generate_consensus(session, clone_ids):
 
 
 def generate_germline(session, seqs, clone):
-    insertions = set([])
-    for seq in seqs:
-        if seq.insertions is not None:
-            insertions.update(set(map(tuple, seq.insertions)))
-    clone.insertions = insertions
-
-    for seq in seqs:
-        seq.clone_insertions = insertions
-
     rep_seq = seqs[0]
-    rep_ins = rep_seq.insertions or 0
-    if rep_ins != 0:
-        rep_ins = sum((e[1] for e in rep_ins))
-    germline = rep_seq.germline[:CDR3_OFFSET + rep_ins]
-
-    for ins in insertions:
-        if ins not in map(tuple, rep_seq.insertions):
-            pos, size = ins
-            germline = germline[:pos] + ('-' * size) + germline[pos:]
+    cdr3_start_pos = sum(rep_seq.regions[:5])
+    germline = rep_seq.germline[:cdr3_start_pos]
     germline += '-' * clone.cdr3_num_nts
-
     clone.functional = (
         len(germline) % 3 == 0 and
         not lookups.has_stop(germline)
     )
 
-    j_region = rep_seq.germline.replace(
-        '-', '')[-rep_seq.post_cdr3_length:]
+    j_region = rep_seq.germline[cdr3_start_pos + rep_seq.cdr3_num_nts:]
     germline += j_region
 
     return germline
@@ -101,6 +83,36 @@ def consensus(strings):
     return ''.join(chrs)
 
 
+def similar_to_all(seq, rest, min_similarity):
+    """Determines if the string ``seq`` is at least ``min_similarity``
+    similar to the list of strings ``rest``.
+
+    :param str seq: The string to compare
+    :param list rest: The list of strings to compare to
+    :param int min_similarity: Minimum fraction to be considered similar
+
+    :returns: If ``seq`` is similar to every sequence in ``rest``
+    :rtype: bool
+
+    """
+    for comp_seq in rest:
+        dist = dnautils.hamming(
+            comp_seq.cdr3_aa.replace('X', '-'),
+            seq.cdr3_aa.replace('X', '-')
+        )
+        sim_frac = 1 - dist / float(len(comp_seq.cdr3_aa))
+        if sim_frac < min_similarity:
+            return False
+    return True
+
+
+def can_subclone(sub_seqs, parent_seqs, min_similarity):
+    for seq in sub_seqs:
+        if not similar_to_all(seq, parent_seqs, min_similarity):
+            return False
+    return True
+
+
 class ClonalWorker(concurrent.Worker):
     def __init__(self, session, min_similarity, include_indels,
                  exclude_partials, min_identity, min_copy, max_padding):
@@ -115,12 +127,14 @@ class ClonalWorker(concurrent.Worker):
         self._tasks = 0
 
     def do_task(self, bucket):
+        return
         clones = OrderedDict()
         consensus_needed = set([])
         query = self._session.query(
             Sequence.sample_id, Sequence.ai, Sequence.clone_id,
             Sequence.cdr3_aa, Sequence.subject_id, Sequence.v_gene,
-            Sequence.j_gene, Sequence.cdr3_num_nts
+            Sequence.j_gene, Sequence.cdr3_num_nts, Sequence._insertions,
+            Sequence._deletions
         ).join(SequenceCollapse).filter(
             Sequence.subject_id == bucket.subject_id,
             Sequence.v_gene == bucket.v_gene,
@@ -157,14 +171,17 @@ class ClonalWorker(concurrent.Worker):
                     for clone_id, existing_seqs in clones.iteritems():
                         if clone_id is None:
                             continue
-                        if self._similar_to_all(seq_to_add, existing_seqs):
+                        if similar_to_all(seq_to_add, existing_seqs,
+                                          self._min_similarity):
                             existing_seqs.append(seq_to_add)
                             break
                     else:
                         new_clone = Clone(subject_id=seq.subject_id,
                                           v_gene=seq.v_gene,
                                           j_gene=seq.j_gene,
-                                          cdr3_num_nts=seq.cdr3_num_nts)
+                                          cdr3_num_nts=seq.cdr3_num_nts,
+                                          _insertions=seq._insertions,
+                                          _deletions=seq._deletions)
                         self._session.add(new_clone)
                         self._session.flush()
                         clones[new_clone.id] = [seq_to_add]
@@ -191,26 +208,62 @@ class ClonalWorker(concurrent.Worker):
         self._session.commit()
         self._session.close()
 
-    def _similar_to_all(self, seq, rest):
-        """Determines if the string ``seq`` is at least ``min_similarity``
-        similar to the list of strings ``rest``.
 
-        :param str seq: The string to compare
-        :param list rest: The list of strings to compare to
+class SubcloneWorker(concurrent.Worker):
+    def __init__(self, session, min_similarity):
+        self._session = session
+        self._min_similarity = min_similarity
 
-        :returns: If ``seq`` is similar to every sequence in ``rest``
-        :rtype: bool
+    def do_task(self, bucket):
+        clones = self._session.query(Clone).filter(
+            Clone.subject_id == bucket.subject_id,
+            Clone.v_gene == bucket.v_gene,
+            Clone.j_gene == bucket.j_gene,
+            Clone.cdr3_num_nts == bucket.cdr3_num_nts,
+        ).all()
 
-        """
-        for comp_seq in rest:
-            dist = dnautils.hamming(
-                comp_seq.cdr3_aa.replace('X', '-'),
-                seq.cdr3_aa.replace('X', '-')
-            )
-            sim_frac = 1 - dist / float(len(comp_seq.cdr3_aa))
-            if sim_frac < self._min_similarity:
-                return False
-        return True
+        if len(clones) == 0:
+            return
+
+        # The clones with indels are the only ones which can be subclones
+        parent_clones = set([c for c in clones
+            if len(c.insertions) == 0 and len(c.deletions) == 0])
+        potential_subclones = [c for c in clones if c not in parent_clones and
+            c.parent_id is None]
+
+        for subclone in potential_subclones:
+            for parent in parent_clones:
+                if not can_subclone(subclone.sequences, parent.sequences,
+                                    self._min_similarity):
+                    subclone.parent = parent
+                    print parent.children
+                    break
+
+    def cleanup(self):
+        self._session.commit()
+        self._session.close()
+
+
+def run_subclones(session, subject_ids, args):
+    tasks = concurrent.TaskQueue()
+    for subject_id in subject_ids:
+        print 'Generating subclone task queue for subject {}'.format(
+                subject_id)
+        buckets = session.query(
+            Clone.subject_id, Clone.v_gene, Clone.j_gene, Clone.cdr3_num_nts
+        ).filter(
+            Clone.subject_id == subject_id
+        ).group_by(
+            Clone.subject_id, Clone.v_gene, Clone.j_gene, Clone.cdr3_num_nts
+        )
+        for bucket in buckets:
+            tasks.add_task(bucket)
+
+    print 'Generated {} total subclone tasks'.format(tasks.num_tasks())
+    for i in range(0, min(tasks.num_tasks(), args.nproc)):
+        tasks.add_worker(SubcloneWorker(config.init_db(args.db_config),
+                                        args.similarity / 100.0))
+    tasks.start()
 
 
 def run_clones(session, args):
@@ -259,6 +312,10 @@ def run_clones(session, args):
             args.max_padding))
     tasks.start()
 
-    print 'Pushing clone IDs to sample sequences'
+    if not args.skip_subclones:
+        run_subclones(session, subject_ids, args)
+    else:
+        print 'Skipping subclones'
+
     push_clone_ids(session)
     session.commit()

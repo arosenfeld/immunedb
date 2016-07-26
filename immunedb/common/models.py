@@ -258,7 +258,9 @@ class Clone(Base):
     overall_instance_cnt = Column(Integer, index=True)
 
     parent_id = Column(Integer, ForeignKey('clones.id'), index=True)
-    parent = relationship('Clone')
+
+    children = relationship('Clone')
+    parent = relationship('Clone', remote_side=[id], back_populates='children')
 
     @hybrid_property
     def insertions(self):
