@@ -194,7 +194,8 @@ class BaseTest(object):
                     min_identity=0,
                     min_copy=2,
                     max_padding=None,
-                    regen=False
+                    regen=False,
+                    skip_subclones=False
                 )
             )
             self.session.commit()
@@ -205,7 +206,7 @@ class BaseTest(object):
                 'id',
                 ('id', 'functional', 'v_gene', 'j_gene', 'insertions',
                  'cdr3_nt', 'cdr3_num_nts', 'cdr3_aa', 'germline',
-                 'overall_unique_cnt', 'overall_total_cnt'),
+                 'overall_unique_cnt', 'overall_total_cnt', 'parent'),
             )
             self.regression(
                 self.get_path('post_clones_assignment.json'),

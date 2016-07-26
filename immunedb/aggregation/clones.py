@@ -127,7 +127,6 @@ class ClonalWorker(concurrent.Worker):
         self._tasks = 0
 
     def do_task(self, bucket):
-        return
         clones = OrderedDict()
         consensus_needed = set([])
         query = self._session.query(
