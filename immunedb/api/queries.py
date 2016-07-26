@@ -49,7 +49,9 @@ def _sample_to_dict(sample):
 
 def _clone_to_dict(clone):
     d = _fields_to_dict(['id', 'cdr3_nt', 'v_gene', 'j_gene', 'cdr3_aa',
-                         'cdr3_num_nts', 'regions'], clone)
+                         'cdr3_num_nts', 'regions', 'insertions',
+                         'deletions', 'overall_unique_cnt',
+                         'overall_total_cnt'], clone)
     d['subject'] = _subject_to_dict(clone.subject)
     d['germline'] = clone.consensus_germline
 
@@ -179,6 +181,8 @@ def get_clone(session, clone_id):
 
     result = {
         'clone': _clone_to_dict(clone),
+        'parent': _clone_to_dict(clone.parent) if clone.parent else None,
+        'children': [_clone_to_dict(c) for c in clone.children],
         'samples': {
             'single': []
         }
