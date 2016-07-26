@@ -10,6 +10,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-18"
     },
     "2": {
@@ -23,6 +24,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-18"
     },
     "3": {
@@ -36,6 +38,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-18"
     },
     "4": {
@@ -49,6 +52,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-18"
     },
     "5": {
@@ -62,6 +66,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-18"
     },
     "6": {
@@ -75,6 +80,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-18"
     },
     "7": {
@@ -88,6 +94,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-18"
     },
     "8": {
@@ -101,6 +108,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-18"
     },
     "9": {
@@ -114,6 +122,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-18"
     },
     "10": {
@@ -127,6 +136,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-18"
     },
     "11": {
@@ -140,6 +150,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-18"
     },
     "12": {
@@ -153,6 +164,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-18"
     },
     "13": {
@@ -166,6 +178,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-18"
     },
     "14": {
@@ -179,6 +192,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-18"
     },
     "15": {
@@ -192,6 +206,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-18"
     },
     "16": {
@@ -205,6 +220,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-18"
     },
     "17": {
@@ -218,6 +234,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-18"
     },
     "18": {
@@ -231,6 +248,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-18"
     },
     "19": {
@@ -244,6 +262,7 @@
         "j_gene": "IGHJ3",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-18"
     },
     "20": {
@@ -257,6 +276,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-2"
     },
     "21": {
@@ -270,6 +290,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-2"
     },
     "22": {
@@ -283,6 +304,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-2"
     },
     "23": {
@@ -296,6 +318,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-2"
     },
     "24": {
@@ -309,6 +332,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-24"
     },
     "25": {
@@ -322,6 +346,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-3"
     },
     "26": {
@@ -335,6 +360,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-3"
     },
     "27": {
@@ -348,6 +374,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-3"
     },
     "28": {
@@ -361,6 +388,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-3"
     },
     "29": {
@@ -374,6 +402,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-3"
     },
     "30": {
@@ -387,6 +416,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-3"
     },
     "31": {
@@ -400,6 +430,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-3"
     },
     "32": {
@@ -413,6 +444,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-3"
     },
     "33": {
@@ -426,6 +458,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-3"
     },
     "34": {
@@ -439,6 +472,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-3"
     },
     "35": {
@@ -452,6 +486,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-46"
     },
     "36": {
@@ -465,6 +500,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-46"
     },
     "37": {
@@ -478,6 +514,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-46"
     },
     "38": {
@@ -491,6 +528,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-46"
     },
     "39": {
@@ -504,6 +542,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-46"
     },
     "40": {
@@ -517,6 +556,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-46"
     },
     "41": {
@@ -530,6 +570,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-46"
     },
     "42": {
@@ -543,6 +584,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-46"
     },
     "43": {
@@ -556,6 +598,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-46"
     },
     "44": {
@@ -569,6 +612,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-46"
     },
     "45": {
@@ -582,6 +626,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-46"
     },
     "46": {
@@ -595,6 +640,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-46"
     },
     "47": {
@@ -608,6 +654,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-46"
     },
     "48": {
@@ -621,6 +668,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-69"
     },
     "49": {
@@ -634,6 +682,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-69"
     },
     "50": {
@@ -647,6 +696,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-69"
     },
     "51": {
@@ -660,6 +710,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-69"
     },
     "52": {
@@ -673,6 +724,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-69"
     },
     "53": {
@@ -686,6 +738,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-69"
     },
     "54": {
@@ -699,6 +752,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-69"
     },
     "55": {
@@ -712,6 +766,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-69"
     },
     "56": {
@@ -725,6 +780,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-69"
     },
     "57": {
@@ -738,6 +794,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-69"
     },
     "58": {
@@ -751,6 +808,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-69"
     },
     "59": {
@@ -764,6 +822,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-69"
     },
     "60": {
@@ -777,6 +836,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-69"
     },
     "61": {
@@ -790,6 +850,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-69"
     },
     "62": {
@@ -803,6 +864,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-69"
     },
     "63": {
@@ -816,6 +878,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-69"
     },
     "64": {
@@ -829,6 +892,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-69"
     },
     "65": {
@@ -842,6 +906,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-69"
     },
     "66": {
@@ -855,6 +920,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-69"
     },
     "67": {
@@ -868,6 +934,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-8"
     },
     "68": {
@@ -881,6 +948,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-8"
     },
     "69": {
@@ -894,6 +962,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-8"
     },
     "70": {
@@ -907,6 +976,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-8"
     },
     "71": {
@@ -920,6 +990,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-8"
     },
     "72": {
@@ -933,6 +1004,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-8"
     },
     "73": {
@@ -946,6 +1018,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-8"
     },
     "74": {
@@ -959,6 +1032,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-8"
     },
     "75": {
@@ -972,6 +1046,7 @@
         "j_gene": "IGHJ2",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV1-8"
     },
     "76": {
@@ -985,6 +1060,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-11"
     },
     "77": {
@@ -998,6 +1074,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-11"
     },
     "78": {
@@ -1011,6 +1088,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-11"
     },
     "79": {
@@ -1024,6 +1102,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-11"
     },
     "80": {
@@ -1037,6 +1116,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-11"
     },
     "81": {
@@ -1050,6 +1130,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-11"
     },
     "82": {
@@ -1063,6 +1144,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-11"
     },
     "83": {
@@ -1076,6 +1158,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-15"
     },
     "84": {
@@ -1089,6 +1172,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-15"
     },
     "85": {
@@ -1102,6 +1186,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-21"
     },
     "86": {
@@ -1115,6 +1200,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-21"
     },
     "87": {
@@ -1128,6 +1214,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-21"
     },
     "88": {
@@ -1141,6 +1228,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-21"
     },
     "89": {
@@ -1154,6 +1242,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-21"
     },
     "90": {
@@ -1167,6 +1256,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-21"
     },
     "91": {
@@ -1180,6 +1270,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-21"
     },
     "92": {
@@ -1193,6 +1284,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-21"
     },
     "93": {
@@ -1206,6 +1298,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-21"
     },
     "94": {
@@ -1219,6 +1312,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-21"
     },
     "95": {
@@ -1232,6 +1326,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-21"
     },
     "96": {
@@ -1245,6 +1340,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-21"
     },
     "97": {
@@ -1258,6 +1354,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-21"
     },
     "98": {
@@ -1271,6 +1368,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-21"
     },
     "99": {
@@ -1284,6 +1382,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-21"
     },
     "100": {
@@ -1297,6 +1396,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-23"
     },
     "101": {
@@ -1310,6 +1410,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-23"
     },
     "102": {
@@ -1323,6 +1424,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-23"
     },
     "103": {
@@ -1336,6 +1438,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-23"
     },
     "104": {
@@ -1349,6 +1452,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-23"
     },
     "105": {
@@ -1362,6 +1466,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-23"
     },
     "106": {
@@ -1375,6 +1480,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-30|3-30-3"
     },
     "107": {
@@ -1388,6 +1494,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-30|3-30-3|3-33"
     },
     "108": {
@@ -1401,6 +1508,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-30|3-30-3|3-33"
     },
     "109": {
@@ -1414,6 +1522,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-30|3-30-3|3-33"
     },
     "110": {
@@ -1427,6 +1536,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-30|3-33"
     },
     "111": {
@@ -1440,6 +1550,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-30|3-33"
     },
     "112": {
@@ -1453,6 +1564,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-30|3-33"
     },
     "113": {
@@ -1466,6 +1578,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-30|3-33"
     },
     "114": {
@@ -1479,6 +1592,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-30|3-33"
     },
     "115": {
@@ -1492,6 +1606,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-30|3-33"
     },
     "116": {
@@ -1505,6 +1620,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-30|3-33"
     },
     "117": {
@@ -1518,6 +1634,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-30|3-33"
     },
     "118": {
@@ -1531,6 +1648,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-53|3-66"
     },
     "119": {
@@ -1544,6 +1662,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-53|3-66"
     },
     "120": {
@@ -1557,6 +1676,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-53|3-66"
     },
     "121": {
@@ -1570,6 +1690,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-72"
     },
     "122": {
@@ -1583,6 +1704,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-72"
     },
     "123": {
@@ -1596,6 +1718,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-72"
     },
     "124": {
@@ -1609,6 +1732,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-72"
     },
     "125": {
@@ -1622,6 +1746,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-73"
     },
     "126": {
@@ -1635,6 +1760,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-74"
     },
     "127": {
@@ -1648,6 +1774,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-74"
     },
     "128": {
@@ -1661,6 +1788,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-74"
     },
     "129": {
@@ -1674,6 +1802,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-74"
     },
     "130": {
@@ -1687,6 +1816,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-74"
     },
     "131": {
@@ -1700,6 +1830,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV3-74"
     },
     "132": {
@@ -1713,6 +1844,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-31"
     },
     "133": {
@@ -1726,6 +1858,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-31"
     },
     "134": {
@@ -1739,6 +1872,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-31"
     },
     "135": {
@@ -1752,6 +1886,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-31"
     },
     "136": {
@@ -1765,6 +1900,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-31"
     },
     "137": {
@@ -1778,6 +1914,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-31"
     },
     "138": {
@@ -1791,6 +1928,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-31"
     },
     "139": {
@@ -1804,6 +1942,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-31"
     },
     "140": {
@@ -1817,6 +1956,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-31"
     },
     "141": {
@@ -1830,6 +1970,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-31"
     },
     "142": {
@@ -1843,6 +1984,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-31"
     },
     "143": {
@@ -1856,6 +1998,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-31"
     },
     "144": {
@@ -1869,6 +2012,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-31"
     },
     "145": {
@@ -1882,6 +2026,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-31"
     },
     "146": {
@@ -1895,6 +2040,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-31"
     },
     "147": {
@@ -1908,6 +2054,7 @@
         "j_gene": "IGHJ2",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-31"
     },
     "148": {
@@ -1921,6 +2068,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-34"
     },
     "149": {
@@ -1934,6 +2082,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-34"
     },
     "150": {
@@ -1947,6 +2096,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-34"
     },
     "151": {
@@ -1960,6 +2110,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-34"
     },
     "152": {
@@ -1973,6 +2124,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-34"
     },
     "153": {
@@ -1986,6 +2138,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-34"
     },
     "154": {
@@ -1999,6 +2152,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-34"
     },
     "155": {
@@ -2012,6 +2166,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-34"
     },
     "156": {
@@ -2025,6 +2180,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-34"
     },
     "157": {
@@ -2038,6 +2194,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-34"
     },
     "158": {
@@ -2051,6 +2208,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-34"
     },
     "159": {
@@ -2064,6 +2222,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-34"
     },
     "160": {
@@ -2077,6 +2236,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-34"
     },
     "161": {
@@ -2090,6 +2250,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-34"
     },
     "162": {
@@ -2103,6 +2264,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-34"
     },
     "163": {
@@ -2116,6 +2278,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-34"
     },
     "164": {
@@ -2129,6 +2292,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-34"
     },
     "165": {
@@ -2142,6 +2306,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-34"
     },
     "166": {
@@ -2155,6 +2320,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-34"
     },
     "167": {
@@ -2168,6 +2334,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-34"
     },
     "168": {
@@ -2181,6 +2348,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-34"
     },
     "169": {
@@ -2194,6 +2362,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-39"
     },
     "170": {
@@ -2207,6 +2376,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-39"
     },
     "171": {
@@ -2220,6 +2390,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-39"
     },
     "172": {
@@ -2233,6 +2404,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-39"
     },
     "173": {
@@ -2246,6 +2418,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-39"
     },
     "174": {
@@ -2259,6 +2432,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-39"
     },
     "175": {
@@ -2272,6 +2446,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-39"
     },
     "176": {
@@ -2285,6 +2460,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-39"
     },
     "177": {
@@ -2298,6 +2474,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-39"
     },
     "178": {
@@ -2311,6 +2488,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-39"
     },
     "179": {
@@ -2324,6 +2502,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-39"
     },
     "180": {
@@ -2337,6 +2516,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-39"
     },
     "181": {
@@ -2350,6 +2530,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-39"
     },
     "182": {
@@ -2363,6 +2544,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-39"
     },
     "183": {
@@ -2376,6 +2558,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-39"
     },
     "184": {
@@ -2389,6 +2572,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-39"
     },
     "185": {
@@ -2402,6 +2586,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-39"
     },
     "186": {
@@ -2415,6 +2600,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-39"
     },
     "187": {
@@ -2428,6 +2614,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-39"
     },
     "188": {
@@ -2441,6 +2628,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-39"
     },
     "189": {
@@ -2454,6 +2642,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-39"
     },
     "190": {
@@ -2467,6 +2656,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-4"
     },
     "191": {
@@ -2480,6 +2670,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-4"
     },
     "192": {
@@ -2493,6 +2684,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-4"
     },
     "193": {
@@ -2506,6 +2698,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-4"
     },
     "194": {
@@ -2519,6 +2712,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-4"
     },
     "195": {
@@ -2532,6 +2726,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-4"
     },
     "196": {
@@ -2545,6 +2740,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-4"
     },
     "197": {
@@ -2558,6 +2754,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-4"
     },
     "198": {
@@ -2571,6 +2768,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-4"
     },
     "199": {
@@ -2584,6 +2782,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-4"
     },
     "200": {
@@ -2597,6 +2796,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-4"
     },
     "201": {
@@ -2610,6 +2810,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-4"
     },
     "202": {
@@ -2623,6 +2824,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-4"
     },
     "203": {
@@ -2636,6 +2838,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-4"
     },
     "204": {
@@ -2649,6 +2852,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-4"
     },
     "205": {
@@ -2662,6 +2866,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-4"
     },
     "206": {
@@ -2675,6 +2880,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-4"
     },
     "207": {
@@ -2688,6 +2894,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-59"
     },
     "208": {
@@ -2701,6 +2908,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-59"
     },
     "209": {
@@ -2714,6 +2922,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-59"
     },
     "210": {
@@ -2727,6 +2936,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-59"
     },
     "211": {
@@ -2740,6 +2950,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-59"
     },
     "212": {
@@ -2753,6 +2964,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-59"
     },
     "213": {
@@ -2766,6 +2978,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-59"
     },
     "214": {
@@ -2779,6 +2992,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-59"
     },
     "215": {
@@ -2792,6 +3006,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-59"
     },
     "216": {
@@ -2805,6 +3020,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-61"
     },
     "217": {
@@ -2818,6 +3034,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-61"
     },
     "218": {
@@ -2831,6 +3048,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-61"
     },
     "219": {
@@ -2844,6 +3062,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-61"
     },
     "220": {
@@ -2857,6 +3076,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-61"
     },
     "221": {
@@ -2870,6 +3090,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-61"
     },
     "222": {
@@ -2883,6 +3104,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-61"
     },
     "223": {
@@ -2896,6 +3118,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV4-61"
     },
     "224": {
@@ -2909,6 +3132,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV7-4-1"
     },
     "225": {
@@ -2922,6 +3146,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV7-4-1"
     },
     "226": {
@@ -2935,6 +3160,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV7-4-1"
     },
     "227": {
@@ -2948,6 +3174,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV7-4-1"
     },
     "228": {
@@ -2961,6 +3188,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV7-4-1"
     },
     "229": {
@@ -2974,6 +3202,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV7-4-1"
     },
     "230": {
@@ -2987,6 +3216,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV7-4-1"
     },
     "231": {
@@ -3000,6 +3230,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV7-4-1"
     },
     "232": {
@@ -3013,6 +3244,7 @@
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
+        "parent": null,
         "v_gene": "IGHV7-4-1"
     }
 }
