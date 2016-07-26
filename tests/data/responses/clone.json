@@ -1,11 +1,16 @@
 {
+    "children": [],
     "clone": {
         "cdr3_aa": "CASLQLVLLLVRPL",
         "cdr3_nt": "TGTGCGAGTTTGCAGCTGGTACTCTTGCTGGTTCGACCCCTGG",
         "cdr3_num_nts": 43,
+        "deletions": [],
         "germline": "CAGGTTCAGCTGGTGCAGTCTGGAGCT---GAGGTGAAGAAGCCTGGGGCCTCAGTGAAGGTCTCCTGCAAGGCTTCTGGTTACACCTTT------------ACCAGCTATGGTATCAGCTGGGTGCGACAGGCCCCTGGACAAGGGCTTGAGTGGATGGGATGGATCAGCGCTTAC------AATGGTAACACAAACTATGCACAGAAGCTCCAG---GGCAGAGTCACCATGACCACAGACACATCCACGAGCACAGCCTACATGGAGCTGAGGAGCCTGAGATCTGACGACANGGCCGTGTATTACTGTGCGAGTTTGCAGCTGGTACTCTTGCTGGTTCGACCCCTGGGGCCANGGNACCCTGGTCACCGTCTCCTCAG",
         "id": 10,
+        "insertions": [],
         "j_gene": "IGHJ1|4|5",
+        "overall_total_cnt": 2,
+        "overall_unique_cnt": 1,
         "regions": [
             78,
             36,
@@ -25,6 +30,7 @@
         },
         "v_gene": "IGHV1-18"
     },
+    "parent": null,
     "samples": {
         "all": {
             "total": 2,
