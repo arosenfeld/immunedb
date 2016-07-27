@@ -235,7 +235,6 @@ class SubcloneWorker(concurrent.Worker):
                 if not can_subclone(subclone.sequences, parent.sequences,
                                     self._min_similarity):
                     subclone.parent = parent
-                    print parent.children
                     break
 
     def cleanup(self):
