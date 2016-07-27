@@ -11,9 +11,10 @@ from immunedb.identification.j_genes import JGermlines
 from immunedb.identification.v_genes import VGermlines
 from immunedb.common.models import (CDR3_OFFSET, DuplicateSequence, NoResult,
                                     Sample, Sequence)
-import immunedb.util.funcs as funcs
-import immunedb.util.lookups as lookups
 import immunedb.util.concurrent as concurrent
+import immunedb.util.funcs as funcs
+from immunedb.util.log import logger
+import immunedb.util.lookups as lookups
 
 GAP_PLACEHOLDER = '^'
 
@@ -370,9 +371,9 @@ def run_fix_sequences(session, args):
         noresults = session.query(NoResult).filter(
             NoResult.sample_id == sample_id
         )
-        print ('Creating task queue for sample {}; '
-               '{} indels, {} noresults').format(sample_id, indels.count(),
-                                                 noresults.count())
+        logger.info('Creating task queue for sample {}; '
+                    '{} indels, {} noresults'.format(
+                        sample_id, indels.count(), noresults.count()))
 
         # Get information for the V-ties
         avg_mut, avg_len = session.query(

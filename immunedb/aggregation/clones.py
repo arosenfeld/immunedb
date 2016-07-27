@@ -11,6 +11,7 @@ import immunedb.common.config as config
 import immunedb.util.concurrent as concurrent
 import immunedb.util.funcs as funcs
 import immunedb.util.lookups as lookups
+from immunedb.util.log import logger
 
 
 def generate_consensus(session, clone_ids):
@@ -201,7 +202,7 @@ class ClonalWorker(concurrent.Worker):
         self._tasks += 1
         if self._tasks % 100 == 0:
             self._session.commit()
-            self._print('Collapsed {} buckets'.format(self._tasks))
+            self.info('Collapsed {} buckets'.format(self._tasks))
 
     def cleanup(self):
         self._session.commit()
@@ -245,8 +246,8 @@ class SubcloneWorker(concurrent.Worker):
 def run_subclones(session, subject_ids, args):
     tasks = concurrent.TaskQueue()
     for subject_id in subject_ids:
-        print 'Generating subclone task queue for subject {}'.format(
-                subject_id)
+        logger.info('Generating subclone task queue for subject {}'.format(
+            subject_id))
         buckets = session.query(
             Clone.subject_id, Clone.v_gene, Clone.j_gene, Clone.cdr3_num_nts
         ).filter(
@@ -257,7 +258,7 @@ def run_subclones(session, subject_ids, args):
         for bucket in buckets:
             tasks.add_task(bucket)
 
-    print 'Generated {} total subclone tasks'.format(tasks.num_tasks())
+    logger.info('Generated {} total subclone tasks'.format(tasks.num_tasks()))
     for i in range(0, min(tasks.num_tasks(), args.nproc)):
         tasks.add_worker(SubcloneWorker(config.init_db(args.db_config),
                                         args.similarity / 100.0))
@@ -278,7 +279,7 @@ def run_clones(session, args):
     mod_log.make_mod('clones', session=session, commit=True, info=vars(args))
 
     if args.regen:
-        print 'Deleting existing clones'
+        logger.info('Deleting existing clones')
         session.query(Clone).filter(
             Clone.subject_id.in_(subject_ids)
         ).delete(synchronize_session=False)
@@ -286,7 +287,7 @@ def run_clones(session, args):
 
     tasks = concurrent.TaskQueue()
     for subject_id in subject_ids:
-        print 'Generating task queue for subject {}'.format(subject_id)
+        logger.info('Generating task queue for subject {}'.format(subject_id))
         buckets = session.query(
             Sequence.subject_id, Sequence.v_gene, Sequence.j_gene,
             Sequence.cdr3_num_nts, Sequence._insertions, Sequence._deletions
@@ -300,7 +301,7 @@ def run_clones(session, args):
         for bucket in buckets:
             tasks.add_task(bucket)
 
-    print 'Generated {} total tasks'.format(tasks.num_tasks())
+    logger.info('Generated {} total tasks'.format(tasks.num_tasks()))
 
     for i in range(0, min(tasks.num_tasks(), args.nproc)):
         tasks.add_worker(ClonalWorker(
@@ -313,7 +314,7 @@ def run_clones(session, args):
     if not args.skip_subclones:
         run_subclones(session, subject_ids, args)
     else:
-        print 'Skipping subclones'
+        logger.info('Skipping subclones')
 
     push_clone_ids(session)
     session.commit()

@@ -7,6 +7,7 @@ from immunedb.common.models import (CDR3_OFFSET, DuplicateSequence, NoResult,
 import immunedb.util.funcs as funcs
 import immunedb.util.lookups as lookups
 from immunedb.util.hyper import hypergeom
+from immunedb.util.log import logger
 
 
 class AlignmentException(Exception):
@@ -126,8 +127,8 @@ def add_uniques(session, sample, vdjs, realign_len=None,
         except AlignmentException as e:
             add_as_noresult(session, vdj, sample, str(e))
         except:
-            print ('\tUnexpected error processing sequence '
-                   '{}\n\t{}'.format(vdj.ids[0], traceback.format_exc()))
+            logger.error('\tUnexpected error processing sequence '
+                         '{}\n\t{}'.format(vdj.ids[0], traceback.format_exc()))
 
     # Collapse sequences that are the same except for Ns
     for sequences in funcs.periodic_commit(session, bucketed_seqs.values()):

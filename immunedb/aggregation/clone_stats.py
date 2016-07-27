@@ -8,6 +8,7 @@ from immunedb.common.models import (Clone, CloneStats, Sequence,
 import immunedb.common.modification_log as mod_log
 from immunedb.common.mutations import CloneMutations
 import immunedb.util.concurrent as concurrent
+from immunedb.util.log import logger
 
 
 class CloneStatsWorker(concurrent.Worker):
@@ -33,7 +34,7 @@ class CloneStatsWorker(concurrent.Worker):
         if existing is not None:
             return
 
-        self._print('Clone {}'.format(clone_id))
+        self.info('Clone {}'.format(clone_id))
         sample_ids = map(lambda c: c.sample_id, self._session.query(
                 distinct(Sequence.sample_id).label('sample_id')
             ).filter(
@@ -123,16 +124,16 @@ def run_clone_stats(session, args):
     clones.sort()
 
     if args.regen:
-        print 'Deleting old clone statistics for {} clones'.format(len(clones))
+        logger.info('Deleting old clone statistics for {} clones'.format(
+            len(clones)))
         session.query(CloneStats).filter(
             CloneStats.clone_id.in_(clones)
         ).delete(synchronize_session=False)
         session.commit()
 
     tasks = concurrent.TaskQueue()
-    print 'Creating task queue to generate stats for {} clones.'.format(
-        len(clones)
-    )
+    logger.info('Creating task queue to generate stats for {} clones.'.format(
+        len(clones)))
     for cid in clones:
         tasks.add_task(cid)
 
