@@ -2,10 +2,22 @@ import multiprocessing as mp
 import traceback
 import Queue
 
+import logging
+from immunedb.util.log import logger
+
 
 class Worker(object):
-    def _print(self, msg):
-        print 'Worker {}: {}'.format(self._worker_id, msg)
+    def log(self, lvl, msg):
+        logger.log(lvl, 'Worker {}: {}'.format(self._worker_id, msg))
+
+    def info(self, msg):
+        self.log(logging.INFO, msg)
+
+    def error(self, msg):
+        self.log(logging.ERROR, msg)
+
+    def warning(self, msg):
+        self.log(logging.WARNING, msg)
 
     def do_task(self, args):
         raise NotImplementedError
@@ -60,10 +72,9 @@ class TaskQueue(object):
                     worker.do_task(args)
                     self._task_queue.task_done()
             except Exception:
-                worker._print(
-                    '[TASK ERROR] The task was not completed '
-                    'because:\n{}'.format(traceback.format_exc())
-                )
+                worker.error(
+                    'The task was not completed because:\n{}'.format(
+                        traceback.format_exc()))
                 self._task_queue.task_done()
         worker.cleanup()
 

@@ -8,6 +8,7 @@ import immunedb.common.config as config
 from immunedb.common.models import Clone, Sequence, SequenceCollapse
 import immunedb.common.modification_log as mod_log
 import immunedb.util.concurrent as concurrent
+from immunedb.util.log import logger
 
 
 class ClearcutWorker(concurrent.Worker):
@@ -25,7 +26,7 @@ class ClearcutWorker(concurrent.Worker):
         if clone_inst is None:
             return
 
-        self._print('Running clone {}'.format(clone_inst.id))
+        self.info('Running clone {}'.format(clone_inst.id))
 
         germline_seq = clone_inst.consensus_germline
 
@@ -34,7 +35,7 @@ class ClearcutWorker(concurrent.Worker):
         try:
             tree = self._get_tree(newick, germline_seq, remove_muts)
         except Exception as e:
-            self._print('Error running clone {}: {}'.format(clone_id, e))
+            self.error('Error running clone {}: {}'.format(clone_id, e))
             return
 
         tree.set_outgroup('germline')
@@ -324,7 +325,7 @@ def run_clearcut(session, args):
 
     tasks = concurrent.TaskQueue()
 
-    print 'Creating task queue for clones'
+    logger.info('Creating task queue for clones')
     for clone_id in clones:
         tasks.add_task(clone_id)
 

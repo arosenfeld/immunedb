@@ -8,6 +8,7 @@ from immunedb.identification.vdj_sequence import VDJSequence
 from immunedb.identification.j_genes import JGermlines
 from immunedb.identification.v_genes import VGermlines
 import immunedb.util.funcs as funcs
+from immunedb.util.log import logger
 
 
 DEFAULT_MAPPINGS = {
@@ -55,7 +56,7 @@ def read_file(session, handle, sample, v_germlines, j_germlines, columns,
     total = 0
     for total, seq in enumerate(seqs):
         if total > 0 and total % 1000 == 0:
-            print 'Finished {}'.format(total)
+            logger.info('Finished {}'.format(total))
             session.commit()
 
         orig_v_genes = set(
@@ -100,9 +101,9 @@ def read_file(session, handle, sample, v_germlines, j_germlines, columns,
         except AlignmentException as e:
             add_as_noresult(session, vdj, sample, str(e))
             missed += 1
-    print 'Aligned {} / {} sequences'.format(total - missed + 1, total)
+    logger.info('Aligned {} / {} sequences'.format(total - missed + 1, total))
 
-    print 'Collapsing ambiguous character sequences'
+    logger.info('Collapsing ambiguous character sequences')
     if len(aligned_seqs) > 0:
         avg_mut = sum(
             [v.mutation_fraction for v in aligned_seqs.values()]
@@ -130,14 +131,14 @@ def run_import(session, args, remaps=None):
     study, new = funcs.get_or_create(session, Study, name=args.study_name)
 
     if new:
-        print 'Created new study "{}"'.format(study.name)
+        logger.info('Created new study "{}"'.format(study.name))
         session.commit()
 
     sample, new = funcs.get_or_create(session, Sample, name=args.sample_name,
                                       study=study)
     if new:
         sample.date = args.date
-        print 'Created new sample "{}"'.format(sample.name)
+        logger.info('Created new sample "{}"'.format(sample.name))
         for key in ('subset', 'tissue', 'disease', 'lab', 'experimenter',
                     'ig_class', 'v_primer', 'j_primer'):
             setattr(sample, key, vars(args).get(key, None))
@@ -147,7 +148,7 @@ def run_import(session, args, remaps=None):
         sample.subject = subject
         session.commit()
     else:
-        print 'Sample already exists'
+        loger.error('Sample "{}" already exists'.format(args.sample_name))
         return
 
     with open(args.input_file) as fh:

@@ -23,6 +23,7 @@ import immunedb.api.queries as queries
 from immunedb.common.models import CloneStats
 from immunedb.exporting.writers import (CLIPWriter, FASTAWriter, FASTQWriter,
                                         CSVWriter)
+from immunedb.util.log import logger
 
 
 class EnableCors(object):
@@ -344,7 +345,7 @@ def export_mutations(session, from_type, encoding):
 @app.route('/shutdown', method=['POST'])
 def shutdown():
     if app.config['allow_shutdown']:
-        print 'Shutting down from remote request'
+        logger.warning('Shutting down from remote request')
         sys.exit()
     return create_response(code=404)
 
@@ -352,7 +353,7 @@ def shutdown():
 def run_rest_service(session_maker, args):
     if args.rollbar_token:
         if not ROLLBAR_SUPPORT:
-            print '[ERROR]: Rollbar is not installed'
+            logger.error('Rollbar is not installed')
             return
         rbr = RollbarBottleReporter(
             access_token=args.rollbar_token,

@@ -9,6 +9,7 @@ import string
 import subprocess
 
 import immunedb.common.config as config
+from immunedb.util.log import logger
 
 
 def _yn_prompt(prompt):
@@ -45,9 +46,9 @@ def _get_user_pass(conn, host, user, existing_password):
             db_pass = getpass.getpass()
             cursor.execute('SELECT PASSWORD(%s) as password', db_pass)
             if cursor.fetchone()['password'] != existing_password:
-                print 'Password does not match.'
+                logger.error('Password does not match.')
             else:
-                print 'Correct password'
+                logger.info('Correct password')
                 return db_pass
 
 
@@ -70,20 +71,21 @@ def create(main_parser, args):
                               string.digits) for _ in range(10))
 
         with conn.cursor() as cursor:
-            print 'Creating user "{}"'.format(db_user)
+            logger.info('Creating user "{}"'.format(db_user))
             existing_password = _create_user_if_not_exists(conn, '%', db_user,
                                                            db_pass)
             if existing_password is not None:
-                print ('Warning: User {} already exists.  To generate the '
-                       'configuration file, you must enter it\'s '
-                       'password.').format(db_user)
+                logger.warning(
+                    'User {} already exists.  To generate the configuration '
+                    'file, you must enter it\'s password.'.format(db_user)
+                )
                 if not args.admin_pass:
                     db_pass = _get_user_pass(conn, args.db_host, db_user,
                                              existing_password)
                 else:
                     return True
 
-            print 'Creating database "{}"'.format(args.db_name)
+            logger.info('Creating database "{}"'.format(args.db_name))
             cursor.execute('CREATE DATABASE {}'.format(args.db_name))
 
             cursor.execute(
@@ -92,7 +94,7 @@ def create(main_parser, args):
 
         config_path = os.path.join(args.config_dir, '{}.json'.format(
             args.db_name))
-        print 'Creating config at {}'.format(config_path)
+        logger.info('Creating config at {}'.format(config_path))
         with open(config_path, 'w+') as fh:
             json.dump({
                 'host': args.db_host,
@@ -101,12 +103,12 @@ def create(main_parser, args):
                 'password': db_pass
             }, fh, sort_keys=True, indent=4, separators=(',', ': '))
 
-        print 'Initializing tables'
+        logger.info('Initializing tables')
         config.init_db(config_path)
-        print 'Success!'
+        logger.info('Success!')
         return True
     except Exception as e:
-        print 'ERROR: {}'.format(e)
+        logger.error(e)
         return False
 
 
@@ -117,14 +119,14 @@ def delete(main_parser, args):
         conn = _get_root_connection(db_config['host'], args.admin_user,
                                     args.admin_pass)
         with conn.cursor() as cursor:
-            print 'Deleting database {}'.format(db_config['database'])
+            logger.info('Deleting database {}'.format(db_config['database']))
             cursor.execute('DROP DATABASE `{}`'.format(db_config['database']))
             if args.delete_user:
-                print 'Deleting user {}'.format(db_config['username'])
+                logger.info('Deleting user {}'.format(db_config['username']))
                 cursor.execute('DROP USER `{}`'.format(db_config['username']))
         return True
     except Exception as e:
-        print 'ERROR: {}'.format(e)
+        logger.error(e)
         return False
 
 
@@ -156,6 +158,5 @@ def restore(main_parser, args):
                                 stderr=subprocess.PIPE)
         stdout, stderr = proc.communicate()
         if stderr:
-            print 'Warning: {}'.format(stderr)
-
+            logger.warning(stderr)
     return True
