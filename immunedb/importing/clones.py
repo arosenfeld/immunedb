@@ -7,6 +7,7 @@ from immunedb.common.models import (Clone, CloneStats, SampleStats, Sequence,
 from immunedb.aggregation.clones import generate_consensus, push_clone_ids
 from immunedb.importing import ImportException
 
+
 def generate_template(session, out_file):
     with open(out_file, 'w+') as fh:
         writer = csv.DictWriter(fh, delimiter='\t', fieldnames=[

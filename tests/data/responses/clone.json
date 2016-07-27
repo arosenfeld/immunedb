@@ -10,7 +10,9 @@
         "insertions": [],
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": 2,
+        "overall_total_cnt_with_subclones": 2,
         "overall_unique_cnt": 1,
+        "overall_unique_cnt_with_subclones": 1,
         "regions": [
             78,
             36,
