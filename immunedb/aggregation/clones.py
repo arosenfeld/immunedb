@@ -225,10 +225,10 @@ class SubcloneWorker(concurrent.Worker):
             return
 
         # The clones with indels are the only ones which can be subclones
-        parent_clones = set([c for c in clones
-            if len(c.insertions) == 0 and len(c.deletions) == 0])
+        parent_clones = set([c for c in clones if len(c.insertions) == 0 and
+                             len(c.deletions) == 0])
         potential_subclones = [c for c in clones if c not in parent_clones and
-            c.parent_id is None]
+                               c.parent_id is None]
 
         for subclone in potential_subclones:
             for parent in parent_clones:

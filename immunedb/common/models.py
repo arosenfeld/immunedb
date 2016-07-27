@@ -255,7 +255,6 @@ class Clone(Base):
 
     overall_unique_cnt = Column(Integer, index=True)  # Denormalized
     overall_total_cnt = Column(Integer, index=True)  # Denormalized
-    overall_instance_cnt = Column(Integer, index=True)
 
     parent_id = Column(Integer, ForeignKey('clones.id'), index=True)
 
@@ -301,6 +300,16 @@ class Clone(Base):
             self.cdr3_nt,
             self.germline[cdr3_start + self.cdr3_num_nts:]
         ])
+
+    @property
+    def overall_unique_cnt_with_subclones(self):
+        return self.overall_unique_cnt + sum([
+            s.overall_unique_cnt for s in self.children])
+
+    @property
+    def overall_total_cnt_with_subclones(self):
+        return self.overall_total_cnt + sum([
+            s.overall_total_cnt for s in self.children])
 
 
 class CloneStats(Base):

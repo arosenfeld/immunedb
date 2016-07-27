@@ -9,7 +9,9 @@
         "insertions": [],
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": 2,
+        "overall_total_cnt_with_subclones": 2,
         "overall_unique_cnt": 1,
+        "overall_unique_cnt_with_subclones": 1,
         "regions": [
             78,
             36,
@@ -51,7 +53,9 @@
         "insertions": [],
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": 2,
+        "overall_total_cnt_with_subclones": 2,
         "overall_unique_cnt": 1,
+        "overall_unique_cnt_with_subclones": 1,
         "regions": [
             78,
             36,
@@ -93,7 +97,9 @@
         "insertions": [],
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": 3,
+        "overall_total_cnt_with_subclones": 3,
         "overall_unique_cnt": 1,
+        "overall_unique_cnt_with_subclones": 1,
         "regions": [
             78,
             36,
@@ -135,7 +141,9 @@
         "insertions": [],
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": 2,
+        "overall_total_cnt_with_subclones": 2,
         "overall_unique_cnt": 1,
+        "overall_unique_cnt_with_subclones": 1,
         "regions": [
             78,
             36,
@@ -177,7 +185,9 @@
         "insertions": [],
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": 11,
+        "overall_total_cnt_with_subclones": 11,
         "overall_unique_cnt": 1,
+        "overall_unique_cnt_with_subclones": 1,
         "regions": [
             78,
             36,
@@ -219,7 +229,9 @@
         "insertions": [],
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": 13,
+        "overall_total_cnt_with_subclones": 13,
         "overall_unique_cnt": 1,
+        "overall_unique_cnt_with_subclones": 1,
         "regions": [
             78,
             36,
@@ -269,7 +281,9 @@
         "insertions": [],
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": 4,
+        "overall_total_cnt_with_subclones": 4,
         "overall_unique_cnt": 1,
+        "overall_unique_cnt_with_subclones": 1,
         "regions": [
             78,
             36,
@@ -311,7 +325,9 @@
         "insertions": [],
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": 12,
+        "overall_total_cnt_with_subclones": 12,
         "overall_unique_cnt": 1,
+        "overall_unique_cnt_with_subclones": 1,
         "regions": [
             78,
             36,
@@ -353,7 +369,9 @@
         "insertions": [],
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": 7,
+        "overall_total_cnt_with_subclones": 7,
         "overall_unique_cnt": 1,
+        "overall_unique_cnt_with_subclones": 1,
         "regions": [
             78,
             36,
@@ -395,7 +413,9 @@
         "insertions": [],
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": 3,
+        "overall_total_cnt_with_subclones": 3,
         "overall_unique_cnt": 1,
+        "overall_unique_cnt_with_subclones": 1,
         "regions": [
             78,
             36,
