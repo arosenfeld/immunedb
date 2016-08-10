@@ -167,7 +167,7 @@ class SelectionPressureWorker(concurrent.Worker):
                     ).first() is not None:
                 return
 
-        self.log('Clone {}'.format(clone_id))
+        self.info('Clone {}'.format(clone_id))
         sample_ids = map(lambda c: c.sample_id, self._session.query(
                 CloneStats.sample_id
             ).filter(

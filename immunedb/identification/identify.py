@@ -118,6 +118,7 @@ class IdentificationWorker(concurrent.Worker):
 
     def _setup_sample(self, meta):
         self._sync_lock.acquire()
+        self._session.commit()
         study, new = funcs.get_or_create(
             self._session, Study, name=meta.get('study_name'))
 
@@ -139,8 +140,8 @@ class IdentificationWorker(concurrent.Worker):
                 self._session, Subject, study=study,
                 identifier=meta.get('subject'))
             sample.subject = subject
-            self._session.commit()
 
+        self._session.commit()
         self._sync_lock.release()
 
         return study, sample
@@ -211,7 +212,7 @@ def run_identify(session, args):
                          'use --warn-existing.')
             return
 
-    lock = mp.RLock()
+    lock = mp.Lock()
     for i in range(0, min(args.nproc, tasks.num_tasks())):
         worker_session = config.init_db(args.db_config)
         tasks.add_worker(IdentificationWorker(
