@@ -183,11 +183,13 @@ class LocalAlignmentWorker(concurrent.Worker):
             post_cdr3_seq
         )
 
+        v_prefix = v_align['germ_name'][:4]
+        j_prefix = j_align['germ_name'][:4]
         record.update({
             'v_gene': funcs.format_ties(
-                v_align['germ_name'].split('|'), 'IGHV', strip_alleles=True),
+                v_align['germ_name'].split('|'), v_prefix, strip_alleles=True),
             'j_gene': funcs.format_ties(
-                j_align['germ_name'].split('|'), 'IGHJ', strip_alleles=True),
+                j_align['germ_name'].split('|'), j_prefix, strip_alleles=True),
 
             'cdr3_num_nts': cdr3_end - cdr3_start,
             'cdr3_nt': final_seq[cdr3_start:cdr3_end],

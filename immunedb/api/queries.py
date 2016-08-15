@@ -428,13 +428,14 @@ def get_v_usage(session, samples, filter_type, include_outliers,
                 include_partials, grouping, by_family):
     """Gets the V-Gene usage percentages for samples"""
     if by_family:
-        def name_func(s):
-            return s.split('*')[0].split('-', 1)[0].replace('IGHV', '')
+        def name_func(s, prefix):
+            return s.split('*')[0].split('-', 1)[0].replace(prefix, '')
     else:
-        def name_func(s):
-            return s.split('*')[0].replace('IGHV', '')
+        def name_func(s, prefix):
+            return s.split('*')[0].replace(prefix, '')
     data = {}
     totals = {}
+    prefix = ''
     for s in session.query(SampleStats)\
             .filter(SampleStats.filter_type == filter_type,
                     SampleStats.outliers == include_outliers,
@@ -454,7 +455,9 @@ def get_v_usage(session, samples, filter_type, include_outliers,
 
         for v in dist:
             name, occ = v
-            name = '|'.join(sorted(set(map(name_func, name.split('|')))))
+            prefix = name[:4]
+            ties = set([name_func(n, prefix) for n in name.split('|')])
+            name = '|'.join(sorted(ties))
 
             if name not in data[group_key]:
                 data[group_key][name] = 0
@@ -469,7 +472,7 @@ def get_v_usage(session, samples, filter_type, include_outliers,
             if name not in headers and percent >= 1.0:
                 headers.append(name)
 
-    return data, sorted(headers), totals
+    return data, sorted(headers), totals, prefix
 
 
 def get_all_subjects(session, paging=None):

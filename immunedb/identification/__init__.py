@@ -41,8 +41,10 @@ def add_as_sequence(session, vdj, sample):
 
             probable_indel_or_misalign=vdj.has_possible_indel,
 
-            v_gene=funcs.format_ties(vdj.v_gene, 'IGHV', strip_alleles=True),
-            j_gene=funcs.format_ties(vdj.j_gene, 'IGHJ', strip_alleles=True),
+            v_gene=funcs.format_ties(vdj.v_gene, vdj.v_germlines.prefix,
+                                     strip_alleles=True),
+            j_gene=funcs.format_ties(vdj.j_gene, vdj.j_germlines.prefix,
+                                     strip_alleles=True),
 
             num_gaps=vdj.num_gaps,
             pad_length=vdj.pad_length,
@@ -112,8 +114,10 @@ def add_uniques(session, sample, vdjs, realign_len=None,
                     vdj.pad_length, max_padding
                 ))
             bucket_key = (
-                funcs.format_ties(vdj.v_gene, 'IGHV', strip_alleles=True),
-                funcs.format_ties(vdj.j_gene, 'IGHJ', strip_alleles=True),
+                funcs.format_ties(vdj.v_gene, vdj.v_germlines.prefix,
+                                  strip_alleles=True),
+                funcs.format_ties(vdj.j_gene, vdj.j_germlines.prefix,
+                                  strip_alleles=True),
                 len(vdj.cdr3)
             )
             if bucket_key not in bucketed_seqs:
