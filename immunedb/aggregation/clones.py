@@ -127,53 +127,7 @@ class ClonalWorker(concurrent.Worker):
 
         self._tasks = 0
 
-    def filter_query(self, query):
-        if self._min_identity > 0:
-            query = query.filter(
-                Sequence.v_match / Sequence.v_length >= self._min_identity
-            )
-        if not self._include_indels:
-            query = query.filter(Sequence.probable_indel_or_misalign == 0)
-        if self._exclude_partials:
-            query = query.filter(Sequence.partial == 0)
-        if self._max_padding is not None:
-            query = query.filter(Sequence.pad_length <= self._max_padding)
-        return query
-
-    def do_task(self, args):
-        if args['tcells']:
-            self.tcell_clones(args['param'])
-        else:
-            self.bcell_clones(args['param'])
-
-    def tcell_clones(self, subject_id):
-        consensus_needed = set([])
-        query = self._session.query(
-            Sequence.ai, Sequence.v_gene, Sequence.j_gene,
-            Sequence.cdr3_num_nts, Sequence._insertions, Sequence._deletions
-        ).join(SequenceCollapse).filter(
-            ~Sequence.cdr3_aa.like('%*%'),
-            Sequence.subject_id == subject_id,
-            SequenceCollapse.copy_number_in_subject >= self._min_copy,
-        )
-        query = self.filter_query(query)
-
-        for seq in query:
-            new_clone = Clone(subject_id=seq.subject_id,
-                              v_gene=seq.v_gene,
-                              j_gene=seq.j_gene,
-                              cdr3_num_nts=seq.cdr3_num_nts,
-                              _insertions=seq._insertions,
-                              _deletions=seq._deletions)
-            self._session.add(new_clone)
-            self._session.flush()
-            consensus_needed.add(new_clone.id)
-
-        generate_consensus(self._session, consensus_needed)
-
-    def bcell_clones(self, bucket):
-        clones = OrderedDict()
-        consensus_needed = set([])
+    def get_query(self, bucket, sort):
         query = self._session.query(
             Sequence.sample_id, Sequence.ai, Sequence.clone_id,
             Sequence.cdr3_aa, Sequence.subject_id, Sequence.v_gene,
@@ -190,10 +144,57 @@ class ClonalWorker(concurrent.Worker):
             ~Sequence.cdr3_aa.like('%*%'),
             SequenceCollapse.copy_number_in_subject >= self._min_copy,
         )
-        query = self.filter_query(query).order_by(
-            desc(SequenceCollapse.copy_number_in_subject),
-            Sequence.ai
-        )
+        if sort:
+            query = query.order_by(
+                desc(SequenceCollapse.copy_number_in_subject),
+                Sequence.ai
+            )
+        if self._min_identity > 0:
+            query = query.filter(
+                Sequence.v_match / Sequence.v_length >= self._min_identity
+            )
+        if not self._include_indels:
+            query = query.filter(Sequence.probable_indel_or_misalign == 0)
+        if self._exclude_partials:
+            query = query.filter(Sequence.partial == 0)
+        if self._max_padding is not None:
+            query = query.filter(Sequence.pad_length <= self._max_padding)
+        return query
+
+    def do_task(self, args):
+        if args['tcells']:
+            self.tcell_clones(args['bucket'])
+        else:
+            self.bcell_clones(args['bucket'])
+
+    def tcell_clones(self, bucket):
+        updates = []
+        consensus_needed = set([])
+
+        for seq in self.get_query(bucket, False):
+            new_clone = Clone(subject_id=seq.subject_id,
+                              v_gene=seq.v_gene,
+                              j_gene=seq.j_gene,
+                              cdr3_num_nts=seq.cdr3_num_nts,
+                              _insertions=seq._insertions,
+                              _deletions=seq._deletions)
+            self._session.add(new_clone)
+            self._session.flush()
+            consensus_needed.add(new_clone.id)
+            updates.append({
+                'sample_id': seq.sample_id,
+                'ai': seq.ai,
+                'clone_id': new_clone.id
+            })
+
+        if len(updates) > 0:
+            self._session.bulk_update_mappings(Sequence, updates)
+        generate_consensus(self._session, consensus_needed)
+
+    def bcell_clones(self, bucket):
+        clones = OrderedDict()
+        consensus_needed = set([])
+        query = self.get_query(bucket, True)
 
         if query.count() > 0:
             for seq in query:
@@ -323,29 +324,23 @@ def run_clones(session, args):
     for subject_id in subject_ids:
         logger.info('Generating task queue for subject {}'.format(
             subject_id))
-        if args.tcells:
+        buckets = session.query(
+            Sequence.subject_id, Sequence.v_gene, Sequence.j_gene,
+            Sequence.cdr3_num_nts, Sequence._insertions,
+            Sequence._deletions
+        ).filter(
+            Sequence.subject_id == subject_id,
+            Sequence.clone_id.is_(None)
+        ).group_by(
+            Sequence.subject_id, Sequence.v_gene, Sequence.j_gene,
+            Sequence.cdr3_num_nts, Sequence._insertions,
+            Sequence._deletions
+        )
+        for bucket in buckets:
             tasks.add_task({
-                'tcells': True,
-                'param': subject_id
-            })
-        else:
-            buckets = session.query(
-                Sequence.subject_id, Sequence.v_gene, Sequence.j_gene,
-                Sequence.cdr3_num_nts, Sequence._insertions,
-                Sequence._deletions
-            ).filter(
-                Sequence.subject_id == subject_id,
-                Sequence.clone_id.is_(None)
-            ).group_by(
-                Sequence.subject_id, Sequence.v_gene, Sequence.j_gene,
-                Sequence.cdr3_num_nts, Sequence._insertions,
-                Sequence._deletions
-            )
-            for bucket in buckets:
-                tasks.add_task({
-                'tcells': False,
-                'param': bucket
-            })
+            'tcells': args.tcells,
+            'bucket': bucket
+        })
 
     logger.info('Generated {} total tasks'.format(tasks.num_tasks()))
 
