@@ -12,4 +12,4 @@ Installation and usage instructions can be found at [immunedb.com](http://immune
 # Citing
 If you use ImmuneDB, please cite the tool as:
 
-Aaron M. Rosenfeld, Wenzhao Meng, Eline T. Luning Prak, Uri Hershberg, *ImmuneDB: A system for the analysis and exploration of high-throughput adaptive immune receptor sequencing data*, Bioinformatics **(Under review)**
+*ImmuneDB: A system for the analysis and exploration of high-throughput adaptive immune receptor sequencing data* Aaron M. Rosenfeld; Wenzhao Meng; Eline T. Luning Prak; Uri Hershberg Bioinformatics 2016; doi: 10.1093/bioinformatics/btw593
