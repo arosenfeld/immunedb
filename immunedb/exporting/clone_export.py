@@ -41,6 +41,7 @@ class CloneExport(Exporter):
         'experimenter': _if_sample(lambda s: s.sample.experimenter),
         'date': _if_sample(lambda s: s.sample.date),
         'tree': lambda s: s.clone.tree,
+        'parent_id': lambda s: s.clone.parent_id
     })
 
     def __init__(self, session, rtype, rids, selected_fields):

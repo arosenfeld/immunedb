@@ -7,6 +7,8 @@ from immunedb.common.models import (Clone, Sample, Sequence, SequenceCollapse,
 import immunedb.common.modification_log as mod_log
 import immunedb.util.concurrent as concurrent
 
+from immunedb.util.log import logger
+
 
 class CollapseWorker(concurrent.Worker):
     """A worker for collapsing sequences without including positions where
@@ -46,7 +48,9 @@ class CollapseWorker(concurrent.Worker):
             for i in reversed(range(0, len(to_process))):
                 smaller = to_process[i]
                 if len(larger['sequence']) != len(smaller['sequence']):
-                    print larger['ai'], smaller['ai']
+                    self.warning('Tried to collapse sequences of different '
+                                 'lengths.  AIs are {} {}'.format(
+                                     larger['ai'], smaller['ai']))
                 elif dnautils.equal(larger['sequence'], smaller['sequence']):
                     # Add the smaller sequence's copy number to the larger
                     larger['cn'] += smaller['cn']
@@ -80,10 +84,10 @@ class CollapseWorker(concurrent.Worker):
         self._session.commit()
         self._tasks += 1
         if self._tasks > 0 and self._tasks % 100 == 0:
-            self._print('Collapsed {} buckets'.format(self._tasks))
+            self.info('Collapsed {} buckets'.format(self._tasks))
 
     def cleanup(self):
-        self._print('Committing collapsed sequences')
+        self.info('Committing collapsed sequences')
         self._session.commit()
         self._session.close()
 
@@ -101,9 +105,11 @@ def run_collapse(session, args):
                 ~exists().where(
                     SequenceCollapse.sample_id == Sample.id
                 )).first() is None:
-            print 'Subject {} already collapsed.  Skipping.'.format(subject)
+            logger.info('Subject {} already collapsed.  Skipping.'.format(
+                subject))
         else:
-            print 'Resetting collapse info for subject {}'.format(subject)
+            logger.info('Resetting collapse info for subject {}'.format(
+                subject))
             samples = session.query(Sample).filter(
                   Sample.subject_id == subject
             ).all()
@@ -111,13 +117,13 @@ def run_collapse(session, args):
                 session.query(SequenceCollapse).filter(
                     SequenceCollapse.sample_id == sample.id
                 ).delete(synchronize_session=False)
-            print 'Resetting clone info for subject {}'.format(subject)
+            logger.info('Resetting clone info for subject {}'.format(subject))
             session.query(Clone).filter(Clone.subject_id == subject).delete()
             subject_ids.append(subject)
     session.commit()
 
-    print 'Creating task queue to collapse {} subjects.'.format(
-        len(subject_ids))
+    logger.info('Creating task queue to collapse {} subjects.'.format(
+        len(subject_ids)))
 
     tasks = concurrent.TaskQueue()
 

@@ -12,6 +12,7 @@ from immunedb.common.models import (Clone, CloneStats, Sequence,
                                     SequenceCollapse)
 import immunedb.common.modification_log as mod_log
 import immunedb.util.concurrent as concurrent
+from immunedb.util.log import logger
 
 TEST_FOCUSED = 1
 TEST_LOCAL = 2
@@ -166,7 +167,7 @@ class SelectionPressureWorker(concurrent.Worker):
                     ).first() is not None:
                 return
 
-        self._print('Clone {}'.format(clone_id))
+        self.info('Clone {}'.format(clone_id))
         sample_ids = map(lambda c: c.sample_id, self._session.query(
                 CloneStats.sample_id
             ).filter(
@@ -261,8 +262,8 @@ def run_selection_pressure(session, args):
     clones.sort()
 
     tasks = concurrent.TaskQueue()
-    print ('Creating task queue to calculate selection pressure for {} '
-           'clones.').format(len(clones))
+    logger.info('Creating task queue to calculate selection pressure for {} '
+                'clones.'.format(len(clones)))
     for cid in clones:
         tasks.add_task(cid)
 

@@ -4,6 +4,13 @@ from immunedb.identification import GeneTies
 
 
 class JGermlines(GeneTies):
+    ALLOWED_PREFIX = set([
+        'IGHJ',
+        'TRAJ',
+        'TRBJ',
+        'TRDJ',
+        'TRGJ'
+    ])
     def __init__(self, path_to_germlines, upstream_of_cdr3, anchor_len,
                  min_anchor_len, ties_prob_threshold=.01):
         self._upstream_of_cdr3 = upstream_of_cdr3
@@ -13,7 +20,8 @@ class JGermlines(GeneTies):
 
         with open(path_to_germlines) as fh:
             for record in SeqIO.parse(fh, 'fasta'):
-                assert record.id.startswith('IGHJ')
+                self.prefix = record.id[:4]
+                assert self.prefix in JGermlines.ALLOWED_PREFIX
                 if all(map(lambda c: c in 'ATCGN-', record.seq)):
                     self[record.id] = str(record.seq).upper()
                     if (self._min_length is None or

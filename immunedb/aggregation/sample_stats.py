@@ -10,6 +10,7 @@ from immunedb.common.models import (Clone, NoResult, Sample, SampleStats,
                                     Sequence)
 import immunedb.util.concurrent as concurrent
 import immunedb.util.lookups as lookups
+from immunedb.util.log import logger
 
 
 _dist_fields = [
@@ -151,11 +152,11 @@ class SampleStatsWorker(concurrent.Worker):
             func = self._calculate_seq_stats
         elif args['func'] == 'clone':
             func = self._calculate_clone_stats
-        self._print(('Processing {} for sample {}, include_outliers {}, '
-                    'only_full_reads {}').format(
-                    'sequences' if args['func'] == 'seq' else 'clones',
-                    args['sample_id'], args['include_outliers'],
-                    args['only_full_reads']))
+        self.info(('Processing {} for sample {}, include_outliers {}, '
+                   'only_full_reads {}').format(
+                   'sequences' if args['func'] == 'seq' else 'clones',
+                   args['sample_id'], args['include_outliers'],
+                   args['only_full_reads']))
         func(args['sample_id'], args['min_cdr3'], args['max_cdr3'],
              args['include_outliers'], args['only_full_reads'])
         self._session.commit()
@@ -298,23 +299,24 @@ def _get_cdr3_bounds(session, sample_id):
 
 
 def _queue_tasks(session, sample_id, force, tasks):
-    print 'Creating task queue to generate stats for sample {}.'.format(
-        sample_id)
+    logger.info('Creating task queue to generate stats for sample {}.'.format(
+        sample_id))
     existing_seq = session.query(Sequence).filter(
         Sequence.sample_id == sample_id)
     existing_nores = session.query(NoResult).filter(
         NoResult.sample_id == sample_id)
     if existing_seq.first() is None and existing_nores.first() is None:
-        print '\tSKIPPING since there are no sequences in this DB version'
+        logger.warning('\tSKIPPING since there are no sequences in the '
+                       'sample')
         return
 
     existing = session.query(SampleStats.sample_id).filter(
         SampleStats.sample_id == sample_id).first() is not None
     if force and existing:
-        print '\tFORCING regeneration of stats'
+        logger.warning('\tFORCING regeneration of stats')
     elif not force and existing:
-        print ('\tSKIPPING stats since they already exists.'
-               '  Use the --force flag to force regeneration.')
+        logger.warning('\tSKIPPING stats since they already exists and the '
+                       '--force flag was not specified.')
         return
 
     min_cdr3, max_cdr3 = _get_cdr3_bounds(session, sample_id)

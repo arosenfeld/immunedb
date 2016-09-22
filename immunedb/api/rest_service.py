@@ -10,6 +10,12 @@ from sqlalchemy.orm import scoped_session
 import bottle
 from bottle import response, request
 
+try:
+    from rollbar.contrib.bottle import RollbarBottleReporter
+    ROLLBAR_SUPPORT = True
+except ImportError:
+    ROLLBAR_SUPPORT = False
+
 from immunedb.exporting.clone_export import CloneExport
 from immunedb.exporting.sequence_export import SequenceExport
 from immunedb.exporting.mutation_export import MutationExporter
@@ -17,6 +23,7 @@ import immunedb.api.queries as queries
 from immunedb.common.models import CloneStats
 from immunedb.exporting.writers import (CLIPWriter, FASTAWriter, FASTQWriter,
                                         CSVWriter)
+from immunedb.util.log import logger
 
 
 class EnableCors(object):
@@ -201,7 +208,7 @@ def overlap(session, sample_encoding):
 @with_session
 def v_usage(session, sample_encoding):
     fields = bottle.request.json or {}
-    data, x_categories, totals = queries.get_v_usage(
+    data, x_categories, totals, prefix = queries.get_v_usage(
         session,
         decode_run_length(sample_encoding),
         fields.get('filter_type', 'unique_multiple'),
@@ -227,7 +234,7 @@ def v_usage(session, sample_encoding):
                 array.append([i, j, 0])
 
     return create_response({
-        'x_categories': map(lambda e: 'IGHV{}'.format(e), x_categories),
+        'x_categories': ['{}{}'.format(prefix, e) for e in x_categories],
         'y_categories': y_categories,
         'totals': totals,
         'data': array,
@@ -338,12 +345,21 @@ def export_mutations(session, from_type, encoding):
 @app.route('/shutdown', method=['POST'])
 def shutdown():
     if app.config['allow_shutdown']:
-        print 'Shutting down from remote request'
+        logger.warning('Shutting down from remote request')
         sys.exit()
     return create_response(code=404)
 
 
 def run_rest_service(session_maker, args):
+    if args.rollbar_token:
+        if not ROLLBAR_SUPPORT:
+            logger.error('Rollbar is not installed')
+            return
+        rbr = RollbarBottleReporter(
+            access_token=args.rollbar_token,
+            environment=args.rollbar_env)
+        bottle.install(rbr)
+
     app.config['session_maker'] = session_maker
     app.config['allow_shutdown'] = args.allow_shutdown
     if args.debug:

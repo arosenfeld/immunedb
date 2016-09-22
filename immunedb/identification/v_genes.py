@@ -101,6 +101,13 @@ class VGene(object):
 
 
 class VGermlines(GeneTies):
+    ALLOWED_PREFIX = set([
+        'IGHV',
+        'TRAV',
+        'TRBV',
+        'TRDV',
+        'TRGV',
+    ])
     def __init__(self, path_to_germlines, ties_prob_threshold=.01,
                  include_prepadded=False):
         self._min_length = None
@@ -110,7 +117,8 @@ class VGermlines(GeneTies):
             for record in SeqIO.parse(fh, 'fasta'):
                 if record.seq.startswith('-') and not include_prepadded:
                     continue
-                assert record.id.startswith('IGHV')
+                self.prefix = record.id[:4]
+                assert self.prefix in VGermlines.ALLOWED_PREFIX
                 try:
                     v = VGene(str(record.seq))
                     self.alignments[record.id] = v

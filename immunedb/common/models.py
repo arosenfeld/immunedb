@@ -217,12 +217,12 @@ class Clone(Base):
     :param str cdr3_nt: The consensus nucleotides for the clone
     :param int cdr3_num_nts: The number of nucleotides in the group's CDR3
     :param str cdr3_aa: The amino-acid sequence of the group's CDR3
-    :param int subject_id: The ID of the subject from which the sample was \
-        taken
+    :param int subject_id: The ID of the subject to which the clone belongs
     :param Relationship subject: Reference to the associated \
         :py:class:`Subject` instance
-    :param str germline: The germline sequence for this sequence
+    :param str germline: The germline sequence for this clone
     :param str tree: The textual representation of the clone's lineage tree
+    :param int parent_id: The (possibly null) ID of the clone's parent
 
     """
     __tablename__ = 'clones'
@@ -255,10 +255,11 @@ class Clone(Base):
 
     overall_unique_cnt = Column(Integer, index=True)  # Denormalized
     overall_total_cnt = Column(Integer, index=True)  # Denormalized
-    overall_instance_cnt = Column(Integer, index=True)
 
     parent_id = Column(Integer, ForeignKey('clones.id'), index=True)
-    parent = relationship('Clone')
+
+    children = relationship('Clone')
+    parent = relationship('Clone', remote_side=[id], back_populates='children')
 
     @hybrid_property
     def insertions(self):
@@ -299,6 +300,16 @@ class Clone(Base):
             self.cdr3_nt,
             self.germline[cdr3_start + self.cdr3_num_nts:]
         ])
+
+    @property
+    def overall_unique_cnt_with_subclones(self):
+        return self.overall_unique_cnt + sum([
+            s.overall_unique_cnt for s in self.children])
+
+    @property
+    def overall_total_cnt_with_subclones(self):
+        return self.overall_total_cnt + sum([
+            s.overall_total_cnt for s in self.children])
 
 
 class CloneStats(Base):
@@ -446,6 +457,7 @@ class Sequence(Base):
     ai = Column(Integer, autoincrement=True, unique=True)
 
     subject_id = Column(Integer, ForeignKey(Subject.id), index=True)
+    subject = relationship(Subject)
 
     seq_id = Column(String(64), index=True)
     sample = relationship(Sample, backref=backref('sequences'))

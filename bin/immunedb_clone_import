@@ -1,0 +1,21 @@
+#!/usr/bin/env python2
+import immunedb.common.config as config
+from immunedb.importing.clones import generate_template, import_template
+
+
+if __name__ == '__main__':
+    parser = config.get_base_arg_parser('Allows for importing of clone'
+                                        ' associations', multiproc=False)
+    parser.add_argument('file')
+    parser.add_argument('--action', choices=['import', 'export'],
+                        required=True)
+    parser.add_argument('--regen', action='store_true', help='If all '
+                        'existing clones should be deleted.  Will also '
+                        'delete all clone stats and sample stats')
+    args = parser.parse_args()
+    session = config.init_db(args.db_config)
+
+    if args.action == 'import':
+        import_template(session, args.file, regen=args.regen)
+    else:
+        generate_template(session, args.file)

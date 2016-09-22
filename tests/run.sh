@@ -33,3 +33,4 @@ REST_PID=$!
 sleep 2
 coverage run --source=immunedb -p -m nose -s tests/tests_api.py
 coverage run --source=immunedb -p -m nose -s tests/tests_export.py
+coverage run --source=immunedb -p -m nose -s tests/tests_clone_import.py

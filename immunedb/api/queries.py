@@ -49,7 +49,10 @@ def _sample_to_dict(sample):
 
 def _clone_to_dict(clone):
     d = _fields_to_dict(['id', 'cdr3_nt', 'v_gene', 'j_gene', 'cdr3_aa',
-                         'cdr3_num_nts', 'regions'], clone)
+                         'cdr3_num_nts', 'regions', 'insertions', 'deletions',
+                         'overall_unique_cnt', 'overall_total_cnt',
+                         'overall_unique_cnt_with_subclones',
+                         'overall_total_cnt_with_subclones'], clone)
     d['subject'] = _subject_to_dict(clone.subject)
     d['germline'] = clone.consensus_germline
 
@@ -118,6 +121,8 @@ def get_clones(session, filters, order_field, order_dir, subject_limit=None,
                     clone_q = clone_q.filter(Clone.cdr3_num_nts >= int(value))
                 elif key == 'max_cdr3_num_nts':
                     clone_q = clone_q.filter(Clone.cdr3_num_nts <= int(value))
+                elif key == 'cdr3_aa':
+                    clone_q = clone_q.filter(Clone.cdr3_aa.like(value))
                 elif key == 'min_unique':
                     clone_q = clone_q.filter(
                         Clone.overall_unique_cnt >= int(value))
@@ -179,6 +184,8 @@ def get_clone(session, clone_id):
 
     result = {
         'clone': _clone_to_dict(clone),
+        'parent': _clone_to_dict(clone.parent) if clone.parent else None,
+        'children': [_clone_to_dict(c) for c in clone.children],
         'samples': {
             'single': []
         }
@@ -421,13 +428,14 @@ def get_v_usage(session, samples, filter_type, include_outliers,
                 include_partials, grouping, by_family):
     """Gets the V-Gene usage percentages for samples"""
     if by_family:
-        def name_func(s):
-            return s.split('*')[0].split('-', 1)[0].replace('IGHV', '')
+        def name_func(s, prefix):
+            return s.split('*')[0].split('-', 1)[0].replace(prefix, '')
     else:
-        def name_func(s):
-            return s.split('*')[0].replace('IGHV', '')
+        def name_func(s, prefix):
+            return s.split('*')[0].replace(prefix, '')
     data = {}
     totals = {}
+    prefix = ''
     for s in session.query(SampleStats)\
             .filter(SampleStats.filter_type == filter_type,
                     SampleStats.outliers == include_outliers,
@@ -447,7 +455,9 @@ def get_v_usage(session, samples, filter_type, include_outliers,
 
         for v in dist:
             name, occ = v
-            name = '|'.join(sorted(set(map(name_func, name.split('|')))))
+            prefix = name[:4]
+            ties = set([name_func(n, prefix) for n in name.split('|')])
+            name = '|'.join(sorted(ties))
 
             if name not in data[group_key]:
                 data[group_key][name] = 0
@@ -462,7 +472,7 @@ def get_v_usage(session, samples, filter_type, include_outliers,
             if name not in headers and percent >= 1.0:
                 headers.append(name)
 
-    return data, sorted(headers), totals
+    return data, sorted(headers), totals, prefix
 
 
 def get_all_subjects(session, paging=None):

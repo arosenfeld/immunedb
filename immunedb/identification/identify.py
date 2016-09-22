@@ -17,6 +17,7 @@ from immunedb.identification.v_genes import VGermlines
 from immunedb.identification.j_genes import JGermlines
 import immunedb.util.concurrent as concurrent
 import immunedb.util.funcs as funcs
+from immunedb.util.log import logger
 
 
 class SampleMetadata(object):
@@ -48,7 +49,7 @@ class IdentificationWorker(concurrent.Worker):
 
     def do_task(self, args):
         meta = args['meta']
-        self._print('Starting sample {}'.format(meta.get('sample_name')))
+        self.info('Starting sample {}'.format(meta.get('sample_name')))
         study, sample = self._setup_sample(meta)
 
         vdjs = {}
@@ -56,7 +57,7 @@ class IdentificationWorker(concurrent.Worker):
                              args['fn'].endswith('.fasta') else 'fastq')
 
         # Collapse identical sequences
-        self._print('\tCollapsing identical sequences')
+        self.info('\tCollapsing identical sequences')
         for record in parser:
             seq = str(record.seq)
             if seq not in vdjs:
@@ -71,7 +72,7 @@ class IdentificationWorker(concurrent.Worker):
                 )
             vdjs[seq].ids.append(record.description)
 
-        self._print('\tAligning {} unique sequences'.format(len(vdjs)))
+        self.info('\tAligning {} unique sequences'.format(len(vdjs)))
         # Attempt to align all unique sequences
         for sequence in funcs.periodic_commit(self._session, vdjs.keys()):
             vdj = vdjs[sequence]
@@ -88,9 +89,9 @@ class IdentificationWorker(concurrent.Worker):
             except AlignmentException as e:
                 add_as_noresult(self._session, vdj, sample, str(e))
             except:
-                self._print('\tUnexpected error processing sequence '
-                            '{}\n\t{}'.format(vdj.ids[0],
-                                              traceback.format_exc()))
+                self.error(
+                    '\tUnexpected error processing sequence {}\n\t{}'.format(
+                        vdj.ids[0], traceback.format_exc()))
         if len(vdjs) > 0:
             avg_len = sum(
                 map(lambda vdj: vdj.v_length, vdjs.values())
@@ -101,27 +102,28 @@ class IdentificationWorker(concurrent.Worker):
             sample.v_ties_mutations = avg_mut
             sample.v_ties_len = avg_len
 
-            self._print('\tRe-aligning {} sequences to V-ties, Mutations={}, '
-                        'Length={}'.format(
+            self.info('\tRe-aligning {} sequences to V-ties, Mutations={}, '
+                      'Length={}'.format(
                             len(vdjs), round(avg_mut, 2), round(avg_len, 2)))
             add_uniques(self._session, sample, vdjs.values(), avg_len, avg_mut,
                         self._min_similarity, self._max_vties, self._trim_to,
                         self._max_padding)
 
         self._session.commit()
-        self._print('Completed sample {}'.format(sample.name))
+        self.info('Completed sample {}'.format(sample.name))
 
     def cleanup(self):
-        self._print('Identification worker terminating')
+        self.info('Identification worker terminating')
         self._session.close()
 
     def _setup_sample(self, meta):
         self._sync_lock.acquire()
+        self._session.commit()
         study, new = funcs.get_or_create(
             self._session, Study, name=meta.get('study_name'))
 
         if new:
-            self._print('\tCreated new study "{}"'.format(study.name))
+            self.info('\tCreated new study "{}"'.format(study.name))
             self._session.commit()
 
         name = meta.get('sample_name')
@@ -129,7 +131,7 @@ class IdentificationWorker(concurrent.Worker):
             self._session, Sample, name=name, study=study)
         if new:
             sample.date = meta.get('date')
-            self._print('\tCreated new sample "{}"'.format(
+            self.info('\tCreated new sample "{}"'.format(
                 sample.name))
             for key in ('subset', 'tissue', 'disease', 'lab', 'experimenter',
                         'ig_class', 'v_primer', 'j_primer'):
@@ -138,8 +140,8 @@ class IdentificationWorker(concurrent.Worker):
                 self._session, Subject, study=study,
                 identifier=meta.get('subject'))
             sample.subject = subject
-            self._session.commit()
 
+        self._session.commit()
         self._sync_lock.release()
 
         return study, sample
@@ -167,7 +169,7 @@ def run_identify(session, args):
 
         # Verify the metadata file exists
         if not os.path.isfile(meta_fn):
-            print 'Metadata file not found.'
+            logger.error('Metadata file not found.')
             return
 
         with open(meta_fn) as fh:
@@ -185,14 +187,16 @@ def run_identify(session, args):
                     exists().where(
                         Sequence.sample_id == Sample.id
                     )).first() is not None:
-                print 'Sample {} already exists. {}'.format(
+                log_f = logger.warning if args.warn_existing else logger.error
+                log_f('Sample {} already exists. {}'.format(
                     meta.get('sample_name'), 'Skipping.' if
                     args.warn_existing else 'Cannot continue.'
-                )
+                ))
                 fail = True
             elif meta.get('sample_name') in sample_names:
-                print ('Sample {} exists more than once in metadata. Cannot '
-                       'continue.').format(meta.get('sample_name'))
+                logger.error(
+                    'Sample {} exists more than once in metadata.'.format(
+                        meta.get('sample_name')))
                 return
             else:
                 tasks.add_task({
@@ -203,12 +207,12 @@ def run_identify(session, args):
                 sample_names.add(meta.get('sample_name'))
 
         if fail and not args.warn_existing:
-            print ('Encountered errors.  Not running any identification.  To '
-                   'skip samples that are already in the database use '
-                   '--warn-existing.')
+            logger.error('Encountered errors.  Not running any identification.'
+                         ' To skip samples that are already in the database '
+                         'use --warn-existing.')
             return
 
-    lock = mp.RLock()
+    lock = mp.Lock()
     for i in range(0, min(args.nproc, tasks.num_tasks())):
         worker_session = config.init_db(args.db_config)
         tasks.add_worker(IdentificationWorker(

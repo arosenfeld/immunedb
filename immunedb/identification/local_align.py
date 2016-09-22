@@ -11,9 +11,10 @@ from immunedb.identification.j_genes import JGermlines
 from immunedb.identification.v_genes import VGermlines
 from immunedb.common.models import (CDR3_OFFSET, DuplicateSequence, NoResult,
                                     Sample, Sequence)
-import immunedb.util.funcs as funcs
-import immunedb.util.lookups as lookups
 import immunedb.util.concurrent as concurrent
+import immunedb.util.funcs as funcs
+from immunedb.util.log import logger
+import immunedb.util.lookups as lookups
 
 GAP_PLACEHOLDER = '^'
 
@@ -182,11 +183,13 @@ class LocalAlignmentWorker(concurrent.Worker):
             post_cdr3_seq
         )
 
+        v_prefix = v_align['germ_name'][:4]
+        j_prefix = j_align['germ_name'][:4]
         record.update({
             'v_gene': funcs.format_ties(
-                v_align['germ_name'].split('|'), 'IGHV', strip_alleles=True),
+                v_align['germ_name'].split('|'), v_prefix, strip_alleles=True),
             'j_gene': funcs.format_ties(
-                j_align['germ_name'].split('|'), 'IGHJ', strip_alleles=True),
+                j_align['germ_name'].split('|'), j_prefix, strip_alleles=True),
 
             'cdr3_num_nts': cdr3_end - cdr3_start,
             'cdr3_nt': final_seq[cdr3_start:cdr3_end],
@@ -370,9 +373,9 @@ def run_fix_sequences(session, args):
         noresults = session.query(NoResult).filter(
             NoResult.sample_id == sample_id
         )
-        print ('Creating task queue for sample {}; '
-               '{} indels, {} noresults').format(sample_id, indels.count(),
-                                                 noresults.count())
+        logger.info('Creating task queue for sample {}; '
+                    '{} indels, {} noresults'.format(
+                        sample_id, indels.count(), noresults.count()))
 
         # Get information for the V-ties
         avg_mut, avg_len = session.query(
