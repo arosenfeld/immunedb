@@ -276,12 +276,13 @@ class SubcloneWorker(concurrent.Worker):
 
         if len(clones) == 0:
             return
-
         # The clones with indels are the only ones which can be subclones
         parent_clones = set([c for c in clones if len(c.insertions) == 0 and
                              len(c.deletions) == 0])
         potential_subclones = [c for c in clones if c not in parent_clones and
                                c.parent_id is None]
+        self.info('Bucket {} has {} clones; parents={}, subs={}'.format(
+            bucket, len(clones), len(parent_clones), len(potential_subclones)))
 
         for subclone in potential_subclones:
             for parent in parent_clones:
@@ -289,6 +290,7 @@ class SubcloneWorker(concurrent.Worker):
                                     self._min_similarity):
                     subclone.parent = parent
                     break
+        self._session.commit()
 
     def cleanup(self):
         self._session.commit()
