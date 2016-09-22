@@ -247,8 +247,14 @@ If you ran local-alignment on sequences, ImmuneDB will also associate clones wit
 insertions or deletions with a probable "parent" clone.  The parent clone will
 have the same V-gene, J-gene, and CDR3 length.  Further, the CDR3 amino acid
 sequences of the subclone will differ by no more than ``--min-similarity``
-(default 85%).  This process can be skipped with ``--skip-subclones``.
+(default 85%).  This process can be enabled with ``--subclones``.
 
+.. code-block:: bash
+
+    $ immunedb_clones /path/to/config.json --subclones
+
+T-cell Assignment
+^^^^^^^^^^^^^^^^^
 .. warning::
 
     T-cell analysis in ImmuneDB is still considered to be in beta.  If you
@@ -259,6 +265,27 @@ If your data is for T-cells, pass the ``--tcells`` flag.
 .. code-block:: bash
 
     $ immunedb_clones /path/to/config.json --tcells
+
+Importing Custom Assignments
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+If you prefer to import your own clonal assignment, ImmuneDB allows you to
+export sequences to a file which you can annotate with clone IDs.
+
+.. code-block:: bash
+
+    $ immunedb_clone_import /path/to/config.json --action export sequences.tsv
+
+This will generate a TSV file with all the unique sequences.  The last column,
+``clone_id`` will be blank for all rows in the file.  To associate sequences
+together as belonging to a clone, fill in the same value for each of their
+``clone_id`` fields.  The value itself can be any string or integer, and only
+serves as a unique identifier for each clone.
+
+The sequences you assign to a given clone must belong to the same subject and
+have the same V-gene, J-gene, and number of nucleotides in the CDR3.  Further,
+changing any other values in the TSV file may lead to unpredictable results;
+they are provided to give adequate information to external clonal assignment
+programs.
 
 .. _stats_generation:
 
@@ -324,3 +351,17 @@ To run on port 3000 for example:
 .. code-block:: bash
 
     $ immunedb_rest /path/to/config.json -p 3000
+
+Optional Rollbar Support
+^^^^^^^^^^^^^^^^^^^^^^^^
+The server also has optional `Rollbar <https://rollbar.com/>`_ support, allowing
+the database maintainer to monitor for errors.  Before using Rollbar you must
+install its package with ``pip install rollbar`` and get a Rollbar token from
+their website.  Then, you can use it with:
+
+.. code-block:: bash
+
+    $ immunedb_rest /path/to/config.json --rollbar-token YOUR_TOKEN
+
+There is also the optional ``--rollbar-env NAME`` parameter which allows you to
+specify the environment name for Rollbar (defaults to ``develop``).

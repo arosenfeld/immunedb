@@ -1,4 +1,14 @@
 # CHANGELOG
+## v0.19.0
+* ImmuneDB can now process T-cell sequences.
+* Clonal assignment now includes an optional "subclone" process for
+  locally-aligned sequences.  Subclones are clones which share features of their
+  parent, but contain insertions or deletions.  See the documentation for more
+  information.
+* External clonal assignments can now be imported with `immunedb_clone_import`.
+* Optional rollbar support has been added to `immunedb_rest` to track errors.
+* Logging has been overhauled and is more consistent with best-practices.
+
 ## v0.18.0
 * The package has been renamed from AIRRDB to ImmuneDB.
 * Tests now check for the presence of a local-alignment binary.

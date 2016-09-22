@@ -371,7 +371,7 @@ def run_clones(session, args):
             args.min_copy, args.max_padding))
     tasks.start()
 
-    if not args.skip_subclones:
+    if args.subclones:
         run_subclones(session, subject_ids, args)
     else:
         logger.info('Skipping subclones')
