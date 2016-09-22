@@ -127,14 +127,12 @@ class ClonalWorker(concurrent.Worker):
 
         self._tasks = 0
 
-    def do_task(self, bucket):
-        clones = OrderedDict()
-        consensus_needed = set([])
+    def get_query(self, bucket, sort):
         query = self._session.query(
             Sequence.sample_id, Sequence.ai, Sequence.clone_id,
-            Sequence.cdr3_aa, Sequence.subject_id, Sequence.v_gene,
-            Sequence.j_gene, Sequence.cdr3_num_nts, Sequence._insertions,
-            Sequence._deletions
+            Sequence.cdr3_nt, Sequence.cdr3_aa, Sequence.subject_id,
+            Sequence.v_gene, Sequence.j_gene, Sequence.cdr3_num_nts,
+            Sequence._insertions, Sequence._deletions
         ).join(SequenceCollapse).filter(
             Sequence.subject_id == bucket.subject_id,
             Sequence.v_gene == bucket.v_gene,
@@ -146,6 +144,11 @@ class ClonalWorker(concurrent.Worker):
             ~Sequence.cdr3_aa.like('%*%'),
             SequenceCollapse.copy_number_in_subject >= self._min_copy,
         )
+        if sort:
+            query = query.order_by(
+                desc(SequenceCollapse.copy_number_in_subject),
+                Sequence.ai
+            )
         if self._min_identity > 0:
             query = query.filter(
                 Sequence.v_match / Sequence.v_length >= self._min_identity
@@ -156,10 +159,59 @@ class ClonalWorker(concurrent.Worker):
             query = query.filter(Sequence.partial == 0)
         if self._max_padding is not None:
             query = query.filter(Sequence.pad_length <= self._max_padding)
-        query = query.order_by(
-            desc(SequenceCollapse.copy_number_in_subject),
-            Sequence.ai
-        )
+        return query
+
+    def do_task(self, args):
+        if args['tcells']:
+            self.tcell_clones(args['bucket'])
+        else:
+            self.bcell_clones(args['bucket'])
+
+    def tcell_clones(self, bucket):
+        updates = []
+        clones = {}
+        consensus_needed = set([])
+
+        for seq in self.get_query(bucket, False):
+            key = (seq.v_gene, seq.j_gene, seq.cdr3_nt)
+            if key in clones:
+                clone = clones[key]
+            else:
+                for test_clone in clones.values():
+                    same_bin = (test_clone.v_gene == key[0] and
+                                test_clone.j_gene == key[1] and
+                                test_clone.cdr3_num_nts == len(key[2])
+                    )
+                    if same_bin and dnautils.equal(test_clone.cdr3_nt, key[2]):
+                        clone = test_clone
+                        break
+                else:
+                    new_clone = Clone(subject_id=seq.subject_id,
+                                      v_gene=seq.v_gene,
+                                      j_gene=seq.j_gene,
+                                      cdr3_nt=seq.cdr3_nt,
+                                      cdr3_num_nts=seq.cdr3_num_nts,
+                                      _insertions=seq._insertions,
+                                      _deletions=seq._deletions)
+                    clones[key] = new_clone
+                    self._session.add(new_clone)
+                    self._session.flush()
+                    clone = new_clone
+                    consensus_needed.add(new_clone.id)
+            updates.append({
+                'sample_id': seq.sample_id,
+                'ai': seq.ai,
+                'clone_id': clone.id
+            })
+
+        if len(updates) > 0:
+            self._session.bulk_update_mappings(Sequence, updates)
+        generate_consensus(self._session, consensus_needed)
+
+    def bcell_clones(self, bucket):
+        clones = OrderedDict()
+        consensus_needed = set([])
+        query = self.get_query(bucket, True)
 
         if query.count() > 0:
             for seq in query:
@@ -287,19 +339,25 @@ def run_clones(session, args):
 
     tasks = concurrent.TaskQueue()
     for subject_id in subject_ids:
-        logger.info('Generating task queue for subject {}'.format(subject_id))
+        logger.info('Generating task queue for subject {}'.format(
+            subject_id))
         buckets = session.query(
             Sequence.subject_id, Sequence.v_gene, Sequence.j_gene,
-            Sequence.cdr3_num_nts, Sequence._insertions, Sequence._deletions
+            Sequence.cdr3_num_nts, Sequence._insertions,
+            Sequence._deletions
         ).filter(
             Sequence.subject_id == subject_id,
             Sequence.clone_id.is_(None)
         ).group_by(
             Sequence.subject_id, Sequence.v_gene, Sequence.j_gene,
-            Sequence.cdr3_num_nts, Sequence._insertions, Sequence._deletions
+            Sequence.cdr3_num_nts, Sequence._insertions,
+            Sequence._deletions
         )
         for bucket in buckets:
-            tasks.add_task(bucket)
+            tasks.add_task({
+            'tcells': args.tcells,
+            'bucket': bucket
+        })
 
     logger.info('Generated {} total tasks'.format(tasks.num_tasks()))
 
@@ -307,8 +365,8 @@ def run_clones(session, args):
         tasks.add_worker(ClonalWorker(
             config.init_db(args.db_config),
             args.similarity / 100.0, args.include_indels,
-            args.exclude_partials, args.min_identity / 100.0, args.min_copy,
-            args.max_padding))
+            args.exclude_partials, args.min_identity / 100.0,
+            args.min_copy, args.max_padding))
     tasks.start()
 
     if not args.skip_subclones:

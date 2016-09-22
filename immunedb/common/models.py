@@ -217,12 +217,12 @@ class Clone(Base):
     :param str cdr3_nt: The consensus nucleotides for the clone
     :param int cdr3_num_nts: The number of nucleotides in the group's CDR3
     :param str cdr3_aa: The amino-acid sequence of the group's CDR3
-    :param int subject_id: The ID of the subject from which the sample was \
-        taken
+    :param int subject_id: The ID of the subject to which the clone belongs
     :param Relationship subject: Reference to the associated \
         :py:class:`Subject` instance
-    :param str germline: The germline sequence for this sequence
+    :param str germline: The germline sequence for this clone
     :param str tree: The textual representation of the clone's lineage tree
+    :param int parent_id: The (possibly null) ID of the clone's parent
 
     """
     __tablename__ = 'clones'

@@ -208,7 +208,7 @@ def overlap(session, sample_encoding):
 @with_session
 def v_usage(session, sample_encoding):
     fields = bottle.request.json or {}
-    data, x_categories, totals = queries.get_v_usage(
+    data, x_categories, totals, prefix = queries.get_v_usage(
         session,
         decode_run_length(sample_encoding),
         fields.get('filter_type', 'unique_multiple'),
@@ -234,7 +234,7 @@ def v_usage(session, sample_encoding):
                 array.append([i, j, 0])
 
     return create_response({
-        'x_categories': map(lambda e: 'IGHV{}'.format(e), x_categories),
+        'x_categories': ['{}{}'.format(prefix, e) for e in x_categories],
         'y_categories': y_categories,
         'totals': totals,
         'data': array,

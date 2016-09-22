@@ -195,7 +195,8 @@ class BaseTest(object):
                     min_copy=2,
                     max_padding=None,
                     regen=False,
-                    skip_subclones=False
+                    skip_subclones=False,
+                    tcells=False
                 )
             )
             self.session.commit()
