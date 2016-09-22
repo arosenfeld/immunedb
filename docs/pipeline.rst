@@ -145,8 +145,9 @@ be downloaded from `IMGT's Gene-DB <http://imgt.org/genedb>`_ directly.
 
 For V Germlines
 ^^^^^^^^^^^^^^^
+- Genes must start with IGHV, TRAV, TRBV, TRDV, or TRGV.
 - Genes must be in the format IGHVX*Y or IGHVX where X is the gene name and Y is the
-  allele.  For example, IGHV1-18*01, IGHV5-a*03, and IGHV7-4-1 are all valid.
+  allele.  For example, IGHV1-18*01, TRBV5-a*03, and IGHV7-4-1 are all valid.
   However, V1-18*01 or Homosap IGHV4-34 are not.
 - Germlines must be IMGT gapped.
 - Germlines starting with gaps are excluded from alignment.
@@ -159,7 +160,7 @@ For V Germlines
 For J Germlines
 ^^^^^^^^^^^^^^^
 - Gene names follow the same rules as for V genes except they must start with
-  ``IGHJ`` instead of ``IGHV``.
+  IGHJ, TRAJ, TRBJ, TRDJ, or TRGJ`.
 - There must be a fixed number of bases upstream of the CDR3 in all genes.
 
 Sequence Identification
@@ -241,6 +242,23 @@ A basic example of clonal assignment, not using all possible arguments:
 .. code-block:: bash
 
     $ immunedb_clones /path/to/config.json
+
+If you ran local-alignment on sequences, ImmuneDB will also associate clones with
+insertions or deletions with a probable "parent" clone.  The parent clone will
+have the same V-gene, J-gene, and CDR3 length.  Further, the CDR3 amino acid
+sequences of the subclone will differ by no more than ``--min-similarity``
+(default 85%).  This process can be skipped with ``--skip-subclones``.
+
+.. warning::
+
+    T-cell analysis in ImmuneDB is still considered to be in beta.  If you
+    analyze T-cells and find any problems, please submit an issue on GitHub.
+
+If your data is for T-cells, pass the ``--tcells`` flag.
+
+.. code-block:: bash
+
+    $ immunedb_clones /path/to/config.json --tcells
 
 .. _stats_generation:
 
