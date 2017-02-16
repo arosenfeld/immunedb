@@ -392,31 +392,31 @@
         "stop_cnt": 89
     },
     "2-unique-False-False": {
-        "functional_cnt": 650,
-        "in_frame_cnt": 650,
+        "functional_cnt": 653,
+        "in_frame_cnt": 653,
         "no_result_cnt": 0,
-        "sequence_cnt": 650,
+        "sequence_cnt": 653,
         "stop_cnt": 0
     },
     "2-unique-False-True": {
-        "functional_cnt": 650,
-        "in_frame_cnt": 650,
+        "functional_cnt": 653,
+        "in_frame_cnt": 653,
         "no_result_cnt": 0,
-        "sequence_cnt": 650,
+        "sequence_cnt": 653,
         "stop_cnt": 0
     },
     "2-unique-True-False": {
-        "functional_cnt": 691,
-        "in_frame_cnt": 691,
+        "functional_cnt": 694,
+        "in_frame_cnt": 694,
         "no_result_cnt": 0,
-        "sequence_cnt": 691,
+        "sequence_cnt": 694,
         "stop_cnt": 0
     },
     "2-unique-True-True": {
-        "functional_cnt": 691,
-        "in_frame_cnt": 691,
+        "functional_cnt": 694,
+        "in_frame_cnt": 694,
         "no_result_cnt": 0,
-        "sequence_cnt": 691,
+        "sequence_cnt": 694,
         "stop_cnt": 0
     },
     "2-unique_multiple-False-False": {

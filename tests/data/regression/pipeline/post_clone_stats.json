@@ -2432,14 +2432,14 @@
         "clone_id": 169,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 8,
+        "total_cnt": 7,
         "unique_cnt": 1
     },
     "349": {
         "clone_id": 169,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 8,
+        "total_cnt": 7,
         "unique_cnt": 1
     },
     "350": {
@@ -2460,14 +2460,14 @@
         "clone_id": 171,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 20,
+        "total_cnt": 19,
         "unique_cnt": 1
     },
     "353": {
         "clone_id": 171,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 20,
+        "total_cnt": 19,
         "unique_cnt": 1
     },
     "354": {
@@ -2782,14 +2782,14 @@
         "clone_id": 194,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 39,
+        "total_cnt": 38,
         "unique_cnt": 2
     },
     "399": {
         "clone_id": 194,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 39,
+        "total_cnt": 38,
         "unique_cnt": 2
     },
     "400": {

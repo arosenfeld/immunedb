@@ -74,7 +74,8 @@ class IdentificationWorker(concurrent.Worker):
 
         self.info('\tAligning {} unique sequences'.format(len(vdjs)))
         # Attempt to align all unique sequences
-        for sequence in funcs.periodic_commit(self._session, vdjs.keys()):
+        for sequence in funcs.periodic_commit(self._session,
+                                              sorted(vdjs.keys())):
             vdj = vdjs[sequence]
             del vdjs[sequence]
             try:
