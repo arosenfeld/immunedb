@@ -36,14 +36,14 @@
             "mutations": {
                 "conservative": [
                     {
-                        "from_aa": "S",
-                        "from_nt": "G",
-                        "intermediate_aa": "T",
-                        "pos": 253,
+                        "from_aa": "A",
+                        "from_nt": "C",
+                        "intermediate_aa": "G",
+                        "pos": 25,
                         "to_aas": [
-                            "T"
+                            "G"
                         ],
-                        "to_nt": "C",
+                        "to_nt": "G",
                         "total": 4,
                         "unique": 1
                     },
@@ -60,14 +60,14 @@
                         "unique": 1
                     },
                     {
-                        "from_aa": "A",
-                        "from_nt": "C",
-                        "intermediate_aa": "G",
-                        "pos": 25,
+                        "from_aa": "S",
+                        "from_nt": "G",
+                        "intermediate_aa": "T",
+                        "pos": 253,
                         "to_aas": [
-                            "G"
+                            "T"
                         ],
-                        "to_nt": "G",
+                        "to_nt": "C",
                         "total": 4,
                         "unique": 1
                     }

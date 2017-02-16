@@ -96,6 +96,18 @@
                         "unique": 1
                     },
                     {
+                        "from_aa": "A",
+                        "from_nt": "C",
+                        "intermediate_aa": "G",
+                        "pos": 172,
+                        "to_aas": [
+                            "G"
+                        ],
+                        "to_nt": "G",
+                        "total": 3,
+                        "unique": 1
+                    },
+                    {
                         "from_aa": "N",
                         "from_nt": "A",
                         "intermediate_aa": "D",
@@ -108,12 +120,12 @@
                         "unique": 1
                     },
                     {
-                        "from_aa": "A",
+                        "from_aa": "N",
                         "from_nt": "C",
-                        "intermediate_aa": "G",
-                        "pos": 172,
+                        "intermediate_aa": "K",
+                        "pos": 197,
                         "to_aas": [
-                            "G"
+                            "K"
                         ],
                         "to_nt": "G",
                         "total": 3,
@@ -132,18 +144,6 @@
                         "unique": 1
                     },
                     {
-                        "from_aa": "N",
-                        "from_nt": "C",
-                        "intermediate_aa": "K",
-                        "pos": 197,
-                        "to_aas": [
-                            "K"
-                        ],
-                        "to_nt": "G",
-                        "total": 3,
-                        "unique": 1
-                    },
-                    {
                         "from_aa": "L",
                         "from_nt": "C",
                         "intermediate_aa": "I",
@@ -158,12 +158,24 @@
                 ],
                 "nonconservative": [
                     {
-                        "from_aa": "Q",
+                        "from_aa": "K",
                         "from_nt": "A",
-                        "intermediate_aa": "L",
-                        "pos": 205,
+                        "intermediate_aa": "T",
+                        "pos": 40,
                         "to_aas": [
-                            "L"
+                            "T"
+                        ],
+                        "to_nt": "C",
+                        "total": 3,
+                        "unique": 1
+                    },
+                    {
+                        "from_aa": "S",
+                        "from_nt": "G",
+                        "intermediate_aa": "I",
+                        "pos": 118,
+                        "to_aas": [
+                            "I"
                         ],
                         "to_nt": "T",
                         "total": 3,
@@ -182,26 +194,14 @@
                         "unique": 1
                     },
                     {
-                        "from_aa": "K",
+                        "from_aa": "Q",
                         "from_nt": "A",
-                        "intermediate_aa": "T",
-                        "pos": 40,
+                        "intermediate_aa": "L",
+                        "pos": 205,
                         "to_aas": [
-                            "T"
+                            "L"
                         ],
-                        "to_nt": "C",
-                        "total": 3,
-                        "unique": 1
-                    },
-                    {
-                        "from_aa": "V",
-                        "from_nt": "T",
-                        "intermediate_aa": "A",
-                        "pos": 226,
-                        "to_aas": [
-                            "A"
-                        ],
-                        "to_nt": "C",
+                        "to_nt": "T",
                         "total": 3,
                         "unique": 1
                     },
@@ -218,28 +218,28 @@
                         "unique": 1
                     },
                     {
-                        "from_aa": "S",
-                        "from_nt": "G",
-                        "intermediate_aa": "I",
-                        "pos": 118,
+                        "from_aa": "V",
+                        "from_nt": "T",
+                        "intermediate_aa": "A",
+                        "pos": 226,
                         "to_aas": [
-                            "I"
+                            "A"
                         ],
-                        "to_nt": "T",
+                        "to_nt": "C",
                         "total": 3,
                         "unique": 1
                     }
                 ],
                 "synonymous": [
                     {
-                        "from_aa": "T",
-                        "from_nt": "C",
-                        "intermediate_aa": "T",
-                        "pos": 236,
+                        "from_aa": "A",
+                        "from_nt": "T",
+                        "intermediate_aa": "A",
+                        "pos": 74,
                         "to_aas": [
-                            "T"
+                            "A"
                         ],
-                        "to_nt": "T",
+                        "to_nt": "C",
                         "total": 3,
                         "unique": 1
                     },
@@ -256,14 +256,26 @@
                         "unique": 1
                     },
                     {
-                        "from_aa": "A",
-                        "from_nt": "T",
-                        "intermediate_aa": "A",
-                        "pos": 74,
+                        "from_aa": "G",
+                        "from_nt": "G",
+                        "intermediate_aa": "G",
+                        "pos": 146,
                         "to_aas": [
-                            "A"
+                            "G"
                         ],
-                        "to_nt": "C",
+                        "to_nt": "T",
+                        "total": 3,
+                        "unique": 1
+                    },
+                    {
+                        "from_aa": "T",
+                        "from_nt": "C",
+                        "intermediate_aa": "T",
+                        "pos": 236,
+                        "to_aas": [
+                            "T"
+                        ],
+                        "to_nt": "T",
                         "total": 3,
                         "unique": 1
                     },
@@ -274,18 +286,6 @@
                         "pos": 302,
                         "to_aas": [
                             "V"
-                        ],
-                        "to_nt": "T",
-                        "total": 3,
-                        "unique": 1
-                    },
-                    {
-                        "from_aa": "G",
-                        "from_nt": "G",
-                        "intermediate_aa": "G",
-                        "pos": 146,
-                        "to_aas": [
-                            "G"
                         ],
                         "to_nt": "T",
                         "total": 3,
@@ -348,24 +348,24 @@
             "mutations": {
                 "conservative": [
                     {
-                        "from_aa": "N",
-                        "from_nt": "A",
-                        "intermediate_aa": "D",
-                        "pos": 189,
-                        "to_aas": [
-                            "D"
-                        ],
-                        "to_nt": "G",
-                        "total": 3,
-                        "unique": 1
-                    },
-                    {
                         "from_aa": "A",
                         "from_nt": "C",
                         "intermediate_aa": "G",
                         "pos": 172,
                         "to_aas": [
                             "G"
+                        ],
+                        "to_nt": "G",
+                        "total": 3,
+                        "unique": 1
+                    },
+                    {
+                        "from_aa": "N",
+                        "from_nt": "A",
+                        "intermediate_aa": "D",
+                        "pos": 189,
+                        "to_aas": [
+                            "D"
                         ],
                         "to_nt": "G",
                         "total": 3,
@@ -490,18 +490,6 @@
             "mutations": {
                 "conservative": [
                     {
-                        "from_aa": "L",
-                        "from_nt": "C",
-                        "intermediate_aa": "I",
-                        "pos": 210,
-                        "to_aas": [
-                            "I"
-                        ],
-                        "to_nt": "A",
-                        "total": 3,
-                        "unique": 1
-                    },
-                    {
                         "from_aa": "N",
                         "from_nt": "C",
                         "intermediate_aa": "K",
@@ -524,26 +512,38 @@
                         "to_nt": "C",
                         "total": 3,
                         "unique": 1
+                    },
+                    {
+                        "from_aa": "L",
+                        "from_nt": "C",
+                        "intermediate_aa": "I",
+                        "pos": 210,
+                        "to_aas": [
+                            "I"
+                        ],
+                        "to_nt": "A",
+                        "total": 3,
+                        "unique": 1
                     }
                 ],
                 "nonconservative": [
-                    {
-                        "from_aa": "V",
-                        "from_nt": "T",
-                        "intermediate_aa": "A",
-                        "pos": 226,
-                        "to_aas": [
-                            "A"
-                        ],
-                        "to_nt": "C",
-                        "total": 3,
-                        "unique": 1
-                    },
                     {
                         "from_aa": "Q",
                         "from_nt": "C",
                         "intermediate_aa": "*",
                         "pos": 204,
+                        "to_aas": [
+                            "L"
+                        ],
+                        "to_nt": "T",
+                        "total": 3,
+                        "unique": 1
+                    },
+                    {
+                        "from_aa": "Q",
+                        "from_nt": "A",
+                        "intermediate_aa": "L",
+                        "pos": 205,
                         "to_aas": [
                             "L"
                         ],
@@ -564,14 +564,14 @@
                         "unique": 1
                     },
                     {
-                        "from_aa": "Q",
-                        "from_nt": "A",
-                        "intermediate_aa": "L",
-                        "pos": 205,
+                        "from_aa": "V",
+                        "from_nt": "T",
+                        "intermediate_aa": "A",
+                        "pos": 226,
                         "to_aas": [
-                            "L"
+                            "A"
                         ],
-                        "to_nt": "T",
+                        "to_nt": "C",
                         "total": 3,
                         "unique": 1
                     }
