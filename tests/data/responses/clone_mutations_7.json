@@ -327,7 +327,7 @@
                         "intermediate_aa": "V",
                         "pos": 125,
                         "to_aas": [
-                            "V"
+                            null
                         ],
                         "to_nt": "A",
                         "total": 7,
@@ -387,7 +387,7 @@
                         "intermediate_aa": "V",
                         "pos": 62,
                         "to_aas": [
-                            null
+                            "V"
                         ],
                         "to_nt": "G",
                         "total": 7,
@@ -411,7 +411,7 @@
                         "intermediate_aa": "S",
                         "pos": 65,
                         "to_aas": [
-                            "S"
+                            null
                         ],
                         "to_nt": "T",
                         "total": 7,
@@ -557,7 +557,7 @@
                         "intermediate_aa": "V",
                         "pos": 62,
                         "to_aas": [
-                            null
+                            "V"
                         ],
                         "to_nt": "G",
                         "total": 7,
@@ -581,7 +581,7 @@
                         "intermediate_aa": "S",
                         "pos": 65,
                         "to_aas": [
-                            "S"
+                            null
                         ],
                         "to_nt": "T",
                         "total": 7,
@@ -663,7 +663,7 @@
                         "intermediate_aa": "V",
                         "pos": 125,
                         "to_aas": [
-                            "V"
+                            null
                         ],
                         "to_nt": "A",
                         "total": 7,

@@ -6,9 +6,6 @@
         "110": {
             "synonymous": 1
         },
-        "112": {
-            "nonconservative": 1
-        },
         "116": {
             "synonymous": 1
         },
@@ -96,12 +93,12 @@
             "counts": {
                 "total": {
                     "conservative": 13,
-                    "nonconservative": 5,
+                    "nonconservative": 4,
                     "synonymous": 12
                 },
                 "unique": {
                     "conservative": 13,
-                    "nonconservative": 5,
+                    "nonconservative": 4,
                     "synonymous": 12
                 }
             },
@@ -233,7 +230,7 @@
                         "intermediate_aa": "L",
                         "pos": 60,
                         "to_aas": [
-                            null
+                            "L"
                         ],
                         "to_nt": "C",
                         "total": 2,
@@ -265,18 +262,6 @@
                     }
                 ],
                 "nonconservative": [
-                    {
-                        "from_aa": "G",
-                        "from_nt": "G",
-                        "intermediate_aa": "D",
-                        "pos": 112,
-                        "to_aas": [
-                            "D"
-                        ],
-                        "to_nt": "A",
-                        "total": 2,
-                        "unique": 1
-                    },
                     {
                         "from_aa": "Y",
                         "from_nt": "C",
@@ -477,28 +462,16 @@
         "CDR1": {
             "counts": {
                 "total": {
-                    "nonconservative": 2,
+                    "nonconservative": 1,
                     "synonymous": 3
                 },
                 "unique": {
-                    "nonconservative": 2,
+                    "nonconservative": 1,
                     "synonymous": 3
                 }
             },
             "mutations": {
                 "nonconservative": [
-                    {
-                        "from_aa": "G",
-                        "from_nt": "G",
-                        "intermediate_aa": "D",
-                        "pos": 112,
-                        "to_aas": [
-                            "D"
-                        ],
-                        "to_nt": "A",
-                        "total": 2,
-                        "unique": 1
-                    },
                     {
                         "from_aa": "T",
                         "from_nt": "C",
@@ -689,7 +662,7 @@
                         "intermediate_aa": "L",
                         "pos": 60,
                         "to_aas": [
-                            null
+                            "L"
                         ],
                         "to_nt": "C",
                         "total": 2,

@@ -1,3 +1,4 @@
+from collections import OrderedDict
 import itertools
 import multiprocessing as mp
 import re
@@ -222,7 +223,7 @@ class LocalAlignmentWorker(concurrent.Worker):
 
     def align_seq_to_germs(self, seq, germs):
         stdin = []
-        for g_name, g_seq in germs.iteritems():
+        for g_name, g_seq in sorted(germs.iteritems()):
             stdin.append('>{}\n{}\n'.format(g_name, g_seq.replace('-', '')))
             stdin.append('>query\n{}\n'.format(seq.lstrip('N')))
 
@@ -384,7 +385,7 @@ def run_fix_sequences(session, args):
         ).filter(Sample.id == sample_id).one()
 
         # Get all the unique sequences
-        uniques = {}
+        uniques = OrderedDict()
         for seq in itertools.chain(indels, noresults):
             session.expunge(seq)
             if seq.sequence not in uniques:

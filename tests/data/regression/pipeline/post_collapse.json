@@ -7681,42 +7681,42 @@
     "1098": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 1098,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:24893:9211",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:16925:18044",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "1099": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 1099,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:8273:23038",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:7615:13908",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "1100": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 1100,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:16925:18044",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:24893:9211",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "1101": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 1101,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:7615:13908",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:22589:14459",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "1102": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 1102,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:15888:16806",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:8273:23038",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "1103": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 1103,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:22589:14459",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:15888:16806",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },

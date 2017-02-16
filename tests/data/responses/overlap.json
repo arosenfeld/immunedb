@@ -1,7 +1,7 @@
 [
     {
         "clone": {
-            "cdr3_aa": "CARGGQLQPLDLW",
+            "cdr3_aa": "CARGGQLQPLDFW",
             "cdr3_num_nts": 39,
             "id": 51,
             "j_gene": "IGHJ1|4|5",
@@ -206,11 +206,11 @@
             {
                 "id": 2,
                 "name": "input2",
-                "total_sequences": 39,
+                "total_sequences": 38,
                 "unique_sequences": 2
             }
         ],
-        "total_sequences": 39,
+        "total_sequences": 38,
         "unique_sequences": 2
     },
     {

@@ -80,7 +80,8 @@ def consensus(strings):
     :rtype: str
 
     """
-    chrs = [Counter(chars).most_common(1)[0][0] for chars in zip(*strings)]
+    chrs = [sorted(Counter(chars).most_common(), key=lambda k: k[::-1])[0][0]
+            for chars in zip(*strings)]
     return ''.join(chrs)
 
 
@@ -169,7 +170,7 @@ class ClonalWorker(concurrent.Worker):
 
     def tcell_clones(self, bucket):
         updates = []
-        clones = {}
+        clones = OrderedDict()
         consensus_needed = set([])
 
         for seq in self.get_query(bucket, False):

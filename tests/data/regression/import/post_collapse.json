@@ -2,2366 +2,2366 @@
     "1": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 1,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:20639:10493",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:11135:9840",
+        "copy_number_in_subject": 8,
         "instances_in_subject": 1
     },
     "2": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 2,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:17776:14697",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:6484:16037",
+        "copy_number_in_subject": 4,
         "instances_in_subject": 1
     },
     "3": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 3,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:26320:16520",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:24259:15536",
+        "copy_number_in_subject": 3,
         "instances_in_subject": 1
     },
     "4": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 4,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:26114:6825",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:5615:12899",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "5": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 5,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:23897:10071",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:8841:17715",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "6": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 6,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:14669:18198",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:6881:9282",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "7": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 7,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:18521:18476",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:20501:12181",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "8": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 8,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:24603:14104",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:15231:6996",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "9": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 9,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:22517:18495",
-        "copy_number_in_subject": 3,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:16511:13326",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "10": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 10,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:7966:15270",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:11437:15912",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "11": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 11,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:16975:9060",
-        "copy_number_in_subject": 4,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:26890:18746",
+        "copy_number_in_subject": 2,
         "instances_in_subject": 1
     },
     "12": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 12,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:27567:10392",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:16726:20957",
+        "copy_number_in_subject": 2,
         "instances_in_subject": 1
     },
     "13": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 13,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:13687:12734",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:22714:11616",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "14": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 14,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:18864:19088",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:11829:10600",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "15": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 15,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:21061:12872",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:7041:12196",
+        "copy_number_in_subject": 11,
         "instances_in_subject": 1
     },
     "16": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 16,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:9877:11545",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:11454:16590",
+        "copy_number_in_subject": 2,
         "instances_in_subject": 1
     },
     "17": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 17,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:24260:16158",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:21040:19977",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "18": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 18,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:12031:9652",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:9253:13216",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "19": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 19,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:22777:16988",
-        "copy_number_in_subject": 3,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:24035:19985",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "20": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 20,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:25660:3688",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:18568:15298",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "21": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 21,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:6441:22706",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:20657:20668",
+        "copy_number_in_subject": 3,
         "instances_in_subject": 1
     },
     "22": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 22,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:5919:15279",
-        "copy_number_in_subject": 20,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:21154:10022",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "23": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 23,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1107:5071:5010",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:11963:13682",
+        "copy_number_in_subject": 3,
         "instances_in_subject": 1
     },
     "24": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 24,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:21282:12583",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:29029:13402",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "25": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 25,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:18986:12924",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:13136:12395",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "26": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 26,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:8008:14719",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:27220:12495",
+        "copy_number_in_subject": 5,
         "instances_in_subject": 1
     },
     "27": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 27,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:25540:16416",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:9135:20343",
+        "copy_number_in_subject": 4,
         "instances_in_subject": 1
     },
     "28": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 28,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:8919:21401",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:18225:17353",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "29": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 29,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:18948:13900",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:15886:17738",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "30": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 30,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:16953:16773",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:13931:18816",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "31": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 31,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:22490:10620",
-        "copy_number_in_subject": 14,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:13597:18885",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "32": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 32,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:17689:12509",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:24027:10626",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "33": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 33,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:19638:21704",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:18402:13711",
+        "copy_number_in_subject": 2,
         "instances_in_subject": 1
     },
     "34": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 34,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:28115:18864",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:20273:14860",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "35": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 35,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:15929:10586",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:20177:20488",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "36": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 36,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:9798:12312",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:6533:6771",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "37": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 37,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:12510:19752",
-        "copy_number_in_subject": 11,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:22390:9132",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "38": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 38,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:5720:12855",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:8893:14456",
+        "copy_number_in_subject": 3,
         "instances_in_subject": 1
     },
     "39": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 39,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:11795:19856",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:23385:7451",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "40": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 40,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:8625:18719",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:14558:14629",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "41": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 41,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:17983:11361",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:28309:15302",
+        "copy_number_in_subject": 3,
         "instances_in_subject": 1
     },
     "42": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 42,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:10688:16265",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:21009:22490",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "43": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 43,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:9296:6919",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:19567:15236",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "44": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 44,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:11963:13682",
-        "copy_number_in_subject": 3,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:20434:20861",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "45": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 45,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:29029:13402",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:20046:16028",
+        "copy_number_in_subject": 2,
         "instances_in_subject": 1
     },
     "46": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 46,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:13136:12395",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:14592:12891",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "47": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 47,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:27906:6854",
-        "copy_number_in_subject": 3,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:14666:10752",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "48": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 48,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:14192:15394",
-        "copy_number_in_subject": 2,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:7848:14176",
+        "copy_number_in_subject": 4,
         "instances_in_subject": 1
     },
     "49": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 49,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:15356:12428",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:8830:15969",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "50": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 50,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:16323:20717",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:25831:9305",
+        "copy_number_in_subject": 4,
         "instances_in_subject": 1
     },
     "51": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 51,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:23129:7484",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:24970:7115",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "52": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 52,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:16680:12701",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:17445:14981",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "53": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 53,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:14144:14415",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:28135:13317",
+        "copy_number_in_subject": 3,
         "instances_in_subject": 1
     },
     "54": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 54,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:10039:19545",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:21981:19166",
+        "copy_number_in_subject": 2,
         "instances_in_subject": 1
     },
     "55": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 55,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:25604:18955",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:6854:16197",
+        "copy_number_in_subject": 2,
         "instances_in_subject": 1
     },
     "56": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 56,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:24173:13593",
-        "copy_number_in_subject": 11,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:24109:8044",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "57": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 57,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:24520:6067",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:12644:13408",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "58": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 58,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:23056:8940",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:24581:11255",
+        "copy_number_in_subject": 3,
         "instances_in_subject": 1
     },
     "59": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 59,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:28901:14998",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:20778:9080",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "60": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 60,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:22924:13907",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:13070:9835",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "61": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 61,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:20541:10943",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:20986:8933",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "62": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 62,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:14937:12179",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:23239:18291",
+        "copy_number_in_subject": 4,
         "instances_in_subject": 1
     },
     "63": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 63,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:4577:17443",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:9877:11545",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "64": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 64,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:27773:6979",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:25485:9804",
+        "copy_number_in_subject": 3,
         "instances_in_subject": 1
     },
     "65": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 65,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:27012:8476",
-        "copy_number_in_subject": 2,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:21061:12872",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "66": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 66,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:24613:13611",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:18864:19088",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "67": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 67,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:10826:8985",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:13687:12734",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "68": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 68,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:16355:9063",
-        "copy_number_in_subject": 3,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:27567:10392",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "69": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 69,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:10960:11040",
-        "copy_number_in_subject": 2,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:7966:15270",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "70": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 70,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:13943:10790",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:11234:13135",
+        "copy_number_in_subject": 20,
         "instances_in_subject": 1
     },
     "71": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 71,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:23828:20233",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1107:5071:5010",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "72": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 72,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:28781:17013",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:8008:14719",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "73": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 73,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:13663:17149",
-        "copy_number_in_subject": 2,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:25540:16416",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "74": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 74,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:12723:14301",
-        "copy_number_in_subject": 5,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:21282:12583",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "75": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 75,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:27078:17975",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:18986:12924",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "76": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 76,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:16936:10524",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:25821:16401",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "77": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 77,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:24035:19985",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:22192:20121",
+        "copy_number_in_subject": 5,
         "instances_in_subject": 1
     },
     "78": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 78,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:22637:12308",
-        "copy_number_in_subject": 11,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:16715:14230",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "79": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 79,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:21040:19977",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:28468:8585",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "80": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 80,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:9253:13216",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:19570:14103",
+        "copy_number_in_subject": 2,
         "instances_in_subject": 1
     },
     "81": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 81,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:18568:15298",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:27574:15825",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "82": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 82,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:11454:16590",
-        "copy_number_in_subject": 2,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:7485:14271",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "83": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 83,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:26056:13120",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:26568:11224",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "84": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 84,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:14890:19981",
-        "copy_number_in_subject": 2,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:18215:13637",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "85": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 85,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:10466:22580",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:18185:14863",
+        "copy_number_in_subject": 2,
         "instances_in_subject": 1
     },
     "86": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 86,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:5786:8902",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:10463:12595",
+        "copy_number_in_subject": 2,
         "instances_in_subject": 1
     },
     "87": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 87,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:22103:12994",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:23836:22199",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "88": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 88,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:8688:10099",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:26796:12656",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "89": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 89,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:20744:18249",
-        "copy_number_in_subject": 2,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:25524:12476",
+        "copy_number_in_subject": 4,
         "instances_in_subject": 1
     },
     "90": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 90,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:18215:13637",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:10838:13481",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "91": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 91,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:26796:12656",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:10375:17569",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "92": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 92,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:20085:14839",
-        "copy_number_in_subject": 2,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:21408:11706",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "93": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 93,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:6503:12273",
-        "copy_number_in_subject": 2,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:18655:9971",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "94": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 94,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:23836:22199",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:19329:15246",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "95": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 95,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:23949:10981",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:26869:15153",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "96": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 96,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:7241:6698",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:20203:10165",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "97": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 97,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:16333:14077",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:15716:10232",
+        "copy_number_in_subject": 2,
         "instances_in_subject": 1
     },
     "98": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 98,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:25137:13006",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:20646:14237",
+        "copy_number_in_subject": 11,
         "instances_in_subject": 1
     },
     "99": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 99,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:26551:12042",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:27402:8504",
+        "copy_number_in_subject": 2,
         "instances_in_subject": 1
     },
     "100": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 100,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:13737:11716",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:16171:11219",
+        "copy_number_in_subject": 4,
         "instances_in_subject": 1
     },
     "101": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 101,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:24259:9481",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:26151:17892",
+        "copy_number_in_subject": 8,
         "instances_in_subject": 1
     },
     "102": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 102,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:25762:14718",
-        "copy_number_in_subject": 4,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:18611:9070",
+        "copy_number_in_subject": 3,
         "instances_in_subject": 1
     },
     "103": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 103,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:16944:7258",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:24084:22413",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "104": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 104,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:19046:19393",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:24764:15207",
+        "copy_number_in_subject": 6,
         "instances_in_subject": 1
     },
     "105": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 105,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:25333:13020",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:28014:15904",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "106": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 106,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:3967:13193",
-        "copy_number_in_subject": 2,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:12723:14301",
+        "copy_number_in_subject": 5,
         "instances_in_subject": 1
     },
     "107": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 107,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:14798:21134",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:27078:17975",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "108": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 108,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:26211:18026",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:16936:10524",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "109": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 109,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:12925:16230",
-        "copy_number_in_subject": 4,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:26829:16170",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "110": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 110,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:22238:14070",
-        "copy_number_in_subject": 2,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:17901:12565",
+        "copy_number_in_subject": 5,
         "instances_in_subject": 1
     },
     "111": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 111,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:11567:15998",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:6618:8669",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "112": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 112,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:25000:20575",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:5952:10243",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "113": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 113,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:13169:11465",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:22970:12957",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "114": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 114,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:12775:19136",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:23965:8578",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "115": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 115,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:26770:20338",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:7344:19992",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "116": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 116,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:13474:10880",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:6712:6818",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "117": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 117,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:13517:16449",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:26391:13192",
+        "copy_number_in_subject": 2,
         "instances_in_subject": 1
     },
     "118": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 118,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:22215:11050",
-        "copy_number_in_subject": 11,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:24532:14597",
+        "copy_number_in_subject": 3,
         "instances_in_subject": 1
     },
     "119": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 119,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:17805:15229",
-        "copy_number_in_subject": 2,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:21383:12714",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "120": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 120,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:11121:10796",
-        "copy_number_in_subject": 2,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:19843:14062",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "121": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 121,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:7447:21146",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:15816:9924",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "122": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 122,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:5401:9357",
-        "copy_number_in_subject": 2,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:5900:20048",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "123": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 123,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:20052:11826",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:25279:8179",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "124": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 124,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:10959:21068",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:23647:18253",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "125": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 125,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:24581:11255",
-        "copy_number_in_subject": 3,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:24858:12747",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "126": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 126,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:14666:10752",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:25137:13006",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "127": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 127,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:17583:18558",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:14352:14176",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "128": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 128,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:25271:12036",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:22926:14319",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "129": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 129,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:21884:12325",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:11937:8388",
+        "copy_number_in_subject": 3,
         "instances_in_subject": 1
     },
     "130": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 130,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:12904:10573",
-        "copy_number_in_subject": 3,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:26489:20274",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "131": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 131,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:21199:14949",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:16186:12034",
+        "copy_number_in_subject": 7,
         "instances_in_subject": 1
     },
     "132": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 132,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:11437:15912",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:10320:18575",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "133": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 133,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:9201:15534",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:27113:9491",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "134": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 134,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:21467:12992",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:27687:13049",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "135": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 135,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:26956:7077",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:10826:8985",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "136": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 136,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:22011:12980",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:27813:11527",
+        "copy_number_in_subject": 3,
         "instances_in_subject": 1
     },
     "137": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 137,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:10003:16215",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:17512:18979",
+        "copy_number_in_subject": 11,
         "instances_in_subject": 1
     },
     "138": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 138,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:24499:20381",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:11795:19856",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "139": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 139,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:17514:4607",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:8625:18719",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "140": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 140,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:23516:13213",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:5720:12855",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "141": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 141,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:14348:13660",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:25996:19512",
+        "copy_number_in_subject": 2,
         "instances_in_subject": 1
     },
     "142": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 142,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:22042:9909",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:28462:9228",
+        "copy_number_in_subject": 14,
         "instances_in_subject": 1
     },
     "143": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 143,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:26074:14469",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:15929:10586",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "144": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 144,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:12446:10658",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:28115:18864",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "145": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 145,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:7344:19992",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:17689:12509",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "146": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 146,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:29170:14339",
-        "copy_number_in_subject": 3,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:19638:21704",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "147": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 147,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:15816:9924",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:11567:15998",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "148": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 148,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:27421:12795",
-        "copy_number_in_subject": 2,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:19315:14451",
+        "copy_number_in_subject": 3,
         "instances_in_subject": 1
     },
     "149": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 149,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:19843:14062",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:11706:9659",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "150": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 150,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:21383:12714",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:12446:10658",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "151": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 151,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:5900:20048",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:7447:21146",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "152": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 152,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:25279:8179",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:5401:9357",
+        "copy_number_in_subject": 2,
         "instances_in_subject": 1
     },
     "153": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 153,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:6712:6818",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:23712:20506",
+        "copy_number_in_subject": 2,
         "instances_in_subject": 1
     },
     "154": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 154,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:24858:12747",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:23321:14473",
+        "copy_number_in_subject": 11,
         "instances_in_subject": 1
     },
     "155": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 155,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:23647:18253",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:17805:15229",
+        "copy_number_in_subject": 2,
         "instances_in_subject": 1
     },
     "156": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 156,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:7180:12601",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:10959:21068",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "157": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 157,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:27940:7459",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:20052:11826",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "158": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 158,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:20778:9080",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:9741:17548",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "159": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 159,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:13070:9835",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:23070:12084",
+        "copy_number_in_subject": 3,
         "instances_in_subject": 1
     },
     "160": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 160,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:20986:8933",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:23618:7285",
+        "copy_number_in_subject": 2,
         "instances_in_subject": 1
     },
     "161": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 161,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:17843:11241",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:27557:17410",
+        "copy_number_in_subject": 2,
         "instances_in_subject": 1
     },
     "162": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 162,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:22106:18397",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:20916:18610",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "163": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 163,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:22714:11616",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:9783:12453",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "164": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 164,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:10923:12042",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:26666:10388",
         "copy_number_in_subject": 2,
         "instances_in_subject": 1
     },
     "165": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 165,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:16726:20957",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:17846:16043",
         "copy_number_in_subject": 2,
         "instances_in_subject": 1
     },
     "166": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 166,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:11829:10600",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:26223:4363",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "167": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 167,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:23070:12084",
-        "copy_number_in_subject": 3,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:21352:13716",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "168": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 168,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:27557:17410",
-        "copy_number_in_subject": 2,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:14310:16057",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "169": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 169,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:9783:12453",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:14669:18198",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "170": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 170,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:23618:7285",
-        "copy_number_in_subject": 2,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:21884:12325",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "171": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 171,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:20916:18610",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:12904:10573",
+        "copy_number_in_subject": 3,
         "instances_in_subject": 1
     },
     "172": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 172,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:9741:17548",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:25271:12036",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "173": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 173,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:18971:22447",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:17583:18558",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "174": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 174,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:25885:12839",
-        "copy_number_in_subject": 3,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:14192:15394",
+        "copy_number_in_subject": 2,
         "instances_in_subject": 1
     },
     "175": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 175,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:14352:14176",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:24201:9434",
+        "copy_number_in_subject": 3,
         "instances_in_subject": 1
     },
     "176": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 176,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:22926:14319",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:15356:12428",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "177": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 177,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:17250:19419",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:23858:21428",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "178": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 178,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:26223:22210",
-        "copy_number_in_subject": 3,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:19224:18851",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "179": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 179,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:6881:9282",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:15598:10767",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "180": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 180,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:8841:17715",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:16323:20717",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "181": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 181,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:6484:16037",
-        "copy_number_in_subject": 4,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:23129:7484",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "182": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 182,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:15231:6996",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:16680:12701",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "183": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 183,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:16511:13326",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:16944:7258",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "184": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 184,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:5615:12899",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:10688:16265",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "185": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 185,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:20501:12181",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:17983:11361",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "186": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 186,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:20731:12260",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:16953:16773",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "187": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 187,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:4764:11680",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:8919:21401",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "188": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 188,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:17306:8724",
-        "copy_number_in_subject": 7,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:18948:13900",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "189": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 189,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:10320:18575",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:22335:14060",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "190": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 190,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:27113:9491",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:27324:17264",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "191": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 191,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:22430:10721",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:22179:12514",
         "copy_number_in_subject": 2,
         "instances_in_subject": 1
     },
     "192": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 192,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:9235:9377",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:28314:14287",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "193": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 193,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:15106:11102",
-        "copy_number_in_subject": 2,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:23917:22245",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "194": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 194,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:24537:16561",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:28224:7382",
+        "copy_number_in_subject": 2,
         "instances_in_subject": 1
     },
     "195": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 195,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:8739:5683",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:7583:21354",
         "copy_number_in_subject": 2,
         "instances_in_subject": 1
     },
     "196": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 196,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:10392:14982",
-        "copy_number_in_subject": 5,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:18667:15316",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "197": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 197,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:18959:12197",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:21199:14949",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "198": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 198,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:23647:11978",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:8688:10099",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "199": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 199,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:14785:20643",
-        "copy_number_in_subject": 2,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:22103:12994",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "200": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 200,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:18910:9473",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:17843:11241",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "201": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 201,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:9546:19691",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:22106:18397",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "202": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 202,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:10375:17569",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:11960:15208",
+        "copy_number_in_subject": 2,
         "instances_in_subject": 1
     },
     "203": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 203,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:26869:15153",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:22755:17280",
+        "copy_number_in_subject": 3,
         "instances_in_subject": 1
     },
     "204": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 204,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:25524:12476",
-        "copy_number_in_subject": 4,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:12031:9652",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "205": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 205,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:20203:10165",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:6441:22706",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "206": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 206,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:18655:9971",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:25660:3688",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "207": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 207,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:19329:15246",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:24260:16158",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "208": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 208,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:10838:13481",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:24520:6067",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "209": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 209,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:21408:11706",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:22924:13907",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "210": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 210,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:12206:9452",
-        "copy_number_in_subject": 3,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:28901:14998",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "211": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 211,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:21154:10022",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:23056:8940",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "212": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 212,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:10230:14236",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:26114:6825",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "213": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 213,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:28308:7918",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:24613:13611",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "214": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 214,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:11845:14090",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:21752:10857",
+        "copy_number_in_subject": 2,
         "instances_in_subject": 1
     },
     "215": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 215,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:14679:21247",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:22426:19647",
+        "copy_number_in_subject": 3,
         "instances_in_subject": 1
     },
     "216": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 216,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:22970:12957",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:21817:14484",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "217": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 217,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:5952:10243",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:14890:19981",
+        "copy_number_in_subject": 2,
         "instances_in_subject": 1
     },
     "218": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 218,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:17891:20097",
-        "copy_number_in_subject": 5,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:10466:22580",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "219": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 219,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:26829:16170",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:5786:8902",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "220": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 220,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:6618:8669",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:12513:17187",
+        "copy_number_in_subject": 2,
         "instances_in_subject": 1
     },
     "221": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 221,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:8484:11023",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:9201:15534",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "222": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 222,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:14558:14629",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:9235:9377",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "223": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 223,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:23385:7451",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:24651:7622",
+        "copy_number_in_subject": 2,
         "instances_in_subject": 1
     },
     "224": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 224,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:25831:9305",
-        "copy_number_in_subject": 4,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:18910:9473",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "225": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 225,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:24970:7115",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:9546:19691",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "226": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 226,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:8830:15969",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:9798:12312",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "227": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 227,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:17445:14981",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:15783:14666",
+        "copy_number_in_subject": 5,
         "instances_in_subject": 1
     },
     "228": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 228,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:9179:15690",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:23647:11978",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "229": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 229,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:15342:14108",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:18959:12197",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "230": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 230,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:20860:22396",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:25000:20575",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "231": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 231,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:24625:7506",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:12775:19136",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "232": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 232,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:26504:9753",
-        "copy_number_in_subject": 4,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:13169:11465",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "233": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 233,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:19646:18649",
-        "copy_number_in_subject": 5,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:13943:10790",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "234": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 234,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:13931:18816",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:4577:17443",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "235": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 235,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:18225:17353",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:27773:6979",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "236": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 236,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:13597:18885",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:20541:10943",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "237": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 237,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:15886:17738",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:14937:12179",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "238": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 238,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:20575:18959",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:15436:14820",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "239": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 239,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:28224:7382",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:21913:16561",
         "copy_number_in_subject": 2,
         "instances_in_subject": 1
     },
     "240": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 240,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:20929:20636",
-        "copy_number_in_subject": 2,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:15888:16806",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "241": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 241,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:23917:22245",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:22589:14459",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "242": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 242,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:18667:15316",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:15934:7089",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "243": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 243,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:28314:14287",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:16333:14077",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "244": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 244,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:27690:12418",
-        "copy_number_in_subject": 2,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:17514:4607",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "245": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 245,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:21352:13716",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:19995:11260",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "246": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 246,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:14310:16057",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:24625:7506",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "247": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 247,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:26223:4363",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:20860:22396",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "248": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 248,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:15350:13568",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:14621:13205",
+        "copy_number_in_subject": 3,
         "instances_in_subject": 1
     },
     "249": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 249,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:22119:20237",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:23568:22572",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "250": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 250,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:17349:18208",
-        "copy_number_in_subject": 2,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:14348:13660",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "251": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 251,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:25821:16401",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:22042:9909",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "252": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 252,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:19888:10458",
-        "copy_number_in_subject": 5,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:22119:20237",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "253": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 253,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:16715:14230",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:23949:10981",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "254": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 254,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:27574:15825",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:24259:9481",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "255": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 255,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:7485:14271",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:24603:14104",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "256": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 256,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:26568:11224",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:26056:13120",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "257": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 257,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:28468:8585",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:26074:14469",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "258": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 258,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:6533:6771",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:17776:14697",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "259": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 259,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:25976:13575",
-        "copy_number_in_subject": 2,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:26320:16520",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "260": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 260,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:20273:14860",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:24537:16561",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "261": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 261,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:14500:16414",
-        "copy_number_in_subject": 3,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:15106:11102",
+        "copy_number_in_subject": 2,
         "instances_in_subject": 1
     },
     "262": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 262,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:20177:20488",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:23856:12205",
+        "copy_number_in_subject": 2,
         "instances_in_subject": 1
     },
     "263": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 263,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:24027:10626",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:9435:13640",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "264": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 264,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:22390:9132",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:24499:20381",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "265": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 265,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:14592:12891",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:22011:12980",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "266": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 266,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:20434:20861",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:10003:16215",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "267": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 267,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:19092:10691",
-        "copy_number_in_subject": 3,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:13517:16449",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "268": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 268,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:20046:16028",
-        "copy_number_in_subject": 2,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:13474:10880",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "269": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 269,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:21009:22490",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:15342:14108",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "270": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 270,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:19567:15236",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:13137:9542",
+        "copy_number_in_subject": 2,
         "instances_in_subject": 1
     },
     "271": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 271,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:13693:18105",
-        "copy_number_in_subject": 6,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:14798:21134",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "272": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 272,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:28014:15904",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:3967:13193",
+        "copy_number_in_subject": 2,
         "instances_in_subject": 1
     },
     "273": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 273,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:11706:9659",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:20575:18959",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "274": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 274,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:8586:4941",
-        "copy_number_in_subject": 8,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:23516:13213",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "275": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 275,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:12395:19129",
-        "copy_number_in_subject": 3,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:28781:17013",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "276": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 276,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:24084:22413",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:23828:20233",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "277": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 277,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:21817:14484",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:24846:12684",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "278": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 278,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:22426:19647",
-        "copy_number_in_subject": 3,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:25604:18955",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "279": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 279,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:15436:14820",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:26211:18026",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "280": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 280,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:7970:9028",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:21467:12992",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "281": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 281,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:12644:13408",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:26956:7077",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "282": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 282,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:24109:8044",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:28308:7918",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "283": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 283,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:15796:10356",
-        "copy_number_in_subject": 2,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:7180:12601",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "284": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 284,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:9435:13640",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:7241:6698",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "285": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 285,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:24846:12684",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:8484:11023",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "286": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 286,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:26489:20274",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:9179:15690",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "287": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 287,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:25033:12142",
-        "copy_number_in_subject": 2,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:9296:6919",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "288": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 288,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:15888:16806",
-        "copy_number_in_subject": 1,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:6135:18253",
+        "copy_number_in_subject": 2,
         "instances_in_subject": 1
     },
     "289": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 289,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:15934:7089",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:10039:19545",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "290": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 290,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:22589:14459",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:14144:14415",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "291": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 291,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:13751:12159",
-        "copy_number_in_subject": 3,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:11845:14090",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "292": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 292,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:15571:18207",
-        "copy_number_in_subject": 2,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:14679:21247",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "293": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 293,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:22179:12514",
-        "copy_number_in_subject": 2,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:15350:13568",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "294": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 294,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:22335:14060",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:18521:18476",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "295": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 295,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:27324:17264",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:18971:22447",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "296": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 296,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:21889:10185",
-        "copy_number_in_subject": 3,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:19046:19393",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "297": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 297,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:23568:22572",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:20639:10493",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "298": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 298,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:27687:13049",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:20731:12260",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "299": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 299,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:23965:8578",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:25333:13020",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "300": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 300,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:17330:10901",
-        "copy_number_in_subject": 2,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:26551:12042",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "301": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 301,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:19995:11260",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:26770:20338",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "302": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 302,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:8587:9010",
-        "copy_number_in_subject": 2,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:27940:7459",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "303": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 303,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:15598:10767",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:10230:14236",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "304": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 304,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:19224:18851",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:13737:11716",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "305": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 305,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:23858:21428",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:17250:19419",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "306": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 306,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:22341:18557",
-        "copy_number_in_subject": 8,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:23897:10071",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "307": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 307,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:13601:17090",
-        "copy_number_in_subject": 3,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:4764:11680",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "308": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 308,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:9522:11285",
-        "copy_number_in_subject": 2,
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:7970:9028",
+        "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "309": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 309,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:26339:13090",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:24893:9211",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "310": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 310,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:15347:7064",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:6427:19866",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "311": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 311,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:26403:12886",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:26339:13090",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "312": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 312,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:28314:8947",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:23748:10856",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "313": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 313,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:25619:19659",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:15347:7064",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "314": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 314,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:16925:18044",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:7615:13908",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "315": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 315,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:27858:14535",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:20063:8852",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "316": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 316,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1106:24893:9211",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:12575:20700",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "317": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 317,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:22073:11245",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:23592:7778",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "318": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 318,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:11240:14627",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:21622:11268",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "319": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 319,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:20063:8852",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:16111:13653",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "320": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 320,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:25018:9002",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:27858:14535",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "321": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 321,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:21622:11268",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:25619:19659",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "322": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 322,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:16705:15487",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:21900:19868",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "323": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 323,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:21900:19868",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:11240:14627",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "324": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 324,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:9417:17182",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:17832:16244",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "325": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 325,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:19938:15496",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:16925:18044",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "326": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 326,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:23845:12364",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:19938:15496",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "327": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 327,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:16177:10356",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:23845:12364",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "328": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 328,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:23592:7778",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:28314:8947",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "329": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 329,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:19004:12070",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:28639:16607",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "330": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 330,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:28437:12428",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:8970:12329",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "331": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 331,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:28639:16607",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:22073:11245",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "332": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 332,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:23915:11873",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:19004:12070",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "333": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 333,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:7615:13908",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:19255:8733",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "334": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 334,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:19255:8733",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:16177:10356",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "335": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 335,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:23748:10856",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:23915:11873",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "336": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 336,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:16111:13653",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1101:28437:12428",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "337": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 337,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:12575:20700",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:16705:15487",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "338": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 338,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1102:17832:16244",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:9417:17182",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
@@ -2375,14 +2375,14 @@
     "340": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 340,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:8970:12329",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1104:26403:12886",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     },
     "341": {
         "collapse_to_subject_sample_id": 1,
         "collapse_to_subject_seq_ai": 341,
-        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1103:6427:19866",
+        "collapse_to_subject_seq_id": "M03592:18:000000000-AHJWK:1:1105:25018:9002",
         "copy_number_in_subject": 1,
         "instances_in_subject": 1
     }
