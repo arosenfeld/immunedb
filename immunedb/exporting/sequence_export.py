@@ -114,7 +114,7 @@ class SequenceExport(Exporter):
             getattr(
                 Sequence, '{}_id'.format(self.rtype)
             ) == rid
-        ) for rid in self.rids]
+        ) for rid in sorted(self.rids)]
         for query in queries:
             query = query.join(SequenceCollapse)
             if self.subject_uniques:

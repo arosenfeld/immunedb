@@ -24,10 +24,17 @@ class ExportTest(unittest.TestCase):
                 fh.write(response)
         else:
             with open(path) as fh:
-                assert fh.read() == response
+                expected = fh.read().strip()
+                if expected != response.strip():
+                    print 'EXPECTED'
+                    print expected
+                    print 'RESPONSE'
+                    print response.strip()
+                assert expected == response.strip()
 
     def test_sequences(self):
         for ext in ('fasta', 'fastq', 'clip'):
+            print 'checking {}'.format(ext)
             self.check(
                 'sequences.' + ext,
                 '/export/sequences/sample/T2', data={
