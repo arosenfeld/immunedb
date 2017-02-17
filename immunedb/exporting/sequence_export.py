@@ -86,7 +86,7 @@ class SequenceExport(Exporter):
         'collapse_to_subject_seq_id': lambda seq:
             seq.collapse.collapse_to_subject_seq_id,
         'instances_in_subject': lambda seq:
-            seq.collapse.collapse_to_subject_seq_id,
+            seq.collapse.instances_in_subject,
     })
 
     def __init__(self, session, writer, rtype, rids, selected_fields,
