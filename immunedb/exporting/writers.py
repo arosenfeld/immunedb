@@ -16,7 +16,7 @@ class SequenceWriter(object):
         return headers
 
     def preprocess_query(self, sequence_query):
-        return sequence_query
+        return sequence_query.order_by(Sequence.ai)
 
     def format_sequence(self, data, pseudo_seq=False):
         raise NotImplementedError()
@@ -76,7 +76,7 @@ class CLIPWriter(FASTAWriter):
         self._last_cid = None
 
     def preprocess_query(self, sequence_query):
-        return sequence_query.order_by(Sequence.clone_id)
+        return sequence_query.order_by(Sequence.clone_id, Sequence.ai)
 
     def format_sequence(self, data, pseudo_seq=False):
         if data['clone_id'] != self._last_cid and not pseudo_seq:
