@@ -286,8 +286,8 @@ class SubcloneWorker(concurrent.Worker):
 
         for subclone in potential_subclones:
             for parent in parent_clones:
-                if not can_subclone(subclone.sequences, parent.sequences,
-                                    self._min_similarity):
+                if can_subclone(subclone.sequences, parent.sequences,
+                                self._min_similarity):
                     subclone.parent = parent
                     break
         self._session.commit()
