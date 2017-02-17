@@ -17,8 +17,11 @@ install:
   - pip install nose
   - pip install codecov
   - python setup.py install
-  - git clone --recursive https://github.com/noporpoise/seq-align ~/seq-align
-  - cd ~/seq-align && make
+  - git clone https://github.com/noporpoise/seq-align ~/seq-align
+  - cd ~/seq-align
+  - git checkout d0aa4804a93e46fdf267ef4b89f7cc66f2f0eeb8
+  - git submodule update --recursive --init
+  - make
 before_script:
   - mysql -u root -e 'SET GLOBAL innodb_file_format=barracuda;';
   - mysql -u root -e 'SET GLOBAL innodb_file_per_table=ON;';
