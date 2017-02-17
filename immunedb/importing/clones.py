@@ -91,7 +91,7 @@ def import_template(session, in_file, regen):
         session.commit()
 
     db_clone_ids = set([])
-    for clone_info in seen_clones.values():
+    for cid, clone_info in sorted(seen_clones.items()):
         clone_inst = clone_info['clone']
         session.add(clone_inst)
         session.flush()

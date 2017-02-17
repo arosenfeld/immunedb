@@ -215,7 +215,8 @@ def threshold_mutations(all_muts, min_required_seqs):
             'mutations': {}
         }
         for mtype, mutations in sorted(types.iteritems()):
-            for mutation in sorted(mutations,
+            for mutation in sorted(
+                    mutations,
                     key=lambda m: (m['pos'], m['from_nt'], m['to_nt'])):
                 if mutation['unique'] >= min_required_seqs:
                     if mtype not in final[region]['mutations']:

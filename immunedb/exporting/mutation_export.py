@@ -27,7 +27,7 @@ class MutationExporter(object):
             'nonsynonymous_total': (
                 lambda r: r.get('conservative_total', 0) +
                 r.get('nonconservative_total', 0)),
-            'sample_id': lambda r: r['sample_id'] if r['sample_id'] else 'All'
+            'sample_id': lambda r: r['sample_id'] if r['sample_id'] else 'ALL'
         }, streaming=True)
 
     def _sample_rows(self, cid, sample_id):
@@ -35,7 +35,8 @@ class MutationExporter(object):
             self._session, cid, self._thresh_type,
             self._thresh_value, sample_id=sample_id)
 
-        for region, stats in result['regions'].iteritems():
+        for region in sorted(result['regions'].keys()):
+            stats = result['regions'][region]
             row = {
                 'clone_id': cid,
                 'region': region,
@@ -50,7 +51,7 @@ class MutationExporter(object):
                               write_if_stream=False)
 
     def get_data(self):
-        for cid in self._clone_ids:
+        for cid in sorted(self._clone_ids):
             # Write mutations for entire clone
             self._sample_rows(cid, None)
             yield self._csv.get_value()
@@ -62,6 +63,6 @@ class MutationExporter(object):
                     CloneStats.sample_id).filter(
                         CloneStats.clone_id == cid,
                         CloneStats.sample_id != 0).all())
-            for sample_id in sample_ids:
+            for sample_id in sorted(sample_ids):
                 self._sample_rows(cid, sample_id)
                 yield self._csv.get_value()

@@ -75,7 +75,6 @@ class BaseTest(object):
                     agg_keys - check_keys)
                 self.assertEqual(check_keys, set(agg_keys))
 
-
     class RegressionTest(BaseRegression):
         def __init__(self, name, *args, **kwargs):
             super(BaseTest.RegressionTest, self).__init__(name, *args,

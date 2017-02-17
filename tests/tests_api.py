@@ -26,7 +26,7 @@ def compare_objs(o1, o2):
 
 
 def pp(j):
-    return json.dumps(j, sort_keys=True,indent=4, separators=(',', ': '))
+    return json.dumps(j, sort_keys=True, indent=4, separators=(',', ': '))
 
 
 class ApiTest(unittest.TestCase):

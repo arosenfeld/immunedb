@@ -11,6 +11,7 @@ class JGermlines(GeneTies):
         'TRDJ',
         'TRGJ'
     ])
+
     def __init__(self, path_to_germlines, upstream_of_cdr3, anchor_len,
                  min_anchor_len, ties_prob_threshold=.01):
         self._upstream_of_cdr3 = upstream_of_cdr3

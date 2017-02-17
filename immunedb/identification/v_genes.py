@@ -108,6 +108,7 @@ class VGermlines(GeneTies):
         'TRDV',
         'TRGV',
     ])
+
     def __init__(self, path_to_germlines, ties_prob_threshold=.01,
                  include_prepadded=False):
         self._min_length = None
