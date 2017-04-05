@@ -80,8 +80,7 @@ def consensus(strings):
     :rtype: str
 
     """
-    chrs = [sorted(Counter(chars).most_common(), key=lambda k: k[::-1])[0][0]
-            for chars in zip(*strings)]
+    chrs = [Counter(chars).most_common(1)[0][0] for chars in zip(*strings)]
     return ''.join(chrs)
 
 

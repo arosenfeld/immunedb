@@ -1,7 +1,7 @@
 [
     {
         "clone": {
-            "cdr3_aa": "CARGGQLQPLDFW",
+            "cdr3_aa": "CARGGQLQPLDLW",
             "cdr3_num_nts": 39,
             "id": 51,
             "j_gene": "IGHJ1|4|5",
