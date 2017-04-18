@@ -1,4 +1,8 @@
 # CHANGELOG
+## v0.19.1
+* Subclones are now properly assigned.
+* The order of exported sequences is now consistent.
+* Updates for consistency with Python 3 test cases.
 ## v0.19.0
 * ImmuneDB can now process T-cell sequences.
 * Clonal assignment now includes an optional "subclone" process for
