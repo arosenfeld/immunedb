@@ -5,30 +5,29 @@ Getting Started (Docker Compose)
 
 Dependency Installation
 -----------------------
-Using ImmuneDB with docker requires that both Docker `Docker <http://docker.com>`_
+Using ImmuneDB with Docker requires that both Docker `Docker <http://docker.com>`_
 and `Docker Compose <https://www.docker.com/products/docker-compose>`_ be
 installed.  Please consult these websites to install them on your target system.
 
 ImmuneDB Docker Files
-----------------------
-Once docker is installed, clone the ImmuneDB repository:
+---------------------
+ImmuneDB comes with a script to simplify running it within Docker for simple
+projects.  Once Docker and Docker Compose are installed, install the script and
+related files with:
 
 .. code-block:: bash
 
-    $ git clone https://github.com/arosenfeld/immunedb.git ~/immunedb-git
-
-In the resulting ``~/immunedb-git`` directory, there will be a ``run-docker.sh``
-file which will be used to launch the Docker instance.
+    $ wget http://immunedb.com/docker-install | bash
 
 
-Runnning ImmuneDB
--------------
+Using the Helper Script
+-----------------------
 There are many ways to change the configuration of your Docker Compose ImmuneDB
-instance but to get started, within ``~/immunedb-git`` you can run:
+instance but to get started, run:
 
 .. code-block:: bash
 
-    $ ./run-docker.sh
+    $ ./immunedb-docker.sh start
 
 This will do the following:
 
@@ -43,28 +42,11 @@ This will do the following:
 
 You can view the frontend website at ``http://localhost:8080``.  There will be
 no data there since this is a fresh installation.  To launch a bash shell into
-the ImmuneDB Docker image run the following
+the ImmuneDB Docker image run:
 
 .. code-block:: bash
 
-    $ docker ps
-	CONTAINER ID        IMAGE                      COMMAND                  CREATED             STATUS              PORTS                    NAMES
-	106fa8a740b3        arosenfeld/immunedb            "/bin/sh -c '/app/./w"   5 seconds ago       Up 4 seconds        0.0.0.0:5000->5000/tcp   immunedb_immunedb_1
-	fe2895cf3be2        arosenfeld/immunedb-frontend   "npm run serve"          5 seconds ago       Up 4 seconds        0.0.0.0:8080->8080/tcp   immunedb_frontend_1
-	18a58f85551e        mariadb                      "/docker-entrypoint.s"   6 seconds ago       Up 5 seconds        3306/tcp                 immunedb_mariadb_1
-
-Note that there are three containers running; one for the front-end, one for the
-database, and one for the ImmuneDB Docker instance itself.  The first one (named
-``immunedb_immunedb_1`` here, but may differ for each machine) is the ImmuneDB Docker
-instance.  Let's launch a bash shell into it:
-
-.. code-block:: bash
-
-    $ docker exec -i -t 106fa8a740b3 bash
-
-Note you need not type the entire ``CONTAINER ID`` but just enough of it to
-uniquely identify the container.  After running this, you will have a bash
-shell into the instance.  ImmuneDB is installed here.
+    $ ./immunedb-docker.sh shell
 
 To get data, such as germlines and sequences, into the container, copy them into
 the host machine's ``~/immunedb/data`` directory.  It will then be available in the
@@ -80,7 +62,7 @@ which will then be accessible at ``/root/data`` in the container.
 
 Advanced Configuration
 ----------------------
-The ``run-docker.sh`` script makes some assumptions about the host system:
+The ``immunedb-docker.sh`` script makes some assumptions about the host system:
 
 - The REST API is running on the same machine at port 5000.
 - That the URL used to access the frontend webpage is ``http://localhost:8080``.
@@ -108,4 +90,4 @@ For example:
 
 .. code-block:: bash
 
-    $ API_ENDPOINT=http://sub.abc.com:5000 BASENAME=example SERVE_PORT=80 ./run-docker.sh
+    $ API_ENDPOINT=http://sub.abc.com:5000 BASENAME=example SERVE_PORT=80 ./immunedb-docker.sh
