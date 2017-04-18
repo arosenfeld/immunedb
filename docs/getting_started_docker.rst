@@ -17,8 +17,7 @@ related files with:
 
 .. code-block:: bash
 
-    $ wget http://immunedb.com/docker-install | bash
-
+    $ wget -q -O - http://immunedb.com/docker-install | bash
 
 Using the Helper Script
 -----------------------
