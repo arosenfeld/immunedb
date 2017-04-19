@@ -1,38 +1,21 @@
-import json
 import multiprocessing as mp
 import os
 import traceback
 
 from Bio import SeqIO
 
-from sqlalchemy.sql import exists
-
 import immunedb.common.config as config
 import immunedb.common.modification_log as mod_log
 from immunedb.common.models import Sample, Sequence, Study, Subject
 from immunedb.identification import (add_as_noresult, add_uniques,
                                      AlignmentException)
+from immunedb.identification.metadata import parse_metadata, MetadataException
 from immunedb.identification.vdj_sequence import VDJSequence
 from immunedb.identification.v_genes import VGermlines
 from immunedb.identification.j_genes import JGermlines
 import immunedb.util.concurrent as concurrent
 import immunedb.util.funcs as funcs
 from immunedb.util.log import logger
-
-
-class SampleMetadata(object):
-    def __init__(self, specific_config, global_config=None):
-        self._specific = specific_config
-        self._global = global_config
-
-    def get(self, key, require=True):
-        if key in self._specific:
-
-            return self._specific[key]
-        elif self._global is not None and key in self._global:
-            return self._global[key]
-        if require:
-            raise Exception(('Could not find metadata for key {}'.format(key)))
 
 
 class IdentificationWorker(concurrent.Worker):
@@ -49,12 +32,12 @@ class IdentificationWorker(concurrent.Worker):
 
     def do_task(self, args):
         meta = args['meta']
-        self.info('Starting sample {}'.format(meta.get('sample_name')))
+        self.info('Starting sample {}'.format(meta['sample_name']))
         study, sample = self._setup_sample(meta)
 
         vdjs = {}
-        parser = SeqIO.parse(os.path.join(args['path'], args['fn']), 'fasta' if
-                             args['fn'].endswith('.fasta') else 'fastq')
+        parser = SeqIO.parse(args['path'], 'fasta' if
+                             args['path'].endswith('.fasta') else 'fastq')
 
         # Collapse identical sequences
         self.info('\tCollapsing identical sequences')
@@ -121,25 +104,25 @@ class IdentificationWorker(concurrent.Worker):
         self._sync_lock.acquire()
         self._session.commit()
         study, new = funcs.get_or_create(
-            self._session, Study, name=meta.get('study_name'))
+            self._session, Study, name=meta['study_name'])
 
         if new:
             self.info('\tCreated new study "{}"'.format(study.name))
             self._session.commit()
 
-        name = meta.get('sample_name')
+        name = meta['sample_name']
         sample, new = funcs.get_or_create(
             self._session, Sample, name=name, study=study)
         if new:
-            sample.date = meta.get('date')
+            sample.date = meta['date']
             self.info('\tCreated new sample "{}"'.format(
                 sample.name))
             for key in ('subset', 'tissue', 'disease', 'lab', 'experimenter',
                         'ig_class', 'v_primer', 'j_primer'):
-                setattr(sample, key, meta.get(key, require=False))
+                setattr(sample, key, meta.get(key, None))
             subject, new = funcs.get_or_create(
                 self._session, Subject, study=study,
-                identifier=meta.get('subject'))
+                identifier=meta['subject'])
             sample.subject = subject
 
         self._session.commit()
@@ -158,60 +141,31 @@ def run_identify(session, args):
                              args.anchor_len, args.min_anchor_len)
     tasks = concurrent.TaskQueue()
 
-    sample_names = set([])
-    fail = False
-    for directory in args.sample_dirs:
-        # If metadata is not specified, assume it is "metadata.json" in the
-        # directory
-        if args.metadata is None:
-            meta_fn = os.path.join(directory, 'metadata.json')
-        else:
-            meta_fn = args.metadata
+    # If metadata is not specified, assume it is "metadata." in the
+    # directory
+    meta_fn = args.metadata if args.metadata else os.path.join(
+        args.sample_dir, 'metadata.tsv')
 
-        # Verify the metadata file exists
-        if not os.path.isfile(meta_fn):
-            logger.error('Metadata file not found.')
+    # Verify the metadata file exists
+    if not os.path.isfile(meta_fn):
+        logger.error('Metadata file not found.')
+        return
+
+    with open(meta_fn) as fh:
+        try:
+            metadata = parse_metadata(session, fh, args.warn_existing,
+                                      args.sample_dir)
+        except MetadataException as ex:
+            logger.error(ex.message)
             return
 
-        with open(meta_fn) as fh:
-            metadata = json.load(fh)
-
-        # Create the tasks for each file
-        for fn in sorted(metadata.keys()):
-            if fn == 'all':
-                continue
-            meta = SampleMetadata(
-                metadata[fn],
-                metadata['all'] if 'all' in metadata else None)
-            if session.query(Sample).filter(
-                    Sample.name == meta.get('sample_name'),
-                    exists().where(
-                        Sequence.sample_id == Sample.id
-                    )).first() is not None:
-                log_f = logger.warning if args.warn_existing else logger.error
-                log_f('Sample {} already exists. {}'.format(
-                    meta.get('sample_name'), 'Skipping.' if
-                    args.warn_existing else 'Cannot continue.'
-                ))
-                fail = True
-            elif meta.get('sample_name') in sample_names:
-                logger.error(
-                    'Sample {} exists more than once in metadata.'.format(
-                        meta.get('sample_name')))
-                return
-            else:
-                tasks.add_task({
-                    'path': directory,
-                    'fn': fn,
-                    'meta': meta
-                })
-                sample_names.add(meta.get('sample_name'))
-
-        if fail and not args.warn_existing:
-            logger.error('Encountered errors.  Not running any identification.'
-                         ' To skip samples that are already in the database '
-                         'use --warn-existing.')
-            return
+    # Create the tasks for each file
+    for sample_name in sorted(metadata.keys()):
+        tasks.add_task({
+            'path': os.path.join(
+                args.sample_dir, metadata[sample_name]['file_name']),
+            'meta': metadata[sample_name]
+        })
 
     lock = mp.Lock()
     for i in range(0, min(args.nproc, tasks.num_tasks())):
