@@ -22,10 +22,9 @@ if __name__ == '__main__':
     parser.add_argument('--min-anchor-len', type=int, help='The minimum '
                         'number of nucleotides in the J germline anchors '
                         'required to match the sequence.', default=12)
-    parser.add_argument('sample_dirs', nargs='+', help='Base directories for '
-                        'samples.')
+    parser.add_argument('sample_dir', help='Base directory for samples.')
     parser.add_argument('--metadata', default=None, help='Path to metadata '
-                        'file.  If not specified, expects "metadata.json" to '
+                        'file.  If not specified, expects "metadata.tsv" to '
                         'exist in the base_dir')
     parser.add_argument('--max-vties', type=int, default=50, help='Maximum '
                         'number of V-ties to allow in a valid sequence. '

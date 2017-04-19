@@ -16,7 +16,7 @@ class TestPipeline(BaseTest.RegressionTest):
                 upstream_of_cdr3=31,
                 anchor_len=18,
                 min_anchor_len=12,
-                sample_dirs=['tests/data/identification'],
+                sample_dir='tests/data/identification',
                 metadata=None,
                 max_vties=50,
                 min_similarity=60,
