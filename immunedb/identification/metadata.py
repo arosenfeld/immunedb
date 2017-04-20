@@ -6,10 +6,9 @@ from sqlalchemy.sql import exists
 from immunedb.common.models import Sample, Sequence
 from immunedb.util.log import logger
 
-REQUIRED_FIELDS = set(('study_name', 'sample_name', 'date', 'subject',
-                       'file_name'))
-OPTIONAL_FIELDS = set(('subset', 'tissue', 'disease', 'lab',
-                       'experimenter', 'ig_class', 'v_primer', 'j_primer'))
+REQUIRED_FIELDS = ('file_name', 'study_name', 'sample_name', 'date', 'subject')
+OPTIONAL_FIELDS = ('subset', 'tissue', 'disease', 'lab', 'experimenter',
+                   'ig_class', 'v_primer', 'j_primer')
 
 
 class MetadataException(Exception):
@@ -28,12 +27,13 @@ def check_populated(row):
 def parse_metadata(session, fh, warn_existing, path):
     reader = csv.DictReader(fh, delimiter='\t')
     provided_fields = set(reader.fieldnames)
-    missing_fields = REQUIRED_FIELDS - provided_fields
+    missing_fields = set(REQUIRED_FIELDS) - provided_fields
     if len(missing_fields) > 0:
         raise MetadataException(
             'Metadata is missing the following headers: {}'.format(
                 ','.join(missing_fields)))
-    unknown_fields = provided_fields - (REQUIRED_FIELDS.union(OPTIONAL_FIELDS))
+    unknown_fields = provided_fields - (
+        set(REQUIRED_FIELDS).union(set(OPTIONAL_FIELDS)))
     if len(unknown_fields) > 0:
         logger.warning('Ignoring unknown headers in metadata: {}'.format(
             ','.join(unknown_fields)))
