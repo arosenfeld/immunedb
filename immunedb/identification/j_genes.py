@@ -23,7 +23,7 @@ class JGermlines(GeneTies):
             for record in SeqIO.parse(fh, 'fasta'):
                 self.prefix = record.id[:4]
                 assert self.prefix in JGermlines.ALLOWED_PREFIX
-                if all(map(lambda c: c in 'ATCGN-', record.seq)):
+                if all(map(lambda c: c in 'ATCGN-', record.seq.upper())):
                     self[record.id] = str(record.seq).upper()
                     if (self._min_length is None or
                             len(self[record.id]) < self._min_length):
