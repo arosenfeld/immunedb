@@ -54,9 +54,9 @@ For example, a directory of FASTA files may look like this:
 .. code-block:: bash
 
     $ ls sequence-data
-    subjectABC_spleen.fasta
-    subjectDEF_blood.fasta
-    subjectXYZ_liver.fasta
+    subjectD001_spleen.fasta
+    subjectD002_blood.fasta
+    subjectD002_liver.fasta
 
 ImmuneDB needs some metadata about each of the FASTA files to process it.
 Specifically, it **requires** the following information (the maximum number of
@@ -86,40 +86,27 @@ The following are **optional** for each file:
 - ``v_primer`` (32): An arbitrary string indicating the V-gene primer used.
 - ``j_primer`` (32): An arbitrary string indicating the J-gene primer used.
 
-This information is specified in a ``metadata.json`` file which must be placed
-in the same directory as the FASTA files.  The following is an example of such a
-metadata file:
+This information is specified in a ``metadata.tsv`` file which must be placed in
+the same directory as the FASTA files.  A template for this file can be
+generated based on FASTA files with:
 
-.. code-block:: json
+A template for this file can be generated with:
 
-    {
-        "all": {
-            "study_name": "Lupus",
-        },
-        "subjectABC_spleen.fasta": {
-            "sample_name": "ABC_SPLEEN",
-            "subject": "ABC",
-            "tissue": "Spleen",
-            "date": "2015-09-13"
-        },
-        "subjectDEF_blood.fasta": {
-            "sample_name": "DEF_BLOOD",
-            "subject": "DEF",
-            "tissue": "Blood",
-            "date": "2015-09-14"
-        },
-        "subjectXYZ_liver.fasta": {
-            "sample_name": "XYZ_LIVER",
-            "subject": "XYZ",
-            "tissue": "Liver",
-            "date": "2015-09-15"
-        }
-    }
+.. code-block:: bash
+
+    $ immunedb_metadata --path PATH_TO_FASTA_FILES
 
 
-The ``all`` block applies the specified keys to all files.  If a key is
-specified both in the ``all`` block and the block for a file, the value
-specified for the file is used.
+The following is an example of such a metadata file with some information filled
+in:
+
+======================== ============ ============ ========== ======= ====== ======= ======= ======== ================= ======== ======== ========
+file_name                study_name   sample_name  date       subject subset tissue  disease lab      experimenter      ig_class v_primer j_primer
+======================== ============ ============ ========== ======= ====== ======= ======= ======== ================= ======== ======== ========
+subjectD001_spleen.fasta B-cell Study D001_SPL     2015-09-13 D001    Naive  Spleen          Some lab Mr. Experimenter           Leader   J mix
+subjectD002_blood.fasta  B-cell Study D002_BL      2015-09-14 D002    Naive  Blood           Some lab Mrs. Experimenter          Leader   J mix
+subjectD002_liver.fasta  B-cell Study D002_Liver   2015-09-15 D003    Mature Liver           Some lab Mrs. Experimenter          FW1      J mix
+======================== ============ ============ ========== ======= ====== ======= ======= ======== ================= ======== ======== ========
 
 .. warning::
     It's advisable to not use terms like "None", "N/A", or an empty string to
@@ -132,10 +119,10 @@ After creating the metadata file, the directory should look like:
 .. code-block:: bash
 
     $ ls sequence-data
-    metadata.json
-    subjectABC_spleen.fasta
-    subjectDEF_blood.fasta
-    subjectXYZ_liver.fasta
+    metadata.tsv
+    subjectD001_spleen.fasta
+    subjectD002_blood.fasta
+    subjectD003_liver.fasta
 
 Germline Files
 --------------
