@@ -103,6 +103,7 @@ Modules
     common
     models
     api
+    referencing
 
 Indices and tables
 ==================
