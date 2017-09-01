@@ -8,8 +8,7 @@ from sqlalchemy import desc
 
 from Bio.Seq import Seq
 import dnautils
-from immunedb.identification.j_genes import JGermlines
-from immunedb.identification.v_genes import VGermlines
+from immunedb.identification.genes import JGermlines, VGermlines
 from immunedb.common.models import (CDR3_OFFSET, DuplicateSequence, NoResult,
                                     Sample, Sequence)
 import immunedb.util.concurrent as concurrent

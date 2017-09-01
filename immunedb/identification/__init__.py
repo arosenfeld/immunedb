@@ -1,6 +1,7 @@
 from collections import OrderedDict
 import dnautils
 import itertools
+import re
 import traceback
 
 from immunedb.common.models import (CDR3_OFFSET, DuplicateSequence, NoResult,
@@ -42,10 +43,8 @@ def add_as_sequence(session, vdj, sample):
 
             probable_indel_or_misalign=vdj.has_possible_indel,
 
-            v_gene=funcs.format_ties(vdj.v_gene, vdj.v_germlines.prefix,
-                                     strip_alleles=True),
-            j_gene=funcs.format_ties(vdj.j_gene, vdj.j_germlines.prefix,
-                                     strip_alleles=True),
+            v_gene=funcs.format_ties(vdj.v_gene),
+            j_gene=funcs.format_ties(vdj.j_gene),
 
             num_gaps=vdj.num_gaps,
             pad_length=vdj.pad_length,
@@ -95,33 +94,33 @@ def add_as_sequence(session, vdj, sample):
         add_as_noresult(session, vdj, sample, str(e))
 
 
-def add_uniques(session, sample, vdjs, realign_len=None,
-                realign_mut=None, min_similarity=0, max_vties=50,
-                trim_to=None, max_padding=None):
+def add_uniques(session, sample, vdjs, props, realign_len=None,
+                realign_mut=None):
     bucketed_seqs = OrderedDict()
     vdjs = sorted(vdjs, key=lambda v: v.ids[0])
     for vdj in funcs.periodic_commit(session, vdjs):
         try:
             if realign_len is not None:
-                vdj.align_to_germline(realign_len, realign_mut, trim_to)
-            if vdj.v_match / float(vdj.v_length) < min_similarity:
+                vdj.align_to_germline(realign_len, realign_mut, props.trim_to)
+            if not props.valid_min_similarity(vdj):
                 raise AlignmentException(
                     'V-identity too low {} < {}'.format(
-                        vdj.v_match / float(vdj.v_length), min_similarity))
-            if len(vdj.v_gene) > max_vties:
+                        vdj.v_match / float(vdj.v_length),
+                        props.min_similarity))
+            if not props.valid_v_ties(vdj):
                 raise AlignmentException('Too many V-ties {} > {}'.format(
-                    len(vdj.v_gene), max_vties))
-            if max_padding is not None and vdj.pad_length > max_padding:
+                    len(vdj.v_gene), props.max_v_ties))
+            if not props.valid_padding(vdj):
                 raise AlignmentException('Too much padding {} (max {})'.format(
-                    vdj.pad_length, max_padding
-                ))
+                    vdj.pad_length, props.max_padding))
+            if not props.valid_families(vdj):
+                raise AlignmentException('Cross-family V-call')
             bucket_key = (
-                funcs.format_ties(vdj.v_gene, vdj.v_germlines.prefix,
-                                  strip_alleles=True),
-                funcs.format_ties(vdj.j_gene, vdj.j_germlines.prefix,
-                                  strip_alleles=True),
+                funcs.format_ties(vdj.v_gene),
+                funcs.format_ties(vdj.j_gene),
                 len(vdj.cdr3)
             )
+
             if bucket_key not in bucketed_seqs:
                 bucketed_seqs[bucket_key] = {}
             bucket = bucketed_seqs[bucket_key]
@@ -154,86 +153,6 @@ def add_uniques(session, sample, vdjs, realign_len=None,
                     del sequences[i]
             add_as_sequence(session, larger, sample)
     session.commit()
-
-
-class GeneTies(dict):
-    def __init__(self, genes, remove_gaps=True, ties_prob_threshold=.01):
-        self.ties = {}
-        self.hypers = {}
-        self.ties_prob_threshold = ties_prob_threshold
-        self.remove_gaps = remove_gaps
-
-        self.update(genes)
-
-        self.allele_lookup = {}
-        for name in self.keys():
-            self.allele_lookup[name] = set([])
-            for name2 in self.keys():
-                if name2.split('*')[0] == name.split('*')[0]:
-                    self.allele_lookup[name].add(name2)
-
-    def all_ties(self, length, mutation, cutoff=True):
-        ties = {}
-        for name in self:
-            tie_name = tuple(sorted(self.get_ties([name], length, mutation)))
-            if tie_name not in ties:
-                ties[tie_name] = get_common_seq(
-                    [self[n] for n in tie_name], cutoff=cutoff
-                )
-        return ties
-
-    def get_ties(self, genes, length, mutation):
-        ties = set([])
-        for gene in genes:
-            ties.update(self.get_single_tie(gene, length, mutation))
-        return ties
-
-    def get_single_tie(self, gene, length, mutation):
-        length = int(length)
-        mutation = round(mutation, 3)
-        mutation = self.mut_bucket(mutation)
-        key = (length, mutation)
-
-        if key not in self.ties:
-            self.ties[key] = {}
-
-        if gene not in self:
-            return set([gene])
-
-        if gene not in self.ties[key]:
-            s_1 = (
-                self[gene].replace('-', '') if self.remove_gaps else self[gene]
-            )
-            self.ties[key][gene] = set([gene])
-
-            for name, v in sorted(self.iteritems()):
-                s_2 = v.replace('-', '') if self.remove_gaps else v
-                K = dnautils.hamming(s_1[-length:], s_2[-length:])
-                p = self._hypergeom(length, mutation, K)
-                if p >= self.ties_prob_threshold:
-                    self.ties[key][gene].add(name)
-            self.ties[key][gene] = self.all_alleles(self.ties[key][gene])
-
-        return self.ties[key][gene]
-
-    def _hypergeom(self, length, mutation, K):
-        key = (length, mutation, K)
-        if key not in self.hypers:
-            self.hypers[key] = hypergeom(length, mutation, K)
-        return self.hypers[key]
-
-    def mut_bucket(self, mut):
-        if 0 <= mut <= .05:
-            return .05
-        if mut <= .15:
-            return .15
-        return .30
-
-    def all_alleles(self, genes):
-        all_genes = set([])
-        for gene in genes:
-            all_genes.update(self.allele_lookup[gene])
-        return all_genes
 
 
 def get_common_seq(seqs, cutoff=True):

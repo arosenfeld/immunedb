@@ -69,11 +69,13 @@ def find_streak_position(s1, s2, max_streak):
     return None
 
 
-def format_ties(ties, name, strip_alleles=False):
+def format_ties(ties):
     if ties is None:
         return None
 
-    ties = [e.replace(name, '') for t in ties for e in t.split('|')]
-    if strip_alleles:
-        ties = [e.split('*', 1)[0] for e in ties]
-    return '{}{}'.format(name, '|'.join(sorted(set(ties))))
+    formatted = []
+    for t in ties:
+        prefix = t.prefix
+        for e in t.name.split('|'):
+            formatted.append(e.replace(prefix, '').split('*', 1)[0])
+    return '{}{}'.format(prefix, '|'.join(sorted(set(formatted))))

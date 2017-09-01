@@ -5,7 +5,7 @@ from Bio.Seq import Seq
 import dnautils
 from immunedb.common.models import CDR3_OFFSET
 from immunedb.identification import AlignmentException, get_common_seq
-from immunedb.identification.v_genes import VGene, find_v_position
+from immunedb.identification.genes import VGene, find_v_position
 from immunedb.util.funcs import find_streak_position
 import immunedb.util.lookups as lookups
 
@@ -112,6 +112,28 @@ class VDJSequence(object):
     def functional(self):
         return self.in_frame and not self.stop
 
+    def _find_index(self, sequence, germline):
+        best_pos, best_hamming = None, None
+        for pos in range(len(sequence) - len(germline)):
+            hamming = dnautils.hamming(sequence[pos:pos + len(germline)],
+                                       germline)
+            if best_hamming is None or hamming < best_hamming:
+                best_pos = pos
+                best_hamming = hamming
+                is_rc = False
+
+        rc = str(Seq(sequence).reverse_complement())
+        for pos in range(len(rc) - len(germline)):
+            hamming = dnautils.hamming(rc[pos:pos + len(germline)],
+                                       germline)
+            if best_hamming is None or hamming < best_hamming:
+                best_pos = pos
+                best_hamming = hamming
+                is_rc = True
+
+        best_pos += len(germline) - self.j_germlines.anchor_len
+        return best_pos, best_hamming, is_rc
+
     def _check_j_with_missing(self, sequence, match):
         for pos in range(len(sequence) - len(match)):
             ss = sequence[pos:pos + len(match)]
@@ -130,35 +152,55 @@ class VDJSequence(object):
         # TGGTCACCGTCTCCT
         # TGGTCACCGTCT
 
+        rc = str(Seq(self.sequence).reverse_complement())
         for match, j_gene in self.j_germlines.get_all_anchors(self._force_js):
             i = self.sequence.rfind(match)
             if i >= 0:
-                return self._found_j(i, j_gene, match)
+                return self._found_j(i, j_gene, len(match))
 
-            rc = str(Seq(self.sequence).reverse_complement())
             i = rc.rfind(match)
             if i >= 0:
                 self.sequence = rc
                 if self.quality is not None:
                     self.quality = self.quality[::-1]
-                return self._found_j(i, j_gene, match)
+                return self._found_j(i, j_gene, len(match))
 
-            i = self._check_j_with_missing(self.sequence, match)
+	    i = self._check_j_with_missing(self.sequence, match)
             if i >= 0:
-                return self._found_j(i, j_gene, match)
+                return self._found_j(i, j_gene, len(match))
 
             i = self._check_j_with_missing(rc, match)
             if i >= 0:
                 self.sequence = rc
                 if self.quality is not None:
                     self.quality = self.quality[::-1]
-                return self._found_j(i, j_gene, match)
-        raise AlignmentException('Could not find J anchor')
+                return self._found_j(i, j_gene, len(match))
 
-    def _found_j(self, i, j_gene, match):
+        # Last chance, find any matching position
+        total_best_gene, total_best_hamming = None, None
+        total_best_rc, total_best_pos = None, None
+        for j_gene, germ_seq in self.j_germlines.iteritems():
+            best_pos, best_hamming, is_rc = self._find_index(
+                self.sequence, germ_seq)
+            if (total_best_hamming is None or
+                    best_hamming < total_best_hamming):
+                total_best_hamming = best_hamming
+                total_best_pos = best_pos
+                total_best_gene = j_gene
+                total_best_rc = is_rc
+
+        if total_best_rc:
+            self.sequence = rc
+            if self.quality is not None:
+                self.quality = self.quality[::-1]
+
+        return self._found_j(total_best_pos, j_gene,
+                             self.j_germlines.anchor_len)
+
+    def _found_j(self, i, j_gene, match_len):
         # If a match is found, record its location and gene
         self.j_anchor_pos = i
-        self.j_anchor_len = len(match)
+        self.j_anchor_len = match_len
         end_of_j = min(
             self.j_anchor_pos + self.j_germlines.anchor_len,
             len(self.sequence)
@@ -211,7 +253,7 @@ class VDJSequence(object):
             j_full = j_full[len(germline_in_cdr3) - streak:]
 
         # Find where the full J starts
-        self._j_start = self.j_anchor_pos + len(match) - len(j_full)
+        self._j_start = self.j_anchor_pos + match_len - len(j_full)
 
         # If the trimmed germline J extends past the end of the
         # sequence, there is a misalignment
