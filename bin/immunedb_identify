@@ -3,7 +3,9 @@ import sys
 import argparse
 
 import immunedb.common.config as config
-from immunedb.identification.identify import run_identify
+from immunedb.identification.identify import (IdentificationProps,
+                                              run_identify)
+from immunedb.identification.genes import JGermlines
 
 if __name__ == '__main__':
     parser = config.get_base_arg_parser('Identifies V and J genes from '
@@ -15,30 +17,38 @@ if __name__ == '__main__':
                         'aligned. Sequence cannot contain any gaps.')
     parser.add_argument('--upstream-of-cdr3', type=int, help='The number of '
                         ' nucleotides in the J germlines upstream of the CDR3',
-                        default=31)
+                        default=JGermlines.defaults['upstream_of_cdr3'])
     parser.add_argument('--anchor-len', type=int, help='The number of '
                         'nucleotides at the end of the J germlines to use as '
-                        'anchors.', default=18)
+                        'anchors.', default=JGermlines.defaults['anchor_len'])
     parser.add_argument('--min-anchor-len', type=int, help='The minimum '
                         'number of nucleotides in the J germline anchors '
-                        'required to match the sequence.', default=12)
+                        'required to match the sequence.',
+                        default=JGermlines.defaults['min_anchor_len'])
     parser.add_argument('sample_dir', help='Base directory for samples.')
     parser.add_argument('--metadata', default=None, help='Path to metadata '
                         'file.  If not specified, expects "metadata.tsv" to '
                         'exist in the base_dir')
-    parser.add_argument('--max-vties', type=int, default=50, help='Maximum '
-                        'number of V-ties to allow in a valid sequence. '
-                        'V-ties resulting in a name longer than 512 characters'
-                        ' will be truncated. (Default: 50)')
-    parser.add_argument('--min-similarity', type=int, default=60,
-                        help='Minimum percent similarity to germline required '
-                        'for valid sequences. (Default: 60)')
-    parser.add_argument('--max-padding', default=None, type=int, help='If '
+    parser.add_argument('--max-vties', type=int,
+                        default=IdentificationProps.defaults['max_v_ties'],
+                        help='Maximum number of V-ties to allow in a valid '
+                        'sequence.  V-ties resulting in a name longer than '
+                        '512 characters will be truncated. (Default: '
+                        '{})'.format(
+                            IdentificationProps.defaults['max_v_ties']))
+    parser.add_argument('--min-similarity', type=int,
+                        default=IdentificationProps.defaults['min_similarity'],
+                        help='Minimum fraction similarity to germline '
+                        'required for valid sequences. (Default: {})'.format(
+                            IdentificationProps.defaults['min_similarity']))
+    parser.add_argument('--max-padding', default=0, type=int, help='If '
                         'specified discards sequences with too much padding.')
-    parser.add_argument('--trim-to', type=int, default=None,
+    parser.add_argument('--trim-to', type=int,
+                        default=IdentificationProps.defaults['trim_to'],
                         help='If specified, trims the beginning N bases of '
                         'each sequence.  Useful for removing primers within '
-                        'the V sequence (Default: None)')
+                        'the V sequence (Default: {})'.format(
+                            IdentificationProps.defaults['trim_to']))
     parser.add_argument('--warn-existing', default=False, action='store_true',
                         help='If specified, warns of existing samples and '
                         'skips them.  Otherwise, an error is raised and '

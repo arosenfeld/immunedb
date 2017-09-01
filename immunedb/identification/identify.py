@@ -11,23 +11,52 @@ from immunedb.identification import (add_as_noresult, add_uniques,
                                      AlignmentException)
 from immunedb.identification.metadata import parse_metadata, MetadataException
 from immunedb.identification.vdj_sequence import VDJSequence
-from immunedb.identification.v_genes import VGermlines
-from immunedb.identification.j_genes import JGermlines
+from immunedb.identification.genes import JGermlines, VGermlines
 import immunedb.util.concurrent as concurrent
 import immunedb.util.funcs as funcs
 from immunedb.util.log import logger
 
 
+class IdentificationProps(object):
+    defaults = {
+        'max_v_ties': 50,
+        'min_similarity': .60,
+        'max_padding': None,
+        'trim_to': 0,
+        'allow_cross_family': False
+    }
+    def __init__(self, **kwargs):
+        for prop, default in self.defaults.iteritems():
+            setattr(self, prop, kwargs.get(prop, default))
+
+    def valid_v_ties(self, vdj):
+        return len(vdj.v_gene) <= self.max_v_ties
+
+    def valid_min_similarity(self, vdj):
+        return vdj.v_match / float(vdj.v_length) >= self.min_similarity
+
+    def valid_padding(self, vdj):
+        return self.max_padding is None or vdj.pad_length <= self.max_padding
+
+    def valid_families(self, vdj):
+        if self.allow_cross_family:
+            return True
+
+        family = None
+        for gene in vdj.v_gene:
+            if not family:
+                family = gene.family
+            elif gene.family != family:
+                return False
+        return True
+
+
 class IdentificationWorker(concurrent.Worker):
-    def __init__(self, session, v_germlines, j_germlines, trim_to, max_padding,
-                 max_vties, min_similarity, sync_lock):
+    def __init__(self, session, v_germlines, j_germlines, props, sync_lock):
         self._session = session
         self._v_germlines = v_germlines
         self._j_germlines = j_germlines
-        self._trim_to = trim_to
-        self._max_padding = max_padding
-        self._min_similarity = min_similarity
-        self._max_vties = max_vties
+        self._props = props
         self._sync_lock = sync_lock
 
     def do_task(self, args):
@@ -89,9 +118,8 @@ class IdentificationWorker(concurrent.Worker):
             self.info('\tRe-aligning {} sequences to V-ties, Mutations={}, '
                       'Length={}'.format(
                             len(vdjs), round(avg_mut, 2), round(avg_len, 2)))
-            add_uniques(self._session, sample, vdjs.values(), avg_len, avg_mut,
-                        self._min_similarity, self._max_vties, self._trim_to,
-                        self._max_padding)
+            add_uniques(self._session, sample, vdjs.values(), self._props,
+                        avg_len, avg_mut)
 
         self._session.commit()
         self.info('Completed sample {}'.format(sample.name))
@@ -167,12 +195,11 @@ def run_identify(session, args):
             'meta': metadata[sample_name]
         })
 
+    props = IdentificationProps(**args.__dict__)
     lock = mp.Lock()
     for i in range(0, min(args.nproc, tasks.num_tasks())):
         worker_session = config.init_db(args.db_config)
-        tasks.add_worker(IdentificationWorker(
-            worker_session, v_germlines, j_germlines, args.trim_to,
-            args.max_padding, args.max_vties, args.min_similarity / float(100),
-            lock))
+        tasks.add_worker(IdentificationWorker(worker_session, v_germlines,
+                                              j_germlines, props, lock))
 
     tasks.start()

@@ -5,8 +5,7 @@ from immunedb.common.models import NoResult, Sample, Study, Subject
 from immunedb.identification import (add_as_noresult, add_uniques,
                                      AlignmentException)
 from immunedb.identification.vdj_sequence import VDJSequence
-from immunedb.identification.j_genes import JGermlines
-from immunedb.identification.v_genes import VGermlines
+from immunedb.identification.genes import JGermlines, VGermlines
 import immunedb.util.funcs as funcs
 from immunedb.util.log import logger
 
