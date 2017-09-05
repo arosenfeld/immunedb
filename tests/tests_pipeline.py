@@ -19,7 +19,7 @@ class TestPipeline(BaseTest.RegressionTest):
                 sample_dir='tests/data/identification',
                 metadata=None,
                 max_vties=50,
-                min_similarity=60,
+                min_similarity=.60,
                 trim=0,
                 warn_existing=False,
                 trim_to=None,
