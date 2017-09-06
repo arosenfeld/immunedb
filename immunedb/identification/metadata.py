@@ -22,7 +22,8 @@ def check_populated(row):
             raise MetadataException('Sample name cannot be blank')
         raise MetadataException(
             'Fields {} cannot be blank for sample {}'.format(
-            ','.join(missing), row['sample_name']))
+                ','.join(missing), row['sample_name']))
+
 
 def parse_metadata(session, fh, warn_existing, path):
     reader = csv.DictReader(fh, delimiter='\t')
@@ -41,7 +42,7 @@ def parse_metadata(session, fh, warn_existing, path):
     metadata = {}
     for row in reader:
         row = {k: v for k, v in row.iteritems()
-                if v is not None and len(v) > 0}
+               if v is not None and len(v) > 0}
         check_populated(row)
         # Check if the sample name is unique
         if row['sample_name'] in metadata:

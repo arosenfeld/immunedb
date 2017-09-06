@@ -345,7 +345,7 @@ class CloneStats(Base):
 
     id = Column(Integer, primary_key=True)
     clone_id = Column(Integer, ForeignKey(Clone.id, ondelete='CASCADE'))
-    clone = relationship(Clone)
+    clone = relationship(Clone, backref=backref('stats'))
     subject_id = Column(
         Integer, ForeignKey(Subject.id, ondelete='CASCADE'))  # Denormalized
 

@@ -11,6 +11,9 @@ if __name__ == '__main__':
     parser.add_argument('--path', default='.', help='The directory in which '
                         'the FASTA or FASTQ files exist.  Defaults to the '
                         'current directory')
+    parser.add_argument('--files', default=None, nargs='+', help='Files '
+                        'to generate metadata for.  Default is all fasta '
+                        'and fastq files in the current directory.')
     parser.add_argument('--out', default='metadata.tsv', help='Path to '
                         'output file.  Use - for stdout.  Defaults to '
                         'metadata.tsv')
@@ -21,10 +24,13 @@ if __name__ == '__main__':
                         'sample1)')
     args = parser.parse_args()
 
-    files = [os.path.basename(f) for f in os.listdir(args.path)
-             if f.endswith('.fasta') or f.endswith('.fastq')]
+    if args.files is None:
+        files = [os.path.basename(f) for f in os.listdir(args.path)
+                 if f.endswith('.fasta') or f.endswith('.fastq')]
+    else:
+        files = args.files
     if len(files) == 0:
-        parser.error('No FASTA or FASTQ files in directory.')
+        parser.error('No FASTA or FASTQ files.')
 
     with sys.stdout if args.out == '-' else open(args.out, 'w+') as fh:
         writer = csv.DictWriter(fh,

@@ -28,6 +28,7 @@ setup(
         'bin/immunedb_clone_pressure',
         'bin/immunedb_clone_trees',
         'bin/immunedb_collapse',
+        'bin/immunedb_export',
         'bin/immunedb_local_align',
         'bin/immunedb_identify',
         'bin/immunedb_import',
