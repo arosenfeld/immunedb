@@ -4,8 +4,9 @@ import re
 from immunedb.common.models import NoResult, Sample, Study, Subject
 from immunedb.identification import (add_as_noresult, add_uniques,
                                      AlignmentException)
-from immunedb.identification.vdj_sequence import VDJSequence
 from immunedb.identification.genes import JGermlines, VGermlines
+from immunedb.identification.identify import IdentificationProps
+from immunedb.identification.vdj_sequence import VDJSequence
 import immunedb.util.funcs as funcs
 from immunedb.util.log import logger
 
@@ -49,10 +50,13 @@ def read_file(session, handle, sample, v_germlines, j_germlines, columns,
               remaps):
     seqs = _collapse_seqs(session, sample, csv.DictReader(handle,
                           delimiter='\t'), columns)
+    props = IdentificationProps(**columns.__dict__)
 
     aligned_seqs = {}
     missed = 0
     total = 0
+    v_gene_names = [v.name for v in v_germlines]
+    j_gene_names = [j.name for j in j_germlines]
     for total, seq in enumerate(seqs):
         if total > 0 and total % 1000 == 0:
             logger.info('Finished {}'.format(total))
@@ -75,8 +79,8 @@ def read_file(session, handle, sample, v_germlines, j_germlines, columns,
                     remapped_j_genes.add(j)
             orig_j_genes = remapped_j_genes
 
-        v_genes = filter(lambda v: v in v_germlines, orig_v_genes)
-        j_genes = filter(lambda j: j in j_germlines, orig_j_genes)
+        v_genes = filter(lambda v: v in v_gene_names, orig_v_genes)
+        j_genes = filter(lambda j: j in j_gene_names, orig_j_genes)
 
         vdj = VDJSequence(
             seq['seq_ids'], seq['record'][columns.full_sequence], v_germlines,
@@ -113,10 +117,8 @@ def read_file(session, handle, sample, v_germlines, j_germlines, columns,
         sample.v_ties_mutations = avg_mut
         sample.v_ties_len = avg_len
         if columns.ties:
-            add_uniques(session, sample, aligned_seqs.values(),
-                        realign_mut=avg_mut, realign_len=avg_len,
-                        trim_to=columns.trim_to,
-                        max_padding=columns.max_padding)
+            add_uniques(session, sample, aligned_seqs.values(), props,
+                        realign_mut=avg_mut, realign_len=avg_len)
         else:
             add_uniques(session, sample, aligned_seqs.values())
     session.commit()

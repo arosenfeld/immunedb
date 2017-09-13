@@ -30,6 +30,9 @@ class GeneName(object):
     def __hash__(self):
         return hash(self.name)
 
+    def __cmp__(self, other):
+        return cmp(self.name, other.name)
+
 
 class GeneTies(dict):
     TIES_PROB_THRESHOLD = 0.01
@@ -313,7 +316,7 @@ class JGermlines(GeneTies):
         if allowed_genes is None:
             allowed_genes = self
         else:
-            allowed_genes = {k: v for k, v in self.iteritems() if k in
+            allowed_genes = {k: v for k, v in self.iteritems() if k.name in
                              allowed_genes}
         max_len = max(map(len, allowed_genes.values()))
         for trim_len in range(0, max_len, 3):
