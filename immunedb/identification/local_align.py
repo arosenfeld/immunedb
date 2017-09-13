@@ -46,7 +46,7 @@ class LocalAlignmentWorker(concurrent.Worker):
         self.first_alleles = {
             name: v.sequence
             for name, v in self.v_germlines.alignments.iteritems()
-            if int(name.split('*', 1)[1]) == 1
+            if name.allele == 1
         }
 
     def do_task(self, args, rc=False):
