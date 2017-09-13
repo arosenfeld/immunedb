@@ -38,9 +38,9 @@ To avoid using a configuration file, the ``from_dict`` argument can be set to
     session = config.init_db({
         'host': '...',
         'database': '...',
-        'usertname': '...',
+        'username': '...',
         'password': '...',
-    }, from_dict=True)
+    })
 
 All will return a ``Session`` object which can be used to interact with the
 database.

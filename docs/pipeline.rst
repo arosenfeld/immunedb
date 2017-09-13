@@ -53,7 +53,7 @@ For example, a directory of FASTA files may look like this:
 
 .. code-block:: bash
 
-    $ ls sequence-data
+    $ ls
     subjectD001_spleen.fasta
     subjectD002_blood.fasta
     subjectD002_liver.fasta
@@ -90,11 +90,12 @@ This information is specified in a ``metadata.tsv`` file which must be placed in
 the same directory as the FASTA files.  A template for this file can be
 generated based on FASTA files with:
 
-A template for this file can be generated with:
+A template for the files above could be generated with the following command,
+while in the same directory:
 
 .. code-block:: bash
 
-    $ immunedb_metadata --path PATH_TO_FASTA_FILES
+    $ immunedb_metadata
 
 
 The following is an example of such a metadata file with some information filled
@@ -109,16 +110,15 @@ subjectD002_liver.fasta  B-cell Study D002_Liver   2015-09-15 D003    Mature Liv
 ======================== ============ ============ ========== ======= ====== ======= ======= ======== ================= ======== ======== ========
 
 .. warning::
-    It's advisable to not use terms like "None", "N/A", or an empty string to
-    specify missing metadata.  Various portions of ImmuneDB group information based
-    on metadata, and will consider strings like these distinct from null
-    metadata.
+    Avoid using terms such as  "None", "N/A", or an empty string to specify
+    missing metadata.  Various portions of ImmuneDB group information based on
+    metadata, and will consider strings like these distinct from NULL metadata.
 
 After creating the metadata file, the directory should look like:
 
 .. code-block:: bash
 
-    $ ls sequence-data
+    $ ls
     metadata.tsv
     subjectD001_spleen.fasta
     subjectD002_blood.fasta
@@ -132,22 +132,19 @@ be downloaded from `IMGT's Gene-DB <http://imgt.org/genedb>`_ directly.
 
 For V Germlines
 ^^^^^^^^^^^^^^^
-- Genes must start with IGHV, TRAV, TRBV, TRDV, or TRGV.
-- Genes must be in the format IGHVX*Y or IGHVX where X is the gene name and Y is the
+- Genes must be in the format prefixX*Y or prefixX where X is the gene name and Y is the
   allele.  For example, IGHV1-18*01, TRBV5-a*03, and IGHV7-4-1 are all valid.
-  However, V1-18*01 or Homosap IGHV4-34 are not.
+  However, IGHV4-34 is not.
 - Germlines must be IMGT gapped.
 - Germlines starting with gaps are excluded from alignment.
-- ImmuneDB uses the V/J alignment method found in `PMID: 26529062`.  This requires V
-  germlines to have have one of the following amino-acid anchors with the
-  trailing ``C`` being the first residue in the CDR3: ``D...Y[YCH]C``,
+- ImmuneDB uses the V/J alignment method found in `PMID: 26529062`.  This
+  requires V germlines to have have one of the following amino-acid anchors with
+  the trailing ``C`` being the first residue in the CDR3: ``D...Y[YCH]C``,
   ``Y[YHC]C`` or ``D.....C``.  The ``.`` character represents any amino acid,
   and ``[YHC]`` indicates any one of ``Y``, ``H``, or ``C``.
 
 For J Germlines
 ^^^^^^^^^^^^^^^
-- Gene names follow the same rules as for V genes except they must start with
-  IGHJ, TRAJ, TRBJ, TRDJ, or TRGJ`.
 - There must be a fixed number of bases upstream of the CDR3 in all genes.
 
 Sequence Identification
@@ -240,7 +237,7 @@ sequences of the subclone will differ by no more than ``--min-similarity``
 
     $ immunedb_clones /path/to/config.json --subclones
 
-T-cell Assignment
+T-cell Clonal Assignment
 ^^^^^^^^^^^^^^^^^
 .. warning::
 
@@ -273,6 +270,12 @@ have the same V-gene, J-gene, and number of nucleotides in the CDR3.  Further,
 changing any other values in the TSV file may lead to unpredictable results;
 they are provided to give adequate information to external clonal assignment
 programs.
+
+Once the clones have been annotated:
+
+.. code-block:: bash
+
+    $ immunedb_clone_import /path/to/config.json --action import sequences.tsv
 
 .. _stats_generation:
 

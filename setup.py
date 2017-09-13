@@ -5,7 +5,7 @@ dnautils = Extension('dnautils', sources=['lib/dnautils.c'],
 
 setup(
     name='ImmuneDB',
-    version='0.19.2',
+    version='0.20.0',
     author='Aaron M. Rosenfeld',
     author_email='ar374@drexel.edu',
     url='https://github.com/arosenfeld/immunedb',
