@@ -41,8 +41,9 @@ if __name__ == '__main__':
                         help='Minimum fraction similarity to germline '
                         'required for valid sequences. (Default: {})'.format(
                             IdentificationProps.defaults['min_similarity']))
-    parser.add_argument('--max-padding', default=0, type=int, help='If '
-                        'specified discards sequences with too much padding.')
+    parser.add_argument('--max-padding', type=int, help='If '
+                        'specified discards sequences with too much padding.',
+                        default=IdentificationProps.defaults['max_padding'])
     parser.add_argument('--trim-to', type=int,
                         default=IdentificationProps.defaults['trim_to'],
                         help='If specified, trims the beginning N bases of '
