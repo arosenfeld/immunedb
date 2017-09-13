@@ -1,8 +1,20 @@
 # CHANGELOG
+## v0.20.0
+* Metadata is now specified in TSV files rather than JSON.  A
+  `immunedb_metadata` command has been added to automatically create a template
+  file from FASTA/FASTQ files.
+* Gene representation has been modified to be more flexible with non-standard
+  naming schemes.
+* J-gene identification has been substantially changed.  If anchoring does not
+  work, full-sequence matching is attempted.
+* Clones can now be exported in the format expected by VDJtools with the
+  `immunedb_export vdjtools` command.
+
 ## v0.19.1
 * Subclones are now properly assigned.
 * The order of exported sequences is now consistent.
 * Updates for consistency with Python 3 test cases.
+
 ## v0.19.0
 * ImmuneDB can now process T-cell sequences.
 * Clonal assignment now includes an optional "subclone" process for
