@@ -1,5 +1,5 @@
 # CHANGELOG
-## v0.20.0
+## v0.20.1
 * Metadata is now specified in TSV files rather than JSON.  A
   `immunedb_metadata` command has been added to automatically create a template
   file from FASTA/FASTQ files.
