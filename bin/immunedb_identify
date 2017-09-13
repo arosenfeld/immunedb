@@ -33,14 +33,11 @@ if __name__ == '__main__':
                         default=IdentificationProps.defaults['max_v_ties'],
                         help='Maximum number of V-ties to allow in a valid '
                         'sequence.  V-ties resulting in a name longer than '
-                        '512 characters will be truncated. (Default: '
-                        '{})'.format(
-                            IdentificationProps.defaults['max_v_ties']))
+                        '512 characters will be truncated.')
     parser.add_argument('--min-similarity', type=int,
                         default=IdentificationProps.defaults['min_similarity'],
                         help='Minimum fraction similarity to germline '
-                        'required for valid sequences. (Default: {})'.format(
-                            IdentificationProps.defaults['min_similarity']))
+                        'required for valid sequences.')
     parser.add_argument('--max-padding', type=int, help='If '
                         'specified discards sequences with too much padding.',
                         default=IdentificationProps.defaults['max_padding'])
@@ -48,8 +45,7 @@ if __name__ == '__main__':
                         default=IdentificationProps.defaults['trim_to'],
                         help='If specified, trims the beginning N bases of '
                         'each sequence.  Useful for removing primers within '
-                        'the V sequence (Default: {})'.format(
-                            IdentificationProps.defaults['trim_to']))
+                        'the V sequence.')
     parser.add_argument('--warn-existing', default=False, action='store_true',
                         help='If specified, warns of existing samples and '
                         'skips them.  Otherwise, an error is raised and '

@@ -23,13 +23,11 @@ if __name__ == '__main__':
                         default=31)
     parser.add_argument('--min-similarity', type=int, default=60,
                         help='Minimum percent similarity to germline required '
-                        'for valid sequences. (Default: 60)')
+                        'for valid sequences.')
     parser.add_argument('--max-deletions', type=int, default=3,
-                        help='Maximum number of deletion blocks allowed.  '
-                        '(Default: 3)')
+                        help='Maximum number of deletion blocks allowed.')
     parser.add_argument('--max-insertions', type=int, default=3,
-                        help='Maximum number of insertion blocks allowed.  '
-                        '(Default: 3)')
+                        help='Maximum number of insertion blocks allowed.')
     args = parser.parse_args()
 
     session = config.init_db(args.db_config)

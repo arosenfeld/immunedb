@@ -31,7 +31,7 @@ if __name__ == '__main__':
                         'will calculate selection pressure for mutations '
                         'occurring at least once (all mutations), exactly '
                         'once, at least twice, and in at least 85%% of '
-                        'sequences. (Default: 1 2 85%%)',
+                        'sequences.',
                         default=['1', '2', '85%'])
     args = parser.parse_args()
     if args.subject_ids is not None and args.clone_ids is not None:
