@@ -210,7 +210,7 @@ class VDJSequence(object):
         if self._force_js:
             j_germs = {
                 k: v for k, v in self.j_germlines.iteritems()
-                if k in self._force_js
+                if k.name in self._force_js
             }
         else:
             j_germs = self.j_germlines
@@ -279,7 +279,7 @@ class VDJSequence(object):
         aligned_v = VGene(self.sequence)
         v_score = None
         for v, germ in sorted(self.v_germlines.alignments.iteritems()):
-            if self._force_vs is not None and v not in self._force_vs:
+            if self._force_vs is not None and v.name not in self._force_vs:
                 continue
             try:
                 dist, total_length = germ.compare(aligned_v, self.j_anchor_pos,
