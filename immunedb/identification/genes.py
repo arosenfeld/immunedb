@@ -33,6 +33,7 @@ class GeneName(object):
 
 class GeneTies(dict):
     TIES_PROB_THRESHOLD = 0.01
+
     def __init__(self, genes, remove_gaps=True):
         self.ties = {}
         self.hypers = {}
@@ -75,7 +76,7 @@ class GeneTies(dict):
         if gene not in self:
             return set([gene])
 
-	if gene not in self.ties[key]:
+        if gene not in self.ties[key]:
             s_1 = (
                 self[gene].replace('-', '') if self.remove_gaps else self[gene]
             )

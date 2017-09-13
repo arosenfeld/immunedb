@@ -25,6 +25,7 @@ class IdentificationProps(object):
         'trim_to': 0,
         'allow_cross_family': False
     }
+
     def __init__(self, **kwargs):
         for prop, default in self.defaults.iteritems():
             setattr(self, prop, kwargs.get(prop, default))

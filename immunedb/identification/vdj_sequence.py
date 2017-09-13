@@ -165,7 +165,7 @@ class VDJSequence(object):
                     self.quality = self.quality[::-1]
                 return self._found_j(i, j_gene, len(match))
 
-	    i = self._check_j_with_missing(self.sequence, match)
+            i = self._check_j_with_missing(self.sequence, match)
             if i >= 0:
                 return self._found_j(i, j_gene, len(match))
 
