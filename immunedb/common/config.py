@@ -19,7 +19,10 @@ def get_base_arg_parser(desc='', multiproc=True, **kwargs):
     :rtype: ArgumentParser
 
     """
-    parser = argparse.ArgumentParser(description=desc, **kwargs)
+    parser = argparse.ArgumentParser(
+            description=desc,
+            formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+            **kwargs)
     parser.add_argument('db_config', help='Path to database config')
     if multiproc:
         try:

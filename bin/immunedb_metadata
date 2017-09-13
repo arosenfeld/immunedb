@@ -9,11 +9,9 @@ from immunedb.identification.metadata import OPTIONAL_FIELDS, REQUIRED_FIELDS
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('Generates a template metadata file')
     parser.add_argument('--path', default='.', help='The directory in which '
-                        'the FASTA or FASTQ files exist.  Defaults to the '
-                        'current directory')
+                        'the FASTA or FASTQ files exist.')
     parser.add_argument('--out', default='metadata.tsv', help='Path to '
-                        'output file.  Use - for stdout.  Defaults to '
-                        'metadata.tsv')
+                        'output file.  Use - for stdout.')
     parser.add_argument('--use-filenames', action='store_true',
                         help='Sets the sample name for each file to the '
                         'filename without the .fasta or .fastq extension '

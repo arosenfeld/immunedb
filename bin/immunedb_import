@@ -36,7 +36,7 @@ if __name__ == '__main__':
     parser.add_argument('--trim-to', type=int, default=None,
                         help='If specified, trims the beginning N bases of '
                         'each sequence.  Useful for removing primers within '
-                        'the V sequence (Default: None)')
+                        'the V sequence.')
     parser.add_argument('--remap-js', nargs='+', default=None,
                         help='Remaps J genes to others in the germline file. '
                         'Format is FROM:TO[ FROM:TO[...]].  For example '
