@@ -13,11 +13,12 @@ from immunedb.util.log import logger
 
 class ClearcutWorker(concurrent.Worker):
     def __init__(self, session, tree_prog, min_count, min_samples,
-                 exclude_stops):
+                 min_seq_copies, exclude_stops):
         self._session = session
         self._tree_prog = tree_prog
         self._min_count = min_count
         self._min_samples = min_samples
+        self._min_seq_copies = min_seq_copies
         self._exclude_stops = exclude_stops
 
     def do_task(self, clone_id):
@@ -55,6 +56,7 @@ class ClearcutWorker(concurrent.Worker):
             'info': {
                 'min_count': self._min_count,
                 'min_samples': self._min_samples,
+                'min_seq_copies': self._min_seq_copies,
                 'exclude_stops': self._exclude_stops
             },
             'tree': _get_json(tree)
@@ -70,7 +72,7 @@ class ClearcutWorker(concurrent.Worker):
             Sequence
         ).join(SequenceCollapse).filter(
             Sequence.clone_id == clone_id,
-            SequenceCollapse.copy_number_in_subject > 0
+            SequenceCollapse.copy_number_in_subject > self._min_seq_copies
         ).order_by(
             Sequence.v_length
         )
@@ -333,6 +335,7 @@ def run_clearcut(session, args):
         session = config.init_db(args.db_config)
         tasks.add_worker(ClearcutWorker(session, args.clearcut_path,
                                         args.min_count, args.min_samples,
+                                        args.min_seq_copies,
                                         args.exclude_stops))
 
     tasks.start()

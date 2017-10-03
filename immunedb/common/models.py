@@ -123,7 +123,7 @@ class Sample(Base):
                            order_by=(id)))
 
     subset = Column(String(128))
-    tissue = Column(String(16))
+    tissue = Column(String(32))
     ig_class = Column(String(8))
 
     disease = Column(String(32))

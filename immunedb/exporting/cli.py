@@ -16,7 +16,7 @@ def export_vdjtools(session, args):
     for subject in session.query(Subject.id, Subject.identifier):
         writers[subject.identifier] = csv.DictWriter(
             open('pool.{}.summary.txt'.format(subject.identifier), 'w+'),
-                fieldnames=fieldnames, delimiter='\t')
+            fieldnames=fieldnames, delimiter='\t')
         subjects[subject.id] = subject.identifier
 
     counts = session.query(
