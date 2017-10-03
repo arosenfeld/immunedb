@@ -354,11 +354,11 @@ def get_clone_overlap(session, sample_ids, filter_type, paging=None,
             )
         ])
 
+        clones = [c for c in clones if c.clone_id in clones_present]
         if filter_type != 'clones_all':
             clones = [
                 c for c in clones
-                if c.functional == (filter_type == 'clones_functional') and
-                c.clone_id in clones_present
+                if c.functional == (filter_type == 'clones_functional')
             ]
         clones = sorted(
             clones,
