@@ -311,7 +311,8 @@ def _get_total_muts(tree):
 
 def run_clearcut(session, args):
     if args.clone_ids is not None:
-        clones = args.clone_ids
+        clones = session.query(Clone.id).filter(
+            Clone.id.in_(args.clone_ids))
     else:
         if args.subject_ids is not None:
             clones = session.query(Clone.id).filter(
@@ -319,9 +320,9 @@ def run_clearcut(session, args):
         else:
             clones = session.query(Clone.id)
 
-        if not args.force:
-            clones = clones.filter(Clone.tree.is_(None))
-        clones = [c.id for c in clones]
+    if not args.force:
+        clones = clones.filter(Clone.tree.is_(None))
+    clones = [c.id for c in clones]
     mod_log.make_mod('clone_tree', session=session, commit=True,
                      info=vars(args))
 
