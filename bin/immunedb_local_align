@@ -3,6 +3,7 @@ import sys
 import argparse
 
 import immunedb.common.config as config
+from immunedb.identification.identify import IdentificationProps
 from immunedb.identification.local_align import run_fix_sequences
 
 if __name__ == '__main__':
@@ -10,24 +11,38 @@ if __name__ == '__main__':
                                         'that could not be properly aligned '
                                         'with the anchoring method.',
                                         multiproc=True)
-    parser.add_argument('align_path', help='Path to needleman_wunsch binary')
     parser.add_argument('v_germlines', help='FASTA file with IMGT gapped '
                         'V-gene germlines')
     parser.add_argument('j_germlines', help='FASTA file with J-gene '
                         'germlines. The final nucleotide in all genes must be '
                         'aligned. Sequence cannot contain any gaps.')
-    parser.add_argument('--max-padding', default=None, type=int, help='If '
-                        'specified discards sequences with too much padding.')
+    parser.add_argument('--temp', default='/tmp', help='Path for temporary '
+                        'files')
     parser.add_argument('--upstream_of_cdr3', type=int, help='The number of '
                         ' nucleotides in the J germlines upstream of the CDR3',
                         default=31)
-    parser.add_argument('--min-similarity', type=int, default=60,
-                        help='Minimum percent similarity to germline required '
-                        'for valid sequences.')
     parser.add_argument('--max-deletions', type=int, default=3,
                         help='Maximum number of deletion blocks allowed.')
     parser.add_argument('--max-insertions', type=int, default=3,
                         help='Maximum number of insertion blocks allowed.')
+    parser.add_argument('--max-vties', type=int,
+                        default=IdentificationProps.defaults['max_v_ties'],
+                        help='Maximum number of V-ties to allow in a valid '
+                        'sequence.  V-ties resulting in a name longer than '
+                        '512 characters will be truncated.')
+    parser.add_argument('--min-similarity', type=int,
+                        default=IdentificationProps.defaults['min_similarity'],
+                        help='Minimum fraction similarity to germline '
+                        'required for valid sequences.')
+    parser.add_argument('--max-padding', type=int, help='If '
+                        'specified discards sequences with too much padding.',
+                        default=IdentificationProps.defaults['max_padding'])
+    parser.add_argument('--trim-to', type=int,
+                        default=IdentificationProps.defaults['trim_to'],
+                        help='If specified, trims the beginning N bases of '
+                        'each sequence.  Useful for removing primers within '
+                        'the V sequence.')
+
     args = parser.parse_args()
 
     session = config.init_db(args.db_config)

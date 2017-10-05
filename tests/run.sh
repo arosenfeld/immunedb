@@ -10,12 +10,6 @@ function teardown() {
     rm test_db.json
 }
 
-if [ -z "$LL_PATH" ]
-then
-    echo 'LL_PATH must be set'
-    exit
-fi
-
 if [ -z "$NO_TEARDOWN" ]
 then
     trap teardown 0

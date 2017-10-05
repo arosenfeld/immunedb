@@ -1,12 +1,14 @@
 def get_regions(insertions):
     regions = [78, 36, 51, 30, 114]
-    offset = 0
     if insertions is not None and len(insertions) > 0:
-        for i, region_size in enumerate(regions):
-            for (start, size) in insertions:
-                if offset <= start < offset + region_size:
+        for pos, size in insertions:
+            offset = 0
+            for i, region_start in enumerate(regions):
+                offset += region_start
+                if pos < offset:
                     regions[i] += size
-            offset += region_size
+                    break
+
     return regions
 
 

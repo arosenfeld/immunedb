@@ -4,6 +4,7 @@ import re
 from immunedb.common.models import NoResult, Sample, Study, Subject
 from immunedb.identification import (add_as_noresult, add_uniques,
                                      AlignmentException)
+from immunedb.identification.anchor import AnchorAligner
 from immunedb.identification.genes import JGermlines, VGermlines
 from immunedb.identification.identify import IdentificationProps
 from immunedb.identification.vdj_sequence import VDJSequence
@@ -57,6 +58,7 @@ def read_file(session, handle, sample, v_germlines, j_germlines, columns,
     total = 0
     v_gene_names = [v.name for v in v_germlines]
     j_gene_names = [j.name for j in j_germlines]
+    aligner = AnchorAligner(v_germlines, j_germlines)
     for total, seq in enumerate(seqs):
         if total > 0 and total % 1000 == 0:
             logger.info('Finished {}'.format(total))
@@ -82,10 +84,7 @@ def read_file(session, handle, sample, v_germlines, j_germlines, columns,
         v_genes = filter(lambda v: v in v_gene_names, orig_v_genes)
         j_genes = filter(lambda j: j in j_gene_names, orig_j_genes)
 
-        vdj = VDJSequence(
-            seq['seq_ids'], seq['record'][columns.full_sequence], v_germlines,
-            j_germlines, force_vs=v_genes, force_js=j_genes
-        )
+        vdj = VDJSequence(seq['seq_ids'], seq['record'][columns.full_sequence])
         try:
             if len(v_genes) == 0:
                 raise AlignmentException('No valid V germline for {}'.format(
@@ -95,12 +94,14 @@ def read_file(session, handle, sample, v_germlines, j_germlines, columns,
                 raise AlignmentException('No valid J germline for {}'.format(
                     ','.join(sorted(orig_j_genes))
                 ))
-            vdj.analyze()
 
-            if vdj.sequence in aligned_seqs:
-                aligned_seqs[vdj.sequence].ids += vdj.ids
+            alignment = aligner.get_alignment(vdj, limit_vs=v_genes,
+                                              limit_js=j_genes)
+
+            if alignment.sequence.sequence in aligned_seqs:
+                aligned_seqs[alignment.sequence].ids += vdj.ids
             else:
-                aligned_seqs[vdj.sequence] = vdj
+                aligned_seqs[vdj.sequence] = alignment
         except AlignmentException as e:
             add_as_noresult(session, vdj, sample, str(e))
             missed += 1
@@ -109,7 +110,7 @@ def read_file(session, handle, sample, v_germlines, j_germlines, columns,
     logger.info('Collapsing ambiguous character sequences')
     if len(aligned_seqs) > 0:
         avg_mut = sum(
-            [v.mutation_fraction for v in aligned_seqs.values()]
+            [v.v_mutation_fraction for v in aligned_seqs.values()]
         ) / float(len(aligned_seqs))
         avg_len = sum(
             [v.v_length for v in aligned_seqs.values()]
@@ -117,7 +118,7 @@ def read_file(session, handle, sample, v_germlines, j_germlines, columns,
         sample.v_ties_mutations = avg_mut
         sample.v_ties_len = avg_len
         if columns.ties:
-            add_uniques(session, sample, aligned_seqs.values(), props,
+            add_uniques(session, sample, aligned_seqs.values(), props, aligner,
                         realign_mut=avg_mut, realign_len=avg_len)
         else:
             add_uniques(session, sample, aligned_seqs.values())

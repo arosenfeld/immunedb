@@ -33,6 +33,14 @@ class GeneName(object):
     def __cmp__(self, other):
         return cmp(self.name, other.name)
 
+    def __eq__(self, other):
+        return hash(self) == hash(other)
+
+    def __repr__(self):
+        return ('<GeneName={}, base={}, prefix={}, family={}, '
+                'allele={}>').format(str(self), self.base, self.prefix,
+                                     self.family, self.allele)
+
 
 class GeneTies(dict):
     TIES_PROB_THRESHOLD = 0.01
@@ -335,3 +343,13 @@ class JGermlines(GeneTies):
             elif dnautils.hamming(other_seq, seq) == 0:
                 tied.add(j)
         return tied
+
+    def all_ties(self, length, mutation):
+        ties = {}
+        for name in self:
+            tie_name = tuple(sorted(self.get_ties([name], length, mutation)))
+            if tie_name not in ties:
+                ties[tie_name] = get_common_seq(
+                    [self[n] for n in tie_name], right=True
+                )
+        return ties

@@ -4,11 +4,13 @@ import traceback
 
 from Bio import SeqIO
 
+from immunedb.identification import AlignmentException
 import immunedb.common.config as config
 import immunedb.common.modification_log as mod_log
 from immunedb.common.models import Sample, Sequence, Study, Subject
 from immunedb.identification import (add_as_noresult, add_uniques,
                                      AlignmentException)
+from immunedb.identification.anchor import AnchorAligner
 from immunedb.identification.metadata import parse_metadata, MetadataException
 from immunedb.identification.vdj_sequence import VDJSequence
 from immunedb.identification.genes import JGermlines, VGermlines
@@ -23,33 +25,52 @@ class IdentificationProps(object):
         'min_similarity': .60,
         'max_padding': None,
         'trim_to': 0,
-        'allow_cross_family': False
+        'allow_cross_family': False,
+        'max_insertions': 3,
+        'max_deletions': 3,
     }
 
     def __init__(self, **kwargs):
         for prop, default in self.defaults.iteritems():
             setattr(self, prop, kwargs.get(prop, default))
 
-    def valid_v_ties(self, vdj):
-        return len(vdj.v_gene) <= self.max_v_ties
+    def valid_v_ties(self, alignment):
+        return len(alignment.v_gene) <= self.max_v_ties
 
-    def valid_min_similarity(self, vdj):
-        return vdj.v_match / float(vdj.v_length) >= self.min_similarity
+    def valid_min_similarity(self, alignment):
+        return (alignment.v_match / float(alignment.v_length) >=
+                self.min_similarity)
 
-    def valid_padding(self, vdj):
-        return self.max_padding is None or vdj.pad_length <= self.max_padding
+    def valid_padding(self, alignment):
+        return (self.max_padding is None or
+                alignment.pad_length <= self.max_padding)
 
-    def valid_families(self, vdj):
+    def valid_families(self, alignment):
         if self.allow_cross_family:
             return True
 
         family = None
-        for gene in vdj.v_gene:
+        for gene in alignment.v_gene:
             if not family:
                 family = gene.family
             elif gene.family != family:
                 return False
         return True
+
+    def validate(self, alignment):
+        if not self.valid_min_similarity(alignment):
+            raise AlignmentException(
+                'V-identity too low {} < {}'.format(
+                    alignment.v_match / float(alignment.v_length),
+                    self.min_similarity))
+        if not self.valid_v_ties(alignment):
+            raise AlignmentException('Too many V-ties {} > {}'.format(
+                len(alignment.v_gene), self.max_v_ties))
+        if not self.valid_padding(alignment):
+            raise AlignmentException('Too much padding {} (max {})'.format(
+                alignment.pad_length, self.max_padding))
+        if not self.valid_families(alignment):
+            raise AlignmentException('Cross-family V-call')
 
 
 class IdentificationWorker(concurrent.Worker):
@@ -76,15 +97,14 @@ class IdentificationWorker(concurrent.Worker):
             if seq not in vdjs:
                 vdjs[seq] = VDJSequence(
                     ids=[],
-                    seq=seq,
-                    v_germlines=self._v_germlines,
-                    j_germlines=self._j_germlines,
+                    sequence=seq,
                     quality=funcs.ord_to_quality(
                         record.letter_annotations.get('phred_quality')
                     )
                 )
             vdjs[seq].ids.append(record.description)
 
+        aligner = AnchorAligner(self._v_germlines, self._j_germlines)
         self.info('\tAligning {} unique sequences'.format(len(vdjs)))
         # Attempt to align all unique sequences
         for sequence in funcs.periodic_commit(self._session,
@@ -95,11 +115,11 @@ class IdentificationWorker(concurrent.Worker):
                 # The alignment was successful.  If the aligned sequence
                 # already exists, append the seq_ids.  Otherwise add it as a
                 # new unique sequence.
-                vdj.analyze()
-                if vdj.sequence in vdjs:
-                    vdjs[vdj.sequence].ids += vdj.ids
+                alignment = aligner.get_alignment(vdj)
+                if alignment.sequence.sequence in vdjs:
+                    vdjs[vdj.sequence].sequence.ids += vdj.ids
                 else:
-                    vdjs[vdj.sequence] = vdj
+                    vdjs[vdj.sequence] = alignment
             except AlignmentException as e:
                 add_as_noresult(self._session, vdj, sample, str(e))
             except:
@@ -107,12 +127,10 @@ class IdentificationWorker(concurrent.Worker):
                     '\tUnexpected error processing sequence {}\n\t{}'.format(
                         vdj.ids[0], traceback.format_exc()))
         if len(vdjs) > 0:
-            avg_len = sum(
-                map(lambda vdj: vdj.v_length, vdjs.values())
-            ) / float(len(vdjs))
-            avg_mut = sum(
-                map(lambda vdj: vdj.mutation_fraction, vdjs.values())
-            ) / float(len(vdjs))
+            avg_len = (sum([v.v_length for v in vdjs.values()]) /
+                       float(len(vdjs)))
+            avg_mut = (sum([v.v_mutation_fraction for v in vdjs.values()]) /
+                       float(len(vdjs)))
             sample.v_ties_mutations = avg_mut
             sample.v_ties_len = avg_len
 
@@ -120,7 +138,7 @@ class IdentificationWorker(concurrent.Worker):
                       'Length={}'.format(
                             len(vdjs), round(avg_mut, 2), round(avg_len, 2)))
             add_uniques(self._session, sample, vdjs.values(), self._props,
-                        avg_len, avg_mut)
+                        aligner, avg_len, avg_mut)
 
         self._session.commit()
         self.info('Completed sample {}'.format(sample.name))

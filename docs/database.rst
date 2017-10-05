@@ -53,7 +53,7 @@ count the rows:
 
 .. code-block:: sql
 
-    > SELECT COUNT(*) FROM sequences where sample_id=10;
+    > SELECT COUNT(*) FROM sequences WHERE sample_id=10;
 
 This query will work, but may be slow with large datasets.  Two tables can
 assist in some computationally-expensive queries by providing pre-aggregated
@@ -66,7 +66,7 @@ This same result could be achieved more quickly with:
 .. code-block:: sql
 
     > SELECT sequence_cnt FROM sample_stats WHERE filter_type='all' AND
-        outlier=1 AND full_reads=0 and sample_id=10;
+        outlier=1 AND full_reads=0 AND sample_id=10;
 
 This is more verbose but is quicker and also makes other more complex tasks
 simpler.  For example, let's find how many unique sequences are in sample 10
@@ -75,7 +75,7 @@ which are full reads and not outliers:
 .. code-block:: sql
 
     > SELECT sequence_cnt FROM sample_stats WHERE filter_type='unique' AND
-        outlier=0 AND full_reads=1 and sample_id=10;
+        outlier=0 AND full_reads=1 AND sample_id=10;
 
 The ``CloneStats`` table also has useful information that has been
 pre-aggregated.  For example, how many unique sequences in sample 10 are in
@@ -83,14 +83,14 @@ clone 5:
 
 .. code-block:: sql
 
-    > SELECT unique_cnt FROM clone_stats where sample_id=10 and clone_id=5;
+    > SELECT unique_cnt FROM clone_stats WHERE sample_id=10 AND clone_id=5;
 
 Or how many total unique sequences are in clone 5 (``NULL`` is a placeholder in
 the ``sample_id`` column meaning "All Samples"):
 
 .. code-block:: sql
 
-    > SELECT unique_cnt FROM clone_stats where sample_id=NULL and clone_id=5;
+    > SELECT unique_cnt FROM clone_stats WHERE sample_id=NULL AND clone_id=5;
 
 
 Other Example Queries
@@ -100,17 +100,17 @@ Other Example Queries
 
 .. code-block:: sql
 
-    > SELECT COUNT(*) FROM clones WHERE clones.cdr3_aa like 'CARD%';
+    > SELECT COUNT(*) FROM clones WHERE clones.cdr3_aa LIKE 'CARD%';
 
 **Get a list of non-identifiable sequences in FASTA format.**
 
 .. code-block:: sql
 
-    > SELECT CONCAT('>', seq_id, '\n', sequence) from noresults;
+    > SELECT CONCAT('>', seq_id, '\n', sequence) FROM noresults;
 
 **How many indels and total sequences do I have?"**
 
 .. code-block:: sql
 
-    > SELECT SUM(IF(probable_indel_or_misalign=1, 1, 0)) AS indels, count(*) AS
+    > SELECT SUM(IF(probable_indel_or_misalign=1, 1, 0)) AS indels, COUNT(*) AS
     total FROM sequences;

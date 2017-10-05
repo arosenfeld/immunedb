@@ -123,12 +123,10 @@ class BaseTest(object):
                 NamespaceMimic(
                     v_germlines='tests/data/germlines/imgt_human_v.fasta',
                     j_germlines='tests/data/germlines/imgt_human_j.fasta',
-                    align_path=os.getenv('LL_PATH'),
-                    min_similarity=60,
+                    temp='/tmp',
                     upstream_of_cdr3=31,
                     max_deletions=3,
                     max_insertions=3,
-                    max_padding=None
                 )
             )
             self.session.commit()

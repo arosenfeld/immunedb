@@ -10,6 +10,7 @@ addons:
       - build-essential
       - libatlas-base-dev
       - gfortran
+      - unzip
 virtualenv:
   system_site_packages: true
 install:
@@ -17,18 +18,16 @@ install:
   - pip install nose
   - pip install codecov
   - python setup.py install
-  - git clone https://github.com/noporpoise/seq-align ~/seq-align
-  - cd ~/seq-align
-  - git checkout d0aa4804a93e46fdf267ef4b89f7cc66f2f0eeb8
-  - git submodule update --recursive --init
-  - make
+  - wget https://github.com/BenLangmead/bowtie2/releases/download/v2.3.3/bowtie2-2.3.3-linux-x86_64.zip
+  - unzip bowtie2-2.3.3-linux-x86_64.zip
+  - PATH=$PATH:`pwd`/bowtie2-2.3.3
 before_script:
   - mysql -u root -e 'SET GLOBAL innodb_file_format=barracuda;';
   - mysql -u root -e 'SET GLOBAL innodb_file_per_table=ON;';
   - mysql -u root -e 'SET GLOBAL innodb_large_prefix=ON;';
 script:
   - cd $TRAVIS_BUILD_DIR
-  - LL_PATH=~/seq-align/bin/needleman_wunsch ./tests/run.sh
+  - ./tests/run.sh
 after_success:
   - coverage combine
   - bash <(curl -s https://codecov.io/bash)

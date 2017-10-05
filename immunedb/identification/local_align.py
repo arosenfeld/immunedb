@@ -1,334 +1,367 @@
-from collections import OrderedDict
-import itertools
-import multiprocessing as mp
+import csv
+import os
 import re
 import subprocess
 import shlex
+import StringIO
+
 from sqlalchemy import desc
 
-from Bio.Seq import Seq
 import dnautils
-from immunedb.identification.genes import JGermlines, VGermlines
-from immunedb.common.models import (CDR3_OFFSET, DuplicateSequence, NoResult,
-                                    Sample, Sequence)
-import immunedb.util.concurrent as concurrent
-import immunedb.util.funcs as funcs
-from immunedb.util.log import logger
-import immunedb.util.lookups as lookups
 
-GAP_PLACEHOLDER = '^'
+import immunedb.common.config as config
+from immunedb.identification import add_as_sequence
+from immunedb.identification.vdj_sequence import VDJAlignment, VDJSequence
+from immunedb.identification.genes import GeneName, JGermlines, VGermlines
+from immunedb.identification.identify import IdentificationProps
+from immunedb.common.models import (CDR3_OFFSET, DuplicateSequence, NoResult,
+                                    Sample, Sequence, serialize_gaps)
+import immunedb.util.concurrent as concurrent
+from immunedb.util.funcs import format_ties, periodic_commit
+import immunedb.util.lookups as lookups
+from immunedb.util.log import logger
+
+
+GAP_PLACEHOLDER = '.'
+
+
+def get_fasta(sequences):
+    return '\n'.join(['>{}\n{}'.format(k, v.replace('-', ''))
+                     for k, v in sequences.iteritems()]) + '\n'
 
 
 def gaps_before(gaps, pos):
     return sum((e[1] for e in gaps if e[0] < pos))
 
 
-def gap_positions(seq):
+def gap_positions(seq, char='-'):
     gaps = []
-    for diff in re.finditer('[-]+', seq):
+    for diff in re.finditer('[{}]+'.format(char), seq):
         start, end = diff.span()
         gaps.append((start, end - start))
     return gaps
 
 
-class LocalAlignmentWorker(concurrent.Worker):
-    def __init__(self, complete_queue, v_germlines, j_germlines, align_path,
-                 min_similarity, max_deletions, max_insertions, max_padding):
-        self.complete_queue = complete_queue
-        self.v_germlines = v_germlines
-        self.j_germlines = j_germlines
-        self.align_path = align_path
-        self.min_similarity = min_similarity
-        self.max_deletions = max_deletions
-        self.max_insertions = max_insertions
-        self.max_padding = max_padding
+def build_index(germlines, path):
+    sequences = get_fasta(germlines)
+    cmd = ('bowtie2-build -c "{}" {}').format(sequences, path)
+    proc = subprocess.Popen(shlex.split(cmd), stderr=subprocess.PIPE,
+                            stdout=subprocess.PIPE)
 
-        self.first_alleles = {
-            name: v.sequence
-            for name, v in self.v_germlines.alignments.iteritems()
-            if name.allele == 1
-        }
+    stdout, stderr = proc.communicate()
+    return stdout
 
-    def do_task(self, args, rc=False):
-        if rc:
-            args['seq'] = str(Seq(args['seq']).reverse_complement())
 
-        record = {
-            'seq_id': args['seq_ids'][0],
-            'sample_id': args['sample_id'],
-            'subject_id': args['subject_id'],
-        }
-        # Find best aligned first allele
-        v_align = self.align_seq_to_germs(args['seq'], self.first_alleles)
+def align_reference(path, index, sequences, nproc):
+    cmd = ('bowtie2 --local -x {} -U {} -f --no-unal --no-sq --no-head '
+           '--ma 5 -p {}').format(index, sequences, nproc)
+    proc = subprocess.Popen(shlex.split(cmd),
+                            stderr=subprocess.PIPE,
+                            stdout=subprocess.PIPE,
+                            cwd=path)
 
-        if (v_align is None or
-                not self.alignment_passes(v_align['germ'], v_align['seq']) or
-                (self.max_padding is not None and
-                    v_align['seq_offset'] > self.max_padding)):
-            return None if rc else self.do_task(args, True)
+    stdout, stderr = proc.communicate()
+    return stdout
 
-        v_name = v_align['germ_name'].split('*', 1)[0]
-        v_ties = {
-            '|'.join(name): v for name, v in self.v_germlines.all_ties(
-                args['avg_len'], args['avg_mut'], cutoff=False
-            ).iteritems() if v_name in '|'.join(name)
-        }
 
-        v_align = self.align_seq_to_germs(
-            v_align['seq'].replace('-', ''), v_ties
-        )
+def get_reader(output):
+    fieldnames = [
+        'seq_id',
+        'flags',
+        'reference',
+        'ref_offset',
+        'map_quality',
+        'cigar',
+        'mate_reference',
+        'ref_mate_offset',
+        'frag_size',
+        'read_seq',
+        'read_quality',
+    ]
+    return csv.DictReader(StringIO.StringIO(output), delimiter='\t',
+                          fieldnames=fieldnames, restkey='optional')
 
-        germ_insertions = gap_positions(v_align['germ'])
-        imgt_gaps = [
-            i + gaps_before(germ_insertions, i)
-            for i, c in enumerate(v_ties[v_align['germ_name']]) if c == '-'
-        ]
-        for gap in imgt_gaps:
-            v_align['germ'] = ''.join((
-                v_align['germ'][:gap],
-                GAP_PLACEHOLDER,
-                v_align['germ'][gap:]
-            ))
-            v_align['seq'] = ''.join((
-                v_align['seq'][:gap],
-                GAP_PLACEHOLDER,
-                v_align['seq'][gap:]
-            ))
-        cdr3_start = 0
-        count = 0
-        for i, c in enumerate(v_align['germ']):
-            if c != '-':
-                count += 1
-                if count > CDR3_OFFSET:
-                    cdr3_start = i
-                    break
-        v_align['seq'] = ''.join((
-            v_align['seq'][:cdr3_start],
-            v_align['seq'][cdr3_start:].replace('-', '')
+
+def create_seqs(read_seq, ref_seq, cigar, ref_offset, **kwargs):
+    ref_offset = max(0, ref_offset - 1)
+    skip_ref = ref_seq[:ref_offset]
+    ref_seq = ref_seq[ref_offset:]
+
+    final_seq = []
+    final_ref = []
+    skips = []
+    for (cnt, op) in re.findall('(\d+)([A-Z])', cigar):
+        cnt = int(cnt)
+        if op == 'M':
+            final_seq.extend(read_seq[:cnt])
+            final_ref.extend(ref_seq[:cnt])
+            read_seq = read_seq[cnt:]
+            ref_seq = ref_seq[cnt:]
+        elif op == 'S':
+            skips.append(read_seq[:cnt])
+            read_seq = read_seq[cnt:]
+        elif op == 'D':
+            final_seq.extend(['-'] * cnt)
+            final_ref.extend(ref_seq[:cnt])
+            ref_seq = ref_seq[cnt:]
+        elif op == 'I':
+            final_ref.extend(['-'] * cnt)
+            final_seq.extend(read_seq[:cnt])
+            read_seq = read_seq[cnt:]
+        else:
+            raise Exception('Unknown opcode {}'.format(op))
+
+    final_ref = skip_ref + ''.join(final_ref)
+    final_seq = ''.join(final_seq)
+
+    return (final_ref, final_seq, skips, skip_ref)
+
+
+def add_imgt_gaps(imgt_germline, aligned_germline, sequence):
+    for pos, size in gap_positions(imgt_germline):
+        pos += gaps_before(gap_positions(aligned_germline), pos)
+        aligned_germline = ''.join((
+            aligned_germline[:pos],
+            GAP_PLACEHOLDER * size,
+            aligned_germline[pos:]
+        ))
+        sequence = ''.join((
+            sequence[:pos],
+            GAP_PLACEHOLDER * size,
+            sequence[pos:]
         ))
 
-        pre_cdr3_germ = v_align['germ'][:cdr3_start].replace(
-            GAP_PLACEHOLDER, '')
-        pre_cdr3_seq = v_align['seq'][:cdr3_start].replace(
-            GAP_PLACEHOLDER, '')
-        v_length = len(pre_cdr3_seq)
-        v_match = v_length - dnautils.hamming(pre_cdr3_germ, pre_cdr3_seq)
-        if v_match / float(v_length) < self.min_similarity:
-            return None if rc else self.do_task(args, True)
-
-        # NOTE: This doesn't look for a streak like VDJSequence
-        record.update({
-            'locally_aligned': True,
-            'v_match': v_match,
-            'v_length': v_length,
-            'v_mutation_fraction': v_match / float(v_length),
-            'pre_cdr3_match': v_match,
-            'pre_cdr3_length': v_length,
-            'probable_indel_or_misalign': False,
-            'insertions': set(gap_positions(v_align['germ'][:cdr3_start])),
-            'deletions': set(gap_positions(v_align['seq'][:cdr3_start])),
-        })
-
-        v_align['germ'] = v_align['germ'].replace(GAP_PLACEHOLDER, '-')
-        v_align['seq'] = v_align['seq'].replace(GAP_PLACEHOLDER, '-')
-        record.update({
-            'num_gaps': v_align['seq'][:cdr3_start].count('-'),
-            'pad_length': v_align['seq_offset']
-        })
-
-        j_align = self.align_seq_to_germs(
-            v_align['seq'][cdr3_start:], self.j_germlines,
-        )
-
-        if j_align is None:
-            return None if rc else self.do_task(args, True)
-
-        final_germ = ''.join((
-            v_align['germ'][:-len(j_align['germ'])],
-            j_align['germ']
-        ))
-        final_seq = ''.join((
-            v_align['seq'][:-len(j_align['seq'])],
-            j_align['seq']
-        ))
-        final_germ = final_germ.rstrip('-')
-        final_seq = final_seq[:len(final_germ)]
-        cdr3_end = len(final_seq) - self.j_germlines.upstream_of_cdr3
-
-        if cdr3_end - cdr3_start < 3:
-            return None if rc else self.do_task(args, True)
-
-        final_germ = ''.join((
-            final_germ[:cdr3_start],
-            '-' * (cdr3_end - cdr3_start),
-            final_germ[cdr3_end:]
-        ))
-        record['insertions'].update([
-            (p[0] + cdr3_end, p[1])
-            for p in gap_positions(final_germ[cdr3_end:])
-        ])
-        record['deletions'].update([(
-            p[0] + cdr3_end, p[1])
-            for p in gap_positions(final_seq[cdr3_end:])
-        ])
-
-        stop = lookups.has_stop(final_seq)
-        in_frame = cdr3_start % 3 == 0 and cdr3_end % 3 == 0
-
-        post_cdr3_germ = final_germ[-self.j_germlines.upstream_of_cdr3:]
-        post_cdr3_seq = final_seq[-self.j_germlines.upstream_of_cdr3:]
-        post_cdr3_length = len(post_cdr3_seq)
-        j_match = post_cdr3_length - dnautils.hamming(
-            post_cdr3_germ,
-            post_cdr3_seq
-        )
-
-        v_prefix = v_align['germ_name'][:4]
-        j_prefix = j_align['germ_name'][:4]
-        record.update({
-            'v_gene': funcs.format_ties(
-                v_align['germ_name'].split('|'), v_prefix, strip_alleles=True),
-            'j_gene': funcs.format_ties(
-                j_align['germ_name'].split('|'), j_prefix, strip_alleles=True),
-
-            'cdr3_num_nts': cdr3_end - cdr3_start,
-            'cdr3_nt': final_seq[cdr3_start:cdr3_end],
-            'cdr3_aa': lookups.aas_from_nts(final_seq[cdr3_start:cdr3_end]),
-
-            'post_cdr3_match': j_match,
-            'post_cdr3_length': post_cdr3_length,
-            'j_match': j_match,
-            'j_length': post_cdr3_length,
-
-            'sequence': final_seq,
-            'partial': record['pad_length'] > 0,
-            # TODO: Quality
-            'germline': final_germ,
-
-            'stop': stop,
-            'in_frame': in_frame,
-            'functional': stop and in_frame,
-            'copy_number': len(args['seq_ids'])
-        })
-
-        self.complete_queue.put({
-            'type': args['type'],
-            'duplicates': args['seq_ids'][1:],
-            'record': record
-        })
-
-    def cleanup(self):
-        self.complete_queue.put(None)
-
-    def align_seq_to_germs(self, seq, germs):
-        stdin = []
-        for g_name, g_seq in sorted(germs.iteritems()):
-            stdin.append('>{}\n{}\n'.format(g_name, g_seq.replace('-', '')))
-            stdin.append('>query\n{}\n'.format(seq.lstrip('N')))
-
-        cmd = (
-            '{} --match 2 --mismatch -2 --gapopen -10 --gapextend -5 '
-            '--wildcard N 2 --printfasta --printscores --freestartgap '
-            '--freeendgap --file -'
-        ).format(self.align_path)
-        proc = subprocess.Popen(shlex.split(cmd), stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE, stdin=subprocess.PIPE)
-        output, err = proc.communicate(''.join(stdin))
-        regex = (
-            r'(?P<germ_name>.+)\n'
-            r'(?P<germ_padding>[-]*)(?P<germ>[ATCGN-]+)\n'
-            r'.+\n'
-            r'(?P<seq_padding>[-]*)(?P<seq>[ATCGN-]+)\n'
-            r'score: (?P<score>\d+)\n'
-        )
-
-        best = None
-        for match in re.finditer(regex, output, re.MULTILINE):
-            match = match.groupdict()
-            match['germ_offset'] = len(match['germ_padding'])
-            match['seq_offset'] = len(match['seq_padding'])
-            match['score'] = int(match['score'])
-            if best is None or match['score'] > best['score']:
-                best = match
-
-        if best is None:
-            return None
-        if best['germ_offset'] > 0:
-            best['seq'] = best['seq'][best['germ_offset']:]
-        elif best['seq_offset'] > 0:
-            best['seq'] = ('N' * best['seq_offset']) + best['seq']
-
-        return best
-
-    def alignment_passes(self, germ, seq):
-        if len(gap_positions(seq.strip('-'))) > self.max_deletions:
-            return False
-        if len(gap_positions(germ.strip('-'))) > self.max_insertions:
-            return False
-        return True
-
-
-def process_completes(session, complete_queue, num_workers):
-    stops = 0
-    while True:
-        task = complete_queue.get()
-        if task is None:
-            stops += 1
-            if stops >= num_workers:
+    cdr3_start = 0
+    count = 0
+    for i, c in enumerate(aligned_germline):
+        if c != '-':
+            count += 1
+            if count > CDR3_OFFSET:
+                cdr3_start = i
                 break
+    else:
+        cdr3_start = CDR3_OFFSET
+
+    return (aligned_germline, sequence, cdr3_start)
+
+
+def get_formatted_ties(genes):
+    res = {}
+    for ties, seq in genes.iteritems():
+        res[format_ties(ties)] = seq
+    return res
+
+
+def process_sample(session, sample, indexes, temp, v_germlines, j_germlines,
+                   nproc):
+    indels = session.query(
+        Sequence.ai,
+        Sequence.seq_id,
+        Sequence.sample_id,
+        Sequence.sequence
+    ).filter(
+        Sequence.sample_id == sample.id,
+        Sequence.probable_indel_or_misalign == 1
+    )
+    # Get the sequences that were not identifiable
+    noresults = session.query(NoResult).filter(
+        NoResult.sample_id == sample.id)
+
+    if indels.count() == 0 and noresults.count() == 0:
+        logger.info('Sample {} has no indels or noresults'.format(
+            sample.id))
+        return
+    logger.info('Sample {} has {} indels and {} noresults'.format(
+                sample.id, indels.count(), noresults.count()))
+
+    mut_bucket = v_germlines.mut_bucket(sample.v_ties_mutations)
+    len_bucket = v_germlines.length_bucket(sample.v_ties_len)
+    bucket = '{}_{}'.format(str(mut_bucket).replace('.', ''),
+                            len_bucket)
+    sample_v_germlines = get_formatted_ties(v_germlines.all_ties(
+            sample.v_ties_len, sample.v_ties_mutations))
+    sample_j_germlines = get_formatted_ties(j_germlines.all_ties(
+        sample.v_ties_len, sample.v_ties_mutations))
+    if bucket not in indexes:
+        indexes.add(bucket)
+        v_path = os.path.join(temp, 'v_genes_{}'.format(bucket))
+        j_path = os.path.join(temp, 'j_genes_{}'.format(bucket))
+        logger.info('Creating index for V-ties at {} length, {} '
+                    'mutation'.format(len_bucket, mut_bucket))
+        build_index(sample_v_germlines, v_path)
+        build_index(sample_j_germlines, j_path)
+
+    seq_path = os.path.join(temp, 'll_{}.fasta'.format(sample.id))
+    with open(seq_path, 'w+') as fh:
+        fh.write(get_fasta({'tp=Sequence|ai={}|sample_id={}|seq_id={}'.format(
+                r.ai, r.sample_id, r.seq_id): r.sequence for r in indels}))
+        fh.write(get_fasta({'tp=NoResult|pk={}|sample_id={}|seq_id={}'.format(
+            r.pk, r.sample_id, r.seq_id): r.sequence for r in noresults}))
+
+    alignments = {}
+    logger.info('Running bowtie2 for V-gene sequences')
+    for line in get_reader(align_reference(temp, 'v_genes_{}'.format(bucket),
+                                           seq_path, nproc)):
+        line['ref_offset'] = int(line['ref_offset'])
+        ref_gene = line['reference']
+        ref, seq, rem_seqs, skip_ref = create_seqs(
+            ref_seq=sample_v_germlines[ref_gene].replace('-', ''), **line)
+        if len(rem_seqs) == 0:
             continue
+        seq = ('N' * len(skip_ref)) + seq
 
-        try:
-            if task['type'] == 'Sequence':
-                seq = session.query(Sequence).filter(
-                    Sequence.sample_id == task['record']['sample_id'],
-                    Sequence.seq_id == task['record']['seq_id']
-                ).one()
-                for key, value in task['record'].iteritems():
-                    setattr(seq, key, value)
-            else:
-                new_seq = Sequence(**task['record'])
-                new_seq.locally_aligned = True
-                session.add(new_seq)
-                # Delete primary NoResult
-                session.query(NoResult).filter(
-                    NoResult.sample_id == task['record']['sample_id'],
-                    NoResult.seq_id == task['record']['seq_id']
-                ).delete()
+        ref, seq, cdr3_start = add_imgt_gaps(sample_v_germlines[ref_gene], ref,
+                                             seq)
+        alignments[line['seq_id']] = {
+            'v_germline': ref[:cdr3_start],
+            'v_gene': line['reference'],
+            'padding': len(skip_ref),
+            'v_sequence': seq,
+            'v_rem_seq': rem_seqs[-1],
+            'cdr3_start': CDR3_OFFSET
+        }
 
-                # Move duplicates to DuplicateSequence
-                if len(task['duplicates']) > 0:
-                    session.flush()
-                    nores = session.query(NoResult).filter(
-                        NoResult.sample_id == task['record']['sample_id'],
-                        NoResult.seq_id.in_(task['duplicates'])
-                    )
-                    for old_nores in nores:
-                        session.add(DuplicateSequence(
-                            seq_id=old_nores.seq_id,
-                            sample_id=old_nores.sample_id,
-                            duplicate_seq=new_seq))
-                        session.delete(old_nores)
-        except ValueError:
-            pass
+    seq_path = os.path.join(temp, 'll_j_{}.fasta'.format(sample.id))
+    with open(seq_path, 'w+') as fh:
+        fh.write(
+            get_fasta({k: v['v_rem_seq'] for k, v in alignments.iteritems()}))
 
-        session.commit()
+    tasks = []
+    logger.info('Running bowtie2 for J-gene sequences')
+    for line in get_reader(align_reference(temp, 'j_genes_{}'.format(bucket),
+                                           seq_path, nproc)):
+        line['ref_offset'] = int(line['ref_offset'])
+        ref_gene = line['reference']
+        ref, seq, rem_seqs, skip_ref = create_seqs(
+            ref_seq=sample_j_germlines[ref_gene].replace('-', ''), **line)
+        alignments[line['seq_id']]['j_gene'] = line['reference']
+
+        full_seq = (alignments[line['seq_id']]['v_sequence'] +
+                    alignments[line['seq_id']]['v_rem_seq'])
+
+        cdr3_end = len(full_seq)
+        for i in range(j_germlines.upstream_of_cdr3):
+            if ref[-i] != '-':
+                cdr3_end -= 1
+        alignments[line['seq_id']]['cdr3_end'] = cdr3_end
+
+        cdr3_length = cdr3_end - alignments[line['seq_id']]['cdr3_start']
+        j_start = cdr3_start + cdr3_length
+
+        full_germ = (alignments[line['seq_id']]['v_germline'] +
+                     (GAP_PLACEHOLDER * cdr3_length))
+        j_length = len(full_seq) - len(full_germ)
+        if j_length <= 0:
+            continue
+        full_germ += ref[-j_length:]
+
+        r_type, pk, sample_id, seq_id = [
+            v.split('=', 1)[1] for v in line['seq_id'].split('|', 3)]
+        insertions = gap_positions(full_germ)
+        deletions = gap_positions(full_seq)
+
+        alignment = VDJAlignment(
+            VDJSequence(seq_id, full_seq.replace(GAP_PLACEHOLDER, '-'))
+        )
+        alignment.germline = full_germ.replace(GAP_PLACEHOLDER, '-')
+        alignment.v_gene.add(GeneName(alignments[line['seq_id']]['v_gene']))
+        alignment.j_gene.add(GeneName(alignments[line['seq_id']]['j_gene']))
+        alignment.seq_offset = alignments[line['seq_id']]['padding']
+        alignment.v_length = alignments[line['seq_id']]['cdr3_start']
+        alignment.j_length = j_length
+        alignment.v_mutation_fraction = 1 - (alignment.v_match /
+                                             float(alignment.v_length))
+        alignment.cdr3_start = alignments[line['seq_id']]['cdr3_start']
+        alignment.cdr3_num_nts = cdr3_length
+        alignment.post_cdr3_length = j_length
+        alignment.insertions = insertions
+        alignment.deletions = deletions
+        alignment.locally_aligned = True
+
+        tasks.append({
+            'r_type': r_type,
+            'pk': int(pk),
+            'sample_id': int(sample_id),
+            'alignment': alignment
+        })
+    return tasks
 
 
-def remove_duplicates(session, sample_id):
+def add_sequences_from_sample(session, sample, sequences, props):
+    for sequence in periodic_commit(session, sequences):
+        alignment = sequence['alignment']
+        if sequence['r_type'] == 'NoResult':
+            try:
+                props.validate(alignment)
+            except AlignmentException as e:
+                logger.info('NoResult could not be aligned {}'.format(
+                    alignment.sequence.ids[0]))
+                continue
+            add_as_sequence(session, alignment, sample)
+        elif sequence['r_type'] == 'Sequence':
+            fields = {
+                'partial': alignment.partial,
+
+                'probable_indel_or_misalign': alignment.has_possible_indel,
+
+                'v_gene': format_ties(alignment.v_gene),
+                'j_gene': format_ties(alignment.j_gene),
+
+                'num_gaps': alignment.num_gaps,
+                'pad_length': alignment.pad_len,
+
+                'v_match': alignment.v_match,
+                'v_length': alignment.v_length,
+                'j_match': alignment.j_match,
+                'j_length': alignment.j_length,
+
+                'removed_prefix': alignment.sequence.removed_prefix_sequence,
+                'removed_prefix_qual':
+                    alignment.sequence.removed_prefix_quality,
+                'v_mutation_fraction': alignment.v_mutation_fraction,
+
+                'pre_cdr3_length': alignment.pre_cdr3_length,
+                'pre_cdr3_match': alignment.pre_cdr3_match,
+                'post_cdr3_length': alignment.post_cdr3_length,
+                'post_cdr3_match': alignment.post_cdr3_match,
+
+                'in_frame': alignment.in_frame,
+                'functional': alignment.functional,
+                'stop': alignment.stop,
+                'copy_number': len(alignment.sequence.ids),
+
+                'cdr3_nt': alignment.cdr3,
+                'cdr3_num_nts': len(alignment.cdr3),
+                'cdr3_aa': lookups.aas_from_nts(alignment.cdr3),
+
+                'sequence': str(alignment.sequence.sequence),
+                'quality': alignment.sequence.quality,
+
+                'locally_aligned': alignment.locally_aligned,
+                '_insertions': serialize_gaps(alignment.insertions),
+                '_deletions': serialize_gaps(alignment.deletions),
+
+                'germline': alignment.germline
+            }
+            session.query(Sequence).filter(
+                Sequence.ai == sequence['pk']
+            ).update(fields, synchronize_session=False)
+
+
+def remove_duplicates(session, sample):
     seqs = session.query(
         Sequence.ai, Sequence.seq_id, Sequence.v_gene, Sequence.j_gene,
         Sequence.cdr3_num_nts, Sequence.copy_number, Sequence.sequence
     ).filter(
         Sequence.locally_aligned.is_(True),
-        Sequence.sample_id == sample_id
+        Sequence.sample_id == sample.id
     ).order_by(Sequence.ai)
 
     for seq in seqs:
         potential_collapse = session.query(
             Sequence.ai, Sequence.sequence
         ).filter(
-            Sequence.sample_id == sample_id,
+            Sequence.sample_id == sample.id,
             Sequence.v_gene == seq.v_gene,
             Sequence.j_gene == seq.j_gene,
             Sequence.cdr3_num_nts == seq.cdr3_num_nts,
@@ -351,7 +384,7 @@ def remove_duplicates(session, sample_id):
                 session.add(DuplicateSequence(
                     seq_id=seq.seq_id,
                     duplicate_seq_ai=other_seq.ai,
-                    sample_id=sample_id
+                    sample_id=sample.id
                 ))
                 session.query(Sequence).filter(Sequence.ai == seq.ai).delete()
                 break
@@ -360,64 +393,13 @@ def remove_duplicates(session, sample_id):
 
 def run_fix_sequences(session, args):
     v_germlines = VGermlines(args.v_germlines)
-    j_germlines = JGermlines(args.j_germlines, args.upstream_of_cdr3, 0, 0)
+    j_germlines = JGermlines(args.j_germlines, args.upstream_of_cdr3)
 
-    for (sample_id, subject_id) in session.query(
-            Sample.id, Sample.subject_id).order_by(Sample.id):
-        # Get all the indels that were identified (poorly)
-        indels = session.query(Sequence).filter(
-            Sequence.sample_id == sample_id,
-            Sequence.probable_indel_or_misalign == 1
-        ).order_by(Sequence.ai)
-        # Get the sequences that were not identifiable
-        noresults = session.query(NoResult).filter(
-            NoResult.sample_id == sample_id
-        ).order_by(NoResult.sample_id, NoResult.seq_id)
-        logger.info('Creating task queue for sample {}; '
-                    '{} indels, {} noresults'.format(
-                        sample_id, indels.count(), noresults.count()))
-
-        # Get information for the V-ties
-        avg_mut, avg_len = session.query(
-            Sample.v_ties_mutations,
-            Sample.v_ties_len
-        ).filter(Sample.id == sample_id).one()
-
-        # Get all the unique sequences
-        uniques = OrderedDict()
-        for seq in itertools.chain(indels, noresults):
-            session.expunge(seq)
-            if seq.sequence not in uniques:
-                uniques[seq.sequence] = {
-                    'type': type(seq).__name__,
-                    'sample_id': seq.sample_id,
-                    'subject_id': subject_id,
-                    'seq_ids': [],
-                    'seq': seq.sequence.replace('-', '').strip('N'),
-                    'avg_mut': avg_mut,
-                    'avg_len': avg_len
-                }
-            uniques[seq.sequence]['seq_ids'].append(seq.seq_id)
-
-        tasks = concurrent.TaskQueue()
-        tasks.add_tasks(uniques.values())
-
-        workers = min(args.nproc, tasks.num_tasks)
-        complete_queue = mp.Queue()
-
-        for i in range(0, workers):
-            tasks.add_worker(LocalAlignmentWorker(
-                complete_queue,
-                v_germlines,
-                j_germlines,
-                args.align_path,
-                args.min_similarity / 100.0,
-                args.max_deletions,
-                args.max_insertions,
-                args.max_padding)
-            )
-
-        tasks.start(block=False)
-
-        process_completes(session, complete_queue, workers)
-        remove_duplicates(session, sample_id)
+    indexes = set()
+    props = IdentificationProps(**args.__dict__)
+    tasks = concurrent.TaskQueue()
+    for sample in session.query(Sample):
+        sequences = process_sample(session, sample, indexes, args.temp,
+                                   v_germlines, j_germlines, args.nproc)
+        add_sequences_from_sample(session, sample, sequences, props)
+        remove_duplicates(session, sample)

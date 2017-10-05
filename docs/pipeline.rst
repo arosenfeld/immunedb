@@ -74,7 +74,7 @@ The following are **optional** for each file:
 
 - ``subset`` (128): The subset of the sample (e.g. Plasmablast, CD19+).  If none is
   specified, the field will be left blank.
-- ``tissue`` (16): The tissue of the sample (e.g. Lung, Spleen).  If none is
+- ``tissue`` (32): The tissue of the sample (e.g. Lung, Spleen).  If none is
   specified, the field will be left blank.
 - ``ig_class`` (8): The isotype of the sample (e.g. IgE).
 - ``disease`` (32): Any disease(s) present in the subject when the sample was taken
@@ -147,8 +147,8 @@ For J Germlines
 ^^^^^^^^^^^^^^^
 - There must be a fixed number of bases upstream of the CDR3 in all genes.
 
-Sequence Identification
------------------------
+Sequence Identification (Anchor method)
+---------------------------------------
 The first step of the pipeline is sequence identification.  Primarily this
 assigns each sequence a V and J gene, but it also calculates statistics such as
 how well the sequence matches the germline, if there is a probable insertion or
@@ -181,19 +181,17 @@ Local Alignment of Indel Sequences (Optional)
 .. warning::
     This step is still considered in beta.  Some corner cases may not be
     properly handled, and quality information from FASTQ files will not be
-    included in aligned sequences.  Use this only if you can tolerate the
-    possibility of errors or inconsistencies.
+    included in aligned sequences.
 
 After identification, certain sequences will be marked as being probable indels
 (or misalignments).  To fix these, ``immunedb_local_align`` can **optionally** be
-used to properly gap sequences or germlines.  This process is inherently slow
-and therefor may not be necessary in many cases.  To use, the `seq-align
-<https://github.com/noporpoise/seq-align>`_ package must be built and the path
-to the resulting `needleman_wunsch` binary passed to ImmuneDB.
+used to properly gap sequences or germlines.  It requires `bowtie2
+<http://bowtie-bio.sourceforge.net/bowtie2>`_ to be installed and in your
+``PATH``.
 
 .. code-block:: bash
 
-    $ immunedb_local_align /path/to/config.json /path/to/needleman_wunsch /path/to/j_germlines
+    $ immunedb_local_align /path/to/config.json /path/to/v_germlines /path/to/j_germlines
 
 
 Sequence Collapsing

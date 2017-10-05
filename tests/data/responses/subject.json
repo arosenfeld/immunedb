@@ -14,7 +14,7 @@
             "lab": "The Lab",
             "name": "input",
             "no_result_cnt": 12,
-            "sequence_cnt": 550,
+            "sequence_cnt": 551,
             "subject": {
                 "id": 1,
                 "identifier": "D123",
@@ -25,14 +25,14 @@
             },
             "subset": null,
             "tissue": "Colon",
-            "total_cnt": 562,
+            "total_cnt": 563,
             "v_primer": null
         },
         {
             "date": "2015-09-13",
             "disease": null,
             "experimenter": "Someone",
-            "functional_cnt": 1365,
+            "functional_cnt": 1363,
             "id": 2,
             "ig_class": null,
             "info": null,

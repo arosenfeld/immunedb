@@ -1,4 +1,15 @@
 # CHANGELOG
+## v0.21.0
+* Local alignment has been entirely rewritten to use bowtie2.  This drastically
+  reduces the time necessary to locally align sequences.
+* The `/samples/overlap/` API endpoint now properly returns clones when not
+  filtering by functionality.
+* A new `--min-seq-copies` flag has been added to `immunedb_clone_trees` which
+  limits which sequences are included in trees based on their copy number.
+* Re-creating trees of specifically specified clones now requires the `--force`
+  flag.
+* Default arguments for all commands are now automatically populated.
+
 ## v0.20.1
 * Metadata is now specified in TSV files rather than JSON.  A
   `immunedb_metadata` command has been added to automatically create a template

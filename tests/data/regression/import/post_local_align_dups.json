@@ -35,6 +35,9 @@
     "M03592:18:000000000-AHJWK:1:1101:16816:14246": {
         "duplicate_seq_ai": 1
     },
+    "M03592:18:000000000-AHJWK:1:1101:18374:9024": {
+        "duplicate_seq_ai": 310
+    },
     "M03592:18:000000000-AHJWK:1:1101:18390:6862": {
         "duplicate_seq_ai": 59
     },
@@ -42,40 +45,40 @@
         "duplicate_seq_ai": 74
     },
     "M03592:18:000000000-AHJWK:1:1101:20085:14839": {
-        "duplicate_seq_ai": 84
+        "duplicate_seq_ai": 83
     },
     "M03592:18:000000000-AHJWK:1:1101:20744:18249": {
-        "duplicate_seq_ai": 95
+        "duplicate_seq_ai": 94
     },
     "M03592:18:000000000-AHJWK:1:1101:21635:13738": {
-        "duplicate_seq_ai": 96
+        "duplicate_seq_ai": 95
     },
     "M03592:18:000000000-AHJWK:1:1101:22238:14070": {
-        "duplicate_seq_ai": 97
+        "duplicate_seq_ai": 96
     },
     "M03592:18:000000000-AHJWK:1:1101:22309:18126": {
-        "duplicate_seq_ai": 100
+        "duplicate_seq_ai": 99
     },
     "M03592:18:000000000-AHJWK:1:1101:22333:17384": {
-        "duplicate_seq_ai": 102
+        "duplicate_seq_ai": 101
     },
     "M03592:18:000000000-AHJWK:1:1101:22424:13719": {
-        "duplicate_seq_ai": 102
+        "duplicate_seq_ai": 101
     },
     "M03592:18:000000000-AHJWK:1:1101:22676:13098": {
-        "duplicate_seq_ai": 104
+        "duplicate_seq_ai": 103
     },
     "M03592:18:000000000-AHJWK:1:1101:23292:21599": {
-        "duplicate_seq_ai": 98
+        "duplicate_seq_ai": 97
     },
     "M03592:18:000000000-AHJWK:1:1101:24173:13593": {
-        "duplicate_seq_ai": 96
+        "duplicate_seq_ai": 95
     },
     "M03592:18:000000000-AHJWK:1:1101:25749:18815": {
         "duplicate_seq_ai": 67
     },
     "M03592:18:000000000-AHJWK:1:1101:25885:12839": {
-        "duplicate_seq_ai": 126
+        "duplicate_seq_ai": 125
     },
     "M03592:18:000000000-AHJWK:1:1101:26321:14662": {
         "duplicate_seq_ai": 45
@@ -90,10 +93,10 @@
         "duplicate_seq_ai": 74
     },
     "M03592:18:000000000-AHJWK:1:1101:27842:9661": {
-        "duplicate_seq_ai": 133
+        "duplicate_seq_ai": 132
     },
     "M03592:18:000000000-AHJWK:1:1101:28074:17325": {
-        "duplicate_seq_ai": 134
+        "duplicate_seq_ai": 133
     },
     "M03592:18:000000000-AHJWK:1:1101:28146:16211": {
         "duplicate_seq_ai": 1
@@ -102,49 +105,49 @@
         "duplicate_seq_ai": 67
     },
     "M03592:18:000000000-AHJWK:1:1101:4576:11433": {
-        "duplicate_seq_ai": 126
+        "duplicate_seq_ai": 125
     },
     "M03592:18:000000000-AHJWK:1:1101:6503:12273": {
-        "duplicate_seq_ai": 83
+        "duplicate_seq_ai": 82
     },
     "M03592:18:000000000-AHJWK:1:1102:10576:16084": {
-        "duplicate_seq_ai": 128
+        "duplicate_seq_ai": 127
     },
     "M03592:18:000000000-AHJWK:1:1102:10685:15684": {
-        "duplicate_seq_ai": 102
+        "duplicate_seq_ai": 101
     },
     "M03592:18:000000000-AHJWK:1:1102:10960:11040": {
-        "duplicate_seq_ai": 138
+        "duplicate_seq_ai": 137
     },
     "M03592:18:000000000-AHJWK:1:1102:11156:10787": {
-        "duplicate_seq_ai": 139
+        "duplicate_seq_ai": 138
     },
     "M03592:18:000000000-AHJWK:1:1102:11674:13412": {
-        "duplicate_seq_ai": 145
+        "duplicate_seq_ai": 144
     },
     "M03592:18:000000000-AHJWK:1:1102:12395:19129": {
-        "duplicate_seq_ai": 100
+        "duplicate_seq_ai": 99
     },
     "M03592:18:000000000-AHJWK:1:1102:12888:14685": {
-        "duplicate_seq_ai": 150
+        "duplicate_seq_ai": 149
     },
     "M03592:18:000000000-AHJWK:1:1102:12925:16230": {
-        "duplicate_seq_ai": 98
+        "duplicate_seq_ai": 97
     },
     "M03592:18:000000000-AHJWK:1:1102:13010:10383": {
-        "duplicate_seq_ai": 157
+        "duplicate_seq_ai": 156
     },
     "M03592:18:000000000-AHJWK:1:1102:13160:19422": {
         "duplicate_seq_ai": 15
     },
     "M03592:18:000000000-AHJWK:1:1102:13601:17090": {
-        "duplicate_seq_ai": 145
+        "duplicate_seq_ai": 144
     },
     "M03592:18:000000000-AHJWK:1:1102:13663:17149": {
-        "duplicate_seq_ai": 160
+        "duplicate_seq_ai": 159
     },
     "M03592:18:000000000-AHJWK:1:1102:14052:22160": {
-        "duplicate_seq_ai": 139
+        "duplicate_seq_ai": 138
     },
     "M03592:18:000000000-AHJWK:1:1102:14084:16112": {
         "duplicate_seq_ai": 23
@@ -153,13 +156,13 @@
         "duplicate_seq_ai": 53
     },
     "M03592:18:000000000-AHJWK:1:1102:14540:11384": {
-        "duplicate_seq_ai": 128
+        "duplicate_seq_ai": 127
     },
     "M03592:18:000000000-AHJWK:1:1102:14726:15974": {
         "duplicate_seq_ai": 74
     },
     "M03592:18:000000000-AHJWK:1:1102:14851:12213": {
-        "duplicate_seq_ai": 167
+        "duplicate_seq_ai": 166
     },
     "M03592:18:000000000-AHJWK:1:1102:14876:15306": {
         "duplicate_seq_ai": 12
@@ -168,37 +171,37 @@
         "duplicate_seq_ai": 16
     },
     "M03592:18:000000000-AHJWK:1:1102:16210:13032": {
-        "duplicate_seq_ai": 148
+        "duplicate_seq_ai": 147
     },
     "M03592:18:000000000-AHJWK:1:1102:16355:9063": {
-        "duplicate_seq_ai": 133
+        "duplicate_seq_ai": 132
     },
     "M03592:18:000000000-AHJWK:1:1102:16820:8381": {
-        "duplicate_seq_ai": 87
+        "duplicate_seq_ai": 86
     },
     "M03592:18:000000000-AHJWK:1:1102:17306:8724": {
-        "duplicate_seq_ai": 128
+        "duplicate_seq_ai": 127
     },
     "M03592:18:000000000-AHJWK:1:1102:17426:9255": {
-        "duplicate_seq_ai": 134
+        "duplicate_seq_ai": 133
     },
     "M03592:18:000000000-AHJWK:1:1102:17443:11274": {
         "duplicate_seq_ai": 67
     },
     "M03592:18:000000000-AHJWK:1:1102:17891:20097": {
-        "duplicate_seq_ai": 108
+        "duplicate_seq_ai": 107
     },
     "M03592:18:000000000-AHJWK:1:1102:18425:20610": {
         "duplicate_seq_ai": 67
     },
     "M03592:18:000000000-AHJWK:1:1102:18836:12684": {
-        "duplicate_seq_ai": 139
+        "duplicate_seq_ai": 138
     },
     "M03592:18:000000000-AHJWK:1:1102:19343:19563": {
-        "duplicate_seq_ai": 185
+        "duplicate_seq_ai": 184
     },
     "M03592:18:000000000-AHJWK:1:1102:20929:20636": {
-        "duplicate_seq_ai": 189
+        "duplicate_seq_ai": 188
     },
     "M03592:18:000000000-AHJWK:1:1102:21736:15388": {
         "duplicate_seq_ai": 2
@@ -210,16 +213,16 @@
         "duplicate_seq_ai": 1
     },
     "M03592:18:000000000-AHJWK:1:1102:22349:13176": {
-        "duplicate_seq_ai": 155
+        "duplicate_seq_ai": 154
     },
     "M03592:18:000000000-AHJWK:1:1102:22430:10721": {
-        "duplicate_seq_ai": 196
+        "duplicate_seq_ai": 195
     },
     "M03592:18:000000000-AHJWK:1:1102:22445:10409": {
         "duplicate_seq_ai": 38
     },
     "M03592:18:000000000-AHJWK:1:1102:22490:10620": {
-        "duplicate_seq_ai": 139
+        "duplicate_seq_ai": 138
     },
     "M03592:18:000000000-AHJWK:1:1102:22517:18495": {
         "duplicate_seq_ai": 61
@@ -228,19 +231,19 @@
         "duplicate_seq_ai": 67
     },
     "M03592:18:000000000-AHJWK:1:1102:22777:16988": {
-        "duplicate_seq_ai": 197
+        "duplicate_seq_ai": 196
     },
     "M03592:18:000000000-AHJWK:1:1102:24471:17008": {
-        "duplicate_seq_ai": 102
+        "duplicate_seq_ai": 101
     },
     "M03592:18:000000000-AHJWK:1:1102:24517:13022": {
-        "duplicate_seq_ai": 96
+        "duplicate_seq_ai": 95
     },
     "M03592:18:000000000-AHJWK:1:1102:25437:12841": {
-        "duplicate_seq_ai": 139
+        "duplicate_seq_ai": 138
     },
     "M03592:18:000000000-AHJWK:1:1102:25868:16754": {
-        "duplicate_seq_ai": 99
+        "duplicate_seq_ai": 98
     },
     "M03592:18:000000000-AHJWK:1:1102:26022:18008": {
         "duplicate_seq_ai": 15
@@ -249,58 +252,58 @@
         "duplicate_seq_ai": 27
     },
     "M03592:18:000000000-AHJWK:1:1102:27012:8476": {
-        "duplicate_seq_ai": 208
+        "duplicate_seq_ai": 207
     },
     "M03592:18:000000000-AHJWK:1:1102:27308:20865": {
-        "duplicate_seq_ai": 96
+        "duplicate_seq_ai": 95
     },
     "M03592:18:000000000-AHJWK:1:1102:27644:15429": {
-        "duplicate_seq_ai": 115
+        "duplicate_seq_ai": 114
     },
     "M03592:18:000000000-AHJWK:1:1102:27913:15486": {
-        "duplicate_seq_ai": 96
+        "duplicate_seq_ai": 95
     },
     "M03592:18:000000000-AHJWK:1:1102:28321:9504": {
-        "duplicate_seq_ai": 170
+        "duplicate_seq_ai": 169
     },
     "M03592:18:000000000-AHJWK:1:1102:28362:12460": {
-        "duplicate_seq_ai": 171
+        "duplicate_seq_ai": 170
     },
     "M03592:18:000000000-AHJWK:1:1102:28563:13302": {
-        "duplicate_seq_ai": 210
+        "duplicate_seq_ai": 208
     },
     "M03592:18:000000000-AHJWK:1:1102:4900:19900": {
-        "duplicate_seq_ai": 99
+        "duplicate_seq_ai": 98
     },
     "M03592:18:000000000-AHJWK:1:1102:5029:10011": {
-        "duplicate_seq_ai": 134
+        "duplicate_seq_ai": 133
     },
     "M03592:18:000000000-AHJWK:1:1102:6713:22262": {
-        "duplicate_seq_ai": 212
+        "duplicate_seq_ai": 210
     },
     "M03592:18:000000000-AHJWK:1:1102:7528:22983": {
         "duplicate_seq_ai": 50
     },
     "M03592:18:000000000-AHJWK:1:1102:8586:4941": {
-        "duplicate_seq_ai": 99
+        "duplicate_seq_ai": 98
     },
     "M03592:18:000000000-AHJWK:1:1102:8587:9010": {
-        "duplicate_seq_ai": 215
+        "duplicate_seq_ai": 213
     },
     "M03592:18:000000000-AHJWK:1:1102:8661:21212": {
-        "duplicate_seq_ai": 108
+        "duplicate_seq_ai": 107
     },
     "M03592:18:000000000-AHJWK:1:1102:8877:16980": {
         "duplicate_seq_ai": 1
     },
     "M03592:18:000000000-AHJWK:1:1102:9864:10458": {
-        "duplicate_seq_ai": 108
+        "duplicate_seq_ai": 107
     },
     "M03592:18:000000000-AHJWK:1:1102:9999:12886": {
-        "duplicate_seq_ai": 150
+        "duplicate_seq_ai": 149
     },
     "M03592:18:000000000-AHJWK:1:1103:10392:14982": {
-        "duplicate_seq_ai": 222
+        "duplicate_seq_ai": 220
     },
     "M03592:18:000000000-AHJWK:1:1103:11081:20591": {
         "duplicate_seq_ai": 59
@@ -312,16 +315,16 @@
         "duplicate_seq_ai": 27
     },
     "M03592:18:000000000-AHJWK:1:1103:13693:18105": {
-        "duplicate_seq_ai": 102
+        "duplicate_seq_ai": 101
     },
     "M03592:18:000000000-AHJWK:1:1103:13751:12159": {
         "duplicate_seq_ai": 53
     },
     "M03592:18:000000000-AHJWK:1:1103:14391:18069": {
-        "duplicate_seq_ai": 108
+        "duplicate_seq_ai": 107
     },
     "M03592:18:000000000-AHJWK:1:1103:14785:20643": {
-        "duplicate_seq_ai": 218
+        "duplicate_seq_ai": 216
     },
     "M03592:18:000000000-AHJWK:1:1103:14909:17103": {
         "duplicate_seq_ai": 26
@@ -330,7 +333,7 @@
         "duplicate_seq_ai": 67
     },
     "M03592:18:000000000-AHJWK:1:1103:15813:10433": {
-        "duplicate_seq_ai": 98
+        "duplicate_seq_ai": 97
     },
     "M03592:18:000000000-AHJWK:1:1103:16560:17895": {
         "duplicate_seq_ai": 48
@@ -339,58 +342,58 @@
         "duplicate_seq_ai": 77
     },
     "M03592:18:000000000-AHJWK:1:1103:18931:10529": {
-        "duplicate_seq_ai": 151
+        "duplicate_seq_ai": 150
     },
     "M03592:18:000000000-AHJWK:1:1103:19092:10691": {
         "duplicate_seq_ai": 41
     },
     "M03592:18:000000000-AHJWK:1:1103:19173:11440": {
-        "duplicate_seq_ai": 222
+        "duplicate_seq_ai": 220
     },
     "M03592:18:000000000-AHJWK:1:1103:19186:15920": {
-        "duplicate_seq_ai": 99
+        "duplicate_seq_ai": 98
     },
     "M03592:18:000000000-AHJWK:1:1103:19646:18649": {
         "duplicate_seq_ai": 26
     },
     "M03592:18:000000000-AHJWK:1:1103:20760:18912": {
-        "duplicate_seq_ai": 99
+        "duplicate_seq_ai": 98
     },
     "M03592:18:000000000-AHJWK:1:1103:21450:20196": {
-        "duplicate_seq_ai": 128
+        "duplicate_seq_ai": 127
     },
     "M03592:18:000000000-AHJWK:1:1103:21889:10185": {
-        "duplicate_seq_ai": 241
+        "duplicate_seq_ai": 239
     },
     "M03592:18:000000000-AHJWK:1:1103:22078:11154": {
-        "duplicate_seq_ai": 241
+        "duplicate_seq_ai": 239
     },
     "M03592:18:000000000-AHJWK:1:1103:22215:11050": {
-        "duplicate_seq_ai": 150
+        "duplicate_seq_ai": 149
     },
     "M03592:18:000000000-AHJWK:1:1103:22637:12308": {
         "duplicate_seq_ai": 15
     },
     "M03592:18:000000000-AHJWK:1:1103:23013:11097": {
-        "duplicate_seq_ai": 210
+        "duplicate_seq_ai": 208
     },
     "M03592:18:000000000-AHJWK:1:1103:23282:15599": {
         "duplicate_seq_ai": 2
     },
     "M03592:18:000000000-AHJWK:1:1103:23807:10428": {
-        "duplicate_seq_ai": 150
+        "duplicate_seq_ai": 149
     },
     "M03592:18:000000000-AHJWK:1:1103:24221:16210": {
         "duplicate_seq_ai": 26
     },
     "M03592:18:000000000-AHJWK:1:1103:2423:13299": {
-        "duplicate_seq_ai": 139
+        "duplicate_seq_ai": 138
     },
     "M03592:18:000000000-AHJWK:1:1103:24374:7712": {
-        "duplicate_seq_ai": 197
+        "duplicate_seq_ai": 196
     },
     "M03592:18:000000000-AHJWK:1:1103:24642:10175": {
-        "duplicate_seq_ai": 96
+        "duplicate_seq_ai": 95
     },
     "M03592:18:000000000-AHJWK:1:1103:24763:14339": {
         "duplicate_seq_ai": 67
@@ -408,88 +411,88 @@
         "duplicate_seq_ai": 3
     },
     "M03592:18:000000000-AHJWK:1:1103:27421:12795": {
-        "duplicate_seq_ai": 114
+        "duplicate_seq_ai": 113
     },
     "M03592:18:000000000-AHJWK:1:1103:27679:11845": {
-        "duplicate_seq_ai": 96
+        "duplicate_seq_ai": 95
     },
     "M03592:18:000000000-AHJWK:1:1103:27690:12418": {
-        "duplicate_seq_ai": 161
+        "duplicate_seq_ai": 160
     },
     "M03592:18:000000000-AHJWK:1:1103:27906:6854": {
-        "duplicate_seq_ai": 171
+        "duplicate_seq_ai": 170
     },
     "M03592:18:000000000-AHJWK:1:1103:28552:17732": {
-        "duplicate_seq_ai": 96
+        "duplicate_seq_ai": 95
     },
     "M03592:18:000000000-AHJWK:1:1103:29020:14712": {
-        "duplicate_seq_ai": 254
+        "duplicate_seq_ai": 252
     },
     "M03592:18:000000000-AHJWK:1:1103:29170:14339": {
-        "duplicate_seq_ai": 115
+        "duplicate_seq_ai": 114
     },
     "M03592:18:000000000-AHJWK:1:1103:6717:12697": {
         "duplicate_seq_ai": 74
     },
     "M03592:18:000000000-AHJWK:1:1103:6929:14738": {
-        "duplicate_seq_ai": 139
+        "duplicate_seq_ai": 138
     },
     "M03592:18:000000000-AHJWK:1:1103:7945:18201": {
-        "duplicate_seq_ai": 188
+        "duplicate_seq_ai": 187
     },
     "M03592:18:000000000-AHJWK:1:1103:8739:5683": {
-        "duplicate_seq_ai": 255
+        "duplicate_seq_ai": 253
     },
     "M03592:18:000000000-AHJWK:1:1103:9146:11599": {
-        "duplicate_seq_ai": 99
+        "duplicate_seq_ai": 98
     },
     "M03592:18:000000000-AHJWK:1:1104:10006:13184": {
-        "duplicate_seq_ai": 222
+        "duplicate_seq_ai": 220
     },
     "M03592:18:000000000-AHJWK:1:1104:10738:18536": {
-        "duplicate_seq_ai": 99
+        "duplicate_seq_ai": 98
     },
     "M03592:18:000000000-AHJWK:1:1104:10923:12042": {
         "duplicate_seq_ai": 11
     },
     "M03592:18:000000000-AHJWK:1:1104:11517:21064": {
-        "duplicate_seq_ai": 134
+        "duplicate_seq_ai": 133
     },
     "M03592:18:000000000-AHJWK:1:1104:13752:15093": {
-        "duplicate_seq_ai": 150
+        "duplicate_seq_ai": 149
     },
     "M03592:18:000000000-AHJWK:1:1104:13927:12571": {
         "duplicate_seq_ai": 15
     },
     "M03592:18:000000000-AHJWK:1:1104:16378:12780": {
-        "duplicate_seq_ai": 134
+        "duplicate_seq_ai": 133
     },
     "M03592:18:000000000-AHJWK:1:1104:17330:10901": {
-        "duplicate_seq_ai": 263
+        "duplicate_seq_ai": 261
     },
     "M03592:18:000000000-AHJWK:1:1104:17408:20643": {
-        "duplicate_seq_ai": 96
+        "duplicate_seq_ai": 95
     },
     "M03592:18:000000000-AHJWK:1:1104:17736:14569": {
-        "duplicate_seq_ai": 104
+        "duplicate_seq_ai": 103
     },
     "M03592:18:000000000-AHJWK:1:1104:18985:18439": {
-        "duplicate_seq_ai": 156
+        "duplicate_seq_ai": 155
     },
     "M03592:18:000000000-AHJWK:1:1104:19165:9321": {
-        "duplicate_seq_ai": 265
+        "duplicate_seq_ai": 263
     },
     "M03592:18:000000000-AHJWK:1:1104:19831:16748": {
         "duplicate_seq_ai": 23
     },
     "M03592:18:000000000-AHJWK:1:1104:20574:16033": {
-        "duplicate_seq_ai": 139
+        "duplicate_seq_ai": 138
     },
     "M03592:18:000000000-AHJWK:1:1104:21847:15733": {
-        "duplicate_seq_ai": 134
+        "duplicate_seq_ai": 133
     },
     "M03592:18:000000000-AHJWK:1:1104:22351:15061": {
-        "duplicate_seq_ai": 87
+        "duplicate_seq_ai": 86
     },
     "M03592:18:000000000-AHJWK:1:1104:22992:17441": {
         "duplicate_seq_ai": 27
@@ -504,40 +507,40 @@
         "duplicate_seq_ai": 1
     },
     "M03592:18:000000000-AHJWK:1:1104:24274:11762": {
-        "duplicate_seq_ai": 128
+        "duplicate_seq_ai": 127
     },
     "M03592:18:000000000-AHJWK:1:1104:24510:4843": {
         "duplicate_seq_ai": 41
     },
     "M03592:18:000000000-AHJWK:1:1104:25033:12142": {
-        "duplicate_seq_ai": 234
+        "duplicate_seq_ai": 232
     },
     "M03592:18:000000000-AHJWK:1:1104:25731:16867": {
-        "duplicate_seq_ai": 134
+        "duplicate_seq_ai": 133
     },
     "M03592:18:000000000-AHJWK:1:1104:4929:14785": {
-        "duplicate_seq_ai": 139
+        "duplicate_seq_ai": 138
     },
     "M03592:18:000000000-AHJWK:1:1104:7068:10253": {
         "duplicate_seq_ai": 15
     },
     "M03592:18:000000000-AHJWK:1:1104:8540:14510": {
-        "duplicate_seq_ai": 139
+        "duplicate_seq_ai": 138
     },
     "M03592:18:000000000-AHJWK:1:1104:9522:11285": {
-        "duplicate_seq_ai": 281
+        "duplicate_seq_ai": 279
     },
     "M03592:18:000000000-AHJWK:1:1104:9754:17537": {
-        "duplicate_seq_ai": 134
+        "duplicate_seq_ai": 133
     },
     "M03592:18:000000000-AHJWK:1:1105:10235:10647": {
-        "duplicate_seq_ai": 150
+        "duplicate_seq_ai": 149
     },
     "M03592:18:000000000-AHJWK:1:1105:10539:15993": {
-        "duplicate_seq_ai": 222
+        "duplicate_seq_ai": 220
     },
     "M03592:18:000000000-AHJWK:1:1105:11479:23350": {
-        "duplicate_seq_ai": 128
+        "duplicate_seq_ai": 127
     },
     "M03592:18:000000000-AHJWK:1:1105:11580:9317": {
         "duplicate_seq_ai": 67
@@ -546,40 +549,40 @@
         "duplicate_seq_ai": 67
     },
     "M03592:18:000000000-AHJWK:1:1105:16685:11048": {
-        "duplicate_seq_ai": 139
+        "duplicate_seq_ai": 138
     },
     "M03592:18:000000000-AHJWK:1:1105:16792:7631": {
-        "duplicate_seq_ai": 150
+        "duplicate_seq_ai": 149
     },
     "M03592:18:000000000-AHJWK:1:1105:16975:9060": {
         "duplicate_seq_ai": 59
     },
     "M03592:18:000000000-AHJWK:1:1105:17419:21094": {
-        "duplicate_seq_ai": 96
+        "duplicate_seq_ai": 95
     },
     "M03592:18:000000000-AHJWK:1:1105:18204:16190": {
         "duplicate_seq_ai": 67
     },
     "M03592:18:000000000-AHJWK:1:1105:21015:17825": {
-        "duplicate_seq_ai": 155
+        "duplicate_seq_ai": 154
     },
     "M03592:18:000000000-AHJWK:1:1105:22071:15438": {
-        "duplicate_seq_ai": 150
+        "duplicate_seq_ai": 149
     },
     "M03592:18:000000000-AHJWK:1:1105:22110:17350": {
         "duplicate_seq_ai": 67
     },
     "M03592:18:000000000-AHJWK:1:1105:22113:17330": {
-        "duplicate_seq_ai": 139
+        "duplicate_seq_ai": 138
     },
     "M03592:18:000000000-AHJWK:1:1105:23120:21070": {
-        "duplicate_seq_ai": 104
+        "duplicate_seq_ai": 103
     },
     "M03592:18:000000000-AHJWK:1:1105:24198:16368": {
         "duplicate_seq_ai": 1
     },
     "M03592:18:000000000-AHJWK:1:1105:25897:19389": {
-        "duplicate_seq_ai": 167
+        "duplicate_seq_ai": 166
     },
     "M03592:18:000000000-AHJWK:1:1105:26159:12416": {
         "duplicate_seq_ai": 26
@@ -588,7 +591,7 @@
         "duplicate_seq_ai": 15
     },
     "M03592:18:000000000-AHJWK:1:1105:5386:15172": {
-        "duplicate_seq_ai": 139
+        "duplicate_seq_ai": 138
     },
     "M03592:18:000000000-AHJWK:1:1105:5919:15279": {
         "duplicate_seq_ai": 67
@@ -597,31 +600,31 @@
         "duplicate_seq_ai": 67
     },
     "M03592:18:000000000-AHJWK:1:1105:8901:10143": {
-        "duplicate_seq_ai": 104
+        "duplicate_seq_ai": 103
     },
     "M03592:18:000000000-AHJWK:1:1105:9009:19968": {
         "duplicate_seq_ai": 67
     },
     "M03592:18:000000000-AHJWK:1:1106:10126:18406": {
-        "duplicate_seq_ai": 134
+        "duplicate_seq_ai": 133
     },
     "M03592:18:000000000-AHJWK:1:1106:11121:10796": {
-        "duplicate_seq_ai": 149
+        "duplicate_seq_ai": 148
     },
     "M03592:18:000000000-AHJWK:1:1106:11473:21687": {
-        "duplicate_seq_ai": 150
+        "duplicate_seq_ai": 149
     },
     "M03592:18:000000000-AHJWK:1:1106:11831:17835": {
-        "duplicate_seq_ai": 87
+        "duplicate_seq_ai": 86
     },
     "M03592:18:000000000-AHJWK:1:1106:12191:9139": {
         "duplicate_seq_ai": 67
     },
     "M03592:18:000000000-AHJWK:1:1106:12510:19752": {
-        "duplicate_seq_ai": 134
+        "duplicate_seq_ai": 133
     },
     "M03592:18:000000000-AHJWK:1:1106:19707:13239": {
-        "duplicate_seq_ai": 150
+        "duplicate_seq_ai": 149
     },
     "M03592:18:000000000-AHJWK:1:1106:21085:14843": {
         "duplicate_seq_ai": 50
