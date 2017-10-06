@@ -35,9 +35,6 @@
     "M03592:18:000000000-AHJWK:1:1101:16816:14246": {
         "duplicate_seq_ai": 1
     },
-    "M03592:18:000000000-AHJWK:1:1101:18374:9024": {
-        "duplicate_seq_ai": 310
-    },
     "M03592:18:000000000-AHJWK:1:1101:18390:6862": {
         "duplicate_seq_ai": 59
     },
@@ -198,10 +195,10 @@
         "duplicate_seq_ai": 138
     },
     "M03592:18:000000000-AHJWK:1:1102:19343:19563": {
-        "duplicate_seq_ai": 184
+        "duplicate_seq_ai": 185
     },
     "M03592:18:000000000-AHJWK:1:1102:20929:20636": {
-        "duplicate_seq_ai": 188
+        "duplicate_seq_ai": 189
     },
     "M03592:18:000000000-AHJWK:1:1102:21736:15388": {
         "duplicate_seq_ai": 2
@@ -216,7 +213,7 @@
         "duplicate_seq_ai": 154
     },
     "M03592:18:000000000-AHJWK:1:1102:22430:10721": {
-        "duplicate_seq_ai": 195
+        "duplicate_seq_ai": 196
     },
     "M03592:18:000000000-AHJWK:1:1102:22445:10409": {
         "duplicate_seq_ai": 38
@@ -231,7 +228,7 @@
         "duplicate_seq_ai": 67
     },
     "M03592:18:000000000-AHJWK:1:1102:22777:16988": {
-        "duplicate_seq_ai": 196
+        "duplicate_seq_ai": 197
     },
     "M03592:18:000000000-AHJWK:1:1102:24471:17008": {
         "duplicate_seq_ai": 101
@@ -270,7 +267,7 @@
         "duplicate_seq_ai": 170
     },
     "M03592:18:000000000-AHJWK:1:1102:28563:13302": {
-        "duplicate_seq_ai": 208
+        "duplicate_seq_ai": 211
     },
     "M03592:18:000000000-AHJWK:1:1102:4900:19900": {
         "duplicate_seq_ai": 98
@@ -279,7 +276,7 @@
         "duplicate_seq_ai": 133
     },
     "M03592:18:000000000-AHJWK:1:1102:6713:22262": {
-        "duplicate_seq_ai": 210
+        "duplicate_seq_ai": 213
     },
     "M03592:18:000000000-AHJWK:1:1102:7528:22983": {
         "duplicate_seq_ai": 50
@@ -288,7 +285,7 @@
         "duplicate_seq_ai": 98
     },
     "M03592:18:000000000-AHJWK:1:1102:8587:9010": {
-        "duplicate_seq_ai": 213
+        "duplicate_seq_ai": 216
     },
     "M03592:18:000000000-AHJWK:1:1102:8661:21212": {
         "duplicate_seq_ai": 107
@@ -324,7 +321,7 @@
         "duplicate_seq_ai": 107
     },
     "M03592:18:000000000-AHJWK:1:1103:14785:20643": {
-        "duplicate_seq_ai": 216
+        "duplicate_seq_ai": 227
     },
     "M03592:18:000000000-AHJWK:1:1103:14909:17103": {
         "duplicate_seq_ai": 26
@@ -363,10 +360,10 @@
         "duplicate_seq_ai": 127
     },
     "M03592:18:000000000-AHJWK:1:1103:21889:10185": {
-        "duplicate_seq_ai": 239
+        "duplicate_seq_ai": 240
     },
     "M03592:18:000000000-AHJWK:1:1103:22078:11154": {
-        "duplicate_seq_ai": 239
+        "duplicate_seq_ai": 240
     },
     "M03592:18:000000000-AHJWK:1:1103:22215:11050": {
         "duplicate_seq_ai": 149
@@ -375,7 +372,7 @@
         "duplicate_seq_ai": 15
     },
     "M03592:18:000000000-AHJWK:1:1103:23013:11097": {
-        "duplicate_seq_ai": 208
+        "duplicate_seq_ai": 211
     },
     "M03592:18:000000000-AHJWK:1:1103:23282:15599": {
         "duplicate_seq_ai": 2
@@ -390,7 +387,7 @@
         "duplicate_seq_ai": 138
     },
     "M03592:18:000000000-AHJWK:1:1103:24374:7712": {
-        "duplicate_seq_ai": 196
+        "duplicate_seq_ai": 197
     },
     "M03592:18:000000000-AHJWK:1:1103:24642:10175": {
         "duplicate_seq_ai": 95
@@ -426,7 +423,7 @@
         "duplicate_seq_ai": 95
     },
     "M03592:18:000000000-AHJWK:1:1103:29020:14712": {
-        "duplicate_seq_ai": 252
+        "duplicate_seq_ai": 254
     },
     "M03592:18:000000000-AHJWK:1:1103:29170:14339": {
         "duplicate_seq_ai": 114
@@ -438,10 +435,10 @@
         "duplicate_seq_ai": 138
     },
     "M03592:18:000000000-AHJWK:1:1103:7945:18201": {
-        "duplicate_seq_ai": 187
+        "duplicate_seq_ai": 188
     },
     "M03592:18:000000000-AHJWK:1:1103:8739:5683": {
-        "duplicate_seq_ai": 253
+        "duplicate_seq_ai": 255
     },
     "M03592:18:000000000-AHJWK:1:1103:9146:11599": {
         "duplicate_seq_ai": 98
@@ -468,7 +465,7 @@
         "duplicate_seq_ai": 133
     },
     "M03592:18:000000000-AHJWK:1:1104:17330:10901": {
-        "duplicate_seq_ai": 261
+        "duplicate_seq_ai": 263
     },
     "M03592:18:000000000-AHJWK:1:1104:17408:20643": {
         "duplicate_seq_ai": 95
@@ -480,7 +477,7 @@
         "duplicate_seq_ai": 155
     },
     "M03592:18:000000000-AHJWK:1:1104:19165:9321": {
-        "duplicate_seq_ai": 263
+        "duplicate_seq_ai": 265
     },
     "M03592:18:000000000-AHJWK:1:1104:19831:16748": {
         "duplicate_seq_ai": 23
@@ -513,7 +510,7 @@
         "duplicate_seq_ai": 41
     },
     "M03592:18:000000000-AHJWK:1:1104:25033:12142": {
-        "duplicate_seq_ai": 232
+        "duplicate_seq_ai": 233
     },
     "M03592:18:000000000-AHJWK:1:1104:25731:16867": {
         "duplicate_seq_ai": 133
@@ -528,7 +525,7 @@
         "duplicate_seq_ai": 138
     },
     "M03592:18:000000000-AHJWK:1:1104:9522:11285": {
-        "duplicate_seq_ai": 279
+        "duplicate_seq_ai": 282
     },
     "M03592:18:000000000-AHJWK:1:1104:9754:17537": {
         "duplicate_seq_ai": 133
@@ -544,6 +541,9 @@
     },
     "M03592:18:000000000-AHJWK:1:1105:11580:9317": {
         "duplicate_seq_ai": 67
+    },
+    "M03592:18:000000000-AHJWK:1:1105:13070:9835": {
+        "duplicate_seq_ai": 313
     },
     "M03592:18:000000000-AHJWK:1:1105:14268:22305": {
         "duplicate_seq_ai": 67

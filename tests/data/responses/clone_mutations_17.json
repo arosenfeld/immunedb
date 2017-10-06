@@ -3,9 +3,6 @@
         "107": {
             "synonymous": 1
         },
-        "110": {
-            "synonymous": 1
-        },
         "116": {
             "synonymous": 1
         },
@@ -94,12 +91,12 @@
                 "total": {
                     "conservative": 13,
                     "nonconservative": 4,
-                    "synonymous": 12
+                    "synonymous": 11
                 },
                 "unique": {
                     "conservative": 13,
                     "nonconservative": 4,
-                    "synonymous": 12
+                    "synonymous": 11
                 }
             },
             "mutations": {
@@ -349,18 +346,6 @@
                         "unique": 1
                     },
                     {
-                        "from_aa": "Y",
-                        "from_nt": "T",
-                        "intermediate_aa": "Y",
-                        "pos": 110,
-                        "to_aas": [
-                            "Y"
-                        ],
-                        "to_nt": "C",
-                        "total": 2,
-                        "unique": 1
-                    },
-                    {
                         "from_aa": "I",
                         "from_nt": "C",
                         "intermediate_aa": "I",
@@ -463,11 +448,11 @@
             "counts": {
                 "total": {
                     "nonconservative": 1,
-                    "synonymous": 3
+                    "synonymous": 2
                 },
                 "unique": {
                     "nonconservative": 1,
-                    "synonymous": 3
+                    "synonymous": 2
                 }
             },
             "mutations": {
@@ -507,18 +492,6 @@
                             "S"
                         ],
                         "to_nt": "T",
-                        "total": 2,
-                        "unique": 1
-                    },
-                    {
-                        "from_aa": "Y",
-                        "from_nt": "T",
-                        "intermediate_aa": "Y",
-                        "pos": 110,
-                        "to_aas": [
-                            "Y"
-                        ],
-                        "to_nt": "C",
                         "total": 2,
                         "unique": 1
                     }

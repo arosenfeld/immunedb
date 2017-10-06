@@ -10,8 +10,8 @@
         "subset": null,
         "tissue": "Colon",
         "v_primer": null,
-        "v_ties_len": 293.832,
-        "v_ties_mutations": 0.0715134
+        "v_ties_len": 293.865,
+        "v_ties_mutations": 0.071499
     },
     "2": {
         "disease": null,
@@ -24,7 +24,7 @@
         "subset": null,
         "tissue": "SPL",
         "v_primer": null,
-        "v_ties_len": 294.816,
-        "v_ties_mutations": 0.0688896
+        "v_ties_len": 294.845,
+        "v_ties_mutations": 0.0687865
     }
 }

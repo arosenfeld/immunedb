@@ -1,7 +1,7 @@
 {
     "positions": {
         "108": {
-            "conservative": 1
+            "unknown": 1
         },
         "130": {
             "nonconservative": 1
@@ -68,14 +68,16 @@
         "ALL": {
             "counts": {
                 "total": {
-                    "conservative": 9,
+                    "conservative": 8,
                     "nonconservative": 4,
-                    "synonymous": 8
+                    "synonymous": 8,
+                    "unknown": 1
                 },
                 "unique": {
-                    "conservative": 9,
+                    "conservative": 8,
                     "nonconservative": 4,
-                    "synonymous": 8
+                    "synonymous": 8,
+                    "unknown": 1
                 }
             },
             "mutations": {
@@ -87,18 +89,6 @@
                         "pos": 39,
                         "to_aas": [
                             "Q"
-                        ],
-                        "to_nt": "C",
-                        "total": 4,
-                        "unique": 1
-                    },
-                    {
-                        "from_aa": "Y",
-                        "from_nt": "T",
-                        "intermediate_aa": "H",
-                        "pos": 108,
-                        "to_aas": [
-                            "H"
                         ],
                         "to_nt": "C",
                         "total": 4,
@@ -336,24 +326,38 @@
                         "total": 4,
                         "unique": 1
                     }
+                ],
+                "unknown": [
+                    {
+                        "from_aa": null,
+                        "from_nt": "T",
+                        "intermediate_aa": null,
+                        "pos": 108,
+                        "to_aas": [
+                            "H"
+                        ],
+                        "to_nt": "C",
+                        "total": 4,
+                        "unique": 1
+                    }
                 ]
             }
         },
         "CDR1": {
             "counts": {
                 "total": {
-                    "conservative": 1
+                    "unknown": 1
                 },
                 "unique": {
-                    "conservative": 1
+                    "unknown": 1
                 }
             },
             "mutations": {
-                "conservative": [
+                "unknown": [
                     {
-                        "from_aa": "Y",
+                        "from_aa": null,
                         "from_nt": "T",
-                        "intermediate_aa": "H",
+                        "intermediate_aa": null,
                         "pos": 108,
                         "to_aas": [
                             "H"

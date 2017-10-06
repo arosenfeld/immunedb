@@ -801,28 +801,28 @@
         "clone_id": 58,
         "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 5,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "116": {
         "clone_id": 58,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 5,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "117": {
         "clone_id": 59,
         "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 5,
         "unique_cnt": 1
     },
     "118": {
         "clone_id": 59,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 5,
         "unique_cnt": 1
     },
     "119": {
@@ -843,14 +843,14 @@
         "clone_id": 61,
         "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "122": {
         "clone_id": 61,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "123": {
@@ -913,42 +913,42 @@
         "clone_id": 66,
         "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "132": {
         "clone_id": 66,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "133": {
         "clone_id": 67,
         "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 11,
         "unique_cnt": 1
     },
     "134": {
         "clone_id": 67,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 11,
         "unique_cnt": 1
     },
     "135": {
         "clone_id": 68,
         "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 11,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "136": {
         "clone_id": 68,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 11,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "137": {
@@ -969,70 +969,70 @@
         "clone_id": 70,
         "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 6,
         "unique_cnt": 1
     },
     "140": {
         "clone_id": 70,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 6,
         "unique_cnt": 1
     },
     "141": {
         "clone_id": 71,
         "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 6,
+        "total_cnt": 11,
         "unique_cnt": 1
     },
     "142": {
         "clone_id": 71,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 6,
+        "total_cnt": 11,
         "unique_cnt": 1
     },
     "143": {
         "clone_id": 72,
         "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 11,
         "unique_cnt": 1
     },
     "144": {
         "clone_id": 72,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 11,
         "unique_cnt": 1
     },
     "145": {
         "clone_id": 73,
         "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 11,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "146": {
         "clone_id": 73,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 11,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "147": {
         "clone_id": 74,
         "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 11,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "148": {
         "clone_id": 74,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 11,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "149": {
@@ -1044,34 +1044,6 @@
     },
     "150": {
         "clone_id": 75,
-        "sample_id": null,
-        "subject_id": 1,
-        "total_cnt": 2,
-        "unique_cnt": 1
-    },
-    "151": {
-        "clone_id": 76,
-        "sample_id": 1,
-        "subject_id": 1,
-        "total_cnt": 2,
-        "unique_cnt": 1
-    },
-    "152": {
-        "clone_id": 76,
-        "sample_id": null,
-        "subject_id": 1,
-        "total_cnt": 2,
-        "unique_cnt": 1
-    },
-    "153": {
-        "clone_id": 77,
-        "sample_id": 1,
-        "subject_id": 1,
-        "total_cnt": 2,
-        "unique_cnt": 1
-    },
-    "154": {
-        "clone_id": 77,
         "sample_id": null,
         "subject_id": 1,
         "total_cnt": 2,

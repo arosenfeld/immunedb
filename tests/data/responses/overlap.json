@@ -3,7 +3,7 @@
         "clone": {
             "cdr3_aa": "CARGGQLQPLDLW",
             "cdr3_num_nts": 39,
-            "id": 51,
+            "id": 48,
             "j_gene": "IGHJ1|4|5",
             "subject": {
                 "id": 1,
@@ -109,7 +109,7 @@
                     "name": "Test Study"
                 }
             },
-            "v_gene": "IGHV1-69"
+            "v_gene": "IGHV1-69|1-69D"
         },
         "other_samples": [],
         "selected_samples": [
@@ -279,7 +279,7 @@
         "clone": {
             "cdr3_aa": "CARSSCTNGVCPFDNW",
             "cdr3_num_nts": 48,
-            "id": 212,
+            "id": 209,
             "j_gene": "IGHJ1|4|5",
             "subject": {
                 "id": 1,
