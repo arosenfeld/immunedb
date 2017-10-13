@@ -62,7 +62,9 @@ def parse_metadata(session, fh, warn_existing, path):
             )
             if warn_existing:
                 logger.warning(message)
-            raise MetadataException(message)
+                continue
+            else:
+                raise MetadataException(message)
 
         # Check if specified file exists
         if not os.path.isfile(os.path.join(path, row['file_name'])):

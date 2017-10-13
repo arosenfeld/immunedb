@@ -8,6 +8,7 @@ if __name__ == '__main__':
                                              multiproc=False)
     subparsers = main_parser.add_subparsers(dest='fmt', help='The format')
     parser = subparsers.add_parser('vdjtools')
+    parser.add_argument('--min-clone-size', type=int, default=1)
 
     args = main_parser.parse_args()
     session = config.init_db(args.db_config)

@@ -1,8 +1,9 @@
 import csv
 
-from sqlalchemy import func
+from sqlalchemy import distinct, func
 
-from immunedb.common.models import Clone, CloneStats, Subject
+from immunedb.common.models import Clone, CloneStats, Sequence, Subject
+from immunedb.util.log import logger
 
 
 def export_vdjtools(session, args):
@@ -16,19 +17,34 @@ def export_vdjtools(session, args):
     for subject in session.query(Subject.id, Subject.identifier):
         writers[subject.identifier] = csv.DictWriter(
             open('pool.{}.summary.txt'.format(subject.identifier), 'w+'),
-            fieldnames=fieldnames, delimiter='\t')
+                fieldnames=fieldnames, delimiter='\t')
         subjects[subject.id] = subject.identifier
 
-    counts = session.query(
-        CloneStats.clone_id, func.count(CloneStats.id).label('cnt')
+    subq_samples = session.query(
+        Sequence.clone_id,
+        func.count(distinct(Sequence.sample_id)).label('num_samples'),
+        func.count(Sequence.seq_id).label('instances'),
+    ).group_by(Sequence.clone_id).subquery('subq_samples')
+    query = session.query(
+        Clone.v_gene, Clone.j_gene, Clone.cdr3_nt, Clone.cdr3_aa,
+        Clone.subject_id,
+        subq_samples.c.num_samples,
+        subq_samples.c.instances,
+        func.sum(Clone.overall_total_cnt).label('num_reads'),
+        func.sum(Clone.overall_unique_cnt).label('num_uniques'),
+        func.count(distinct(Clone.id)).label('num_clones')
+    ).filter(
+        Clone.id == subq_samples.c.clone_id
     ).group_by(
-        CloneStats.clone_id
+        Clone.v_gene, Clone.j_gene, Clone.cdr3_nt, Clone.subject_id
     )
-    counts = {c.clone_id: c.cnt - 1 for c in counts}
     sub_rows = {}
-    for clone in session.query(Clone):
+    for clone in query:
+        size = int(clone.num_reads)
+        if size < args.min_clone_size:
+            continue
         sub_rows.setdefault(subjects[clone.subject_id], []).append({
-            'count': clone.overall_unique_cnt,
+            'count': size,
             'cdr3nt': clone.cdr3_nt,
             'cdr3aa': clone.cdr3_aa,
             'v': clone.v_gene,
@@ -38,8 +54,8 @@ def export_vdjtools(session, args):
             'DStart': 0,
             'DEnd': 0,
             'JStart': 0,
-            'incidence': counts[clone.id],
-            'convergence': 1
+            'incidence': int(clone.num_samples),
+            'convergence': int(clone.num_clones)
         })
 
     for subject, rows in sub_rows.iteritems():
