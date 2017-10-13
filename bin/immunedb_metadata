@@ -25,7 +25,8 @@ if __name__ == '__main__':
         parser.error('No FASTA or FASTQ files.')
 
     with sys.stdout if args.out == '-' else open(args.out, 'w+') as fh:
-        writer = csv.DictWriter(fh,
+        writer = csv.DictWriter(
+            fh,
             fieldnames=REQUIRED_FIELDS + OPTIONAL_FIELDS,
             delimiter='\t')
 

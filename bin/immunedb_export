@@ -1,6 +1,8 @@
 #!/usr/bin/env python2
+import pkg_resources
 import immunedb.common.config as config
-from immunedb.exporting.cli import export_vdjtools
+import immunedb.exporting.cli as cli
+
 
 if __name__ == '__main__':
     main_parser = config.get_base_arg_parser('Exports ImmuneDB data in '
@@ -10,11 +12,23 @@ if __name__ == '__main__':
     parser = subparsers.add_parser('vdjtools')
     parser.add_argument('--min-clone-size', type=int, default=1)
 
+    parser = subparsers.add_parser('genbank')
+    parser.add_argument('--sample-ids', nargs='+', type=int)
+    parser.add_argument('--inference', default='ImmuneDB:{}'.format(
+                        pkg_resources.get_distribution('immunedb').version),
+                        help='Inference tool used for gene assignment')
+    parser.add_argument('--gene-db', default='IMGT/GENE-DB',
+                        help='Reference V/J gene database')
+    parser.add_argument('--species', default='Homo sapiens',
+                        help='Species of sequences')
+    parser.add_argument('--mol-type', default='DNA', help='Molecule type')
+
     args = main_parser.parse_args()
     session = config.init_db(args.db_config)
 
     fmts = {
-        'vdjtools': export_vdjtools
+        'vdjtools': cli.export_vdjtools,
+        'genbank': cli.export_genbank
     }
 
     fmts[args.fmt](session, args)
