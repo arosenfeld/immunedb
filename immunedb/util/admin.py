@@ -30,8 +30,8 @@ def _get_root_connection(host, user, admin_pass=None):
 
 def _create_user_if_not_exists(conn, host, user, password):
     with conn.cursor() as cursor:
-        cursor.execute('SELECT host, user, password from mysql.user WHERE '
-                       'user=%s and host=%s', (user, host))
+        cursor.execute('SELECT host, user, authentication_string from '
+                       'mysql.user WHERE user=%s and host=%s', (user, host))
         existing = cursor.fetchone()
         if existing is None:
             cursor.execute('CREATE USER \'{}\'@\'%\' IDENTIFIED BY '
