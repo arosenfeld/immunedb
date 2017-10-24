@@ -1,13 +1,13 @@
 {
     "counts": {
-        "all": 2013,
-        "clones_all": 241,
-        "clones_functional": 234,
-        "clones_nonfunctional": 7,
-        "functional": 1856,
-        "nonfunctional": 157,
+        "all": 2020,
+        "clones_all": 243,
+        "clones_functional": 235,
+        "clones_nonfunctional": 8,
+        "functional": 1860,
+        "nonfunctional": 160,
         "unique": 989,
-        "unique_multiple": 240
+        "unique_multiple": 241
     },
     "samples": {
         "1": {
@@ -24,7 +24,7 @@
             "j_primer": null,
             "lab": "The Lab",
             "name": "input",
-            "no_result_cnt": 13,
+            "no_result_cnt": 12,
             "sequence_cnt": 550,
             "stop_cnt": 32,
             "subject": {
@@ -37,28 +37,28 @@
             },
             "subset": null,
             "tissue": "Colon",
-            "total_cnt": 563,
+            "total_cnt": 562,
             "unique_cnt": 298,
             "unique_multiple_cnt": 76,
             "v_primer": null
         },
         "2": {
-            "clones_cnt": 161,
-            "clones_functional_cnt": 156,
+            "clones_cnt": 163,
+            "clones_functional_cnt": 157,
             "date": "2015-09-13",
             "disease": null,
             "experimenter": "Someone",
-            "functional_cnt": 1355,
+            "functional_cnt": 1359,
             "id": 2,
             "ig_class": null,
-            "in_frame_cnt": 1387,
+            "in_frame_cnt": 1393,
             "info": null,
             "j_primer": null,
             "lab": "The Lab",
             "name": "input2",
             "no_result_cnt": 0,
-            "sequence_cnt": 1463,
-            "stop_cnt": 93,
+            "sequence_cnt": 1470,
+            "stop_cnt": 96,
             "subject": {
                 "id": 1,
                 "identifier": "D123",
@@ -69,9 +69,9 @@
             },
             "subset": null,
             "tissue": "SPL",
-            "total_cnt": 1463,
+            "total_cnt": 1470,
             "unique_cnt": 691,
-            "unique_multiple_cnt": 164,
+            "unique_multiple_cnt": 165,
             "v_primer": null
         }
     },
@@ -2210,7 +2210,7 @@
                 ],
                 [
                     45.0,
-                    19
+                    20
                 ],
                 [
                     48.0,
@@ -2256,7 +2256,7 @@
                 ],
                 [
                     5.0,
-                    15
+                    16
                 ],
                 [
                     6.0,
@@ -2326,7 +2326,7 @@
             "j_gene_dist": [
                 [
                     "IGHJ1|4|5",
-                    161
+                    162
                 ],
                 [
                     "IGHJ2",
@@ -2338,6 +2338,10 @@
                 ]
             ],
             "j_length_dist": [
+                [
+                    31.0,
+                    1
+                ],
                 [
                     36.0,
                     8
@@ -2404,6 +2408,10 @@
                 ]
             ],
             "j_match_dist": [
+                [
+                    31.0,
+                    1
+                ],
                 [
                     35.0,
                     2
@@ -4162,7 +4170,7 @@
                 ],
                 [
                     "IGHV4-61",
-                    4
+                    5
                 ],
                 [
                     "IGHV7-4-1",
@@ -4208,7 +4216,7 @@
                 ],
                 [
                     95.0,
-                    18
+                    19
                 ],
                 [
                     96.0,
@@ -4255,6 +4263,10 @@
                 [
                     320.0,
                     126
+                ],
+                [
+                    336.0,
+                    1
                 ]
             ],
             "v_match_dist": [
@@ -4400,7 +4412,7 @@
                 ],
                 [
                     292.0,
-                    4
+                    5
                 ],
                 [
                     293.0,

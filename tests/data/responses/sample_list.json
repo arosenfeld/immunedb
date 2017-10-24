@@ -10,7 +10,7 @@
         "j_primer": null,
         "lab": "The Lab",
         "name": "input",
-        "no_result_cnt": 13,
+        "no_result_cnt": 12,
         "sequence_cnt": 550,
         "subject": {
             "id": 1,
@@ -22,14 +22,14 @@
         },
         "subset": null,
         "tissue": "Colon",
-        "total_cnt": 563,
+        "total_cnt": 562,
         "v_primer": null
     },
     {
         "date": "2015-09-13",
         "disease": null,
         "experimenter": "Someone",
-        "functional_cnt": 1355,
+        "functional_cnt": 1359,
         "id": 2,
         "ig_class": null,
         "info": null,
@@ -37,7 +37,7 @@
         "lab": "The Lab",
         "name": "input2",
         "no_result_cnt": 0,
-        "sequence_cnt": 1463,
+        "sequence_cnt": 1470,
         "subject": {
             "id": 1,
             "identifier": "D123",
@@ -48,7 +48,7 @@
         },
         "subset": null,
         "tissue": "SPL",
-        "total_cnt": 1463,
+        "total_cnt": 1470,
         "v_primer": null
     }
 ]

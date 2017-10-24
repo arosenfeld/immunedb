@@ -5,12 +5,12 @@ import subprocess
 import shlex
 import StringIO
 
-from sqlalchemy import desc
+from sqlalchemy import desc, func, text
 
 import dnautils
 
 import immunedb.common.config as config
-from immunedb.identification import add_as_sequence
+from immunedb.identification import add_as_sequence, AlignmentException
 from immunedb.identification.vdj_sequence import VDJAlignment, VDJSequence
 from immunedb.identification.genes import GeneName, JGermlines, VGermlines
 from immunedb.identification.identify import IdentificationProps
@@ -240,6 +240,8 @@ def process_sample(session, sample, indexes, temp, v_germlines, j_germlines,
                     alignments[line['seq_id']]['v_rem_seq'])
 
         cdr3_end = len(full_seq)
+        if len(ref) < j_germlines.upstream_of_cdr3:
+            continue
         for i in range(j_germlines.upstream_of_cdr3):
             if ref[-i] != '-':
                 cdr3_end -= 1
@@ -264,10 +266,15 @@ def process_sample(session, sample, indexes, temp, v_germlines, j_germlines,
             VDJSequence(seq_id, full_seq.replace(GAP_PLACEHOLDER, '-'))
         )
         alignment.germline = full_germ.replace(GAP_PLACEHOLDER, '-')
+        if len(alignment.germline) != len(alignment.sequence.sequence):
+            continue
         alignment.v_gene.add(GeneName(alignments[line['seq_id']]['v_gene']))
         alignment.j_gene.add(GeneName(alignments[line['seq_id']]['j_gene']))
         alignment.seq_offset = alignments[line['seq_id']]['padding']
-        alignment.v_length = alignments[line['seq_id']]['cdr3_start']
+        alignment.v_length = (
+            alignments[line['seq_id']]['cdr3_start'] -
+            alignment.seq_offset
+        )
         alignment.j_length = j_length
         alignment.v_mutation_fraction = 1 - (alignment.v_match /
                                              float(alignment.v_length))
@@ -288,67 +295,79 @@ def process_sample(session, sample, indexes, temp, v_germlines, j_germlines,
 
 
 def add_sequences_from_sample(session, sample, sequences, props):
+    logger.info('Adding corrected sequences to sample {}'.format(sample.id))
     for sequence in periodic_commit(session, sequences):
         alignment = sequence['alignment']
-        if sequence['r_type'] == 'NoResult':
+        try:
             try:
                 props.validate(alignment)
             except AlignmentException as e:
-                logger.info('NoResult could not be aligned {}'.format(
-                    alignment.sequence.ids[0]))
                 continue
-            add_as_sequence(session, alignment, sample)
-        elif sequence['r_type'] == 'Sequence':
-            fields = {
-                'partial': alignment.partial,
+            if sequence['r_type'] == 'NoResult':
+                add_as_sequence(session, alignment, sample,
+                                error_action='raise')
+                session.query(NoResult).filter(
+                    NoResult.pk == sequence['pk']
+                ).delete(synchronize_session=False)
+            elif sequence['r_type'] == 'Sequence':
+                fields = {
+                    'partial': alignment.partial,
 
-                'probable_indel_or_misalign': alignment.has_possible_indel,
+                    'probable_indel_or_misalign':
+                        alignment.has_possible_indel,
 
-                'v_gene': format_ties(alignment.v_gene),
-                'j_gene': format_ties(alignment.j_gene),
+                    'v_gene': format_ties(alignment.v_gene),
+                    'j_gene': format_ties(alignment.j_gene),
 
-                'num_gaps': alignment.num_gaps,
-                'pad_length': alignment.pad_len,
+                    'num_gaps': alignment.num_gaps,
+                    'pad_length': alignment.pad_len,
 
-                'v_match': alignment.v_match,
-                'v_length': alignment.v_length,
-                'j_match': alignment.j_match,
-                'j_length': alignment.j_length,
+                    'v_match': alignment.v_match,
+                    'v_length': alignment.v_length,
+                    'j_match': alignment.j_match,
+                    'j_length': alignment.j_length,
 
-                'removed_prefix': alignment.sequence.removed_prefix_sequence,
-                'removed_prefix_qual':
-                    alignment.sequence.removed_prefix_quality,
-                'v_mutation_fraction': alignment.v_mutation_fraction,
+                    'removed_prefix':
+                        alignment.sequence.removed_prefix_sequence,
+                    'removed_prefix_qual':
+                        alignment.sequence.removed_prefix_quality,
+                    'v_mutation_fraction': alignment.v_mutation_fraction,
 
-                'pre_cdr3_length': alignment.pre_cdr3_length,
-                'pre_cdr3_match': alignment.pre_cdr3_match,
-                'post_cdr3_length': alignment.post_cdr3_length,
-                'post_cdr3_match': alignment.post_cdr3_match,
+                    'pre_cdr3_length': alignment.pre_cdr3_length,
+                    'pre_cdr3_match': alignment.pre_cdr3_match,
+                    'post_cdr3_length': alignment.post_cdr3_length,
+                    'post_cdr3_match': alignment.post_cdr3_match,
 
-                'in_frame': alignment.in_frame,
-                'functional': alignment.functional,
-                'stop': alignment.stop,
-                'copy_number': len(alignment.sequence.ids),
+                    'in_frame': alignment.in_frame,
+                    'functional': alignment.functional,
+                    'stop': alignment.stop,
 
-                'cdr3_nt': alignment.cdr3,
-                'cdr3_num_nts': len(alignment.cdr3),
-                'cdr3_aa': lookups.aas_from_nts(alignment.cdr3),
+                    'cdr3_nt': alignment.cdr3,
+                    'cdr3_num_nts': len(alignment.cdr3),
+                    'cdr3_aa': lookups.aas_from_nts(alignment.cdr3),
 
-                'sequence': str(alignment.sequence.sequence),
-                'quality': alignment.sequence.quality,
+                    'sequence': str(alignment.sequence.sequence),
+                    'quality': alignment.sequence.quality,
 
-                'locally_aligned': alignment.locally_aligned,
-                '_insertions': serialize_gaps(alignment.insertions),
-                '_deletions': serialize_gaps(alignment.deletions),
+                    'locally_aligned': alignment.locally_aligned,
+                    '_insertions': serialize_gaps(alignment.insertions),
+                    '_deletions': serialize_gaps(alignment.deletions),
 
-                'germline': alignment.germline
-            }
-            session.query(Sequence).filter(
-                Sequence.ai == sequence['pk']
-            ).update(fields, synchronize_session=False)
+                    'germline': alignment.germline
+                }
+                # This line doesnt actually add anything to the DB, it's just
+                # to validate the fields
+                Sequence(**fields)
+
+                session.query(Sequence).filter(
+                    Sequence.ai == sequence['pk']
+                ).update(fields, synchronize_session=False)
+        except ValueError as e:
+            continue
 
 
 def remove_duplicates(session, sample):
+    logger.info('Removing duplicates from sample {}'.format(sample.id))
     seqs = session.query(
         Sequence.ai, Sequence.seq_id, Sequence.v_gene, Sequence.j_gene,
         Sequence.cdr3_num_nts, Sequence.copy_number, Sequence.sequence
@@ -359,7 +378,7 @@ def remove_duplicates(session, sample):
 
     for seq in seqs:
         potential_collapse = session.query(
-            Sequence.ai, Sequence.sequence
+            Sequence.ai, Sequence.sequence, Sequence.copy_number
         ).filter(
             Sequence.sample_id == sample.id,
             Sequence.v_gene == seq.v_gene,
@@ -373,9 +392,6 @@ def remove_duplicates(session, sample):
                 continue
 
             if dnautils.equal(other_seq.sequence, seq.sequence):
-                session.query(Sequence).filter(
-                    Sequence.ai == other_seq.ai
-                ).one().copy_number += seq.copy_number
                 session.query(DuplicateSequence).filter(
                     DuplicateSequence.duplicate_seq_ai == seq.ai
                 ).update({
@@ -388,6 +404,21 @@ def remove_duplicates(session, sample):
                 ))
                 session.query(Sequence).filter(Sequence.ai == seq.ai).delete()
                 break
+
+    session.connection(mapper=Sequence).execute(text('''
+        UPDATE
+            sequences
+        SET
+            copy_number = 1 + (
+                SELECT
+                    COUNT(*)
+                FROM
+                    duplicate_sequences
+                WHERE
+                    duplicate_seq_ai = ai
+            )
+    '''))
+
     session.commit()
 
 

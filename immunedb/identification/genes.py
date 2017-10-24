@@ -295,7 +295,7 @@ class JGermlines(GeneTies):
         with open(path_to_germlines) as fh:
             for record in SeqIO.parse(fh, 'fasta'):
                 name = GeneName(record.id)
-                if all(map(lambda c: c in 'ATCGN-', record.seq.upper())):
+                if all(map(lambda c: c in 'ATCGN', record.seq.upper())):
                     self[name] = str(record.seq).upper()
                     if (self._min_length is None or
                             len(self[name]) < self._min_length):

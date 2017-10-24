@@ -26,8 +26,8 @@ class IdentificationProps(object):
         'max_padding': None,
         'trim_to': 0,
         'allow_cross_family': False,
-        'max_insertions': 3,
-        'max_deletions': 3,
+        'max_insertions': 5,
+        'max_deletions': 5,
     }
 
     def __init__(self, **kwargs):
@@ -57,6 +57,10 @@ class IdentificationProps(object):
                 return False
         return True
 
+    def valid_indels(self, alignment):
+        return (len(alignment.insertions) <= self.max_insertions and
+                len(alignment.deletions) <= self.max_deletions)
+
     def validate(self, alignment):
         if not self.valid_min_similarity(alignment):
             raise AlignmentException(
@@ -71,6 +75,10 @@ class IdentificationProps(object):
                 alignment.pad_length, self.max_padding))
         if not self.valid_families(alignment):
             raise AlignmentException('Cross-family V-call')
+        if not self.valid_indels(alignment):
+            raise AlignmentException(
+                'Too many indels insertions={} deletions={}'.format(
+                    alignment.insertions, alignment.deletions))
 
 
 class IdentificationWorker(concurrent.Worker):
@@ -104,6 +112,7 @@ class IdentificationWorker(concurrent.Worker):
                 )
             vdjs[seq].ids.append(record.description)
 
+        alignments = {}
         aligner = AnchorAligner(self._v_germlines, self._j_germlines)
         self.info('\tAligning {} unique sequences'.format(len(vdjs)))
         # Attempt to align all unique sequences
@@ -116,29 +125,35 @@ class IdentificationWorker(concurrent.Worker):
                 # already exists, append the seq_ids.  Otherwise add it as a
                 # new unique sequence.
                 alignment = aligner.get_alignment(vdj)
-                if alignment.sequence.sequence in vdjs:
-                    vdjs[vdj.sequence].sequence.ids += vdj.ids
+                seq_key = alignment.sequence.sequence
+                if seq_key in alignments:
+                    alignments[seq_key].sequence.ids.extend(
+                        alignment.sequence.ids)
                 else:
-                    vdjs[vdj.sequence] = alignment
+                    alignments[seq_key] = alignment
             except AlignmentException as e:
                 add_as_noresult(self._session, vdj, sample, str(e))
             except:
                 self.error(
                     '\tUnexpected error processing sequence {}\n\t{}'.format(
                         vdj.ids[0], traceback.format_exc()))
-        if len(vdjs) > 0:
-            avg_len = (sum([v.v_length for v in vdjs.values()]) /
-                       float(len(vdjs)))
-            avg_mut = (sum([v.v_mutation_fraction for v in vdjs.values()]) /
-                       float(len(vdjs)))
+        if len(alignments) > 0:
+            avg_len = (
+                sum([v.v_length for v in alignments.values()]) /
+                float(len(alignments)))
+            avg_mut = (
+                sum([v.v_mutation_fraction for v in alignments.values()]) /
+                float(len(alignments))
+            )
             sample.v_ties_mutations = avg_mut
             sample.v_ties_len = avg_len
 
             self.info('\tRe-aligning {} sequences to V-ties, Mutations={}, '
-                      'Length={}'.format(
-                            len(vdjs), round(avg_mut, 2), round(avg_len, 2)))
-            add_uniques(self._session, sample, vdjs.values(), self._props,
-                        aligner, avg_len, avg_mut)
+                      'Length={}'.format(len(alignments),
+                                         round(avg_mut, 2),
+                                         round(avg_len, 2)))
+            add_uniques(self._session, sample, alignments.values(),
+                        self._props, aligner, avg_len, avg_mut)
 
         self._session.commit()
         self.info('Completed sample {}'.format(sample.name))

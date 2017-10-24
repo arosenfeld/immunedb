@@ -31,7 +31,7 @@ def add_as_noresult(session, vdj, sample, reason):
         pass
 
 
-def add_as_sequence(session, alignment, sample):
+def add_as_sequence(session, alignment, sample, error_action='discard'):
     try:
         seq = Sequence(
             seq_id=alignment.sequence.ids[0],
@@ -92,12 +92,16 @@ def add_as_sequence(session, alignment, sample):
                     duplicate_seq_ai=seq.ai
                 ) for seq_id in alignment.sequence.ids[1:]
             ])
-        except ValueError:
+        except ValueError as e:
             pass
         return seq
     except ValueError as e:
-        add_as_noresult(session, alignment.sequence, sample, str(e))
-        return None
+        if error_action == 'discard':
+            add_as_noresult(session, alignment.sequence, sample, str(e))
+            return None
+        elif error_action == 'raise':
+            logger.warning('Raise: {}'.format(alignment.sequence.ids))
+            raise e
 
 
 def add_uniques(session, sample, alignments, props, aligner, realign_len=None,

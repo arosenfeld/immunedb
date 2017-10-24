@@ -54,3 +54,5 @@ target/
 
 # Swap
 *.swp
+
+*.coverage*

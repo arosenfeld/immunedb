@@ -125,8 +125,8 @@ class BaseTest(object):
                     j_germlines='tests/data/germlines/imgt_human_j.fasta',
                     temp='/tmp',
                     upstream_of_cdr3=31,
-                    max_deletions=3,
-                    max_insertions=3,
+                    max_deletions=5,
+                    max_insertions=5,
                 )
             )
             self.session.commit()
@@ -203,8 +203,9 @@ class BaseTest(object):
                 self.session.query(Clone),
                 'id',
                 ('id', 'functional', 'v_gene', 'j_gene', 'insertions',
-                 'cdr3_nt', 'cdr3_num_nts', 'cdr3_aa', 'germline',
-                 'overall_unique_cnt', 'overall_total_cnt', 'parent'),
+                 'deletions', 'cdr3_nt', 'cdr3_num_nts', 'cdr3_aa',
+                 'germline', 'overall_unique_cnt', 'overall_total_cnt',
+                 'parent'),
             )
             self.regression(
                 self.get_path('post_clones_assignment.json'),
