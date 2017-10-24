@@ -43,6 +43,8 @@ def parse_metadata(session, fh, warn_existing, path):
     for row in reader:
         row = {k: v for k, v in row.iteritems()
                if v is not None and len(v) > 0}
+        if len(row) == 0:
+            continue
         check_populated(row)
         # Check if the sample name is unique
         if row['sample_name'] in metadata:

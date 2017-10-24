@@ -198,7 +198,7 @@ def run_identify(session, args):
         logger.error('Metadata file not found.')
         return
 
-    with open(meta_fn) as fh:
+    with open(meta_fn, 'rU') as fh:
         try:
             metadata = parse_metadata(session, fh, args.warn_existing,
                                       args.sample_dir)
