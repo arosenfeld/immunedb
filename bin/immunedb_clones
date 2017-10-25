@@ -34,11 +34,11 @@ if __name__ == '__main__':
                         'specified) will be DELETED before creating new '
                         'clones.  Associated sequences will be re-assigned '
                         'new clones')
+    parser.add_argument('--tcells', action='store_true', help='Create '
+                        'clones as T-cells, so every unique V/J/CDR3 AA '
+                        'is a clone.')
     parser.add_argument('--subclones', action='store_true', help='If '
-                        'specified, calculate subclone relationships.'
-                        'Has no effect for T-cells.')
-    parser.add_argument('--tcells', action='store_true', help='If '
-                        'specified, does not calculate subclone relationships')
+                        'specified, calculates subclone relationships')
     args = parser.parse_args()
 
     session = config.init_db(args.db_config)

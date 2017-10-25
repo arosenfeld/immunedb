@@ -133,7 +133,7 @@ class IdentificationWorker(concurrent.Worker):
                     alignments[seq_key] = alignment
             except AlignmentException as e:
                 add_as_noresult(self._session, vdj, sample, str(e))
-            except:
+            except Exception:
                 self.error(
                     '\tUnexpected error processing sequence {}\n\t{}'.format(
                         vdj.ids[0], traceback.format_exc()))

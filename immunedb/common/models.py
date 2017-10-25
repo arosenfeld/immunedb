@@ -762,4 +762,5 @@ def check_string_length(cls, key, inst):
                     )
             event.listen(inst, 'set', set_)
 
+
 event.listen(Base, 'attribute_instrument', check_string_length)

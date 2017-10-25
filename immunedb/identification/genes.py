@@ -140,7 +140,7 @@ class VGermlines(GeneTies):
                     if (self._min_length is None or
                             self._min_length > len(v.sequence_ungapped)):
                         self._min_length = len(v.sequence_ungapped)
-                except:
+                except Exception:
                     continue
 
         super(VGermlines, self).__init__({k: v for k, v in self.iteritems()})

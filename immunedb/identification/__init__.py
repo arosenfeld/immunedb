@@ -134,7 +134,7 @@ def add_uniques(session, sample, alignments, props, aligner, realign_len=None,
                 bucket[alignment.sequence.sequence] = alignment
         except AlignmentException as e:
             add_as_noresult(session, alignment.sequence, sample, str(e))
-        except:
+        except Exception:
             logger.error('\tUnexpected error processing sequence '
                          '{}\n\t{}'.format(alignment.sequence.ids[0],
                                            traceback.format_exc()))
