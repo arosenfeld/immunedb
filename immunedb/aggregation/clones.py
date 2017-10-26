@@ -158,7 +158,7 @@ class ClonalWorker(concurrent.Worker):
         if self._exclude_partials:
             query = query.filter(Sequence.partial == 0)
         if self._max_padding is not None:
-            query = query.filter(Sequence.pad_length <= self._max_padding)
+            query = query.filter(Sequence.seq_start <= self._max_padding)
         return query
 
     def do_task(self, args):

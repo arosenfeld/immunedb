@@ -43,7 +43,7 @@ class IdentificationProps(object):
 
     def valid_padding(self, alignment):
         return (self.max_padding is None or
-                alignment.pad_length <= self.max_padding)
+                alignment.seq_start <= self.max_padding)
 
     def valid_families(self, alignment):
         if self.allow_cross_family:
@@ -72,7 +72,7 @@ class IdentificationProps(object):
                 len(alignment.v_gene), self.max_v_ties))
         if not self.valid_padding(alignment):
             raise AlignmentException('Too much padding {} (max {})'.format(
-                alignment.pad_length, self.max_padding))
+                alignment.seq_start, self.max_padding))
         if not self.valid_families(alignment):
             raise AlignmentException('Cross-family V-call')
         if not self.valid_indels(alignment):

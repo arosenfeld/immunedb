@@ -381,9 +381,9 @@ class Sequence(Base):
     :param str v_gene: The V-gene assigned to the sequence
     :param str j_gene: The J-gene assigned to the sequence
 
-    :param int num_gaps: Number of inserted gaps
-    :param int pad_length: The number of pad nucleotides added to the V end \
-        of the sequence
+    :param int num_gaps: Number of inserted gaps within the V read
+    :param int seq_start: The offset from the germline where the sequence \
+        starts
 
     :param int v_match: The number of V-gene nucleotides matching the germline
     :param int v_length: The length of the V-gene segment prior to a streak \
@@ -474,7 +474,7 @@ class Sequence(Base):
     j_gene = Column(String(256))
 
     num_gaps = Column(Integer)
-    pad_length = Column(Integer)
+    seq_start = Column(Integer)
 
     v_match = Column(Integer)
     v_length = Column(Integer)
@@ -586,10 +586,8 @@ class Sequence(Base):
            CDR3
 
         """
-        extent = self.v_length + self.num_gaps + self.pad_length
+        extent = self.v_length + self.num_gaps + self.seq_start
 
-        if self.deletions is not None:
-            extent -= sum((e[1] for e in self.deletions))
         if not in_clone:
             return extent
 

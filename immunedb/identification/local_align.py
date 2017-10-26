@@ -131,18 +131,7 @@ def add_imgt_gaps(imgt_germline, aligned_germline, sequence):
             sequence[pos:]
         ))
 
-    cdr3_start = 0
-    count = 0
-    for i, c in enumerate(aligned_germline):
-        if c != '-':
-            count += 1
-            if count > CDR3_OFFSET:
-                cdr3_start = i
-                break
-    else:
-        cdr3_start = CDR3_OFFSET
-
-    return (aligned_germline, sequence, cdr3_start)
+    return (aligned_germline, sequence)
 
 
 def get_formatted_ties(genes):
@@ -210,15 +199,14 @@ def process_sample(session, sample, indexes, temp, v_germlines, j_germlines,
             continue
         seq = ('N' * len(skip_ref)) + seq
 
-        ref, seq, cdr3_start = add_imgt_gaps(sample_v_germlines[ref_gene], ref,
-                                             seq)
+        ref, seq = add_imgt_gaps(sample_v_germlines[ref_gene], ref, seq)
         alignments[line['seq_id']] = {
-            'v_germline': ref[:cdr3_start],
+            'v_germline': ref,
             'v_gene': line['reference'],
             'padding': len(skip_ref),
             'v_sequence': seq,
             'v_rem_seq': rem_seqs[-1],
-            'cdr3_start': CDR3_OFFSET
+            'cdr3_start': len(ref)
         }
 
     seq_path = os.path.join(temp, 'll_j_{}.fasta'.format(sample.id))
@@ -248,7 +236,7 @@ def process_sample(session, sample, indexes, temp, v_germlines, j_germlines,
         alignments[line['seq_id']]['cdr3_end'] = cdr3_end
 
         cdr3_length = cdr3_end - alignments[line['seq_id']]['cdr3_start']
-        j_start = cdr3_start + cdr3_length
+        j_start = alignments[line['seq_id']]['cdr3_start'] + cdr3_length
 
         full_germ = (alignments[line['seq_id']]['v_germline'] +
                      (GAP_PLACEHOLDER * cdr3_length))
@@ -271,10 +259,15 @@ def process_sample(session, sample, indexes, temp, v_germlines, j_germlines,
         alignment.v_gene.add(GeneName(alignments[line['seq_id']]['v_gene']))
         alignment.j_gene.add(GeneName(alignments[line['seq_id']]['j_gene']))
         alignment.seq_offset = alignments[line['seq_id']]['padding']
+        # TODO: This should really look for a streak like in anchoring
+        alignment.germline_cdr3 = '-' * cdr3_length
+        gaps_in_seq = alignment.sequence.sequence[
+            alignment.seq_start:alignments[line['seq_id']]['cdr3_start']
+        ].count('-')
         alignment.v_length = (
             alignments[line['seq_id']]['cdr3_start'] -
             alignment.seq_offset
-        )
+        ) - gaps_in_seq
         alignment.j_length = j_length
         alignment.v_mutation_fraction = 1 - (alignment.v_match /
                                              float(alignment.v_length))
@@ -320,7 +313,7 @@ def add_sequences_from_sample(session, sample, sequences, props):
                     'j_gene': format_ties(alignment.j_gene),
 
                     'num_gaps': alignment.num_gaps,
-                    'pad_length': alignment.pad_len,
+                    'seq_start': alignment.seq_start,
 
                     'v_match': alignment.v_match,
                     'v_length': alignment.v_length,

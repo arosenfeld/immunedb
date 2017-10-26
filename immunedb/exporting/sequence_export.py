@@ -51,7 +51,7 @@ class SequenceExport(Exporter):
         'probable_indel_or_misalign':
             lambda seq: seq.probable_indel_or_misalign,
         'num_gaps': lambda seq: seq.num_gaps,
-        'pad_length': lambda seq: seq.pad_length,
+        'seq_start': lambda seq: seq.seq_start,
         'v_match': lambda seq: seq.v_match,
         'v_length': lambda seq: seq.v_length,
         'j_match': lambda seq: seq.j_match,

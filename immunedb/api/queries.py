@@ -663,7 +663,7 @@ def get_sequence(session, sample_id, seq_id):
         'cdr3_aa', 'germline', 'v_match', 'j_match', 'v_length',
         'j_length', 'in_frame', 'functional', 'stop', 'copy_number',
         'sequence', 'pre_cdr3_length', 'pre_cdr3_match', 'post_cdr3_length',
-        'post_cdr3_match', 'pad_length', 'num_gaps',
+        'post_cdr3_match', 'seq_start', 'num_gaps',
         'probable_indel_or_misalign', 'insertions', 'deletions',
         'quality', 'regions'
     ], seq)

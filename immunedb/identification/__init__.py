@@ -47,7 +47,7 @@ def add_as_sequence(session, alignment, sample, error_action='discard'):
             j_gene=funcs.format_ties(alignment.j_gene),
 
             num_gaps=alignment.num_gaps,
-            pad_length=alignment.pad_len,
+            seq_start=alignment.seq_start,
 
             v_match=alignment.v_match,
             v_length=alignment.v_length,

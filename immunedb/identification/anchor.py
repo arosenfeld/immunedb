@@ -156,6 +156,9 @@ class AnchorAligner(object):
         # Trim the J gene based on the extent in the CDR3
         if streak is not None:
             j_full = j_full[len(germline_in_cdr3) - streak:]
+            alignment.germline_cdr3 = germline_in_cdr3[-streak:]
+        else:
+            alignment.germline_cdr3 = germline_in_cdr3
 
         # Find where the full J starts
         j_start = alignment.j_anchor_pos + match_len - len(j_full)
@@ -214,9 +217,10 @@ class AnchorAligner(object):
             alignment.j_gene = self.j_germlines.get_ties(
                 alignment.j_gene, avg_len, avg_mut)
         # Set the germline to the V gene up to the CDR3
-        alignment.germline = get_common_seq(
-            [self.v_germlines[v] for v in alignment.v_gene]
-        )[:CDR3_OFFSET]
+        germ = get_common_seq(
+            [self.v_germlines[v] for v in alignment.v_gene], cutoff=False
+        )
+        alignment.germline = germ[:CDR3_OFFSET]
         # If we need to pad the sequence, do so, otherwise trim the sequence to
         # the germline length
         if alignment.seq_offset >= 0:
@@ -230,6 +234,8 @@ class AnchorAligner(object):
             if c == '-':
                 alignment.sequence.add_gap(i)
                 alignment.j_anchor_pos += 1
+                if i < alignment.seq_start:
+                    alignment.seq_offset += 1
 
         j_germ = get_common_seq(
             [self.j_germlines[j] for j in alignment.j_gene], right=True
@@ -239,6 +245,16 @@ class AnchorAligner(object):
             alignment.j_anchor_pos + self.j_germlines.anchor_len -
             self.j_germlines.upstream_of_cdr3 - alignment.cdr3_start
         )
+
+        v_end = alignment.seq_start + alignment.num_gaps + alignment.v_length
+        v_germ = germ[CDR3_OFFSET:v_end]
+        alignment.germline_cdr3 = ''.join((
+            v_germ,
+            '-' * (alignment.cdr3_num_nts -
+                   len(v_germ) -
+                   len(alignment.germline_cdr3)),
+            alignment.germline_cdr3
+        ))
 
         if alignment.cdr3_num_nts < 3:
             raise AlignmentException('CDR3 has no AAs'.format(

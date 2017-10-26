@@ -114,17 +114,26 @@ class VDJAlignment(object):
         self.v_mutation_fraction = 0
         self.cdr3_start = CDR3_OFFSET
         self.cdr3_num_nts = 0
+        self.germline_cdr3 = None
         self.post_cdr3_length = 0
         self.insertions = set([])
         self.deletions = set([])
 
     @property
-    def pad_len(self):
+    def filled_germline(self):
+        return ''.join((
+            self.germline[:self.cdr3_start],
+            self.germline_cdr3,
+            self.germline[self.cdr3_start + self.cdr3_num_nts:]
+        ))
+
+    @property
+    def seq_start(self):
         return max(0, self.seq_offset)
 
     @property
     def num_gaps(self):
-        return self.sequence[:self.cdr3_start].count('-')
+        return self.sequence[self.seq_start:self.cdr3_start].count('-')
 
     @property
     def cdr3(self):
@@ -133,7 +142,7 @@ class VDJAlignment(object):
 
     @property
     def partial(self):
-        return self.pad_len > 0
+        return self.seq_start > 0
 
     @property
     def in_frame(self):
@@ -149,27 +158,33 @@ class VDJAlignment(object):
 
     @property
     def v_match(self):
+        start = self.seq_start + self.num_gaps
+        end = start + self.v_length
+
         return self.v_length - dnautils.hamming(
-            self.germline[:self.v_length],
-            self.sequence[:self.v_length]
+            self.filled_germline[start:end],
+            self.sequence[start:end]
         )
 
     @property
     def j_match(self):
         return self.j_length - dnautils.hamming(
-            self.germline[-self.j_length:],
+            self.filled_germline[-self.j_length:],
             self.sequence[-self.j_length:]
         )
 
     @property
     def pre_cdr3_length(self):
-        return self.cdr3_start - self.pad_len
+        return self.cdr3_start - self.seq_start - self.num_gaps
 
     @property
     def pre_cdr3_match(self):
+        start = self.seq_start + self.num_gaps
+        end = self.cdr3_start
+
         return self.pre_cdr3_length - dnautils.hamming(
-            self.germline[self.pad_len:self.pre_cdr3_length],
-            self.sequence[self.pad_len:self.pre_cdr3_length]
+            self.germline[start:end],
+            self.sequence[start:end]
         )
 
     @property
@@ -196,8 +211,7 @@ class VDJAlignment(object):
         return False
 
     def trim_to(self, count):
-        old_padding = self.pad_len
+        old_padding = self.seq_start
         self.sequence.trim(count)
-        v_start = re.match('[N\-]*', self.sequence.sequence).span()[1]
-        self.seq_offset = self.sequence[:v_start].count('N')
-        self.v_length -= self.pad_len - old_padding
+        self.seq_offset = re.match('[N\-]*', self.sequence.sequence).span()[1]
+        self.v_length -= self.seq_start - old_padding

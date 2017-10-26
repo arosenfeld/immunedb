@@ -1305,39 +1305,9 @@
         "v_gene": "IGHV3-21"
     },
     "88": {
-        "cdr3_aa": "CASTRETPMAYW",
-        "cdr3_nt": "TGTGCGAGTACCCGCGAAACGCCTATGGCCTACTGG",
-        "cdr3_num_nts": 36,
-        "deletions": [],
-        "functional": true,
-        "germline": "GAGGTGCANCTGGTGGAGTCTGGGGGA---GGCCTGGTCAAGCCTGGGGGGTCCCTGAGACTCTCCTGTGCAGCCTCTGGATTCACCTTC------------AGTAGCTATAGCATGAACTGGGTCCGCCAGGCTCCAGGGAAGGGGCTGGAGTGGGTCTCATCCATTAGTAGTAGT------AGTAGTTACATATACTACGCAGACTCAGTGAAG---GGCCGATTCACCATCTCCAGAGACAACGCCAAGAACTCACTGTATCTGCAAATGAACAGCCTGAGAGCCGAGGACACNGCNGTGTATTAC------------------------------------GGCCANGGNACCCTGGTCACCGTCTCCTCAG",
-        "id": 88,
-        "insertions": [],
-        "j_gene": "IGHJ1|4|5",
-        "overall_total_cnt": null,
-        "overall_unique_cnt": null,
-        "parent": null,
-        "v_gene": "IGHV3-21"
-    },
-    "89": {
-        "cdr3_aa": "CASTRDKPLAYW",
-        "cdr3_nt": "TGTGCGAGTACCCGCGATAAACCCCTGGCCTACTGG",
-        "cdr3_num_nts": 36,
-        "deletions": [],
-        "functional": true,
-        "germline": "GAGGTGCANCTGGTGGAGTCTGGGGGA---GGCCTGGTCAAGCCTGGGGGGTCCCTGAGACTCTCCTGTGCAGCCTCTGGATTCACCTTC------------AGTAGCTATAGCATGAACTGGGTCCGCCAGGCTCCAGGGAAGGGGCTGGAGTGGGTCTCATCCATTAGTAGTAGT------AGTAGTTACATATACTACGCAGACTCAGTGAAG---GGCCGATTCACCATCTCCAGAGACAACGCCAAGAACTCACTGTATCTGCAAATGAACAGCCTGAGAGCCGAGGACACNGCNGTGTATTAC------------------------------------GGCCANGGNACCCTGGTCACCGTCTCCTCAG",
-        "id": 89,
-        "insertions": [],
-        "j_gene": "IGHJ1|4|5",
-        "overall_total_cnt": null,
-        "overall_unique_cnt": null,
-        "parent": null,
-        "v_gene": "IGHV3-21"
-    },
-    "90": {
-        "cdr3_aa": "ITVPEITIILTS",
-        "cdr3_nt": "ATTACTGTGCCAGAGATTACCATAATTCTGACTTCTGG",
-        "cdr3_num_nts": 38,
+        "cdr3_aa": "CARDYHNSDFW",
+        "cdr3_nt": "TGTGCCAGAGATTACCATAATTCTGACTTCTGG",
+        "cdr3_num_nts": 33,
         "deletions": [
             [
                 110,
@@ -1357,8 +1327,8 @@
             ]
         ],
         "functional": false,
-        "germline": "GAGGTGCANCTGGTGGAGTCT-GGGGGA---GGCCTGGTCAAGCCTGGGGGGTCCCTGAGACTCTCCTGTGCAGCCTCTGGATTCACCTTC------------AGTAGCTAT-AGC-ATGAACTGGGTCCGCCAGGCTCCAGGGAAGGGGCTGGAGTGGGTCTCATCCATT-AGTAGTAGT------AGTAG-TTACATATACTACGCAGACTCAGTGAAG---GGCCGATTCACCATCTCCAGAGACAACGCCAAGAACTCACTGTATCTGCAAATGAACAGCCTGAGAGCCGAGGACACNGCNGTGT-------------------------------------------NGGNACCCTGGTCACCGTCTCCTCAG",
-        "id": 90,
+        "germline": "GAGGTGCANCTGGTGGAGTCT-GGGGGA---GGCCTGGTCAAGCCTGGGGGGTCCCTGAGACTCTCCTGTGCAGCCTCTGGATTCACCTTC------------AGTAGCTAT-AGC-ATGAACTGGGTCCGCCAGGCTCCAGGGAAGGGGCTGGAGTGGGTCTCATCCATT-AGTAGTAGT------AGTAG-TTACATATACTACGCAGACTCAGTGAAG---GGCCGATTCACCATCTCCAGAGACAACGCCAAGAACTCACTGTATCTGCAAATGAACAGCCTGAGAGCCGAGGACACNGCNGTGTATTAC---------------------------------GGCCANGGNACCCTGGTCACCGTCTCCTCAG",
+        "id": 88,
         "insertions": [
             [
                 21,
@@ -1381,6 +1351,36 @@
                 1
             ]
         ],
+        "j_gene": "IGHJ1|4|5",
+        "overall_total_cnt": null,
+        "overall_unique_cnt": null,
+        "parent": null,
+        "v_gene": "IGHV3-21"
+    },
+    "89": {
+        "cdr3_aa": "CASTRETPMAYW",
+        "cdr3_nt": "TGTGCGAGTACCCGCGAAACGCCTATGGCCTACTGG",
+        "cdr3_num_nts": 36,
+        "deletions": [],
+        "functional": true,
+        "germline": "GAGGTGCANCTGGTGGAGTCTGGGGGA---GGCCTGGTCAAGCCTGGGGGGTCCCTGAGACTCTCCTGTGCAGCCTCTGGATTCACCTTC------------AGTAGCTATAGCATGAACTGGGTCCGCCAGGCTCCAGGGAAGGGGCTGGAGTGGGTCTCATCCATTAGTAGTAGT------AGTAGTTACATATACTACGCAGACTCAGTGAAG---GGCCGATTCACCATCTCCAGAGACAACGCCAAGAACTCACTGTATCTGCAAATGAACAGCCTGAGAGCCGAGGACACNGCNGTGTATTAC------------------------------------GGCCANGGNACCCTGGTCACCGTCTCCTCAG",
+        "id": 89,
+        "insertions": [],
+        "j_gene": "IGHJ1|4|5",
+        "overall_total_cnt": null,
+        "overall_unique_cnt": null,
+        "parent": null,
+        "v_gene": "IGHV3-21"
+    },
+    "90": {
+        "cdr3_aa": "CASTRDKPLAYW",
+        "cdr3_nt": "TGTGCGAGTACCCGCGATAAACCCCTGGCCTACTGG",
+        "cdr3_num_nts": 36,
+        "deletions": [],
+        "functional": true,
+        "germline": "GAGGTGCANCTGGTGGAGTCTGGGGGA---GGCCTGGTCAAGCCTGGGGGGTCCCTGAGACTCTCCTGTGCAGCCTCTGGATTCACCTTC------------AGTAGCTATAGCATGAACTGGGTCCGCCAGGCTCCAGGGAAGGGGCTGGAGTGGGTCTCATCCATTAGTAGTAGT------AGTAGTTACATATACTACGCAGACTCAGTGAAG---GGCCGATTCACCATCTCCAGAGACAACGCCAAGAACTCACTGTATCTGCAAATGAACAGCCTGAGAGCCGAGGACACNGCNGTGTATTAC------------------------------------GGCCANGGNACCCTGGTCACCGTCTCCTCAG",
+        "id": 90,
+        "insertions": [],
         "j_gene": "IGHJ1|4|5",
         "overall_total_cnt": null,
         "overall_unique_cnt": null,
@@ -3263,9 +3263,24 @@
         "v_gene": "IGHV4-61"
     },
     "216": {
-        "cdr3_aa": "CARDRRDGYNYIEFW",
-        "cdr3_nt": "TGTGCGAGGGACCGTAGAGATGGCTACAATTACATTGAGTTCTGG",
-        "cdr3_num_nts": 45,
+        "cdr3_aa": "CARVRDIFGVKFFDSW",
+        "cdr3_nt": "TGTGCGAGAGTTCGAGACATTTTCGGTGTCAAGTTCTTTGACTCCTGG",
+        "cdr3_num_nts": 48,
+        "deletions": [],
+        "functional": true,
+        "germline": "CAGNTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCNNAGACCCTGTCCCTCACCTGCACTGTCTCTGGTGGCTCCNTCAGC------AGTNGTNGTTACTACTGGNGCTGGATCCGGCAGCCCNCNGGGAAGGGACTGGAGTGGATTGGGNNTATCTATNNCAGT---------GGGAGCACCAACTACAACCCCTCCCTCAAG---AGTCGAGTCACCATATCAGTAGACANGTCCAAGAACCANTTCTCCCTGAAGCTGAGCTCTGTGACCGCNGCNGACACGGCCGTGTATTAC------------------------------------------------GGCCANGGNACCCTGGTCACCGTCTCCTCAG",
+        "id": 216,
+        "insertions": [],
+        "j_gene": "IGHJ1|4|5",
+        "overall_total_cnt": null,
+        "overall_unique_cnt": null,
+        "parent": null,
+        "v_gene": "IGHV4-61"
+    },
+    "217": {
+        "cdr3_aa": "CARDRRDGYNYIEFWG",
+        "cdr3_nt": "TGTGCGAGGGACCGTAGAGATGGCTACAATTACATTGAGTTCTGGGGC",
+        "cdr3_num_nts": 48,
         "deletions": [
             [
                 91,
@@ -3276,21 +3291,6 @@
                 4
             ]
         ],
-        "functional": true,
-        "germline": "CAGNTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCNNAGACCCTGTCCCTCACCTGCACTGTCTCTGGTGGCTCCNTCAGC------AGTNGTNGTTACTACTGGNGCTGGATCCGGCAGCCCNCNGGGAAGGGACTGGAGTGGATTGGGNNTATCTATNNCAGT---------GGGAGCACCAACTACAACCCCTCCCTCAAG---AGTCGAGTCACCATATCAGTAGACANGTCCAAGAACCANTTCTCCCTGAAGCTGAGCTCTGTGACCGCNGCNGACACGGCCGTGTATTAC---------------------------------------------GGCCANGGNACCCTGGTCACCGTCTCCTCAG",
-        "id": 216,
-        "insertions": [],
-        "j_gene": "IGHJ1|4|5",
-        "overall_total_cnt": null,
-        "overall_unique_cnt": null,
-        "parent": null,
-        "v_gene": "IGHV4-61"
-    },
-    "217": {
-        "cdr3_aa": "CARVRDIFGVKFFDSW",
-        "cdr3_nt": "TGTGCGAGAGTTCGAGACATTTTCGGTGTCAAGTTCTTTGACTCCTGG",
-        "cdr3_num_nts": 48,
-        "deletions": [],
         "functional": true,
         "germline": "CAGNTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCNNAGACCCTGTCCCTCACCTGCACTGTCTCTGGTGGCTCCNTCAGC------AGTNGTNGTTACTACTGGNGCTGGATCCGGCAGCCCNCNGGGAAGGGACTGGAGTGGATTGGGNNTATCTATNNCAGT---------GGGAGCACCAACTACAACCCCTCCCTCAAG---AGTCGAGTCACCATATCAGTAGACANGTCCAAGAACCANTTCTCCCTGAAGCTGAGCTCTGTGACCGCNGCNGACACGGCCGTGTATTAC------------------------------------------------GGCCANGGNACCCTGGTCACCGTCTCCTCAG",
         "id": 217,
