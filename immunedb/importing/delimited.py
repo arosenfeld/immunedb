@@ -150,7 +150,7 @@ def run_import(session, args, remaps=None):
         sample.subject = subject
         session.commit()
     else:
-        loger.error('Sample "{}" already exists'.format(args.sample_name))
+        logger.error('Sample "{}" already exists'.format(args.sample_name))
         return
 
     with open(args.input_file) as fh:

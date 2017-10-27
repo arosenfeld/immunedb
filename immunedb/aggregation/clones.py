@@ -4,8 +4,7 @@ from sqlalchemy import desc
 from sqlalchemy.sql import text
 
 import dnautils
-from immunedb.common.models import (CDR3_OFFSET, Clone, Sequence,
-                                    SequenceCollapse, Subject)
+from immunedb.common.models import Clone, Sequence, SequenceCollapse, Subject
 import immunedb.common.modification_log as mod_log
 import immunedb.common.config as config
 import immunedb.util.concurrent as concurrent

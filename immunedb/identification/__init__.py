@@ -1,14 +1,12 @@
 from collections import OrderedDict
 import dnautils
 import itertools
-import re
 import traceback
 
 from immunedb.common.models import (CDR3_OFFSET, DuplicateSequence, NoResult,
                                     Sequence)
 import immunedb.util.funcs as funcs
 import immunedb.util.lookups as lookups
-from immunedb.util.hyper import hypergeom
 from immunedb.util.log import logger
 
 

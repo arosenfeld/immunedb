@@ -4,10 +4,9 @@ import traceback
 
 from Bio import SeqIO
 
-from immunedb.identification import AlignmentException
 import immunedb.common.config as config
 import immunedb.common.modification_log as mod_log
-from immunedb.common.models import Sample, Sequence, Study, Subject
+from immunedb.common.models import Sample, Study, Subject
 from immunedb.identification import (add_as_noresult, add_uniques,
                                      AlignmentException)
 from immunedb.identification.anchor import AnchorAligner

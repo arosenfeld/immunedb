@@ -5,7 +5,6 @@ from immunedb.identification import AlignmentException, get_common_seq
 from immunedb.identification.genes import VGene, find_v_position
 from immunedb.util.funcs import find_streak_position
 from immunedb.identification.vdj_sequence import VDJAlignment
-from immunedb.util.log import logger
 
 
 def sliding_window_match(sequence, match):
@@ -82,7 +81,7 @@ class AnchorAligner(object):
                 return self.process_j(alignment, i, len(match), limit_js)
 
         # Last chance, find any matching position
-        total_best_gene, total_best_hamming = None, None
+        total_best_hamming = None
         total_best_rc, total_best_pos = None, None
         for j_gene, germ_seq in self.j_germlines.iteritems():
             best_pos, best_hamming, is_rc = self._find_index(
@@ -91,7 +90,6 @@ class AnchorAligner(object):
                     best_hamming < total_best_hamming):
                 total_best_hamming = best_hamming
                 total_best_pos = best_pos
-                total_best_gene = j_gene
                 total_best_rc = is_rc
 
         if total_best_rc:
@@ -191,7 +189,7 @@ class AnchorAligner(object):
                 dist, total_length = germ.compare(aligned_v,
                                                   alignment.j_anchor_pos,
                                                   self.MISMATCH_THRESHOLD)
-            except Exception as e:
+            except Exception:
                 continue
             # Record this germline if it is has the lowest distance
             if dist is not None:

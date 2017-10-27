@@ -5,18 +5,16 @@ import subprocess
 import shlex
 import StringIO
 
-from sqlalchemy import desc, func, text
+from sqlalchemy import desc, text
 
 import dnautils
 
-import immunedb.common.config as config
 from immunedb.identification import add_as_sequence, AlignmentException
 from immunedb.identification.vdj_sequence import VDJAlignment, VDJSequence
 from immunedb.identification.genes import GeneName, JGermlines, VGermlines
 from immunedb.identification.identify import IdentificationProps
-from immunedb.common.models import (CDR3_OFFSET, DuplicateSequence, NoResult,
-                                    Sample, Sequence, serialize_gaps)
-import immunedb.util.concurrent as concurrent
+from immunedb.common.models import (DuplicateSequence, NoResult, Sample,
+                                    Sequence, serialize_gaps)
 from immunedb.util.funcs import format_ties, periodic_commit
 import immunedb.util.lookups as lookups
 from immunedb.util.log import logger
@@ -236,7 +234,6 @@ def process_sample(session, sample, indexes, temp, v_germlines, j_germlines,
         alignments[line['seq_id']]['cdr3_end'] = cdr3_end
 
         cdr3_length = cdr3_end - alignments[line['seq_id']]['cdr3_start']
-        j_start = alignments[line['seq_id']]['cdr3_start'] + cdr3_length
 
         full_germ = (alignments[line['seq_id']]['v_germline'] +
                      (GAP_PLACEHOLDER * cdr3_length))
@@ -294,7 +291,7 @@ def add_sequences_from_sample(session, sample, sequences, props):
         try:
             try:
                 props.validate(alignment)
-            except AlignmentException as e:
+            except AlignmentException:
                 continue
             if sequence['r_type'] == 'NoResult':
                 add_as_sequence(session, alignment, sample,
@@ -355,7 +352,7 @@ def add_sequences_from_sample(session, sample, sequences, props):
                 session.query(Sequence).filter(
                     Sequence.ai == sequence['pk']
                 ).update(fields, synchronize_session=False)
-        except ValueError as e:
+        except ValueError:
             continue
 
 
@@ -421,7 +418,6 @@ def run_fix_sequences(session, args):
 
     indexes = set()
     props = IdentificationProps(**args.__dict__)
-    tasks = concurrent.TaskQueue()
     for sample in session.query(Sample):
         sequences = process_sample(session, sample, indexes, args.temp,
                                    v_germlines, j_germlines, args.nproc)

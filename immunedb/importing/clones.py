@@ -2,8 +2,7 @@ import csv
 
 from sqlalchemy.orm import joinedload
 
-from immunedb.common.models import (Clone, CloneStats, SampleStats, Sequence,
-                                    SequenceCollapse, Subject)
+from immunedb.common.models import Clone, CloneStats, SampleStats, Sequence
 from immunedb.aggregation.clones import generate_consensus, push_clone_ids
 from immunedb.importing import ImportException
 
