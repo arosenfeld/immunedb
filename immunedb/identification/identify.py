@@ -100,16 +100,19 @@ class IdentificationWorker(concurrent.Worker):
         # Collapse identical sequences
         self.info('\tCollapsing identical sequences')
         for record in parser:
-            seq = str(record.seq)
-            if seq not in vdjs:
-                vdjs[seq] = VDJSequence(
-                    ids=[],
-                    sequence=seq,
-                    quality=funcs.ord_to_quality(
-                        record.letter_annotations.get('phred_quality')
+            try:
+                seq = str(record.seq)
+                if seq not in vdjs:
+                    vdjs[seq] = VDJSequence(
+                        ids=[],
+                        sequence=seq,
+                        quality=funcs.ord_to_quality(
+                            record.letter_annotations.get('phred_quality')
+                        )
                     )
-                )
-            vdjs[seq].ids.append(record.description)
+                vdjs[seq].ids.append(record.description)
+            except ValueError:
+                continue
 
         alignments = {}
         aligner = AnchorAligner(self._v_germlines, self._j_germlines)
