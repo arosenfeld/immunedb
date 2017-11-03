@@ -184,6 +184,7 @@ class BaseTest(object):
             run_clones(
                 self.session,
                 NamespaceMimic(
+                    method='similarity',
                     similarity=85,
                     subject_ids=None,
                     include_indels=False,
@@ -192,8 +193,7 @@ class BaseTest(object):
                     min_copy=2,
                     max_padding=None,
                     regen=False,
-                    subclones=False,
-                    tcells=False
+                    subclones=False
                 )
             )
             self.session.commit()

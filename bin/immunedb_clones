@@ -3,43 +3,89 @@ import sys
 import argparse
 
 import immunedb.common.config as config
-from immunedb.aggregation.clones import run_clones
+from immunedb.aggregation.clones import ClonalWorker, run_clones
 
 if __name__ == '__main__':
-    parser = config.get_base_arg_parser('Clusters sequences into clones')
-    parser.add_argument('--similarity', type=int, default=85,
-                        dest='similarity', help='Minimum similarity between '
-                        'clone sequences.')
-    parser.add_argument('--subject-ids', nargs='+', type=int,
-                        help='Limit generation to certain subjects')
-    parser.add_argument('--include-indels', action='store_true', default=False,
-                        help='If specified, includes indels (or poorly '
-                        'aligned sequences) in clones.')
-    parser.add_argument('--exclude-partials', action='store_true',
-                        default=False, help='If specified, excludes partial '
-                        'sequences in clones.  Note partial sequences which '
-                        'were collapse to a full sequence will always be '
-                        'included.')
-    parser.add_argument('--min-identity', type=int, default=0,
-                        help='Minimum V identity of sequences to germline '
-                        'required for inclusion in clones.')
-    parser.add_argument('--min-copy', type=int, default=2, help='The minimum '
-                        'copy number that sequences must have in the subject '
-                        'to be included in clones.')
-    parser.add_argument('--max-padding', type=int, default=None,
-                        help='Maximum V-padding a sequence may have to be '
-                        'added to a clone.')
-    parser.add_argument('--regen', action='store_true', help='If specified '
-                        'all clones (limited by subject if --subject is '
-                        'specified) will be DELETED before creating new '
-                        'clones.  Associated sequences will be re-assigned '
-                        'new clones')
-    parser.add_argument('--tcells', action='store_true', help='Create '
-                        'clones as T-cells, so every unique V/J/CDR3 AA '
-                        'is a clone.')
-    parser.add_argument('--subclones', action='store_true', help='If '
-                        'specified, calculates subclone relationships')
-    args = parser.parse_args()
+    main_parser = config.get_base_arg_parser('Clusters sequences into clones')
+    main_parser.add_argument('--subject-ids', nargs='+', type=int,
+                             help='Limit generation to certain subjects')
+    main_parser.add_argument('--include-indels', action='store_true',
+                             default=ClonalWorker.defaults['include_indels'],
+                             help='''If specified, includes indels (or poorly
+                             aligned sequences) in clones.''')
+    main_parser.add_argument('--exclude-partials', action='store_true',
+                             default=ClonalWorker.defaults['include_indels'],
+                             help=''''If specified, excludes partial sequences
+                             in clones.  Note partial sequences which were
+                             collapse to a full sequence will always be
+                             included.''')
+    main_parser.add_argument('--min-identity', type=int,
+                             default=ClonalWorker.defaults['min_identity'],
+                             help='''Minimum V identity of sequences to
+                             germline required for inclusion in clones.''')
+    main_parser.add_argument('--min-copy', type=int,
+                             default=ClonalWorker.defaults['min_copy'],
+                             help='''The minimum copy number that sequences
+                             must have in the subject to be included in
+                             clones.''')
+    main_parser.add_argument('--max-padding', type=int,
+                             default=ClonalWorker.defaults['max_padding'],
+                             help='''Maximum V-padding a sequence may have to
+                             be added to a clone.''')
+    main_parser.add_argument('--regen', action='store_true',
+                             help='''If specified all clones (limited by
+                             subject if --subject is specified) will be DELETED
+                             before creating new clones.  Associated sequences
+                             will be re-assigned new clones''')
+    subparsers = main_parser.add_subparsers(
+        dest='method',
+        help='''The method to use for clonal inference''')
+
+    # Similarity
+    parser = subparsers.add_parser(
+        'similarity',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        help='''Constructs clones based on CDR3 amino-acid hamming distance''')
+    parser.add_argument('--min-similarity', type=int, default=85,
+                        help='''Minimum similarity allowed between sequence
+                        CDR3 AAs within a clone''')
+    parser.add_argument('--subclones', action='store_true',
+                        help='''If specified, calculates subclone
+                        relationships''')
+
+    # T-cells
+    parser = subparsers.add_parser(
+        'tcells',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        help='''Constructs clones based on exact CDR3 NT identity for
+        T-cells''')
+    parser.add_argument('--subclones', action='store_true',
+                        help='''If specified, calculates subclone
+                        relationships''')
+
+    # Lineage
+    parser = subparsers.add_parser(
+        'lineage',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        help='''Constructs clones based on lineage trees''')
+    parser.add_argument('clearcut_path', help='Path to clearcut binary')
+    parser.add_argument('--mut-cuttoff',
+                        default=ClonalWorker.defaults['mut_cutoff'],
+                        help='''The number of mutations allowed along a path in
+                        the linage before the linage is split into two
+                        clones''')
+    parser.add_argument('--min-mut-occurrence',
+                        default=ClonalWorker.defaults['min_mut_occurrence'],
+                        help='''The minimum number of times a mutation must
+                        occur to be included in the lineage''')
+    parser.add_argument('--subclones', action='store_true',
+                        help='''If specified, calculates subclone
+                        relationships''')
+
+    args = main_parser.parse_args()
+    args.min_identity /= 100
+    if 'min_similarity' in args:
+        args.min_similarity /= 100
 
     session = config.init_db(args.db_config)
 

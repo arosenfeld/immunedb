@@ -2,7 +2,6 @@ import os
 import requests
 import unittest
 
-import immunedb.common.config as config
 from immunedb.exporting.clone_export import CloneExport
 from immunedb.exporting.sequence_export import SequenceExport
 

@@ -1,6 +1,6 @@
 import os
 
-from regression import NamespaceMimic, BaseTest
+from regression import BaseTest
 
 import immunedb.common.config as config
 from immunedb.common.models import Clone, Sequence

@@ -15,6 +15,8 @@ Base = declarative_base()
 MAX_CDR3_NTS = 96
 MAX_CDR3_AAS = int(MAX_CDR3_NTS / 3)
 MAX_SEQ_LEN = 512
+MAX_GENE_LEN = 64
+MAX_INDEL_LEN = 64
 CDR3_OFFSET = 309
 
 
@@ -236,11 +238,11 @@ class Clone(Base):
 
     functional = Column(Boolean, index=True)
 
-    v_gene = Column(String(length=512), index=True)
-    j_gene = Column(String(length=128), index=True)
+    v_gene = Column(String(length=MAX_GENE_LEN), index=True)
+    j_gene = Column(String(length=MAX_GENE_LEN), index=True)
 
-    _insertions = Column('insertions', String(128), index=True)
-    _deletions = Column('deletions', String(128), index=True)
+    _insertions = Column('insertions', String(MAX_INDEL_LEN), index=True)
+    _deletions = Column('deletions', String(MAX_INDEL_LEN), index=True)
 
     cdr3_nt = Column(String(length=MAX_CDR3_NTS))
     cdr3_num_nts = Column(Integer, index=True)
@@ -467,11 +469,11 @@ class Sequence(Base):
     probable_indel_or_misalign = Column(Boolean)
     locally_aligned = Column(Boolean, default=False, nullable=False)
 
-    _deletions = Column('deletions', String(32))
-    _insertions = Column('insertions', String(32))
+    _deletions = Column('deletions', String(MAX_INDEL_LEN))
+    _insertions = Column('insertions', String(MAX_INDEL_LEN))
 
-    v_gene = Column(String(256))
-    j_gene = Column(String(256))
+    v_gene = Column(String(MAX_GENE_LEN))
+    j_gene = Column(String(MAX_GENE_LEN))
 
     num_gaps = Column(Integer)
     seq_start = Column(Integer)

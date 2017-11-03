@@ -3,8 +3,6 @@ import os
 import requests
 import unittest
 
-import immunedb.common.config as config
-
 
 def compare_dicts(d1, d2):
     assert set(d1.keys()) == set(d2.keys())
