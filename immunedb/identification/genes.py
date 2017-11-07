@@ -185,8 +185,6 @@ class VGene(object):
         return self._ungapped_anchor_pos
 
     def align(self, other_v):
-        self._verify_type(other_v)
-
         diff = abs(self.ungapped_anchor_pos - other_v.ungapped_anchor_pos)
         this_seq = self.sequence_ungapped
         other_seq = other_v.sequence_ungapped
@@ -208,8 +206,6 @@ class VGene(object):
         }
 
     def compare(self, other_v, max_extent, max_streak):
-        self._verify_type(other_v)
-
         alignment = self.align(other_v)
         this_seq = alignment['base'][:max_extent]
         other_seq = alignment['seq'][:max_extent]
@@ -244,11 +240,6 @@ class VGene(object):
         dist = dnautils.hamming(this_seq, other_seq)
 
         return dist, len(other_seq)
-
-    def _verify_type(self, other_v):
-        if type(other_v) != type(self):
-            raise AlignmentException('Must compare to instance of {}'.format(
-                self.__class__.__name__))
 
 
 def find_v_position(sequence):

@@ -255,8 +255,7 @@ class AnchorAligner(object):
         ))
 
         if alignment.cdr3_num_nts < 3:
-            raise AlignmentException('CDR3 has no AAs'.format(
-                alignment.cdr3_num_nts))
+            raise AlignmentException('CDR3 has no AAs')
 
         alignment.j_anchor_pos += alignment.cdr3_num_nts
         # Fill germline CDR3 with gaps

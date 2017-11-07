@@ -163,9 +163,10 @@ def get_common_seq(seqs, cutoff=True, right=False):
         seqs = [reversed(s) for s in seqs]
     if len(seqs) == 0:
         return seqs[0]
-    gene = []
-    for nts in itertools.izip_longest(*seqs, fillvalue='N'):
-        gene.append(nts[0] if all(map(lambda n: n == nts[0], nts)) else 'N')
+    gene = [
+        nts[0] if all([n == nts[0] for n in nts]) else 'N'
+        for nts in itertools.izip_longest(*seqs, fillvalue='N')
+    ]
     if right:
         gene = reversed(gene)
     gene = ''.join(gene)
