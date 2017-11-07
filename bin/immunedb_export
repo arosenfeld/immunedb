@@ -10,7 +10,12 @@ if __name__ == '__main__':
                                              multiproc=False)
     subparsers = main_parser.add_subparsers(dest='fmt', help='The format')
     parser = subparsers.add_parser('vdjtools')
-    parser.add_argument('--min-clone-size', type=int, default=1)
+    parser.add_argument('--min-clone-size', type=int, default=1,
+                        help='Only export clones with at least this many'
+                        ' copies.')
+    parser.add_argument('--include-uniques', action='store_true',
+                        help='Includes how many unique sequences are in'
+                        ' clones.')
 
     parser = subparsers.add_parser('genbank')
     parser.add_argument('--sample-ids', nargs='+', type=int)

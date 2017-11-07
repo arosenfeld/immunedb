@@ -231,7 +231,7 @@ class LineageClonalWorker(ClonalWorker):
 
 
 class TCellClonalWorker(ClonalWorker):
-    def tcell_clones(self, bucket):
+    def run_bucket(self, bucket):
         updates = []
         clones = OrderedDict()
         consensus_needed = set([])

@@ -140,6 +140,8 @@ def run_collapse(session, args):
         for bucket in buckets:
             tasks.add_task(bucket)
 
+    logger.info('Generated {} total tasks'.format(tasks.num_tasks()))
+
     for i in range(0, min(tasks.num_tasks(), args.nproc)):
         tasks.add_worker(CollapseWorker(config.init_db(args.db_config)))
     tasks.start()

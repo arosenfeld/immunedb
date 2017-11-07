@@ -479,11 +479,19 @@ def get_all_subjects(session, paging=None):
     subjects = []
     for subject in _page_query(
             session.query(Subject).order_by(Subject.identifier), paging):
-        seqs = session.query(
+        total_seqs = session.query(
             func.sum(SampleStats.sequence_cnt)
         ).filter(
             SampleStats.sample.has(subject=subject),
             SampleStats.filter_type == 'all',
+            SampleStats.outliers == true(),
+            SampleStats.full_reads == false()
+        ).scalar()
+        unique_seqs = session.query(
+            func.sum(SampleStats.sequence_cnt)
+        ).filter(
+            SampleStats.sample.has(subject=subject),
+            SampleStats.filter_type == 'unique',
             SampleStats.outliers == true(),
             SampleStats.full_reads == false()
         ).scalar()
@@ -495,13 +503,14 @@ def get_all_subjects(session, paging=None):
                 'name': subject.study.name
             },
         }
-        if seqs is not None:
+        if total_seqs is not None:
             info['total_samples'] = session.query(
                 func.count(Sample.id)
             ).filter(
                 Sample.subject == subject
             ).scalar()
-            info['unique_seqs'] = int(seqs)
+            info['total_seqs'] = int(total_seqs)
+            info['unique_seqs'] = int(unique_seqs)
             info['total_clones'] = session.query(
                 func.count(Clone.id)
             ).filter(

@@ -2,47 +2,56 @@ from collections import Counter, OrderedDict
 import csv
 import re
 
-from immunedb.common.models import Clone, CloneStats, Sample, Sequence
+from sqlalchemy import distinct, func
+
+from immunedb.common.models import Clone, CloneStats, Sample, Sequence, Subject
 from immunedb.util.log import logger
 from immunedb.util.lookups import aas_from_nts
 
 
 def export_vdjtools(session, args):
     fieldnames = ['count', 'freq', 'cdr3nt', 'cdr3aa', 'v', 'd', 'j']
+    if args.include_uniques:
+        fieldnames.append('unique')
 
     clone_features = {c.id: (c.v_gene, c.j_gene, c.cdr3_nt)
                       for c in session.query(Clone.id, Clone.v_gene,
                                              Clone.j_gene, Clone.cdr3_nt)}
     for sample in session.query(Sample).order_by(Sample.id):
         logger.info('Exporting sample {}'.format(sample.name))
-        sample_clones = Counter()
+        sample_clones = {}
         stats = session.query(
-            CloneStats.clone_id, CloneStats.total_cnt
+            CloneStats.clone_id, CloneStats.total_cnt, CloneStats.unique_cnt
         ).filter(
             CloneStats.sample_id == sample.id
         )
         for stat in stats:
             key = clone_features[stat.clone_id]
-            sample_clones[key] += stat.total_cnt
+            sample_clones.setdefault(key, Counter())['total'] += stat.total_cnt
+            sample_clones[key]['unique'] += stat.unique_cnt
 
         writer = csv.DictWriter(
             open('{}.sample.txt'.format(sample.name), 'w+'),
             fieldnames=fieldnames,
-            delimiter='\t'
+            delimiter='\t',
+            extrasaction='ignore'
         )
-        total = float(sum(sample_clones.values()))
+        total = float(sum([c['total'] for c in sample_clones.values()]))
         writer.writeheader()
         for key in sorted(sample_clones, key=sample_clones.get, reverse=True):
-            count = sample_clones[key]
+            counts = sample_clones[key]
+            if counts['total'] < args.min_clone_size:
+                continue
             v, j, cdr3_nt = key
             writer.writerow({
-                'count': count,
-                'freq': count / total,
+                'count': counts['total'],
+                'freq': counts['total'] / total,
                 'cdr3nt': cdr3_nt,
                 'cdr3aa': aas_from_nts(cdr3_nt),
                 'v': v,
                 'd': '.',
-                'j': j
+                'j': j,
+                'unique': counts['unique']
             })
 
 
@@ -78,8 +87,8 @@ def get_genbank_entries(seq, inference, gene_db):
     # J segment
     first_j = seq.v_gene.split('|')[0]
     entry[j_segment] = (
-        ('gene', first_j),
-        ('db_xref', '{}:{}'.format(gene_db, first_j)),
+        ('gene', first_v),
+        ('db_xref', '{}:{}'.format(gene_db, first_v)),
         ('inference', inference),
     )
 
@@ -126,7 +135,7 @@ def export_sample_genbank(session, sample_id, gene_db, inference, header):
 
 
 def export_genbank(session, args):
-    args.inference = 'alignment:' + args.inference
+    inference = 'alignment:' + args.inference
 
     header = (
         '[organism={}] '
