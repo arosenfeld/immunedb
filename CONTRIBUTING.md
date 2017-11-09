@@ -12,7 +12,7 @@ used and any error messages.
 Pull requests can be submitted for ImmuneDB by anyone.  Before submitting a pull
 request, you should make sure they pass local tests by running:
 
-        $ pip install coverage nose
+        $ pip install coverage nose requests
         $ ./tests/run.sh
 
 The environment variable `DB_ADMIN_PASS` should be set to your MySQL
