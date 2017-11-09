@@ -38,8 +38,8 @@ if __name__ == '__main__':
                              before creating new clones.  Associated sequences
                              will be re-assigned new clones''')
     main_parser.add_argument('--subclones', action='store_true',
-                        help='''If specified, calculates subclone
-                        relationships''')
+                             help='''If specified, calculates subclone
+                             relationships''')
     subparsers = main_parser.add_subparsers(
         dest='method',
         help='''The method to use for clonal inference''')
@@ -66,15 +66,24 @@ if __name__ == '__main__':
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         help='''Constructs clones based on lineage trees''')
     parser.add_argument('clearcut_path', help='Path to clearcut binary')
-    parser.add_argument('--mut-cuttoff',
+    parser.add_argument('--mut-cuttoff', type=int,
                         default=ClonalWorker.defaults['mut_cutoff'],
                         help='''The number of mutations allowed along a path in
                         the linage before the linage is split into two
                         clones''')
-    parser.add_argument('--min-mut-occurrence',
+    parser.add_argument('--min-mut-occurrence', type=int,
                         default=ClonalWorker.defaults['min_mut_occurrence'],
                         help='''The minimum number of times a mutation must
                         occur to be included in the lineage''')
+    parser.add_argument('--min-mut-samples', type=int,
+                        default=ClonalWorker.defaults['min_mut_samples'],
+                        help='''The minimum number of samples in which a
+                        mutation must occur to be incorporated into tree
+                        calculation''')
+    parser.add_argument('--min-seq-instances', type=int,
+                        default=ClonalWorker.defaults['min_seq_instances'],
+                        help='''The minimum number of instances a sequence must
+                        have to be incorporated into tree calculation''')
 
     args = main_parser.parse_args()
     args.min_identity /= 100

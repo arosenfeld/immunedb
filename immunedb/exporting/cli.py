@@ -2,9 +2,7 @@ from collections import Counter, OrderedDict
 import csv
 import re
 
-from sqlalchemy import distinct, func
-
-from immunedb.common.models import Clone, CloneStats, Sample, Sequence, Subject
+from immunedb.common.models import Clone, CloneStats, Sample, Sequence
 from immunedb.util.log import logger
 from immunedb.util.lookups import aas_from_nts
 
@@ -85,10 +83,10 @@ def get_genbank_entries(seq, inference, gene_db):
     )
 
     # J segment
-    first_j = seq.v_gene.split('|')[0]
+    first_j = seq.j_gene.split('|')[0]
     entry[j_segment] = (
-        ('gene', first_v),
-        ('db_xref', '{}:{}'.format(gene_db, first_v)),
+        ('gene', first_j),
+        ('db_xref', '{}:{}'.format(gene_db, first_j)),
         ('inference', inference),
     )
 
@@ -135,7 +133,7 @@ def export_sample_genbank(session, sample_id, gene_db, inference, header):
 
 
 def export_genbank(session, args):
-    inference = 'alignment:' + args.inference
+    args.inference = 'alignment:' + args.inference
 
     header = (
         '[organism={}] '

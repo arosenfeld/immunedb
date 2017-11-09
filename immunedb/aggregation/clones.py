@@ -130,6 +130,8 @@ class ClonalWorker(concurrent.Worker):
         # lineage
         'mut_cutoff': 4,
         'min_mut_occurrence': 2,
+        'min_mut_samples': 1,
+        'min_seq_instances': 1,
     }
 
     def __init__(self, session, **kwargs):
@@ -163,6 +165,10 @@ class ClonalWorker(concurrent.Worker):
         if self.min_identity > 0:
             query = query.filter(
                 Sequence.v_match / Sequence.v_length >= self.min_identity
+            )
+        if self.min_seq_instances > 1:
+            query = query.filter(
+                SequenceCollapse.instances_in_subject >= self.min_seq_instances
             )
         if not self.include_indels:
             query = query.filter(Sequence.probable_indel_or_misalign == 0)
@@ -203,7 +209,9 @@ class LineageClonalWorker(ClonalWorker):
                 germline[cdr3_start + bucket.cdr3_num_nts:]
             ))
             phylo = PhylogeneticTree(
-                germline, seqs, min_mut_occurrence=self.min_mut_occurrence
+                germline, seqs,
+                min_mut_occurrence=self.min_mut_occurrence,
+                min_mut_samples=self.min_mut_samples,
             )
             phylo.run(self.session, self.clearcut_path)
 
