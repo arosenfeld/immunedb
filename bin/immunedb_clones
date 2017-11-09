@@ -37,6 +37,9 @@ if __name__ == '__main__':
                              subject if --subject is specified) will be DELETED
                              before creating new clones.  Associated sequences
                              will be re-assigned new clones''')
+    main_parser.add_argument('--subclones', action='store_true',
+                        help='''If specified, calculates subclone
+                        relationships''')
     subparsers = main_parser.add_subparsers(
         dest='method',
         help='''The method to use for clonal inference''')
@@ -49,9 +52,6 @@ if __name__ == '__main__':
     parser.add_argument('--min-similarity', type=int, default=85,
                         help='''Minimum similarity allowed between sequence
                         CDR3 AAs within a clone''')
-    parser.add_argument('--subclones', action='store_true',
-                        help='''If specified, calculates subclone
-                        relationships''')
 
     # T-cells
     parser = subparsers.add_parser(
@@ -59,9 +59,6 @@ if __name__ == '__main__':
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         help='''Constructs clones based on exact CDR3 NT identity for
         T-cells''')
-    parser.add_argument('--subclones', action='store_true',
-                        help='''If specified, calculates subclone
-                        relationships''')
 
     # Lineage
     parser = subparsers.add_parser(
@@ -78,9 +75,6 @@ if __name__ == '__main__':
                         default=ClonalWorker.defaults['min_mut_occurrence'],
                         help='''The minimum number of times a mutation must
                         occur to be included in the lineage''')
-    parser.add_argument('--subclones', action='store_true',
-                        help='''If specified, calculates subclone
-                        relationships''')
 
     args = main_parser.parse_args()
     args.min_identity /= 100

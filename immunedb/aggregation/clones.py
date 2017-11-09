@@ -196,7 +196,6 @@ class LineageClonalWorker(ClonalWorker):
                 cdr3_start += sum(
                     (i[1] for i in bucket._insertions)
                 )
-            seqs
             germline = seqs[0].germline
             germline = ''.join((
                 germline[:cdr3_start],
@@ -217,6 +216,7 @@ class LineageClonalWorker(ClonalWorker):
                       _insertions=bucket._insertions,
                       _deletions=bucket._deletions
                 )
+                self.session.add(new_clone)
                 self.session.flush()
                 consensus_needed.add(new_clone.id)
                 updates.extend([{

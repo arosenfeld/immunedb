@@ -40,7 +40,7 @@ class ClearcutWorker(concurrent.Worker):
 
         try:
             tree = PhylogeneticTree(clone_inst.consensus_germline, sequences)
-            tree.run(self._tree_prog)
+            tree.run(self._session, self._tree_prog)
         except Exception as e:
             logger.error('Error running clone {}: {}'.format(clone_id, e))
             return
