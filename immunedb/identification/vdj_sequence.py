@@ -158,8 +158,8 @@ class VDJAlignment(object):
 
     @property
     def v_match(self):
-        start = self.seq_start + self.num_gaps
-        end = start + self.v_length
+        start = self.seq_start
+        end = start + self.v_length + self.num_gaps
 
         return self.v_length - dnautils.hamming(
             self.filled_germline[start:end],

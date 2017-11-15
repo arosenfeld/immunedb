@@ -38,7 +38,7 @@
         "stop": false,
         "v_gene": "IGHV1-8",
         "v_length": 296,
-        "v_match": 275
+        "v_match": 273
     },
     {
         "cdr3_aa": "CATVEGVWGSYGSFDYW",
@@ -325,7 +325,7 @@
         "stop": false,
         "v_gene": "IGHV4-34",
         "v_length": 288,
-        "v_match": 284
+        "v_match": 280
     },
     {
         "cdr3_aa": "CARRGGNSFLSEYYQDW",
@@ -407,6 +407,6 @@
         "stop": false,
         "v_gene": "IGHV3-53|3-66",
         "v_length": 293,
-        "v_match": 283
+        "v_match": 281
     }
 ]

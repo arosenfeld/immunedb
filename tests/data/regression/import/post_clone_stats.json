@@ -689,70 +689,70 @@
         "clone_id": 50,
         "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 14,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "100": {
         "clone_id": 50,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 14,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "101": {
         "clone_id": 51,
         "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 14,
         "unique_cnt": 1
     },
     "102": {
         "clone_id": 51,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 14,
         "unique_cnt": 1
     },
     "103": {
         "clone_id": 52,
         "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 4,
         "unique_cnt": 1
     },
     "104": {
         "clone_id": 52,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 4,
         "unique_cnt": 1
     },
     "105": {
         "clone_id": 53,
         "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "106": {
         "clone_id": 53,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "107": {
         "clone_id": 54,
         "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 4,
         "unique_cnt": 1
     },
     "108": {
         "clone_id": 54,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 4,
         "unique_cnt": 1
     },
     "109": {
@@ -787,14 +787,14 @@
         "clone_id": 57,
         "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "114": {
         "clone_id": 57,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "115": {

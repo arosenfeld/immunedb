@@ -11,7 +11,8 @@ import dnautils
 
 from immunedb.identification import add_as_sequence, AlignmentException
 from immunedb.identification.vdj_sequence import VDJAlignment, VDJSequence
-from immunedb.identification.genes import GeneName, JGermlines, VGermlines
+from immunedb.identification.genes import (CDR3_OFFSET, GeneName, JGermlines,
+                                           VGermlines)
 from immunedb.identification.identify import IdentificationProps
 from immunedb.common.models import (DuplicateSequence, NoResult, Sample,
                                     Sequence, serialize_gaps)
@@ -52,7 +53,7 @@ def build_index(germlines, path):
 
 def align_reference(path, index, sequences, nproc):
     cmd = ('bowtie2 --local -x {} -U {} -f --no-unal --no-sq --no-head '
-           '--ma 5 -p {}').format(index, sequences, nproc)
+           '--very-sensitive-local -p {}').format(index, sequences, nproc)
     proc = subprocess.Popen(shlex.split(cmd),
                             stderr=subprocess.PIPE,
                             stdout=subprocess.PIPE,
@@ -80,15 +81,18 @@ def get_reader(output):
                           fieldnames=fieldnames, restkey='optional')
 
 
-def create_seqs(read_seq, ref_seq, cigar, ref_offset, **kwargs):
-    ref_offset = max(0, ref_offset - 1)
-    skip_ref = ref_seq[:ref_offset]
+def create_seqs(read_seq, ref_seq, cigar, ref_offset, min_size, **kwargs):
+    ref_offset = max(0, ref_offset)
+    full_ref = ref_seq[:]
+    full_seq = read_seq[:]
     ref_seq = ref_seq[ref_offset:]
 
-    final_seq = []
-    final_ref = []
+    final_seq = ['N' * ref_offset]
+    final_ref = [ref_seq[:ref_offset]]
     skips = []
-    for (cnt, op) in re.findall('(\d+)([A-Z])', cigar):
+
+    ops = re.findall('(\d+)([A-Z])', cigar)
+    for i, (cnt, op) in enumerate(ops):
         cnt = int(cnt)
         if op == 'M':
             final_seq.extend(read_seq[:cnt])
@@ -96,7 +100,8 @@ def create_seqs(read_seq, ref_seq, cigar, ref_offset, **kwargs):
             read_seq = read_seq[cnt:]
             ref_seq = ref_seq[cnt:]
         elif op == 'S':
-            skips.append(read_seq[:cnt])
+            if i == len(ops) - 1:
+                skips.append(read_seq[:cnt])
             read_seq = read_seq[cnt:]
         elif op == 'D':
             final_seq.extend(['-'] * cnt)
@@ -109,15 +114,32 @@ def create_seqs(read_seq, ref_seq, cigar, ref_offset, **kwargs):
         else:
             raise Exception('Unknown opcode {}'.format(op))
 
-    final_ref = skip_ref + ''.join(final_ref)
+    final_ref = ''.join(final_ref)
     final_seq = ''.join(final_seq)
 
-    return (final_ref, final_seq, skips, skip_ref)
+    if len(final_ref) < min_size:
+        ref_offset = len(final_ref) - final_ref.count('-')
+        final_ref = ''.join([
+            final_ref,
+            full_ref[ref_offset:min_size]
+        ])
+        diff = len(final_ref) - len(final_seq)
+        if diff > 0:
+            seq_offset = len(final_seq) - final_seq.count('-')
+            final_seq = ''.join([
+                final_seq,
+                full_seq[seq_offset:seq_offset + diff]
+            ])
+            skips[-1] = skips[-1][diff:]
+
+    return (final_ref, final_seq, skips)
 
 
-def add_imgt_gaps(imgt_germline, aligned_germline, sequence):
+def add_imgt_gaps(imgt_germline, aligned_germline, sequence, seq_start):
     for pos, size in gap_positions(imgt_germline):
         pos += gaps_before(gap_positions(aligned_germline), pos)
+        if pos < seq_start:
+            seq_start += size
         aligned_germline = ''.join((
             aligned_germline[:pos],
             GAP_PLACEHOLDER * size,
@@ -129,7 +151,7 @@ def add_imgt_gaps(imgt_germline, aligned_germline, sequence):
             sequence[pos:]
         ))
 
-    return (aligned_germline, sequence)
+    return (aligned_germline, sequence, seq_start)
 
 
 def get_formatted_ties(genes):
@@ -189,19 +211,22 @@ def process_sample(session, sample, indexes, temp, v_germlines, j_germlines,
     logger.info('Running bowtie2 for V-gene sequences')
     for line in get_reader(align_reference(temp, 'v_genes_{}'.format(bucket),
                                            seq_path, nproc)):
-        line['ref_offset'] = int(line['ref_offset'])
+        line['ref_offset'] = int(line['ref_offset']) - 1
         ref_gene = line['reference']
-        ref, seq, rem_seqs, skip_ref = create_seqs(
-            ref_seq=sample_v_germlines[ref_gene].replace('-', ''), **line)
+        ref, seq, rem_seqs = create_seqs(
+            ref_seq=sample_v_germlines[ref_gene].replace('-', ''),
+            min_size=CDR3_OFFSET, **line)
         if len(rem_seqs) == 0:
             continue
-        seq = ('N' * len(skip_ref)) + seq
 
-        ref, seq = add_imgt_gaps(sample_v_germlines[ref_gene], ref, seq)
+        ref, seq, seq_start = add_imgt_gaps(sample_v_germlines[ref_gene], ref,
+                                            seq, line['ref_offset'])
+        if len(ref) < CDR3_OFFSET:
+            continue
         alignments[line['seq_id']] = {
             'v_germline': ref,
             'v_gene': line['reference'],
-            'padding': len(skip_ref),
+            'seq_start': seq_start,
             'v_sequence': seq,
             'v_rem_seq': rem_seqs[-1],
             'cdr3_start': len(ref)
@@ -209,21 +234,25 @@ def process_sample(session, sample, indexes, temp, v_germlines, j_germlines,
 
     seq_path = os.path.join(temp, 'll_j_{}.fasta'.format(sample.id))
     with open(seq_path, 'w+') as fh:
-        fh.write(
-            get_fasta({k: v['v_rem_seq'] for k, v in alignments.iteritems()}))
+        seqs = {k: v['v_rem_seq'] for k, v in alignments.iteritems() if
+                len(v['v_rem_seq']) > 0}
+        fh.write(get_fasta(seqs))
 
     tasks = []
     logger.info('Running bowtie2 for J-gene sequences')
     for line in get_reader(align_reference(temp, 'j_genes_{}'.format(bucket),
                                            seq_path, nproc)):
-        line['ref_offset'] = int(line['ref_offset'])
+        line['ref_offset'] = int(line['ref_offset']) - 1
         ref_gene = line['reference']
-        ref, seq, rem_seqs, skip_ref = create_seqs(
-            ref_seq=sample_j_germlines[ref_gene].replace('-', ''), **line)
+        ref, seq, rem_seqs = create_seqs(
+            ref_seq=sample_j_germlines[ref_gene].replace('-', ''),
+            min_size=j_germlines.upstream_of_cdr3, **line)
         alignments[line['seq_id']]['j_gene'] = line['reference']
 
         full_seq = (alignments[line['seq_id']]['v_sequence'] +
                     alignments[line['seq_id']]['v_rem_seq'])
+        if len(rem_seqs) > 0:
+            full_seq = full_seq[:-len(rem_seqs[-1])]
 
         cdr3_end = len(full_seq)
         if len(ref) < j_germlines.upstream_of_cdr3:
@@ -238,7 +267,7 @@ def process_sample(session, sample, indexes, temp, v_germlines, j_germlines,
         full_germ = (alignments[line['seq_id']]['v_germline'] +
                      (GAP_PLACEHOLDER * cdr3_length))
         j_length = len(full_seq) - len(full_germ)
-        if j_length <= 0:
+        if j_length <= 0 or cdr3_length <= 0:
             continue
         full_germ += ref[-j_length:]
 
@@ -255,7 +284,7 @@ def process_sample(session, sample, indexes, temp, v_germlines, j_germlines,
             continue
         alignment.v_gene.add(GeneName(alignments[line['seq_id']]['v_gene']))
         alignment.j_gene.add(GeneName(alignments[line['seq_id']]['j_gene']))
-        alignment.seq_offset = alignments[line['seq_id']]['padding']
+        alignment.seq_offset = alignments[line['seq_id']]['seq_start']
         # TODO: This should really look for a streak like in anchoring
         alignment.germline_cdr3 = '-' * cdr3_length
         gaps_in_seq = alignment.sequence.sequence[
@@ -285,7 +314,8 @@ def process_sample(session, sample, indexes, temp, v_germlines, j_germlines,
 
 
 def add_sequences_from_sample(session, sample, sequences, props):
-    logger.info('Adding corrected sequences to sample {}'.format(sample.id))
+    logger.info('Adding {} corrected sequences to sample {}'.format(
+        len(sequences), sample.id))
     for sequence in periodic_commit(session, sequences):
         alignment = sequence['alignment']
         try:

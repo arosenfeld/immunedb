@@ -1,3 +1,19 @@
+from collections import Counter
+
+
+def consensus(strings):
+    """Gets the unweighted consensus from a list of strings
+
+    :param list strings: A set of equal-length strings.
+
+    :returns: A consensus string
+    :rtype: str
+
+    """
+    chrs = [Counter(chars).most_common(1)[0][0] for chars in zip(*strings)]
+    return ''.join(chrs)
+
+
 def get_regions(insertions):
     regions = [78, 36, 51, 30, 114]
     if insertions is not None and len(insertions) > 0:

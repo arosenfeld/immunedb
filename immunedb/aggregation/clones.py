@@ -1,4 +1,4 @@
-from collections import Counter, OrderedDict
+from collections import OrderedDict
 
 from sqlalchemy import desc
 from sqlalchemy.sql import text
@@ -35,7 +35,7 @@ def generate_consensus(session, clone_ids):
             Sequence.clone_id == clone.id,
             SequenceCollapse.copy_number_in_subject > 0
         ).all()
-        clone.cdr3_nt = consensus([s.cdr3_nt for s in seqs])
+        clone.cdr3_nt = funcs.consensus([s.cdr3_nt for s in seqs])
         clone.cdr3_aa = lookups.aas_from_nts(clone.cdr3_nt)
 
         clone.germline = generate_germline(session, seqs, clone)
@@ -70,19 +70,6 @@ def push_clone_ids(session):
         SET s.clone_id=s2.clone_id
         WHERE s.seq_id!=s2.seq_id
     '''))
-
-
-def consensus(strings):
-    """Gets the unweighted consensus from a list of strings
-
-    :param list strings: A set of equal-length strings.
-
-    :returns: A consensus string
-    :rtype: str
-
-    """
-    chrs = [Counter(chars).most_common(1)[0][0] for chars in zip(*strings)]
-    return ''.join(chrs)
 
 
 def similar_to_all(seq, rest, min_similarity):

@@ -37,7 +37,7 @@
         "clone": {
             "cdr3_aa": "CARGSVLAWEVLSRW",
             "cdr3_num_nts": 45,
-            "id": 153,
+            "id": 152,
             "j_gene": "IGHJ1|4|5",
             "subject": {
                 "id": 1,
@@ -71,7 +71,7 @@
         "clone": {
             "cdr3_aa": "CTGEKAGTIVDYW",
             "cdr3_num_nts": 39,
-            "id": 173,
+            "id": 172,
             "j_gene": "IGHJ1|4|5",
             "subject": {
                 "id": 1,
@@ -127,7 +127,7 @@
         "clone": {
             "cdr3_aa": "CTRGASYGGMGSW",
             "cdr3_num_nts": 39,
-            "id": 91,
+            "id": 90,
             "j_gene": "IGHJ1|4|5",
             "subject": {
                 "id": 1,
@@ -161,7 +161,7 @@
         "clone": {
             "cdr3_aa": "CVREKGRNFYW",
             "cdr3_num_nts": 33,
-            "id": 191,
+            "id": 190,
             "j_gene": "IGHJ1|4|5",
             "subject": {
                 "id": 1,
@@ -189,7 +189,7 @@
         "clone": {
             "cdr3_aa": "CAASRSYRYVDYW",
             "cdr3_num_nts": 39,
-            "id": 195,
+            "id": 194,
             "j_gene": "IGHJ1|4|5",
             "subject": {
                 "id": 1,
@@ -217,7 +217,7 @@
         "clone": {
             "cdr3_aa": "CTRSNSGSSVWTFW",
             "cdr3_num_nts": 42,
-            "id": 198,
+            "id": 197,
             "j_gene": "IGHJ1|4|5",
             "subject": {
                 "id": 1,
@@ -251,7 +251,7 @@
         "clone": {
             "cdr3_aa": "CARRVTDHGLYYDSW",
             "cdr3_num_nts": 45,
-            "id": 201,
+            "id": 200,
             "j_gene": "IGHJ1|4|5",
             "subject": {
                 "id": 1,
@@ -279,7 +279,7 @@
         "clone": {
             "cdr3_aa": "CARSSCTNGVCPFDNW",
             "cdr3_num_nts": 48,
-            "id": 210,
+            "id": 209,
             "j_gene": "IGHJ1|4|5",
             "subject": {
                 "id": 1,

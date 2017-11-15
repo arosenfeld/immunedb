@@ -60,6 +60,9 @@ class IdentificationProps(object):
         return (len(alignment.insertions) <= self.max_insertions and
                 len(alignment.deletions) <= self.max_deletions)
 
+    def validate_cdr3(self, alignment):
+        return alignment.cdr3_num_nts >= 9
+
     def validate(self, alignment):
         if not self.valid_min_similarity(alignment):
             raise AlignmentException(
@@ -78,6 +81,9 @@ class IdentificationProps(object):
             raise AlignmentException(
                 'Too many indels insertions={} deletions={}'.format(
                     alignment.insertions, alignment.deletions))
+        if not self.validate_cdr3(alignment):
+            raise AlignmentException('CDR3 too short {}'.format(
+                alignment.cdr3_num_nts))
 
 
 class IdentificationWorker(concurrent.Worker):
