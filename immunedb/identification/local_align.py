@@ -425,20 +425,6 @@ def remove_duplicates(session, sample):
                 session.query(Sequence).filter(Sequence.ai == seq.ai).delete()
                 break
 
-    session.connection(mapper=Sequence).execute(text('''
-        UPDATE
-            sequences
-        SET
-            copy_number = 1 + (
-                SELECT
-                    COUNT(*)
-                FROM
-                    duplicate_sequences
-                WHERE
-                    duplicate_seq_ai = ai
-            )
-    '''))
-
     session.commit()
 
 
@@ -453,3 +439,18 @@ def run_fix_sequences(session, args):
                                    v_germlines, j_germlines, args.nproc)
         add_sequences_from_sample(session, sample, sequences, props)
         remove_duplicates(session, sample)
+
+    logger.info('Updating copy numbers')
+    session.connection(mapper=Sequence).execute(text('''
+        UPDATE
+            sequences
+        SET
+            copy_number = 1 + (
+                SELECT
+                    COUNT(*)
+                FROM
+                    duplicate_sequences
+                WHERE
+                    duplicate_seq_ai = ai
+            )
+    '''))
