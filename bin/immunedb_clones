@@ -86,9 +86,9 @@ if __name__ == '__main__':
                         have to be incorporated into tree calculation''')
 
     args = main_parser.parse_args()
-    args.min_identity /= 100
+    args.min_identity /= 100.0
     if 'min_similarity' in args:
-        args.min_similarity /= 100
+        args.min_similarity /= 100.0
 
     session = config.init_db(args.db_config)
 
