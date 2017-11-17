@@ -8,6 +8,8 @@
         "id": 229,
         "insertions": [],
         "j_gene": "IGHJ1|4|5",
+        "overall_instance_cnt": 1,
+        "overall_instance_cnt_with_subclones": 1,
         "overall_total_cnt": 2,
         "overall_total_cnt_with_subclones": 2,
         "overall_unique_cnt": 1,
@@ -39,8 +41,6 @@
                 "name": "Test Study"
             }
         },
-        "total_sequences": 2,
-        "unique_sequences": 1,
         "v_gene": "IGHV7-4-1"
     },
     {
@@ -52,6 +52,8 @@
         "id": 228,
         "insertions": [],
         "j_gene": "IGHJ1|4|5",
+        "overall_instance_cnt": 1,
+        "overall_instance_cnt_with_subclones": 1,
         "overall_total_cnt": 2,
         "overall_total_cnt_with_subclones": 2,
         "overall_unique_cnt": 1,
@@ -83,8 +85,6 @@
                 "name": "Test Study"
             }
         },
-        "total_sequences": 2,
-        "unique_sequences": 1,
         "v_gene": "IGHV7-4-1"
     },
     {
@@ -96,6 +96,8 @@
         "id": 227,
         "insertions": [],
         "j_gene": "IGHJ1|4|5",
+        "overall_instance_cnt": 1,
+        "overall_instance_cnt_with_subclones": 1,
         "overall_total_cnt": 3,
         "overall_total_cnt_with_subclones": 3,
         "overall_unique_cnt": 1,
@@ -127,8 +129,6 @@
                 "name": "Test Study"
             }
         },
-        "total_sequences": 3,
-        "unique_sequences": 1,
         "v_gene": "IGHV7-4-1"
     },
     {
@@ -140,6 +140,8 @@
         "id": 226,
         "insertions": [],
         "j_gene": "IGHJ1|4|5",
+        "overall_instance_cnt": 1,
+        "overall_instance_cnt_with_subclones": 1,
         "overall_total_cnt": 2,
         "overall_total_cnt_with_subclones": 2,
         "overall_unique_cnt": 1,
@@ -171,8 +173,6 @@
                 "name": "Test Study"
             }
         },
-        "total_sequences": 2,
-        "unique_sequences": 1,
         "v_gene": "IGHV7-4-1"
     },
     {
@@ -184,6 +184,8 @@
         "id": 225,
         "insertions": [],
         "j_gene": "IGHJ1|4|5",
+        "overall_instance_cnt": 1,
+        "overall_instance_cnt_with_subclones": 1,
         "overall_total_cnt": 11,
         "overall_total_cnt_with_subclones": 11,
         "overall_unique_cnt": 1,
@@ -215,8 +217,6 @@
                 "name": "Test Study"
             }
         },
-        "total_sequences": 11,
-        "unique_sequences": 1,
         "v_gene": "IGHV7-4-1"
     },
     {
@@ -228,6 +228,8 @@
         "id": 224,
         "insertions": [],
         "j_gene": "IGHJ1|4|5",
+        "overall_instance_cnt": 2,
+        "overall_instance_cnt_with_subclones": 2,
         "overall_total_cnt": 13,
         "overall_total_cnt_with_subclones": 13,
         "overall_unique_cnt": 1,
@@ -267,8 +269,6 @@
                 "name": "Test Study"
             }
         },
-        "total_sequences": 13,
-        "unique_sequences": 1,
         "v_gene": "IGHV7-4-1"
     },
     {
@@ -280,6 +280,8 @@
         "id": 223,
         "insertions": [],
         "j_gene": "IGHJ1|4|5",
+        "overall_instance_cnt": 1,
+        "overall_instance_cnt_with_subclones": 1,
         "overall_total_cnt": 4,
         "overall_total_cnt_with_subclones": 4,
         "overall_unique_cnt": 1,
@@ -311,8 +313,6 @@
                 "name": "Test Study"
             }
         },
-        "total_sequences": 4,
-        "unique_sequences": 1,
         "v_gene": "IGHV7-4-1"
     },
     {
@@ -324,6 +324,8 @@
         "id": 222,
         "insertions": [],
         "j_gene": "IGHJ1|4|5",
+        "overall_instance_cnt": 1,
+        "overall_instance_cnt_with_subclones": 1,
         "overall_total_cnt": 12,
         "overall_total_cnt_with_subclones": 12,
         "overall_unique_cnt": 1,
@@ -355,8 +357,6 @@
                 "name": "Test Study"
             }
         },
-        "total_sequences": 12,
-        "unique_sequences": 1,
         "v_gene": "IGHV7-4-1"
     },
     {
@@ -368,6 +368,8 @@
         "id": 221,
         "insertions": [],
         "j_gene": "IGHJ1|4|5",
+        "overall_instance_cnt": 1,
+        "overall_instance_cnt_with_subclones": 1,
         "overall_total_cnt": 7,
         "overall_total_cnt_with_subclones": 7,
         "overall_unique_cnt": 1,
@@ -399,8 +401,6 @@
                 "name": "Test Study"
             }
         },
-        "total_sequences": 7,
-        "unique_sequences": 1,
         "v_gene": "IGHV7-4-1"
     },
     {
@@ -412,6 +412,8 @@
         "id": 220,
         "insertions": [],
         "j_gene": "IGHJ1|4|5",
+        "overall_instance_cnt": 1,
+        "overall_instance_cnt_with_subclones": 1,
         "overall_total_cnt": 3,
         "overall_total_cnt_with_subclones": 3,
         "overall_unique_cnt": 1,
@@ -443,8 +445,6 @@
                 "name": "Test Study"
             }
         },
-        "total_sequences": 3,
-        "unique_sequences": 1,
         "v_gene": "IGHV4-61"
     }
 ]

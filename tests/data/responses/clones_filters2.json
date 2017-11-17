@@ -8,6 +8,8 @@
         "id": 1,
         "insertions": [],
         "j_gene": "IGHJ1|4|5",
+        "overall_instance_cnt": 1,
+        "overall_instance_cnt_with_subclones": 1,
         "overall_total_cnt": 5,
         "overall_total_cnt_with_subclones": 5,
         "overall_unique_cnt": 1,
@@ -39,8 +41,6 @@
                 "name": "Test Study"
             }
         },
-        "total_sequences": 5,
-        "unique_sequences": 1,
         "v_gene": "IGHV1-18"
     }
 ]

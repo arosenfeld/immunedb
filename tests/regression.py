@@ -204,8 +204,7 @@ class BaseTest(object):
                 'id',
                 ('id', 'functional', 'v_gene', 'j_gene', 'insertions',
                  'deletions', 'cdr3_nt', 'cdr3_num_nts', 'cdr3_aa',
-                 'germline', 'overall_unique_cnt', 'overall_total_cnt',
-                 'parent'),
+                 'germline', 'parent'),
             )
             self.regression(
                 self.get_path('post_clones_assignment.json'),
@@ -231,6 +230,14 @@ class BaseTest(object):
                 'id',
                 ('clone_id', 'sample_id', 'subject_id', 'unique_cnt',
                  'total_cnt')
+            )
+
+            self.regression(
+                self.get_path('post_clone_stats_clones.json'),
+                self.session.query(Clone),
+                'id',
+                ('id', 'overall_unique_cnt', 'overall_total_cnt',
+                 'overall_instance_cnt'),
             )
 
         def sample_stats(self):

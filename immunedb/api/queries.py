@@ -51,7 +51,9 @@ def _clone_to_dict(clone):
     d = _fields_to_dict(['id', 'cdr3_nt', 'v_gene', 'j_gene', 'cdr3_aa',
                          'cdr3_num_nts', 'regions', 'insertions', 'deletions',
                          'overall_unique_cnt', 'overall_total_cnt',
+                         'overall_instance_cnt',
                          'overall_unique_cnt_with_subclones',
+                         'overall_instance_cnt_with_subclones',
                          'overall_total_cnt_with_subclones'], clone)
     d['subject'] = _subject_to_dict(clone.subject)
     d['germline'] = clone.consensus_germline
@@ -164,8 +166,6 @@ def get_clones(session, filters, order_field, order_dir, subject_limit=None,
                 'total_sequences': int(stat.total_cnt)
             })
         clone_dict = _clone_to_dict(c)
-        clone_dict['unique_sequences'] = c.overall_unique_cnt
-        clone_dict['total_sequences'] = c.overall_total_cnt
         clone_dict['stats'] = stats_comb
         res.append(clone_dict)
 

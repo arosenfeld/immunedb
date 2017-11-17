@@ -256,6 +256,7 @@ class Clone(Base):
     tree = Column(MEDIUMTEXT)
 
     overall_unique_cnt = Column(Integer, index=True)  # Denormalized
+    overall_instance_cnt = Column(Integer, index=True)  # Denormalized
     overall_total_cnt = Column(Integer, index=True)  # Denormalized
 
     parent_id = Column(Integer, ForeignKey('clones.id'), index=True)
@@ -312,6 +313,11 @@ class Clone(Base):
     def overall_total_cnt_with_subclones(self):
         return self.overall_total_cnt + sum([
             s.overall_total_cnt for s in self.children])
+
+    @property
+    def overall_instance_cnt_with_subclones(self):
+        return self.overall_instance_cnt + sum([
+            s.overall_instance_cnt for s in self.children])
 
 
 class CloneStats(Base):

@@ -97,6 +97,12 @@ class CloneStatsWorker(concurrent.Worker):
         # the same as for the single sample
         if sample_id is None:
             clone_inst.overall_unique_cnt = counts.unique
+            clone_inst.overall_instance_cnt = self._session.query(
+                func.count(Sequence.ai).label('instances'),
+            ).filter(
+                Sequence.clone_id == clone_id
+            ).first().instances
+
             clone_inst.overall_total_cnt = counts.total
         self._session.commit()
 
