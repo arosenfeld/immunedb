@@ -130,7 +130,8 @@ def create_seqs(read_seq, ref_seq, cigar, ref_offset, min_size, **kwargs):
                 final_seq,
                 full_seq[seq_offset:seq_offset + diff]
             ])
-            skips[-1] = skips[-1][diff:]
+            if len(skips) > 0:
+                skips[-1] = skips[-1][diff:]
 
     return (final_ref, final_seq, skips)
 

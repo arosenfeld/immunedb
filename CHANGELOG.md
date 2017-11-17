@@ -9,6 +9,12 @@
 * Re-creating trees of specifically specified clones now requires the `--force`
   flag.
 * Default arguments for all commands are now automatically populated.
+* API calls to list subjects now provides unique sequences as well as copies
+  and instances.
+* Arguments for `immunedb_clones` have been changed.  Three methods are now
+  available, similarity based for B-cells, identical based for T-cells, and a
+  lineage-separation method.
+* Instance counts are now stored for clones.
 
 ## v0.20.1
 * Metadata is now specified in TSV files rather than JSON.  A

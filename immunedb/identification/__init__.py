@@ -98,7 +98,6 @@ def add_as_sequence(session, alignment, sample, error_action='discard'):
             add_as_noresult(session, alignment.sequence, sample, str(e))
             return None
         elif error_action == 'raise':
-            logger.warning('Raise: {}'.format(alignment.sequence.ids))
             raise e
 
 
