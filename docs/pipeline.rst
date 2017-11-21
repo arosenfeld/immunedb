@@ -219,34 +219,60 @@ After sequences are assigned V and J genes, they can be clustered into clones
 based on CDR3 Amino Acid similarity with the ``immunedb_clones`` command.  This
 takes a number of arguments which should be read before use.
 
-A basic example of clonal assignment, not using all possible arguments:
+There are three ways to create clones: based on CDR3 AA similarity, T-cell
+exact CDR3 NT identity, and a lineage based method.
+
+Similarity Based
+^^^^^^^^^^^^^^^^
+
+A basic example of similarity-based clonal assignment, not using all possible
+arguments:
 
 .. code-block:: bash
 
-    $ immunedb_clones /path/to/config.json
+    $ immunedb_clones /path/to/config.json similarity
 
-If you ran local-alignment on sequences, ImmuneDB will also associate clones with
-insertions or deletions with a probable "parent" clone.  The parent clone will
-have the same V-gene, J-gene, and CDR3 length.  Further, the CDR3 amino acid
-sequences of the subclone will differ by no more than ``--min-similarity``
+This will create clones where all sequences in a clone will have the same
+V-gene, J-gene, and (by default) 85% CDR3 AA identity.
+
+If you ran local-alignment on sequences, ImmuneDB can also associate clones
+with insertions or deletions with a probable "parent" clone.  The parent clone
+will have the same V-gene, J-gene, and CDR3 length.  Further, the CDR3 amino
+acid sequences of the subclone will differ by no more than ``--min-similarity``
 (default 85%).  This process can be enabled with ``--subclones``.
 
 .. code-block:: bash
 
-    $ immunedb_clones /path/to/config.json --subclones
+    $ immunedb_clones /path/to/config.json --subclones similarity
 
-T-cell Clonal Assignment
-^^^^^^^^^^^^^^^^^
-.. warning::
+T-cells
+^^^^^^^
 
-    T-cell analysis in ImmuneDB is still considered to be in beta.  If you
-    analyze T-cells and find any problems, please submit an issue on GitHub.
-
-If your data is for T-cells, pass the ``--tcells`` flag.
+If your data is comprised of T-cell sequences, use the T-cell method:
 
 .. code-block:: bash
 
-    $ immunedb_clones /path/to/config.json --tcells
+    $ immunedb_clones /path/to/config.json tcells
+
+This will create clones from the sequences with the same V-gene, J-gene, and
+identical CDR3 nucleotides.
+
+Lineage Method
+^^^^^^^^^^^^^^
+
+.. warning::
+    This clone assignment method is still considered in beta.
+
+The lineage based method constructs a lineage for all sequences within
+subjects that have the same V-gene, J-gene, and CDR3 NT length.  It then
+splits the tree based on common mutations to create clones.
+
+.. code-block:: bash
+
+    $ immunedb_clones /path/to/config.json lineage
+
+Among other arguments, ``--mut-cuttoff`` (default 4) will determine how many
+mutations must be in common for sequences to be placed in the same clone.
 
 Importing Custom Assignments
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
