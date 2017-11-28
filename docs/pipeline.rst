@@ -16,6 +16,34 @@ installed on the system.  It does not attempt to detail all the possible options
 at each stage of the pipeline and users are encouraged to review the usage
 documentation of each command.
 
+
+Quick Start
+-----------
+The details of all ImmuneDB commands are below, however, the following is the
+basic set of commands to run ImmuneDB.
+
+
+.. code-block:: bash
+
+    # Navigate to directory with FASTA/FASTQ files
+    $ cd path/to/my_sequences
+    # Make a template metadata file
+    $ immunedb_metadata
+    # Edit the resulting metadata.tsv file
+    # Create a database
+    $ immunedb_admin create example_db ~/configs
+    # Annotate sequences with V/J genes
+    $ immunedb_identify ~/configs/example_db.json imgt_human_v.fasta imgt_human_j.fasta .
+    # Collapse sequences across replicates
+    $ immunedb_collapse ~/configs/example_db.json
+    # Assemble clones
+    $ immunedb_clones ~/configs/example_db.json similarity
+    # Generate clone statistics
+    $ immunedb_clone_stats ~/configs/example_db.json
+    # Generate sample statistics
+    $ immunedb_sample_stats ~/configs/example_db.json
+
+
 ImmuneDB Instance Creation
 ----------------------
 It is assumed that the root user's username and password for MySQL is known.
