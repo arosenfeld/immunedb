@@ -1,33 +1,36 @@
 language: python
 python:
-  - "2.7"
+- '2.7'
 services:
-  - mysql
+- mysql
 addons:
   apt:
     packages:
-      - python-dev
-      - build-essential
-      - libatlas-base-dev
-      - gfortran
-      - unzip
+    - python-dev
+    - build-essential
+    - libatlas-base-dev
+    - gfortran
+    - unzip
 virtualenv:
   system_site_packages: true
 install:
-  - pip install numpy
-  - pip install nose
-  - pip install codecov
-  - python setup.py install
-  - wget https://github.com/BenLangmead/bowtie2/releases/download/v2.3.3/bowtie2-2.3.3-linux-x86_64.zip
-  - unzip bowtie2-2.3.3-linux-x86_64.zip
-  - PATH=$PATH:`pwd`/bowtie2-2.3.3
+- pip install numpy
+- pip install nose
+- pip install codecov
+- python setup.py install
+- wget https://github.com/BenLangmead/bowtie2/releases/download/v2.3.3/bowtie2-2.3.3-linux-x86_64.zip
+- unzip bowtie2-2.3.3-linux-x86_64.zip
+- PATH=$PATH:`pwd`/bowtie2-2.3.3
 before_script:
-  - mysql -u root -e 'SET GLOBAL innodb_file_format=barracuda;';
-  - mysql -u root -e 'SET GLOBAL innodb_file_per_table=ON;';
-  - mysql -u root -e 'SET GLOBAL innodb_large_prefix=ON;';
+- mysql -u root -e 'SET GLOBAL innodb_file_format=barracuda;';
+- mysql -u root -e 'SET GLOBAL innodb_file_per_table=ON;';
+- mysql -u root -e 'SET GLOBAL innodb_large_prefix=ON;';
 script:
-  - cd $TRAVIS_BUILD_DIR
-  - ./tests/run.sh
+- cd $TRAVIS_BUILD_DIR
+- "./tests/run.sh"
 after_success:
-  - coverage combine
-  - bash <(curl -s https://codecov.io/bash)
+- coverage combine
+- bash <(curl -s https://codecov.io/bash)
+notifications:
+  slack:
+    secure: NI5Q8AuGWfnSwSQxS1PjhE7Cn0eI4Atk4ioUbWxKxFQ9YKNs749a6oCBooxDzv7ztF8MNkc5NS0vXuWYAkvxYmpZ993qlvFIJHFCVjl64h1yQBsfEHZrK4oT4+6cvtKeOuPG60WbUcMO2DrmB2Ldq/wpOct3VGzA5Kniico1Vkw=
