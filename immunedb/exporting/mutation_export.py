@@ -56,13 +56,13 @@ class MutationExporter(object):
             self._sample_rows(cid, None)
             yield self._csv.get_value()
             # Write per sample mutations
+            sample_ids = map(lambda r: r.sample_id, self._session.query(
+                CloneStats.sample_id).filter(
+                    CloneStats.clone_id == cid,
+                    CloneStats.sample_id != 0).all())
             if self._limit_sample_ids is not None:
-                sample_ids = self._limit_sample_ids
-            else:
-                sample_ids = map(lambda r: r.sample_id, self._session.query(
-                    CloneStats.sample_id).filter(
-                        CloneStats.clone_id == cid,
-                        CloneStats.sample_id != 0).all())
+                sample_ids = set(sample_ids).intersection(
+                        set(self._limit_sample_ids))
             for sample_id in sorted(sample_ids):
                 self._sample_rows(cid, sample_id)
                 yield self._csv.get_value()
