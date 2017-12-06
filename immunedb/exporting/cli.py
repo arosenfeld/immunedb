@@ -2,7 +2,8 @@ from collections import Counter, OrderedDict
 import csv
 import re
 
-from immunedb.common.models import Clone, CloneStats, Sample, Sequence
+from immunedb.common.models import (Clone, CloneStats, Sample, Sequence,
+                                    SequenceCollapse, Subject)
 from immunedb.util.log import logger
 from immunedb.util.lookups import aas_from_nts
 
@@ -103,33 +104,82 @@ def get_genbank_entries(seq, inference, gene_db):
 
 
 def export_sample_genbank(session, sample_id, gene_db, inference, header):
-    sample = session.query(Sample).filter(Sample.id == sample_id).one()
-    seqs = session.query(
-        Sequence.seq_id,
-        Sequence.v_gene,
-        Sequence.j_gene,
-        Sequence.cdr3_num_nts,
-        Sequence.sequence,
-        Sequence.copy_number
-    ).filter(
-        Sequence.sample_id == sample_id
-    ).filter(Sequence.stop == 0)
-    with open('{}.tbl'.format(sample.name), 'w+') as gb_fh:
-        writer = csv.writer(gb_fh, delimiter='\t')
-        with open('{}.fsa'.format(sample.name), 'w+') as fasta_fh:
+    for sample in session.query(Sample):
+        seqs = session.query(
+            Sequence.seq_id,
+            Sequence.v_gene,
+            Sequence.j_gene,
+            Sequence.cdr3_num_nts,
+            Sequence.sequence,
+            Sequence.copy_number
+        ).filter(
+            Sequence.sample_id == sample_id
+        ).filter(Sequence.stop == 0)
+        with open('{}.tbl'.format(sample.name), 'w+') as gb_fh:
+            writer = csv.writer(gb_fh, delimiter='\t')
+            with open('{}.fsa'.format(sample.name), 'w+') as fasta_fh:
+                for seq in seqs:
+                    gb_entry, fasta_seq = get_genbank_entries(
+                        seq, inference, gene_db)
+                    for entry, indented in gb_entry.iteritems():
+                        writer.writerow(entry)
+                        if indented:
+                            for indent in indented:
+                                writer.writerow(('', '', '') + indent)
+                    seq_header = header + ' [note=AIRR_READ_COUNT:{}]'.format(
+                        seq.copy_number)
+                    fasta_fh.write('>{}\n{}\n'.format(
+                        seq.seq_id.split(' ')[0] + ' {}'.format(seq_header),
+                        fasta_seq))
+
+
+def export_changeo(session, args):
+    for subject in session.query(Subject):
+        logger.info('Exporting subject {}'.format(subject.identifier))
+        seqs = session.query(Sequence).filter(
+            Sequence.subject_id == subject.id)
+        if args.uniques_only:
+            seqs = seqs.join(SequenceCollapse).filter(
+                SequenceCollapse.copy_number_in_subject > 0
+            )
+
+        with open('{}.changeo.tsv'.format(subject.identifier), 'w+') as fh:
+            writer = csv.DictWriter(
+                fh, delimiter='\t', fieldnames=[
+                    'SEQUENCE_ID',
+                    'SEQUENCE_IMGT',
+                    'FUNCTIONAL',
+                    'IN_FRAME',
+                    'STOP',
+                    'V_CALL',
+                    'J_CALL',
+                    'JUNCTION_LENGTH',
+                    'JUNCTION',
+                    'V_SCORE',
+                    'V_IDENTITY',
+                    'J_SCORE',
+                    'J_IDENTITY',
+                ]
+            )
+            writer.writeheader()
             for seq in seqs:
-                gb_entry, fasta_seq = get_genbank_entries(
-                    seq, inference, gene_db)
-                for entry, indented in gb_entry.iteritems():
-                    writer.writerow(entry)
-                    if indented:
-                        for indent in indented:
-                            writer.writerow(('', '', '') + indent)
-                seq_header = header + ' [note=AIRR_READ_COUNT:{}]'.format(
-                    seq.copy_number)
-                fasta_fh.write('>{}\n{}\n'.format(
-                    seq.seq_id.split(' ')[0] + ' {}'.format(seq_header),
-                    fasta_seq))
+                writer.writerow({
+                    'SEQUENCE_ID': seq.seq_id,
+                    'SEQUENCE_IMGT': seq.sequence,
+                    'FUNCTIONAL': 'T' if seq.functional else 'F',
+                    'IN_FRAME': 'T' if seq.in_frame else 'F',
+                    'STOP': 'T' if seq.stop else 'F',
+                    'V_CALL': seq.v_gene.replace('|', ','),
+                    'J_CALL': seq.j_gene.replace('|', ','),
+                    'JUNCTION_LENGTH': seq.cdr3_num_nts,
+                    'JUNCTION': seq.cdr3_nt,
+                    'V_SCORE': round(
+                        100 * seq.v_match / float(seq.v_length), 2),
+                    'V_IDENTITY': seq.v_match,
+                    'J_SCORE': round(
+                        100 * seq.j_match / float(seq.j_length), 2),
+                    'J_IDENTITY': seq.j_match
+                })
 
 
 def export_genbank(session, args):

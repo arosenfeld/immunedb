@@ -18,7 +18,6 @@ if __name__ == '__main__':
                         ' clones.')
 
     parser = subparsers.add_parser('genbank')
-    parser.add_argument('--sample-ids', nargs='+', type=int)
     parser.add_argument('--inference', default='ImmuneDB:{}'.format(
                         pkg_resources.get_distribution('immunedb').version),
                         help='Inference tool used for gene assignment')
@@ -28,12 +27,16 @@ if __name__ == '__main__':
                         help='Species of sequences')
     parser.add_argument('--mol-type', default='DNA', help='Molecule type')
 
+    parser = subparsers.add_parser('changeo')
+    parser.add_argument('--uniques-only', action='store_true', default=False)
+
     args = main_parser.parse_args()
     session = config.init_db(args.db_config)
 
     fmts = {
         'vdjtools': cli.export_vdjtools,
-        'genbank': cli.export_genbank
+        'genbank': cli.export_genbank,
+        'changeo': cli.export_changeo,
     }
 
     fmts[args.fmt](session, args)
