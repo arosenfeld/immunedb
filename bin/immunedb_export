@@ -28,7 +28,10 @@ if __name__ == '__main__':
     parser.add_argument('--mol-type', default='DNA', help='Molecule type')
 
     parser = subparsers.add_parser('changeo')
-    parser.add_argument('--uniques-only', action='store_true', default=False)
+    parser.add_argument('--uniques-only', action='store_true', default=False,
+                        help='Includes only sequences unique in each subject')
+    parser.add_argument('--clones-only', action='store_true', default=False,
+                        help='Includes only sequences assigned to a clone')
 
     args = main_parser.parse_args()
     session = config.init_db(args.db_config)

@@ -138,6 +138,8 @@ def export_changeo(session, args):
         logger.info('Exporting subject {}'.format(subject.identifier))
         seqs = session.query(Sequence).filter(
             Sequence.subject_id == subject.id)
+        if args.clones_only:
+            seqs = seqs.filter(~Sequence.clone_id.is_(None))
         if args.uniques_only:
             seqs = seqs.join(SequenceCollapse).filter(
                 SequenceCollapse.copy_number_in_subject > 0
