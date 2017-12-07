@@ -138,12 +138,16 @@ def export_changeo(session, args):
     for subject in session.query(Subject):
         logger.info('Exporting subject {}'.format(subject.identifier))
         seqs = session.query(Sequence).filter(
-            Sequence.subject_id == subject.id)
+            Sequence.subject_id == subject.id
+        ).join(
+            SequenceCollapse
+        )
         if args.clones_only:
             seqs = seqs.filter(~Sequence.clone_id.is_(None))
-        if args.uniques_only:
-            seqs = seqs.join(SequenceCollapse).filter(
-                SequenceCollapse.copy_number_in_subject > 0
+        if args.min_subject_copies is not None:
+            seqs = seqs.filter(
+                SequenceCollapse.copy_number_in_subject >=
+                args.min_subject_copies
             )
 
         with open('{}.changeo.tsv'.format(subject.identifier), 'w+') as fh:
@@ -162,6 +166,7 @@ def export_changeo(session, args):
                     'V_IDENTITY',
                     'J_SCORE',
                     'J_IDENTITY',
+                    'DUPCOUNT'
                 ]
             )
             writer.writeheader()
@@ -183,7 +188,8 @@ def export_changeo(session, args):
                     'V_IDENTITY': seq.v_match,
                     'J_SCORE': round(
                         100 * seq.j_match / float(seq.j_length), 2),
-                    'J_IDENTITY': seq.j_match
+                    'J_IDENTITY': seq.j_match,
+                    'DUPCOUNT': seq.collapse.copy_number_in_subject
                 })
 
 
