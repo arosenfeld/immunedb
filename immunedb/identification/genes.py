@@ -45,10 +45,11 @@ class GeneName(object):
 class GeneTies(dict):
     TIES_PROB_THRESHOLD = 0.01
 
-    def __init__(self, genes, remove_gaps=True):
+    def __init__(self, genes, remove_gaps=True, no_ties=False):
         self.ties = {}
         self.hypers = {}
         self.remove_gaps = remove_gaps
+        self.no_ties = no_ties
 
         self.update(genes)
 
@@ -76,6 +77,9 @@ class GeneTies(dict):
         return ties
 
     def get_single_tie(self, gene, length, mutation):
+        # Used to disable gene ties for genotyping
+        if self.no_ties:
+            return set([gene])
         length = int(length)
         mutation = round(mutation, 3)
         mutation = self.mut_bucket(mutation)
@@ -124,7 +128,7 @@ class GeneTies(dict):
 
 
 class VGermlines(GeneTies):
-    def __init__(self, path_to_germlines):
+    def __init__(self, path_to_germlines, **kwargs):
         self._min_length = None
         self.alignments = {}
 
@@ -143,7 +147,8 @@ class VGermlines(GeneTies):
                 except Exception:
                     continue
 
-        super(VGermlines, self).__init__({k: v for k, v in self.iteritems()})
+        super(VGermlines, self).__init__({k: v for k, v in self.iteritems()},
+                                         **kwargs)
 
     def get_single_tie(self, gene, length, mutation):
         return super(VGermlines, self).get_single_tie(
@@ -277,7 +282,8 @@ class JGermlines(GeneTies):
     def __init__(self, path_to_germlines,
                  upstream_of_cdr3=defaults['upstream_of_cdr3'],
                  anchor_len=defaults['anchor_len'],
-                 min_anchor_len=defaults['min_anchor_len']):
+                 min_anchor_len=defaults['min_anchor_len'],
+                 **kwargs):
         self._upstream_of_cdr3 = upstream_of_cdr3
         self._anchor_len = anchor_len
         self._min_anchor_len = min_anchor_len
@@ -294,7 +300,8 @@ class JGermlines(GeneTies):
 
         self._anchors = {name: seq[-anchor_len:] for name, seq in
                          self.iteritems()}
-        super(JGermlines, self).__init__({k: v for k, v in self.iteritems()})
+        super(JGermlines, self).__init__({k: v for k, v in self.iteritems()},
+                                         **kwargs)
 
     @property
     def upstream_of_cdr3(self):
@@ -325,6 +332,9 @@ class JGermlines(GeneTies):
                     yield trimmed_seq, j
 
     def get_single_tie(self, gene, length, mutation):
+        # Used to disable gene ties for genotyping
+        if self.no_ties:
+            return set([gene])
         seq = self[gene][-self.anchor_len:]
         tied = self.all_alleles(set([gene]))
         for j, other_seq in sorted(self.iteritems()):

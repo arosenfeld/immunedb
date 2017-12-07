@@ -1,6 +1,5 @@
 #!/usr/bin/env python2
 import sys
-import argparse
 
 import immunedb.common.config as config
 from immunedb.identification.identify import (IdentificationProps,
@@ -10,46 +9,53 @@ from immunedb.identification.genes import JGermlines
 if __name__ == '__main__':
     parser = config.get_base_arg_parser('Identifies V and J genes from '
                                         'FASTA files', multiproc=True)
-    parser.add_argument('v_germlines', help='FASTA file with IMGT gapped '
-                        'V-gene germlines')
-    parser.add_argument('j_germlines', help='FASTA file with J-gene '
-                        'germlines. The final nucleotide in all genes must be '
-                        'aligned. Sequence cannot contain any gaps.')
-    parser.add_argument('--upstream-of-cdr3', type=int, help='The number of '
-                        ' nucleotides in the J germlines upstream of the CDR3',
-                        default=JGermlines.defaults['upstream_of_cdr3'])
-    parser.add_argument('--anchor-len', type=int, help='The number of '
-                        'nucleotides at the end of the J germlines to use as '
-                        'anchors.', default=JGermlines.defaults['anchor_len'])
-    parser.add_argument('--min-anchor-len', type=int, help='The minimum '
-                        'number of nucleotides in the J germline anchors '
-                        'required to match the sequence.',
-                        default=JGermlines.defaults['min_anchor_len'])
+    parser.add_argument('v_germlines', help='''FASTA file with IMGT gapped
+                        V-gene germlines''')
+    parser.add_argument('j_germlines', help='''FASTA file with J-gene
+                        germlines. The final nucleotide in all genes must be
+                        aligned. Sequence cannot contain any gaps.''')
+    parser.add_argument('--upstream-of-cdr3', type=int,
+                        default=JGermlines.defaults['upstream_of_cdr3'],
+                        help='''The number of nucleotides in the J germlines
+                        upstream of the CDR3''')
+    parser.add_argument('--anchor-len', type=int,
+                        default=JGermlines.defaults['anchor_len'],
+                        help='''The number of nucleotides at the end of the J
+                        germlines to use as anchors.''')
+    parser.add_argument('--min-anchor-len', type=int,
+                        default=JGermlines.defaults['min_anchor_len'],
+                        help='''The minimum number of nucleotides in the J
+                        germline anchors required to match the sequence.''')
     parser.add_argument('sample_dir', help='Base directory for samples.')
-    parser.add_argument('--metadata', default=None, help='Path to metadata '
-                        'file.  If not specified, expects "metadata.tsv" to '
-                        'exist in the base_dir')
+    parser.add_argument('--metadata', default=None, help='''Path to metadata
+                        file.  If not specified, expects "metadata.tsv" to
+                        exist in the base_dir''')
     parser.add_argument('--max-vties', type=int,
                         default=IdentificationProps.defaults['max_v_ties'],
-                        help='Maximum number of V-ties to allow in a valid '
-                        'sequence.  V-ties resulting in a name longer than '
-                        '512 characters will be truncated.')
+                        help='''Maximum number of V-ties to allow in a valid
+                        sequence.  V-ties resulting in a name longer than 512
+                        characters will be truncated.''')
     parser.add_argument('--min-similarity', type=int,
                         default=IdentificationProps.defaults['min_similarity'],
-                        help='Minimum fraction similarity to germline '
-                        'required for valid sequences.')
-    parser.add_argument('--max-padding', type=int, help='If '
-                        'specified discards sequences with too much padding.',
-                        default=IdentificationProps.defaults['max_padding'])
+                        help='''Minimum fraction similarity to germline
+                        required for valid sequences.''')
+    parser.add_argument('--max-padding', type=int,
+                        default=IdentificationProps.defaults['max_padding'],
+                        help='''If specified, discards sequences with too much
+                        padding.''')
     parser.add_argument('--trim-to', type=int,
                         default=IdentificationProps.defaults['trim_to'],
-                        help='If specified, trims the beginning N bases of '
-                        'each sequence.  Useful for removing primers within '
-                        'the V sequence.')
+                        help='''If specified, trims the beginning N bases of
+                        each sequence.  Useful for removing primers within
+                        the V sequence.''')
     parser.add_argument('--warn-existing', default=False, action='store_true',
-                        help='If specified, warns of existing samples and '
-                        'skips them.  Otherwise, an error is raised and '
-                        'identification will not begin.')
+                        help='''If specified, warns of existing samples and
+                        skips them.  Otherwise, an error is raised and
+                        identification will not begin.''')
+    parser.add_argument('--genotyping', action='store_true',
+                        default=IdentificationProps.defaults['genotyping'],
+                        help='''Alters identification to process sequences for
+                        genotyping with TIgGER''')
 
     args = parser.parse_args()
     if args.min_anchor_len > args.anchor_len:

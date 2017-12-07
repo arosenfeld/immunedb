@@ -1,6 +1,5 @@
 #!/usr/bin/env python2
 import sys
-import argparse
 
 import immunedb.common.config as config
 from immunedb.identification.identify import IdentificationProps

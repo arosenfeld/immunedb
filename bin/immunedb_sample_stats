@@ -1,6 +1,5 @@
 #!/usr/bin/env python2
 import sys
-import argparse
 import immunedb.common.config as config
 from immunedb.aggregation.sample_stats import run_sample_stats
 

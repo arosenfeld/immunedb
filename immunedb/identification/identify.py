@@ -27,6 +27,7 @@ class IdentificationProps(object):
         'allow_cross_family': False,
         'max_insertions': 5,
         'max_deletions': 5,
+        'genotyping': False
     }
 
     def __init__(self, **kwargs):
@@ -206,9 +207,10 @@ def run_identify(session, args):
                      info=vars(args))
     session.close()
     # Load the germlines from files
-    v_germlines = VGermlines(args.v_germlines)
+    v_germlines = VGermlines(args.v_germlines, no_ties=args.genotyping)
     j_germlines = JGermlines(args.j_germlines, args.upstream_of_cdr3,
-                             args.anchor_len, args.min_anchor_len)
+                             args.anchor_len, args.min_anchor_len,
+                             no_ties=args.genotyping)
     tasks = concurrent.TaskQueue()
 
     # If metadata is not specified, assume it is "metadata." in the

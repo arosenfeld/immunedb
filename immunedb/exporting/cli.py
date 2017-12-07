@@ -2,6 +2,7 @@ from collections import Counter, OrderedDict
 import csv
 import re
 
+from immunedb.identification.genes import GeneName
 from immunedb.common.models import (Clone, CloneStats, Sample, Sequence,
                                     SequenceCollapse, Subject)
 from immunedb.util.log import logger
@@ -165,14 +166,16 @@ def export_changeo(session, args):
             )
             writer.writeheader()
             for seq in seqs:
+                v_prefix = GeneName(seq.v_gene).prefix
+                j_prefix = GeneName(seq.j_gene).prefix
                 writer.writerow({
                     'SEQUENCE_ID': seq.seq_id,
                     'SEQUENCE_IMGT': seq.sequence,
                     'FUNCTIONAL': 'T' if seq.functional else 'F',
                     'IN_FRAME': 'T' if seq.in_frame else 'F',
                     'STOP': 'T' if seq.stop else 'F',
-                    'V_CALL': seq.v_gene.replace('|', ','),
-                    'J_CALL': seq.j_gene.replace('|', ','),
+                    'V_CALL': seq.v_gene.replace('|', ',' + v_prefix),
+                    'J_CALL': seq.j_gene.replace('|', ',' + j_prefix),
                     'JUNCTION_LENGTH': seq.cdr3_num_nts,
                     'JUNCTION': seq.cdr3_nt,
                     'V_SCORE': round(

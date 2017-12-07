@@ -29,7 +29,8 @@ def add_as_noresult(session, vdj, sample, reason):
         pass
 
 
-def add_as_sequence(session, alignment, sample, error_action='discard'):
+def add_as_sequence(session, alignment, sample, strip_alleles=True,
+                    error_action='discard'):
     try:
         seq = Sequence(
             seq_id=alignment.sequence.ids[0],
@@ -41,8 +42,8 @@ def add_as_sequence(session, alignment, sample, error_action='discard'):
 
             probable_indel_or_misalign=alignment.has_possible_indel,
 
-            v_gene=funcs.format_ties(alignment.v_gene),
-            j_gene=funcs.format_ties(alignment.j_gene),
+            v_gene=funcs.format_ties(alignment.v_gene, strip_alleles),
+            j_gene=funcs.format_ties(alignment.j_gene, strip_alleles),
 
             num_gaps=alignment.num_gaps,
             seq_start=alignment.seq_start,
@@ -153,7 +154,8 @@ def add_uniques(session, sample, alignments, props, aligner, realign_len=None,
                                   smaller.sequence.sequence):
                     larger.sequence.ids += smaller.sequence.ids
                     del sequences[i]
-            add_as_sequence(session, larger, sample)
+            add_as_sequence(session, larger, sample,
+                            strip_alleles=not props.genotyping)
     session.commit()
 
 
