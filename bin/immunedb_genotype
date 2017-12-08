@@ -16,6 +16,18 @@ if __name__ == '__main__':
     parser.add_argument('--changeo-export-path', default='.')
     parser.add_argument('--subject-ids', nargs='+', type=int, help='''Limit to
                         certain subjects''')
+    parser.add_argument('--j-max', type=float, default=1.0, help='''[TIgGER]
+                        Maximum fraction of sequences perfectly aligning to a
+                        potential novel allele that are allowed to utilize to a
+                        particular combination of junction length and J
+                        gene''')
+    parser.add_argument('--min-seqs', type=int, default=10, help='''[TIgGER]
+                        Minimum number of total sequences required for the
+                        samples to be considered''')
+    parser.add_argument('--germline-min', type=int, default=10,
+                        help='''[TIgGER] Minimum number of sequences that must
+                        have a particular germline allele call for the allele
+                        to be analyzed''')
     args = parser.parse_args()
     session = config.init_db(args.db_config)
 
@@ -28,10 +40,13 @@ if __name__ == '__main__':
             logger.error('Unable to open changeo file {}'.format(changeo_path))
             sys.exit()
         logger.info('Running TIgGER on {}'.format(subject.identifier))
-        cmd = 'run_tigger {} {} {}'.format(
+        cmd = 'run_tigger {} {} {} {} {} {}'.format(
             args.v_germlines,
             changeo_path,
-            changeo_path.replace('.changeo.tsv', '.v_genotype.fasta')
+            changeo_path.replace('.changeo.tsv', '.v_genotype.fasta'),
+            args.j_max,
+            args.min_seqs,
+            args.germline_min
         )
         proc = Popen(shlex.split(cmd))
         proc.communicate()

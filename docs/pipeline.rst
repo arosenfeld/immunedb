@@ -1,7 +1,7 @@
 .. _pipeline:
 
 Data Analysis Pipeline
-======================
+**********************
 The primary component of ImmuneDB is its clonal identification pipeline which has
 the capability to take as input raw sequences, determine likely V and J genes,
 and finally group similar sequences into clones.
@@ -18,9 +18,12 @@ documentation of each command.
 
 
 Quick Start
------------
+===========
 The details of all ImmuneDB commands are below, however, the following is the
-basic set of commands to run ImmuneDB.
+basic set of commands to run ImmuneDB.  This assumes you have the V-germlines
+in ``imgt_human_v.fasta`` and J-germlines in ``imgt_human_j.fasta`` within the
+current working directory.  It also assumes there is a set of FASTA/FASTQ files
+in the current working directory.
 
 
 .. code-block:: bash
@@ -43,34 +46,8 @@ basic set of commands to run ImmuneDB.
     # Generate sample statistics
     $ immunedb_sample_stats ~/configs/example_db.json
 
-
-ImmuneDB Instance Creation
-----------------------
-It is assumed that the root user's username and password for MySQL is known.
-To create a new ImmuneDB instance, one can use ``immunedb_admin``:
-
-.. code-block:: bash
-
-    $ immunedb_admin create DB_NAME CONFIG_DIR
-
-Replacing ``DB_NAME`` with an appropriate database name and ``CONFIG_DIR`` with
-a directory in which the database configuration will be stored will initialize
-the instance.
-
-.. note::
-
-    By default the root user is used to create the database.  You may use a user
-    other than ``root`` with the ``--admin-user`` flag, so long as it has
-    permissions to create databases, create users, and grant users permission to
-    manipulate the database in any way.
-
-After running this, a database with the specified name will be created.  Further
-a configuration file with the same name and a ``.json`` extension will be placed
-in ``CONFIG_DIR``.  This configuration file will be the method of referencing
-the database for the rest of the pipeline steps.
-
 Data Preparation
-----------------
+================
 Before running the ImmuneDB pipeline, the input sequence data must be properly
 structured.  Sequences must be separated into one file per sample.  That is,
 sequences in the same file must be from the sequencing run or, conversely, that
@@ -158,22 +135,51 @@ ImmuneDB requires that V and J germlines be specified in two separate FASTA file
 There are a number of restrictions on their format.  Most common germlines can
 be downloaded from `IMGT's Gene-DB <http://imgt.org/genedb>`_ directly.
 
-For V Germlines
-^^^^^^^^^^^^^^^
+V Germlines
+^^^^^^^^^^^
 - Genes must be in the format prefixX*Y or prefixX where X is the gene name and Y is the
   allele.  For example, IGHV1-18*01, TRBV5-a*03, and IGHV7-4-1 are all valid.
   However, IGHV4-34 is not.
 - Germlines must be IMGT gapped.
 - Germlines starting with gaps are excluded from alignment.
-- ImmuneDB uses the V/J alignment method found in `PMID: 26529062`.  This
-  requires V germlines to have have one of the following amino-acid anchors with
-  the trailing ``C`` being the first residue in the CDR3: ``D...Y[YCH]C``,
-  ``Y[YHC]C`` or ``D.....C``.  The ``.`` character represents any amino acid,
-  and ``[YHC]`` indicates any one of ``Y``, ``H``, or ``C``.
+- For anchor identification,  ImmuneDB uses the V/J alignment method found in
+  `PMID: 26529062`.  This requires V germlines to have have one of the
+  following amino-acid anchors with the trailing ``C`` being the first residue
+  in the CDR3: ``D...Y[YCH]C``, ``Y[YHC]C`` or ``D.....C``.  The ``.``
+  character represents any amino acid, and ``[YHC]`` indicates any one of
+  ``Y``, ``H``, or ``C``.  **Local alignment does not place these restrictions
+  on germlines.**
 
-For J Germlines
+J Germlines
 ^^^^^^^^^^^^^^^
 - There must be a fixed number of bases upstream of the CDR3 in all genes.
+
+Main Pipeline
+=============
+ImmuneDB Instance Creation
+--------------------------
+It is assumed that the root user's username and password for MySQL is known.
+To create a new ImmuneDB instance, one can use ``immunedb_admin``:
+
+.. code-block:: bash
+
+    $ immunedb_admin create DB_NAME CONFIG_DIR
+
+Replacing ``DB_NAME`` with an appropriate database name and ``CONFIG_DIR`` with
+a directory in which the database configuration will be stored will initialize
+the instance.
+
+.. note::
+
+    By default the root user is used to create the database.  You may use a user
+    other than ``root`` with the ``--admin-user`` flag, so long as it has
+    permissions to create databases, create users, and grant users permission to
+    manipulate the database in any way.
+
+After running this, a database with the specified name will be created.  Further
+a configuration file with the same name and a ``.json`` extension will be placed
+in ``CONFIG_DIR``.  This configuration file will be the method of referencing
+the database for the rest of the pipeline steps.
 
 Sequence Identification (Anchor method)
 ---------------------------------------
@@ -184,7 +190,7 @@ deletion, and how far into the CDR3 the V and J likely extend.
 
 .. code-block:: bash
 
-    $ immunedb_identify /path/to/config.json /path/to/v_germlines.fasta /path/to/j_germlines.fasta \
+    $ immunedb_identify config.json v_germlines.fasta j_germlines.fasta \
         /path/to/sequence-data-directory
 
 .. note::
@@ -204,6 +210,41 @@ deletion, and how far into the CDR3 the V and J likely extend.
         seq:         ...ATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCG
 
 
+Genotyping (Optional)
+---------------------
+.. warning::
+    This step is still considered in beta.
+
+ImmuneDB comes with a helper script to determine the genotype of subjects using
+`TIgGER <https://tigger.readthedocs.io>`_.  This will determine which germline
+V-genes are present in each subject, and if any contain novel mutations.  After
+this determination, ImmuneDB can operate on the modified genotype FASTA file
+for futher gene identification.
+
+The basic process for this is to identify sequences at the allele level, export
+sequences in Change-O format, run TIgGer to determine each subjects' genotype,
+delete the originally identified sequences, and then re-run identification with
+the new V-germlines.
+
+.. code-block:: bash
+
+    $ immunedb_admin create db_name ~/configs
+    $ immunedb_identify ~/configs/db_name.json v_germlines.fasta j_germlines.fasta \
+        /path/to/sequences --genotype
+    $ immunedb_collapse ~/configs/db_name.json
+    $ immunedb_export ~/configs/db_name.json changeo --min-subject-copies 2
+    $ immunedb_genotype ~/configs/db_name.json v_germlines.fasta
+    $ immunedb_admin delete ~/configs/db_name.json
+    $ immunedb_admin create db_name ~/configs
+    # For each subject
+    $ immunedb_identify ~/configs/db_name.json SUBJECT.v_genotype.fasta j_germlines.fasta \
+        /path/to/SUBJECT_sequence_data
+
+Note in the final step (identifying sequences with the inferred genotype) you
+must specify the sequences only associated with ``SUBJECT``.  This step must
+then be repeated for each subject for which the genotype was inferred.
+
+
 Local Alignment of Indel Sequences (Optional)
 ---------------------------------------------
 .. warning::
@@ -219,7 +260,7 @@ used to properly gap sequences or germlines.  It requires `bowtie2
 
 .. code-block:: bash
 
-    $ immunedb_local_align /path/to/config.json /path/to/v_germlines /path/to/j_germlines
+    $ immunedb_local_align config.json v_germlines.fasta j_germlines.fasta
 
 
 Sequence Collapsing
@@ -236,7 +277,7 @@ To collapse sequences, run:
 
 .. code-block:: bash
 
-    $ immunedb_collapse /path/to/config.json
+    $ immunedb_collapse config.json
 
 The optional ``--subject-ids`` flag can specify that only samples from certain
 subjects should be collapsed.
@@ -258,7 +299,7 @@ arguments:
 
 .. code-block:: bash
 
-    $ immunedb_clones /path/to/config.json similarity
+    $ immunedb_clones config.json similarity
 
 This will create clones where all sequences in a clone will have the same
 V-gene, J-gene, and (by default) 85% CDR3 AA identity.
@@ -271,7 +312,7 @@ acid sequences of the subclone will differ by no more than ``--min-similarity``
 
 .. code-block:: bash
 
-    $ immunedb_clones /path/to/config.json --subclones similarity
+    $ immunedb_clones config.json --subclones similarity
 
 T-cells
 ^^^^^^^
@@ -280,7 +321,7 @@ If your data is comprised of T-cell sequences, use the T-cell method:
 
 .. code-block:: bash
 
-    $ immunedb_clones /path/to/config.json tcells
+    $ immunedb_clones config.json tcells
 
 This will create clones from the sequences with the same V-gene, J-gene, and
 identical CDR3 nucleotides.
@@ -297,7 +338,7 @@ splits the tree based on common mutations to create clones.
 
 .. code-block:: bash
 
-    $ immunedb_clones /path/to/config.json lineage
+    $ immunedb_clones config.json lineage
 
 Among other arguments, ``--mut-cuttoff`` (default 4) will determine how many
 mutations must be in common for sequences to be placed in the same clone.
@@ -309,7 +350,7 @@ export sequences to a file which you can annotate with clone IDs.
 
 .. code-block:: bash
 
-    $ immunedb_clone_import /path/to/config.json --action export sequences.tsv
+    $ immunedb_clone_import config.json --action export sequences.tsv
 
 This will generate a TSV file with all the unique sequences.  The last column,
 ``clone_id`` will be blank for all rows in the file.  To associate sequences
@@ -327,7 +368,7 @@ Once the clones have been annotated:
 
 .. code-block:: bash
 
-    $ immunedb_clone_import /path/to/config.json --action import sequences.tsv
+    $ immunedb_clone_import config.json --action import sequences.tsv
 
 .. _stats_generation:
 
@@ -347,8 +388,8 @@ commands and must be run in that order.
 
 .. code-block:: bash
 
-    $ immunedb_sample_stats /path/to/config.json
-    $ immunedb_clone_stats /path/to/config.json
+    $ immunedb_sample_stats config.json
+    $ immunedb_clone_stats config.json
 
 
 Selection Pressure (Optional)
@@ -358,7 +399,7 @@ Selection pressure of clones can be calculated with `Baseline
 
 .. code-block:: bash
 
-    $ immunedb_clone_pressure /path/to/config.json /path/to/Baseline_Main.r
+    $ immunedb_clone_pressure config.json /path/to/Baseline_Main.r
 
 This process is relatively slow and may take some time to complete.
 
@@ -376,7 +417,7 @@ error.
 
 .. code-block:: bash
 
-    $ immunedb_clone_trees /path/to/config.json /path/to/clearcut --min-count 2
+    $ immunedb_clone_trees config.json /path/to/clearcut --min-count 2
 
 .. _supplemental_tools:
 
@@ -392,7 +433,7 @@ To run on port 3000 for example:
 
 .. code-block:: bash
 
-    $ immunedb_rest /path/to/config.json -p 3000
+    $ immunedb_rest config.json -p 3000
 
 Optional Rollbar Support
 ^^^^^^^^^^^^^^^^^^^^^^^^
@@ -403,7 +444,7 @@ their website.  Then, you can use it with:
 
 .. code-block:: bash
 
-    $ immunedb_rest /path/to/config.json --rollbar-token YOUR_TOKEN
+    $ immunedb_rest config.json --rollbar-token YOUR_TOKEN
 
 There is also the optional ``--rollbar-env NAME`` parameter which allows you to
 specify the environment name for Rollbar (defaults to ``develop``).
