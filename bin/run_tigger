@@ -1,0 +1,17 @@
+#!/usr/bin/env Rscript
+
+library(tigger)
+args <- commandArgs(trailingOnly = TRUE)
+if (length(args) < 3) {
+  stop('usage: Rscript run_tigger.R v_germlines subject_changeo out_file')
+}
+paste('Reading V-germlines from', args[1])
+germline_ighv <- readIgFasta(args[1])
+paste('Reading genotyped sequences from', args[2])
+database <- read.table(file = args[2], sep = '\t', header = TRUE)
+paste('Inferring alleles from', args[2])
+novel_df <- findNovelAlleles(database, germline_ighv, j_max=1.0, min_seqs=10, germline_min=10)
+novel <- selectNovel(novel_df)
+paste('Writing genotype to', args[3])
+geno <- inferGenotype(database, find_unmutated = TRUE, germline_db = germline_ighv, novel_df = novel_df)
+writeFasta(genotypeFasta(geno, germline_ighv, novel_df), args[3])

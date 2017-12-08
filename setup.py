@@ -36,6 +36,8 @@ setup(
         'bin/immunedb_rest',
         'bin/immunedb_sample_stats',
         'bin/immunedb_sql',
+        'bin/immunedb_genotype',
+        'bin/run_tigger'
     ],
     install_requires=[
         'gevent',
