@@ -21,11 +21,6 @@ install:
 - wget https://github.com/BenLangmead/bowtie2/releases/download/v2.3.3/bowtie2-2.3.3-linux-x86_64.zip
 - unzip bowtie2-2.3.3-linux-x86_64.zip
 - PATH=$PATH:`pwd`/bowtie2-2.3.3
-- wget http://selection.med.yale.edu/baseline/Archive/Baseline%20Version%201.3/Baseline_Functions_Version1.3.r
-- wget http://selection.med.yale.edu/baseline/Archive/Baseline%20Version%201.3/Baseline_Main_Version1.3.r
-- wget http://selection.med.yale.edu/baseline/Archive/Baseline%20Version%201.3/FiveS_Mutability.RData
-- wget http://selection.med.yale.edu/baseline/Archive/Baseline%20Version%201.3/FiveS_Substitution.RData
-- BASELINE_PATH=`pwd`/Baseline_Main_Version1.3.r
 before_script:
 - mysql -u root -e 'SET GLOBAL innodb_file_format=barracuda;';
 - mysql -u root -e 'SET GLOBAL innodb_file_per_table=ON;';

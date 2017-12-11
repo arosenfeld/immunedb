@@ -58,7 +58,6 @@ class ApiTest(unittest.TestCase):
             'clones_list': '/clones/list',
             'clones_list_subject1': '/clones/list/1',
             'clone': '/clone/10',
-            'clone_pressure': '/clone/pressure/1',
 
             'analyze': '/samples/analyze/T2',
             'overlap': '/samples/overlap/T2',
@@ -67,6 +66,8 @@ class ApiTest(unittest.TestCase):
             'subject_list': '/subjects/list',
             'subject': '/subject/1',
         }
+        if os.environ.get('BASELINE_PATH'):
+            endpoints['clone_pressure'] = '/clone/pressure/1'
         for cid in range(1, 25):
             for value in ('sequences', 'mutations'):
                 name = ('clone', value, str(cid))
