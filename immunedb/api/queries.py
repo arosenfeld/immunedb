@@ -9,7 +9,8 @@ from sqlalchemy.sql import func
 from sqlalchemy.sql.expression import false, true
 
 from immunedb.common.models import (Clone, CloneStats, Sample, SampleStats,
-                                    Sequence, SequenceCollapse, Subject)
+                                    SelectionPressure, Sequence,
+                                    SequenceCollapse, Subject)
 from immunedb.common.mutations import threshold_mutations
 
 
@@ -295,10 +296,9 @@ def get_clone_sequences(session, clone_id, get_collapse, paging):
 
 def get_selection_pressure(session, clone_id):
     query = session.query(
-        CloneStats.sample_id, CloneStats.selection_pressure
+        SelectionPressure
     ).filter(
-        CloneStats.clone_id == clone_id,
-        ~CloneStats.selection_pressure.is_(None)
+        SelectionPressure.clone_id == clone_id,
     )
 
     pressure = []
@@ -313,7 +313,7 @@ def get_selection_pressure(session, clone_id):
                 'id': row.sample_id,
                 'name': name
             },
-            'pressure': json.loads(row.selection_pressure)
+            'pressure': row.to_dict()
         })
 
     return pressure

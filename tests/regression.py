@@ -4,13 +4,15 @@ import unittest
 
 import immunedb.common.config as config
 from immunedb.common.models import (Clone, CloneStats, DuplicateSequence,
-                                    NoResult, Sample, SampleStats, Sequence,
+                                    NoResult, Sample, SampleStats,
+                                    SelectionPressure, Sequence,
                                     SequenceCollapse)
 from immunedb.identification.local_align import run_fix_sequences
 from immunedb.aggregation.clones import run_clones
 from immunedb.aggregation.collapse import run_collapse
 from immunedb.aggregation.clone_stats import run_clone_stats
 from immunedb.aggregation.sample_stats import run_sample_stats
+from immunedb.common.baseline import run_selection_pressure
 
 
 DB_NAME = 'test_db'
@@ -94,6 +96,7 @@ class BaseTest(object):
             self.clones()
             self.clone_stats()
             self.sample_stats()
+            self.selection()
 
         def initial_regression(self):
             self.regression(
@@ -256,6 +259,38 @@ class BaseTest(object):
                 ('sample_id', 'filter_type', 'outliers', 'full_reads'),
                 ('sequence_cnt', 'in_frame_cnt', 'stop_cnt', 'functional_cnt',
                  'no_result_cnt')
+            )
+
+        def selection(self):
+            baseline_path = os.environ.get('BASELINE_PATH')
+
+            if not baseline_path:
+                print '''Baseline path not set.  Skipping selection pressure
+                         tests.'''
+                return
+            run_selection_pressure(
+                self.session,
+                NamespaceMimic(
+                    baseline_path=baseline_path,
+                    # NOTE: Limit to 5 clones for speed sake
+                    clone_ids=range(1, 6),
+                    subject_ids=None,
+                    regen=False,
+                    temp='/tmp',
+                    thresholds=['1', '2', '85%'],
+                )
+            )
+            self.session.commit()
+
+            self.regression(
+                self.get_path('selection_pressure.json'),
+                self.session.query(SelectionPressure),
+                ('clone_id', 'sample_id', 'threshold'),
+                ('expected_fwr_s', 'expected_cdr_s', 'expected_fwr_r',
+                'expected_cdr_r', 'observed_fwr_s', 'observed_cdr_s',
+                'observed_fwr_r', 'observed_cdr_r', 'sigma_fwr', 'sigma_cdr',
+                'sigma_fwr_cilower', 'sigma_fwr_ciupper', 'sigma_cdr_cilower',
+                'sigma_cdr_ciupper', 'sigma_p_fwr', 'sigma_p_cdr')
             )
 
 

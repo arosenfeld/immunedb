@@ -341,8 +341,6 @@ class CloneStats(Base):
         sample
 
     :param str mutations: A JSON stanza of mutation count information
-    :param str selection_pressure: A JSON stanza of selection pressure \
-        information
 
     """
     __tablename__ = 'clone_stats'
@@ -366,8 +364,67 @@ class CloneStats(Base):
     total_cnt = Column(Integer)
 
     mutations = Column(MEDIUMTEXT)
-    selection_pressure = Column(MEDIUMTEXT)
 
+
+class SelectionPressure(Base):
+    __tablename__ = 'selection_pressure'
+    __table_args__ = (
+        UniqueConstraint('clone_id', 'sample_id', 'threshold'),
+        {'mysql_row_format': 'DYNAMIC'})
+    id = Column(Integer, primary_key=True)
+    clone_id = Column(Integer, ForeignKey(Clone.id, ondelete='CASCADE'))
+    clone = relationship(Clone, backref=backref('selection_pressure'))
+
+    sample_id = Column(Integer, ForeignKey(Sample.id))
+    sample = relationship(Sample, backref=backref('selection_pressure'))
+
+    threshold = Column(String(length=10), index=True)
+
+    expected_fwr_s = Column(Float)
+    expected_cdr_s = Column(Float)
+    expected_fwr_r = Column(Float)
+    expected_cdr_r = Column(Float)
+
+    observed_fwr_s = Column(Float)
+    observed_cdr_s = Column(Float)
+    observed_fwr_r = Column(Float)
+    observed_cdr_r = Column(Float)
+
+    sigma_fwr = Column(Float)
+    sigma_cdr = Column(Float)
+
+    sigma_fwr_cilower = Column(Float)
+    sigma_fwr_ciupper = Column(Float)
+    sigma_cdr_cilower = Column(Float)
+    sigma_cdr_ciupper = Column(Float)
+
+    sigma_p_fwr = Column(Float)
+    sigma_p_cdr = Column(Float)
+
+    def to_dict(self):
+        fields = [
+            'expected_fwr_s',
+            'expected_cdr_s',
+            'expected_fwr_r',
+            'expected_cdr_r',
+
+            'observed_fwr_s',
+            'observed_cdr_s',
+            'observed_fwr_r',
+            'observed_cdr_r',
+
+            'sigma_fwr',
+            'sigma_cdr',
+
+            'sigma_fwr_cilower',
+            'sigma_fwr_ciupper',
+            'sigma_cdr_cilower',
+            'sigma_cdr_ciupper',
+
+            'sigma_p_fwr',
+            'sigma_p_cdr'
+        ]
+        return {field: getattr(self, field) for field in fields}
 
 class Sequence(Base):
     """Represents a single unique sequence.

@@ -58,6 +58,7 @@ class ApiTest(unittest.TestCase):
             'clones_list': '/clones/list',
             'clones_list_subject1': '/clones/list/1',
             'clone': '/clone/10',
+            'clone_pressure': '/clone/pressure/1',
 
             'analyze': '/samples/analyze/T2',
             'overlap': '/samples/overlap/T2',
@@ -67,10 +68,10 @@ class ApiTest(unittest.TestCase):
             'subject': '/subject/1',
         }
         for cid in range(1, 25):
-            # TODO: pressure and lineages
             for value in ('sequences', 'mutations'):
                 name = ('clone', value, str(cid))
                 endpoints['_'.join(name)] = '/' + '/'.join(name)
+
         for check, endpoint in endpoints.iteritems():
             self.check(check, endpoint)
 

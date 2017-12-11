@@ -1,0 +1,146 @@
+[
+    {
+        "pressure": {
+            "expected_cdr_r": 0.186,
+            "expected_cdr_s": 0.058,
+            "expected_fwr_r": 0.572,
+            "expected_fwr_s": 0.184,
+            "observed_cdr_r": 5.0,
+            "observed_cdr_s": 1.0,
+            "observed_fwr_r": 3.0,
+            "observed_fwr_s": 5.0,
+            "sigma_cdr": 0.0895,
+            "sigma_cdr_cilower": -1.1,
+            "sigma_cdr_ciupper": 1.22,
+            "sigma_fwr": -1.5,
+            "sigma_fwr_cilower": -2.91,
+            "sigma_fwr_ciupper": -0.24,
+            "sigma_p_cdr": 0.435,
+            "sigma_p_fwr": -0.0102
+        },
+        "sample": {
+            "id": null,
+            "name": "All"
+        }
+    },
+    {
+        "pressure": {
+            "expected_cdr_r": 0.186,
+            "expected_cdr_s": 0.058,
+            "expected_fwr_r": 0.572,
+            "expected_fwr_s": 0.184,
+            "observed_cdr_r": 0.0,
+            "observed_cdr_s": 0.0,
+            "observed_fwr_r": 0.0,
+            "observed_fwr_s": 0.0,
+            "sigma_cdr": null,
+            "sigma_cdr_cilower": null,
+            "sigma_cdr_ciupper": null,
+            "sigma_fwr": null,
+            "sigma_fwr_cilower": null,
+            "sigma_fwr_ciupper": null,
+            "sigma_p_cdr": null,
+            "sigma_p_fwr": null
+        },
+        "sample": {
+            "id": null,
+            "name": "All"
+        }
+    },
+    {
+        "pressure": {
+            "expected_cdr_r": 0.186,
+            "expected_cdr_s": 0.058,
+            "expected_fwr_r": 0.572,
+            "expected_fwr_s": 0.184,
+            "observed_cdr_r": 5.0,
+            "observed_cdr_s": 1.0,
+            "observed_fwr_r": 3.0,
+            "observed_fwr_s": 5.0,
+            "sigma_cdr": 0.0895,
+            "sigma_cdr_cilower": -1.1,
+            "sigma_cdr_ciupper": 1.22,
+            "sigma_fwr": -1.5,
+            "sigma_fwr_cilower": -2.91,
+            "sigma_fwr_ciupper": -0.24,
+            "sigma_p_cdr": 0.435,
+            "sigma_p_fwr": -0.0102
+        },
+        "sample": {
+            "id": null,
+            "name": "All"
+        }
+    },
+    {
+        "pressure": {
+            "expected_cdr_r": 0.186,
+            "expected_cdr_s": 0.058,
+            "expected_fwr_r": 0.572,
+            "expected_fwr_s": 0.184,
+            "observed_cdr_r": 5.0,
+            "observed_cdr_s": 1.0,
+            "observed_fwr_r": 3.0,
+            "observed_fwr_s": 5.0,
+            "sigma_cdr": 0.0895,
+            "sigma_cdr_cilower": -1.1,
+            "sigma_cdr_ciupper": 1.22,
+            "sigma_fwr": -1.5,
+            "sigma_fwr_cilower": -2.91,
+            "sigma_fwr_ciupper": -0.24,
+            "sigma_p_cdr": 0.435,
+            "sigma_p_fwr": -0.0102
+        },
+        "sample": {
+            "id": 2,
+            "name": "input2"
+        }
+    },
+    {
+        "pressure": {
+            "expected_cdr_r": 0.186,
+            "expected_cdr_s": 0.058,
+            "expected_fwr_r": 0.572,
+            "expected_fwr_s": 0.184,
+            "observed_cdr_r": 0.0,
+            "observed_cdr_s": 0.0,
+            "observed_fwr_r": 0.0,
+            "observed_fwr_s": 0.0,
+            "sigma_cdr": null,
+            "sigma_cdr_cilower": null,
+            "sigma_cdr_ciupper": null,
+            "sigma_fwr": null,
+            "sigma_fwr_cilower": null,
+            "sigma_fwr_ciupper": null,
+            "sigma_p_cdr": null,
+            "sigma_p_fwr": null
+        },
+        "sample": {
+            "id": 2,
+            "name": "input2"
+        }
+    },
+    {
+        "pressure": {
+            "expected_cdr_r": 0.186,
+            "expected_cdr_s": 0.058,
+            "expected_fwr_r": 0.572,
+            "expected_fwr_s": 0.184,
+            "observed_cdr_r": 5.0,
+            "observed_cdr_s": 1.0,
+            "observed_fwr_r": 3.0,
+            "observed_fwr_s": 5.0,
+            "sigma_cdr": 0.0895,
+            "sigma_cdr_cilower": -1.1,
+            "sigma_cdr_ciupper": 1.22,
+            "sigma_fwr": -1.5,
+            "sigma_fwr_cilower": -2.91,
+            "sigma_fwr_ciupper": -0.24,
+            "sigma_p_cdr": 0.435,
+            "sigma_p_fwr": -0.0102
+        },
+        "sample": {
+            "id": 2,
+            "name": "input2"
+        }
+    }
+]
