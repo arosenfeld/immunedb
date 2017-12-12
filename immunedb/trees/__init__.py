@@ -158,7 +158,7 @@ def get_nested(seqs, key):
     ret = set([])
     for s in seqs.values():
         ret.add(s.get(key, set([])))
-    return sorted(list(ret))
+    return sorted(list([r for r in ret if r is not None]))
 
 
 def tree_as_dict(tree, root=True):
