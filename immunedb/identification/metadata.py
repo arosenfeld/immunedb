@@ -1,5 +1,6 @@
 import csv
 import os
+import re
 
 from sqlalchemy.sql import exists
 
@@ -8,7 +9,8 @@ from immunedb.util.log import logger
 
 REQUIRED_FIELDS = ('file_name', 'study_name', 'sample_name', 'date', 'subject')
 OPTIONAL_FIELDS = ('subset', 'tissue', 'disease', 'lab', 'experimenter',
-                   'ig_class', 'v_primer', 'j_primer')
+                   'ig_class', 'timepoint', 'v_primer', 'j_primer')
+NA_VALUES = ('na', 'n/a', 'null', 'none')
 
 
 class MetadataException(Exception):
@@ -42,14 +44,17 @@ def parse_metadata(session, fh, warn_existing, path):
     metadata = {}
     for row in reader:
         row = {k: v for k, v in row.iteritems()
-               if v is not None and len(v) > 0}
+               if v is not None and len(v) > 0 and v.lower() not in NA_VALUES}
         if len(row) == 0:
             continue
         check_populated(row)
         # Check if the sample name is unique
         if row['sample_name'] in metadata:
-            logger.error('Duplicate sample name {} in metadata.'.format(
-                row['sample_name']))
+            raise MetadataException(
+                'Duplicate sample name {} in metadata.'.format(
+                    row['sample_name']))
+        if not re.match('\d{4}-\d{2}-\d{2}', row['date']):
+            raise MetadataException('Date must be in YYYY-MM-DD format')
 
         # Check if a sample with the same name is in the database
         sample_in_db = session.query(Sample).filter(

@@ -16,7 +16,8 @@ request, you should make sure they pass local tests by running:
         $ ./tests/run.sh
 
 The environment variable `DB_ADMIN_PASS` should be set to your MySQL
-root password and `LL_PATH` should be set to the path of `needleman_wunsch`.
+root password.  To regression test Baseline's selection pressure calculations,
+the `BASELINE_PATH` must be set to the path of `Baseline_Main.r`.
 
 For new features, please add tests as necessary.  To change the regression test
 reference database, when running the tests, set the `GENERATE` environment

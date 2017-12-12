@@ -116,8 +116,8 @@ class BaseTest(object):
                 self.session.query(Sample),
                 'id',
                 ('name', 'subject_id', 'subset', 'tissue', 'ig_class',
-                 'disease', 'lab', 'experimenter', 'v_primer', 'j_primer',
-                 'v_ties_mutations', 'v_ties_len')
+                    'timepoint', 'disease', 'lab', 'experimenter', 'v_primer',
+                    'j_primer', 'v_ties_mutations', 'v_ties_len')
             )
 
         def local_align(self):

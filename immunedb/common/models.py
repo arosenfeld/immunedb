@@ -97,6 +97,7 @@ class Sample(Base):
     :param str subset: The tissue subset of the sample
     :param str tissue: The tissue of the sample
     :param str ig_class: The class of cells of the sample (e.g. IgA)
+    :param str timepoint: The timepoint of the sample. Can be arbitrary text
     :param str disease: The known disease(s) present in the sample
     :param str lab: The lab which acquired the sample
     :param str experimenter: The experimenters name who took the sample
@@ -128,6 +129,7 @@ class Sample(Base):
     tissue = Column(String(32))
     ig_class = Column(String(8))
 
+    timepoint = Column(String(32))
     disease = Column(String(32))
     lab = Column(String(128))
     experimenter = Column(String(128))

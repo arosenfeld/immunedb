@@ -54,6 +54,7 @@ def populate_tree(session, newick, germline_seq, removed_muts):
                 seq_ids[collapsed_seq.seq_id] = {
                     'ai': collapsed_seq.ai,
                     'tissue': collapsed_seq.sample.tissue,
+                    'timepoint': collapsed_seq.sample.timepoint,
                     'subset': collapsed_seq.sample.subset,
                     'ig_class': collapsed_seq.sample.ig_class,
                     'copy_number': collapsed_seq.copy_number,
@@ -166,6 +167,7 @@ def tree_as_dict(tree, root=True):
             'seq_ids': tree.seq_ids,
             'copy_number': tree.copy_number,
             'tissues': get_nested(tree.seq_ids, 'tissue'),
+            'timepoints': get_nested(tree.seq_ids, 'timepoint'),
             'subsets': get_nested(tree.seq_ids, 'subset'),
             'ig_classes': get_nested(tree.seq_ids, 'ig_class'),
             'mutations': [{
@@ -187,6 +189,7 @@ def tree_as_dict(tree, root=True):
             'seq_ids': {},
             'copy_number': 0,
             'tissues': '',
+            'timepoints': '',
             'subsets': '',
             'ig_classes': '',
             'mutations': [],
