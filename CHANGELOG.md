@@ -1,4 +1,23 @@
 # CHANGELOG
+## v0.22.0
+* Clones correctly filtered when functionality is not stipulated.
+* Sequences that comprise trees can now be filtered by their copy number using
+  `--min-seq-copies`.
+* Sequences with invalid bases will no longer cause identification to fail.
+* Various local-alignment bug fixes.
+* The number of instances in a clone is now stored in the database.
+* Mutations are correctly exported when limiting to certain samples.
+* Sequences can now be exported in AIRR compatible GenBank format with
+  `immunedb_export genbank`.
+* Sequences can now be exported in Change-O format with `immunedb_export
+  changeo`.
+* Genotyping with TIgGER can be run by passing the `--genotype` flag to
+  `immunedb_identify`.  See the docs for more instructions.
+* Selection pressure is now stored in a separate table for easier querying.
+* Optional baseline regression tests added.
+* A `timepoint` field has been added to the `Samples` model.
+* Tree node features with no values are now excluded.
+
 ## v0.21.0
 * Local alignment has been entirely rewritten to use bowtie2.  This drastically
   reduces the time necessary to locally align sequences.
