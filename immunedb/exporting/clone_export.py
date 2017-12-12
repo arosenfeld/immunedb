@@ -26,8 +26,8 @@ class CloneExport(Exporter):
         'cdr3_aa': lambda s: s.clone.cdr3_aa,
         'cdr3_num_nts': lambda s: s.clone.cdr3_num_nts,
         'functional': lambda s: s.clone.functional,
-        'insertions': lambda seq: s.clone.insertions,
-        'deletions': lambda seq: s.clone.deletions,
+        'insertions': lambda s: s.clone._insertions,
+        'deletions': lambda s: s.clone._deletions,
 
         'sample_name': _if_sample(lambda s: s.sample.name, 'Total'),
         'subject_id': _if_sample(lambda s: s.sample.subject.id),
