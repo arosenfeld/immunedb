@@ -72,6 +72,8 @@ class SequenceExport(Exporter):
         'cdr3_nt': lambda seq: seq.cdr3_nt,
         'cdr3_aa': lambda seq: seq.cdr3_aa,
         'cdr3_num_nts': lambda seq: seq.cdr3_num_nts,
+        'insertions': lambda seq: seq.insertions,
+        'deletions': lambda seq: seq.deletions,
 
         'clone_id': _if_clone(lambda seq: seq.clone_id),
         'clone_cdr3_nt': _if_clone(lambda seq: seq.clone.cdr3_nt),
