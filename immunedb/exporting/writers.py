@@ -72,7 +72,7 @@ class CLIPWriter(FASTAWriter):
     def __init__(self, replaced_sequences):
         super(CLIPWriter, self).__init__(replaced_sequences)
         self._required_fields += ['v_gene', 'j_gene', 'cdr3_aa', 'cdr3_nt',
-                                  'cdr3_num_nts']
+                                  'cdr3_num_nts', 'clone_germline']
         self._last_cid = None
 
     def preprocess_query(self, sequence_query):
@@ -88,8 +88,8 @@ class CLIPWriter(FASTAWriter):
                 'cdr3_aa': data['cdr3_aa'],
                 'cdr3_nt': data['cdr3_nt'],
                 'cdr3_len': data['cdr3_num_nts'],
-                'sequence': data['germline'],
-                'germline': data['germline']
+                'sequence': data['sequence'],
+                'germline': data['clone_germline']
             })
         else:
             clone_row = ''

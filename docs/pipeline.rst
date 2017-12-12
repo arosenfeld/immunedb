@@ -81,6 +81,8 @@ The following are **optional** for each file:
   specified, the field will be left blank.
 - ``tissue`` (32): The tissue of the sample (e.g. Lung, Spleen).  If none is
   specified, the field will be left blank.
+- ``timepoint`` (32): An arbitrary string for the timepoint of the sample (e.g.
+  Day 14).
 - ``ig_class`` (8): The isotype of the sample (e.g. IgE).
 - ``disease`` (32): Any disease(s) present in the subject when the sample was taken
   (e.g. Lupus).  If none is specified, the field will be left blank.
@@ -115,9 +117,9 @@ subjectD002_liver.fasta  B-cell Study D002_Liver   2015-09-15 D003    Mature Liv
 ======================== ============ ============ ========== ======= ====== ======= ======= ======== ================= ======== ======== ========
 
 .. warning::
-    Avoid using terms such as  "None", "N/A", or an empty string to specify
-    missing metadata.  Various portions of ImmuneDB group information based on
-    metadata, and will consider strings like these distinct from NULL metadata.
+    The values ``NA``, ``N/A``, ``NULL``, and ``None`` (case-insensitive) will
+    all be treated as null values in the metadata.  Avoid using any other
+    placeholder for missing data, and simply leave the field blank.
 
 After creating the metadata file, the directory should look like:
 

@@ -77,6 +77,7 @@ class SequenceExport(Exporter):
         'clone_cdr3_nt': _if_clone(lambda seq: seq.clone.cdr3_nt),
         'clone_cdr3_aa': _if_clone(lambda seq: seq.clone.cdr3_aa),
         'clone_json_tree': _if_clone(lambda seq: seq.clone.tree),
+        'clone_germline': _if_clone(lambda seq: seq.clone.germline),
         'clone_parent_id': _if_clone(lambda seq: seq.clone.parent_id),
 
         'copy_number_in_subject':
