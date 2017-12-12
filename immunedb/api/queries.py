@@ -301,22 +301,24 @@ def get_selection_pressure(session, clone_id):
         SelectionPressure.clone_id == clone_id,
     )
 
-    pressure = []
+    pressure = {}
     for row in query:
         if row.sample_id is None:
             name = 'All'
         else:
             name = session.query(Sample.name).filter(
                 Sample.id == row.sample_id).first().name
-        pressure.append({
-            'sample': {
-                'id': row.sample_id,
-                'name': name
-            },
-            'pressure': row.to_dict()
-        })
+        if name not in pressure:
+            pressure[name] = {
+                'pressure': {},
+                'sample': {
+                    'id': row.sample_id,
+                    'name': name
+                }
+            }
+        pressure[name]['pressure'][row.threshold] = row.to_dict()
 
-    return pressure
+    return pressure.values()
 
 
 def get_clone_tree(session, clone_id):

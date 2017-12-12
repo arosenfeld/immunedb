@@ -162,7 +162,6 @@ class SelectionPressureWorker(concurrent.Worker):
 
         """
 
-
         if self._session.query(SelectionPressure).filter(
                 SelectionPressure.clone_id == clone_id).count() > 0:
             return

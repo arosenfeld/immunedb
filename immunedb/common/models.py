@@ -426,6 +426,7 @@ class SelectionPressure(Base):
         ]
         return {field: getattr(self, field) for field in fields}
 
+
 class Sequence(Base):
     """Represents a single unique sequence.
 
