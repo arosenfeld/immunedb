@@ -1863,6 +1863,8 @@
                     36.0
                 ]
             ],
+            "sp_cdr_dist": [],
+            "sp_fwr_dist": [],
             "v_gene_dist": [
                 [
                     "IGHV1-18",
@@ -4065,6 +4067,8 @@
                     38.0
                 ]
             ],
+            "sp_cdr_dist": [],
+            "sp_fwr_dist": [],
             "v_gene_dist": [
                 [
                     "IGHV1-18",

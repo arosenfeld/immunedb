@@ -202,6 +202,9 @@ class SampleStats(Base):
     copy_number_dist = Column(MEDIUMTEXT)
     cdr3_length_dist = Column(MEDIUMTEXT)
 
+    sp_fwr_dist = Column(MEDIUMTEXT)
+    sp_cdr_dist = Column(MEDIUMTEXT)
+
     quality_dist = Column(MEDIUMTEXT)
 
     sequence_cnt = Column(Integer)

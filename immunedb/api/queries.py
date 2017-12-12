@@ -552,7 +552,7 @@ def analyze_samples(session, samples, filter_type, include_outliers,
     dist_fields = [
         'v_match_dist', 'v_length_dist', 'v_identity_dist', 'j_match_dist',
         'j_length_dist', 'v_gene_dist', 'j_gene_dist', 'cdr3_length_dist',
-        'copy_number_dist', 'quality_dist'
+        'copy_number_dist', 'quality_dist', 'sp_fwr_dist', 'sp_cdr_dist'
     ]
     cnt_fields = [
         'sequence_cnt', 'in_frame_cnt', 'stop_cnt', 'functional_cnt',

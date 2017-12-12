@@ -2,12 +2,12 @@ import json
 
 import numpy as np
 
-from sqlalchemy import func
+from sqlalchemy import and_, func
 
 import immunedb.common.config as config
 import immunedb.common.modification_log as mod_log
 from immunedb.common.models import (Clone, NoResult, Sample, SampleStats,
-                                    Sequence)
+                                    SelectionPressure, Sequence)
 import immunedb.util.concurrent as concurrent
 import immunedb.util.lookups as lookups
 from immunedb.util.log import logger
@@ -22,7 +22,9 @@ _dist_fields = [
     'copy_number',
     'v_length',
     'v_identity',
-    'cdr3_length'
+    'cdr3_length',
+    'sp_fwr',
+    'sp_cdr'
 ]
 
 _seq_contexts = {
@@ -86,12 +88,12 @@ class ContextStats(object):
             self.functional_cnt += add
 
         for field in _dist_fields:
-            if isinstance(field, tuple):
-                value = field[1](seq_record)
-                field = field[0]
-            else:
+            try:
                 value = getattr(seq_record, field)
-
+                if value is None:
+                    continue
+            except AttributeError:
+                continue
             if not isinstance(value, str):
                 value = float(value)
 
@@ -253,7 +255,16 @@ class SampleStatsWorker(concurrent.Worker):
             func.round(
                 func.avg(100 * Sequence.v_match / Sequence.v_length)
             ).label('v_identity'),
-            Sequence.cdr3_num_nts.label('cdr3_length')
+            Sequence.cdr3_num_nts.label('cdr3_length'),
+            SelectionPressure.sigma_fwr.label('sp_fwr'),
+            SelectionPressure.sigma_cdr.label('sp_cdr'),
+        ).join(
+            SelectionPressure,
+            and_(
+                SelectionPressure.clone_id == Sequence.clone_id,
+                SelectionPressure.sample_id == Sequence.sample_id
+            ),
+            isouter=True
         ).filter(
             Sequence.sample_id == sample_id,
             ~Sequence.clone_id.is_(None)
