@@ -60,6 +60,7 @@
                     }
                 },
                 "subset": null,
+                "timepoint": null,
                 "tissue": "SPL",
                 "total": 2,
                 "unique": 1,

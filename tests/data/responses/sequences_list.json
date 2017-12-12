@@ -31,6 +31,7 @@
                 }
             },
             "subset": null,
+            "timepoint": null,
             "tissue": "Colon",
             "v_primer": null
         },
@@ -72,6 +73,7 @@
                 }
             },
             "subset": null,
+            "timepoint": null,
             "tissue": "Colon",
             "v_primer": null
         },
@@ -113,6 +115,7 @@
                 }
             },
             "subset": null,
+            "timepoint": null,
             "tissue": "Colon",
             "v_primer": null
         },
@@ -154,6 +157,7 @@
                 }
             },
             "subset": null,
+            "timepoint": null,
             "tissue": "Colon",
             "v_primer": null
         },
@@ -195,6 +199,7 @@
                 }
             },
             "subset": null,
+            "timepoint": null,
             "tissue": "Colon",
             "v_primer": null
         },
@@ -236,6 +241,7 @@
                 }
             },
             "subset": null,
+            "timepoint": null,
             "tissue": "Colon",
             "v_primer": null
         },
@@ -277,6 +283,7 @@
                 }
             },
             "subset": null,
+            "timepoint": null,
             "tissue": "Colon",
             "v_primer": null
         },
@@ -318,6 +325,7 @@
                 }
             },
             "subset": null,
+            "timepoint": null,
             "tissue": "Colon",
             "v_primer": null
         },
@@ -359,6 +367,7 @@
                 }
             },
             "subset": null,
+            "timepoint": null,
             "tissue": "Colon",
             "v_primer": null
         },
@@ -400,6 +409,7 @@
                 }
             },
             "subset": null,
+            "timepoint": null,
             "tissue": "Colon",
             "v_primer": null
         },

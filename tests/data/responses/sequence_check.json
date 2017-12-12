@@ -57,6 +57,7 @@
             }
         },
         "subset": null,
+        "timepoint": null,
         "tissue": "SPL",
         "v_primer": null
     },

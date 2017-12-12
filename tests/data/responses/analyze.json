@@ -36,6 +36,7 @@
                 }
             },
             "subset": null,
+            "timepoint": null,
             "tissue": "Colon",
             "total_cnt": 562,
             "unique_cnt": 295,
@@ -68,6 +69,7 @@
                 }
             },
             "subset": null,
+            "timepoint": null,
             "tissue": "SPL",
             "total_cnt": 1470,
             "unique_cnt": 689,

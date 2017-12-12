@@ -24,6 +24,7 @@
                 }
             },
             "subset": null,
+            "timepoint": null,
             "tissue": "Colon",
             "total_cnt": 562,
             "v_primer": null
@@ -50,6 +51,7 @@
                 }
             },
             "subset": null,
+            "timepoint": null,
             "tissue": "SPL",
             "total_cnt": 1470,
             "v_primer": null
