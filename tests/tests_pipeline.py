@@ -22,6 +22,7 @@ class TestPipeline(BaseTest.RegressionTest):
                 min_similarity=.60,
                 trim=0,
                 warn_existing=False,
+                warn_missing=False,
                 trim_to=None,
                 max_padding=None,
                 genotyping=False

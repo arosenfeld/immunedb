@@ -151,11 +151,7 @@ def aggregate_vdj(aggregate_queue, alignments_out):
         'success': {},
         'noresult': []
     }
-    while True:
-        try:
-            result = aggregate_queue.get()
-        except Queue.Empty:
-            break
+    for result in aggregate_queue:
         if result['status'] == 'success':
             alignment = result['alignment']
             seq_key = alignment.sequence.sequence
@@ -204,11 +200,7 @@ def aggregate_vties(aggregate_queue, seqs_out):
         'success': {},
         'noresult': []
     }
-    while True:
-        try:
-            result = aggregate_queue.get()
-        except Queue.Empty:
-            break
+    for result in aggregate_queue:
         if result['status'] == 'success':
             alignment = result['alignment']
             bucket_key = (
@@ -258,14 +250,10 @@ def process_collapse(sequences):
 
 
 def aggregate_collapse(aggregate_queue, _, session, sample, props):
-    while True:
-        try:
-            alignment = aggregate_queue.get()
-            for a in alignment:
-                add_as_sequence(session, a, sample,
-                                strip_alleles=not props.genotyping)
-        except Queue.Empty:
-            break
+    for alignment in aggregate_queue:
+        for a in alignment:
+            add_as_sequence(session, a, sample,
+                            strip_alleles=not props.genotyping)
     session.commit()
 
 

@@ -125,14 +125,20 @@ class DataQueue(object):
     def __len__(self):
         return self.size.value
 
+    def __iter__(self):
+        while True:
+            try:
+                v = self.get()
+                yield v
+            except Queue.Empty:
+                break
+
 
 def _process_wrapper(process_func, in_queue, out_queue, log_progress,
                      **kwargs):
-    i = 0
     while True:
         try:
             data = in_queue.get(log_progress=log_progress)
-            i += 1
             out_queue.put(process_func(data, **kwargs))
         except Queue.Empty:
             break
