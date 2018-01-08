@@ -12,10 +12,10 @@ import dnautils
 
 import immunedb.common.config as config
 import immunedb.common.modification_log as mod_log
-from immunedb.common.models import (Sample, SampleMetadata, Sequence, NoResult,
-                                    Study, Subject)
-from immunedb.identification import (add_as_noresult, add_as_sequence,
-                                     add_uniques, AlignmentException)
+from immunedb.common.models import (Sample, SampleMetadata, NoResult, Study,
+                                    Subject)
+from immunedb.identification import (add_as_noresult, add_uniques,
+                                     AlignmentException)
 from immunedb.identification.anchor import AnchorAligner
 from immunedb.identification.metadata import (MetadataException,
                                               parse_metadata, REQUIRED_FIELDS)
@@ -94,7 +94,6 @@ class IdentificationProps(object):
             raise AlignmentException('CDR3 too short {}'.format(
                 alignment.cdr3_num_nts))
 
-
 def setup_sample(session, meta):
     study, new = funcs.get_or_create(session, Study, name=meta['study_name'])
 
@@ -107,17 +106,19 @@ def setup_sample(session, meta):
 
     if new:
         subject, new = funcs.get_or_create(
-            session, Subject, study=study,
+            self._session, Subject, study=study,
             identifier=meta['subject'])
         sample.subject = subject
 
+        self.info('\tCreated new sample "{}"'.format(sample.name))
         for key, value in meta.iteritems():
             if key not in REQUIRED_FIELDS:
-                session.add(SampleMetadata(
+                self._session.add(SampleMetadata(
                     sample=sample,
                     key=key,
                     value=value
                 ))
+
 
     session.commit()
     return sample
@@ -143,13 +144,16 @@ def process_vdj(vdj, aligner):
             'reason': str(e)
         }
 
-
-def aggregate_vdj(aggregate_queue):
+def aggregate_vdj(aggregate_queue, alignments_out):
     alignments = {
         'success': {},
         'noresult': []
     }
-    for result in aggregate_queue:
+    while True:
+        try:
+            result = aggregate_queue.get()
+        except Queue.Empty:
+            break
         if result['status'] == 'success':
             alignment = result['alignment']
             seq_key = alignment.sequence.sequence
@@ -165,7 +169,7 @@ def aggregate_vdj(aggregate_queue):
                 'Unexpected error processing sequence {}\n\t{}'.format(
                     result['vdj'].ids[0], result['reason']))
     alignments['success'] = alignments['success'].values()
-    return alignments
+    alignments_out.update(alignments)
 
 
 def process_vties(alignment, aligner, avg_len, avg_mut, props):
@@ -193,12 +197,16 @@ def process_vties(alignment, aligner, avg_len, avg_mut, props):
         }
 
 
-def aggregate_vties(aggregate_queue):
+def aggregate_vties(aggregate_queue, seqs_out):
     bucketed_seqs = {
         'success': {},
         'noresult': []
     }
-    for result in aggregate_queue:
+    while True:
+        try:
+            result = aggregate_queue.get()
+        except Queue.Empty:
+            break
         if result['status'] == 'success':
             alignment = result['alignment']
             bucket_key = (
@@ -207,7 +215,10 @@ def aggregate_vties(aggregate_queue):
                 len(alignment.cdr3)
             )
 
-            bucket = bucketed_seqs['success'].setdefault(bucket_key, {})
+            if bucket_key not in bucketed_seqs['success']:
+                bucketed_seqs['success'][bucket_key] = {}
+            bucket = bucketed_seqs['success'][bucket_key]
+
             if alignment.sequence.sequence in bucket:
                 bucket[alignment.sequence.sequence].sequence.ids += (
                     alignment.sequence.ids
@@ -224,7 +235,7 @@ def aggregate_vties(aggregate_queue):
     bucketed_seqs['success'] = [
         b.values() for b in bucketed_seqs['success'].values()
     ]
-    return bucketed_seqs
+    seqs_out.update(bucketed_seqs)
 
 
 def process_collapse(sequences):
@@ -247,11 +258,15 @@ def process_collapse(sequences):
     return uniques
 
 
-def aggregate_collapse(aggregate_queue, session, sample, props):
-    for alignment in aggregate_queue:
-        for a in alignment:
-            add_as_sequence(session, a, sample,
-                            strip_alleles=not props.genotyping)
+def aggregate_collapse(aggregate_queue, _, session, sample, props):
+    while True:
+        try:
+            alignment = aggregate_queue.get()
+            for a in alignment:
+                add_as_sequence(session, a, sample,
+                                strip_alleles=not props.genotyping)
+        except Queue.Empty:
+            break
     session.commit()
 
 
@@ -289,8 +304,7 @@ def process_sample(session, v_germlines, j_germlines, path, meta, props,
         process_vdj,
         aggregate_vdj,
         nproc,
-        process_args={'aligner': aligner},
-        log_progress=True
+        process_args={'aligner': aligner}
     )
     for result in alignments['noresult']:
         add_as_noresult(session, result['vdj'], sample, result['reason'])
@@ -308,8 +322,8 @@ def process_sample(session, v_germlines, j_germlines, path, meta, props,
         sample.v_ties_len = avg_len
         logger.info('Re-aligning {} sequences to V-ties: Mutations={}, '
                     'Length={}'.format(len(alignments),
-                                       round(avg_mut, 2),
-                                       round(avg_len, 2)))
+                                     round(avg_mut, 2),
+                                     round(avg_len, 2)))
         # Realign to V-ties
         v_ties = concurrent.process_data(
             alignments,
@@ -317,8 +331,7 @@ def process_sample(session, v_germlines, j_germlines, path, meta, props,
             aggregate_vties,
             nproc,
             process_args={'aligner': aligner, 'avg_len': avg_len, 'avg_mut':
-                          avg_mut, 'props': props},
-            log_progress=True
+                          avg_mut, 'props': props}
         )
 
         for result in v_ties['noresult']:
@@ -344,13 +357,12 @@ def process_sample(session, v_germlines, j_germlines, path, meta, props,
         ).filter(
             NoResult.sample == sample
         ).scalar() or 0)
-        logger.info('Completed sample {} - {}/{} ({}%) identified'.format(
+        logger.info('Completed sample {} - {}/{} ({}%) identified)'.format(
             sample.name,
             identified,
             identified + noresults,
             int(100 * identified / float(identified + noresults))
         ))
-
 
 def run_identify(session, args):
     mod_log.make_mod('identification', session=session, commit=True,

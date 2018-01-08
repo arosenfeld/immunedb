@@ -111,34 +111,22 @@ class DataQueue(object):
         for d in data:
             self.put(d)
 
-    def get(self, log_progress=False):
+    def get(self):
         if (not self.size.value and
                 self.num_writers_finished.value == self.num_writers):
             raise Queue.Empty
         with self.size.get_lock():
             self.size.value -= 1
-            if (log_progress and self.size.value > 0 and
-                    self.size.value % 1000 == 0):
-                logger.info('{} remaining'.format(self.size.value))
         return self.queue.get()
 
     def __len__(self):
         return self.size.value
 
-    def __iter__(self):
-        while True:
-            try:
-                v = self.get()
-                yield v
-            except Queue.Empty:
-                break
 
-
-def _process_wrapper(process_func, in_queue, out_queue, log_progress,
-                     **kwargs):
+def _process_wrapper(process_func, in_queue, out_queue, **kwargs):
     while True:
         try:
-            data = in_queue.get(log_progress=log_progress)
+            data = in_queue.get()
             out_queue.put(process_func(data, **kwargs))
         except Queue.Empty:
             break
@@ -154,8 +142,7 @@ def process_data(generate_func_or_iter,
                  nproc,
                  generate_args={},
                  process_args={},
-                 aggregate_args={},
-                 log_progress=False):
+                 aggregate_args={}):
     process_queue = DataQueue(1)
     aggregate_queue = DataQueue(nproc)
     return_value = mp.Manager().dict()
@@ -174,8 +161,14 @@ def process_data(generate_func_or_iter,
     for i in range(nproc):
         mp.Process(
             target=_process_wrapper,
-            args=(process_func, process_queue, aggregate_queue, log_progress),
+            args=(process_func, process_queue, aggregate_queue),
             kwargs=process_args
         ).start()
-
-    return aggregate_func(aggregate_queue, **aggregate_args)
+    aggregate_proc = mp.Process(
+        target=aggregate_func,
+        args=(aggregate_queue, return_value),
+        kwargs=aggregate_args
+    )
+    aggregate_proc.start()
+    aggregate_proc.join()
+    return return_value
