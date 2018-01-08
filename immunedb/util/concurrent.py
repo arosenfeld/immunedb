@@ -111,22 +111,28 @@ class DataQueue(object):
         for d in data:
             self.put(d)
 
-    def get(self):
+    def get(self, log_progress=False):
         if (not self.size.value and
                 self.num_writers_finished.value == self.num_writers):
             raise Queue.Empty
         with self.size.get_lock():
             self.size.value -= 1
+            if (log_progress and self.size.value > 0 and
+                    self.size.value % 1000 == 0):
+                logger.info('{} remaining'.format(self.size.value))
         return self.queue.get()
 
     def __len__(self):
         return self.size.value
 
 
-def _process_wrapper(process_func, in_queue, out_queue, **kwargs):
+def _process_wrapper(process_func, in_queue, out_queue, log_progress,
+                     **kwargs):
+    i = 0
     while True:
         try:
-            data = in_queue.get()
+            data = in_queue.get(log_progress=log_progress)
+            i += 1
             out_queue.put(process_func(data, **kwargs))
         except Queue.Empty:
             break
@@ -142,7 +148,8 @@ def process_data(generate_func_or_iter,
                  nproc,
                  generate_args={},
                  process_args={},
-                 aggregate_args={}):
+                 aggregate_args={},
+                 log_progress=False):
     process_queue = DataQueue(1)
     aggregate_queue = DataQueue(nproc)
     return_value = mp.Manager().dict()
@@ -161,7 +168,7 @@ def process_data(generate_func_or_iter,
     for i in range(nproc):
         mp.Process(
             target=_process_wrapper,
-            args=(process_func, process_queue, aggregate_queue),
+            args=(process_func, process_queue, aggregate_queue, log_progress),
             kwargs=process_args
         ).start()
     aggregate_proc = mp.Process(

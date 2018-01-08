@@ -27,7 +27,7 @@ def check_populated(row):
                 ','.join(missing), row['sample_name']))
 
 
-def parse_metadata(session, fh, warn_existing, path):
+def parse_metadata(session, fh, warn_existing, warn_missing, path):
     reader = csv.DictReader(fh, delimiter='\t')
     provided_fields = set(reader.fieldnames)
     for field in provided_fields:
@@ -75,9 +75,16 @@ def parse_metadata(session, fh, warn_existing, path):
 
         # Check if specified file exists
         if not os.path.isfile(os.path.join(path, row['file_name'])):
-            raise MetadataException(
-                'File {} for sample {} does not exist'.format(
-                    row['file_name'], row['sample_name']))
+            message = (
+                'File {} for sample {} does not exist. {}'.format(
+                row['file_name'], row['sample_name'],
+                'Skipping.' if warn_missing else 'Cannot continue.'
+            ))
+            if warn_missing:
+                logger.warning(message)
+                continue
+            else:
+                raise MetadataException(message)
 
         metadata[row['sample_name']] = row
 

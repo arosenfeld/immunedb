@@ -217,10 +217,7 @@ def aggregate_vties(aggregate_queue, seqs_out):
                 len(alignment.cdr3)
             )
 
-            if bucket_key not in bucketed_seqs['success']:
-                bucketed_seqs['success'][bucket_key] = {}
-            bucket = bucketed_seqs['success'][bucket_key]
-
+            bucket = bucketed_seqs['success'].setdefault(bucket_key, {})
             if alignment.sequence.sequence in bucket:
                 bucket[alignment.sequence.sequence].sequence.ids += (
                     alignment.sequence.ids
@@ -306,7 +303,8 @@ def process_sample(session, v_germlines, j_germlines, path, meta, props,
         process_vdj,
         aggregate_vdj,
         nproc,
-        process_args={'aligner': aligner}
+        process_args={'aligner': aligner},
+        log_progress=True
     )
     for result in alignments['noresult']:
         add_as_noresult(session, result['vdj'], sample, result['reason'])
@@ -333,7 +331,8 @@ def process_sample(session, v_germlines, j_germlines, path, meta, props,
             aggregate_vties,
             nproc,
             process_args={'aligner': aligner, 'avg_len': avg_len, 'avg_mut':
-                          avg_mut, 'props': props}
+                          avg_mut, 'props': props},
+            log_progress=True
         )
 
         for result in v_ties['noresult']:
@@ -391,7 +390,7 @@ def run_identify(session, args):
     with open(meta_fn, 'rU') as fh:
         try:
             metadata = parse_metadata(session, fh, args.warn_existing,
-                                      args.sample_dir)
+                                      args.warn_missing, args.sample_dir)
         except MetadataException as ex:
             logger.error(ex.message)
             sys.exit(-1)

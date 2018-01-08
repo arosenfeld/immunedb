@@ -48,7 +48,7 @@ def get_pos_region(regions, cdr3_len, pos):
 def ord_to_quality(quality):
     if quality is None:
         return None
-    return ''.join(map(lambda q: ' ' if q is None else chr(q + 33), quality))
+    return ''.join([' ' if q is None else chr(q + 33) for q in quality])
 
 
 def periodic_commit(session, query, interval=10):
