@@ -77,8 +77,9 @@ def parse_metadata(session, fh, warn_existing, warn_missing, path):
         if not os.path.isfile(os.path.join(path, row['file_name'])):
             message = (
                 'File {} for sample {} does not exist. {}'.format(
-                    row['file_name'], row['sample_name'],
-                    'Skipping.' if warn_missing else 'Cannot continue.'))
+                row['file_name'], row['sample_name'],
+                'Skipping.' if warn_missing else 'Cannot continue.'
+            ))
             if warn_missing:
                 logger.warning(message)
                 continue
