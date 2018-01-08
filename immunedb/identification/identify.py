@@ -1,13 +1,19 @@
+from collections import OrderedDict
 import multiprocessing as mp
 import os
 import sys
 import traceback
+from sqlalchemy import func
+import Queue
 
 from Bio import SeqIO
 
+import dnautils
+
 import immunedb.common.config as config
 import immunedb.common.modification_log as mod_log
-from immunedb.common.models import Sample, SampleMetadata, Study, Subject
+from immunedb.common.models import (Sample, SampleMetadata, NoResult, Study,
+                                    Subject)
 from immunedb.identification import (add_as_noresult, add_uniques,
                                      AlignmentException)
 from immunedb.identification.anchor import AnchorAligner
@@ -88,124 +94,275 @@ class IdentificationProps(object):
             raise AlignmentException('CDR3 too short {}'.format(
                 alignment.cdr3_num_nts))
 
+def setup_sample(session, meta):
+    study, new = funcs.get_or_create(session, Study, name=meta['study_name'])
 
-class IdentificationWorker(concurrent.Worker):
-    def __init__(self, session, v_germlines, j_germlines, props, sync_lock):
-        self._session = session
-        self._v_germlines = v_germlines
-        self._j_germlines = j_germlines
-        self._props = props
-        self._sync_lock = sync_lock
+    if new:
+        logger.info('Created new study "{}"'.format(study.name))
+        session.commit()
 
-    def do_task(self, args):
-        meta = args['meta']
-        self.info('Starting sample {}'.format(meta['sample_name']))
-        study, sample = self._setup_sample(meta)
+    name = meta['sample_name']
+    sample, new = funcs.get_or_create(session, Sample, name=name, study=study)
 
-        vdjs = {}
-        parser = SeqIO.parse(args['path'], 'fasta' if
-                             args['path'].endswith('.fasta') else 'fastq')
+    if new:
+        subject, new = funcs.get_or_create(
+            self._session, Subject, study=study,
+            identifier=meta['subject'])
+        sample.subject = subject
 
-        # Collapse identical sequences
-        self.info('\tCollapsing identical sequences')
-        for record in parser:
-            try:
-                seq = str(record.seq)
-                if seq not in vdjs:
-                    vdjs[seq] = VDJSequence(
-                        ids=[],
-                        sequence=seq,
-                        quality=funcs.ord_to_quality(
-                            record.letter_annotations.get('phred_quality')
-                        )
-                    )
-                vdjs[seq].ids.append(record.description)
-            except ValueError:
-                continue
+        self.info('\tCreated new sample "{}"'.format(sample.name))
+        for key, value in meta.iteritems():
+            if key not in REQUIRED_FIELDS:
+                self._session.add(SampleMetadata(
+                    sample=sample,
+                    key=key,
+                    value=value
+                ))
 
-        alignments = {}
-        aligner = AnchorAligner(self._v_germlines, self._j_germlines)
-        self.info('\tAligning {} unique sequences'.format(len(vdjs)))
-        # Attempt to align all unique sequences
-        for sequence in funcs.periodic_commit(self._session,
-                                              sorted(vdjs.keys())):
-            vdj = vdjs[sequence]
-            del vdjs[sequence]
-            try:
-                # The alignment was successful.  If the aligned sequence
-                # already exists, append the seq_ids.  Otherwise add it as a
-                # new unique sequence.
-                alignment = aligner.get_alignment(vdj)
-                seq_key = alignment.sequence.sequence
-                if seq_key in alignments:
-                    alignments[seq_key].sequence.ids.extend(
-                        alignment.sequence.ids)
-                else:
-                    alignments[seq_key] = alignment
-            except AlignmentException as e:
-                add_as_noresult(self._session, vdj, sample, str(e))
-            except Exception:
-                self.error(
-                    '\tUnexpected error processing sequence {}\n\t{}'.format(
-                        vdj.ids[0], traceback.format_exc()))
-        if len(alignments) > 0:
-            avg_len = (
-                sum([v.v_length for v in alignments.values()]) /
-                float(len(alignments)))
-            avg_mut = (
-                sum([v.v_mutation_fraction for v in alignments.values()]) /
-                float(len(alignments))
+
+    session.commit()
+    return sample
+
+
+def process_vdj(vdj, aligner):
+    try:
+        alignment = aligner.get_alignment(vdj)
+        return {
+            'status': 'success',
+            'alignment': alignment
+        }
+    except AlignmentException as e:
+        return {
+            'status': 'noresult',
+            'vdj': vdj,
+            'reason': str(e)
+        }
+    except Exception as e:
+        return {
+            'status': 'error',
+            'vdj': vdj,
+            'reason': str(e)
+        }
+
+def aggregate_vdj(aggregate_queue, alignments_out):
+    alignments = {
+        'success': {},
+        'noresult': []
+    }
+    while True:
+        try:
+            result = aggregate_queue.get()
+        except Queue.Empty:
+            break
+        if result['status'] == 'success':
+            alignment = result['alignment']
+            seq_key = alignment.sequence.sequence
+            if seq_key in alignments['success']:
+                alignments['success'][seq_key].sequence.ids.extend(
+                    alignment.sequence.ids)
+            else:
+                alignments['success'][seq_key] = alignment
+        elif result['status'] == 'noresult':
+            alignments['noresult'].append(result)
+        elif result['status'] == 'error':
+            logger.error(
+                'Unexpected error processing sequence {}\n\t{}'.format(
+                    result['vdj'].ids[0], result['reason']))
+    alignments['success'] = alignments['success'].values()
+    alignments_out.update(alignments)
+
+
+def process_vties(alignment, aligner, avg_len, avg_mut, props):
+    try:
+        aligner.align_to_germline(alignment, avg_len, avg_mut)
+        if props.trim_to:
+            alignment.trim_to(props.trim_to)
+
+        props.validate(alignment)
+        return {
+            'status': 'success',
+            'alignment': alignment
+        }
+    except AlignmentException as e:
+        return {
+            'status': 'noresult',
+            'alignment': alignment,
+            'reason': str(e)
+        }
+    except Exception as e:
+        return {
+            'status': 'error',
+            'alignment': alignment,
+            'reason': str(e)
+        }
+
+
+def aggregate_vties(aggregate_queue, seqs_out):
+    bucketed_seqs = {
+        'success': {},
+        'noresult': []
+    }
+    while True:
+        try:
+            result = aggregate_queue.get()
+        except Queue.Empty:
+            break
+        if result['status'] == 'success':
+            alignment = result['alignment']
+            bucket_key = (
+                funcs.format_ties(alignment.v_gene),
+                funcs.format_ties(alignment.j_gene),
+                len(alignment.cdr3)
             )
-            sample.v_ties_mutations = avg_mut
-            sample.v_ties_len = avg_len
 
-            self.info('\tRe-aligning {} sequences to V-ties, Mutations={}, '
-                      'Length={}'.format(len(alignments),
-                                         round(avg_mut, 2),
-                                         round(avg_len, 2)))
-            add_uniques(self._session, sample, alignments.values(),
-                        self._props, aligner, avg_len, avg_mut)
+            if bucket_key not in bucketed_seqs['success']:
+                bucketed_seqs['success'][bucket_key] = {}
+            bucket = bucketed_seqs['success'][bucket_key]
 
-        self._session.commit()
-        self.info('Completed sample {}'.format(sample.name))
+            if alignment.sequence.sequence in bucket:
+                bucket[alignment.sequence.sequence].sequence.ids += (
+                    alignment.sequence.ids
+                )
+            else:
+                bucket[alignment.sequence.sequence] = alignment
+        elif result['status'] == 'noresult':
+            bucketed_seqs['noresult'].append(result)
+        elif result['status'] == 'error':
+            logger.error(
+                'Unexpected error processing sequence {}\n\t{}'.format(
+                    result['alignment'].sequence.ids[0]))
 
-    def cleanup(self):
-        self.info('Identification worker terminating')
-        self._session.close()
+    bucketed_seqs['success'] = [
+        b.values() for b in bucketed_seqs['success'].values()
+    ]
+    seqs_out.update(bucketed_seqs)
 
-    def _setup_sample(self, meta):
-        self._sync_lock.acquire()
-        self._session.commit()
-        study, new = funcs.get_or_create(
-            self._session, Study, name=meta['study_name'])
 
-        if new:
-            self.info('\tCreated new study "{}"'.format(study.name))
-            self._session.commit()
+def process_collapse(sequences):
+    sequences = sorted(
+        sequences,
+        key=lambda s: (len(s.sequence.ids), s.sequence.ids[0]),
+        reverse=True
+    )
+    uniques = []
+    while len(sequences) > 0:
+        larger = sequences.pop(0)
+        for i in reversed(range(len(sequences))):
+            smaller = sequences[i]
 
-        name = meta['sample_name']
-        sample, new = funcs.get_or_create(self._session, Sample, name=name,
-                                          study=study)
-        if new:
-            subject, new = funcs.get_or_create(
-                self._session, Subject, study=study,
-                identifier=meta['subject'])
-            sample.subject = subject
+            if dnautils.equal(larger.sequence.sequence,
+                              smaller.sequence.sequence):
+                larger.sequence.ids += smaller.sequence.ids
+                del sequences[i]
+        uniques.append(larger)
+    return uniques
 
-            self.info('\tCreated new sample "{}"'.format(sample.name))
-            for key, value in meta.iteritems():
-                if key not in REQUIRED_FIELDS:
-                    self._session.add(SampleMetadata(
-                        sample=sample,
-                        key=key,
-                        value=value
-                    ))
 
-        self._session.commit()
-        self._sync_lock.release()
+def aggregate_collapse(aggregate_queue, _, session, sample, props):
+    while True:
+        try:
+            alignment = aggregate_queue.get()
+            for a in alignment:
+                add_as_sequence(session, a, sample,
+                                strip_alleles=not props.genotyping)
+        except Queue.Empty:
+            break
+    session.commit()
 
-        return study, sample
 
+def process_sample(session, v_germlines, j_germlines, path, meta, props,
+                   nproc):
+    logger.info('Starting sample {}'.format(meta['sample_name']))
+    sample = setup_sample(session, meta)
+
+    vdjs = {}
+    parser = SeqIO.parse(path, 'fasta' if path.endswith('.fasta') else 'fastq')
+
+    # Collapse identical sequences
+    logger.info('Collapsing identical sequences')
+    for record in parser:
+        try:
+            seq = str(record.seq)
+            if seq not in vdjs:
+                vdjs[seq] = VDJSequence(
+                    ids=[],
+                    sequence=seq,
+                    quality=funcs.ord_to_quality(
+                        record.letter_annotations.get('phred_quality')
+                    )
+                )
+            vdjs[seq].ids.append(record.description)
+        except ValueError:
+            continue
+
+    logger.info('Aligning {} unique sequences'.format(len(vdjs)))
+    aligner = AnchorAligner(v_germlines, j_germlines)
+
+    # Initial VJ assignment
+    alignments = concurrent.process_data(
+        vdjs.values(),
+        process_vdj,
+        aggregate_vdj,
+        nproc,
+        process_args={'aligner': aligner}
+    )
+    for result in alignments['noresult']:
+        add_as_noresult(session, result['vdj'], sample, result['reason'])
+
+    alignments = alignments['success']
+    if alignments:
+        avg_len = (
+            sum([v.v_length for v in alignments]) /
+            float(len(alignments)))
+        avg_mut = (
+            sum([v.v_mutation_fraction for v in alignments]) /
+            float(len(alignments))
+        )
+        sample.v_ties_mutations = avg_mut
+        sample.v_ties_len = avg_len
+        logger.info('Re-aligning {} sequences to V-ties: Mutations={}, '
+                    'Length={}'.format(len(alignments),
+                                     round(avg_mut, 2),
+                                     round(avg_len, 2)))
+        # Realign to V-ties
+        v_ties = concurrent.process_data(
+            alignments,
+            process_vties,
+            aggregate_vties,
+            nproc,
+            process_args={'aligner': aligner, 'avg_len': avg_len, 'avg_mut':
+                          avg_mut, 'props': props}
+        )
+
+        for result in v_ties['noresult']:
+            add_as_noresult(session, result['alignment'].sequence,
+                            sample, result['reason'])
+
+        concurrent.process_data(
+            v_ties['success'],
+            process_collapse,
+            aggregate_collapse,
+            nproc,
+            aggregate_args={'session': session, 'sample': sample,
+                            'props': props}
+        )
+
+        identified = int(session.query(
+            func.sum(Sequence.copy_number)
+        ).filter(
+            Sequence.sample == sample
+        ).scalar() or 0)
+        noresults = int(session.query(
+            func.count(NoResult.pk)
+        ).filter(
+            NoResult.sample == sample
+        ).scalar() or 0)
+        logger.info('Completed sample {} - {}/{} ({}%) identified)'.format(
+            sample.name,
+            identified,
+            identified + noresults,
+            int(100 * identified / float(identified + noresults))
+        ))
 
 def run_identify(session, args):
     mod_log.make_mod('identification', session=session, commit=True,
@@ -237,18 +394,15 @@ def run_identify(session, args):
             sys.exit(-1)
 
     # Create the tasks for each file
-    for sample_name in sorted(metadata.keys()):
-        tasks.add_task({
-            'path': os.path.join(
-                args.sample_dir, metadata[sample_name]['file_name']),
-            'meta': metadata[sample_name]
-        })
-
     props = IdentificationProps(**args.__dict__)
-    lock = mp.Lock()
-    for i in range(0, min(args.nproc, tasks.num_tasks())):
-        worker_session = config.init_db(args.db_config)
-        tasks.add_worker(IdentificationWorker(worker_session, v_germlines,
-                                              j_germlines, props, lock))
-
-    tasks.start()
+    for sample_name in sorted(metadata.keys()):
+        process_sample(
+            session, v_germlines, j_germlines,
+            os.path.join(
+                args.sample_dir,
+                metadata[sample_name]['file_name']
+            ),
+            metadata[sample_name],
+            props,
+            args.nproc
+        )

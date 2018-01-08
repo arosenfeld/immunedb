@@ -30,9 +30,8 @@ def get_base_arg_parser(desc='', multiproc=True, **kwargs):
             num_cpu = mp.cpu_count()
         except NotImplementedError:
             num_cpu = 4
-        parser.add_argument('--nproc', default=num_cpu, type=int, help='Number'
-                            ' of subprocesses to run ' '(Default: {})'.format(
-                                num_cpu))
+        parser.add_argument('--nproc', default=num_cpu, type=int,
+                            help='Number of subprocesses to run')
 
     return parser
 
