@@ -129,6 +129,13 @@ class BaseTest(object):
                 ('value',)
             )
 
+            self.regression(
+                self.get_path('post_identification_dups.json'),
+                self.session.query(DuplicateSequence),
+                'seq_id',
+                ('duplicate_seq_ai',)
+            )
+
         def local_align(self):
             run_fix_sequences(
                 self.session,

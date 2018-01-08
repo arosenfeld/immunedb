@@ -94,6 +94,7 @@ class IdentificationProps(object):
             raise AlignmentException('CDR3 too short {}'.format(
                 alignment.cdr3_num_nts))
 
+
 def setup_sample(session, meta):
     study, new = funcs.get_or_create(session, Study, name=meta['study_name'])
 
@@ -143,6 +144,7 @@ def process_vdj(vdj, aligner):
             'vdj': vdj,
             'reason': str(e)
         }
+
 
 def aggregate_vdj(aggregate_queue, alignments_out):
     alignments = {
@@ -322,8 +324,8 @@ def process_sample(session, v_germlines, j_germlines, path, meta, props,
         sample.v_ties_len = avg_len
         logger.info('Re-aligning {} sequences to V-ties: Mutations={}, '
                     'Length={}'.format(len(alignments),
-                                     round(avg_mut, 2),
-                                     round(avg_len, 2)))
+                                       round(avg_mut, 2),
+                                       round(avg_len, 2)))
         # Realign to V-ties
         v_ties = concurrent.process_data(
             alignments,
@@ -357,12 +359,13 @@ def process_sample(session, v_germlines, j_germlines, path, meta, props,
         ).filter(
             NoResult.sample == sample
         ).scalar() or 0)
-        logger.info('Completed sample {} - {}/{} ({}%) identified)'.format(
+        logger.info('Completed sample {} - {}/{} ({}%) identified'.format(
             sample.name,
             identified,
             identified + noresults,
             int(100 * identified / float(identified + noresults))
         ))
+
 
 def run_identify(session, args):
     mod_log.make_mod('identification', session=session, commit=True,
