@@ -49,7 +49,7 @@ class ExportTest(unittest.TestCase):
                 'fields':
                 ','.join(sorted(
                     set(CloneExport.allowed_fields.keys()) -
-                    set([1])))
+                    set(['tree'])))
             })
 
     def test_mutations(self):
