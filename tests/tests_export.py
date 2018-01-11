@@ -46,7 +46,10 @@ class ExportTest(unittest.TestCase):
         self.check(
             'clones.csv',
             '/export/clones/sample/T2', data={
-                'fields': ','.join(sorted(CloneExport.allowed_fields.keys()))
+                'fields':
+                ','.join(sorted(
+                    set(CloneExport.allowed_fields.keys()) -
+                    set([1])))
             })
 
     def test_mutations(self):

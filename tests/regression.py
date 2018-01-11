@@ -13,6 +13,9 @@ from immunedb.aggregation.collapse import run_collapse
 from immunedb.aggregation.clone_stats import run_clone_stats
 from immunedb.aggregation.sample_stats import run_sample_stats
 from immunedb.common.baseline import run_selection_pressure
+from immunedb.trees.clearcut import run_clearcut
+
+from .trees import tree_compare
 
 
 DB_NAME = 'test_db'
@@ -49,7 +52,7 @@ class BaseTest(object):
                 json.dump(data, fh, sort_keys=True, indent=4,
                           separators=(',', ': '))
 
-        def regression(self, path, query, key, fields):
+        def regression(self, path, query, key, fields, comp=None):
             if os.getenv('GENERATE'):
                 self.generate(path, query, key, fields)
             print 'Regression testing {}'.format(path)
@@ -62,7 +65,7 @@ class BaseTest(object):
                 self.assertIn(agg_key, checks, '{} is in result but not in '
                               'checks for {}'.format(agg_key, path))
                 for fld, value in checks[agg_key].iteritems():
-                    self.assertEqual(
+                    (comp or self.assertEqual)(
                         getattr(record, fld),
                         value,
                         self.err(path, key, self.get_key(record, key), fld,
@@ -96,6 +99,7 @@ class BaseTest(object):
             self.clones()
             self.clone_stats()
             self.sample_stats()
+            self.trees()
             self.selection()
 
         def initial_regression(self):
@@ -266,12 +270,42 @@ class BaseTest(object):
                  'no_result_cnt')
             )
 
+        def trees(self):
+            clearcut_path = os.environ.get('CLEARCUT_PATH')
+            if not clearcut_path:
+                print 'Clearcut path not set.  Skipping tree tests.'
+                return
+
+            run_clearcut(
+                self.session,
+                NamespaceMimic(
+                    clearcut_path=clearcut_path,
+                    force=False,
+                    clone_ids=None,
+                    subject_ids=None,
+                    temp='/tmp',
+                    min_count=1,
+                    min_seq_copies=0,
+                    min_samples=1,
+                    exclude_stops=False
+                )
+            )
+            self.session.commit()
+
+            self.regression(
+                self.get_path('trees.json'),
+                self.session.query(Clone),
+                'id',
+                ('tree',),
+                comp=tree_compare
+            )
+
         def selection(self):
             baseline_path = os.environ.get('BASELINE_PATH')
 
             if not baseline_path:
-                print '''Baseline path not set.  Skipping selection pressure
-                         tests.'''
+                print ('Baseline path not set.  Skipping selection pressure '
+                       'tests.')
                 return
             run_selection_pressure(
                 self.session,
@@ -292,10 +326,10 @@ class BaseTest(object):
                 self.session.query(SelectionPressure),
                 ('clone_id', 'sample_id', 'threshold'),
                 ('expected_fwr_s', 'expected_cdr_s', 'expected_fwr_r',
-                'expected_cdr_r', 'observed_fwr_s', 'observed_cdr_s',
-                'observed_fwr_r', 'observed_cdr_r', 'sigma_fwr', 'sigma_cdr',
-                'sigma_fwr_cilower', 'sigma_fwr_ciupper', 'sigma_cdr_cilower',
-                'sigma_cdr_ciupper', 'sigma_p_fwr', 'sigma_p_cdr')
+                 'expected_cdr_r', 'observed_fwr_s', 'observed_cdr_s',
+                 'observed_fwr_r', 'observed_cdr_r', 'sigma_fwr', 'sigma_cdr',
+                 'sigma_fwr_cilower', 'sigma_fwr_ciupper', 'sigma_cdr_cilower',
+                 'sigma_cdr_ciupper', 'sigma_p_fwr', 'sigma_p_cdr')
             )
 
 
