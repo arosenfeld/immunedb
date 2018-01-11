@@ -12,10 +12,10 @@ import dnautils
 
 import immunedb.common.config as config
 import immunedb.common.modification_log as mod_log
-from immunedb.common.models import (Sample, SampleMetadata, NoResult, Study,
-                                    Subject)
-from immunedb.identification import (add_as_noresult, add_uniques,
-                                     AlignmentException)
+from immunedb.common.models import (Sample, SampleMetadata, Sequence, NoResult,
+                                    Study, Subject)
+from immunedb.identification import (add_as_noresult, add_as_sequence,
+                                     add_uniques, AlignmentException)
 from immunedb.identification.anchor import AnchorAligner
 from immunedb.identification.metadata import (MetadataException,
                                               parse_metadata, REQUIRED_FIELDS)
@@ -107,19 +107,17 @@ def setup_sample(session, meta):
 
     if new:
         subject, new = funcs.get_or_create(
-            self._session, Subject, study=study,
+            session, Subject, study=study,
             identifier=meta['subject'])
         sample.subject = subject
 
-        self.info('\tCreated new sample "{}"'.format(sample.name))
         for key, value in meta.iteritems():
             if key not in REQUIRED_FIELDS:
-                self._session.add(SampleMetadata(
+                session.add(SampleMetadata(
                     sample=sample,
                     key=key,
                     value=value
                 ))
-
 
     session.commit()
     return sample
