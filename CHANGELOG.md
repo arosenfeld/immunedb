@@ -1,5 +1,7 @@
 # CHANGELOG
 ## v0.22.0
+* Arbitary fields can be specified in metadata files.  The only required fields
+  are now `file_name`, `study_name`, `sample_name`, and `subject`.
 * Clones correctly filtered when functionality is not stipulated.
 * Sequences that comprise trees can now be filtered by their copy number using
   `--min-seq-copies`.
@@ -15,7 +17,6 @@
   `immunedb_identify`.  See the docs for more instructions.
 * Selection pressure is now stored in a separate table for easier querying.
 * Optional baseline regression tests added.
-* A `timepoint` field has been added to the `Samples` model.
 * Tree node features with no values are now excluded.
 
 ## v0.21.0
