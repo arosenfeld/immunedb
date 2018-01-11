@@ -4,7 +4,7 @@ import csv
 import os
 import sys
 
-from immunedb.identification.metadata import OPTIONAL_FIELDS, REQUIRED_FIELDS
+from immunedb.identification.metadata import COMMON_FIELDS, REQUIRED_FIELDS
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('Generates a template metadata file')
@@ -17,6 +17,9 @@ if __name__ == '__main__':
                         'filename without the .fasta or .fastq extension '
                         '(e.g. sample1.fasta would be given the sample name '
                         'sample1)')
+    parser.add_argument('--include-common', action='store_true',
+                        help='''Includes additional common metadata fields:
+                        {}'''.format(','.join(COMMON_FIELDS)))
     args = parser.parse_args()
 
     files = [os.path.basename(f) for f in os.listdir(args.path)
@@ -25,9 +28,12 @@ if __name__ == '__main__':
         parser.error('No FASTA or FASTQ files.')
 
     with sys.stdout if args.out == '-' else open(args.out, 'w+') as fh:
+        fieldnames = REQUIRED_FIELDS
+        if args.include_common:
+            fieldnames += COMMON_FIELDS
         writer = csv.DictWriter(
             fh,
-            fieldnames=REQUIRED_FIELDS + OPTIONAL_FIELDS,
+            fieldnames=fieldnames,
             delimiter='\t')
 
         writer.writeheader()

@@ -69,29 +69,14 @@ characters, when applicable, is shown in parenthesis):
 
 - ``sample_name`` (128): The name of the sample.
 - ``study_name`` (128): The name of study the sample belongs to.
-- ``date``: The date the sample was acquired in YYYY-MM-DD format.
 - ``subject`` (64): A unique identifier for the subject.  This must be unique to
   the entire ImmuneDB instance as they are not contextual to the study.  Therefore
   if two studies use the same identifier for different subjects, they must be
   given new distinct identifiers.
 
-The following are **optional** for each file:
-
-- ``subset`` (128): The subset of the sample (e.g. Plasmablast, CD19+).  If none is
-  specified, the field will be left blank.
-- ``tissue`` (32): The tissue of the sample (e.g. Lung, Spleen).  If none is
-  specified, the field will be left blank.
-- ``timepoint`` (32): An arbitrary string for the timepoint of the sample (e.g.
-  Day 14).
-- ``ig_class`` (8): The isotype of the sample (e.g. IgE).
-- ``disease`` (32): Any disease(s) present in the subject when the sample was taken
-  (e.g. Lupus).  If none is specified, the field will be left blank.
-- ``lab`` (128): The name of the lab sequencing the sample. If none is specified, the
-  field will be left blank.
-- ``experimenter`` (128): The individual who sequenced the sample. If none is
-  specified, the field will be left blank.
-- ``v_primer`` (32): An arbitrary string indicating the V-gene primer used.
-- ``j_primer`` (32): An arbitrary string indicating the J-gene primer used.
+Any other fields can be added to the metadata and they will be associated with
+the appropriate samples.  Custom fields **must** only contain letters, numbers,
+and underscores, and must begin with a letter.
 
 This information is specified in a ``metadata.tsv`` file which must be placed in
 the same directory as the FASTA files.  A template for this file can be
@@ -102,19 +87,23 @@ while in the same directory:
 
 .. code-block:: bash
 
-    $ immunedb_metadata
+    $ immunedb_metadata --use-filenames --include-common
+
+Passing ``--use-filenames`` will automatically populate the ``sample_name``
+field with the name of each file trimmed of its extension.  The
+``--include-common`` flag will include some commonly used fields.
 
 
 The following is an example of such a metadata file with some information filled
 in:
 
-======================== ============ ============ ========== ======= ====== ======= ======= ======== ================= ======== ======== ========
-file_name                study_name   sample_name  date       subject subset tissue  disease lab      experimenter      ig_class v_primer j_primer
-======================== ============ ============ ========== ======= ====== ======= ======= ======== ================= ======== ======== ========
-subjectD001_spleen.fasta B-cell Study D001_SPL     2015-09-13 D001    Naive  Spleen          Some lab Mr. Experimenter           Leader   J mix
-subjectD002_blood.fasta  B-cell Study D002_BL      2015-09-14 D002    Naive  Blood           Some lab Mrs. Experimenter          Leader   J mix
-subjectD002_liver.fasta  B-cell Study D002_Liver   2015-09-15 D003    Mature Liver           Some lab Mrs. Experimenter          FW1      J mix
-======================== ============ ============ ========== ======= ====== ======= ======= ======== ================= ======== ======== ========
+======================== ============ ================= ========== ========== ======= ======= ======= ======== ================= ======== ======== ========
+file_name                study_name   sample_name       subject    date       subset  tissue  disease lab      experimenter      ig_class v_primer j_primer
+======================== ============ ================= ========== ========== ======= ======= ======= ======== ================= ======== ======== ========
+subjectD001_SPL.fasta    B-cell Study subjectD001_SPL   D001       2015-09-13  Naive  Spleen          Some lab Mr. Experimenter           Leader   J mix
+subjectD002_BL.fasta     B-cell Study subjectD002_BL    D002       2015-09-14  Naive  Blood           Some lab Mrs. Experimenter          Leader   J mix
+subjectD002_Liver.fasta  B-cell Study subjectD002_Liver D003       2015-09-15  Mature Liver           Some lab Mrs. Experimenter          FW1      J mix
+======================== ============ ================= ========== ========== ======= ======= ======= ======== ================= ======== ======== ========
 
 .. warning::
     The values ``NA``, ``N/A``, ``NULL``, and ``None`` (case-insensitive) will
