@@ -1,7 +1,8 @@
 import csv
 import re
 
-from immunedb.common.models import NoResult, Sample, Study, Subject
+from immunedb.common.models import (NoResult, Sample, SampleMetadata, Study,
+                                    Subject)
 from immunedb.identification import (add_as_noresult, add_uniques,
                                      AlignmentException)
 from immunedb.identification.anchor import AnchorAligner
@@ -141,9 +142,12 @@ def run_import(session, args, remaps=None):
     if new:
         sample.date = args.date
         logger.info('Created new sample "{}"'.format(sample.name))
-        for key in ('subset', 'tissue', 'disease', 'lab', 'experimenter',
-                    'ig_class', 'v_primer', 'j_primer'):
-            setattr(sample, key, vars(args).get(key, None))
+        for meta in args.meta:
+            key, value = meta.split('=', 1)
+            session.add(SampleMetadata(
+                sample=sample,
+                key=key,
+                value=value))
         subject, new = funcs.get_or_create(
             session, Subject, study=study,
             identifier=args.subject)

@@ -7,9 +7,9 @@ from sqlalchemy.sql import exists
 from immunedb.common.models import Sample, Sequence
 from immunedb.util.log import logger
 
-REQUIRED_FIELDS = ('file_name', 'study_name', 'sample_name', 'date', 'subject')
-OPTIONAL_FIELDS = ('subset', 'tissue', 'disease', 'lab', 'experimenter',
-                   'ig_class', 'timepoint', 'v_primer', 'j_primer')
+REQUIRED_FIELDS = ('file_name', 'study_name', 'sample_name', 'subject')
+COMMON_FIELDS = ('date', 'subset', 'tissue', 'disease', 'lab', 'experimenter',
+                 'ig_class', 'timepoint', 'v_primer', 'j_primer')
 NA_VALUES = ('na', 'n/a', 'null', 'none')
 
 
@@ -30,16 +30,18 @@ def check_populated(row):
 def parse_metadata(session, fh, warn_existing, path):
     reader = csv.DictReader(fh, delimiter='\t')
     provided_fields = set(reader.fieldnames)
+    for field in provided_fields:
+        if not re.match('^[a-z][a-z0-9_]*$', field):
+            raise MetadataException(
+                'Metadata headers must only contain numbers, letters, and '
+                'underscores, and cannot start with a number: {}'.format(field)
+            )
+
     missing_fields = set(REQUIRED_FIELDS) - provided_fields
     if len(missing_fields) > 0:
         raise MetadataException(
             'Metadata is missing the following headers: {}'.format(
                 ','.join(missing_fields)))
-    unknown_fields = provided_fields - (
-        set(REQUIRED_FIELDS).union(set(OPTIONAL_FIELDS)))
-    if len(unknown_fields) > 0:
-        logger.warning('Ignoring unknown headers in metadata: {}'.format(
-            ','.join(unknown_fields)))
 
     metadata = {}
     for row in reader:
@@ -53,8 +55,6 @@ def parse_metadata(session, fh, warn_existing, path):
             raise MetadataException(
                 'Duplicate sample name {} in metadata.'.format(
                     row['sample_name']))
-        if not re.match('\d{4}-\d{2}-\d{2}', row['date']):
-            raise MetadataException('Date must be in YYYY-MM-DD format')
 
         # Check if a sample with the same name is in the database
         sample_in_db = session.query(Sample).filter(

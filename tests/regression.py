@@ -4,8 +4,8 @@ import unittest
 
 import immunedb.common.config as config
 from immunedb.common.models import (Clone, CloneStats, DuplicateSequence,
-                                    NoResult, Sample, SampleStats,
-                                    SelectionPressure, Sequence,
+                                    NoResult, Sample, SampleMetadata,
+                                    SampleStats, SelectionPressure, Sequence,
                                     SequenceCollapse)
 from immunedb.identification.local_align import run_fix_sequences
 from immunedb.aggregation.clones import run_clones
@@ -115,9 +115,14 @@ class BaseTest(object):
                 self.get_path('post_identification_samples.json'),
                 self.session.query(Sample),
                 'id',
-                ('name', 'subject_id', 'subset', 'tissue', 'ig_class',
-                    'timepoint', 'disease', 'lab', 'experimenter', 'v_primer',
-                    'j_primer', 'v_ties_mutations', 'v_ties_len')
+                ('name', 'v_ties_mutations', 'v_ties_len')
+            )
+
+            self.regression(
+                self.get_path('post_identification_sample_metadata.json'),
+                self.session.query(SampleMetadata),
+                ('sample_id', 'key'),
+                ('value',)
             )
 
         def local_align(self):

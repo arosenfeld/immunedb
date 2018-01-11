@@ -59,8 +59,8 @@ def with_session(f):
         session = scoped_session(app.config['session_maker'])()
         try:
             return f(session, *args, **kwargs)
-        except Exception as e:
-            raise e
+        except Exception:
+            raise
         finally:
             session.close()
 

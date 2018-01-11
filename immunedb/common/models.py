@@ -75,13 +75,11 @@ class Subject(Base):
 
 
 class Sample(Base):
-    """A sample taken from a single subject, tissue, and subset.
+    """A sample of sequences.
 
     :param int id: An auto-assigned unique identifier for the sample
     :param str name: A unique name for the sample as defined by the \
         experimenter
-    :param str info: Optional information about the sample
-    :param date date: The date the sample was taken
 
     :param int study_id: The ID of the study under which the subject was \
         sampled
@@ -94,15 +92,6 @@ class Sample(Base):
         :py:class:`Subject` instance
 
 
-    :param str subset: The tissue subset of the sample
-    :param str tissue: The tissue of the sample
-    :param str ig_class: The class of cells of the sample (e.g. IgA)
-    :param str timepoint: The timepoint of the sample. Can be arbitrary text
-    :param str disease: The known disease(s) present in the sample
-    :param str lab: The lab which acquired the sample
-    :param str experimenter: The experimenters name who took the sample
-    :param str v_primer: A description of the V gene primer used (if any)
-    :param str j_primer: A description of the J gene primer used (if any)
     :param float v_ties_mutations: Average mutation rate of sequences in the \
         sample
     :param float v_ties_len: Average length of sequences in the sample
@@ -113,32 +102,34 @@ class Sample(Base):
 
     id = Column(Integer, primary_key=True)
     name = Column(String(128), unique=True)
-    info = Column(String(1024))
-
-    date = Column(Date, nullable=False)
 
     study_id = Column(Integer, ForeignKey(Study.id))
-    study = relationship(Study, backref=backref('samples', order_by=(date,
-                                                name)))
+    study = relationship(Study, backref=backref('samples', order_by=name))
 
     subject_id = Column(Integer, ForeignKey(Subject.id), index=True)
     subject = relationship(Subject, backref=backref('samples',
                            order_by=(id)))
 
-    subset = Column(String(128))
-    tissue = Column(String(32))
-    ig_class = Column(String(8))
-
-    timepoint = Column(String(32))
-    disease = Column(String(32))
-    lab = Column(String(128))
-    experimenter = Column(String(128))
-
-    v_primer = Column(String(32))
-    j_primer = Column(String(32))
-
     v_ties_mutations = Column(Float)
     v_ties_len = Column(Float)
+
+    @property
+    def metadata_dict(self):
+        return {m.key: m.value for m in self.metadata_models}
+
+
+class SampleMetadata(Base):
+    __tablename__ = 'sample_metadata'
+    __table_args__ = {'mysql_row_format': 'DYNAMIC'}
+
+    sample_id = Column(Integer, ForeignKey(Sample.id), primary_key=True,
+                       nullable=False)
+    sample = relationship(Sample, backref=backref('metadata_models',
+                          order_by=sample_id))
+
+    key = Column(String(length=32), primary_key=True, index=True,
+                 nullable=False)
+    value = Column(String(length=64), index=True)
 
 
 class SampleStats(Base):

@@ -13,14 +13,13 @@
         "partial": false,
         "probable_indel_or_misalign": false,
         "sample": {
-            "date": "2015-09-13",
-            "disease": null,
-            "experimenter": "Someone",
             "id": 1,
-            "ig_class": null,
-            "info": null,
-            "j_primer": null,
-            "lab": "The Lab",
+            "metadata": {
+                "date": "2015-09-13",
+                "experimenter": "Someone",
+                "lab": "The Lab",
+                "tissue": "Colon"
+            },
             "name": "input",
             "subject": {
                 "id": 1,
@@ -29,11 +28,7 @@
                     "id": 1,
                     "name": "Test Study"
                 }
-            },
-            "subset": null,
-            "timepoint": null,
-            "tissue": "Colon",
-            "v_primer": null
+            }
         },
         "seq_id": "M03592:18:000000000-AHJWK:1:1106:11135:9840",
         "stop": false,
@@ -55,14 +50,13 @@
         "partial": false,
         "probable_indel_or_misalign": false,
         "sample": {
-            "date": "2015-09-13",
-            "disease": null,
-            "experimenter": "Someone",
             "id": 1,
-            "ig_class": null,
-            "info": null,
-            "j_primer": null,
-            "lab": "The Lab",
+            "metadata": {
+                "date": "2015-09-13",
+                "experimenter": "Someone",
+                "lab": "The Lab",
+                "tissue": "Colon"
+            },
             "name": "input",
             "subject": {
                 "id": 1,
@@ -71,11 +65,7 @@
                     "id": 1,
                     "name": "Test Study"
                 }
-            },
-            "subset": null,
-            "timepoint": null,
-            "tissue": "Colon",
-            "v_primer": null
+            }
         },
         "seq_id": "M03592:18:000000000-AHJWK:1:1104:6484:16037",
         "stop": false,
@@ -97,14 +87,13 @@
         "partial": false,
         "probable_indel_or_misalign": false,
         "sample": {
-            "date": "2015-09-13",
-            "disease": null,
-            "experimenter": "Someone",
             "id": 1,
-            "ig_class": null,
-            "info": null,
-            "j_primer": null,
-            "lab": "The Lab",
+            "metadata": {
+                "date": "2015-09-13",
+                "experimenter": "Someone",
+                "lab": "The Lab",
+                "tissue": "Colon"
+            },
             "name": "input",
             "subject": {
                 "id": 1,
@@ -113,11 +102,7 @@
                     "id": 1,
                     "name": "Test Study"
                 }
-            },
-            "subset": null,
-            "timepoint": null,
-            "tissue": "Colon",
-            "v_primer": null
+            }
         },
         "seq_id": "M03592:18:000000000-AHJWK:1:1104:24259:15536",
         "stop": false,
@@ -139,14 +124,13 @@
         "partial": false,
         "probable_indel_or_misalign": false,
         "sample": {
-            "date": "2015-09-13",
-            "disease": null,
-            "experimenter": "Someone",
             "id": 1,
-            "ig_class": null,
-            "info": null,
-            "j_primer": null,
-            "lab": "The Lab",
+            "metadata": {
+                "date": "2015-09-13",
+                "experimenter": "Someone",
+                "lab": "The Lab",
+                "tissue": "Colon"
+            },
             "name": "input",
             "subject": {
                 "id": 1,
@@ -155,11 +139,7 @@
                     "id": 1,
                     "name": "Test Study"
                 }
-            },
-            "subset": null,
-            "timepoint": null,
-            "tissue": "Colon",
-            "v_primer": null
+            }
         },
         "seq_id": "M03592:18:000000000-AHJWK:1:1103:5615:12899",
         "stop": false,
@@ -181,14 +161,13 @@
         "partial": false,
         "probable_indel_or_misalign": false,
         "sample": {
-            "date": "2015-09-13",
-            "disease": null,
-            "experimenter": "Someone",
             "id": 1,
-            "ig_class": null,
-            "info": null,
-            "j_primer": null,
-            "lab": "The Lab",
+            "metadata": {
+                "date": "2015-09-13",
+                "experimenter": "Someone",
+                "lab": "The Lab",
+                "tissue": "Colon"
+            },
             "name": "input",
             "subject": {
                 "id": 1,
@@ -197,11 +176,7 @@
                     "id": 1,
                     "name": "Test Study"
                 }
-            },
-            "subset": null,
-            "timepoint": null,
-            "tissue": "Colon",
-            "v_primer": null
+            }
         },
         "seq_id": "M03592:18:000000000-AHJWK:1:1102:8841:17715",
         "stop": false,
@@ -223,14 +198,13 @@
         "partial": false,
         "probable_indel_or_misalign": false,
         "sample": {
-            "date": "2015-09-13",
-            "disease": null,
-            "experimenter": "Someone",
             "id": 1,
-            "ig_class": null,
-            "info": null,
-            "j_primer": null,
-            "lab": "The Lab",
+            "metadata": {
+                "date": "2015-09-13",
+                "experimenter": "Someone",
+                "lab": "The Lab",
+                "tissue": "Colon"
+            },
             "name": "input",
             "subject": {
                 "id": 1,
@@ -239,11 +213,7 @@
                     "id": 1,
                     "name": "Test Study"
                 }
-            },
-            "subset": null,
-            "timepoint": null,
-            "tissue": "Colon",
-            "v_primer": null
+            }
         },
         "seq_id": "M03592:18:000000000-AHJWK:1:1102:6881:9282",
         "stop": true,
@@ -265,14 +235,13 @@
         "partial": false,
         "probable_indel_or_misalign": false,
         "sample": {
-            "date": "2015-09-13",
-            "disease": null,
-            "experimenter": "Someone",
             "id": 1,
-            "ig_class": null,
-            "info": null,
-            "j_primer": null,
-            "lab": "The Lab",
+            "metadata": {
+                "date": "2015-09-13",
+                "experimenter": "Someone",
+                "lab": "The Lab",
+                "tissue": "Colon"
+            },
             "name": "input",
             "subject": {
                 "id": 1,
@@ -281,11 +250,7 @@
                     "id": 1,
                     "name": "Test Study"
                 }
-            },
-            "subset": null,
-            "timepoint": null,
-            "tissue": "Colon",
-            "v_primer": null
+            }
         },
         "seq_id": "M03592:18:000000000-AHJWK:1:1102:20501:12181",
         "stop": false,
@@ -307,14 +272,13 @@
         "partial": false,
         "probable_indel_or_misalign": false,
         "sample": {
-            "date": "2015-09-13",
-            "disease": null,
-            "experimenter": "Someone",
             "id": 1,
-            "ig_class": null,
-            "info": null,
-            "j_primer": null,
-            "lab": "The Lab",
+            "metadata": {
+                "date": "2015-09-13",
+                "experimenter": "Someone",
+                "lab": "The Lab",
+                "tissue": "Colon"
+            },
             "name": "input",
             "subject": {
                 "id": 1,
@@ -323,11 +287,7 @@
                     "id": 1,
                     "name": "Test Study"
                 }
-            },
-            "subset": null,
-            "timepoint": null,
-            "tissue": "Colon",
-            "v_primer": null
+            }
         },
         "seq_id": "M03592:18:000000000-AHJWK:1:1102:15231:6996",
         "stop": false,
@@ -349,14 +309,13 @@
         "partial": false,
         "probable_indel_or_misalign": false,
         "sample": {
-            "date": "2015-09-13",
-            "disease": null,
-            "experimenter": "Someone",
             "id": 1,
-            "ig_class": null,
-            "info": null,
-            "j_primer": null,
-            "lab": "The Lab",
+            "metadata": {
+                "date": "2015-09-13",
+                "experimenter": "Someone",
+                "lab": "The Lab",
+                "tissue": "Colon"
+            },
             "name": "input",
             "subject": {
                 "id": 1,
@@ -365,11 +324,7 @@
                     "id": 1,
                     "name": "Test Study"
                 }
-            },
-            "subset": null,
-            "timepoint": null,
-            "tissue": "Colon",
-            "v_primer": null
+            }
         },
         "seq_id": "M03592:18:000000000-AHJWK:1:1101:16511:13326",
         "stop": false,
@@ -391,14 +346,13 @@
         "partial": false,
         "probable_indel_or_misalign": false,
         "sample": {
-            "date": "2015-09-13",
-            "disease": null,
-            "experimenter": "Someone",
             "id": 1,
-            "ig_class": null,
-            "info": null,
-            "j_primer": null,
-            "lab": "The Lab",
+            "metadata": {
+                "date": "2015-09-13",
+                "experimenter": "Someone",
+                "lab": "The Lab",
+                "tissue": "Colon"
+            },
             "name": "input",
             "subject": {
                 "id": 1,
@@ -407,11 +361,7 @@
                     "id": 1,
                     "name": "Test Study"
                 }
-            },
-            "subset": null,
-            "timepoint": null,
-            "tissue": "Colon",
-            "v_primer": null
+            }
         },
         "seq_id": "M03592:18:000000000-AHJWK:1:1101:11437:15912",
         "stop": false,

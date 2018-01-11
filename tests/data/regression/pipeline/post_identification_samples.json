@@ -1,31 +1,11 @@
 {
     "1": {
-        "disease": null,
-        "experimenter": "Someone",
-        "ig_class": null,
-        "j_primer": null,
-        "lab": "The Lab",
         "name": "input",
-        "subject_id": 1,
-        "subset": null,
-        "timepoint": null,
-        "tissue": "Colon",
-        "v_primer": null,
         "v_ties_len": 293.865,
         "v_ties_mutations": 0.071499
     },
     "2": {
-        "disease": null,
-        "experimenter": "Someone",
-        "ig_class": null,
-        "j_primer": null,
-        "lab": "The Lab",
         "name": "input2",
-        "subject_id": 1,
-        "subset": null,
-        "timepoint": null,
-        "tissue": "SPL",
-        "v_primer": null,
         "v_ties_len": 294.845,
         "v_ties_mutations": 0.0687865
     }

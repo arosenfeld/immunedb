@@ -1,0 +1,26 @@
+{
+    "1-date": {
+        "value": "2015-09-13"
+    },
+    "1-experimenter": {
+        "value": "Someone"
+    },
+    "1-lab": {
+        "value": "The Lab"
+    },
+    "1-tissue": {
+        "value": "Colon"
+    },
+    "2-date": {
+        "value": "2015-09-13"
+    },
+    "2-experimenter": {
+        "value": "Someone"
+    },
+    "2-lab": {
+        "value": "The Lab"
+    },
+    "2-tissue": {
+        "value": "SPL"
+    }
+}

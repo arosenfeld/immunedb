@@ -1,16 +1,6 @@
 {
     "1": {
-        "disease": "Something bad",
-        "experimenter": "Bob",
-        "ig_class": "IgE",
-        "j_primer": "Trailer",
-        "lab": "Sanger",
         "name": "input",
-        "subject_id": 1,
-        "subset": "MN",
-        "timepoint": null,
-        "tissue": "PBL",
-        "v_primer": "Leader",
         "v_ties_len": 294.212,
         "v_ties_mutations": 0.0824959
     }

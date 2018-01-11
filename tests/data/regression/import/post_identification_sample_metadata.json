@@ -1,0 +1,26 @@
+{
+    "1-disease": {
+        "value": "Something bad"
+    },
+    "1-experimenter": {
+        "value": "Bob"
+    },
+    "1-ig_class": {
+        "value": "IgE"
+    },
+    "1-j_primer": {
+        "value": "Trailer"
+    },
+    "1-lab": {
+        "value": "Sanger"
+    },
+    "1-subset": {
+        "value": "MN"
+    },
+    "1-tissue": {
+        "value": "PBL"
+    },
+    "1-v_primer": {
+        "value": "Leader"
+    }
+}

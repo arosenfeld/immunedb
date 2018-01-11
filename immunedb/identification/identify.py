@@ -6,11 +6,12 @@ from Bio import SeqIO
 
 import immunedb.common.config as config
 import immunedb.common.modification_log as mod_log
-from immunedb.common.models import Sample, Study, Subject
+from immunedb.common.models import Sample, SampleMetadata, Study, Subject
 from immunedb.identification import (add_as_noresult, add_uniques,
                                      AlignmentException)
 from immunedb.identification.anchor import AnchorAligner
-from immunedb.identification.metadata import parse_metadata, MetadataException
+from immunedb.identification.metadata import (MetadataException,
+                                              parse_metadata, REQUIRED_FIELDS)
 from immunedb.identification.vdj_sequence import VDJSequence
 from immunedb.identification.genes import JGermlines, VGermlines
 import immunedb.util.concurrent as concurrent
@@ -182,19 +183,22 @@ class IdentificationWorker(concurrent.Worker):
             self._session.commit()
 
         name = meta['sample_name']
-        sample, new = funcs.get_or_create(
-            self._session, Sample, name=name, study=study)
+        sample, new = funcs.get_or_create(self._session, Sample, name=name,
+                                          study=study)
         if new:
-            sample.date = meta['date']
-            self.info('\tCreated new sample "{}"'.format(
-                sample.name))
-            for key in ('subset', 'tissue', 'disease', 'lab', 'experimenter',
-                        'ig_class', 'v_primer', 'j_primer'):
-                setattr(sample, key, meta.get(key, None))
             subject, new = funcs.get_or_create(
                 self._session, Subject, study=study,
                 identifier=meta['subject'])
             sample.subject = subject
+
+            self.info('\tCreated new sample "{}"'.format(sample.name))
+            for key, value in meta.iteritems():
+                if key not in REQUIRED_FIELDS:
+                    self._session.add(SampleMetadata(
+                        sample=sample,
+                        key=key,
+                        value=value
+                    ))
 
         self._session.commit()
         self._sync_lock.release()

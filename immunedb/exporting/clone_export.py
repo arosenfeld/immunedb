@@ -33,15 +33,6 @@ class CloneExport(Exporter):
         'subject_id': _if_sample(lambda s: s.sample.subject.id),
         'subject_identifier':
             _if_sample(lambda s: s.sample.subject.identifier),
-        'tissue': _if_sample(lambda s: s.sample.tissue),
-        'subset': _if_sample(lambda s: s.sample.subset),
-        'disease': _if_sample(lambda s: s.sample.disease),
-        'ig_class': _if_sample(lambda s: s.sample.ig_class),
-        'v_primer': _if_sample(lambda s: s.sample.v_primer),
-        'j_primer': _if_sample(lambda s: s.sample.j_primer),
-        'lab': _if_sample(lambda s: s.sample.lab),
-        'experimenter': _if_sample(lambda s: s.sample.experimenter),
-        'date': _if_sample(lambda s: s.sample.date),
         'tree': lambda s: s.clone.tree,
         'parent_id': lambda s: s.clone.parent_id
     })

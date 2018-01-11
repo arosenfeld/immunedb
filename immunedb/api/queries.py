@@ -40,11 +40,9 @@ def _subject_to_dict(subject):
 
 
 def _sample_to_dict(sample):
-    d = _fields_to_dict(['id', 'name', 'info', 'subset', 'tissue', 'ig_class',
-                         'timepoint', 'disease', 'lab', 'experimenter',
-                         'v_primer', 'j_primer'], sample)
-    d['date'] = sample.date.strftime('%Y-%m-%d')
+    d = _fields_to_dict(['id', 'name'], sample)
     d['subject'] = _subject_to_dict(sample.subject)
+    d['metadata'] = sample.metadata_dict
     return d
 
 
@@ -85,7 +83,7 @@ def get_samples(session, sample_ids=None):
     if sample_ids is not None:
         query = query.filter(SampleStats.sample_id.in_(sample_ids))
 
-    query = query.order_by(Sample.date).options(
+    query = query.order_by(Sample.subject_id).options(
         Load(SampleStats).load_only(
             'sequence_cnt', 'in_frame_cnt', 'stop_cnt', 'functional_cnt',
             'no_result_cnt'
@@ -426,6 +424,15 @@ def get_clones_in_subject(session, subject_id):
         Clone.subject_id == subject_id))
 
 
+def get_grouping(sample, grouping):
+    if grouping == 'sample':
+        return sample.name
+    elif grouping == 'subject':
+        return sample.subject.identifier
+    else:
+        return sample.metadata_dict.get(grouping, None)
+
+
 def get_v_usage(session, samples, filter_type, include_outliers,
                 include_partials, grouping, by_family):
     """Gets the V-Gene usage percentages for samples"""
@@ -444,13 +451,8 @@ def get_v_usage(session, samples, filter_type, include_outliers,
                     SampleStats.full_reads != include_partials,
                     SampleStats.sample_id.in_(samples)):
         dist = json.loads(s.v_gene_dist)
-        if grouping == 'subject':
-            group_key = s.sample.subject.identifier
-        else:
-            group_key = getattr(s.sample, grouping)
 
-        if group_key is None:
-            group_key = 'None'
+        group_key = get_grouping(s.sample, grouping)
 
         if group_key not in data:
             data[group_key] = {}
@@ -605,10 +607,7 @@ def analyze_samples(session, samples, filter_type, include_outliers,
 
         # If this is the selected filter, group and tally the statistics
         if stat.filter_type == filter_type:
-            if grouping == 'subject':
-                group_key = stat.sample.subject.identifier
-            else:
-                group_key = getattr(stat.sample, grouping)
+            group_key = get_grouping(stat.sample, grouping)
 
             if group_key not in stats:
                 stats[group_key] = {}

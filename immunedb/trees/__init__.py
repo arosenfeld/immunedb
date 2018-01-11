@@ -53,13 +53,10 @@ def populate_tree(session, newick, germline_seq, removed_muts):
             for collapsed_seq in get_seqs_collapsed_to(session, seq):
                 seq_ids[collapsed_seq.seq_id] = {
                     'ai': collapsed_seq.ai,
-                    'tissue': collapsed_seq.sample.tissue,
-                    'timepoint': collapsed_seq.sample.timepoint,
-                    'subset': collapsed_seq.sample.subset,
-                    'ig_class': collapsed_seq.sample.ig_class,
                     'copy_number': collapsed_seq.copy_number,
                     'sample_name': collapsed_seq.sample.name,
-                    'sample_id': collapsed_seq.sample.id
+                    'sample_id': collapsed_seq.sample.id,
+                    'metadata': collapsed_seq.sample.metadata_dict
                 }
 
             node.name = seq.seq_id
@@ -155,21 +152,22 @@ def instantiate_node(node):
 
 
 def get_nested(seqs, key):
-    ret = set([])
-    for s in seqs.values():
-        ret.add(s.get(key, set([])))
-    return sorted(list([r for r in ret if r is not None]))
+    return sorted(set(
+        [s['metadata'][key] for s in seqs.values() if key in s['metadata']]
+    ))
 
 
 def tree_as_dict(tree, root=True):
+    all_meta = set(
+        [k for seq in tree.seq_ids.values() for k in seq['metadata'].keys()]
+    )
     node = {
         'data': {
             'seq_ids': tree.seq_ids,
             'copy_number': tree.copy_number,
-            'tissues': get_nested(tree.seq_ids, 'tissue'),
-            'timepoints': get_nested(tree.seq_ids, 'timepoint'),
-            'subsets': get_nested(tree.seq_ids, 'subset'),
-            'ig_classes': get_nested(tree.seq_ids, 'ig_class'),
+            'metadata': {
+                k: get_nested(tree.seq_ids, k) for k in all_meta
+            },
             'mutations': [{
                 'pos': mut[0],
                 'from': mut[1],
@@ -188,10 +186,7 @@ def tree_as_dict(tree, root=True):
         'data': {
             'seq_ids': {},
             'copy_number': 0,
-            'tissues': '',
-            'timepoints': '',
-            'subsets': '',
-            'ig_classes': '',
+            'metadata': {},
             'mutations': [],
         },
         'children': [node]

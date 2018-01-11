@@ -39,14 +39,13 @@
         31
     ],
     "sample": {
-        "date": "2015-09-13",
-        "disease": null,
-        "experimenter": "Someone",
         "id": 2,
-        "ig_class": null,
-        "info": null,
-        "j_primer": null,
-        "lab": "The Lab",
+        "metadata": {
+            "date": "2015-09-13",
+            "experimenter": "Someone",
+            "lab": "The Lab",
+            "tissue": "SPL"
+        },
         "name": "input2",
         "subject": {
             "id": 1,
@@ -55,11 +54,7 @@
                 "id": 1,
                 "name": "Test Study"
             }
-        },
-        "subset": null,
-        "timepoint": null,
-        "tissue": "SPL",
-        "v_primer": null
+        }
     },
     "seq_id": "M03592:18:000000000-AHJWK:1:1102:9856:7192",
     "seq_start": 0,

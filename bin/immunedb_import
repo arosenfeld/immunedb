@@ -26,7 +26,6 @@ if __name__ == '__main__':
     parser.add_argument('study_name', help='Name of study')
     parser.add_argument('sample_name', help='Name of sample')
     parser.add_argument('subject', help='Subject identifier')
-    parser.add_argument('date', help='Date of sample')
     parser.add_argument('--ties', action='store_true', help='If specified '
                         'gene ties will be calculated from the imported '
                         'sequences')
@@ -43,10 +42,10 @@ if __name__ == '__main__':
                         'FROM gene can be a prefix but TO must be the full '
                         'gene name')
 
-    for key in ('subset', 'tissue', 'disease', 'lab', 'experimenter',
-                'ig_class', 'v_primer', 'j_primer'):
-        parser.add_argument('--{}'.format(key), default=None,
-                            help='Metadata for {}'.format(key))
+    parser.add_argument('--meta', nargs='+', help='''Additional metadata for
+                        the sample.  Must be in the format KEY=VALUE (e.g.
+                        --meta tissue=Spleen).  May be specified multiple
+                        times''')
 
     for key, value in DEFAULT_MAPPINGS.iteritems():
         if value is None:
@@ -74,6 +73,10 @@ if __name__ == '__main__':
             if len(rm) != 2:
                 parser.error('--remap-js must be in format FROM:TO')
             remaps[rm[0]] = rm[1]
+
+    for m in meta:
+        if '=' not in m:
+            parser.error('--meta must be in format KEY=VALUE')
 
     session = config.init_db(args.db_config)
 
