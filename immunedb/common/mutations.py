@@ -116,8 +116,8 @@ class CloneMutations(object):
 
     def _get_mutation(self, seq, i):
         if (self._germline[i] != seq[i] and
-                self._germline[i] != 'N' and
-                seq[i] != 'N'):
+                self._germline[i] not in ('N', '-') and
+                seq[i] not in ('N', '-')):
             grm_aa = self._get_aa_at(self._germline, i)
             # Simulate this mutation alone
             off = i % 3
