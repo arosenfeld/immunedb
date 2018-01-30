@@ -100,8 +100,6 @@ Modules
 .. toctree::
     :maxdepth: 2
 
-    common
-    models
     api
     referencing
 

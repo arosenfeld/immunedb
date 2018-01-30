@@ -1,30 +1,57 @@
-API --- ``immunedb.api``
-====================
+Python API
+==========
 
 .. note::
 
-    This documentation is still in-the-works and is incomplete.
+    This section is currently incomplete.  We're working to fill out the
+    details of the Python API as soon as possible.
 
-REST Interface --- ``immunedb.api.rest_service``
---------------------------------------------
-The `REST <http://en.wikipedia.org/wiki/Representational_state_transfer>`_
-interface is a miniature HTTP server which serves JSON stanzas based on the
-requested URL.  For example, requesting ``/api/studies`` will provide a list of
-all studies in the database.
+Configuration
+-------------
+The ``immunedb.common.config`` module provides methods to initialize a
+connection to a new or existing database.
 
-The primary use of this is to provide an API for AJAX requests from a
-web-interface to the sequence database without the need for writing SQL.
+Most programs using ImmuneDB will start with code similar to:
 
-The ``immunedb.api.rest_service`` directly handles incoming connections using
-`gevent <http://www.gevent.org>`_, parses the URL and then calls the required
-functions in :py:class:`immunedb.api.queries`.
+.. code-block:: python
 
-.. automodule:: immunedb.api.rest_service
+
+    import immunedb.common.config as config
+    parser = config.get_base_arg_parser('Some description of the program')
+    # ... add any additional arguments to the parser ...
+    args = parser.parse_args()
+
+    session = config.init_db(args.db_config)
+
+This takes the first command line arguments as database configuration file path
+and initializes the database.  Of course one can also manually specify the
+paths with simply:
+
+.. code-block:: python
+
+
+    import immunedb.common.config as config
+    session = config.init_db('path/to/config')
+
+Alternatively a dictionary with the same information can be passed:
+
+.. code-block:: python
+
+
+    import immunedb.common.config as config
+    session = config.init_db({
+        'host': '...',
+        'database': '...',
+        'username': '...',
+        'password': '...',
+    })
+
+Returned will be a ``Session`` object which can be used to interact with the
+database.
+
+Data Models
+-----------
+
+.. automodule:: immunedb.common.models
     :members:
     :exclude-members: relationship
-
-Queries --- ``immunedb.api.queries``
---------------------------------
-.. automodule:: immunedb.api.queries
-    :members:
-    :exclude-members: relationship, desc, distinct
