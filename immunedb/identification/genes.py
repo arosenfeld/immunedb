@@ -1,3 +1,5 @@
+from collections import OrderedDict
+
 import dnautils
 import re
 
@@ -130,7 +132,7 @@ class GeneTies(dict):
 class VGermlines(GeneTies):
     def __init__(self, path_to_germlines, **kwargs):
         self._min_length = None
-        self.alignments = {}
+        self.alignments = OrderedDict()
 
         with open(path_to_germlines) as fh:
             for record in SeqIO.parse(fh, 'fasta'):
@@ -167,27 +169,16 @@ class VGermlines(GeneTies):
 
 class VGene(object):
     def __init__(self, gapped_sequence):
-        self._gapped_seq = str(gapped_sequence).upper()
-        if self._gapped_seq[CDR3_OFFSET:].count('-') > 0:
+        self.sequence = str(gapped_sequence).upper()
+        self.sequence_ungapped = self.sequence.replace('-', '')
+        if self.sequence[CDR3_OFFSET:].count('-') > 0:
             raise AlignmentException('Cannot have gaps after CDR3 start '
                                      '(position {})'.format(CDR3_OFFSET))
         try:
-            self._ungapped_anchor_pos = find_v_position(
+            self.ungapped_anchor_pos = find_v_position(
                 self.sequence_ungapped).next()
         except StopIteration:
             raise AlignmentException('Unable to find anchor')
-
-    @property
-    def sequence(self):
-        return self._gapped_seq
-
-    @property
-    def sequence_ungapped(self):
-        return self.sequence.replace('-', '')
-
-    @property
-    def ungapped_anchor_pos(self):
-        return self._ungapped_anchor_pos
 
     def align(self, other_v):
         diff = abs(self.ungapped_anchor_pos - other_v.ungapped_anchor_pos)
@@ -248,25 +239,27 @@ class VGene(object):
 
 
 def find_v_position(sequence):
-    '''Tries to find the end of the V gene region'''
     if type(sequence) == str:
         sequence = Seq(sequence)
-    # Try to find DxxxyzC
-    for found in _find_with_frameshifts(sequence, 'D(.{3}((YY)|(YC)|(YH)))C'):
-        yield found
-    # Try to find 'YYC', 'YCC', or 'YHC'
-    for found in _find_with_frameshifts(sequence, 'Y([YHC])C'):
-        yield found
-    # Try to find 'DxxxxxC'
-    for found in _find_with_frameshifts(sequence, 'D(.{5})C'):
-        yield found
-
-
-def _find_with_frameshifts(sequence, regex):
+    frames = []
     for shift in [2, 1, 0]:
         seq = sequence[shift:]
         seq = seq[:len(seq) - len(seq) % 3]
-        aas = str(seq.translate())
+        frames.append((shift, str(seq.translate())))
+
+    # Try to find DxxxyzC
+    for found in _find_with_frameshifts(frames, 'D(.{3}((YY)|(YC)|(YH)))C'):
+        yield found
+    # Try to find 'YYC', 'YCC', or 'YHC'
+    for found in _find_with_frameshifts(frames, 'Y([YHC])C'):
+        yield found
+    # Try to find 'DxxxxxC'
+    for found in _find_with_frameshifts(frames, 'D(.{5})C'):
+        yield found
+
+
+def _find_with_frameshifts(frames, regex):
+    for (shift, aas) in frames:
         res = re.search(regex, aas)
         if res is not None:
             yield (res.end() - 1) * 3 + shift

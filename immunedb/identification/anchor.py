@@ -182,7 +182,7 @@ class AnchorAligner(object):
     def process_v(self, alignment, anchor_pos, limit_vs):
         aligned_v = VGene(alignment.sequence.sequence)
         v_score = None
-        for v, germ in sorted(self.v_germlines.alignments.iteritems()):
+        for v, germ in self.v_germlines.alignments.iteritems():
             if limit_vs is not None and v.name not in limit_vs:
                 continue
             try:
