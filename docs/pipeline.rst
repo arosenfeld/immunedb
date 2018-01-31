@@ -1,7 +1,7 @@
 .. _pipeline:
 
-Data Analysis Pipeline
-**********************
+Running the Data Analysis Pipeline
+**********************************
 The primary component of ImmuneDB is its clonal identification pipeline which has
 the capability to take as input raw sequences, determine likely V and J genes,
 and finally group similar sequences into clones.
@@ -13,9 +13,7 @@ integrate other tools into each step of the pipeline.
 
 This page explains the basic workflow and assumes MySQL and ImmuneDB are already
 installed on the system.  It does not attempt to detail all the possible options
-at each stage of the pipeline and users are encouraged to review the usage
-documentation of each command.
-
+at each stage of the pipeline and users are encouraged to review the :doc:`cli`.
 
 Quick Start
 ===========

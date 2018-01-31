@@ -15,6 +15,7 @@
 
 import sys
 import os
+from mock import Mock as MagicMock
 
 import sphinx_rtd_theme
 
@@ -32,7 +33,7 @@ sys.path.insert(0, os.path.abspath('../immunedb'))
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
-extensions = ['sphinx.ext.autodoc']
+extensions = ['sphinx.ext.autodoc', 'sphinxcontrib.programoutput']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -262,3 +263,11 @@ texinfo_documents = [
 
 # If true, do not generate a @detailmenu in the "Top" node's menu.
 #texinfo_no_detailmenu = False
+
+class Mock(MagicMock):
+    @classmethod
+    def __getattr__(cls, name):
+            return MagicMock()
+
+MOCK_MODULES = ['numpy', 'gevent', 'sqlalchemy']
+sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)

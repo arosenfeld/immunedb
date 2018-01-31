@@ -1,5 +1,5 @@
 ImmuneDB |travisci| |codecov| |pypi| |docker|
-========
+=============================================
 .. |travisci| image:: https://img.shields.io/travis/arosenfeld/immunedb/master.svg
   :target: https://travis-ci.org/arosenfeld/immunedb
 .. |codecov| image:: https://img.shields.io/codecov/c/github/arosenfeld/immunedb.svg
@@ -68,16 +68,6 @@ ImmuneDB has four primary components:
 Each of the components can be used independently so long as the underlying
 database is properly populated.
 
-Table of Contents
----------------
-.. toctree::
-    :maxdepth: 2
-
-    getting_started_docker
-    getting_started_local
-    pipeline
-    database
-
 Underlying Technologies
 -----------------------
 
@@ -94,17 +84,34 @@ Underlying Technologies
   serves content via the REST API allowing web-applications to issue AJAX requests
   to the ImmuneDB framework.
 
-
-Modules
-====================
 .. toctree::
     :maxdepth: 2
+    :hidden:
+    :caption: Installation
+
+    install_local
+    install_docker
+
+.. toctree::
+    :maxdepth: 2
+    :hidden:
+    :caption: Creating a Database
+
+    pipeline
+    cli
+
+.. toctree::
+    :maxdepth: 2
+    :hidden:
+    :caption: Analyzing a Database
 
     api
+    database
+
+.. toctree::
+    :maxdepth: 2
+    :hidden:
+    :caption: Other
+
     referencing
-
-Indices and tables
-==================
-
-* :ref:`genindex`
-* :ref:`modindex`
+    related

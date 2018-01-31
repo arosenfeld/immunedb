@@ -1,8 +1,6 @@
-Getting Started (Bare Metal)
-************************************
-This section details how to set ImmuneDB up locally on a machine.  Alternatively,
-you can use :ref:`Docker Compose <docker_install>` to get up and running more
-quickly.
+Installing Locally (recommended)
+********************************
+This section details how to set ImmuneDB up locally on a machine.
 
 Dependency Installation
 =====================
@@ -35,6 +33,11 @@ needed for clone statistics generation as described in :ref:`stats_generation`.
 
 For genotyping, `TIgGER <http://tigger.readthedocs.io>`_ must also be installed.
 
+Bowtie2 (optional)
+------------------
+`Bowtie2 <bowtie-bio.sourceforge.net>`_ can be used to locally align sequences
+which cannot be aligned using the built-in anchor method.
+
 Clearcut (optional)
 -------------------
 `Clearcut <http://bioinformatics.hungry.com/clearcut>`_ can be used to generate
@@ -45,9 +48,6 @@ generating trees in :ref:`tree_generation`.
 
 ImmuneDB Installation
 =====================
-
-virtualenv
-----------
 
 It is recommended that ImmuneDB be installed within a virtual environment, creating
 an isolated environment from the rest of the system.
@@ -69,20 +69,6 @@ replaced with an appropriate name:
     $ source bin/activate
 
 Finally, get and install ImmuneDB:
-
-.. code-block:: bash
-
-    $ pip install numpy
-    $ pip install immunedb
-
-Global
-------
-.. warning::
-    Installing many packages globally is not recommended.  Using virtual
-    environments keeps dependencies separated from the root filesystem.  Only in
-    specialized situations (e.g. within a VM) should ImmuneDB installed globally.
-
-If instead a global install is desired, run:
 
 .. code-block:: bash
 
