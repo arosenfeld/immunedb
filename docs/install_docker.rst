@@ -1,7 +1,12 @@
 .. _docker_install:
 
-Getting Started (Docker Compose)
-================================
+Installing with Docker
+======================
+
+.. note::
+
+    This installation method is still in development and may not work
+    perfectly.  Please report any issues you encounter on github.
 
 Dependency Installation
 -----------------------

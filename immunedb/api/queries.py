@@ -113,6 +113,14 @@ def get_clones(session, filters, order_field, order_dir, subject_limit=None,
         clone_q = clone_q.filter(Clone.subject_id == subject_limit)
 
     if filters is not None:
+        size_field = filters.pop('size_field', 'copies')
+        if size_field == 'copies':
+            size_field = Clone.overall_total_cnt
+        elif size_field == 'uniques':
+            size_field = Clone.overall_unique_cnt
+        elif size_field == 'instances':
+            size_field = Clone.overall_instance_cnt
+
         for key, value in filters.iteritems():
             if value is None:
                 continue
@@ -122,20 +130,18 @@ def get_clones(session, filters, order_field, order_dir, subject_limit=None,
                     clone_q = clone_q.filter(Clone.cdr3_num_nts >= int(value))
                 elif key == 'max_cdr3_num_nts':
                     clone_q = clone_q.filter(Clone.cdr3_num_nts <= int(value))
+                elif key == 'cdr3_nt':
+                    clone_q = clone_q.filter(Clone.cdr3_aa.like(value))
                 elif key == 'cdr3_aa':
                     clone_q = clone_q.filter(Clone.cdr3_aa.like(value))
-                elif key == 'min_unique':
-                    clone_q = clone_q.filter(
-                        Clone.overall_unique_cnt >= int(value))
-                elif key == 'max_unique':
-                    clone_q = clone_q.filter(
-                        Clone.overall_unique_cnt <= int(value))
+                elif key == 'min_size':
+                    clone_q = clone_q.filter(size_field >= int(value))
+                elif key == 'max_size':
+                    clone_q = clone_q.filter(size_field <= int(value))
                 elif key == 'id':
                     clone_q = clone_q.filter(Clone.id == int(value))
                 elif key == 'subject_id':
                     clone_q = clone_q.filter(Clone.subject_id == int(value))
-                else:
-                    clone_q = clone_q.filter(getattr(Clone, key).like(value))
 
     if order_field:
         order_field = getattr(Clone, order_field)
