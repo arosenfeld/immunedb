@@ -9,31 +9,31 @@ immunedb_admin
 ==============
 Manages ImmuneDB instances.
 
-.. program-output:: bin/immunedb_admin --help
+.. program-output:: immunedb_admin --help
 
 immunedb_admin create
 ---------------------
 Creates a new ImmuneDB instance.
 
-.. program-output:: bin/immunedb_admin create --help
+.. program-output:: immunedb_admin create --help
 
 immunedb_admin delete
 ---------------------
 Deletes an ImmuneDB instance.
 
-.. program-output:: bin/immunedb_admin delete --help
+.. program-output:: immunedb_admin delete --help
 
 immunedb_admin backup
 ---------------------
 Performs a SQL dump from a ImmuneDB instance, backing up the contents.
 
-.. program-output:: bin/immunedb_admin backup --help
+.. program-output:: immunedb_admin backup --help
 
 immunedb_admin restore
 ----------------------
 Restores a SQL dump from ``immunedb_admin backup``.
 
-.. program-output:: bin/immunedb_admin restore --help
+.. program-output:: immunedb_admin restore --help
 
 ....
 
@@ -46,7 +46,7 @@ To use, run ``immunedb_clone_import ... --action export``, fill in the
 --action import``.  All sequences assigned to a given clone must have the same
 V-gene, J-gene, and CDR3 length, otherwise an error will be raised.
 
-.. program-output:: bin/immunedb_clone_import --help
+.. program-output:: immunedb_clone_import --help
 
 ....
 
@@ -60,7 +60,7 @@ immunedb_clone_pressure
 
 Calculates the selection pressure acting on clonal sequences.
 
-.. program-output:: bin/immunedb_clone_pressure --help
+.. program-output:: immunedb_clone_pressure --help
 
 ....
 
@@ -69,7 +69,7 @@ immunedb_clones
 
 Assigns sequences to clones using one of three methods.
 
-.. program-output:: bin/immunedb_clones --help
+.. program-output:: immunedb_clones --help
 
 ....
 
@@ -79,7 +79,7 @@ immunedb_clones similarity
 Groups sequences with the same subject, V-gene, J-gene, CDR3 length, and (by
 default) 85% CDR3 AA similarity into clones.
 
-.. program-output:: bin/immunedb_clones x similarity --help
+.. program-output:: immunedb_clones x similarity --help
 
 immunedb_clones tcells
 ----------------------
@@ -87,7 +87,7 @@ immunedb_clones tcells
 Groups sequences with the same subject, V-gene, J-gene, and CDR3 NT sequence
 into clones.
 
-.. program-output:: bin/immunedb_clones x tcells --help
+.. program-output:: immunedb_clones x tcells --help
 
 immunedb_clones lineage
 -----------------------
@@ -101,7 +101,7 @@ Creates lineages out of all sequences with the same subject, V-gene, J-gene,
 and CDR3 length.  Then, the lineage is split along branches where the aggregate
 number of mutations is at least ``--mut-cuttoff`` (default 4).
 
-.. program-output:: bin/immunedb_clones x lineage --help
+.. program-output:: immunedb_clones x lineage --help
 
 ....
 
@@ -109,7 +109,7 @@ immunedb_clone_stats
 ====================
 Aggregates statistics about clones for quicker, easier bulk querying.
 
-.. program-output:: bin/immunedb_clone_stats --help
+.. program-output:: immunedb_clone_stats --help
 
 ....
 
@@ -122,7 +122,7 @@ immunedb_clone_trees
 
 Creates a lineage tree for each clone using Neighbor Joining.
 
-.. program-output:: bin/immunedb_clone_trees --help
+.. program-output:: immunedb_clone_trees --help
 
 ....
 
@@ -130,7 +130,7 @@ immunedb_collapse
 =================
 Collapses identical sequences across all samples in each subject.
 
-.. program-output:: bin/immunedb_collapse --help
+.. program-output:: immunedb_collapse --help
 
 ....
 
@@ -138,24 +138,24 @@ immunedb_export
 ===============
 Exports data from ImmuneDB into various formats
 
-.. program-output:: bin/immunedb_export --help
+.. program-output:: immunedb_export --help
 
 immunedb_export changeo
 -----------------------
 
-.. program-output:: bin/immunedb_export x changeo --help
+.. program-output:: immunedb_export x changeo --help
 
 
 immunedb_export genbank
 -----------------------
 
-.. program-output:: bin/immunedb_export x genbank --help
+.. program-output:: immunedb_export x genbank --help
 
 
 immunedb_export vdjtools
 -----------------------
 
-.. program-output:: bin/immunedb_export x vdjtools --help
+.. program-output:: immunedb_export x vdjtools --help
 
 ....
 
@@ -170,7 +170,7 @@ immunedb_genotype
 Runs genotyping on a database that was generated with ``immunedb_identify ...
 --genotyping``.
 
-.. program-output:: bin/immunedb_genotype --help
+.. program-output:: immunedb_genotype --help
 
 ....
 
@@ -180,7 +180,7 @@ immunedb_identify
 Identifies V- and J-genes of sequences in FASTA/FASTQ files `using an `anchor method
 <https://www.ncbi.nlm.nih.gov/pubmed/26529062>`_.
 
-.. program-output:: bin/immunedb_identify --help
+.. program-output:: immunedb_identify --help
 
 ....
 
@@ -195,7 +195,7 @@ immunedb_import
 Imports sequence alignments and gene calls from a tab delimited file (by
 default in IMGT format)
 
-.. program-output:: bin/immunedb_import --help
+.. program-output:: immunedb_import --help
 
 ....
 
@@ -210,7 +210,7 @@ immunedb_local_align
 Corrects sequences that were flagged as potential indels or unidentifiable by
 ``immunedb_identify``.  This can be a slow process for large datasets.
 
-.. program-output:: bin/immunedb_local_align --help
+.. program-output:: immunedb_local_align --help
 
 ....
 
@@ -219,7 +219,7 @@ immunedb_metadata
 
 Generates metadata for a set of FASTA/FASTQ files to use for ``immunedb_identify``.
 
-.. program-output:: bin/immunedb_metadata --help
+.. program-output:: immunedb_metadata --help
 
 ....
 
@@ -230,7 +230,7 @@ Starts a REST API server for ImmuneDB.  This can be used for any purpose, but
 is designed to provide data for the `ImmuneDB Frontend
 <github.com/arosenfeld/immunedb-frontend>`_.
 
-.. program-output:: bin/immunedb_rest --help
+.. program-output:: immunedb_rest --help
 
 ....
 
@@ -239,7 +239,7 @@ immunedb_sample_stats
 
 Calculates aggregate statistics for samples for faster querying.
 
-.. program-output:: bin/immunedb_sample_stats --help
+.. program-output:: immunedb_sample_stats --help
 
 ....
 
@@ -250,4 +250,4 @@ Starts an interactive MySQL session for a given ImmuneDB instance.  This is
 simply a wrapper around the ``mysql`` command that passes information from a
 configuration file.
 
-.. program-output:: bin/immunedb_sql --help
+.. program-output:: immunedb_sql --help
