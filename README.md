@@ -10,7 +10,7 @@ ImmuneDB is a Python module that facilitates efficient storage and analysis of
 high-throughput B- and T-cell sequence data.
 
 # Documentation
-Installation and usage instructions can be found at [immunedb.readthedocs.io](http://immunedb.readthedocs.io)
+Installation and usage instructions can be found at [immunedb.com](http://immunedb.com)
 
 # Citing
 If you use ImmuneDB, please cite the tool as:
