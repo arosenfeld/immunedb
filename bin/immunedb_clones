@@ -5,41 +5,45 @@ import argparse
 import immunedb.common.config as config
 from immunedb.aggregation.clones import ClonalWorker, run_clones
 
-if __name__ == '__main__':
-    main_parser = config.get_base_arg_parser('Clusters sequences into clones')
-    main_parser.add_argument('--subject-ids', nargs='+', type=int,
+def add_defaults(parser):
+    parser.add_argument('--subject-ids', nargs='+', type=int,
                              help='Limit generation to certain subjects')
-    main_parser.add_argument('--include-indels', action='store_true',
+    parser.add_argument('--include-indels', action='store_true',
                              default=ClonalWorker.defaults['include_indels'],
                              help='''If specified, includes indels (or poorly
                              aligned sequences) in clones.''')
-    main_parser.add_argument('--exclude-partials', action='store_true',
+    parser.add_argument('--exclude-partials', action='store_true',
                              default=ClonalWorker.defaults['include_indels'],
                              help=''''If specified, excludes partial sequences
                              in clones.  Note partial sequences which were
                              collapse to a full sequence will always be
                              included.''')
-    main_parser.add_argument('--min-identity', type=int,
+    parser.add_argument('--min-identity', type=int,
                              default=ClonalWorker.defaults['min_identity'],
                              help='''Minimum V identity of sequences to
                              germline required for inclusion in clones.''')
-    main_parser.add_argument('--min-copy', type=int,
+    parser.add_argument('--min-copy', type=int,
                              default=ClonalWorker.defaults['min_copy'],
                              help='''The minimum copy number that sequences
                              must have in the subject to be included in
                              clones.''')
-    main_parser.add_argument('--max-padding', type=int,
+    parser.add_argument('--max-padding', type=int,
                              default=ClonalWorker.defaults['max_padding'],
                              help='''Maximum V-padding a sequence may have to
                              be added to a clone.''')
-    main_parser.add_argument('--regen', action='store_true',
+    parser.add_argument('--regen', action='store_true',
                              help='''If specified all clones (limited by
                              subject if --subject is specified) will be DELETED
                              before creating new clones.  Associated sequences
                              will be re-assigned new clones''')
-    main_parser.add_argument('--subclones', action='store_true',
+    parser.add_argument('--subclones', action='store_true',
                              help='''If specified, calculates subclone
                              relationships''')
+
+
+
+if __name__ == '__main__':
+    main_parser = config.get_base_arg_parser('Clusters sequences into clones')
     subparsers = main_parser.add_subparsers(
         dest='method',
         help='''The method to use for clonal inference''')
@@ -52,6 +56,7 @@ if __name__ == '__main__':
     parser.add_argument('--min-similarity', type=int, default=85,
                         help='''Minimum similarity allowed between sequence
                         CDR3 AAs within a clone''')
+    add_defaults(parser)
 
     # T-cells
     parser = subparsers.add_parser(
@@ -59,6 +64,7 @@ if __name__ == '__main__':
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         help='''Constructs clones based on exact CDR3 NT identity for
         T-cells''')
+    add_defaults(parser)
 
     # Lineage
     parser = subparsers.add_parser(
@@ -84,6 +90,7 @@ if __name__ == '__main__':
                         default=ClonalWorker.defaults['min_seq_instances'],
                         help='''The minimum number of instances a sequence must
                         have to be incorporated into tree calculation''')
+    add_defaults(parser)
 
     args = main_parser.parse_args()
     args.min_identity /= 100.0
