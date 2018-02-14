@@ -131,7 +131,7 @@ def get_clones(session, filters, order_field, order_dir, subject_limit=None,
                 elif key == 'max_cdr3_num_nts':
                     clone_q = clone_q.filter(Clone.cdr3_num_nts <= int(value))
                 elif key == 'cdr3_nt':
-                    clone_q = clone_q.filter(Clone.cdr3_aa.like(value))
+                    clone_q = clone_q.filter(Clone.cdr3_nt.like(value))
                 elif key == 'cdr3_aa':
                     clone_q = clone_q.filter(Clone.cdr3_aa.like(value))
                 elif key == 'min_size':

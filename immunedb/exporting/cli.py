@@ -166,7 +166,9 @@ def export_changeo(session, args):
                     'V_IDENTITY',
                     'J_SCORE',
                     'J_IDENTITY',
-                    'DUPCOUNT'
+                    'DUPCOUNT',
+                    'CLONE',
+                    'CLONE_CDR3_NT'
                 ]
             )
             writer.writeheader()
@@ -189,7 +191,9 @@ def export_changeo(session, args):
                     'J_SCORE': round(
                         100 * seq.j_match / float(seq.j_length), 2),
                     'J_IDENTITY': seq.j_match,
-                    'DUPCOUNT': seq.collapse.copy_number_in_subject
+                    'DUPCOUNT': seq.collapse.copy_number_in_subject,
+                    'CLONE': seq.clone_id,
+                    'CLONE_CDR3_NT': seq.clone.cdr3_nt
                 })
 
 
