@@ -75,7 +75,7 @@ def read_file(session, handle, sample, v_germlines, j_germlines, props):
         else:
             uniques[len(alignment.sequence.sequence)].append(alignment)
 
-    uniques = [s for u in uniques.values() for s in u]
+    uniques = [s for k in sorted(uniques.keys()) for s in uniques[k]]
     lens = []
     muts = []
     for unique in uniques:
