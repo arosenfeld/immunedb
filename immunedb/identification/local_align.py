@@ -172,10 +172,10 @@ def process_sample(session, sample, indexes, temp, v_germlines, j_germlines,
     ).filter(
         Sequence.sample_id == sample.id,
         Sequence.probable_indel_or_misalign == 1
-    )
+    ).order_by(Sequence.seq_id)
     # Get the sequences that were not identifiable
     noresults = session.query(NoResult).filter(
-        NoResult.sample_id == sample.id)
+        NoResult.sample_id == sample.id).order_by(NoResult.seq_id)
 
     if indels.count() == 0 and noresults.count() == 0:
         logger.info('Sample {} has no indels or noresults'.format(

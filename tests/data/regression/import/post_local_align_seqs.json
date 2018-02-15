@@ -4975,7 +4975,7 @@
         "v_match": 272
     },
     "M03592:18:000000000-AHJWK:1:1101:18267:13930": {
-        "ai": 1052,
+        "ai": 1065,
         "cdr3_aa": "CARQRVPAVFQYW",
         "cdr3_nt": "TGTGCGAGACAGCGAGTACCAGCTGTCTTTCAGTACTGG",
         "cdr3_num_nts": 39,
@@ -5600,7 +5600,7 @@
         "v_match": 248
     },
     "M03592:18:000000000-AHJWK:1:1101:19343:7260": {
-        "ai": 1064,
+        "ai": 1063,
         "cdr3_aa": "CAFNGPYRLDHW",
         "cdr3_nt": "TGTGCGTTTAACGGCCCGTATCGACTTGACCACTGG",
         "cdr3_num_nts": 36,
@@ -8630,7 +8630,7 @@
         "v_match": 258
     },
     "M03592:18:000000000-AHJWK:1:1101:23852:22815": {
-        "ai": 1063,
+        "ai": 1062,
         "cdr3_aa": "CARDDNFRVHFYMDV",
         "cdr3_nt": "TGTGCGAGAGATGACAATTTTCGGGTTCACTTCTACATGGACGTCTG",
         "cdr3_num_nts": 47,
@@ -12980,7 +12980,7 @@
         "v_match": 265
     },
     "M03592:18:000000000-AHJWK:1:1101:6593:15036": {
-        "ai": 1065,
+        "ai": 1064,
         "cdr3_aa": "CARRGGNSFLSEYFQDW",
         "cdr3_nt": "TGTGCGAGACGCGGTGGTAACTCCTTTCTTTCAGAATACTTCCAGGACTGG",
         "cdr3_num_nts": 51,
@@ -13035,7 +13035,7 @@
         "v_match": 252
     },
     "M03592:18:000000000-AHJWK:1:1101:6609:11474": {
-        "ai": 1057,
+        "ai": 1056,
         "cdr3_aa": "CATAGRDF",
         "cdr3_nt": "TGTGCTACAGCTGGAAGAGACTTCTG",
         "cdr3_num_nts": 26,
@@ -13085,7 +13085,7 @@
         "v_match": 288
     },
     "M03592:18:000000000-AHJWK:1:1101:6708:8516": {
-        "ai": 1055,
+        "ai": 1054,
         "cdr3_aa": "CARDTDYSSYTFDTW",
         "cdr3_nt": "TGTGCGAGAGACACTGACTACAGTAGTTACACATTCGACACCTGG",
         "cdr3_num_nts": 45,
@@ -15645,7 +15645,7 @@
         "v_match": 257
     },
     "M03592:18:000000000-AHJWK:1:1102:14439:9312": {
-        "ai": 1061,
+        "ai": 1060,
         "cdr3_aa": "CARDTDYSSYTFDTW",
         "cdr3_nt": "TGTGCGAGAGACACTGACTACAGTAGTTACACATTCGACACCTGG",
         "cdr3_num_nts": 45,
@@ -19705,7 +19705,7 @@
         "v_match": 288
     },
     "M03592:18:000000000-AHJWK:1:1102:5407:6868": {
-        "ai": 1062,
+        "ai": 1061,
         "cdr3_aa": "CARGWGVRRATYYFDYW",
         "cdr3_nt": "TGTGCGAGAGGCTGGGGTGTAAGGCGAGCAACATATTACTTTGACTACTGG",
         "cdr3_num_nts": 51,
