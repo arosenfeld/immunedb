@@ -153,7 +153,7 @@ immunedb_export genbank
 
 
 immunedb_export vdjtools
------------------------
+------------------------
 
 .. program-output:: immunedb_export x vdjtools --help
 
@@ -187,13 +187,7 @@ Identifies V- and J-genes of sequences in FASTA/FASTQ files `using an `anchor me
 immunedb_import
 ===============
 
-.. note::
-
-    Importing from a delimited file is still considered in beta and may not
-    work as intended.  Please report any bugs on github.
-
-Imports sequence alignments and gene calls from a tab delimited file (by
-default in IMGT format)
+Imports sequence alignments and gene calls from Change-O formatted files.
 
 .. program-output:: immunedb_import --help
 

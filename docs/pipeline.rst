@@ -170,8 +170,22 @@ a configuration file with the same name and a ``.json`` extension will be placed
 in ``CONFIG_DIR``.  This configuration file will be the method of referencing
 the database for the rest of the pipeline steps.
 
-Sequence Identification (Anchor method)
----------------------------------------
+Identifying or Importing Sequences
+----------------------------------
+The first step of the pipeline is to load annotated sequences into the newly
+created database.  This can be done in one of two ways.  First, ImmuneDB can
+take raw FASTA/FASTQ files and use the method proposed by `Zhang, et al.
+<https://www.ncbi.nlm.nih.gov/pubmed/26529062>`_ to identify V- and J-genes.
+
+Alternatively, ImmuneDB can take pre-annotated sequences in `Change-O
+<http://changeo.readthedocs.io>`_ format.  The Change-O format was chosen since
+output from other sources, such as `IMGT High-VQuest
+<http://imgt.org/HighV-QUEST>`_ and `IgBlast
+<https://www.ncbi.nlm.nih.gov/igblast/>`_ can be easily converted to the
+Change-O format.
+
+Method 1: Identify Sequences with ImmuneDB
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 The first step of the pipeline is sequence identification.  Primarily this
 assigns each sequence a V and J gene, but it also calculates statistics such as
 how well the sequence matches the germline, if there is a probable insertion or
@@ -198,40 +212,18 @@ deletion, and how far into the CDR3 the V and J likely extend.
         j_germline:                 ATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCG
         seq:         ...ATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCGATCG
 
-
-Genotyping (Optional)
----------------------
-.. warning::
-    This step is still considered in beta.
-
-ImmuneDB comes with a helper script to determine the genotype of subjects using
-`TIgGER <https://tigger.readthedocs.io>`_.  This will determine which germline
-V-genes are present in each subject, and if any contain novel mutations.  After
-this determination, ImmuneDB can operate on the modified genotype FASTA file
-for futher gene identification.
-
-The basic process for this is to identify sequences at the allele level, export
-sequences in Change-O format, run TIgGer to determine each subjects' genotype,
-delete the originally identified sequences, and then re-run identification with
-the new V-germlines.
+Method 2: Importing from Change-O Format
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+Importing from the Change-O format is similar to identifying sequences with
+ImmuneDB.
 
 .. code-block:: bash
 
-    $ immunedb_admin create db_name ~/configs
-    $ immunedb_identify ~/configs/db_name.json v_germlines.fasta j_germlines.fasta \
-        /path/to/sequences --genotype
-    $ immunedb_collapse ~/configs/db_name.json
-    $ immunedb_export ~/configs/db_name.json changeo --min-subject-copies 2
-    $ immunedb_genotype ~/configs/db_name.json v_germlines.fasta
-    $ immunedb_admin delete ~/configs/db_name.json
-    $ immunedb_admin create db_name ~/configs
-    # For each subject
-    $ immunedb_identify ~/configs/db_name.json SUBJECT.v_genotype.fasta j_germlines.fasta \
-        /path/to/SUBJECT_sequence_data
+    $ immunedb_import config.json v_germlines.fasta j_germlines.fasta \
+        /path/to/sequence-data-directory
 
-Note in the final step (identifying sequences with the inferred genotype) you
-must specify the sequences only associated with ``SUBJECT``.  This step must
-then be repeated for each subject for which the genotype was inferred.
+Note that the sequence directory must have a metadata file as described
+above.
 
 
 Local Alignment of Indel Sequences (Optional)
@@ -253,7 +245,7 @@ used to properly gap sequences or germlines.  It requires `bowtie2
 
 
 Sequence Collapsing
-------------------------------------
+-------------------
 ImmuneDB determines the uniqueness of a sequence both at the sample and subject
 level.  For the latter, ``immunedb_collapse`` is used to find sequences that are the
 same except at positions that have an ``N``.  Thus, the sequences ``ATNN`` and
@@ -381,10 +373,47 @@ commands and must be run in that order.
     $ immunedb_clone_stats config.json
 
 
+Optional Steps and Features
+===========================
+Genotyping (Optional)
+---------------------
+.. warning::
+    This step is still considered in beta.
+
+ImmuneDB comes with a helper script to determine the genotype of subjects using
+`TIgGER <https://tigger.readthedocs.io>`_.  This will determine which germline
+V-genes are present in each subject, and if any contain novel mutations.  After
+this determination, ImmuneDB can operate on the modified genotype FASTA file
+for futher gene identification.
+
+The basic process for this is to identify sequences at the allele level, export
+sequences in Change-O format, run TIgGer to determine each subjects' genotype,
+delete the originally identified sequences, and then re-run identification with
+the new V-germlines.
+
+.. code-block:: bash
+
+    $ immunedb_admin create db_name ~/configs
+    $ immunedb_identify ~/configs/db_name.json v_germlines.fasta j_germlines.fasta \
+        /path/to/sequences --genotype
+    $ immunedb_collapse ~/configs/db_name.json
+    $ immunedb_export ~/configs/db_name.json changeo --min-subject-copies 2
+    $ immunedb_genotype ~/configs/db_name.json v_germlines.fasta
+    $ immunedb_admin delete ~/configs/db_name.json
+    $ immunedb_admin create db_name ~/configs
+    # For each subject
+    $ immunedb_identify ~/configs/db_name.json SUBJECT.v_genotype.fasta j_germlines.fasta \
+        /path/to/SUBJECT_sequence_data
+
+Note in the final step (identifying sequences with the inferred genotype) you
+must specify the sequences only associated with ``SUBJECT``.  This step must
+then be repeated for each subject for which the genotype was inferred.
+
 Selection Pressure (Optional)
 -----------------------------
 Selection pressure of clones can be calculated with `Baseline
-<http://selection.med.yale.edu/baseline/Archive>`_.  After installing, run:
+<http://selection.med.yale.edu/baseline/Archive>`_.  After installing, and
+assigning clones with ``immunedb_clones``, run:
 
 .. code-block:: bash
 
@@ -408,9 +437,6 @@ error.
 
     $ immunedb_clone_trees config.json /path/to/clearcut --min-count 2
 
-.. _supplemental_tools:
-
-
 Web Service (Optional)
 ----------------------
 ImmuneDB has a RESTful API that allows for language agnostic querying.  This is
@@ -423,17 +449,3 @@ To run on port 3000 for example:
 .. code-block:: bash
 
     $ immunedb_rest config.json -p 3000
-
-Optional Rollbar Support
-^^^^^^^^^^^^^^^^^^^^^^^^
-The server also has optional `Rollbar <https://rollbar.com/>`_ support, allowing
-the database maintainer to monitor for errors.  Before using Rollbar you must
-install its package with ``pip install rollbar`` and get a Rollbar token from
-their website.  Then, you can use it with:
-
-.. code-block:: bash
-
-    $ immunedb_rest config.json --rollbar-token YOUR_TOKEN
-
-There is also the optional ``--rollbar-env NAME`` parameter which allows you to
-specify the environment name for Rollbar (defaults to ``develop``).
