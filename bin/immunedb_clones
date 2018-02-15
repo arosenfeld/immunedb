@@ -5,41 +5,41 @@ import argparse
 import immunedb.common.config as config
 from immunedb.aggregation.clones import ClonalWorker, run_clones
 
+
 def add_defaults(parser):
     parser.add_argument('--subject-ids', nargs='+', type=int,
-                             help='Limit generation to certain subjects')
+                        help='Limit generation to certain subjects')
     parser.add_argument('--include-indels', action='store_true',
-                             default=ClonalWorker.defaults['include_indels'],
-                             help='''If specified, includes indels (or poorly
-                             aligned sequences) in clones.''')
+                        default=ClonalWorker.defaults['include_indels'],
+                        help='''If specified, includes indels (or poorly
+                        aligned sequences) in clones.''')
     parser.add_argument('--exclude-partials', action='store_true',
-                             default=ClonalWorker.defaults['include_indels'],
-                             help=''''If specified, excludes partial sequences
-                             in clones.  Note partial sequences which were
-                             collapse to a full sequence will always be
-                             included.''')
+                        default=ClonalWorker.defaults['include_indels'],
+                        help=''''If specified, excludes partial sequences
+                        in clones.  Note partial sequences which were
+                        collapse to a full sequence will always be
+                        included.''')
     parser.add_argument('--min-identity', type=int,
-                             default=ClonalWorker.defaults['min_identity'],
-                             help='''Minimum V identity of sequences to
-                             germline required for inclusion in clones.''')
+                        default=ClonalWorker.defaults['min_identity'],
+                        help='''Minimum V identity of sequences to
+                        germline required for inclusion in clones.''')
     parser.add_argument('--min-copy', type=int,
-                             default=ClonalWorker.defaults['min_copy'],
-                             help='''The minimum copy number that sequences
-                             must have in the subject to be included in
-                             clones.''')
+                        default=ClonalWorker.defaults['min_copy'],
+                        help='''The minimum copy number that sequences
+                        must have in the subject to be included in
+                        clones.''')
     parser.add_argument('--max-padding', type=int,
-                             default=ClonalWorker.defaults['max_padding'],
-                             help='''Maximum V-padding a sequence may have to
-                             be added to a clone.''')
+                        default=ClonalWorker.defaults['max_padding'],
+                        help='''Maximum V-padding a sequence may have to
+                        be added to a clone.''')
     parser.add_argument('--regen', action='store_true',
-                             help='''If specified all clones (limited by
-                             subject if --subject is specified) will be DELETED
-                             before creating new clones.  Associated sequences
-                             will be re-assigned new clones''')
+                        help='''If specified all clones (limited by
+                        subject if --subject is specified) will be DELETED
+                        before creating new clones.  Associated sequences
+                        will be re-assigned new clones''')
     parser.add_argument('--subclones', action='store_true',
-                             help='''If specified, calculates subclone
-                             relationships''')
-
+                        help='''If specified, calculates subclone
+                        relationships''')
 
 
 if __name__ == '__main__':

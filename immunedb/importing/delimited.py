@@ -1,161 +1,151 @@
 import csv
+import dnautils
+import os
 import re
 
-from immunedb.common.models import (NoResult, Sample, SampleMetadata, Study,
-                                    Subject)
-from immunedb.identification import (add_as_noresult, add_uniques,
-                                     AlignmentException)
-from immunedb.identification.anchor import AnchorAligner
-from immunedb.identification.genes import JGermlines, VGermlines
+from immunedb.common.models import (CDR3_OFFSET, NoResult, Sample,
+                                    SampleMetadata, Study, Subject)
+from immunedb.identification import (add_as_noresult, add_as_sequence,
+                                     AlignmentException, get_common_seq)
+
+from immunedb.identification.metadata import (MetadataException,
+                                              parse_metadata, REQUIRED_FIELDS)
+from immunedb.identification.genes import JGermlines, VGermlines, GeneName
 from immunedb.identification.identify import IdentificationProps
-from immunedb.identification.vdj_sequence import VDJSequence
+from immunedb.identification.vdj_sequence import VDJAlignment, VDJSequence
 import immunedb.util.funcs as funcs
 from immunedb.util.log import logger
 
 
-DEFAULT_MAPPINGS = {
-    'full_sequence': 'V-D-J-REGION',
-    'seq_id': 'Sequence ID',
-    'v_gene': 'V-GENE and allele',
-    'j_gene': 'J-GENE and allele',
-    'copy_number': None
-}
+def create_alignment(seq, line, v_germlines, j_germlines):
+    alignment = VDJAlignment(seq)
+    alignment.v_gene = set([GeneName(g) for g in line['V_CALL'].split(',')])
+    alignment.j_gene = set([GeneName(g) for g in line['J_CALL'].split(',')])
+    alignment.cdr3_num_nts = int(line['JUNCTION_LENGTH'])
+    alignment.v_length = int(line['V_SEQ_LENGTH'])
+    alignment.seq_offset = re.match('[\-]*', alignment.sequence.sequence).end()
+
+    # TODO: Calculate these
+    alignment.v_length = CDR3_OFFSET - seq[:CDR3_OFFSET].count('-')
+    alignment.j_length = j_germlines.upstream_of_cdr3
+
+    germ_v = [v_germlines[g] for g in alignment.v_gene if g in v_germlines]
+    germ_j = [j_germlines[g] for g in alignment.j_gene if g in j_germlines]
+    if len(germ_v) == 0 or len(germ_j) == 0:
+        raise AlignmentException('Missing germlines: V={} J={}'.format(
+            ','.join([str(v) for v in alignment.v_gene]),
+            ','.join([str(j) for j in alignment.j_gene])))
+
+    germ_v = get_common_seq(germ_v)
+    germ_j = get_common_seq(germ_j)
+
+    alignment.germline_cdr3 = ''.join((
+        germ_v,
+        '-' * (len(alignment.sequence) - len(germ_v) - len(germ_j)),
+        germ_j
+    ))[CDR3_OFFSET:CDR3_OFFSET + alignment.cdr3_num_nts]
+
+    alignment.germline = ''.join([
+        germ_v[:CDR3_OFFSET],
+        '-' * alignment.cdr3_num_nts,
+        germ_j[-j_germlines.upstream_of_cdr3:]
+    ])
+
+    if len(alignment.germline) != len(alignment.sequence.sequence):
+        raise AlignmentException('Sequence and germline differ in size')
+    return alignment
 
 
-def _collapse_seqs(session, sample, reader, columns):
-    seqs = {}
-    for record in reader:
-        if record[columns.full_sequence] is None:
-            NoResult(seq_id=record[columns.seq_id], sample_id=sample.id)
-            continue
+def read_file(session, handle, sample, v_germlines, j_germlines, props):
+    reader = csv.DictReader(handle, delimiter='\t')
+    uniques = {}
 
-        record[columns.full_sequence] = record[columns.full_sequence].replace(
-            '.', '').upper()
-        if record[columns.full_sequence] not in seqs:
-            seqs[record[columns.full_sequence]] = {
-                'record': record,
-                'seq_ids': []
-            }
-        seqs[record[columns.full_sequence]]['seq_ids'].append(
-            record[columns.seq_id]
-        )
-        if columns.copy_number in record:
-            for dup in record[columns.copy_number]:
-                seqs[record[columns.full_sequence]]['seq_ids'].append(
-                    '{}_DUP_{}'.format(columns.seq_id, dup)
-                )
-
-    return seqs.values()
-
-
-def read_file(session, handle, sample, v_germlines, j_germlines, columns,
-              remaps):
-    seqs = _collapse_seqs(session, sample, csv.DictReader(handle,
-                          delimiter='\t'), columns)
-    props = IdentificationProps(**columns.__dict__)
-
-    aligned_seqs = {}
-    missed = 0
-    total = 0
-    v_gene_names = [v.name for v in v_germlines]
-    j_gene_names = [j.name for j in j_germlines]
-    aligner = AnchorAligner(v_germlines, j_germlines)
-    for total, seq in enumerate(seqs):
-        if total > 0 and total % 1000 == 0:
-            logger.info('Finished {}'.format(total))
-            session.commit()
-
-        orig_v_genes = set(
-            re.findall('IGHV[^ ,]+', seq['record'][columns.v_gene])
-        )
-        orig_j_genes = set(
-            re.findall('IGHJ[^ ,]+', seq['record'][columns.j_gene])
-        )
-        if remaps is not None:
-            remapped_j_genes = set([])
-            for j in orig_j_genes:
-                for remap_from, remap_to in remaps.iteritems():
-                    if j.startswith(remap_from):
-                        remapped_j_genes.add(remap_to)
-                        break
-                else:
-                    remapped_j_genes.add(j)
-            orig_j_genes = remapped_j_genes
-
-        v_genes = filter(lambda v: v in v_gene_names, orig_v_genes)
-        j_genes = filter(lambda j: j in j_gene_names, orig_j_genes)
-
-        vdj = VDJSequence(seq['seq_ids'], seq['record'][columns.full_sequence])
+    for line in reader:
+        seq = VDJSequence(line['SEQUENCE_ID'],
+                          line['SEQUENCE_IMGT'].replace('.', '-'))
         try:
-            if len(v_genes) == 0:
-                raise AlignmentException('No valid V germline for {}'.format(
-                    ','.join(sorted(orig_v_genes))
-                ))
-            if len(j_genes) == 0:
-                raise AlignmentException('No valid J germline for {}'.format(
-                    ','.join(sorted(orig_j_genes))
-                ))
-
-            alignment = aligner.get_alignment(vdj, limit_vs=v_genes,
-                                              limit_js=j_genes)
-
-            if alignment.sequence.sequence in aligned_seqs:
-                aligned_seqs[alignment.sequence].ids += vdj.ids
-            else:
-                aligned_seqs[vdj.sequence] = alignment
+            alignment = create_alignment(seq, line, v_germlines, j_germlines)
         except AlignmentException as e:
-            add_as_noresult(session, vdj, sample, str(e))
-            missed += 1
-    logger.info('Aligned {} / {} sequences'.format(total - missed + 1, total))
-
-    logger.info('Collapsing ambiguous character sequences')
-    if len(aligned_seqs) > 0:
-        avg_mut = sum(
-            [v.v_mutation_fraction for v in aligned_seqs.values()]
-        ) / float(len(aligned_seqs))
-        avg_len = sum(
-            [v.v_length for v in aligned_seqs.values()]
-        ) / float(len(aligned_seqs))
-        sample.v_ties_mutations = avg_mut
-        sample.v_ties_len = avg_len
-        if columns.ties:
-            add_uniques(session, sample, aligned_seqs.values(), props, aligner,
-                        realign_mut=avg_mut, realign_len=avg_len)
+            add_as_noresult(session, seq, sample, str(e))
+        for other in uniques.setdefault(len(alignment.sequence.sequence), []):
+            if dnautils.equal(other.sequence.sequence,
+                              alignment.sequence.sequence):
+                other.sequence.ids.extend(alignment.sequence.ids)
+                break
         else:
-            add_uniques(session, sample, aligned_seqs.values())
+            uniques[len(alignment.sequence.sequence)].append(alignment)
+
+    uniques = [s for u in uniques.values() for s in u]
+    lens = []
+    muts = []
+    for unique in uniques:
+        try:
+            props.validate(unique)
+            add_as_sequence(session, unique, sample)
+            lens.append(unique.v_length)
+            muts.append(unique.v_mutation_fraction)
+        except AlignmentException as e:
+            add_as_noresult(session, seq, sample, str(e))
+
+    if len(lens) > 0:
+        sample.v_ties_len = sum(lens) / float(len(lens))
+        sample.v_ties_mutations = sum(muts) / float(len(muts))
+
     session.commit()
 
 
-def run_import(session, args, remaps=None):
-    v_germlines = VGermlines(args.v_germlines)
-    j_germlines = JGermlines(args.j_germlines, args.upstream_of_cdr3,
-                             args.anchor_len, args.min_anchor_len)
-
-    study, new = funcs.get_or_create(session, Study, name=args.study_name)
+def create_sample(session, metadata):
+    study, new = funcs.get_or_create(
+        session, Study, name=metadata['study_name'])
 
     if new:
         logger.info('Created new study "{}"'.format(study.name))
         session.commit()
 
-    sample, new = funcs.get_or_create(session, Sample, name=args.sample_name,
-                                      study=study)
+    sample, new = funcs.get_or_create(
+        session, Sample, name=metadata['sample_name'], study=study)
     if new:
-        sample.date = args.date
         logger.info('Created new sample "{}"'.format(sample.name))
-        for meta in args.meta:
-            key, value = meta.split('=', 1)
-            session.add(SampleMetadata(
-                sample=sample,
-                key=key,
-                value=value))
+        for key, value in metadata.iteritems():
+            if key not in REQUIRED_FIELDS:
+                session.add(SampleMetadata(
+                    sample=sample,
+                    key=key,
+                    value=value
+                ))
+
         subject, new = funcs.get_or_create(
             session, Subject, study=study,
-            identifier=args.subject)
+            identifier=metadata['subject'])
         sample.subject = subject
         session.commit()
     else:
-        logger.error('Sample "{}" already exists'.format(args.sample_name))
+        logger.error(
+            'Sample "{}" already exists'.format(metadata['sample_name']))
         return
+    return sample
 
-    with open(args.input_file) as fh:
-        read_file(session, fh, sample, v_germlines, j_germlines, args, remaps)
+
+def run_import(session, args):
+    v_germlines = VGermlines(args.v_germlines)
+    j_germlines = JGermlines(args.j_germlines, args.upstream_of_cdr3,
+                             args.anchor_len)
+
+    meta_fn = args.metadata if args.metadata else os.path.join(
+        args.sample_dir, 'metadata.tsv')
+    with open(meta_fn, 'rU') as fh:
+        try:
+            metadata = parse_metadata(session, fh, False,
+                                      args.sample_dir)
+        except MetadataException as ex:
+            logger.error(ex.message)
+            return
+
+    props = IdentificationProps(**args.__dict__)
+    for sample_name in sorted(metadata.keys()):
+        sample = create_sample(session, metadata[sample_name])
+        if sample:
+            path = os.path.join(
+                args.sample_dir, metadata[sample_name]['file_name'])
+            with open(path) as fh:
+                read_file(session, fh, sample, v_germlines, j_germlines, props)

@@ -19,12 +19,13 @@ class GermlineException(Exception):
 class GeneName(object):
     def __init__(self, name):
         self.name = name
-        parts = re.match('(([A-Z]+)(\d+)([^*]+)?)(\*(\d+))?',
-                         self.name).groups()
-        self.base = parts[0]
-        self.prefix = parts[1]
-        self.family = parts[2]
-        self.allele = parts[5] if parts[5] else None
+        parts = re.search('((([A-Z]+)(\d+)([^*]+)?)(\*(\d+))?)',
+                          self.name).groups()
+        self.name = parts[0]
+        self.base = parts[1]
+        self.prefix = parts[2]
+        self.family = parts[3]
+        self.allele = parts[6] if parts[6] else None
 
     def __str__(self):
         return self.name

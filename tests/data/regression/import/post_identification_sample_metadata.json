@@ -1,26 +1,26 @@
 {
-    "1-disease": {
-        "value": "Something bad"
+    "1-date": {
+        "value": "2015-09-13"
     },
     "1-experimenter": {
-        "value": "Bob"
-    },
-    "1-ig_class": {
-        "value": "IgE"
-    },
-    "1-j_primer": {
-        "value": "Trailer"
+        "value": "Someone"
     },
     "1-lab": {
-        "value": "Sanger"
-    },
-    "1-subset": {
-        "value": "MN"
+        "value": "The Lab"
     },
     "1-tissue": {
-        "value": "PBL"
+        "value": "Colon"
     },
-    "1-v_primer": {
-        "value": "Leader"
+    "2-date": {
+        "value": "2015-09-13"
+    },
+    "2-experimenter": {
+        "value": "Someone"
+    },
+    "2-lab": {
+        "value": "The Lab"
+    },
+    "2-tissue": {
+        "value": "SPL"
     }
 }

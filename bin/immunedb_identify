@@ -35,7 +35,7 @@ if __name__ == '__main__':
                         help='''Maximum number of V-ties to allow in a valid
                         sequence.  V-ties resulting in a name longer than 512
                         characters will be truncated.''')
-    parser.add_argument('--min-similarity', type=int,
+    parser.add_argument('--min-similarity', type=float,
                         default=IdentificationProps.defaults['min_similarity'],
                         help='''Minimum fraction similarity to germline
                         required for valid sequences.''')

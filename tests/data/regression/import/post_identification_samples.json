@@ -1,7 +1,12 @@
 {
     "1": {
         "name": "input",
-        "v_ties_len": 294.212,
-        "v_ties_mutations": 0.0824959
+        "v_ties_len": 284.33,
+        "v_ties_mutations": 0.0
+    },
+    "2": {
+        "name": "input2",
+        "v_ties_len": 285.376,
+        "v_ties_mutations": 0.0
     }
 }
