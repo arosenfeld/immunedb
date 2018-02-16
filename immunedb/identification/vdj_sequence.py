@@ -211,7 +211,10 @@ class VDJAlignment(object):
         return False
 
     def trim_to(self, count):
-        old_padding = self.seq_start
+        old_pad = self.seq_start - self.sequence[:self.seq_start].count('-')
+
         self.sequence.trim(count)
         self.seq_offset = re.match('[N\-]*', self.sequence.sequence).span()[1]
-        self.v_length -= self.seq_start - old_padding
+
+        new_pad = self.sequence[:self.seq_start].count('-')
+        self.v_length = self.v_length - self.seq_start + old_pad + new_pad

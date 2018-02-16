@@ -141,7 +141,6 @@ class ClonalWorker(concurrent.Worker):
             Sequence._insertions == bucket._insertions,
             Sequence._deletions == bucket._deletions,
 
-            ~Sequence.cdr3_aa.like('%*%'),
             SequenceCollapse.copy_number_in_subject >= self.min_copy,
         )
         if sort:
