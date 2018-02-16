@@ -110,11 +110,6 @@ class SizedQueue(object):
         with self.tasks.get_lock():
             self.tasks[0] += 1
         self.queue.put(val)
-        if self.output:
-            logger.info('put: {} / {}'.format(
-                self.tasks[0],
-                self.tasks[1],
-            ))
 
     def get(self):
         res = self.queue.get()
@@ -122,11 +117,6 @@ class SizedQueue(object):
             raise EndOfDataException()
         with self.tasks.get_lock():
             self.tasks[1] += 1
-        if self.output:
-            logger.info('get: {} / {}'.format(
-                self.tasks[0],
-                self.tasks[1],
-            ))
         return res
 
     def __iter__(self):
@@ -149,7 +139,6 @@ def _process_wrapper(process_func, in_queue, out_queue, **kwargs):
         except Exception:
             logging.warning('Error in process_func:\n{}'.format(
                 traceback.format_exc()))
-    logger.info('Worker terminated')
 
 
 def _agg_wrapper(aggregate_func, aggregate_queue, return_val, **kwargs):
