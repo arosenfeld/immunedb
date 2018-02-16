@@ -46,6 +46,7 @@ setup(
         'bottle',
         'ete2',
         'numpy',
+        'pygtrie',
         'PyMySQL',
     ],
     ext_modules=[dnautils],

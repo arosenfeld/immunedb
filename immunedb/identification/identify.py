@@ -3,6 +3,7 @@ import multiprocessing as mp
 import os
 import sys
 import traceback
+import pygtrie
 from sqlalchemy import func
 import Queue
 
@@ -256,7 +257,7 @@ def aggregate_collapse(aggregate_queue, session, sample, props):
 
 
 def collapse_exact(process_queue, path):
-    vdjs = {}
+    vdjs = pygtrie.StringTrie()
     parser = SeqIO.parse(path, 'fasta' if path.endswith('.fasta') else 'fastq')
 
     # Collapse identical sequences
