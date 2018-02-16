@@ -22,6 +22,8 @@ class TestImport(BaseTest.RegressionTest):
                 metadata=None,
                 max_vties=50,
                 min_similarity=.60,
+                warn_existing=False,
+                warn_missing=False,
                 trim=0,
                 trim_to=None,
                 max_padding=None,

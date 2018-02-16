@@ -133,10 +133,15 @@ def run_import(session, args):
 
     meta_fn = args.metadata if args.metadata else os.path.join(
         args.sample_dir, 'metadata.tsv')
+
+    if not os.path.isfile(meta_fn):
+        logger.error('Metadata file not found.')
+        return
+
     with open(meta_fn, 'rU') as fh:
         try:
-            metadata = parse_metadata(session, fh, False,
-                                      args.sample_dir)
+            metadata = parse_metadata(session, fh, args.warn_existing,
+                                      args.warn_missing, args.sample_dir)
         except MetadataException as ex:
             logger.error(ex.message)
             return

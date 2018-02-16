@@ -52,7 +52,7 @@ if __name__ == '__main__':
                         identification will not begin.''')
     parser.add_argument('--warn-missing', default=False, action='store_true',
                         help='''If specified, warns of samples missing input
-                        FASTA/FASTQ files.  Otherwise, an error is raised and
+                        files.  Otherwise, an error is raised and
                         identification will not begin.''')
     parser.add_argument('--genotyping', action='store_true',
                         default=IdentificationProps.defaults['genotyping'],

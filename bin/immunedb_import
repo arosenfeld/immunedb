@@ -45,6 +45,15 @@ if __name__ == '__main__':
                         help='''If specified, trims the beginning N bases of
                         each sequence.  Useful for removing primers within
                         the V sequence.''')
+    parser.add_argument('--warn-existing', default=False, action='store_true',
+                        help='''If specified, warns of existing samples and
+                        skips them.  Otherwise, an error is raised and
+                        identification will not begin.''')
+    parser.add_argument('--warn-missing', default=False, action='store_true',
+                        help='''If specified, warns of samples missing input
+                        files.  Otherwise, an error is raised and
+                        identification will not begin.''')
+
 
     args = parser.parse_args()
 

@@ -255,11 +255,7 @@ def aggregate_collapse(aggregate_queue, session, sample, props):
     session.commit()
 
 
-def process_sample(session, v_germlines, j_germlines, path, meta, props,
-                   nproc):
-    logger.info('Starting sample {}'.format(meta['sample_name']))
-    sample = setup_sample(session, meta)
-
+def collapse_exact(process_queue, path):
     vdjs = {}
     parser = SeqIO.parse(path, 'fasta' if path.endswith('.fasta') else 'fastq')
 
@@ -280,16 +276,26 @@ def process_sample(session, v_germlines, j_germlines, path, meta, props,
         except ValueError:
             continue
 
-    logger.info('Aligning {} unique sequences'.format(len(vdjs)))
+    logger.info('Found {} unique sequences (pre-alignment)'.format(len(vdjs)))
+    process_queue.put_all(vdjs.values())
+    process_queue.writer_finished()
+
+
+def process_sample(session, v_germlines, j_germlines, path, meta, props,
+                   nproc):
+    logger.info('Starting sample {}'.format(meta['sample_name']))
+    sample = setup_sample(session, meta)
+
     aligner = AnchorAligner(v_germlines, j_germlines)
 
     # Initial VJ assignment
     alignments = concurrent.process_data(
-        vdjs.values(),
+        collapse_exact,
         process_vdj,
         aggregate_vdj,
         nproc,
         process_args={'aligner': aligner},
+        generate_args={'path': path},
         log_progress=True
     )
     for result in alignments['noresult']:
