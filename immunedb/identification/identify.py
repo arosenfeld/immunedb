@@ -144,7 +144,7 @@ def process_vdj(vdj, aligner):
         }
 
 
-def aggregate_vdj(aggregate_queue, alignments_out):
+def aggregate_vdj(aggregate_queue):
     alignments = {
         'success': {},
         'noresult': []
@@ -165,7 +165,7 @@ def aggregate_vdj(aggregate_queue, alignments_out):
                 'Unexpected error processing sequence {}\n\t{}'.format(
                     result['vdj'].ids[0], result['reason']))
     alignments['success'] = alignments['success'].values()
-    alignments_out.update(alignments)
+    return alignments
 
 
 def process_vties(alignment, aligner, avg_len, avg_mut, props):
@@ -193,7 +193,7 @@ def process_vties(alignment, aligner, avg_len, avg_mut, props):
         }
 
 
-def aggregate_vties(aggregate_queue, seqs_out):
+def aggregate_vties(aggregate_queue):
     bucketed_seqs = {
         'success': {},
         'noresult': []
@@ -224,7 +224,7 @@ def aggregate_vties(aggregate_queue, seqs_out):
     bucketed_seqs['success'] = [
         b.values() for b in bucketed_seqs['success'].values()
     ]
-    seqs_out.update(bucketed_seqs)
+    return bucketed_seqs
 
 
 def process_collapse(sequences):
@@ -247,7 +247,7 @@ def process_collapse(sequences):
     return uniques
 
 
-def aggregate_collapse(aggregate_queue, _, session, sample, props):
+def aggregate_collapse(aggregate_queue, session, sample, props):
     for alignment in aggregate_queue:
         for a in alignment:
             add_as_sequence(session, a, sample,

@@ -177,11 +177,5 @@ def process_data(generate_func_or_iter,
             args=(process_func, process_queue, aggregate_queue, log_progress),
             kwargs=process_args
         ).start()
-    aggregate_proc = mp.Process(
-        target=aggregate_func,
-        args=(aggregate_queue, return_value),
-        kwargs=aggregate_args
-    )
-    aggregate_proc.start()
-    aggregate_proc.join()
-    return return_value
+
+    return aggregate_func(aggregate_queue, **aggregate_args)
