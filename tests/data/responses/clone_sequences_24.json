@@ -1,32 +1,18 @@
 [
     {
-        "cdr3_nt": "TGTACAACTGGCCTTTTTGACCCCCCTTATGACTATTGG",
+        "cdr3_nt": "TGTGCGAGAGAGTAGAGGAGGACGGGGGTAGCAGCAGCTGGTACACCTTCGACTTCTGG",
         "collapse_to": [],
         "copy_number_in_subject": 2,
         "instances_in_subject": 1,
-        "j_length": 45,
-        "mutations": {
-            "156": "conservative",
-            "201": "conservative",
-            "208": "conservative",
-            "248": "synonymous",
-            "266": "conservative",
-            "268": "nonconservative",
-            "269": "conservative",
-            "274": "conservative",
-            "290": "conservative",
-            "302": "synonymous",
-            "308": "synonymous",
-            "8": "synonymous",
-            "9": "synonymous"
-        },
+        "j_length": 48,
+        "mutations": {},
         "read_start": 0,
         "sample": {
             "id": 2,
             "name": "input2"
         },
-        "seq_id": "M03592:18:000000000-AHJWK:1:1102:6337:9389",
-        "sequence": "CAGGTCCAATTGGTACAGTCTGGGGCT---GAGGTGAAGAAGCCTGGGGCCTCAGNGAAGGTNTCCTGCAAGGTTTCCGGATACACCCTC------------ACTGAATTATCCATGCANNGGGTGCGACAGGCNNCTGGAAAAGGGCTTGAGTGGCTGGGAGGTTTTGATCCTGAA------GATGGTGAAACAATCTACTCACAGAGGTTCCAG---GGCAGAGTCACCATGACCGAGGACACATCAACAGACACAGCCTACATTGTCCTGACCAGCCTGAGATCTGACGACACGGCCGTCTATTATTGTACAACTGGCCTTTTTGACCCCCCTTATGACTATTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
+        "seq_id": "M03592:18:000000000-AHJWK:1:1101:18848:12520",
+        "sequence": "CAGGTGCAGCTGGTGCAGTCTGGGGCT---GAGGTGAAGAAGCCTGGGGCCTCAGTGAAGGTCTCCTGCAAGGCTTCTGGNTACACCTTC------------ACCGGCTACTATATGCACTGGGTGCGACAGGCCCCTGGACAAGGGCTTGAGTGGATGGGATGGATCAACCCTAAC------AGTGGTGGCACAAACTATGCACAGAAGTTTCAG---GGCTGGGTCACCATGACCAGGGACACGTCCATCAGCACAGCCTACATGGAGCTGAGCAGGCTGAGATCTGACGACACGGCCGTGTATTACTGTGCGAGAGAGTAGAGGAGGACGGGGGTAGCAGCAGCTGGTACACCTTCGACTTCTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
         "v_extent": 320
     }
 ]

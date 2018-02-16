@@ -253,31 +253,31 @@
     },
     "2-clones_all-False-False": {
         "functional_cnt": 157,
-        "in_frame_cnt": 157,
+        "in_frame_cnt": 159,
         "no_result_cnt": 13,
-        "sequence_cnt": 162,
-        "stop_cnt": 0
+        "sequence_cnt": 167,
+        "stop_cnt": 5
     },
     "2-clones_all-False-True": {
         "functional_cnt": 157,
-        "in_frame_cnt": 157,
+        "in_frame_cnt": 159,
         "no_result_cnt": 13,
-        "sequence_cnt": 162,
-        "stop_cnt": 0
+        "sequence_cnt": 167,
+        "stop_cnt": 5
     },
     "2-clones_all-True-False": {
         "functional_cnt": 157,
-        "in_frame_cnt": 157,
+        "in_frame_cnt": 159,
         "no_result_cnt": 13,
-        "sequence_cnt": 162,
-        "stop_cnt": 0
+        "sequence_cnt": 167,
+        "stop_cnt": 5
     },
     "2-clones_all-True-True": {
         "functional_cnt": 157,
-        "in_frame_cnt": 157,
+        "in_frame_cnt": 159,
         "no_result_cnt": 13,
-        "sequence_cnt": 162,
-        "stop_cnt": 0
+        "sequence_cnt": 167,
+        "stop_cnt": 5
     },
     "2-clones_functional-False-False": {
         "functional_cnt": 157,
@@ -309,31 +309,31 @@
     },
     "2-clones_nonfunctional-False-False": {
         "functional_cnt": 0,
-        "in_frame_cnt": 0,
+        "in_frame_cnt": 2,
         "no_result_cnt": 13,
-        "sequence_cnt": 5,
-        "stop_cnt": 0
+        "sequence_cnt": 10,
+        "stop_cnt": 5
     },
     "2-clones_nonfunctional-False-True": {
         "functional_cnt": 0,
-        "in_frame_cnt": 0,
+        "in_frame_cnt": 2,
         "no_result_cnt": 13,
-        "sequence_cnt": 5,
-        "stop_cnt": 0
+        "sequence_cnt": 10,
+        "stop_cnt": 5
     },
     "2-clones_nonfunctional-True-False": {
         "functional_cnt": 0,
-        "in_frame_cnt": 0,
+        "in_frame_cnt": 2,
         "no_result_cnt": 13,
-        "sequence_cnt": 5,
-        "stop_cnt": 0
+        "sequence_cnt": 10,
+        "stop_cnt": 5
     },
     "2-clones_nonfunctional-True-True": {
         "functional_cnt": 0,
-        "in_frame_cnt": 0,
+        "in_frame_cnt": 2,
         "no_result_cnt": 13,
-        "sequence_cnt": 5,
-        "stop_cnt": 0
+        "sequence_cnt": 10,
+        "stop_cnt": 5
     },
     "2-functional-False-False": {
         "functional_cnt": 1296,
