@@ -278,8 +278,8 @@ def collapse_exact(process_queue, path):
             continue
 
     logger.info('Found {} unique sequences (pre-alignment)'.format(len(vdjs)))
-    process_queue.put_all(vdjs.values())
-    process_queue.writer_finished()
+    for v in vdjs.values():
+        process_queue.put(v)
 
 
 def process_sample(session, v_germlines, j_germlines, path, meta, props,
@@ -297,7 +297,6 @@ def process_sample(session, v_germlines, j_germlines, path, meta, props,
         nproc,
         process_args={'aligner': aligner},
         generate_args={'path': path},
-        log_progress=True
     )
     for result in alignments['noresult']:
         add_as_noresult(session, result['vdj'], sample, result['reason'])
@@ -325,7 +324,6 @@ def process_sample(session, v_germlines, j_germlines, path, meta, props,
             nproc,
             process_args={'aligner': aligner, 'avg_len': avg_len, 'avg_mut':
                           avg_mut, 'props': props},
-            log_progress=True
         )
 
         for result in v_ties['noresult']:

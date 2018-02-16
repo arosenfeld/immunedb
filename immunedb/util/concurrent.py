@@ -91,61 +91,71 @@ class TaskQueue(object):
 
 
 # V2 of multiprocessing
-class DataQueue(object):
-    def __init__(self, num_writers):
-        self.num_writers = num_writers
+class _EndOfDataSentinel(object):
+    pass
+
+
+class EndOfDataException(Exception):
+    pass
+
+
+class SizedQueue(object):
+    def __init__(self, output=False):
         self.queue = mp.Queue()
-        self.num_writers_finished = mp.Value('i', 0, lock=True)
-        self.size = mp.Value('i', 0, lock=True)
+        self.output = output
+        # [added, completed]
+        self.tasks = mp.Array('i', [0, 0], lock=True)
 
-    def writer_finished(self):
-        with self.num_writers_finished.get_lock():
-            self.num_writers_finished.value += 1
+    def put(self, val):
+        with self.tasks.get_lock():
+            self.tasks[0] += 1
+        self.queue.put(val)
+        if self.output:
+            logger.info('put: {} / {}'.format(
+                self.tasks[0],
+                self.tasks[1],
+            ))
 
-    def put(self, data):
-        with self.size.get_lock():
-            self.size.value += 1
-        self.queue.put(data)
-
-    def put_all(self, data):
-        for d in data:
-            self.put(d)
-
-    def get(self, log_progress=False):
-        if (not self.size.value and
-                self.num_writers_finished.value == self.num_writers):
-            raise Queue.Empty
-        with self.size.get_lock():
-            self.size.value -= 1
-            if (log_progress and self.size.value > 0 and
-                    self.size.value % 1000 == 0):
-                logger.info('{} remaining'.format(self.size.value))
-        return self.queue.get()
-
-    def __len__(self):
-        return self.size.value
+    def get(self):
+        res = self.queue.get()
+        if res == _EndOfDataSentinel:
+            raise EndOfDataException()
+        with self.tasks.get_lock():
+            self.tasks[1] += 1
+        if self.output:
+            logger.info('get: {} / {}'.format(
+                self.tasks[0],
+                self.tasks[1],
+            ))
+        return res
 
     def __iter__(self):
         while True:
             try:
-                v = self.get()
-                yield v
-            except Queue.Empty:
+                yield self.get()
+            except EndOfDataException:
                 break
 
 
-def _process_wrapper(process_func, in_queue, out_queue, log_progress,
-                     **kwargs):
+def _process_wrapper(process_func, in_queue, out_queue, **kwargs):
     while True:
         try:
-            data = in_queue.get(log_progress=log_progress)
+            data = in_queue.get()
             out_queue.put(process_func(data, **kwargs))
         except Queue.Empty:
+            continue
+        except EndOfDataException:
             break
         except Exception:
             logging.warning('Error in process_func:\n{}'.format(
                 traceback.format_exc()))
-    out_queue.writer_finished()
+    logger.info('Worker terminated')
+
+
+def _agg_wrapper(aggregate_func, aggregate_queue, return_val, **kwargs):
+    ret = aggregate_func(aggregate_queue, **kwargs)
+    if ret:
+        return_val.update(ret)
 
 
 def process_data(generate_func_or_iter,
@@ -154,28 +164,52 @@ def process_data(generate_func_or_iter,
                  nproc,
                  generate_args={},
                  process_args={},
-                 aggregate_args={},
-                 log_progress=False):
-    process_queue = DataQueue(1)
-    aggregate_queue = DataQueue(nproc)
-    return_value = mp.Manager().dict()
+                 aggregate_args={}):
+    process_queue = SizedQueue()
+    aggregate_queue = SizedQueue()
+    return_val = mp.Manager().dict()
 
+    input_p = None
     try:
         iter(generate_func_or_iter)
-        process_queue.put_all(generate_func_or_iter)
-        process_queue.writer_finished()
+        for v in generate_func_or_iter:
+            process_queue.put(v)
     except TypeError:
-        mp.Process(
+        input_p = mp.Process(
             target=generate_func_or_iter,
             args=(process_queue,),
             kwargs=generate_args
-        ).start()
+        )
+        input_p.start()
 
+    workers = []
     for i in range(nproc):
-        mp.Process(
+        w = mp.Process(
             target=_process_wrapper,
-            args=(process_func, process_queue, aggregate_queue, log_progress),
+            args=(process_func, process_queue, aggregate_queue),
             kwargs=process_args
-        ).start()
+        )
+        w.start()
 
-    return aggregate_func(aggregate_queue, **aggregate_args)
+        workers.append(w)
+
+    if input_p:
+        input_p.join()
+
+    for n in range(nproc):
+        process_queue.put(_EndOfDataSentinel)
+
+    agg_p = mp.Process(
+        target=_agg_wrapper,
+        args=(aggregate_func, aggregate_queue, return_val,),
+        kwargs=aggregate_args
+    )
+    agg_p.start()
+
+    for i, w in enumerate(workers):
+        w.join()
+    aggregate_queue.put(_EndOfDataSentinel)
+
+    agg_p.join()
+
+    return return_val.copy()
