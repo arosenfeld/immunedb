@@ -21,8 +21,7 @@ if __name__ == '__main__':
                         'IP of the MySQL server.')
     parser.add_argument('--db-user', default=None, help='Name of MySQL user '
                         'to generate for the database.')
-    parser.add_argument('--db-pass', action='store_true', help='Prompt for '
-                        'MySQL user password.')
+    parser.add_argument('--db-pass', help='Specify a custom user password.')
     parser.add_argument('--admin-user', help='MySQL user with rights to '
                         'create databases.', default='root')
     parser.add_argument('--admin-pass', type=str, default=None,

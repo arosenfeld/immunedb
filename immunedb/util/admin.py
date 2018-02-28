@@ -63,8 +63,7 @@ def create(main_parser, args):
 
         db_user = args.db_user or args.db_name
         if args.db_pass:
-            db_pass = getpass.getpass('New MySQL password for ({}):'.format(
-                db_user))
+            db_pass = args.db_pass
         else:
             db_pass = ''.join(
                 random.choice(string.ascii_uppercase + string.ascii_lowercase +
