@@ -234,7 +234,7 @@ def run_identify(session, args):
                                       args.sample_dir)
         except MetadataException as ex:
             logger.error(ex.message)
-        sys.exit(-1)
+            sys.exit(-1)
 
     # Create the tasks for each file
     for sample_name in sorted(metadata.keys()):
