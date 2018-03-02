@@ -1,5 +1,6 @@
 import multiprocessing as mp
 import os
+import sys
 import traceback
 
 from Bio import SeqIO
@@ -225,7 +226,7 @@ def run_identify(session, args):
     # Verify the metadata file exists
     if not os.path.isfile(meta_fn):
         logger.error('Metadata file not found.')
-        return
+        sys.exit(-1)
 
     with open(meta_fn, 'rU') as fh:
         try:
@@ -233,7 +234,7 @@ def run_identify(session, args):
                                       args.sample_dir)
         except MetadataException as ex:
             logger.error(ex.message)
-            return
+        sys.exit(-1)
 
     # Create the tasks for each file
     for sample_name in sorted(metadata.keys()):
