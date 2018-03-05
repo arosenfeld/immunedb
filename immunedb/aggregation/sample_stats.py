@@ -377,3 +377,4 @@ def run_sample_stats(session, args):
 
     tasks.start()
     session.commit()
+    session.close()
