@@ -67,4 +67,4 @@ if __name__ == '__main__':
             parser.error('--max-padding cannot be less than --trim-to')
 
     session_maker = config.init_db(args.db_config, as_maker=True)
-    sys.exit(run_identify(session_maker, args))
+    run_identify(session_maker, args)
