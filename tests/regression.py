@@ -86,7 +86,9 @@ class BaseTest(object):
                                                           **kwargs)
 
         def setUp(self):
-            self.session = config.init_db(CONFIG_PATH, drop_all=True)
+            self.session_maker = config.init_db(CONFIG_PATH, drop_all=True,
+                                                as_maker=True)
+            self.session = self.session_maker()
 
         def tearDown(self):
             self.session.close()

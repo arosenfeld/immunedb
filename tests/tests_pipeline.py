@@ -9,7 +9,7 @@ class TestPipeline(BaseTest.RegressionTest):
 
     def identification(self):
         run_identify(
-            self.session,
+            self.session_maker,
             NamespaceMimic(
                 v_germlines='tests/data/germlines/imgt_human_v.fasta',
                 j_germlines='tests/data/germlines/imgt_human_j.fasta',
@@ -28,5 +28,3 @@ class TestPipeline(BaseTest.RegressionTest):
                 genotyping=False
             )
         )
-
-        self.session.commit()

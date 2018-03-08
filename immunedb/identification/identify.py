@@ -249,10 +249,13 @@ def process_collapse(sequences):
 
 
 def aggregate_collapse(aggregate_queue, session, sample, props):
+    i = 0
     for alignment in aggregate_queue:
         for a in alignment:
             add_as_sequence(session, a, sample,
                             strip_alleles=not props.genotyping)
+            if i % 100 == 0:
+                session.commit()
     session.commit()
 
 
@@ -316,6 +319,7 @@ def process_sample(session, v_germlines, j_germlines, path, meta, props,
                     'Length={}'.format(len(alignments),
                                        round(avg_mut, 2),
                                        round(avg_len, 2)))
+        session.commit()
         # Realign to V-ties
         v_ties = concurrent.process_data(
             alignments,
@@ -326,9 +330,13 @@ def process_sample(session, v_germlines, j_germlines, path, meta, props,
                           avg_mut, 'props': props},
         )
 
+        i = 0
         for result in v_ties['noresult']:
             add_as_noresult(session, result['alignment'].sequence,
                             sample, result['reason'])
+            i += 1
+            if i % 100 == 0:
+                session.commit()
 
         concurrent.process_data(
             v_ties['success'],
@@ -357,10 +365,10 @@ def process_sample(session, v_germlines, j_germlines, path, meta, props,
         ))
 
 
-def run_identify(session, args):
+def run_identify(session_maker, args):
+    session = session_maker()
     mod_log.make_mod('identification', session=session, commit=True,
                      info=vars(args))
-    session.close()
     # Load the germlines from files
     v_germlines = VGermlines(args.v_germlines, no_ties=args.genotyping)
     j_germlines = JGermlines(args.j_germlines, args.upstream_of_cdr3,
@@ -386,9 +394,11 @@ def run_identify(session, args):
             logger.error(ex.message)
             sys.exit(-1)
 
+    session.close()
     # Create the tasks for each file
     props = IdentificationProps(**args.__dict__)
     for sample_name in sorted(metadata.keys()):
+        session = session_maker()
         process_sample(
             session, v_germlines, j_germlines,
             os.path.join(
@@ -399,3 +409,4 @@ def run_identify(session, args):
             props,
             args.nproc
         )
+        session.close()

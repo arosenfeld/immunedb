@@ -55,9 +55,8 @@ def init_db(database_config, drop_all=False, as_maker=False, create=True):
     conn = 'mysql+pymysql://{}:{}@{}/{}?charset=utf8&use_unicode=0'.format(
         database_config['username'], database_config['password'],
         database_config['host'], database_config['database'])
-    engine = create_engine(conn, pool_recycle=3600, connect_args={
-        'cursorclass': SSCursor
-    })
+    engine = create_engine(conn, pool_recycle=3600,
+                           connect_args={'cursorclass': SSCursor})
 
     if drop_all:
         Base.metadata.drop_all(engine)
