@@ -37,7 +37,7 @@ def _create_user_if_not_exists(conn, host, user, password):
             cursor.execute('CREATE USER \'{}\'@\'%\' IDENTIFIED BY '
                            '\'{}\''.format(user, password))
             return None
-        return existing['password']
+        return existing['authentication_string']
 
 
 def _get_user_pass(conn, host, user, existing_password):
@@ -74,15 +74,16 @@ def create(main_parser, args):
             existing_password = _create_user_if_not_exists(conn, '%', db_user,
                                                            db_pass)
             if existing_password is not None:
-                logger.warning(
-                    'User {} already exists.  To generate the configuration '
-                    'file, you must enter it\'s password.'.format(db_user)
-                )
-                if not args.admin_pass:
+                if not args.db_pass:
+                    logger.warning(
+                        'User {} already exists.  To generate the '
+                        'configuration file, you must enter it\'s '
+                        'password.'.format(db_user)
+                    )
                     db_pass = _get_user_pass(conn, args.db_host, db_user,
                                              existing_password)
                 else:
-                    return True
+                    db_pass = args.db_pass
 
             logger.info('Creating database "{}"'.format(args.db_name))
             cursor.execute('CREATE DATABASE {}'.format(args.db_name))
