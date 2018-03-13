@@ -148,6 +148,7 @@ class BaseTest(object):
                     upstream_of_cdr3=31,
                     max_deletions=5,
                     max_insertions=5,
+                    sample_ids=None
                 )
             )
             self.session.commit()
