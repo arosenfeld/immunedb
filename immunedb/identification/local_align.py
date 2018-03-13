@@ -214,9 +214,13 @@ def process_sample(session, sample, indexes, temp, v_germlines, j_germlines,
                                            seq_path, nproc)):
         line['ref_offset'] = int(line['ref_offset']) - 1
         ref_gene = line['reference']
-        ref, seq, rem_seqs = create_seqs(
-            ref_seq=sample_v_germlines[ref_gene].replace('-', ''),
-            min_size=CDR3_OFFSET, **line)
+        try:
+            ref, seq, rem_seqs = create_seqs(
+                ref_seq=sample_v_germlines[ref_gene].replace('-', ''),
+                min_size=CDR3_OFFSET, **line)
+        except KeyError as e:
+            logger.warning('bowtie got invalid V: ' + str(e))
+            continue
         if len(rem_seqs) == 0:
             continue
 
@@ -435,7 +439,10 @@ def run_fix_sequences(session, args):
 
     indexes = set()
     props = IdentificationProps(**args.__dict__)
-    for sample in session.query(Sample):
+    samples = session.query(Sample)
+    if args.sample_ids:
+        samples = samples.filter(Sample.id.in_(args.sample_ids))
+    for sample in samples:
         sequences = process_sample(session, sample, indexes, args.temp,
                                    v_germlines, j_germlines, args.nproc)
         add_sequences_from_sample(session, sample, sequences, props)
