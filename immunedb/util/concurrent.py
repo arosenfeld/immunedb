@@ -1,3 +1,5 @@
+import os
+
 import multiprocessing as mp
 import traceback
 import Queue
@@ -130,8 +132,7 @@ class SizedQueue(object):
 def _process_wrapper(process_func, in_queue, out_queue, **kwargs):
     while True:
         try:
-            data = in_queue.get()
-            out_queue.put(process_func(data, **kwargs))
+            out_queue.put(process_func(in_queue.get(), **kwargs))
         except Queue.Empty:
             continue
         except EndOfDataException:

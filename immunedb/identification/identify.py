@@ -234,6 +234,7 @@ def process_collapse(sequences):
         key=lambda s: (len(s.sequence.ids), s.sequence.ids[0]),
         reverse=True
     )
+    total = len(sequences)
     uniques = []
     while len(sequences) > 0:
         larger = sequences.pop(0)
@@ -247,13 +248,13 @@ def process_collapse(sequences):
         uniques.append(larger)
     return uniques
 
-
 def aggregate_collapse(aggregate_queue, session, sample, props):
     i = 0
     for alignment in aggregate_queue:
         for a in alignment:
             add_as_sequence(session, a, sample,
                             strip_alleles=not props.genotyping)
+            i += 1
             if i % 100 == 0:
                 session.commit()
     session.commit()
@@ -338,6 +339,7 @@ def process_sample(session, v_germlines, j_germlines, path, meta, props,
             if i % 100 == 0:
                 session.commit()
 
+        logger.info('Collapsing {} buckets'.format(len(v_ties['success'])))
         concurrent.process_data(
             v_ties['success'],
             process_collapse,
