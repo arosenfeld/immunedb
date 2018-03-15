@@ -666,7 +666,7 @@ class DuplicateSequence(Base):
     :param str seq_id: A unique identifier for the sequence as output by the \
         sequencer
 
-    :param str duplicate_seq_ai: The auto-increment value of the sequence \
+    :param str duplicate_seq_seq_id: The seq_id of the sequence \
         in the same sample with the same sequence
     :param Relationship duplicate_seq: Reference to the associated \
         :py:class:`Sequence` instance of which this is a duplicate
@@ -677,8 +677,8 @@ class DuplicateSequence(Base):
     __tablename__ = 'duplicate_sequences'
     __table_args__ = (
         ForeignKeyConstraint(
-            ['sample_id', 'duplicate_seq_ai'],
-            ['sequences.sample_id', 'sequences.ai'],
+            ['sample_id', 'duplicate_seq_seq_id'],
+            ['sequences.sample_id', 'sequences.seq_id'],
             name='dup_fk'
         ),
         {'mysql_row_format': 'DYNAMIC'})
@@ -687,7 +687,7 @@ class DuplicateSequence(Base):
 
     seq_id = Column(String(length=64))
 
-    duplicate_seq_ai = Column(Integer, index=True)
+    duplicate_seq_seq_id = Column(String(length=64), index=True)
     duplicate_seq = relationship(Sequence)
 
     sample_id = Column(Integer, index=True)

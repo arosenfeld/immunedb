@@ -2,6 +2,7 @@ from collections import OrderedDict
 import multiprocessing as mp
 import os
 import sys
+import time
 import traceback
 import pygtrie
 from sqlalchemy import func
@@ -15,8 +16,8 @@ import immunedb.common.config as config
 import immunedb.common.modification_log as mod_log
 from immunedb.common.models import (Sample, SampleMetadata, Sequence, NoResult,
                                     Study, Subject)
-from immunedb.identification import (add_as_noresult, add_as_sequence,
-                                     add_uniques, AlignmentException)
+from immunedb.identification import (add_noresults_for_vdj, add_sequences,
+                                     AlignmentException)
 from immunedb.identification.anchor import AnchorAligner
 from immunedb.identification.metadata import (MetadataException,
                                               parse_metadata, REQUIRED_FIELDS)
@@ -248,15 +249,16 @@ def process_collapse(sequences):
         uniques.append(larger)
     return uniques
 
+
 def aggregate_collapse(aggregate_queue, session, sample, props):
     i = 0
-    for alignment in aggregate_queue:
-        for a in alignment:
-            add_as_sequence(session, a, sample,
-                            strip_alleles=not props.genotyping)
-            i += 1
-            if i % 100 == 0:
-                session.commit()
+    for alignments in aggregate_queue:
+        i += len(alignments)
+        add_sequences(session, alignments, sample,
+                      strip_alleles=not props.genotyping)
+        if i % 1000 == 0:
+            session.commit()
+
     session.commit()
 
 
@@ -281,13 +283,14 @@ def collapse_exact(process_queue, path):
         except ValueError:
             continue
 
-    logger.info('Found {} unique sequences (pre-alignment)'.format(len(vdjs)))
+    logger.info('There are {} (unaligned) unique sequences'.format(len(vdjs)))
     for v in vdjs.values():
         process_queue.put(v)
 
 
 def process_sample(session, v_germlines, j_germlines, path, meta, props,
                    nproc):
+    start = time.time()
     logger.info('Starting sample {}'.format(meta['sample_name']))
     sample = setup_sample(session, meta)
 
@@ -303,7 +306,7 @@ def process_sample(session, v_germlines, j_germlines, path, meta, props,
         generate_args={'path': path},
     )
     for result in alignments['noresult']:
-        add_as_noresult(session, result['vdj'], sample, result['reason'])
+        add_noresults_for_vdj(session, result['vdj'], sample, result['reason'])
 
     alignments = alignments['success']
     if alignments:
@@ -331,13 +334,9 @@ def process_sample(session, v_germlines, j_germlines, path, meta, props,
                           avg_mut, 'props': props},
         )
 
-        i = 0
-        for result in v_ties['noresult']:
-            add_as_noresult(session, result['alignment'].sequence,
-                            sample, result['reason'])
-            i += 1
-            if i % 100 == 0:
-                session.commit()
+        for result in funcs.periodic_commit(session, v_ties['noresult'], 100):
+            add_noresults_for_vdj(session, result['alignment'].sequence,
+                                  sample, result['reason'])
 
         logger.info('Collapsing {} buckets'.format(len(v_ties['success'])))
         concurrent.process_data(
@@ -359,12 +358,15 @@ def process_sample(session, v_germlines, j_germlines, path, meta, props,
         ).filter(
             NoResult.sample == sample
         ).scalar() or 0)
-        logger.info('Completed sample {} - {}/{} ({}%) identified'.format(
-            sample.name,
-            identified,
-            identified + noresults,
-            int(100 * identified / float(identified + noresults))
-        ))
+        logger.info(
+            'Completed sample {} in {}m - {}/{} ({}%) identified'.format(
+                sample.name,
+                round((time.time() - start) / 60., 1),
+                identified,
+                identified + noresults,
+                int(100 * identified / float(identified + noresults))
+            )
+        )
 
 
 def run_identify(session_maker, args):

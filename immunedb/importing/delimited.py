@@ -5,7 +5,7 @@ import re
 
 from immunedb.common.models import (CDR3_OFFSET, NoResult, Sample,
                                     SampleMetadata, Study, Subject)
-from immunedb.identification import (add_as_noresult, add_as_sequence,
+from immunedb.identification import (add_noresults_for_vdj, add_sequences,
                                      AlignmentException, get_common_seq)
 
 from immunedb.identification.metadata import (MetadataException,
@@ -66,7 +66,7 @@ def read_file(session, handle, sample, v_germlines, j_germlines, props):
         try:
             alignment = create_alignment(seq, line, v_germlines, j_germlines)
         except AlignmentException as e:
-            add_as_noresult(session, seq, sample, str(e))
+            add_noresults_for_vdj(session, seq, sample, str(e))
         for other in uniques.setdefault(len(alignment.sequence.sequence), []):
             if dnautils.equal(other.sequence.sequence,
                               alignment.sequence.sequence):
@@ -81,11 +81,11 @@ def read_file(session, handle, sample, v_germlines, j_germlines, props):
     for unique in uniques:
         try:
             props.validate(unique)
-            add_as_sequence(session, unique, sample)
+            add_sequences(session, [unique], sample)
             lens.append(unique.v_length)
             muts.append(unique.v_mutation_fraction)
         except AlignmentException as e:
-            add_as_noresult(session, seq, sample, str(e))
+            add_noresults_for_vdj(session, seq, sample, str(e))
 
     if len(lens) > 0:
         sample.v_ties_len = sum(lens) / float(len(lens))

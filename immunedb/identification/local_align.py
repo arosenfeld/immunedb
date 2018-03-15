@@ -9,7 +9,7 @@ from sqlalchemy import desc, text
 
 import dnautils
 
-from immunedb.identification import add_as_sequence, AlignmentException
+from immunedb.identification import add_sequences, AlignmentException
 from immunedb.identification.vdj_sequence import VDJAlignment, VDJSequence
 from immunedb.identification.genes import (CDR3_OFFSET, GeneName, JGermlines,
                                            VGermlines)
@@ -329,8 +329,8 @@ def add_sequences_from_sample(session, sample, sequences, props):
             except AlignmentException:
                 continue
             if sequence['r_type'] == 'NoResult':
-                add_as_sequence(session, alignment, sample,
-                                error_action='raise')
+                add_sequences(session, [alignment], sample,
+                              error_action='raise')
                 session.query(NoResult).filter(
                     NoResult.pk == sequence['pk']
                 ).delete(synchronize_session=False)
@@ -403,7 +403,7 @@ def remove_duplicates(session, sample):
 
     for seq in seqs:
         potential_collapse = session.query(
-            Sequence.ai, Sequence.sequence, Sequence.copy_number
+            Sequence.seq_id, Sequence.sequence, Sequence.copy_number
         ).filter(
             Sequence.sample_id == sample.id,
             Sequence.v_gene == seq.v_gene,
@@ -412,19 +412,21 @@ def remove_duplicates(session, sample):
         ).order_by(desc(Sequence.copy_number), Sequence.ai)
 
         for other_seq in potential_collapse:
-            if (other_seq.ai == seq.ai or
+            if (other_seq.seq_id == seq.seq_id or
                     len(other_seq.sequence) != len(seq.sequence)):
                 continue
 
             if dnautils.equal(other_seq.sequence, seq.sequence):
                 session.query(DuplicateSequence).filter(
-                    DuplicateSequence.duplicate_seq_ai == seq.ai
+                    DuplicateSequence.sample_id == sample.id,
+                    DuplicateSequence.duplicate_seq_seq_id == seq.seq_id
                 ).update({
-                    'duplicate_seq_ai': other_seq.ai,
+                    'sample_id': sample.id,
+                    'duplicate_seq_seq_id': other_seq.seq_id
                 }, synchronize_session=False)
                 session.add(DuplicateSequence(
                     seq_id=seq.seq_id,
-                    duplicate_seq_ai=other_seq.ai,
+                    duplicate_seq_seq_id=other_seq.seq_id,
                     sample_id=sample.id
                 ))
                 session.query(Sequence).filter(Sequence.ai == seq.ai).delete()
@@ -459,6 +461,8 @@ def run_fix_sequences(session, args):
                 FROM
                     duplicate_sequences
                 WHERE
-                    duplicate_seq_ai = ai
+                    duplicate_sequences.duplicate_seq_seq_id = sequences.seq_id
+                    AND
+                    duplicate_sequences.sample_id = sequences.sample_id
             )
     '''))

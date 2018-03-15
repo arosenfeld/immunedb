@@ -1,6 +1,7 @@
 import argparse
 import json
 import multiprocessing as mp
+import warnings
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
@@ -62,7 +63,9 @@ def init_db(database_config, drop_all=False, as_maker=False, create=True):
         Base.metadata.drop_all(engine)
 
     if create:
-        Base.metadata.create_all(engine)
+        with warnings.catch_warnings():
+            warnings.simplefilter('ignore')
+            Base.metadata.create_all(engine)
 
     session = sessionmaker()
     session.configure(bind=engine)

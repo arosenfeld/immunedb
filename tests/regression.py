@@ -135,7 +135,7 @@ class BaseTest(object):
                 self.get_path('post_identification_dups.json'),
                 self.session.query(DuplicateSequence),
                 'seq_id',
-                ('duplicate_seq_ai',)
+                ('sample_id', 'duplicate_seq_seq_id',)
             )
 
         def local_align(self):
@@ -179,7 +179,7 @@ class BaseTest(object):
                 self.get_path('post_local_align_dups.json'),
                 self.session.query(DuplicateSequence),
                 'seq_id',
-                ('duplicate_seq_ai',)
+                ('sample_id', 'duplicate_seq_seq_id',)
             )
 
         def collapse(self):

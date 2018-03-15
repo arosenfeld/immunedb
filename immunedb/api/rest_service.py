@@ -122,7 +122,8 @@ def create_app(session_maker, allow_shutdown=False):
     @app.route('/sequence/<sample_id>/<seq_id>', method=['POST', 'OPTIONS'])
     @with_session
     def sequence(session, sample_id, seq_id):
-        return create_response(queries.get_sequence(session, sample_id, seq_id))
+        return create_response(queries.get_sequence(session, sample_id,
+                                                    seq_id))
 
     @app.route('/clones/list', method=['POST', 'OPTIONS'])
     @app.route('/clones/list/<subject_id>', method=['POST', 'OPTIONS'])
@@ -169,9 +170,11 @@ def create_app(session_maker, allow_shutdown=False):
     @app.route('/clone/pressure/<clone_id>', method=['POST', 'OPTIONS'])
     @with_session
     def clone_pressure(session, clone_id):
-        return create_response(queries.get_selection_pressure(session, clone_id))
+        return create_response(
+            queries.get_selection_pressure(session, clone_id))
 
-    @app.route('/samples/analyze/<sample_encoding>', method=['POST', 'OPTIONS'])
+    @app.route('/samples/analyze/<sample_encoding>', method=[
+        'POST', 'OPTIONS'])
     @with_session
     def analyze_samples(session, sample_encoding):
         fields = bottle.request.json or {}
@@ -187,7 +190,8 @@ def create_app(session_maker, allow_shutdown=False):
             )
         )
 
-    @app.route('/samples/overlap/<sample_encoding>', method=['POST', 'OPTIONS'])
+    @app.route('/samples/overlap/<sample_encoding>', method=[
+        'POST', 'OPTIONS'])
     @with_session
     def overlap(session, sample_encoding):
         fields = bottle.request.json or {}
@@ -198,7 +202,8 @@ def create_app(session_maker, allow_shutdown=False):
             get_paging())
         )
 
-    @app.route('/samples/v_usage/<sample_encoding>', method=['POST', 'OPTIONS'])
+    @app.route('/samples/v_usage/<sample_encoding>', method=[
+        'POST', 'OPTIONS'])
     @with_session
     def v_usage(session, sample_encoding):
         fields = bottle.request.json or {}

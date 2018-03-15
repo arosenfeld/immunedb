@@ -1,4 +1,9 @@
 from collections import Counter
+import itertools
+
+
+def flatten(iterable):
+    return list(itertools.chain.from_iterable(iterable))
 
 
 def consensus(strings):

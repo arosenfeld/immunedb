@@ -7,32 +7,25 @@ from immunedb.common.models import (CDR3_OFFSET, DuplicateSequence, NoResult,
                                     Sequence)
 import immunedb.util.funcs as funcs
 import immunedb.util.lookups as lookups
-from immunedb.util.log import logger
 
 
 class AlignmentException(Exception):
     pass
 
 
-def add_as_noresult(session, vdj, sample, reason):
-    try:
-        session.bulk_save_objects([
-            NoResult(
-                seq_id=seq_id,
-                sample_id=sample.id,
-                sequence=vdj.orig_sequence,
-                quality=vdj.orig_quality,
-                reason=reason
-            ) for seq_id in vdj.ids
-        ])
-    except ValueError:
-        pass
+def get_noresult_from_vdj(session, vdj, sample, reason):
+    return [NoResult(
+        seq_id=seq_id,
+        sample_id=sample.id,
+        sequence=vdj.orig_sequence,
+        quality=vdj.orig_quality,
+        reason=reason
+    ) for seq_id in vdj.ids]
 
 
-def add_as_sequence(session, alignment, sample, strip_alleles=True,
-                    error_action='discard'):
+def get_seq_from_alignment(session, alignment, sample, strip_alleles=True):
     try:
-        seq = Sequence(
+        return [Sequence(
             seq_id=alignment.sequence.ids[0],
             sample_id=sample.id,
 
@@ -78,85 +71,53 @@ def add_as_sequence(session, alignment, sample, strip_alleles=True,
             insertions=alignment.insertions,
             deletions=alignment.deletions,
 
-            germline=alignment.germline)
-        session.add(seq)
-        session.flush()
-
-        # Add duplicate sequences
-        try:
-            session.bulk_save_objects([
-                DuplicateSequence(
-                    sample_id=sample.id,
-                    seq_id=seq_id,
-                    duplicate_seq_ai=seq.ai
-                ) for seq_id in alignment.sequence.ids[1:]
-            ])
-        except ValueError as e:
-            pass
-        return seq
+            germline=alignment.germline)]
     except ValueError as e:
-        if error_action == 'discard':
-            add_as_noresult(session, alignment.sequence, sample, str(e))
-            return None
+        return get_noresult_from_vdj(session, alignment.sequence, sample,
+                                     str(e))
+
+
+def get_duplicates_from_alignment(alignment, sample, error_action='ignore'):
+    try:
+        return [DuplicateSequence(
+            sample_id=sample.id,
+            seq_id=seq_id,
+            duplicate_seq_seq_id=alignment.sequence.ids[0]
+        ) for seq_id in alignment.sequence.ids[1:]]
+    except ValueError as e:
+        if error_action == 'ignore':
+            return []
         elif error_action == 'raise':
             raise e
 
 
-def add_uniques(session, sample, alignments, props, aligner, realign_len=None,
-                realign_mut=None):
-    bucketed_seqs = OrderedDict()
-    alignments = sorted(alignments, key=lambda v: v.sequence.ids[0])
-    for alignment in funcs.periodic_commit(session, alignments):
-        try:
-            if realign_len is not None:
-                aligner.align_to_germline(alignment, realign_len, realign_mut)
-                if props.trim_to:
-                    alignment.trim_to(props.trim_to)
+def add_sequences(session, alignments, sample, strip_alleles=True,
+                  error_action='discard'):
+    seqs_and_noresults = funcs.flatten([
+        get_seq_from_alignment(session, a, sample, strip_alleles)
+        for a in alignments
+    ])
+    succeeded = set(
+        [n.seq_id for n in seqs_and_noresults if type(n) == Sequence]
+    )
+    session.bulk_save_objects(seqs_and_noresults)
+    session.flush()
 
-            props.validate(alignment)
-            bucket_key = (
-                funcs.format_ties(alignment.v_gene),
-                funcs.format_ties(alignment.j_gene),
-                len(alignment.cdr3)
-            )
+    dups = funcs.flatten([
+        get_duplicates_from_alignment(alignment, sample)
+        for alignment in alignments if alignment.sequence.ids[0] in succeeded
+    ])
+    if dups:
+        session.bulk_save_objects(dups)
 
-            if bucket_key not in bucketed_seqs:
-                bucketed_seqs[bucket_key] = {}
-            bucket = bucketed_seqs[bucket_key]
 
-            if alignment.sequence.sequence in bucket:
-                bucket[alignment.sequence.sequence].sequence.ids += (
-                    alignment.sequence.ids
-                )
-            else:
-                bucket[alignment.sequence.sequence] = alignment
-        except AlignmentException as e:
-            add_as_noresult(session, alignment.sequence, sample, str(e))
-        except Exception:
-            logger.error('\tUnexpected error processing sequence '
-                         '{}\n\t{}'.format(alignment.sequence.ids[0],
-                                           traceback.format_exc()))
-
-    # Collapse sequences that are the same except for Ns
-    for bucket, sequences in funcs.periodic_commit(
-            session, bucketed_seqs.iteritems()):
-        sequences = sorted(
-            sequences.values(),
-            key=lambda s: (len(s.sequence.ids), s.sequence.ids[0]),
-            reverse=True
+def add_noresults_for_vdj(session, vdj, sample, reason):
+    try:
+        session.bulk_save_objects(
+            get_noresult_from_vdj(session, vdj, sample, reason)
         )
-        while len(sequences) > 0:
-            larger = sequences.pop(0)
-            for i in reversed(range(len(sequences))):
-                smaller = sequences[i]
-
-                if dnautils.equal(larger.sequence.sequence,
-                                  smaller.sequence.sequence):
-                    larger.sequence.ids += smaller.sequence.ids
-                    del sequences[i]
-            add_as_sequence(session, larger, sample,
-                            strip_alleles=not props.genotyping)
-    session.commit()
+    except ValueError:
+        pass
 
 
 def get_common_seq(seqs, cutoff=True, right=False):
