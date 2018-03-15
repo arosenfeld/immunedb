@@ -9,7 +9,6 @@ from Bio.Seq import Seq
 from immunedb.common.models import CDR3_OFFSET
 from immunedb.util.hyper import hypergeom
 from immunedb.identification import AlignmentException, get_common_seq
-from immunedb.util.funcs import find_streak_position
 
 
 class GermlineException(Exception):
@@ -218,7 +217,7 @@ class VGene(object):
             raise AlignmentException('Empty CDR3 found after alignment')
 
         # Find the extent of the sequence's V into the CDR3
-        streak = find_streak_position(
+        streak = dnautils.find_streak_position(
             this_cdr3, other_cdr3, max_streak)
         if streak is not None:
             # If there is a streak of mismatches, cut after the streak

@@ -75,23 +75,6 @@ def get_or_create(session, model, **kwargs):
         return instance, True
 
 
-def find_streak_position(s1, s2, max_streak):
-    '''Finds the first streak of max_streak characters where s1 does not equal
-    s2
-
-    For example if max_streak is 3:
-        ATCGATCGATCGATCG
-        ATCGATCGATCTTACG
-                     ^--- Returned index
-    '''
-    streak = 0
-    for i, (c1, c2) in enumerate(zip(s1, s2)):
-        streak = streak + 1 if c1 != c2 else 0
-        if streak >= max_streak:
-            return i
-    return None
-
-
 def format_ties(ties, strip_alleles=True):
     if ties is None:
         return None

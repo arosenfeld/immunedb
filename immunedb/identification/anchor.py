@@ -1,18 +1,16 @@
+import re
+
 import dnautils
 
 from immunedb.common.models import CDR3_OFFSET
 from immunedb.identification import AlignmentException, get_common_seq
 from immunedb.identification.genes import VGene, find_v_position
-from immunedb.util.funcs import find_streak_position
 from immunedb.identification.vdj_sequence import VDJAlignment
 
 
 def sliding_window_match(sequence, match):
-    for pos in range(len(sequence) - len(match)):
-        ss = sequence[pos:pos + len(match)]
-        if dnautils.equal(ss, match):
-            return pos
-    return -1
+    r = re.search(match.replace('N', '.'), sequence)
+    return r.start() if r else -1
 
 
 class AnchorAligner(object):
@@ -71,11 +69,11 @@ class AnchorAligner(object):
                 alignment.sequence = rc
                 return self.process_j(alignment, i, len(match), limit_js)
 
-            i = sliding_window_match(alignment.sequence, match)
+            i = sliding_window_match(alignment.sequence.sequence, match)
             if i >= 0:
                 return self.process_j(alignment, i, len(match), limit_js)
 
-            i = sliding_window_match(rc, match)
+            i = sliding_window_match(rc.sequence, match)
             if i >= 0:
                 alignment.sequence = rc
                 return self.process_j(alignment, i, len(match), limit_js)
@@ -146,9 +144,9 @@ class AnchorAligner(object):
                                      'CDR3')
 
         # Get the extent of the J in the CDR3
-        streak = find_streak_position(
-            reversed(germline_in_cdr3),
-            reversed(sequence_in_cdr3),
+        streak = dnautils.find_streak_position(
+            germline_in_cdr3[::-1],
+            sequence_in_cdr3[::-1],
             self.MISMATCH_THRESHOLD)
 
         # Trim the J gene based on the extent in the CDR3

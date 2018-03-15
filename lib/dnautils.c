@@ -72,11 +72,51 @@ dnautils_hamming(PyObject *self, PyObject *args)
     return Py_BuildValue("I", distance);
 }
 
+
+dnautils_streak_pos(PyObject *self, PyObject *args)
+{
+    PyObject *s1, *s2;
+    char *str1, *str2;
+    unsigned int max_streak;
+    unsigned int i;
+    unsigned int streak = 0;
+
+    if (!PyArg_ParseTuple(args, "SSI", &s1, &s2, &max_streak)) {
+        return NULL;
+    }
+
+    if (PyString_Size(s1) != PyString_Size(s2)) {
+        PyErr_SetString(DNAUtilError, "Sequences have unequal lengths.");
+        return NULL;
+    }
+
+    if ((str1 = PyString_AsString(s1)) == NULL) {
+        return NULL;
+    }
+    if ((str2 = PyString_AsString(s2)) == NULL) {
+        return NULL;
+    }
+
+    for (i = 0; i < PyString_Size(s1); i++) {
+        if (str1[i] != str2[i]) {
+            streak++;
+            if (streak >= max_streak) {
+                return Py_BuildValue("I", i);
+            }
+        } else {
+            streak = 0;
+        }
+    }
+    return Py_BuildValue("O", Py_None);
+}
+
 static PyMethodDef DNAUtilsMethods[] = {
     {"equal", dnautils_equal, METH_VARARGS,
         "Checks if two sequences are equal."},
     {"hamming", dnautils_hamming, METH_VARARGS,
         "Gets the hamming distance between two sequences."},
+    {"find_streak_position", dnautils_streak_pos, METH_VARARGS,
+        "Gets the mismatch streak position between two sequences"},
     {NULL, NULL, 0, NULL}
 };
 
