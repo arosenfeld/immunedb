@@ -130,6 +130,7 @@ class SizedQueue(object):
 
 
 def _process_wrapper(process_func, in_queue, out_queue, **kwargs):
+    logger.info('worker PID {} started'.format(os.getpid()))
     while True:
         try:
             out_queue.put(process_func(in_queue.get(), **kwargs))
@@ -140,12 +141,15 @@ def _process_wrapper(process_func, in_queue, out_queue, **kwargs):
         except Exception:
             logging.warning('Error in process_func:\n{}'.format(
                 traceback.format_exc()))
+    logger.info('worker PID {} ended'.format(os.getpid()))
 
 
 def _agg_wrapper(aggregate_func, aggregate_queue, return_val, **kwargs):
+    logger.info('aggregation PID {} started'.format(os.getpid()))
     ret = aggregate_func(aggregate_queue, **kwargs)
     if ret:
         return_val.update(ret)
+    logger.info('aggregation PID {} ended'.format(os.getpid()))
 
 
 def process_data(generate_func_or_iter,
@@ -160,6 +164,7 @@ def process_data(generate_func_or_iter,
     return_val = mp.Manager().dict()
 
     input_p = None
+    logger.info('Adding data...')
     try:
         iter(generate_func_or_iter)
         for v in generate_func_or_iter:
@@ -172,6 +177,7 @@ def process_data(generate_func_or_iter,
         )
         input_p.start()
 
+
     workers = []
     for i in range(nproc):
         w = mp.Process(
@@ -180,11 +186,11 @@ def process_data(generate_func_or_iter,
             kwargs=process_args
         )
         w.start()
-
         workers.append(w)
 
     if input_p:
         input_p.join()
+    logger.info('All data added')
 
     for n in range(nproc):
         process_queue.put(_EndOfDataSentinel)
@@ -198,8 +204,11 @@ def process_data(generate_func_or_iter,
 
     for i, w in enumerate(workers):
         w.join()
+        logger.info('Past {} worker joins'.format(i + 1))
     aggregate_queue.put(_EndOfDataSentinel)
 
+    logger.info('Waiting on aggregation')
     agg_p.join()
+    logger.info('Done aggregation')
 
     return return_val.copy()

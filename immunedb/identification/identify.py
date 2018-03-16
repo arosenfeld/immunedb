@@ -253,11 +253,16 @@ def process_collapse(sequences):
 def aggregate_collapse(aggregate_queue, session, sample, props):
     i = 0
     for alignments in aggregate_queue:
-        i += len(alignments)
         add_sequences(session, alignments, sample,
                       strip_alleles=not props.genotyping)
-        if i % 1000 == 0:
-            session.commit()
+        i += len(alignments)
+        if i > 1000:
+            logger.info('{} remaining'.format(
+                aggregate_queue.tasks[0] -
+                aggregate_queue.tasks[1]
+            ))
+            session.flush()
+            i = 0
 
     session.commit()
 
@@ -305,6 +310,7 @@ def process_sample(session, v_germlines, j_germlines, path, meta, props,
         process_args={'aligner': aligner},
         generate_args={'path': path},
     )
+    logger.info('Adding noresults')
     for result in alignments['noresult']:
         add_noresults_for_vdj(session, result['vdj'], sample, result['reason'])
 
@@ -333,6 +339,7 @@ def process_sample(session, v_germlines, j_germlines, path, meta, props,
             process_args={'aligner': aligner, 'avg_len': avg_len, 'avg_mut':
                           avg_mut, 'props': props},
         )
+        logger.info('Adding noresults')
 
         for result in funcs.periodic_commit(session, v_ties['noresult'], 100):
             add_noresults_for_vdj(session, result['alignment'].sequence,
