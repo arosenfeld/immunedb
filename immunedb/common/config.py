@@ -63,9 +63,7 @@ def init_db(database_config, drop_all=False, as_maker=False, create=True):
         Base.metadata.drop_all(engine)
 
     if create:
-        with warnings.catch_warnings():
-            warnings.simplefilter('ignore')
-            Base.metadata.create_all(engine)
+        Base.metadata.create_all(engine)
 
     session = sessionmaker()
     session.configure(bind=engine)
