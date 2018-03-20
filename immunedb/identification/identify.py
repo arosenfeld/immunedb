@@ -1,12 +1,8 @@
-from collections import OrderedDict
-import multiprocessing as mp
 import os
 import sys
 import time
-import traceback
 import pygtrie
 from sqlalchemy import func
-import Queue
 
 from Bio import SeqIO
 
@@ -116,9 +112,7 @@ def setup_sample(session, meta):
         for key, value in meta.iteritems():
             if key not in REQUIRED_FIELDS:
                 session.add(SampleMetadata(
-                    sample=sample,
-                    key=key,
-                    value=value
+                    sample=sample, key=key, value=value
                 ))
 
     session.commit()
@@ -128,22 +122,22 @@ def setup_sample(session, meta):
 def process_vdj(vdj, aligner):
     try:
         alignment = aligner.get_alignment(vdj)
-        return {
+        return [{
             'status': 'success',
             'alignment': alignment
-        }
+        }]
     except AlignmentException as e:
-        return {
+        return [{
             'status': 'noresult',
             'vdj': vdj,
             'reason': str(e)
-        }
+        }]
     except Exception as e:
-        return {
+        return [{
             'status': 'error',
             'vdj': vdj,
             'reason': str(e)
-        }
+        }]
 
 
 def aggregate_vdj(aggregate_queue):
@@ -177,22 +171,22 @@ def process_vties(alignment, aligner, avg_len, avg_mut, props):
             alignment.trim_to(props.trim_to)
 
         props.validate(alignment)
-        return {
+        return [{
             'status': 'success',
             'alignment': alignment
-        }
+        }]
     except AlignmentException as e:
-        return {
+        return [{
             'status': 'noresult',
             'alignment': alignment,
             'reason': str(e)
-        }
+        }]
     except Exception as e:
-        return {
+        return [{
             'status': 'error',
             'alignment': alignment,
             'reason': str(e)
-        }
+        }]
 
 
 def aggregate_vties(aggregate_queue):
@@ -235,13 +229,11 @@ def process_collapse(sequences):
         key=lambda s: (len(s.sequence.ids), s.sequence.ids[0]),
         reverse=True
     )
-    total = len(sequences)
     uniques = []
     while len(sequences) > 0:
         larger = sequences.pop(0)
         for i in reversed(range(len(sequences))):
             smaller = sequences[i]
-
             if dnautils.equal(larger.sequence.sequence,
                               smaller.sequence.sequence):
                 larger.sequence.ids += smaller.sequence.ids
@@ -250,21 +242,24 @@ def process_collapse(sequences):
     return uniques
 
 
-def aggregate_collapse(aggregate_queue, session, sample, props):
-    i = 0
-    for alignments in aggregate_queue:
-        add_sequences(session, alignments, sample,
+def aggregate_collapse(aggregate_queue, db_config, sample_id, props):
+    bulk_add = []
+    session = config.init_db(db_config, create=False)
+    sample = session.query(Sample).filter(Sample.id == sample_id).one()
+    for i, alignment in enumerate(aggregate_queue):
+        bulk_add.append(alignment)
+        if len(bulk_add) >= 1000:
+            add_sequences(session, bulk_add, sample,
+                          strip_alleles=not props.genotyping)
+            bulk_add = []
+            logger.info('Processed {}'.format(i + 1))
+            session.commit()
+    if bulk_add:
+        add_sequences(session, bulk_add, sample,
                       strip_alleles=not props.genotyping)
-        i += len(alignments)
-        if i > 1000:
-            logger.info('{} remaining'.format(
-                aggregate_queue.tasks[0] -
-                aggregate_queue.tasks[1]
-            ))
-            session.flush()
-            i = 0
-
+    logger.info('Finished aggregating sequences')
     session.commit()
+    session.close()
 
 
 def collapse_exact(process_queue, path):
@@ -293,8 +288,9 @@ def collapse_exact(process_queue, path):
         process_queue.put(v)
 
 
-def process_sample(session, v_germlines, j_germlines, path, meta, props,
+def process_sample(db_config, v_germlines, j_germlines, path, meta, props,
                    nproc):
+    session = config.init_db(db_config)
     start = time.time()
     logger.info('Starting sample {}'.format(meta['sample_name']))
     sample = setup_sample(session, meta)
@@ -346,14 +342,18 @@ def process_sample(session, v_germlines, j_germlines, path, meta, props,
                                   sample, result['reason'])
 
         logger.info('Collapsing {} buckets'.format(len(v_ties['success'])))
+        session.commit()
         concurrent.process_data(
             v_ties['success'],
             process_collapse,
             aggregate_collapse,
             nproc,
-            aggregate_args={'session': session, 'sample': sample,
-                            'props': props}
+            aggregate_args={'db_config': db_config, 'sample_id': sample.id,
+                            'props': props},
+            verbose=True
         )
+        session.expire_all()
+        session.commit()
 
         identified = int(session.query(
             func.sum(Sequence.copy_number)
@@ -374,10 +374,10 @@ def process_sample(session, v_germlines, j_germlines, path, meta, props,
                 int(100 * identified / float(identified + noresults))
             )
         )
+    session.close()
 
 
-def run_identify(session_maker, args):
-    session = session_maker()
+def run_identify(session, args):
     mod_log.make_mod('identification', session=session, commit=True,
                      info=vars(args))
     # Load the germlines from files
@@ -385,7 +385,6 @@ def run_identify(session_maker, args):
     j_germlines = JGermlines(args.j_germlines, args.upstream_of_cdr3,
                              args.anchor_len, args.min_anchor_len,
                              no_ties=args.genotyping)
-    tasks = concurrent.TaskQueue()
 
     # If metadata is not specified, assume it is "metadata." in the
     # directory
@@ -409,9 +408,8 @@ def run_identify(session_maker, args):
     # Create the tasks for each file
     props = IdentificationProps(**args.__dict__)
     for sample_name in sorted(metadata.keys()):
-        session = session_maker()
         process_sample(
-            session, v_germlines, j_germlines,
+            args.db_config, v_germlines, j_germlines,
             os.path.join(
                 args.sample_dir,
                 metadata[sample_name]['file_name']
@@ -420,4 +418,3 @@ def run_identify(session_maker, args):
             props,
             args.nproc
         )
-        session.close()

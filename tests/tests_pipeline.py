@@ -9,7 +9,7 @@ class TestPipeline(BaseTest.RegressionTest):
 
     def identification(self):
         run_identify(
-            self.session_maker,
+            self.session,
             NamespaceMimic(
                 v_germlines='tests/data/germlines/imgt_human_v.fasta',
                 j_germlines='tests/data/germlines/imgt_human_j.fasta',

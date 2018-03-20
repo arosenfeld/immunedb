@@ -3,8 +3,8 @@ import dnautils
 import os
 import re
 
-from immunedb.common.models import (CDR3_OFFSET, NoResult, Sample,
-                                    SampleMetadata, Study, Subject)
+from immunedb.common.models import (CDR3_OFFSET, Sample, SampleMetadata, Study,
+                                    Subject)
 from immunedb.identification import (add_noresults_for_vdj, add_sequences,
                                      AlignmentException, get_common_seq)
 

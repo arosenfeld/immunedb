@@ -1,7 +1,6 @@
 import argparse
 import json
 import multiprocessing as mp
-import warnings
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker

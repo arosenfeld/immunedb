@@ -1,7 +1,4 @@
-from collections import OrderedDict
-import dnautils
 import itertools
-import traceback
 
 from immunedb.common.models import (CDR3_OFFSET, DuplicateSequence, NoResult,
                                     Sequence)

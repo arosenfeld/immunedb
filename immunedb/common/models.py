@@ -1,7 +1,7 @@
 import datetime
 
-from sqlalchemy import (Column, Boolean, Float, Integer, String, Date,
-                        DateTime, ForeignKey, UniqueConstraint, Index, event)
+from sqlalchemy import (Column, Boolean, Float, Integer, String, DateTime,
+                        ForeignKey, UniqueConstraint, Index, event)
 from sqlalchemy.dialects.mysql import MEDIUMTEXT
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property

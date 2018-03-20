@@ -102,23 +102,16 @@ class EndOfDataException(Exception):
 
 
 class SizedQueue(object):
-    def __init__(self, output=False):
-        self.queue = mp.Queue()
-        self.output = output
-        # [added, completed]
-        self.tasks = mp.Array('i', [0, 0], lock=True)
+    def __init__(self, max_size=None):
+        self.queue = mp.Queue(max_size)
 
     def put(self, val):
-        with self.tasks.get_lock():
-            self.tasks[0] += 1
         self.queue.put(val)
 
     def get(self):
         res = self.queue.get()
         if res == _EndOfDataSentinel:
             raise EndOfDataException()
-        with self.tasks.get_lock():
-            self.tasks[1] += 1
         return res
 
     def __iter__(self):
@@ -130,10 +123,11 @@ class SizedQueue(object):
 
 
 def _process_wrapper(process_func, in_queue, out_queue, **kwargs):
-    logger.info('worker PID {} started'.format(os.getpid()))
+    logger.info('Starting worker with PID {}'.format(os.getpid()))
     while True:
         try:
-            out_queue.put(process_func(in_queue.get(), **kwargs))
+            for d in process_func(in_queue.get(), **kwargs):
+                out_queue.put(d)
         except Queue.Empty:
             continue
         except EndOfDataException:
@@ -141,15 +135,13 @@ def _process_wrapper(process_func, in_queue, out_queue, **kwargs):
         except Exception:
             logging.warning('Error in process_func:\n{}'.format(
                 traceback.format_exc()))
-    logger.info('worker PID {} ended'.format(os.getpid()))
+    logger.info('Stopping worker with PID {}'.format(os.getpid()))
 
 
 def _agg_wrapper(aggregate_func, aggregate_queue, return_val, **kwargs):
-    logger.info('aggregation PID {} started'.format(os.getpid()))
     ret = aggregate_func(aggregate_queue, **kwargs)
     if ret:
         return_val.update(ret)
-    logger.info('aggregation PID {} ended'.format(os.getpid()))
 
 
 def process_data(generate_func_or_iter,
@@ -163,9 +155,25 @@ def process_data(generate_func_or_iter,
     aggregate_queue = SizedQueue()
     return_val = mp.Manager().dict()
 
-    input_p = None
-    logger.info('Adding data...')
+    workers = []
+    for i in range(nproc):
+        w = mp.Process(
+            target=_process_wrapper,
+            args=(process_func, process_queue, aggregate_queue),
+            kwargs=process_args
+        )
+        w.start()
+        workers.append(w)
+
+    agg_p = mp.Process(
+        target=_agg_wrapper,
+        args=(aggregate_func, aggregate_queue, return_val,),
+        kwargs=aggregate_args
+    )
+    agg_p.start()
+
     try:
+        input_p = None
         iter(generate_func_or_iter)
         for v in generate_func_or_iter:
             process_queue.put(v)
@@ -177,34 +185,15 @@ def process_data(generate_func_or_iter,
         )
         input_p.start()
 
-
-    workers = []
-    for i in range(nproc):
-        w = mp.Process(
-            target=_process_wrapper,
-            args=(process_func, process_queue, aggregate_queue),
-            kwargs=process_args
-        )
-        w.start()
-        workers.append(w)
-
     if input_p:
         input_p.join()
-    logger.info('All data added')
 
     for n in range(nproc):
         process_queue.put(_EndOfDataSentinel)
 
-    agg_p = mp.Process(
-        target=_agg_wrapper,
-        args=(aggregate_func, aggregate_queue, return_val,),
-        kwargs=aggregate_args
-    )
-    agg_p.start()
-
     for i, w in enumerate(workers):
         w.join()
-        logger.info('Past {} worker joins'.format(i + 1))
+        logger.info('{} workers finished'.format(i + 1))
     aggregate_queue.put(_EndOfDataSentinel)
 
     logger.info('Waiting on aggregation')
