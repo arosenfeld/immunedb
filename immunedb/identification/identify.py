@@ -349,8 +349,7 @@ def process_sample(db_config, v_germlines, j_germlines, path, meta, props,
             aggregate_collapse,
             nproc,
             aggregate_args={'db_config': db_config, 'sample_id': sample.id,
-                            'props': props},
-            verbose=True
+                            'props': props}
         )
         session.expire_all()
         session.commit()

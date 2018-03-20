@@ -102,8 +102,8 @@ class EndOfDataException(Exception):
 
 
 class SizedQueue(object):
-    def __init__(self, max_size=None):
-        self.queue = mp.Queue(max_size)
+    def __init__(self):
+        self.queue = mp.Queue()
 
     def put(self, val):
         self.queue.put(val)
