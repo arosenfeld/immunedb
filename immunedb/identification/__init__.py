@@ -97,7 +97,7 @@ def add_sequences(session, alignments, sample, strip_alleles=True,
     succeeded = set(
         [n.seq_id for n in seqs_and_noresults if type(n) == Sequence]
     )
-    session.bulk_save_objects(seqs_and_noresults)
+    funcs.bulk_add(session, seqs_and_noresults)
     session.flush()
 
     dups = funcs.flatten([
@@ -105,12 +105,13 @@ def add_sequences(session, alignments, sample, strip_alleles=True,
         for alignment in alignments if alignment.sequence.ids[0] in succeeded
     ])
     if dups:
-        session.bulk_save_objects(dups)
+        funcs.bulk_add(session, dups)
 
 
 def add_noresults_for_vdj(session, vdj, sample, reason):
     try:
-        session.bulk_save_objects(
+        funcs.bulk_add(
+            session,
             get_noresult_from_vdj(session, vdj, sample, reason)
         )
     except ValueError:

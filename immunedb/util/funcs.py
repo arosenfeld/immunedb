@@ -2,6 +2,13 @@ from collections import Counter
 import itertools
 
 
+def bulk_add(session, objs, chunk_size=100, flush=True):
+    for i in xrange(0, len(objs), chunk_size):
+        session.bulk_save_objects(objs[i:i + chunk_size])
+        if flush:
+            session.flush()
+
+
 def flatten(iterable):
     return list(itertools.chain.from_iterable(iterable))
 
