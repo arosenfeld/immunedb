@@ -1,10 +1,12 @@
 from collections import Counter, OrderedDict
 import csv
 import re
+from sqlalchemy.orm import joinedload
 
 from immunedb.identification.genes import GeneName
 from immunedb.common.models import (Clone, CloneStats, Sample, Sequence,
                                     SequenceCollapse, Subject)
+import immunedb.util.funcs as funcs
 from immunedb.util.log import logger
 from immunedb.util.lookups import aas_from_nts
 
@@ -141,6 +143,9 @@ def export_changeo(session, args):
             Sequence.subject_id == subject.id
         ).join(
             SequenceCollapse
+        ).options(
+            joinedload(Sequence.clone),
+            joinedload(Sequence.collapse)
         )
         if args.clones_only:
             seqs = seqs.filter(~Sequence.clone_id.is_(None))
@@ -152,7 +157,7 @@ def export_changeo(session, args):
 
         with open('{}.changeo.tsv'.format(subject.identifier), 'w+') as fh:
             writer = csv.DictWriter(
-                fh, delimiter='\t', fieldnames=[
+                fh, delimiter='\t', extrasaction='ignore', fieldnames=[
                     'SEQUENCE_ID',
                     'SEQUENCE_IMGT',
                     'FUNCTIONAL',
@@ -172,7 +177,7 @@ def export_changeo(session, args):
                 ]
             )
             writer.writeheader()
-            for seq in seqs:
+            for seq in funcs.yield_limit(seqs, Sequence.ai):
                 v_prefix = GeneName(seq.v_gene).prefix
                 j_prefix = GeneName(seq.j_gene).prefix
                 writer.writerow({
@@ -193,7 +198,7 @@ def export_changeo(session, args):
                     'J_IDENTITY': seq.j_match,
                     'DUPCOUNT': seq.collapse.copy_number_in_subject,
                     'CLONE': seq.clone_id,
-                    'CLONE_CDR3_NT': seq.clone.cdr3_nt
+                    'CLONE_CDR3_NT': seq.clone.cdr3_nt if seq.clone else ''
                 })
 
 

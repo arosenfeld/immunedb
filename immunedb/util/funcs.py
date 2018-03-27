@@ -2,6 +2,20 @@ from collections import Counter
 import itertools
 
 
+def yield_limit(qry, pk_attr, maxrq=5000):
+    firstid = None
+    while True:
+        q = qry
+        if firstid is not None:
+            q = qry.filter(pk_attr > firstid)
+        rec = None
+        for rec in q.order_by(pk_attr).limit(maxrq):
+            yield rec
+        if rec is None:
+            break
+        firstid = pk_attr.__get__(rec, pk_attr) if rec else None
+
+
 def bulk_add(session, objs, chunk_size=100, flush=True):
     for i in xrange(0, len(objs), chunk_size):
         session.bulk_save_objects(objs[i:i + chunk_size])
