@@ -8,13 +8,20 @@ import immunedb.common.config as config
 if __name__ == '__main__':
     parser = config.get_base_arg_parser('Starts a MySQL CLI session from a '
                                         'configuration file', multiproc=False)
+    parser.add_argument('--query', help='''Runs the specified query''')
+    parser.add_argument('--no-head', action='store_true',
+                        help='''Disables headers for --query flag''')
     args = parser.parse_args()
 
     with open(args.db_config) as fh:
         config = json.load(fh)
 
-    proc = subprocess.Popen(shlex.split('mysql -h {} -u {} -p{} {}'.format(
+    cmd = shlex.split('mysql -h {} -u {} -p{} {}'.format(
         config['host'], config['username'], config['password'],
-        config['database'])
-    ))
+        config['database']))
+    if args.query:
+        cmd.extend(['-B', '-e {}'.format(args.query)])
+        if args.no_head:
+            cmd.append('-N')
+    proc = subprocess.Popen(cmd)
     proc.communicate()
