@@ -1,4 +1,17 @@
 # CHANGELOG
+## v0.23.0
+* Arbitrary metadata can now be specified for samples.  The only required
+  fields are `sample_name`, `subject`, and `study_name`.
+* Identification now uses multiprocessing for each sample independently, rather
+  than one process per sample.
+* Sequences with stop codons in the CDR3 can now be added to clones.
+* V-length is now correctly calculated for 5' trimmed sequences.
+* `immunedb_sql` now has the optional `--query` argument to run a query via the
+  CLI.
+* Exporting via the CLI should now be faster.
+* Insertions and deletions can now be exported for clones and sequences.
+* Selection pressure is now provided with the sample analysis API call.
+
 ## v0.22.0
 * Arbitary fields can be specified in metadata files.  The only required fields
   are now `file_name`, `study_name`, `sample_name`, and `subject`.
