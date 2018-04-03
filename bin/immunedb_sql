@@ -16,8 +16,9 @@ if __name__ == '__main__':
     with open(args.db_config) as fh:
         config = json.load(fh)
 
-    cmd = shlex.split('mysql -h {} -u {} -p{} {}'.format(
-        config['host'], config['username'], config['password'],
+    cmd = shlex.split('mysql -h {} -u {} {} {}'.format(
+        config['host'], config['username'],
+        '-p{}'.format(config['password']) if config['password'] else '',
         config['database']))
     if args.query:
         cmd.extend(['-B', '-e {}'.format(args.query)])
