@@ -2,13 +2,15 @@
 import json
 import shlex
 import subprocess
+import sys
 
 import immunedb.common.config as config
 
 if __name__ == '__main__':
     parser = config.get_base_arg_parser('Starts a MySQL CLI session from a '
                                         'configuration file', multiproc=False)
-    parser.add_argument('--query', help='''Runs the specified query''')
+    parser.add_argument('--query', help='''Runs the specified query.  If - is
+                                           specified, use stdin''')
     parser.add_argument('--no-head', action='store_true',
                         help='''Disables headers for --query flag''')
     args = parser.parse_args()
@@ -21,6 +23,8 @@ if __name__ == '__main__':
         '-p{}'.format(config['password']) if config['password'] else '',
         config['database']))
     if args.query:
+        if args.query == '-':
+            args.query = sys.stdin.read()
         cmd.extend(['-B', '-e {}'.format(args.query)])
         if args.no_head:
             cmd.append('-N')
