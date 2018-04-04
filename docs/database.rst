@@ -9,6 +9,22 @@ There are many ways to access the database directly.  The two introduced here
 are directly through MySQL or using ``immunedb_sql`` which simply wraps a call to
 MySQL.
 
+With the ``immunedb_sql`` wrapper (recommended)
+^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+.. code-block:: bash
+
+    $ immunedb_sql PATH_TO_CONFIG
+
+This is entirely equivalent to using ``mysql`` and will drop to the MySQL
+interpreter.  You can also pass a query directly from the command line.  For
+example:
+
+.. code-block:: bash
+
+    $ immunedb_sql PATH_TO_CONFIG --query 'select * from samples'
+
+
 Directly with MySQL
 ^^^^^^^^^^^^^^^^^^^
 
@@ -30,22 +46,12 @@ is useful for quickly querying the database.  To save results of a query
 Since ImmuneDB stores usernames and passwords in config files ``immunedb_sql`` is provided
 as a small wrapper around the ``mysql`` command.  It can be invoked with:
 
-With the ``immunedb_sql`` wrapper
-^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-
-.. code-block:: bash
-
-    $ immunedb_sql PATH_TO_CONFIG
-
-This is entirely equivalent to using ``mysql`` and will drop to the MySQL
-interpreter.
-
 
 Querying
 --------
 
 The data is split into different referential tables based on the data models
-defined in :doc:`Models </models>`.
+defined in :ref:`Models <models>`.
 
 Most tables contain data that will generally be aggregated by a query directly.
 For example, to determine how many sequences are in sample 10, one could simply

@@ -173,6 +173,8 @@ unique to the subject, printing them from least to most frequent.
     IGHV3-23|3-23D 1626
     IGHV3-21 1878
 
+.. _models:
+
 Data Models
 -----------
 
