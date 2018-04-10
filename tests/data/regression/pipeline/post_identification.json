@@ -1,6 +1,6 @@
 {
     "M03592:18:000000000-AHJWK:1:1101:10006:19253": {
-        "ai": 394,
+        "ai": 392,
         "cdr3_aa": "CVRDPPGRSAVFDYW",
         "cdr3_nt": "TGCGTGAGAGATCCGCCAGGCCGATCGGCGGTCTTTGACTATTGG",
         "cdr3_num_nts": 45,
@@ -23,7 +23,7 @@
         "v_match": 274
     },
     "M03592:18:000000000-AHJWK:1:1101:10006:19253_indel": {
-        "ai": 393,
+        "ai": 391,
         "cdr3_aa": "CVRDPPGRSAVFDYW",
         "cdr3_nt": "TGCGTGAGAGATCCGCCAGGCCGATCGGCGGTCTTTGACTATTGG",
         "cdr3_num_nts": 45,
@@ -138,7 +138,7 @@
         "v_match": 287
     },
     "M03592:18:000000000-AHJWK:1:1101:10113:9901": {
-        "ai": 517,
+        "ai": 514,
         "cdr3_aa": "CARALLPATSPFDFW",
         "cdr3_nt": "TGTGCTAGGGCCTTATTACCAGCCACTAGCCCTTTTGACTTCTGG",
         "cdr3_num_nts": 45,
@@ -161,7 +161,7 @@
         "v_match": 271
     },
     "M03592:18:000000000-AHJWK:1:1101:10158:13251": {
-        "ai": 520,
+        "ai": 517,
         "cdr3_aa": "CARRTAVVLSDSHKEKWFDPW",
         "cdr3_nt": "TGTGCGAGGAGAACTGCTGTGGTATTGTCTGATAGTCACAAGGAGAAGTGGTTCGACCCCTGG",
         "cdr3_num_nts": 63,
@@ -391,7 +391,7 @@
         "v_match": 280
     },
     "M03592:18:000000000-AHJWK:1:1101:10735:11729": {
-        "ai": 558,
+        "ai": 555,
         "cdr3_aa": "CAREGEMATSIW",
         "cdr3_nt": "TGTGCGCGAGAAGGAGAGATGGCTACAAGTATCTGG",
         "cdr3_num_nts": 36,
@@ -437,7 +437,7 @@
         "v_match": 298
     },
     "M03592:18:000000000-AHJWK:1:1101:10825:17316": {
-        "ai": 655,
+        "ai": 652,
         "cdr3_aa": "CAREVGDW",
         "cdr3_nt": "TGTGCGAGAGAAGTGGGAGACTGG",
         "cdr3_num_nts": 24,
@@ -460,7 +460,7 @@
         "v_match": 285
     },
     "M03592:18:000000000-AHJWK:1:1101:11026:11197": {
-        "ai": 598,
+        "ai": 595,
         "cdr3_aa": "CAKMGPNLDYW",
         "cdr3_nt": "TGTGCGAAAATGGGCCCTAATCTTGACTACTGG",
         "cdr3_num_nts": 33,
@@ -621,7 +621,7 @@
         "v_match": 295
     },
     "M03592:18:000000000-AHJWK:1:1101:11367:17369": {
-        "ai": 557,
+        "ai": 554,
         "cdr3_aa": "CAREGEMATSIW",
         "cdr3_nt": "TGTGCGCGAGAAGGAGAGATGGCTACAAGTATCTGG",
         "cdr3_num_nts": 36,
@@ -667,7 +667,7 @@
         "v_match": 281
     },
     "M03592:18:000000000-AHJWK:1:1101:11555:14735": {
-        "ai": 521,
+        "ai": 518,
         "cdr3_aa": "CARDDILEGNAFDIW",
         "cdr3_nt": "TGTGCGAGAGATGATATTCTGGAGGGAAACGCTTTTGATATCTGG",
         "cdr3_num_nts": 45,
@@ -690,7 +690,7 @@
         "v_match": 279
     },
     "M03592:18:000000000-AHJWK:1:1101:11656:19225": {
-        "ai": 528,
+        "ai": 525,
         "cdr3_aa": "CASPVSHW",
         "cdr3_nt": "TGTGCGAGTCCCGTGTCTCACTGG",
         "cdr3_num_nts": 24,
@@ -713,7 +713,7 @@
         "v_match": 258
     },
     "M03592:18:000000000-AHJWK:1:1101:11677:12757": {
-        "ai": 567,
+        "ai": 564,
         "cdr3_aa": "CAREGQMLRGREEDDFW",
         "cdr3_nt": "TGTGCGAGAGAGGGCCAAATGCTTCGGGGGAGGGAGGAAGATGACTTCTGG",
         "cdr3_num_nts": 51,
@@ -759,7 +759,7 @@
         "v_match": 281
     },
     "M03592:18:000000000-AHJWK:1:1101:11830:20696": {
-        "ai": 404,
+        "ai": 402,
         "cdr3_aa": "CTRERPLTWNPDFW",
         "cdr3_nt": "TGTACGAGGGAACGGCCCCTGACGTGGAACCCCGACTTCTGG",
         "cdr3_num_nts": 42,
@@ -781,8 +781,31 @@
         "v_length": 296,
         "v_match": 265
     },
+    "M03592:18:000000000-AHJWK:1:1101:11884:12849": {
+        "ai": 687,
+        "cdr3_aa": "CTRSNSGSSVWTFW",
+        "cdr3_nt": "TGTACGAGAAGTAATAGTGGTAGTTCCGTCTGGACCTTCTGG",
+        "cdr3_num_nts": 42,
+        "copy_number": 14,
+        "germline": "CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTNCGGNGACCCTGTCCCTCACCTGCNCTGTCTCTGGTGGCTCCATCNNN---------AGTAGTNACTNNTGGAGNTGGNTCCGNCAGCCCNCNGGGAAGGGNCTGGAGTGGATTGGGNNNATCTATNNNAGT---------GGGAGCACCAACTACAACCCNTCCCTCAAG---AGTCGAGTCACCATNTCNGTAGACANGTCCAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACCGCCGCNGACACGGCCGTGTATTNC------------------------------------------GGCCANGGNACCCTGGTCACCGTCTCCTCAG",
+        "j_gene": "IGHJ1|4|5",
+        "j_length": 40,
+        "j_match": 37,
+        "num_gaps": 24,
+        "post_cdr3_length": 31,
+        "post_cdr3_match": 31,
+        "pre_cdr3_length": 285,
+        "pre_cdr3_match": 273,
+        "quality": "GGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGFGGGGDGCFGGFFGGGGEGGFGGFFFFFGGGF@AAFDG>FFFBADABCB?=BECBFBF         BFFAFEFCFFFFFFFFFFFFFFFFFFFFABAGGGGGGGGGGGDGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG         FGGFGGGGGGGGGGGGGGGGGGGGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGCC",
+        "seq_id": "M03592:18:000000000-AHJWK:1:1101:11884:12849",
+        "seq_start": 0,
+        "sequence": "CAGGTGCACCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCGGGGACCCTGTCCCTCACCTGCGCTGTCTCCGGTGACTCCATCAGC---------AGTAGTAACTGGTGGAGCTGGGTCCGCCAGTCCCCAGGGAAGGGGCTGGAGTGGATTGGGGAAATCTATCATAGT---------GGCATCACCAACTACAATCCGTCCCTCAAG---AGTCGAGTCACCATATCAGTAGACAAGTCCCAGAACCAGTTCTCCCTGAGACTGAGCTCTGTGACTGCCGCGGACACAGCCCTGTATTACTGTACGAGAAGTAATAGTGGTAGTTCCGTCTGGACCTTCTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
+        "v_gene": "IGHV4-4",
+        "v_length": 296,
+        "v_match": 280
+    },
     "M03592:18:000000000-AHJWK:1:1101:11908:18095": {
-        "ai": 377,
+        "ai": 375,
         "cdr3_aa": "CARRGSSWYHRGFDYW",
         "cdr3_nt": "TGTGCGAGACGGGGAAGCAGCTGGTACCACCGGGGCTTTGACTACTGG",
         "cdr3_num_nts": 48,
@@ -874,7 +897,7 @@
         "v_match": 278
     },
     "M03592:18:000000000-AHJWK:1:1101:12157:16724": {
-        "ai": 556,
+        "ai": 553,
         "cdr3_aa": "CAREGEMATSIW",
         "cdr3_nt": "TGTGCGCGAGAAGGAGAGATGGCTACAAGTATCTGG",
         "cdr3_num_nts": 36,
@@ -1012,7 +1035,7 @@
         "v_match": 267
     },
     "M03592:18:000000000-AHJWK:1:1101:12501:13483": {
-        "ai": 485,
+        "ai": 483,
         "cdr3_aa": "CVTKWEFSGFW",
         "cdr3_nt": "TGTGTCACGAAGTGGGAGTTCTCTGGATTCTGG",
         "cdr3_num_nts": 33,
@@ -1035,7 +1058,7 @@
         "v_match": 280
     },
     "M03592:18:000000000-AHJWK:1:1101:12564:18599": {
-        "ai": 510,
+        "ai": 507,
         "cdr3_aa": "CKVVMAGAPYW",
         "cdr3_nt": "TGTAAAGTGGTCATGGCGGGAGCCCCTTACTGG",
         "cdr3_num_nts": 33,
@@ -1058,7 +1081,7 @@
         "v_match": 273
     },
     "M03592:18:000000000-AHJWK:1:1101:12571:9216": {
-        "ai": 597,
+        "ai": 594,
         "cdr3_aa": "CAKMGPNLDYW",
         "cdr3_nt": "TGTGCGAAAATGGGCCCTAATCTTGACTACTGG",
         "cdr3_num_nts": 33,
@@ -1127,7 +1150,7 @@
         "v_match": 282
     },
     "M03592:18:000000000-AHJWK:1:1101:12590:14898": {
-        "ai": 490,
+        "ai": 488,
         "cdr3_aa": "CARG*RVVLL***WLLLRAPLVDYW",
         "cdr3_nt": "TGTGCGAGAGGCTAGCGGGTCGTATTACTATGATAGTAGTGGTTATTACTACGGGCCCCGTTGGTTGACTACTGG",
         "cdr3_num_nts": 75,
@@ -1265,7 +1288,7 @@
         "v_match": 272
     },
     "M03592:18:000000000-AHJWK:1:1101:12769:19455": {
-        "ai": 596,
+        "ai": 593,
         "cdr3_aa": "CASATGWRDYW",
         "cdr3_nt": "TGTGCAAGCGCCACTGGCTGGAGGGACTACTGG",
         "cdr3_num_nts": 33,
@@ -1288,7 +1311,7 @@
         "v_match": 279
     },
     "M03592:18:000000000-AHJWK:1:1101:12924:10112": {
-        "ai": 403,
+        "ai": 401,
         "cdr3_aa": "CARGGGYSYGSDYW",
         "cdr3_nt": "TGTGCGAGAGGTGGAGGATACAGCTATGGTTCTGACTACTGG",
         "cdr3_num_nts": 42,
@@ -1334,7 +1357,7 @@
         "v_match": 271
     },
     "M03592:18:000000000-AHJWK:1:1101:12964:17031": {
-        "ai": 367,
+        "ai": 365,
         "cdr3_aa": "CARDSSITSHHVIVPFQW",
         "cdr3_nt": "TGTGCGAGAGACTCTTCTATTACCAGCCATCATGTTATCGTTCCATTCCAGTGG",
         "cdr3_num_nts": 54,
@@ -1357,7 +1380,7 @@
         "v_match": 293
     },
     "M03592:18:000000000-AHJWK:1:1101:12981:10122": {
-        "ai": 516,
+        "ai": 513,
         "cdr3_aa": "CAKVVVYASQTSDYW",
         "cdr3_nt": "TGTGCGAAAGTTGTGGTGTATGCTTCACAAACCTCTGACTACTGG",
         "cdr3_num_nts": 45,
@@ -1449,7 +1472,7 @@
         "v_match": 291
     },
     "M03592:18:000000000-AHJWK:1:1101:13130:20882": {
-        "ai": 515,
+        "ai": 512,
         "cdr3_aa": "CATRTSVAGNGYDPW",
         "cdr3_nt": "TGTGCGACCAGAACTTCAGTGGCTGGTAACGGATATGACCCCTGG",
         "cdr3_num_nts": 45,
@@ -1472,7 +1495,7 @@
         "v_match": 287
     },
     "M03592:18:000000000-AHJWK:1:1101:13179:17627": {
-        "ai": 464,
+        "ai": 462,
         "cdr3_aa": "CTRGASYGGMGSW",
         "cdr3_nt": "TGTACGAGAGGGGCATCCTACGGTGGTATGGGGTCCTGG",
         "cdr3_num_nts": 39,
@@ -1518,7 +1541,7 @@
         "v_match": 256
     },
     "M03592:18:000000000-AHJWK:1:1101:13338:12913": {
-        "ai": 389,
+        "ai": 387,
         "cdr3_aa": "CARNPITVTVGDGSTP",
         "cdr3_nt": "TGTGCGAGAAACCCTATAACAGTGACTGTTGGCGATGGTTCGACCCCTGG",
         "cdr3_num_nts": 50,
@@ -1564,7 +1587,7 @@
         "v_match": 279
     },
     "M03592:18:000000000-AHJWK:1:1101:13415:11702": {
-        "ai": 509,
+        "ai": 506,
         "cdr3_aa": "CYETVSDFDSW",
         "cdr3_nt": "TGTTATGAAACTGTCTCCGACTTTGACTCCTGG",
         "cdr3_num_nts": 33,
@@ -1587,7 +1610,7 @@
         "v_match": 261
     },
     "M03592:18:000000000-AHJWK:1:1101:13427:12230": {
-        "ai": 566,
+        "ai": 563,
         "cdr3_aa": "CARESQMLRGREEDDFW",
         "cdr3_nt": "TGTGCGAGAGAGAGCCAAATGCTTCGGGGGAGGGAGGAAGATGACTTCTGG",
         "cdr3_num_nts": 51,
@@ -1610,7 +1633,7 @@
         "v_match": 272
     },
     "M03592:18:000000000-AHJWK:1:1101:13429:9356": {
-        "ai": 626,
+        "ai": 623,
         "cdr3_aa": "CARGSVLAWEVLSRW",
         "cdr3_nt": "TGTGCGAGAGGCTCAGTGTTGGCCTGGGAAGTTCTCTCACGTTGG",
         "cdr3_num_nts": 45,
@@ -1633,7 +1656,7 @@
         "v_match": 273
     },
     "M03592:18:000000000-AHJWK:1:1101:13435:18242": {
-        "ai": 388,
+        "ai": 386,
         "cdr3_aa": "CARNPITVTVGDGSTP",
         "cdr3_nt": "TGTGCGAGAAACCCTATAACAGTGACTGTTGGCGATGGTTCGACCCCTGG",
         "cdr3_num_nts": 50,
@@ -1679,7 +1702,7 @@
         "v_match": 283
     },
     "M03592:18:000000000-AHJWK:1:1101:13597:18885": {
-        "ai": 250,
+        "ai": 255,
         "cdr3_aa": "CARDWNYEIDYW",
         "cdr3_nt": "TGTGCGAGAGACTGGAACTACGAAATTGACTACTGG",
         "cdr3_num_nts": 36,
@@ -2139,7 +2162,7 @@
         "v_match": 287
     },
     "M03592:18:000000000-AHJWK:1:1101:14339:13659": {
-        "ai": 595,
+        "ai": 592,
         "cdr3_aa": "CAKMGPNLDYW",
         "cdr3_nt": "TGTGCGAAAATGGGCCCTAATCTTGACTACTGG",
         "cdr3_num_nts": 33,
@@ -2185,7 +2208,7 @@
         "v_match": 291
     },
     "M03592:18:000000000-AHJWK:1:1101:14558:14629": {
-        "ai": 235,
+        "ai": 240,
         "cdr3_aa": "CARDPYSGSQVDYW",
         "cdr3_nt": "TGTGCGAGAGACCCTTATAGTGGGAGCCAAGTCGACTACTGG",
         "cdr3_num_nts": 42,
@@ -2208,7 +2231,7 @@
         "v_match": 277
     },
     "M03592:18:000000000-AHJWK:1:1101:14587:15976": {
-        "ai": 484,
+        "ai": 482,
         "cdr3_aa": "CTSGGYWLDPW",
         "cdr3_nt": "TGTACCTCCGGAGGTTACTGGTTAGACCCCTGG",
         "cdr3_num_nts": 33,
@@ -2346,7 +2369,7 @@
         "v_match": 279
     },
     "M03592:18:000000000-AHJWK:1:1101:14718:18995": {
-        "ai": 371,
+        "ai": 369,
         "cdr3_aa": "CARGGQLQPLDLW",
         "cdr3_nt": "TGTGCGCGAGGGGGACAATTACAACCTCTTGACCTCTGG",
         "cdr3_num_nts": 39,
@@ -2369,7 +2392,7 @@
         "v_match": 267
     },
     "M03592:18:000000000-AHJWK:1:1101:14746:9908": {
-        "ai": 380,
+        "ai": 378,
         "cdr3_aa": "CANEYNAWYLEHW",
         "cdr3_nt": "TGTGCGAACGAATATAATGCTTGGTACTTGGAGCACTGG",
         "cdr3_num_nts": 39,
@@ -2438,7 +2461,7 @@
         "v_match": 278
     },
     "M03592:18:000000000-AHJWK:1:1101:14836:21122": {
-        "ai": 419,
+        "ai": 417,
         "cdr3_aa": "CAASRSYRYVDYW",
         "cdr3_nt": "TGTGCGGCATCTAGGAGTTACCGCTATGTTGACTACTGG",
         "cdr3_num_nts": 39,
@@ -2530,7 +2553,7 @@
         "v_match": 289
     },
     "M03592:18:000000000-AHJWK:1:1101:15153:13784": {
-        "ai": 466,
+        "ai": 464,
         "cdr3_aa": "CARRRHSSSSL*FDPW",
         "cdr3_nt": "TGTGCGAGACGACGCCATAGCAGCTCGTCCCTCTAGTTCGACCCCTGG",
         "cdr3_num_nts": 48,
@@ -2599,7 +2622,7 @@
         "v_match": 286
     },
     "M03592:18:000000000-AHJWK:1:1101:15245:14078": {
-        "ai": 491,
+        "ai": 489,
         "cdr3_aa": "CARQRVPAVFQYW",
         "cdr3_nt": "TGTGCGAGACAGCGAGTACCAGCTGTCTTTCAGTACTGG",
         "cdr3_num_nts": 39,
@@ -2622,7 +2645,7 @@
         "v_match": 276
     },
     "M03592:18:000000000-AHJWK:1:1101:15266:9753": {
-        "ai": 555,
+        "ai": 552,
         "cdr3_aa": "CAREGEMATSIW",
         "cdr3_nt": "TGTGCGCGAGAAGGAGAGATGGCTACAAGTATCTGG",
         "cdr3_num_nts": 36,
@@ -2645,7 +2668,7 @@
         "v_match": 267
     },
     "M03592:18:000000000-AHJWK:1:1101:15268:22759": {
-        "ai": 418,
+        "ai": 416,
         "cdr3_aa": "CAASRSYRYVDYW",
         "cdr3_nt": "TGTGCGGCATCTAGGAGTTACCGCTATGTTGACTACTGG",
         "cdr3_num_nts": 39,
@@ -2668,7 +2691,7 @@
         "v_match": 268
     },
     "M03592:18:000000000-AHJWK:1:1101:15300:20684": {
-        "ai": 514,
+        "ai": 511,
         "cdr3_aa": "CAKDSGPGSDYFRSW",
         "cdr3_nt": "TGTGCGAAAGACTCGGGACCTGGAAGTGATTACTTCCGGAGCTGG",
         "cdr3_num_nts": 45,
@@ -2691,7 +2714,7 @@
         "v_match": 263
     },
     "M03592:18:000000000-AHJWK:1:1101:15322:22397": {
-        "ai": 379,
+        "ai": 377,
         "cdr3_aa": "CANEYNAWYLEHW",
         "cdr3_nt": "TGTGCGAACGAATATAATGCTTGGTACTTGGAGCACTGG",
         "cdr3_num_nts": 39,
@@ -2760,7 +2783,7 @@
         "v_match": 263
     },
     "M03592:18:000000000-AHJWK:1:1101:15455:13671": {
-        "ai": 463,
+        "ai": 461,
         "cdr3_aa": "CARDDRGGYFDYW",
         "cdr3_nt": "TGTGCGAGAGATGATCGGGGGGGGTACTTTGACTACTGG",
         "cdr3_num_nts": 39,
@@ -2783,7 +2806,7 @@
         "v_match": 293
     },
     "M03592:18:000000000-AHJWK:1:1101:15507:8383": {
-        "ai": 526,
+        "ai": 523,
         "cdr3_aa": "CARDNRVRRGLTFYTWFDPW",
         "cdr3_nt": "TGTGCGAGAGATAATCGGGTTAGGCGCGGACTTACATTCTACACTTGGTTCGACCCCTGG",
         "cdr3_num_nts": 60,
@@ -2829,7 +2852,7 @@
         "v_match": 270
     },
     "M03592:18:000000000-AHJWK:1:1101:15536:20959": {
-        "ai": 627,
+        "ai": 624,
         "cdr3_aa": "CARGVTFLLGLVVVPAAPF*LL",
         "cdr3_nt": "TGTGCGAGAGGTGTGACCTTTCTGCTCGGATTGGTAGTAGTACCAGCTGCCCCATTTTGACTACTGG",
         "cdr3_num_nts": 67,
@@ -2851,31 +2874,8 @@
         "v_length": 299,
         "v_match": 299
     },
-    "M03592:18:000000000-AHJWK:1:1101:15551:17838": {
-        "ai": 687,
-        "cdr3_aa": "CTRSNSGSSVWTFW",
-        "cdr3_nt": "TGTACGAGAAGTAATAGTGGTAGTTCCGTCTGGACCTTCTGG",
-        "cdr3_num_nts": 42,
-        "copy_number": 14,
-        "germline": "CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTNCGGNGACCCTGTCCCTCACCTGCNCTGTCTCTGGTGGCTCCATCNNN---------AGTAGTNACTNNTGGAGNTGGNTCCGNCAGCCCNCNGGGAAGGGNCTGGAGTGGATTGGGNNNATCTATNNNAGT---------GGGAGCACCAACTACAACCCNTCCCTCAAG---AGTCGAGTCACCATNTCNGTAGACANGTCCAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACCGCCGCNGACACGGCCGTGTATTNC------------------------------------------GGCCANGGNACCCTGGTCACCGTCTCCTCAG",
-        "j_gene": "IGHJ1|4|5",
-        "j_length": 40,
-        "j_match": 37,
-        "num_gaps": 24,
-        "post_cdr3_length": 31,
-        "post_cdr3_match": 31,
-        "pre_cdr3_length": 285,
-        "pre_cdr3_match": 273,
-        "quality": "GGGGGGGGGGGGFGGG>EEEGEGGEGG   GG68FFGGGFCGGGGGFFCEGCCEGFG?5C@CFCF>CFF@?BGFFCFFFD?9?FFFFFAFF>?         BFFFFE?B??FFFFF>FFFBFFFD>FFFFGE@FFGGGGGFGDGGGGGGGGGFFGGEFGGGGGGGGGGGGGGGGGG         GGGGGGGGGGGGGGGGC8GGGECGGGGGGG   GGGGGGGGGGGGGGGGGGGGGGFGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGEGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG",
-        "seq_id": "M03592:18:000000000-AHJWK:1:1101:15551:17838",
-        "seq_start": 0,
-        "sequence": "CAGGTGCACCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCGGGGACCCTGTCCCTCACCTGCGCTGTCTCCGGTGACTCCATCAGC---------AGTAGTAACTGGTGGAGCTGGGTCCGCCAGTCCCCAGGGAAGGGGCTGGAGTGGATTGGGGAAATCTATCATAGT---------GGCATCACCAACTACAATCCGTCCCTCAAG---AGTCGAGTCACCATATCAGTAGACAAGTCCCAGAACCAGTTCTCCCTGAGACTGAGCTCTGTGACTGCCGCGGACACAGCCCTGTATTACTGTACGAGAAGTAATAGTGGTAGTTCCGTCTGGACCTTCTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
-        "v_gene": "IGHV4-4",
-        "v_length": 296,
-        "v_match": 280
-    },
     "M03592:18:000000000-AHJWK:1:1101:15586:12270": {
-        "ai": 632,
+        "ai": 629,
         "cdr3_aa": "CARTHSDSYYYFDYW",
         "cdr3_nt": "TGTGCGCGAACACACAGTGACAGTTACTACTACTTTGACTACTGG",
         "cdr3_num_nts": 45,
@@ -2990,7 +2990,7 @@
         "v_match": 257
     },
     "M03592:18:000000000-AHJWK:1:1101:15777:21129": {
-        "ai": 501,
+        "ai": 499,
         "cdr3_aa": "CARDPNAATGRLTFSFAFW",
         "cdr3_nt": "TGTGCGAGGGATCCCAATGCAGCTACTGGTCGACTAACTTTCTCGTTTGCCTTTTGG",
         "cdr3_num_nts": 57,
@@ -3105,7 +3105,7 @@
         "v_match": 256
     },
     "M03592:18:000000000-AHJWK:1:1101:16073:9886": {
-        "ai": 551,
+        "ai": 548,
         "cdr3_aa": "CAREGEMATSIW",
         "cdr3_nt": "TGTGCGCGAGAAGGAGAGATGGCTACAAGTATCTGG",
         "cdr3_num_nts": 36,
@@ -3151,7 +3151,7 @@
         "v_match": 277
     },
     "M03592:18:000000000-AHJWK:1:1101:16354:13216": {
-        "ai": 541,
+        "ai": 538,
         "cdr3_aa": "CASRPGTHMGPLDYW",
         "cdr3_nt": "TGTGCCAGTCGCCCTGGGACCCATATGGGGCCTCTCGACTACTGG",
         "cdr3_num_nts": 45,
@@ -3312,7 +3312,7 @@
         "v_match": 273
     },
     "M03592:18:000000000-AHJWK:1:1101:16758:12123": {
-        "ai": 447,
+        "ai": 445,
         "cdr3_aa": "CAMNKFDPW",
         "cdr3_nt": "TGTGCAATGAATAAGTTCGACCCCTGG",
         "cdr3_num_nts": 27,
@@ -3335,7 +3335,7 @@
         "v_match": 265
     },
     "M03592:18:000000000-AHJWK:1:1101:16786:18766": {
-        "ai": 629,
+        "ai": 626,
         "cdr3_aa": "CVREAVAAGGWFDPW",
         "cdr3_nt": "TGCGTGAGGGAAGCAGTAGCAGCCGGAGGCTGGTTCGACCCCTGG",
         "cdr3_num_nts": 45,
@@ -3427,7 +3427,7 @@
         "v_match": 270
     },
     "M03592:18:000000000-AHJWK:1:1101:16918:10810": {
-        "ai": 524,
+        "ai": 521,
         "cdr3_aa": "CARQAEVGYW",
         "cdr3_nt": "TGTGCGAGACAGGCAGAAGTGGGCTACTGG",
         "cdr3_num_nts": 30,
@@ -3450,7 +3450,7 @@
         "v_match": 293
     },
     "M03592:18:000000000-AHJWK:1:1101:16927:10938": {
-        "ai": 547,
+        "ai": 544,
         "cdr3_aa": "CARDRDISWFFYW",
         "cdr3_nt": "TGTGCGAGAGATCGTGACATCAGTTGGTTCTTCTACTGG",
         "cdr3_num_nts": 39,
@@ -3473,7 +3473,7 @@
         "v_match": 282
     },
     "M03592:18:000000000-AHJWK:1:1101:16976:14894": {
-        "ai": 373,
+        "ai": 371,
         "cdr3_aa": "CAKKRNSLIGWFDPW",
         "cdr3_nt": "TGTGCGAAAAAGAGGAATAGTCTGATAGGGTGGTTCGACCCCTGG",
         "cdr3_num_nts": 45,
@@ -3680,7 +3680,7 @@
         "v_match": 279
     },
     "M03592:18:000000000-AHJWK:1:1101:17293:10688": {
-        "ai": 474,
+        "ai": 472,
         "cdr3_aa": "CARVRGGWFDPW",
         "cdr3_nt": "TGTGCGAGAGTGCGAGGAGGGTGGTTCGACCCCTGG",
         "cdr3_num_nts": 36,
@@ -3772,7 +3772,7 @@
         "v_match": 285
     },
     "M03592:18:000000000-AHJWK:1:1101:17413:17522": {
-        "ai": 554,
+        "ai": 551,
         "cdr3_aa": "CAREGEMATSIW",
         "cdr3_nt": "TGTGCGCGAGAAGGAGAGATGGCTACAAGTATCTGG",
         "cdr3_num_nts": 36,
@@ -3795,7 +3795,7 @@
         "v_match": 273
     },
     "M03592:18:000000000-AHJWK:1:1101:17665:14590": {
-        "ai": 647,
+        "ai": 644,
         "cdr3_aa": "CAREIERRGAHDYW",
         "cdr3_nt": "TGTGCGAGAGAAATAGAACGACGGGGAGCACACGACTATTGG",
         "cdr3_num_nts": 42,
@@ -3841,7 +3841,7 @@
         "v_match": 263
     },
     "M03592:18:000000000-AHJWK:1:1101:17782:21059": {
-        "ai": 571,
+        "ai": 568,
         "cdr3_aa": "CARGSCGGDCYSGEL*LL",
         "cdr3_nt": "TGTGCGAGAGGCAGTTGTGGTGGTGACTGCTATTCCGGGGAACTTTGACTACTGG",
         "cdr3_num_nts": 55,
@@ -3864,7 +3864,7 @@
         "v_match": 280
     },
     "M03592:18:000000000-AHJWK:1:1101:17882:16649": {
-        "ai": 540,
+        "ai": 537,
         "cdr3_aa": "CARERAPGSALYFDYW",
         "cdr3_nt": "TGTGCGAGAGAACGAGCACCAGGGTCCGCTCTCTACTTTGACTACTGG",
         "cdr3_num_nts": 48,
@@ -3956,7 +3956,7 @@
         "v_match": 282
     },
     "M03592:18:000000000-AHJWK:1:1101:18268:16862": {
-        "ai": 502,
+        "ai": 359,
         "cdr3_aa": "CAREAGTSARAFDVW",
         "cdr3_nt": "TGTGCAAGAGAGGCTGGCACAAGTGCTCGTGCTTTTGATGTCTGG",
         "cdr3_num_nts": 45,
@@ -3979,7 +3979,7 @@
         "v_match": 285
     },
     "M03592:18:000000000-AHJWK:1:1101:18270:21417": {
-        "ai": 594,
+        "ai": 591,
         "cdr3_aa": "CASATGWRDYW",
         "cdr3_nt": "TGTGCAAGCGCCACTGGCTGGAGGGACTACTGG",
         "cdr3_num_nts": 33,
@@ -4002,7 +4002,7 @@
         "v_match": 277
     },
     "M03592:18:000000000-AHJWK:1:1101:18311:20603": {
-        "ai": 564,
+        "ai": 561,
         "cdr3_aa": "CATDGSGRLGELSYW",
         "cdr3_nt": "TGTGCCACAGATGGTTCGGGAAGACTCGGGGAGTTGTCCTACTGG",
         "cdr3_num_nts": 45,
@@ -4048,7 +4048,7 @@
         "v_match": 266
     },
     "M03592:18:000000000-AHJWK:1:1101:18362:11689": {
-        "ai": 387,
+        "ai": 385,
         "cdr3_aa": "CARNPITVTVGDGSTP",
         "cdr3_nt": "TGTGCGAGAAACCCTATAACAGTGACTGTTGGCGATGGTTCGACCCCTGG",
         "cdr3_num_nts": 50,
@@ -4140,7 +4140,7 @@
         "v_match": 296
     },
     "M03592:18:000000000-AHJWK:1:1101:18929:12327": {
-        "ai": 417,
+        "ai": 415,
         "cdr3_aa": "CAASRSYRYVDYW",
         "cdr3_nt": "TGTGCGGCATCTAGGAGTTACCGCTATGTTGACTACTGG",
         "cdr3_num_nts": 39,
@@ -4163,7 +4163,7 @@
         "v_match": 268
     },
     "M03592:18:000000000-AHJWK:1:1101:18939:20386": {
-        "ai": 430,
+        "ai": 428,
         "cdr3_aa": "CAGDSGYIFAL",
         "cdr3_nt": "TGTGCGGGAGACTCTGGGTACATCTTCGCACTGG",
         "cdr3_num_nts": 34,
@@ -4186,7 +4186,7 @@
         "v_match": 272
     },
     "M03592:18:000000000-AHJWK:1:1101:18945:12878": {
-        "ai": 458,
+        "ai": 456,
         "cdr3_aa": "CVREKGRNFYW",
         "cdr3_nt": "TGTGTGAGGGAAAAAGGACGAAATTTTTACTGG",
         "cdr3_num_nts": 33,
@@ -4232,7 +4232,7 @@
         "v_match": 255
     },
     "M03592:18:000000000-AHJWK:1:1101:18991:22667": {
-        "ai": 457,
+        "ai": 455,
         "cdr3_aa": "CVREKGRNFYW",
         "cdr3_nt": "TGTGTGAGGGAAAAAGGACGAAATTTTTACTGG",
         "cdr3_num_nts": 33,
@@ -4301,7 +4301,7 @@
         "v_match": 279
     },
     "M03592:18:000000000-AHJWK:1:1101:19097:13460_DUPLICATED": {
-        "ai": 420,
+        "ai": 418,
         "cdr3_aa": "CARDYHNSDFW",
         "cdr3_nt": "TGTGCCAGAGATTACCATAATTCTGACTTCTGG",
         "cdr3_num_nts": 33,
@@ -4416,7 +4416,7 @@
         "v_match": 267
     },
     "M03592:18:000000000-AHJWK:1:1101:19352:18211": {
-        "ai": 469,
+        "ai": 467,
         "cdr3_aa": "CTRDLEWLFYDYW",
         "cdr3_nt": "TGTACAAGAGACTTGGAGTGGTTATTTTACGACTACTGG",
         "cdr3_num_nts": 39,
@@ -4439,7 +4439,7 @@
         "v_match": 268
     },
     "M03592:18:000000000-AHJWK:1:1101:19362:17127": {
-        "ai": 651,
+        "ai": 648,
         "cdr3_aa": "CARTNYDIFTGYYDYW",
         "cdr3_nt": "TGTGCGAGGACCAATTACGATATTTTCACCGGTTATTACGACTACTGG",
         "cdr3_num_nts": 48,
@@ -4462,7 +4462,7 @@
         "v_match": 272
     },
     "M03592:18:000000000-AHJWK:1:1101:19368:16992": {
-        "ai": 465,
+        "ai": 463,
         "cdr3_aa": "CARPRVGTRKGWFDPW",
         "cdr3_nt": "TGTGCGAGACCCAGAGTGGGAACCAGGAAGGGCTGGTTCGACCCCTGG",
         "cdr3_num_nts": 48,
@@ -4508,7 +4508,7 @@
         "v_match": 288
     },
     "M03592:18:000000000-AHJWK:1:1101:19442:9716": {
-        "ai": 631,
+        "ai": 628,
         "cdr3_aa": "CASLQLPRSQPTDYW",
         "cdr3_nt": "TGTGCGAGTCTCCAGTTGCCAAGAAGCCAACCCACTGACTACTGG",
         "cdr3_num_nts": 45,
@@ -4531,7 +4531,7 @@
         "v_match": 285
     },
     "M03592:18:000000000-AHJWK:1:1101:19480:14979": {
-        "ai": 416,
+        "ai": 414,
         "cdr3_aa": "CARDNEITGLDPW",
         "cdr3_nt": "TGTGCGAGAGATAATGAAATTACTGGTCTGGACCCCTGG",
         "cdr3_num_nts": 39,
@@ -4669,7 +4669,7 @@
         "v_match": 288
     },
     "M03592:18:000000000-AHJWK:1:1101:19858:17907": {
-        "ai": 570,
+        "ai": 567,
         "cdr3_aa": "CAVGLGLLHLLHSSLRLL",
         "cdr3_nt": "TGTGCGGTCGGTCTTGGCCTACTGCACCTTCTCCATTCGTCACTCAGACTACTGG",
         "cdr3_num_nts": 55,
@@ -4715,7 +4715,7 @@
         "v_match": 296
     },
     "M03592:18:000000000-AHJWK:1:1101:19931:17814": {
-        "ai": 456,
+        "ai": 454,
         "cdr3_aa": "CVREKGRNFYW",
         "cdr3_nt": "TGTGTGAGGGAAAAAGGACGAAATTTTTACTGG",
         "cdr3_num_nts": 33,
@@ -4738,7 +4738,7 @@
         "v_match": 269
     },
     "M03592:18:000000000-AHJWK:1:1101:19935:12657": {
-        "ai": 581,
+        "ai": 578,
         "cdr3_aa": "CAKMGPNLDYW",
         "cdr3_nt": "TGTGCGAAAATGGGCCCTAATCTTGACTACTGG",
         "cdr3_num_nts": 33,
@@ -4761,7 +4761,7 @@
         "v_match": 267
     },
     "M03592:18:000000000-AHJWK:1:1101:19940:17286": {
-        "ai": 625,
+        "ai": 622,
         "cdr3_aa": "CARGSVLAWEVLSRW",
         "cdr3_nt": "TGTGCGAGAGGCTCAGTGTTGGCCTGGGAAGTTCTCTCACGTTGG",
         "cdr3_num_nts": 45,
@@ -4784,7 +4784,7 @@
         "v_match": 269
     },
     "M03592:18:000000000-AHJWK:1:1101:20028:22203": {
-        "ai": 415,
+        "ai": 413,
         "cdr3_aa": "CASLLDSKYFDNW",
         "cdr3_nt": "TGTGCGAGTCTTCTAGATTCGAAGTACTTTGACAACTGG",
         "cdr3_num_nts": 39,
@@ -4807,7 +4807,7 @@
         "v_match": 257
     },
     "M03592:18:000000000-AHJWK:1:1101:20063:8852": {
-        "ai": 202,
+        "ai": 207,
         "cdr3_aa": "CAREGYLGVWYYDLW",
         "cdr3_nt": "TGCGCAAGAGAGGGTTACTTGGGGGTCTGGTACTACGATCTCTGG",
         "cdr3_num_nts": 45,
@@ -4853,7 +4853,7 @@
         "v_match": 265
     },
     "M03592:18:000000000-AHJWK:1:1101:20099:15830": {
-        "ai": 392,
+        "ai": 390,
         "cdr3_aa": "CVRDPPGRSAVFDYW",
         "cdr3_nt": "TGTGTGAGAGATCCGCCAGGCCGATCGGCGGTCTTTGACTATTGG",
         "cdr3_num_nts": 45,
@@ -4899,7 +4899,7 @@
         "v_match": 283
     },
     "M03592:18:000000000-AHJWK:1:1101:20105:14243": {
-        "ai": 593,
+        "ai": 590,
         "cdr3_aa": "CAKMGPNLDYW",
         "cdr3_nt": "TGTGCGAAAATGGGCCCTAATCTTGACTACTGG",
         "cdr3_num_nts": 33,
@@ -4991,7 +4991,7 @@
         "v_match": 274
     },
     "M03592:18:000000000-AHJWK:1:1101:20203:10165": {
-        "ai": 219,
+        "ai": 224,
         "cdr3_aa": "CARQMTTALGPDRIDPW",
         "cdr3_nt": "TGTGCGAGACAGATGACTACGGCTCTAGGCCCGGACCGGATCGACCCCTGG",
         "cdr3_num_nts": 51,
@@ -5037,7 +5037,7 @@
         "v_match": 288
     },
     "M03592:18:000000000-AHJWK:1:1101:20209:9968": {
-        "ai": 448,
+        "ai": 446,
         "cdr3_aa": "CARDSLIAPVDRGWFDPW",
         "cdr3_nt": "TGTGCGAGAGATTCCCTGATAGCACCAGTTGATAGGGGCTGGTTCGACCCCTGG",
         "cdr3_num_nts": 54,
@@ -5060,7 +5060,7 @@
         "v_match": 286
     },
     "M03592:18:000000000-AHJWK:1:1101:20227:15006": {
-        "ai": 426,
+        "ai": 424,
         "cdr3_aa": "CSRDYHNSDYW",
         "cdr3_nt": "TGTTCGAGAGATTACCACAACTCCGACTACTGG",
         "cdr3_num_nts": 33,
@@ -5106,7 +5106,7 @@
         "v_match": 265
     },
     "M03592:18:000000000-AHJWK:1:1101:20394:16756": {
-        "ai": 504,
+        "ai": 501,
         "cdr3_aa": "CAREGSLDRGTSTGSFDYW",
         "cdr3_nt": "TGTGCGAGAGAGGGGAGTTTGGATCGGGGAACATCTACCGGGAGCTTTGACTACTGG",
         "cdr3_num_nts": 57,
@@ -5221,7 +5221,7 @@
         "v_match": 292
     },
     "M03592:18:000000000-AHJWK:1:1101:20553:10579": {
-        "ai": 486,
+        "ai": 484,
         "cdr3_aa": "CARGIVVVVAATRALVRPL",
         "cdr3_nt": "TGTGCGAGAGGAATTGTAGTGGTGGTAGCTGCTACTCGCGCACTGGTTCGACCCCTGG",
         "cdr3_num_nts": 58,
@@ -5267,7 +5267,7 @@
         "v_match": 275
     },
     "M03592:18:000000000-AHJWK:1:1101:20651:17408": {
-        "ai": 444,
+        "ai": 442,
         "cdr3_aa": "CTRSNSGSSVWTFW",
         "cdr3_nt": "TGTACGAGAAGTAATAGTGGTAGTTCCGTCTGGACCTTCTGG",
         "cdr3_num_nts": 42,
@@ -5382,7 +5382,7 @@
         "v_match": 277
     },
     "M03592:18:000000000-AHJWK:1:1101:20955:8790": {
-        "ai": 610,
+        "ai": 607,
         "cdr3_aa": "CARGWGVRRATYYFDYW",
         "cdr3_nt": "TGTGCGAGAGGCTGGGGTGTAAGGCGAGCAACATATTACTTTGACTACTGG",
         "cdr3_num_nts": 51,
@@ -5612,7 +5612,7 @@
         "v_match": 293
     },
     "M03592:18:000000000-AHJWK:1:1101:21690:12448": {
-        "ai": 624,
+        "ai": 621,
         "cdr3_aa": "CARGSVLAWEVLSRW",
         "cdr3_nt": "TGTGCGAGAGGCTCAGTGTTGGCCTGGGAAGTTCTCTCACGTTGG",
         "cdr3_num_nts": 45,
@@ -5635,7 +5635,7 @@
         "v_match": 267
     },
     "M03592:18:000000000-AHJWK:1:1101:21756:14742": {
-        "ai": 574,
+        "ai": 571,
         "cdr3_aa": "CVRGLDIGVLPAAHYW",
         "cdr3_nt": "TGTGTGAGAGGCCTGGATATTGGAGTTCTACCAGCTGCTCACTACTGG",
         "cdr3_num_nts": 48,
@@ -5704,7 +5704,7 @@
         "v_match": 293
     },
     "M03592:18:000000000-AHJWK:1:1101:21975:11768": {
-        "ai": 425,
+        "ai": 423,
         "cdr3_aa": "CSRDYHNSDYW",
         "cdr3_nt": "TGTTCGAGAGATTACCACAACTCCGACTACTGG",
         "cdr3_num_nts": 33,
@@ -5727,7 +5727,7 @@
         "v_match": 272
     },
     "M03592:18:000000000-AHJWK:1:1101:22011:10967": {
-        "ai": 429,
+        "ai": 427,
         "cdr3_aa": "CAGDSGYIFAL",
         "cdr3_nt": "TGTGCGGGAGACTCTGGGTACATCTTCGCACTGG",
         "cdr3_num_nts": 34,
@@ -5750,7 +5750,7 @@
         "v_match": 295
     },
     "M03592:18:000000000-AHJWK:1:1101:22033:14640": {
-        "ai": 396,
+        "ai": 394,
         "cdr3_aa": "CSTDRFQW",
         "cdr3_nt": "TGTTCCACCGATCGTTTCCAGTGG",
         "cdr3_num_nts": 24,
@@ -5773,7 +5773,7 @@
         "v_match": 291
     },
     "M03592:18:000000000-AHJWK:1:1101:22052:19397": {
-        "ai": 639,
+        "ai": 636,
         "cdr3_aa": "CARSRYCSSTSCWYYFDYW",
         "cdr3_nt": "TGTGCGAGAAGTCGATATTGTAGTAGTACCAGCTGCTGGTACTACTTTGACTACTGG",
         "cdr3_num_nts": 57,
@@ -5796,7 +5796,7 @@
         "v_match": 294
     },
     "M03592:18:000000000-AHJWK:1:1101:22068:11592": {
-        "ai": 550,
+        "ai": 547,
         "cdr3_aa": "CARPTGGYSHLYW",
         "cdr3_nt": "TGTGCGAGACCGACGGGGGGCTACTCGCATCTCTACTGG",
         "cdr3_num_nts": 39,
@@ -5819,7 +5819,7 @@
         "v_match": 269
     },
     "M03592:18:000000000-AHJWK:1:1101:22097:17055": {
-        "ai": 646,
+        "ai": 643,
         "cdr3_aa": "CARDSREAQSLDYW",
         "cdr3_nt": "TGTGCGAGAGACAGTAGAGAAGCCCAGAGTCTTGACTACTGG",
         "cdr3_num_nts": 42,
@@ -5865,7 +5865,7 @@
         "v_match": 261
     },
     "M03592:18:000000000-AHJWK:1:1101:22141:22150": {
-        "ai": 539,
+        "ai": 536,
         "cdr3_aa": "CARDPPTVGPTYVDFW",
         "cdr3_nt": "TGTGCGAGAGATCCCCCAACAGTGGGACCTACTTACGTTGACTTCTGG",
         "cdr3_num_nts": 48,
@@ -5888,7 +5888,7 @@
         "v_match": 274
     },
     "M03592:18:000000000-AHJWK:1:1101:22152:21210": {
-        "ai": 414,
+        "ai": 412,
         "cdr3_aa": "CAASRSYRYVDYW",
         "cdr3_nt": "TGTGCGGCATCTAGGAGTTACCGCTATGTTGACTACTGG",
         "cdr3_num_nts": 39,
@@ -5911,7 +5911,7 @@
         "v_match": 268
     },
     "M03592:18:000000000-AHJWK:1:1101:22207:14519": {
-        "ai": 372,
+        "ai": 370,
         "cdr3_aa": "CSRGELGNYYEIW",
         "cdr3_nt": "TGTTCACGAGGGGAACTGGGCAATTACTATGAAATTTGG",
         "cdr3_num_nts": 39,
@@ -5957,7 +5957,7 @@
         "v_match": 266
     },
     "M03592:18:000000000-AHJWK:1:1101:22231:10089": {
-        "ai": 618,
+        "ai": 615,
         "cdr3_aa": "CASLLAYCGGDCSREDYW",
         "cdr3_nt": "TGTGCGAGCCTCCTAGCATATTGTGGTGGTGACTGCTCCAGGGAGGACTACTGG",
         "cdr3_num_nts": 54,
@@ -5980,7 +5980,7 @@
         "v_match": 276
     },
     "M03592:18:000000000-AHJWK:1:1101:22258:13858": {
-        "ai": 376,
+        "ai": 374,
         "cdr3_aa": "CARRGSSWYHRGFDYW",
         "cdr3_nt": "TGTGCGAGACGGGGAAGCAGCTGGTACCACCGGGGCTTTGACTACTGG",
         "cdr3_num_nts": 48,
@@ -6003,7 +6003,7 @@
         "v_match": 292
     },
     "M03592:18:000000000-AHJWK:1:1101:22285:21290": {
-        "ai": 374,
+        "ai": 372,
         "cdr3_aa": "CARLRTYYYYYYYMDVW",
         "cdr3_nt": "TGTGCGAGACTAAGGACCTATTACTACTACTACTACTACATGGACGTCTGG",
         "cdr3_num_nts": 51,
@@ -6026,7 +6026,7 @@
         "v_match": 288
     },
     "M03592:18:000000000-AHJWK:1:1101:2234:12347": {
-        "ai": 384,
+        "ai": 382,
         "cdr3_aa": "CVRGNVGYGNFDCW",
         "cdr3_nt": "TGTGTAAGAGGCAACGTTGGTTACGGAAACTTTGACTGCTGG",
         "cdr3_num_nts": 42,
@@ -6072,7 +6072,7 @@
         "v_match": 299
     },
     "M03592:18:000000000-AHJWK:1:1101:22378:11213": {
-        "ai": 443,
+        "ai": 441,
         "cdr3_aa": "CAREIGARSGSNYW",
         "cdr3_nt": "TGTGCGAGAGAAATTGGCGCACGTAGTGGGTCTAACTACTGG",
         "cdr3_num_nts": 42,
@@ -6095,7 +6095,7 @@
         "v_match": 290
     },
     "M03592:18:000000000-AHJWK:1:1101:22389:18361": {
-        "ai": 602,
+        "ai": 599,
         "cdr3_aa": "CARDETPETGDFDKW",
         "cdr3_nt": "TGTGCGAGAGATGAAACGCCGGAGACTGGGGACTTTGACAAGTGG",
         "cdr3_num_nts": 45,
@@ -6118,7 +6118,7 @@
         "v_match": 262
     },
     "M03592:18:000000000-AHJWK:1:1101:22460:11352": {
-        "ai": 592,
+        "ai": 589,
         "cdr3_aa": "CAKMGPNLDYW",
         "cdr3_nt": "TGTGCGAAAATGGGCCCTAATCTTGACTACTGG",
         "cdr3_num_nts": 33,
@@ -6233,7 +6233,7 @@
         "v_match": 274
     },
     "M03592:18:000000000-AHJWK:1:1101:22704:7725": {
-        "ai": 591,
+        "ai": 588,
         "cdr3_aa": "CASTTGWRDFW",
         "cdr3_nt": "TGTGCGAGCACCACTGGCTGGAGGGACTTCTGG",
         "cdr3_num_nts": 33,
@@ -6279,7 +6279,7 @@
         "v_match": 279
     },
     "M03592:18:000000000-AHJWK:1:1101:22797:24708": {
-        "ai": 563,
+        "ai": 560,
         "cdr3_aa": "CATDGSGRLGEFLYW",
         "cdr3_nt": "TGTGCCACAGATGGTTCGGGAAGACTCGGGGAGTTTTTGTACTGG",
         "cdr3_num_nts": 45,
@@ -6325,7 +6325,7 @@
         "v_match": 271
     },
     "M03592:18:000000000-AHJWK:1:1101:22865:15473": {
-        "ai": 503,
+        "ai": 500,
         "cdr3_aa": "CVKVDQSGSWSFDYW",
         "cdr3_nt": "TGTGTTAAAGTAGATCAAAGTGGGAGCTGGTCCTTTGACTACTGG",
         "cdr3_num_nts": 45,
@@ -6371,7 +6371,7 @@
         "v_match": 280
     },
     "M03592:18:000000000-AHJWK:1:1101:22970:12957": {
-        "ai": 233,
+        "ai": 238,
         "cdr3_aa": "CARVPDFW",
         "cdr3_nt": "TGTGCGAGAGTTCCTGACTTTTGG",
         "cdr3_num_nts": 24,
@@ -6394,7 +6394,7 @@
         "v_match": 276
     },
     "M03592:18:000000000-AHJWK:1:1101:22981:18434": {
-        "ai": 623,
+        "ai": 620,
         "cdr3_aa": "CARGSVLAWEVLSRW",
         "cdr3_nt": "TGTGCGAGAGGCTCAGTGTTGGCCTGGGAAGTTCTCTCACGTTGG",
         "cdr3_num_nts": 45,
@@ -6417,7 +6417,7 @@
         "v_match": 268
     },
     "M03592:18:000000000-AHJWK:1:1101:23002:18060": {
-        "ai": 538,
+        "ai": 535,
         "cdr3_aa": "CARERAPGSALYFDYW",
         "cdr3_nt": "TGTGCGAGAGAACGAGCACCAGGGTCCGCTCTCTACTTTGACTACTGG",
         "cdr3_num_nts": 48,
@@ -6463,7 +6463,7 @@
         "v_match": 260
     },
     "M03592:18:000000000-AHJWK:1:1101:23049:11027": {
-        "ai": 413,
+        "ai": 411,
         "cdr3_aa": "CAASRSYRYVDYW",
         "cdr3_nt": "TGTGCGGCATCTAGGAGTTACCGCTATGTTGACTACTGG",
         "cdr3_num_nts": 39,
@@ -6486,7 +6486,7 @@
         "v_match": 273
     },
     "M03592:18:000000000-AHJWK:1:1101:23071:10088": {
-        "ai": 559,
+        "ai": 556,
         "cdr3_aa": "CARWYA*QWLEYNWFDPW",
         "cdr3_nt": "TGTGCGAGGTGGTACGCGTAGCAGTGGCTGGAGTACAACTGGTTCGACCCCTGG",
         "cdr3_num_nts": 54,
@@ -6509,7 +6509,7 @@
         "v_match": 283
     },
     "M03592:18:000000000-AHJWK:1:1101:23201:21518": {
-        "ai": 590,
+        "ai": 587,
         "cdr3_aa": "CAKMGPNLDYW",
         "cdr3_nt": "TGTGCGAAAATGGGCCCTAATCTTGACTACTGG",
         "cdr3_num_nts": 33,
@@ -6624,7 +6624,7 @@
         "v_match": 278
     },
     "M03592:18:000000000-AHJWK:1:1101:23327:22959": {
-        "ai": 640,
+        "ai": 637,
         "cdr3_aa": "CTPDVVVVPAARW",
         "cdr3_nt": "TGCACACCCGATGTTGTAGTAGTACCAGCTGCTAGGTGG",
         "cdr3_num_nts": 39,
@@ -6716,7 +6716,7 @@
         "v_match": 295
     },
     "M03592:18:000000000-AHJWK:1:1101:23445:14187": {
-        "ai": 534,
+        "ai": 531,
         "cdr3_aa": "CAKDDEFQLRWFDPW",
         "cdr3_nt": "TGTGCGAAAGATGATGAGTTTCAGTTGAGGTGGTTCGACCCCTGG",
         "cdr3_num_nts": 45,
@@ -6739,7 +6739,7 @@
         "v_match": 278
     },
     "M03592:18:000000000-AHJWK:1:1101:23447:12835": {
-        "ai": 580,
+        "ai": 577,
         "cdr3_aa": "CARGVPGYIYGGPFDYW",
         "cdr3_nt": "TGTGCGAGGGGTGTACCTGGATACATTTATGGTGGCCCCTTTGACTACTGG",
         "cdr3_num_nts": 51,
@@ -6946,7 +6946,7 @@
         "v_match": 272
     },
     "M03592:18:000000000-AHJWK:1:1101:23936:11646": {
-        "ai": 442,
+        "ai": 440,
         "cdr3_aa": "CAGEHHSSPRFDYW",
         "cdr3_nt": "TGTGCGGGGGAACATCATAGCAGCCCCCGCTTTGACTACTGG",
         "cdr3_num_nts": 42,
@@ -6969,7 +6969,7 @@
         "v_match": 279
     },
     "M03592:18:000000000-AHJWK:1:1101:23965:8578": {
-        "ai": 211,
+        "ai": 216,
         "cdr3_aa": "CVKQWINLWIEEW",
         "cdr3_nt": "TGTGTGAAACAGTGGATAAATTTATGGATTGAGGAGTGG",
         "cdr3_num_nts": 39,
@@ -7015,7 +7015,7 @@
         "v_match": 267
     },
     "M03592:18:000000000-AHJWK:1:1101:24024:15018": {
-        "ai": 375,
+        "ai": 373,
         "cdr3_aa": "CARAAFWSGYSGFDPW",
         "cdr3_nt": "TGTGCGAGAGCGGCTTTTTGGAGTGGTTATTCCGGGTTCGACCCCTGG",
         "cdr3_num_nts": 48,
@@ -7038,7 +7038,7 @@
         "v_match": 268
     },
     "M03592:18:000000000-AHJWK:1:1101:24080:20545": {
-        "ai": 446,
+        "ai": 444,
         "cdr3_aa": "CTGEKAGTIVDYW",
         "cdr3_nt": "TGTACGGGAGAGAAAGCTGGAACTATTGTCGACTACTGG",
         "cdr3_num_nts": 39,
@@ -7130,7 +7130,7 @@
         "v_match": 296
     },
     "M03592:18:000000000-AHJWK:1:1101:24154:17863": {
-        "ai": 478,
+        "ai": 476,
         "cdr3_aa": "CAKDIVYGDFDYW",
         "cdr3_nt": "TGTGCGAAAGATATTGTCTACGGCGATTTTGACTACTGG",
         "cdr3_num_nts": 39,
@@ -7268,7 +7268,7 @@
         "v_match": 271
     },
     "M03592:18:000000000-AHJWK:1:1101:24454:4339": {
-        "ai": 455,
+        "ai": 453,
         "cdr3_aa": "CVREKGRNFYW",
         "cdr3_nt": "TGTGTGAGGGAAAAAGGACGAAATTTTTACTGG",
         "cdr3_num_nts": 33,
@@ -7291,7 +7291,7 @@
         "v_match": 270
     },
     "M03592:18:000000000-AHJWK:1:1101:24460:19099": {
-        "ai": 412,
+        "ai": 410,
         "cdr3_aa": "CAASRSYRYVDYW",
         "cdr3_nt": "TGTGCGGCATCTAGGAGTTACCGCTATGTTGACTACTGG",
         "cdr3_num_nts": 39,
@@ -7452,7 +7452,7 @@
         "v_match": 273
     },
     "M03592:18:000000000-AHJWK:1:1101:24723:22807": {
-        "ai": 473,
+        "ai": 471,
         "cdr3_aa": "CARVRGGWFDPW",
         "cdr3_nt": "TGTGCGAGAGTGCGAGGAGGGTGGTTCGACCCCTGG",
         "cdr3_num_nts": 36,
@@ -7498,7 +7498,7 @@
         "v_match": 299
     },
     "M03592:18:000000000-AHJWK:1:1101:24828:9076": {
-        "ai": 441,
+        "ai": 439,
         "cdr3_aa": "CAILVVPGVWFDPW",
         "cdr3_nt": "TGTGCGATCCTAGTAGTACCAGGCGTCTGGTTCGACCCCTGG",
         "cdr3_num_nts": 42,
@@ -7567,7 +7567,7 @@
         "v_match": 281
     },
     "M03592:18:000000000-AHJWK:1:1101:24867:10976": {
-        "ai": 399,
+        "ai": 397,
         "cdr3_aa": "CARAELVPAAIRPYNWFDPW",
         "cdr3_nt": "TGTGCGAGAGCCGAGCTAGTACCAGCTGCTATACGCCCGTACAACTGGTTCGACCCCTGG",
         "cdr3_num_nts": 60,
@@ -7613,7 +7613,7 @@
         "v_match": 280
     },
     "M03592:18:000000000-AHJWK:1:1101:24925:9907": {
-        "ai": 411,
+        "ai": 409,
         "cdr3_aa": "CAASRSYRYVDYW",
         "cdr3_nt": "TGTGCGGCATCTAGGAGTTACCGCTATGTTGACTACTGG",
         "cdr3_num_nts": 39,
@@ -7636,7 +7636,7 @@
         "v_match": 268
     },
     "M03592:18:000000000-AHJWK:1:1101:24936:10197": {
-        "ai": 489,
+        "ai": 487,
         "cdr3_aa": "CARG*RVVLL***WLLLRAPLVDYW",
         "cdr3_nt": "TGTGCGAGAGGCTAGCGGGTCGTATTACTATGATAGTAGTGGTTATTACTACGGGCCCCGTTGGTTGACTACTGG",
         "cdr3_num_nts": 75,
@@ -7682,7 +7682,7 @@
         "v_match": 281
     },
     "M03592:18:000000000-AHJWK:1:1101:25098:13787": {
-        "ai": 440,
+        "ai": 438,
         "cdr3_aa": "CAREGIGYNPGDFW",
         "cdr3_nt": "TGTGCGAGGGAAGGTATAGGCTACAACCCGGGGGACTTCTGG",
         "cdr3_num_nts": 42,
@@ -7751,7 +7751,7 @@
         "v_match": 264
     },
     "M03592:18:000000000-AHJWK:1:1101:25193:9728": {
-        "ai": 525,
+        "ai": 522,
         "cdr3_aa": "CATTLAVTTPSGRSLYFDYW",
         "cdr3_nt": "TGTGCGACTACTTTAGCGGTGACGACGCCCAGCGGGAGGTCCTTATACTTTGACTACTGG",
         "cdr3_num_nts": 60,
@@ -7866,7 +7866,7 @@
         "v_match": 282
     },
     "M03592:18:000000000-AHJWK:1:1101:25475:17124": {
-        "ai": 589,
+        "ai": 586,
         "cdr3_aa": "CAKMGPNLDYW",
         "cdr3_nt": "TGTGCGAAAATGGGCCCTAATCTTGACTACTGG",
         "cdr3_num_nts": 33,
@@ -7958,7 +7958,7 @@
         "v_match": 279
     },
     "M03592:18:000000000-AHJWK:1:1101:25560:10138": {
-        "ai": 472,
+        "ai": 470,
         "cdr3_aa": "CARVRGGWFDPW",
         "cdr3_nt": "TGTGCGAGAGTGCGAGGAGGGTGGTTCGACCCCTGG",
         "cdr3_num_nts": 36,
@@ -8050,7 +8050,7 @@
         "v_match": 279
     },
     "M03592:18:000000000-AHJWK:1:1101:25723:4192": {
-        "ai": 617,
+        "ai": 614,
         "cdr3_aa": "CARHRGADFWTNYNFDYW",
         "cdr3_nt": "TGTGCGAGACATCGGGGCGCCGATTTTTGGACTAATTACAATTTTGACTACTGG",
         "cdr3_num_nts": 54,
@@ -8073,7 +8073,7 @@
         "v_match": 268
     },
     "M03592:18:000000000-AHJWK:1:1101:25725:8346": {
-        "ai": 599,
+        "ai": 596,
         "cdr3_aa": "CAREGGRYGGYYLSPANPDYW",
         "cdr3_nt": "TGTGCGAGAGAAGGGGGCCGGTATGGTGGCTATTATTTGAGTCCTGCGAACCCGGACTACTGG",
         "cdr3_num_nts": 63,
@@ -8119,7 +8119,7 @@
         "v_match": 274
     },
     "M03592:18:000000000-AHJWK:1:1101:25757:21952": {
-        "ai": 513,
+        "ai": 510,
         "cdr3_aa": "CARPRSGWHVAFEYW",
         "cdr3_nt": "TGTGCGAGACCCCGCAGTGGCTGGCATGTTGCCTTTGAGTATTGG",
         "cdr3_num_nts": 45,
@@ -8234,7 +8234,7 @@
         "v_match": 270
     },
     "M03592:18:000000000-AHJWK:1:1101:25967:17711": {
-        "ai": 370,
+        "ai": 368,
         "cdr3_aa": "CARGGQLQPLDLW",
         "cdr3_nt": "TGTGCGCGAGGGGGACAATTACAACCTCTTGACCTCTGG",
         "cdr3_num_nts": 39,
@@ -8280,7 +8280,7 @@
         "v_match": 272
     },
     "M03592:18:000000000-AHJWK:1:1101:26104:19289": {
-        "ai": 611,
+        "ai": 608,
         "cdr3_aa": "CARDLLRFLEWLLSLTT",
         "cdr3_nt": "TGTGCGAGAGATTTATTACGATTTTTGGAGTGGTTATTATCTTTGACTACTGG",
         "cdr3_num_nts": 53,
@@ -8303,7 +8303,7 @@
         "v_match": 296
     },
     "M03592:18:000000000-AHJWK:1:1101:26140:13667": {
-        "ai": 522,
+        "ai": 519,
         "cdr3_aa": "CAREEQMQITAFEIW",
         "cdr3_nt": "TGTGCGAGAGAAGAGCAAATGCAGATCACTGCTTTTGAAATCTGG",
         "cdr3_num_nts": 45,
@@ -8349,7 +8349,7 @@
         "v_match": 295
     },
     "M03592:18:000000000-AHJWK:1:1101:26222:15699": {
-        "ai": 609,
+        "ai": 606,
         "cdr3_aa": "CARGWGVRRATYYFDYW",
         "cdr3_nt": "TGTGCGAGAGGCTGGGGTGTAAGGCGAGCAACATATTACTTTGACTACTGG",
         "cdr3_num_nts": 51,
@@ -8372,7 +8372,7 @@
         "v_match": 281
     },
     "M03592:18:000000000-AHJWK:1:1101:26222:21361": {
-        "ai": 439,
+        "ai": 437,
         "cdr3_aa": "CAREGIGYNPGDFW",
         "cdr3_nt": "TGTGCGAGGGAAGGTATAGGCTACAACCCGGGGGACTTCTGG",
         "cdr3_num_nts": 42,
@@ -8464,7 +8464,7 @@
         "v_match": 289
     },
     "M03592:18:000000000-AHJWK:1:1101:26272:22008": {
-        "ai": 549,
+        "ai": 546,
         "cdr3_aa": "CARGLAGGSYLVW",
         "cdr3_nt": "TGTGCGAGAGGCTTAGCGGGTGGGAGCTATCTAGTTTGG",
         "cdr3_num_nts": 39,
@@ -8510,7 +8510,7 @@
         "v_match": 294
     },
     "M03592:18:000000000-AHJWK:1:1101:26344:8447": {
-        "ai": 569,
+        "ai": 566,
         "cdr3_aa": "CAVGLGLLHLLHSSLRLL",
         "cdr3_nt": "TGTGCGGTCGGTCTTGGCCTACTGCACCTTCTCCATTCGTCACTCAGACTACTGG",
         "cdr3_num_nts": 55,
@@ -8625,7 +8625,7 @@
         "v_match": 274
     },
     "M03592:18:000000000-AHJWK:1:1101:26549:9370": {
-        "ai": 562,
+        "ai": 559,
         "cdr3_aa": "CTTEGYDFWKTIDNW",
         "cdr3_nt": "TGTACCACAGAGGGTTACGATTTTTGGAAGACGATTGACAACTGG",
         "cdr3_num_nts": 45,
@@ -8648,7 +8648,7 @@
         "v_match": 293
     },
     "M03592:18:000000000-AHJWK:1:1101:26568:11224": {
-        "ai": 265,
+        "ai": 203,
         "cdr3_aa": "CARVAVTGRADFHHW",
         "cdr3_nt": "TGTGCGAGAGTGGCGGTGACTGGCAGGGCGGACTTTCATCACTGG",
         "cdr3_num_nts": 45,
@@ -8694,7 +8694,7 @@
         "v_match": 259
     },
     "M03592:18:000000000-AHJWK:1:1101:26601:8806": {
-        "ai": 582,
+        "ai": 579,
         "cdr3_aa": "CASTTGWRDFW",
         "cdr3_nt": "TGTGCGAGCACCACTGGCTGGAGGGACTTCTGG",
         "cdr3_num_nts": 33,
@@ -8740,7 +8740,7 @@
         "v_match": 264
     },
     "M03592:18:000000000-AHJWK:1:1101:26638:18441": {
-        "ai": 603,
+        "ai": 600,
         "cdr3_aa": "CARRIIHYDILTGQKASYYFDYW",
         "cdr3_nt": "TGTGCGAGAAGAATAATTCATTACGATATTTTGACTGGTCAGAAGGCTTCGTATTACTTTGACTACTGG",
         "cdr3_num_nts": 69,
@@ -8901,7 +8901,7 @@
         "v_match": 284
     },
     "M03592:18:000000000-AHJWK:1:1101:26883:12271": {
-        "ai": 498,
+        "ai": 496,
         "cdr3_aa": "CARDGAYYDSGGYSXWYSDFW",
         "cdr3_nt": "TGCGCGCGAGATGGGGCTTACTATGATAGTGGTGGTTATTCCCNGTGGTACTCTGACTTTTGG",
         "cdr3_num_nts": 63,
@@ -8993,7 +8993,7 @@
         "v_match": 275
     },
     "M03592:18:000000000-AHJWK:1:1101:27101:11050": {
-        "ai": 493,
+        "ai": 491,
         "cdr3_aa": "CASLGNWFGPW",
         "cdr3_nt": "TGTGCAAGTCTGGGAAACTGGTTCGGCCCCTGG",
         "cdr3_num_nts": 33,
@@ -9016,7 +9016,7 @@
         "v_match": 255
     },
     "M03592:18:000000000-AHJWK:1:1101:27113:9491": {
-        "ai": 198,
+        "ai": 265,
         "cdr3_aa": "CARGGYRVVASDLW",
         "cdr3_nt": "TGTGCGCGAGGGGGATATAGAGTTGTTGCGAGTGACCTCTGG",
         "cdr3_num_nts": 42,
@@ -9085,7 +9085,7 @@
         "v_match": 255
     },
     "M03592:18:000000000-AHJWK:1:1101:27380:11080": {
-        "ai": 477,
+        "ai": 475,
         "cdr3_aa": "CAKDIVYGDFDYW",
         "cdr3_nt": "TGTGCGAAAGATATTGTCTACGGCGATTTTGACTACTGG",
         "cdr3_num_nts": 39,
@@ -9108,7 +9108,7 @@
         "v_match": 282
     },
     "M03592:18:000000000-AHJWK:1:1101:27406:13210": {
-        "ai": 622,
+        "ai": 619,
         "cdr3_aa": "CARGSVLAWEVLSRW",
         "cdr3_nt": "TGTGCGAGAGGCTCAGTGTTGGCCTGGGAAGTTCTCTCACGTTGG",
         "cdr3_num_nts": 45,
@@ -9223,7 +9223,7 @@
         "v_match": 290
     },
     "M03592:18:000000000-AHJWK:1:1101:27823:7415": {
-        "ai": 454,
+        "ai": 452,
         "cdr3_aa": "CVREKGRNFYW",
         "cdr3_nt": "TGTGTGAGGGAAAAAGGACGAAATTTTTACTGG",
         "cdr3_num_nts": 33,
@@ -9246,7 +9246,7 @@
         "v_match": 271
     },
     "M03592:18:000000000-AHJWK:1:1101:27861:18345": {
-        "ai": 621,
+        "ai": 618,
         "cdr3_aa": "CARGSVLAWEVLSRW",
         "cdr3_nt": "TGTGCGAGAGGCTCAGTGTTGGCCTGGGAAGTTCTCTCACGTTGG",
         "cdr3_num_nts": 45,
@@ -9384,7 +9384,7 @@
         "v_match": 279
     },
     "M03592:18:000000000-AHJWK:1:1101:28281:12773": {
-        "ai": 476,
+        "ai": 474,
         "cdr3_aa": "CAKKGVEVLVDYW",
         "cdr3_nt": "TGTGCGAAAAAGGGAGTGGAAGTACTAGTTGACTACTGG",
         "cdr3_num_nts": 39,
@@ -9407,7 +9407,7 @@
         "v_match": 275
     },
     "M03592:18:000000000-AHJWK:1:1101:28372:11807": {
-        "ai": 438,
+        "ai": 436,
         "cdr3_aa": "CARDQSSSNWWKYW",
         "cdr3_nt": "TGTGCGAGAGATCAATCTAGCAGCAACTGGTGGAAATACTGG",
         "cdr3_num_nts": 42,
@@ -9430,7 +9430,7 @@
         "v_match": 274
     },
     "M03592:18:000000000-AHJWK:1:1101:28372:9821": {
-        "ai": 483,
+        "ai": 481,
         "cdr3_aa": "CTSGGYRLDPW",
         "cdr3_nt": "TGTACCTCCGGAGGTTACCGGTTAGACCCCTGG",
         "cdr3_num_nts": 33,
@@ -9476,7 +9476,7 @@
         "v_match": 274
     },
     "M03592:18:000000000-AHJWK:1:1101:28432:8458": {
-        "ai": 553,
+        "ai": 550,
         "cdr3_aa": "CAREGEMATSIW",
         "cdr3_nt": "TGTGCGCGAGAAGGAGAGATGGCTACAAGTATCTGG",
         "cdr3_num_nts": 36,
@@ -9522,7 +9522,7 @@
         "v_match": 265
     },
     "M03592:18:000000000-AHJWK:1:1101:28612:14328": {
-        "ai": 437,
+        "ai": 435,
         "cdr3_aa": "CARDQSSSNWWKYW",
         "cdr3_nt": "TGTGCGAGAGATCAATCTAGCAGCAACTGGTGGAAATACTGG",
         "cdr3_num_nts": 42,
@@ -9545,7 +9545,7 @@
         "v_match": 273
     },
     "M03592:18:000000000-AHJWK:1:1101:28638:11124": {
-        "ai": 402,
+        "ai": 400,
         "cdr3_aa": "CARGGGYSYGSDYW",
         "cdr3_nt": "TGTGCGAGAGGTGGAGGATACAGCTATGGTTCTGACTACTGG",
         "cdr3_num_nts": 42,
@@ -9568,7 +9568,7 @@
         "v_match": 295
     },
     "M03592:18:000000000-AHJWK:1:1101:28671:9950": {
-        "ai": 436,
+        "ai": 434,
         "cdr3_aa": "CARGIRFFPWFDPW",
         "cdr3_nt": "TGTGCGAGAGGGATACGATTTTTTCCCTGGTTCGACCCCTGG",
         "cdr3_num_nts": 42,
@@ -9591,7 +9591,7 @@
         "v_match": 277
     },
     "M03592:18:000000000-AHJWK:1:1101:28682:14259": {
-        "ai": 471,
+        "ai": 469,
         "cdr3_aa": "CARVRGGWFDPW",
         "cdr3_nt": "TGTGCGAGAGTGCGAGGAGGGTGGTTCGACCCCTGG",
         "cdr3_num_nts": 36,
@@ -9637,7 +9637,7 @@
         "v_match": 270
     },
     "M03592:18:000000000-AHJWK:1:1101:28918:11024": {
-        "ai": 468,
+        "ai": 466,
         "cdr3_aa": "CARDLHWGASEYW",
         "cdr3_nt": "TGTGCAAGAGATCTCCATTGGGGAGCTTCTGAGTACTGG",
         "cdr3_num_nts": 39,
@@ -9660,7 +9660,7 @@
         "v_match": 266
     },
     "M03592:18:000000000-AHJWK:1:1101:28929:10138": {
-        "ai": 537,
+        "ai": 534,
         "cdr3_aa": "CARSESYSSFDYW",
         "cdr3_nt": "TGTGCTAGAAGTGAGAGTTACTCGTCGTTTGACTACTGG",
         "cdr3_num_nts": 39,
@@ -9683,7 +9683,7 @@
         "v_match": 290
     },
     "M03592:18:000000000-AHJWK:1:1101:29061:10867": {
-        "ai": 546,
+        "ai": 543,
         "cdr3_aa": "CARAPRGHTGGNWFDTW",
         "cdr3_nt": "TGTGCGAGAGCCCCGCGTGGCCATACGGGGGGGAATTGGTTCGACACCTGG",
         "cdr3_num_nts": 51,
@@ -9706,7 +9706,7 @@
         "v_match": 283
     },
     "M03592:18:000000000-AHJWK:1:1101:29131:14936": {
-        "ai": 488,
+        "ai": 486,
         "cdr3_aa": "CARG*RVVLL***WLLLRAPLVDYW",
         "cdr3_nt": "TGTGCGAGAGGCTAGCGGGTCGTATTACTATGATAGTAGTGGTTATTACTACGGGCCCCGTTGGTTGACTACTGG",
         "cdr3_num_nts": 75,
@@ -9752,7 +9752,7 @@
         "v_match": 268
     },
     "M03592:18:000000000-AHJWK:1:1101:3230:12725": {
-        "ai": 588,
+        "ai": 585,
         "cdr3_aa": "CAKMGPNLDYW",
         "cdr3_nt": "TGTGCGAAAATGGGCCCTAATCTTGACTACTGG",
         "cdr3_num_nts": 33,
@@ -9821,7 +9821,7 @@
         "v_match": 269
     },
     "M03592:18:000000000-AHJWK:1:1101:3324:9790": {
-        "ai": 410,
+        "ai": 408,
         "cdr3_aa": "CASLLDSKYFDNW",
         "cdr3_nt": "TGTGCGAGTCTTCTAGATTCGAAGTACTTTGACAACTGG",
         "cdr3_num_nts": 39,
@@ -9844,7 +9844,7 @@
         "v_match": 258
     },
     "M03592:18:000000000-AHJWK:1:1101:3438:16067": {
-        "ai": 365,
+        "ai": 363,
         "cdr3_aa": "CARVTYYYESGNYYQGYYFDYW",
         "cdr3_nt": "TGTGCGAGAGTCACATATTACTATGAGAGTGGTAATTATTATCAAGGCTACTACTTTGACTATTGG",
         "cdr3_num_nts": 66,
@@ -9867,7 +9867,7 @@
         "v_match": 285
     },
     "M03592:18:000000000-AHJWK:1:1101:3821:12031": {
-        "ai": 512,
+        "ai": 509,
         "cdr3_aa": "CATRVGTRYYYFDYW",
         "cdr3_nt": "TGTGCGACTCGCGTGGGAACTAGGTATTACTACTTTGACTACTGG",
         "cdr3_num_nts": 45,
@@ -9959,7 +9959,7 @@
         "v_match": 288
     },
     "M03592:18:000000000-AHJWK:1:1101:4198:12918": {
-        "ai": 616,
+        "ai": 613,
         "cdr3_aa": "CARLVILEVGDALDFDLW",
         "cdr3_nt": "TGTGCGAGATTGGTTATATTGGAGGTCGGGGACGCCTTGGACTTTGACCTCTGG",
         "cdr3_num_nts": 54,
@@ -10028,7 +10028,7 @@
         "v_match": 266
     },
     "M03592:18:000000000-AHJWK:1:1101:4433:19044": {
-        "ai": 579,
+        "ai": 576,
         "cdr3_aa": "CARGVPGYIYGGPFDYW",
         "cdr3_nt": "TGTGCGAGGGGTGTACCTGGATACATTTATGGTGGCCCCTTTGACTACTGG",
         "cdr3_num_nts": 51,
@@ -10051,7 +10051,7 @@
         "v_match": 285
     },
     "M03592:18:000000000-AHJWK:1:1101:4764:14044": {
-        "ai": 587,
+        "ai": 584,
         "cdr3_aa": "CAKMGPNLDYW",
         "cdr3_nt": "TGTGCGAAAATGGGCCCTAATCTTGACTACTGG",
         "cdr3_num_nts": 33,
@@ -10074,7 +10074,7 @@
         "v_match": 266
     },
     "M03592:18:000000000-AHJWK:1:1101:4935:16863": {
-        "ai": 552,
+        "ai": 549,
         "cdr3_aa": "CAREGEMATSIW",
         "cdr3_nt": "TGTGCGCGAGAGGGAGAGATGGCTACAAGTATCTGG",
         "cdr3_num_nts": 36,
@@ -10120,7 +10120,7 @@
         "v_match": 260
     },
     "M03592:18:000000000-AHJWK:1:1101:5094:9513": {
-        "ai": 401,
+        "ai": 399,
         "cdr3_aa": "CATGRWEMFGIYYW",
         "cdr3_nt": "TGTGCGACTGGACGGTGGGAAATGTTCGGGATTTACTACTGG",
         "cdr3_num_nts": 42,
@@ -10143,7 +10143,7 @@
         "v_match": 267
     },
     "M03592:18:000000000-AHJWK:1:1101:5186:13153": {
-        "ai": 361,
+        "ai": 655,
         "cdr3_aa": "CARDEDDYGSGYFDYW",
         "cdr3_nt": "TGTGCGAGAGATGAGGACGACTATGGTTCCGGCTACTTTGACTACTGG",
         "cdr3_num_nts": 48,
@@ -10166,7 +10166,7 @@
         "v_match": 266
     },
     "M03592:18:000000000-AHJWK:1:1101:5200:6617": {
-        "ai": 542,
+        "ai": 539,
         "cdr3_aa": "CARGPPFYETSGYDLW",
         "cdr3_nt": "TGTGCGAGAGGGCCGCCCTTCTATGAGACGAGTGGTTATGACCTCTGG",
         "cdr3_num_nts": 48,
@@ -10189,7 +10189,7 @@
         "v_match": 274
     },
     "M03592:18:000000000-AHJWK:1:1101:5201:15606": {
-        "ai": 382,
+        "ai": 380,
         "cdr3_aa": "CARGESSSYFDYW",
         "cdr3_nt": "TGTGCGAGAGGGGAAAGCAGTTCATACTTTGACTACTGG",
         "cdr3_num_nts": 39,
@@ -10212,7 +10212,7 @@
         "v_match": 268
     },
     "M03592:18:000000000-AHJWK:1:1101:5227:17446": {
-        "ai": 523,
+        "ai": 520,
         "cdr3_aa": "CARDGIAVAVDYW",
         "cdr3_nt": "TGTGCGAGAGATGGAATAGCAGTGGCTGTTGACTACTGG",
         "cdr3_num_nts": 39,
@@ -10235,7 +10235,7 @@
         "v_match": 287
     },
     "M03592:18:000000000-AHJWK:1:1101:5288:20116": {
-        "ai": 475,
+        "ai": 473,
         "cdr3_aa": "CARDFLGIKFDYW",
         "cdr3_nt": "TGTGCGAGAGATTTCCTGGGGATTAAATTTGACTACTGG",
         "cdr3_num_nts": 39,
@@ -10281,7 +10281,7 @@
         "v_match": 286
     },
     "M03592:18:000000000-AHJWK:1:1101:5376:18192": {
-        "ai": 453,
+        "ai": 451,
         "cdr3_aa": "CVREKGRNFYW",
         "cdr3_nt": "TGTGTGAGGGAAAAAGGACGAAATTTTTACTGG",
         "cdr3_num_nts": 33,
@@ -10304,7 +10304,7 @@
         "v_match": 270
     },
     "M03592:18:000000000-AHJWK:1:1101:5495:13359": {
-        "ai": 586,
+        "ai": 583,
         "cdr3_aa": "CAKMGPNLDYW",
         "cdr3_nt": "TGTGCGAAAATGGGCCCTAATCTTGACTACTGG",
         "cdr3_num_nts": 33,
@@ -10350,7 +10350,7 @@
         "v_match": 279
     },
     "M03592:18:000000000-AHJWK:1:1101:5616:13603": {
-        "ai": 395,
+        "ai": 393,
         "cdr3_aa": "CTDNRGYW",
         "cdr3_nt": "TGTACCGACAATAGGGGCTACTGG",
         "cdr3_num_nts": 24,
@@ -10396,7 +10396,7 @@
         "v_match": 267
     },
     "M03592:18:000000000-AHJWK:1:1101:5681:9066": {
-        "ai": 637,
+        "ai": 634,
         "cdr3_aa": "CSWNSGTPETNWLDPW",
         "cdr3_nt": "TGCAGCTGGAACTCCGGGACTCCCGAGACAAACTGGCTCGACCCCTGG",
         "cdr3_num_nts": 48,
@@ -10465,7 +10465,7 @@
         "v_match": 275
     },
     "M03592:18:000000000-AHJWK:1:1101:5767:20048": {
-        "ai": 452,
+        "ai": 450,
         "cdr3_aa": "CVREKGRNFYW",
         "cdr3_nt": "TGTGTGAGGGAAAAAGGACGAAATTTTTACTGG",
         "cdr3_num_nts": 33,
@@ -10580,7 +10580,7 @@
         "v_match": 295
     },
     "M03592:18:000000000-AHJWK:1:1101:6308:12896": {
-        "ai": 397,
+        "ai": 395,
         "cdr3_aa": "CAREVAFW",
         "cdr3_nt": "TGTGCGCGGGAGGTTGCCTTCTGG",
         "cdr3_num_nts": 24,
@@ -10603,7 +10603,7 @@
         "v_match": 259
     },
     "M03592:18:000000000-AHJWK:1:1101:6471:3785": {
-        "ai": 424,
+        "ai": 422,
         "cdr3_aa": "CARDYHNSDFW",
         "cdr3_nt": "TGTGCCAGAGATTACCATAATTCTGACTTCTGG",
         "cdr3_num_nts": 33,
@@ -10718,7 +10718,7 @@
         "v_match": 267
     },
     "M03592:18:000000000-AHJWK:1:1101:6856:21235": {
-        "ai": 573,
+        "ai": 570,
         "cdr3_aa": "CARLVVPSHSKFFDPW",
         "cdr3_nt": "TGTGCGAGATTAGTAGTGCCATCTCACTCCAAGTTTTTCGACCCCTGG",
         "cdr3_num_nts": 48,
@@ -10856,7 +10856,7 @@
         "v_match": 265
     },
     "M03592:18:000000000-AHJWK:1:1101:7106:18261": {
-        "ai": 643,
+        "ai": 640,
         "cdr3_aa": "CARALEYWYFDLW",
         "cdr3_nt": "TGTGCGAGAGCGCTGGAGTACTGGTACTTCGATCTCTGG",
         "cdr3_num_nts": 39,
@@ -11040,7 +11040,7 @@
         "v_match": 279
     },
     "M03592:18:000000000-AHJWK:1:1101:7364:17064": {
-        "ai": 648,
+        "ai": 645,
         "cdr3_aa": "CTRDRGFPDAFHIW",
         "cdr3_nt": "TGTACAAGAGATCGGGGGTTCCCTGATGCTTTTCATATCTGG",
         "cdr3_num_nts": 42,
@@ -11086,7 +11086,7 @@
         "v_match": 288
     },
     "M03592:18:000000000-AHJWK:1:1101:7413:21727": {
-        "ai": 360,
+        "ai": 654,
         "cdr3_aa": "CARAFGGGSKPYVDFW",
         "cdr3_nt": "TGTGCGAGGGCGTTTGGTGGGGGCTCAAAGCCCTACGTTGACTTCTGG",
         "cdr3_num_nts": 48,
@@ -11155,7 +11155,7 @@
         "v_match": 278
     },
     "M03592:18:000000000-AHJWK:1:1101:7485:14271": {
-        "ai": 264,
+        "ai": 202,
         "cdr3_aa": "CARSDYSYTHYFDYW",
         "cdr3_nt": "TGTGCGAGGAGCGACTACTCATACACCCACTACTTTGACTACTGG",
         "cdr3_num_nts": 45,
@@ -11178,7 +11178,7 @@
         "v_match": 277
     },
     "M03592:18:000000000-AHJWK:1:1101:7524:22156": {
-        "ai": 409,
+        "ai": 407,
         "cdr3_aa": "CASLLDSKYFDNW",
         "cdr3_nt": "TGTGCGAGTCTTCTAGATTCGAAGTACTTTGACAACTGG",
         "cdr3_num_nts": 39,
@@ -11224,7 +11224,7 @@
         "v_match": 278
     },
     "M03592:18:000000000-AHJWK:1:1101:7541:13625": {
-        "ai": 519,
+        "ai": 516,
         "cdr3_aa": "CARRTAVVLSDSHKEKWFDPW",
         "cdr3_nt": "TGTGCGAGGAGAACTGCTGTGGTATTGTCTGATAGTCACAAGGAGAAGTGGTTCGACCCCTGG",
         "cdr3_num_nts": 63,
@@ -11247,7 +11247,7 @@
         "v_match": 273
     },
     "M03592:18:000000000-AHJWK:1:1101:7559:9561": {
-        "ai": 630,
+        "ai": 627,
         "cdr3_aa": "CARTHSDSYYYFDYW",
         "cdr3_nt": "TGTGCGCGAACACACAGTGACAGTTACTACTACTTTGACTACTGG",
         "cdr3_num_nts": 45,
@@ -11270,7 +11270,7 @@
         "v_match": 271
     },
     "M03592:18:000000000-AHJWK:1:1101:7603:19820": {
-        "ai": 654,
+        "ai": 651,
         "cdr3_aa": "CAIVPESW",
         "cdr3_nt": "TGTGCCATTGTGCCGGAGTCCTGG",
         "cdr3_num_nts": 24,
@@ -11339,7 +11339,7 @@
         "v_match": 269
     },
     "M03592:18:000000000-AHJWK:1:1101:7772:10594": {
-        "ai": 408,
+        "ai": 406,
         "cdr3_aa": "CAGSSGWYRIDSW",
         "cdr3_nt": "TGCGCGGGTAGCAGTGGCTGGTACAGGATTGACTCCTGG",
         "cdr3_num_nts": 39,
@@ -11362,7 +11362,7 @@
         "v_match": 273
     },
     "M03592:18:000000000-AHJWK:1:1101:7780:6720": {
-        "ai": 366,
+        "ai": 364,
         "cdr3_aa": "CARDGGWAAAILYYFDYL",
         "cdr3_nt": "TGTGCGAGAGATGGAGGGTGGGCAGCTGCCATCCTCTACTACTTTGACTACTTG",
         "cdr3_num_nts": 54,
@@ -11385,7 +11385,7 @@
         "v_match": 283
     },
     "M03592:18:000000000-AHJWK:1:1101:7851:7416": {
-        "ai": 530,
+        "ai": 527,
         "cdr3_aa": "CAREERLCTNNYCSPYNWFDRW",
         "cdr3_nt": "TGTGCGAGAGAAGAACGCTTATGTACTAATAACTATTGCTCCCCTTACAACTGGTTCGACCGCTGG",
         "cdr3_num_nts": 66,
@@ -11408,7 +11408,7 @@
         "v_match": 274
     },
     "M03592:18:000000000-AHJWK:1:1101:7932:16961": {
-        "ai": 604,
+        "ai": 601,
         "cdr3_aa": "CARDGHTVAVPDYW",
         "cdr3_nt": "TGTGCGAGAGATGGACACACGGTGGCTGTCCCAGACTACTGG",
         "cdr3_num_nts": 42,
@@ -11523,7 +11523,7 @@
         "v_match": 274
     },
     "M03592:18:000000000-AHJWK:1:1101:8161:12441": {
-        "ai": 578,
+        "ai": 575,
         "cdr3_aa": "CARRGSCISTSCPLDFW",
         "cdr3_nt": "TGTGCGAGGCGGGGGAGTTGTATTAGTACCAGCTGCCCTCTTGACTTCTGG",
         "cdr3_num_nts": 51,
@@ -11569,7 +11569,7 @@
         "v_match": 279
     },
     "M03592:18:000000000-AHJWK:1:1101:8213:18872": {
-        "ai": 407,
+        "ai": 405,
         "cdr3_aa": "CAASRSYRYVDYW",
         "cdr3_nt": "TGTGCGGCATCTAGGAGTTACCGCTATGTTGACTACTGG",
         "cdr3_num_nts": 39,
@@ -11592,7 +11592,7 @@
         "v_match": 269
     },
     "M03592:18:000000000-AHJWK:1:1101:8352:21685": {
-        "ai": 497,
+        "ai": 495,
         "cdr3_aa": "CAREYCSESSCQFRGTWFDPW",
         "cdr3_nt": "TGTGCGAGAGAGTACTGCAGTGAAAGCAGCTGCCAGTTTAGAGGGACTTGGTTCGACCCCTGG",
         "cdr3_num_nts": 63,
@@ -11638,7 +11638,7 @@
         "v_match": 269
     },
     "M03592:18:000000000-AHJWK:1:1101:8415:19686": {
-        "ai": 561,
+        "ai": 558,
         "cdr3_aa": "CTTYRGGFHQSFDYW",
         "cdr3_nt": "TGTACCACTTATCGTGGTGGCTTTCATCAAAGTTTTGACTACTGG",
         "cdr3_num_nts": 45,
@@ -11707,7 +11707,7 @@
         "v_match": 280
     },
     "M03592:18:000000000-AHJWK:1:1101:8780:22982": {
-        "ai": 511,
+        "ai": 508,
         "cdr3_aa": "CAKDSGPGSDYFRSW",
         "cdr3_nt": "TGTGCGAAAGACTCGGGACCTGGAAGTGATTACTTCCGGAGCTGG",
         "cdr3_num_nts": 45,
@@ -11799,7 +11799,7 @@
         "v_match": 288
     },
     "M03592:18:000000000-AHJWK:1:1101:9169:13195": {
-        "ai": 496,
+        "ai": 494,
         "cdr3_aa": "CARDPNHYDSNGQRSLPFAFW",
         "cdr3_nt": "TGTGCGAGAGATCCCAATCACTATGATAGTAATGGTCAACGATCATTACCCTTTGCCTTCTGG",
         "cdr3_num_nts": 63,
@@ -11845,7 +11845,7 @@
         "v_match": 287
     },
     "M03592:18:000000000-AHJWK:1:1101:9200:21565": {
-        "ai": 633,
+        "ai": 630,
         "cdr3_aa": "CARSSCTNGVCPFDNW",
         "cdr3_nt": "TGTGCGAGATCGTCGTGTACTAATGGTGTGTGCCCATTTGACAACTGG",
         "cdr3_num_nts": 48,
@@ -11868,7 +11868,7 @@
         "v_match": 273
     },
     "M03592:18:000000000-AHJWK:1:1101:9264:18447": {
-        "ai": 428,
+        "ai": 426,
         "cdr3_aa": "CAGDSGYIFAL",
         "cdr3_nt": "TGTGCGGGAGACTCTGGGTACATCTTCGCACTGG",
         "cdr3_num_nts": 34,
@@ -11983,7 +11983,7 @@
         "v_match": 287
     },
     "M03592:18:000000000-AHJWK:1:1101:9558:7495": {
-        "ai": 435,
+        "ai": 433,
         "cdr3_aa": "CAREIGARSGSNYW",
         "cdr3_nt": "TGTGCGAGAGAAATTGGCGCACGTAGTGGGTCTAACTACTGG",
         "cdr3_num_nts": 42,
@@ -12006,7 +12006,7 @@
         "v_match": 286
     },
     "M03592:18:000000000-AHJWK:1:1101:9586:11842": {
-        "ai": 653,
+        "ai": 650,
         "cdr3_aa": "CAASNGTF",
         "cdr3_nt": "TGTGCGGCATCTAATGGGACCTTC",
         "cdr3_num_nts": 24,
@@ -12098,7 +12098,7 @@
         "v_match": 283
     },
     "M03592:18:000000000-AHJWK:1:1101:9806:19239": {
-        "ai": 470,
+        "ai": 468,
         "cdr3_aa": "CAFNGPYRLDHW",
         "cdr3_nt": "TGTGCGTTTAACGGCCCGTATCGACTTGACCACTGG",
         "cdr3_num_nts": 36,
@@ -12121,7 +12121,7 @@
         "v_match": 285
     },
     "M03592:18:000000000-AHJWK:1:1101:9828:13224": {
-        "ai": 508,
+        "ai": 505,
         "cdr3_aa": "CAHKVSDFWSGFDSW",
         "cdr3_nt": "TGTGCACACAAAGTGTCCGATTTTTGGAGTGGTTTCGACTCCTGG",
         "cdr3_num_nts": 45,
@@ -12190,7 +12190,7 @@
         "v_match": 278
     },
     "M03592:18:000000000-AHJWK:1:1101:9850:8675": {
-        "ai": 568,
+        "ai": 565,
         "cdr3_aa": "CAVGLGLLHLLHSSLRLL",
         "cdr3_nt": "TGTGCGGTCGGTCTTGGCCTACTGCACCTTCTCCATTCGTCACTCAGACTACTGG",
         "cdr3_num_nts": 55,
@@ -12259,7 +12259,7 @@
         "v_match": 271
     },
     "M03592:18:000000000-AHJWK:1:1101:9915:16280": {
-        "ai": 482,
+        "ai": 480,
         "cdr3_aa": "CARDGELEF",
         "cdr3_nt": "TGTGCGAGAGATGGGGAATTAGAATTC",
         "cdr3_num_nts": 27,
@@ -12282,7 +12282,7 @@
         "v_match": 285
     },
     "M03592:18:000000000-AHJWK:1:1101:9928:19749": {
-        "ai": 480,
+        "ai": 478,
         "cdr3_aa": "CARGPHSDLGELFFGYW",
         "cdr3_nt": "TGTGCGAGAGGGCCTCACTCCGACCTCGGGGAGTTATTCTTCGGCTACTGG",
         "cdr3_num_nts": 51,
@@ -12328,7 +12328,7 @@
         "v_match": 272
     },
     "M03592:18:000000000-AHJWK:1:1102:10052:6862": {
-        "ai": 492,
+        "ai": 490,
         "cdr3_aa": "CARVGGVIVDW",
         "cdr3_nt": "TGTGCAAGAGTCGGGGGCGTAATAGTAGACTGG",
         "cdr3_num_nts": 33,
@@ -12443,7 +12443,7 @@
         "v_match": 277
     },
     "M03592:18:000000000-AHJWK:1:1102:10670:7453": {
-        "ai": 606,
+        "ai": 603,
         "cdr3_aa": "CARGGDYSNYRAFFGPW",
         "cdr3_nt": "TGTGCGAGGGGGGGAGACTACAGTAACTACCGGGCGTTCTTCGGCCCCTGG",
         "cdr3_num_nts": 51,
@@ -12811,7 +12811,7 @@
         "v_match": 267
     },
     "M03592:18:000000000-AHJWK:1:1102:12122:8416": {
-        "ai": 585,
+        "ai": 582,
         "cdr3_aa": "CAKMGPNLDYW",
         "cdr3_nt": "TGTGCGAAAATGGGCCCTAATCTTGACTACTGG",
         "cdr3_num_nts": 33,
@@ -12926,7 +12926,7 @@
         "v_match": 280
     },
     "M03592:18:000000000-AHJWK:1:1102:12882:7750": {
-        "ai": 398,
+        "ai": 396,
         "cdr3_aa": "CARAELVPAAIRPYNWFDPW",
         "cdr3_nt": "TGTGCGAGAGCCGAGCTAGTACCAGCTGCTATACGCCCGTACAACTGGTTCGACCCCTGG",
         "cdr3_num_nts": 60,
@@ -12972,7 +12972,7 @@
         "v_match": 299
     },
     "M03592:18:000000000-AHJWK:1:1102:13028:8115": {
-        "ai": 577,
+        "ai": 574,
         "cdr3_aa": "CARRGGCSGSSCSLDNW",
         "cdr3_nt": "TGTGCGAGGCGCGGAGGTTGCAGTGGTAGCAGCTGTTCCCTTGACAACTGG",
         "cdr3_num_nts": 51,
@@ -13041,7 +13041,7 @@
         "v_match": 268
     },
     "M03592:18:000000000-AHJWK:1:1102:13666:9640": {
-        "ai": 518,
+        "ai": 515,
         "cdr3_aa": "CARRTAVVLSDSHKEKWFDPW",
         "cdr3_nt": "TGTGCGAGGAGAACTGCTGTGGTATTGTCTGATAGTCACAAGGAGAAGTGGTTCGACCCCTGG",
         "cdr3_num_nts": 63,
@@ -13064,7 +13064,7 @@
         "v_match": 273
     },
     "M03592:18:000000000-AHJWK:1:1102:13676:9407": {
-        "ai": 576,
+        "ai": 573,
         "cdr3_aa": "CARDSNYEGSTALLGYW",
         "cdr3_nt": "TGTGCCAGAGATAGCAACTACGAAGGCTCTACGGCCCTTTTGGGCTACTGG",
         "cdr3_num_nts": 51,
@@ -13087,7 +13087,7 @@
         "v_match": 288
     },
     "M03592:18:000000000-AHJWK:1:1102:13709:9790": {
-        "ai": 642,
+        "ai": 639,
         "cdr3_aa": "CARANLQDYW",
         "cdr3_nt": "TGTGCGAGAGCAAATTTACAGGACTACTGG",
         "cdr3_num_nts": 30,
@@ -13110,7 +13110,7 @@
         "v_match": 295
     },
     "M03592:18:000000000-AHJWK:1:1102:13779:8832": {
-        "ai": 434,
+        "ai": 432,
         "cdr3_aa": "CAILVVPGVWFDPW",
         "cdr3_nt": "TGTGCGATCCTAGTAGTACCAGGCGTCTGGTTCGACCCCTGG",
         "cdr3_num_nts": 42,
@@ -13133,7 +13133,7 @@
         "v_match": 274
     },
     "M03592:18:000000000-AHJWK:1:1102:13931:18816": {
-        "ai": 249,
+        "ai": 254,
         "cdr3_aa": "CARGRNGSLDYW",
         "cdr3_nt": "TGTGCGAGAGGGAGAAATGGCTCCCTTGACTACTGG",
         "cdr3_num_nts": 36,
@@ -13202,7 +13202,7 @@
         "v_match": 256
     },
     "M03592:18:000000000-AHJWK:1:1102:14310:16057": {
-        "ai": 256,
+        "ai": 261,
         "cdr3_aa": "CARDHSTATARSWWFDPW",
         "cdr3_nt": "TGTGCGAGAGATCACTCTACGGCGACGGCTCGAAGTTGGTGGTTCGACCCCTGG",
         "cdr3_num_nts": 54,
@@ -13271,7 +13271,7 @@
         "v_match": 296
     },
     "M03592:18:000000000-AHJWK:1:1102:14605:9224": {
-        "ai": 481,
+        "ai": 479,
         "cdr3_aa": "CARDGELEF",
         "cdr3_nt": "TGTGCGAGAGATGGGGAATTAGAATTC",
         "cdr3_num_nts": 27,
@@ -13340,7 +13340,7 @@
         "v_match": 276
     },
     "M03592:18:000000000-AHJWK:1:1102:14694:8694": {
-        "ai": 615,
+        "ai": 612,
         "cdr3_aa": "CARDSSITSHHVIVPFQW",
         "cdr3_nt": "TGTGCGAGAGACTCTTCTATTACCAGCCATCATGTTATCGTTCCATTCCAGTGG",
         "cdr3_num_nts": 54,
@@ -13386,7 +13386,7 @@
         "v_match": 277
     },
     "M03592:18:000000000-AHJWK:1:1102:14903:10178": {
-        "ai": 364,
+        "ai": 362,
         "cdr3_aa": "CARVTYYYESGNYYQGYYFDYW",
         "cdr3_nt": "TGTGCGAGAGTCACATATTACTATGAGAGTGGTAATTATTATCAAGGCTACTACTTTGACTATTGG",
         "cdr3_num_nts": 66,
@@ -13455,7 +13455,7 @@
         "v_match": 293
     },
     "M03592:18:000000000-AHJWK:1:1102:15042:9526": {
-        "ai": 359,
+        "ai": 653,
         "cdr3_aa": "CARAAFRGAFNWFDPW",
         "cdr3_nt": "TGTGCGAGGGCAGCGTTTCGGGGAGCCTTCAACTGGTTCGACCCCTGG",
         "cdr3_num_nts": 48,
@@ -13616,7 +13616,7 @@
         "v_match": 262
     },
     "M03592:18:000000000-AHJWK:1:1102:15785:8493": {
-        "ai": 608,
+        "ai": 605,
         "cdr3_aa": "CARNLRDSKYAFSFDYW",
         "cdr3_nt": "TGTGCGAGAAATCTCCGGGACAGTAAATACGCCTTTTCGTTTGACTACTGG",
         "cdr3_num_nts": 51,
@@ -13639,7 +13639,7 @@
         "v_match": 283
     },
     "M03592:18:000000000-AHJWK:1:1102:15886:17738": {
-        "ai": 248,
+        "ai": 253,
         "cdr3_aa": "CARAVGAMIDYW",
         "cdr3_nt": "TGTGCGAGAGCCGTAGGGGCTATGATAGACTACTGG",
         "cdr3_num_nts": 36,
@@ -13708,7 +13708,7 @@
         "v_match": 272
     },
     "M03592:18:000000000-AHJWK:1:1102:16177:10356": {
-        "ai": 227,
+        "ai": 232,
         "cdr3_aa": "CARESYGDSVHW",
         "cdr3_nt": "TGTGCGAGAGAGTCCTACGGTGACTCCGTTCACTGG",
         "cdr3_num_nts": 36,
@@ -13823,7 +13823,7 @@
         "v_match": 281
     },
     "M03592:18:000000000-AHJWK:1:1102:16961:9266": {
-        "ai": 451,
+        "ai": 449,
         "cdr3_aa": "CVREKGRNFYW",
         "cdr3_nt": "TGTGTGAGGGAAAAAGGACGAAATTTTTACTGG",
         "cdr3_num_nts": 33,
@@ -13846,7 +13846,7 @@
         "v_match": 271
     },
     "M03592:18:000000000-AHJWK:1:1102:17044:9240": {
-        "ai": 644,
+        "ai": 641,
         "cdr3_aa": "CAKGGPMTS",
         "cdr3_nt": "TGTGCCAAAGGGGGCCCTATGACCTCTGG",
         "cdr3_num_nts": 29,
@@ -13892,7 +13892,7 @@
         "v_match": 245
     },
     "M03592:18:000000000-AHJWK:1:1102:17555:9282": {
-        "ai": 505,
+        "ai": 502,
         "cdr3_aa": "CVRAHGLIAASAFDPW",
         "cdr3_nt": "TGTGTGAGAGCTCATGGGCTGATAGCTGCTAGCGCGTTCGACCCCTGG",
         "cdr3_num_nts": 48,
@@ -13938,7 +13938,7 @@
         "v_match": 293
     },
     "M03592:18:000000000-AHJWK:1:1102:17751:9988": {
-        "ai": 614,
+        "ai": 611,
         "cdr3_aa": "CGRDPKGTMVRGVTVDFW",
         "cdr3_nt": "TGTGGGAGAGATCCGAAAGGTACTATGGTTCGCGGAGTCACTGTTGACTTCTGG",
         "cdr3_num_nts": 54,
@@ -14030,7 +14030,7 @@
         "v_match": 295
     },
     "M03592:18:000000000-AHJWK:1:1102:18048:8121": {
-        "ai": 620,
+        "ai": 617,
         "cdr3_aa": "CARGSVLAWEVLSRW",
         "cdr3_nt": "TGTGCGAGAGGCTCAGTGTTGGCCTGGGAAGTACTCTCACGTTGG",
         "cdr3_num_nts": 45,
@@ -14053,7 +14053,7 @@
         "v_match": 267
     },
     "M03592:18:000000000-AHJWK:1:1102:18225:17353": {
-        "ai": 247,
+        "ai": 252,
         "cdr3_aa": "CARAVGAMIDYW",
         "cdr3_nt": "TGTGCGAGAGCCGTAGGGGCTATGATAGACTACTGG",
         "cdr3_num_nts": 36,
@@ -14076,7 +14076,7 @@
         "v_match": 294
     },
     "M03592:18:000000000-AHJWK:1:1102:18233:8913": {
-        "ai": 400,
+        "ai": 398,
         "cdr3_aa": "CATGRWEMFGIYYW",
         "cdr3_nt": "TGTGCGACTGGACGGTGGGAAATGTTCGGGATTTACTACTGG",
         "cdr3_num_nts": 42,
@@ -14237,7 +14237,7 @@
         "v_match": 259
     },
     "M03592:18:000000000-AHJWK:1:1102:18858:8127": {
-        "ai": 572,
+        "ai": 569,
         "cdr3_aa": "CAKLDTRIYAVGPDCW",
         "cdr3_nt": "TGTGCGAAACTAGATACCAGGATTTATGCAGTCGGCCCTGACTGCTGG",
         "cdr3_num_nts": 48,
@@ -14260,7 +14260,7 @@
         "v_match": 290
     },
     "M03592:18:000000000-AHJWK:1:1102:18873:8913": {
-        "ai": 495,
+        "ai": 493,
         "cdr3_aa": "CARDFDCISATCFQPNWFDAW",
         "cdr3_nt": "TGTGCGAGAGATTTTGATTGTATTAGTGCCACCTGCTTTCAACCAAACTGGTTCGACGCCTGG",
         "cdr3_num_nts": 63,
@@ -14306,7 +14306,7 @@
         "v_match": 268
     },
     "M03592:18:000000000-AHJWK:1:1102:19004:12070": {
-        "ai": 232,
+        "ai": 237,
         "cdr3_aa": "CARVPDFW",
         "cdr3_nt": "TGTGCGAGAGTTCCTGACTTTTGG",
         "cdr3_num_nts": 24,
@@ -14375,7 +14375,7 @@
         "v_match": 262
     },
     "M03592:18:000000000-AHJWK:1:1102:19306:7825": {
-        "ai": 533,
+        "ai": 530,
         "cdr3_aa": "CAKDDEFQLRWFDPW",
         "cdr3_nt": "TGTGCGAAAGATGATGAGTTTCAGTTGAGGTGGTTCGACCCCTGG",
         "cdr3_num_nts": 45,
@@ -14467,7 +14467,7 @@
         "v_match": 277
     },
     "M03592:18:000000000-AHJWK:1:1102:19662:9786": {
-        "ai": 641,
+        "ai": 638,
         "cdr3_aa": "CARANLQDYW",
         "cdr3_nt": "TGTGCGAGAGCAAATTTACAGGACTACTGG",
         "cdr3_num_nts": 30,
@@ -14490,7 +14490,7 @@
         "v_match": 293
     },
     "M03592:18:000000000-AHJWK:1:1102:19826:9066": {
-        "ai": 531,
+        "ai": 528,
         "cdr3_aa": "CAGETATLS*WCFLKGRPN",
         "cdr3_nt": "TGTGCGGGGGAGACCGCGACATTATCATAATGGTGCTTCTTAAAGGGAAGGCCCAATGG",
         "cdr3_num_nts": 59,
@@ -14674,7 +14674,7 @@
         "v_match": 295
     },
     "M03592:18:000000000-AHJWK:1:1102:20464:9430": {
-        "ai": 619,
+        "ai": 616,
         "cdr3_aa": "CARGSVLAWEVLSRW",
         "cdr3_nt": "TGTGCGAGAGGCTCAGTGTTGGCCTGGGAAGTTCTCTCACGTTGG",
         "cdr3_num_nts": 45,
@@ -14743,7 +14743,7 @@
         "v_match": 259
     },
     "M03592:18:000000000-AHJWK:1:1102:20673:8434": {
-        "ai": 423,
+        "ai": 421,
         "cdr3_aa": "CSRDYHNSDYW",
         "cdr3_nt": "TGTTCGAGAGATTACCACAACTCCGACTACTGG",
         "cdr3_num_nts": 33,
@@ -14766,7 +14766,7 @@
         "v_match": 274
     },
     "M03592:18:000000000-AHJWK:1:1102:20965:6945": {
-        "ai": 532,
+        "ai": 529,
         "cdr3_aa": "CARDDYSSLTYFDYW",
         "cdr3_nt": "TGTGCGAGAGATGATTATAGTTCCTTAACCTACTTTGACTACTGG",
         "cdr3_num_nts": 45,
@@ -14789,7 +14789,7 @@
         "v_match": 281
     },
     "M03592:18:000000000-AHJWK:1:1102:21090:10269": {
-        "ai": 406,
+        "ai": 404,
         "cdr3_aa": "CAASRSYRYVDYW",
         "cdr3_nt": "TGTGCGGCATCTAGGAGTTACCGCTATGTTGACTACTGG",
         "cdr3_num_nts": 39,
@@ -14927,7 +14927,7 @@
         "v_match": 281
     },
     "M03592:18:000000000-AHJWK:1:1102:21786:9177": {
-        "ai": 584,
+        "ai": 581,
         "cdr3_aa": "CAKMGPNLDYW",
         "cdr3_nt": "TGTGCGAAAATGGGCCCTAATCTTGACTACTGG",
         "cdr3_num_nts": 33,
@@ -14973,7 +14973,7 @@
         "v_match": 277
     },
     "M03592:18:000000000-AHJWK:1:1102:22035:9171": {
-        "ai": 600,
+        "ai": 597,
         "cdr3_aa": "CTRDHEKYGYW",
         "cdr3_nt": "TGTACGAGAGATCACGAGAAATACGGCTACTGG",
         "cdr3_num_nts": 33,
@@ -15019,7 +15019,7 @@
         "v_match": 262
     },
     "M03592:18:000000000-AHJWK:1:1102:22338:7370": {
-        "ai": 462,
+        "ai": 460,
         "cdr3_aa": "CARDDRGGYFDYW",
         "cdr3_nt": "TGTGCGAGAGATGATCGGGGGGGGTACTTTGACTACTGG",
         "cdr3_num_nts": 39,
@@ -15203,7 +15203,7 @@
         "v_match": 271
     },
     "M03592:18:000000000-AHJWK:1:1102:22810:6833": {
-        "ai": 565,
+        "ai": 562,
         "cdr3_aa": "CAREGQMLRGREEDDFW",
         "cdr3_nt": "TGTGCGAGAGAGGGCCAAATGCTTCGGGGGAGGGAGGAAGATGACTTCTGG",
         "cdr3_num_nts": 51,
@@ -15226,7 +15226,7 @@
         "v_match": 273
     },
     "M03592:18:000000000-AHJWK:1:1102:22836:8496": {
-        "ai": 383,
+        "ai": 381,
         "cdr3_aa": "CVRGNVGYGNFDCW",
         "cdr3_nt": "TGTGTAAGAGGCAACGTTGGTTACGGAAACTTTGACTGCTGG",
         "cdr3_num_nts": 42,
@@ -15479,7 +15479,7 @@
         "v_match": 281
     },
     "M03592:18:000000000-AHJWK:1:1102:23638:8139": {
-        "ai": 494,
+        "ai": 492,
         "cdr3_aa": "CAREYCSESSCQFRGTWFDPW",
         "cdr3_nt": "TGTGCGAGAGAGTACTGCAGTGAAAGCAGCTGCCAGTTTAGAGGGACTTGGTTCGACCCCTGG",
         "cdr3_num_nts": 63,
@@ -15571,7 +15571,7 @@
         "v_match": 269
     },
     "M03592:18:000000000-AHJWK:1:1102:23789:10185": {
-        "ai": 636,
+        "ai": 633,
         "cdr3_aa": "CARDPRYDFW",
         "cdr3_nt": "TGTGCGAGAGATCCACGGTATGATTTCTGG",
         "cdr3_num_nts": 30,
@@ -15617,7 +15617,7 @@
         "v_match": 277
     },
     "M03592:18:000000000-AHJWK:1:1102:23934:7983": {
-        "ai": 422,
+        "ai": 420,
         "cdr3_aa": "CSRDYHNSDYW",
         "cdr3_nt": "TGTTCGAGAGATTACCACAACTCCGACTACTGG",
         "cdr3_num_nts": 33,
@@ -15640,7 +15640,7 @@
         "v_match": 274
     },
     "M03592:18:000000000-AHJWK:1:1102:23951:10255": {
-        "ai": 500,
+        "ai": 498,
         "cdr3_aa": "CTTALVGLSEGVW",
         "cdr3_nt": "TGTACCACTGCCTTAGTGGGACTCTCAGAGGGCGTCTGG",
         "cdr3_num_nts": 39,
@@ -15663,7 +15663,7 @@
         "v_match": 273
     },
     "M03592:18:000000000-AHJWK:1:1102:23965:8561": {
-        "ai": 450,
+        "ai": 448,
         "cdr3_aa": "CAKMGPNLDYW",
         "cdr3_nt": "TGTGCGAAAATGGGCCCTAATCTTGACTACTGG",
         "cdr3_num_nts": 33,
@@ -15686,7 +15686,7 @@
         "v_match": 265
     },
     "M03592:18:000000000-AHJWK:1:1102:23998:10061": {
-        "ai": 507,
+        "ai": 504,
         "cdr3_aa": "CAHLRSGFGPAFGSW",
         "cdr3_nt": "TGTGCACACCTCAGGTCCGGCTTCGGCCCTGCCTTTGGCTCCTGG",
         "cdr3_num_nts": 45,
@@ -15709,7 +15709,7 @@
         "v_match": 273
     },
     "M03592:18:000000000-AHJWK:1:1102:24096:8960": {
-        "ai": 607,
+        "ai": 604,
         "cdr3_aa": "CARVGEYSYGYTYFDYW",
         "cdr3_nt": "TGTGCGAGAGTGGGGGAGTACAGTTATGGCTATACCTACTTTGACTACTGG",
         "cdr3_num_nts": 51,
@@ -15732,7 +15732,7 @@
         "v_match": 284
     },
     "M03592:18:000000000-AHJWK:1:1102:24243:9488": {
-        "ai": 613,
+        "ai": 610,
         "cdr3_aa": "CATLVAWVSTTGLYSDSW",
         "cdr3_nt": "TGTGCGACGTTGGTGGCGTGGGTGTCTACGACGGGGCTCTACTCTGACTCCTGG",
         "cdr3_num_nts": 54,
@@ -15778,7 +15778,7 @@
         "v_match": 269
     },
     "M03592:18:000000000-AHJWK:1:1102:24299:4224": {
-        "ai": 405,
+        "ai": 403,
         "cdr3_aa": "CAASRSYRYVDYW",
         "cdr3_nt": "TGTGCGGCATCTAGGAGTTACCGCTATGTTGACTACTGG",
         "cdr3_num_nts": 39,
@@ -15847,7 +15847,7 @@
         "v_match": 279
     },
     "M03592:18:000000000-AHJWK:1:1102:24549:5493": {
-        "ai": 381,
+        "ai": 379,
         "cdr3_aa": "CAREDQPPHFDFW",
         "cdr3_nt": "TGTGCGAGAGAAGATCAGCCGCCCCACTTTGACTTCTGG",
         "cdr3_num_nts": 39,
@@ -15962,7 +15962,7 @@
         "v_match": 262
     },
     "M03592:18:000000000-AHJWK:1:1102:24696:9063": {
-        "ai": 499,
+        "ai": 497,
         "cdr3_aa": "CTTDRRANWFDPW",
         "cdr3_nt": "TGTACCACAGACCGTCGGGCCAACTGGTTCGACCCCTGG",
         "cdr3_num_nts": 39,
@@ -15985,7 +15985,7 @@
         "v_match": 302
     },
     "M03592:18:000000000-AHJWK:1:1102:24711:10341": {
-        "ai": 560,
+        "ai": 557,
         "cdr3_aa": "CTTSTWNVGIYFDFW",
         "cdr3_nt": "TGTACCACGAGCACTTGGAATGTTGGGATCTACTTTGACTTCTGG",
         "cdr3_num_nts": 45,
@@ -16008,7 +16008,7 @@
         "v_match": 271
     },
     "M03592:18:000000000-AHJWK:1:1102:24765:7297": {
-        "ai": 433,
+        "ai": 431,
         "cdr3_aa": "CARSESGYDSGDHW",
         "cdr3_nt": "TGTGCGAGAAGCGAAAGTGGTTACGATTCTGGGGACCACTGG",
         "cdr3_num_nts": 42,
@@ -16031,7 +16031,7 @@
         "v_match": 286
     },
     "M03592:18:000000000-AHJWK:1:1102:24791:7854": {
-        "ai": 652,
+        "ai": 649,
         "cdr3_aa": "CAKLTGISAWSFDHW",
         "cdr3_nt": "TGTGCGAAACTAACTGGCATTAGTGCCTGGAGCTTTGACCACTGG",
         "cdr3_num_nts": 45,
@@ -16054,7 +16054,7 @@
         "v_match": 280
     },
     "M03592:18:000000000-AHJWK:1:1102:24866:5677": {
-        "ai": 391,
+        "ai": 389,
         "cdr3_aa": "CASLQLVLLLVRPL",
         "cdr3_nt": "TGTGCGAGTTTGCAGCTGGTACTCTTGCTGGTTCGACCCCTGG",
         "cdr3_num_nts": 43,
@@ -16238,7 +16238,7 @@
         "v_match": 271
     },
     "M03592:18:000000000-AHJWK:1:1102:25512:9757": {
-        "ai": 650,
+        "ai": 647,
         "cdr3_aa": "CARDPDQLRKKGFDLW",
         "cdr3_nt": "TGTGCGAGAGACCCGGACCAACTCCGTAAGAAGGGCTTTGACCTCTGG",
         "cdr3_num_nts": 48,
@@ -16261,7 +16261,7 @@
         "v_match": 279
     },
     "M03592:18:000000000-AHJWK:1:1102:25536:4394": {
-        "ai": 461,
+        "ai": 459,
         "cdr3_aa": "CARDDRGGYFDYW",
         "cdr3_nt": "TGTGCGAGAGATGATCGGGGGGGGTACTTTGACTACTGG",
         "cdr3_num_nts": 39,
@@ -16284,7 +16284,7 @@
         "v_match": 295
     },
     "M03592:18:000000000-AHJWK:1:1102:25609:6232": {
-        "ai": 635,
+        "ai": 632,
         "cdr3_aa": "CARDPRYDFW",
         "cdr3_nt": "TGTGCGAGAGATCCACGGTATGATTTCTGG",
         "cdr3_num_nts": 30,
@@ -16330,7 +16330,7 @@
         "v_match": 279
     },
     "M03592:18:000000000-AHJWK:1:1102:25635:5952": {
-        "ai": 634,
+        "ai": 631,
         "cdr3_aa": "CTTPGGSSGWFDPW",
         "cdr3_nt": "TGTACAACGCCAGGGGGAAGTAGCGGCTGGTTCGACCCCTGG",
         "cdr3_num_nts": 42,
@@ -16353,7 +16353,7 @@
         "v_match": 270
     },
     "M03592:18:000000000-AHJWK:1:1102:25655:9418": {
-        "ai": 368,
+        "ai": 366,
         "cdr3_aa": "CARGGQLQPLDLW",
         "cdr3_nt": "TGTGCGCGAGGGGGACAATTACAACCTCTTGACCTCTGG",
         "cdr3_num_nts": 39,
@@ -16376,7 +16376,7 @@
         "v_match": 265
     },
     "M03592:18:000000000-AHJWK:1:1102:25766:9993": {
-        "ai": 479,
+        "ai": 477,
         "cdr3_aa": "CARGNARTSGPADFDYW",
         "cdr3_nt": "TGTGCGAGAGGGAATGCACGCACCTCTGGTCCCGCCGACTTTGACTATTGG",
         "cdr3_num_nts": 51,
@@ -16422,7 +16422,7 @@
         "v_match": 279
     },
     "M03592:18:000000000-AHJWK:1:1102:25883:3977": {
-        "ai": 529,
+        "ai": 526,
         "cdr3_aa": "CARDLQDSCSSSSCHKGGFDYW",
         "cdr3_nt": "TGTGCGAGAGATCTGCAAGACTCTTGTAGTAGTTCCAGTTGTCATAAAGGCGGTTTTGACTATTGG",
         "cdr3_num_nts": 66,
@@ -16606,7 +16606,7 @@
         "v_match": 288
     },
     "M03592:18:000000000-AHJWK:1:1102:26223:5726": {
-        "ai": 427,
+        "ai": 425,
         "cdr3_aa": "CAGDSGYIFAL",
         "cdr3_nt": "TGTGCGGGAGACTCTGGGTACATCTTCGCACTGG",
         "cdr3_num_nts": 34,
@@ -16652,7 +16652,7 @@
         "v_match": 284
     },
     "M03592:18:000000000-AHJWK:1:1102:26323:5958": {
-        "ai": 605,
+        "ai": 602,
         "cdr3_aa": "CARGKVEFKSLLGFDPW",
         "cdr3_nt": "TGTGCGAGAGGCAAGGTGGAATTTAAATCCCTCCTCGGGTTCGACCCCTGG",
         "cdr3_num_nts": 51,
@@ -16675,7 +16675,7 @@
         "v_match": 267
     },
     "M03592:18:000000000-AHJWK:1:1102:26336:6003": {
-        "ai": 645,
+        "ai": 642,
         "cdr3_aa": "CARDSREAQSLDYW",
         "cdr3_nt": "TGTGCGAGAGACAGTAGAGAAGCCCAGAGTCTTGACTACTGG",
         "cdr3_num_nts": 42,
@@ -16698,7 +16698,7 @@
         "v_match": 284
     },
     "M03592:18:000000000-AHJWK:1:1102:26522:6894": {
-        "ai": 487,
+        "ai": 485,
         "cdr3_aa": "CAGTPRLYYYDSSGYPTGGYYFDYW",
         "cdr3_nt": "TGTGCGGGAACCCCGAGGTTGTATTACTATGATAGTAGTGGTTACCCAACAGGGGGGTACTACTTTGACTACTGG",
         "cdr3_num_nts": 75,
@@ -16721,7 +16721,7 @@
         "v_match": 288
     },
     "M03592:18:000000000-AHJWK:1:1102:26585:5403": {
-        "ai": 460,
+        "ai": 458,
         "cdr3_aa": "CARDDRGGYFDFW",
         "cdr3_nt": "TGTGCGAGAGATGATCGGGGGGGGTACTTTGACTTCTGG",
         "cdr3_num_nts": 39,
@@ -16767,7 +16767,7 @@
         "v_match": 273
     },
     "M03592:18:000000000-AHJWK:1:1102:26865:8200": {
-        "ai": 536,
+        "ai": 533,
         "cdr3_aa": "CAALSGSSSNDYW",
         "cdr3_nt": "TGTGCGGCCCTGAGTGGGAGTTCCTCAAATGACTACTGG",
         "cdr3_num_nts": 39,
@@ -16790,7 +16790,7 @@
         "v_match": 271
     },
     "M03592:18:000000000-AHJWK:1:1102:26869:15153": {
-        "ai": 218,
+        "ai": 223,
         "cdr3_aa": "CARDTRSGTPGGTLDFW",
         "cdr3_nt": "TGTGCGAGAGACACTCGGAGTGGAACTCCGGGGGGGACCCTTGACTTCTGG",
         "cdr3_num_nts": 51,
@@ -16882,7 +16882,7 @@
         "v_match": 272
     },
     "M03592:18:000000000-AHJWK:1:1102:27397:8279": {
-        "ai": 535,
+        "ai": 532,
         "cdr3_aa": "CARGGGTYLSDQW",
         "cdr3_nt": "TGTGCGAGAGGGGGTGGGACTTATTTATCTGACCAGTGG",
         "cdr3_num_nts": 39,
@@ -16928,7 +16928,7 @@
         "v_match": 271
     },
     "M03592:18:000000000-AHJWK:1:1102:27704:7282": {
-        "ai": 445,
+        "ai": 443,
         "cdr3_aa": "CTGEKAGTIVDYW",
         "cdr3_nt": "TGTACGGGAGAGAAAGCTGGAACTATTGTCGACTACTGG",
         "cdr3_num_nts": 39,
@@ -17043,7 +17043,7 @@
         "v_match": 281
     },
     "M03592:18:000000000-AHJWK:1:1102:28046:7962": {
-        "ai": 386,
+        "ai": 384,
         "cdr3_aa": "CSRLSDYYASGSPW",
         "cdr3_nt": "TGTAGTAGACTGTCGGATTACTATGCTTCGGGGAGTCCCTGG",
         "cdr3_num_nts": 42,
@@ -17066,7 +17066,7 @@
         "v_match": 290
     },
     "M03592:18:000000000-AHJWK:1:1102:28111:7659": {
-        "ai": 548,
+        "ai": 545,
         "cdr3_aa": "CARPTGGYSHLYW",
         "cdr3_nt": "TGTGCGAGACCGACGGGGGGCTACTCGCATCTCTACTGG",
         "cdr3_num_nts": 39,
@@ -17089,7 +17089,7 @@
         "v_match": 270
     },
     "M03592:18:000000000-AHJWK:1:1102:28158:10009": {
-        "ai": 459,
+        "ai": 457,
         "cdr3_aa": "CTRGASYGGMGSW",
         "cdr3_nt": "TGTACGAGAGGGGCATCCTACGGTGGTATGGGGTCCTGG",
         "cdr3_num_nts": 39,
@@ -17181,7 +17181,7 @@
         "v_match": 265
     },
     "M03592:18:000000000-AHJWK:1:1102:28425:7698": {
-        "ai": 378,
+        "ai": 376,
         "cdr3_aa": "CARMEVGL",
         "cdr3_nt": "TGTGCAAGAATGGAGGTGGGTTTG",
         "cdr3_num_nts": 24,
@@ -17204,7 +17204,7 @@
         "v_match": 281
     },
     "M03592:18:000000000-AHJWK:1:1102:28425:8738": {
-        "ai": 545,
+        "ai": 542,
         "cdr3_aa": "CARSILLEDGTRGHDSW",
         "cdr3_nt": "TGTGCGAGAAGTATTCTGTTGGAGGATGGCACTCGGGGGCACGACTCCTGG",
         "cdr3_num_nts": 51,
@@ -17365,7 +17365,7 @@
         "v_match": 270
     },
     "M03592:18:000000000-AHJWK:1:1102:4826:6913": {
-        "ai": 363,
+        "ai": 361,
         "cdr3_aa": "CARVTYYYESGNYYQGYYFDYW",
         "cdr3_nt": "TGTGCGAGAGTCACATATTACTATGAGAGTGGTAATTATTATCAAGGCTACTACTTTGACTATTGG",
         "cdr3_num_nts": 66,
@@ -17388,7 +17388,7 @@
         "v_match": 282
     },
     "M03592:18:000000000-AHJWK:1:1102:4846:5081": {
-        "ai": 575,
+        "ai": 572,
         "cdr3_aa": "CARRGGCSGSSCSLDNW",
         "cdr3_nt": "TGTGCGAGGCGCGGAGGTTGCAGTGGTAGCAGCTGTTCCCTTGACAACTGG",
         "cdr3_num_nts": 51,
@@ -17411,7 +17411,7 @@
         "v_match": 284
     },
     "M03592:18:000000000-AHJWK:1:1102:4957:10204": {
-        "ai": 362,
+        "ai": 360,
         "cdr3_aa": "CARSPGSWFDPW",
         "cdr3_nt": "TGTGCGAGATCTCCCGGCTCCTGGTTCGACCCCTGG",
         "cdr3_num_nts": 36,
@@ -17549,7 +17549,7 @@
         "v_match": 278
     },
     "M03592:18:000000000-AHJWK:1:1102:5668:3849": {
-        "ai": 583,
+        "ai": 580,
         "cdr3_aa": "CAKMGPNLDYW",
         "cdr3_nt": "TGTGCGAAAATGGGCCCTAATCTTGACTACTGG",
         "cdr3_num_nts": 33,
@@ -17664,7 +17664,7 @@
         "v_match": 283
     },
     "M03592:18:000000000-AHJWK:1:1102:5952:10243": {
-        "ai": 231,
+        "ai": 236,
         "cdr3_aa": "CARVPDFW",
         "cdr3_nt": "TGTGCGAGAGTTCCTGACTTTTGG",
         "cdr3_num_nts": 24,
@@ -17687,7 +17687,7 @@
         "v_match": 290
     },
     "M03592:18:000000000-AHJWK:1:1102:6268:9040": {
-        "ai": 601,
+        "ai": 598,
         "cdr3_aa": "CARDSVGGGSSFDYW",
         "cdr3_nt": "TGTGCGAGAGATTCGGTAGGGGGTGGGAGCTCCTTTGACTACTGG",
         "cdr3_num_nts": 45,
@@ -17756,7 +17756,7 @@
         "v_match": 267
     },
     "M03592:18:000000000-AHJWK:1:1102:6618:8669": {
-        "ai": 230,
+        "ai": 235,
         "cdr3_aa": "CARVPDFW",
         "cdr3_nt": "TGTGCAAGAGTTCCTGACTTTTGG",
         "cdr3_num_nts": 24,
@@ -17779,7 +17779,7 @@
         "v_match": 277
     },
     "M03592:18:000000000-AHJWK:1:1102:6730:8574": {
-        "ai": 649,
+        "ai": 646,
         "cdr3_aa": "CARVGYDSSGYYIDYW",
         "cdr3_nt": "TGTGCGAGAGTCGGCTATGATAGTAGTGGTTATTACATTGACTACTGG",
         "cdr3_num_nts": 48,
@@ -17848,7 +17848,7 @@
         "v_match": 287
     },
     "M03592:18:000000000-AHJWK:1:1102:6934:8929": {
-        "ai": 506,
+        "ai": 503,
         "cdr3_aa": "CASVTTGTTTTTTWTS",
         "cdr3_nt": "TGTGCGAGTGTCACTACCGGTACTACTACTACTACTACATGGACGTCTGG",
         "cdr3_num_nts": 50,
@@ -17871,7 +17871,7 @@
         "v_match": 293
     },
     "M03592:18:000000000-AHJWK:1:1102:7028:9440": {
-        "ai": 421,
+        "ai": 419,
         "cdr3_aa": "CSRDYHNSDYW",
         "cdr3_nt": "TGTTCGAGAGATTACCACAACTCCGACTACTGG",
         "cdr3_num_nts": 33,
@@ -17986,7 +17986,7 @@
         "v_match": 259
     },
     "M03592:18:000000000-AHJWK:1:1102:7844:8868": {
-        "ai": 544,
+        "ai": 541,
         "cdr3_aa": "CARDGSYYYDSTNFDPW",
         "cdr3_nt": "TGTGCGAGAGATGGTTCGTATTACTATGATAGTACGAACTTCGACCCCTGG",
         "cdr3_num_nts": 51,
@@ -18009,7 +18009,7 @@
         "v_match": 296
     },
     "M03592:18:000000000-AHJWK:1:1102:7932:6427": {
-        "ai": 385,
+        "ai": 383,
         "cdr3_aa": "CTRLRDAAMTLDSW",
         "cdr3_nt": "TGTACTAGACTAAGGGATGCAGCAATGACACTTGACTCCTGG",
         "cdr3_num_nts": 42,
@@ -18032,7 +18032,7 @@
         "v_match": 280
     },
     "M03592:18:000000000-AHJWK:1:1102:8098:8542": {
-        "ai": 527,
+        "ai": 524,
         "cdr3_aa": "CASPVSHW",
         "cdr3_nt": "TGTGCGAGTCCCGTGTCTCACTGG",
         "cdr3_num_nts": 24,
@@ -18055,7 +18055,7 @@
         "v_match": 256
     },
     "M03592:18:000000000-AHJWK:1:1102:8226:6926": {
-        "ai": 467,
+        "ai": 465,
         "cdr3_aa": "CARDLHWGASEYW",
         "cdr3_nt": "TGTGCAAGAGATCTCCATTGGGGAGCTTCTGAGTACTGG",
         "cdr3_num_nts": 39,
@@ -18124,7 +18124,7 @@
         "v_match": 272
     },
     "M03592:18:000000000-AHJWK:1:1102:8322:3753": {
-        "ai": 432,
+        "ai": 430,
         "cdr3_aa": "CARAYDSSGYGYYW",
         "cdr3_nt": "TGTGCGAGAGCCTATGATAGTAGTGGTTATGGCTACTACTGG",
         "cdr3_num_nts": 42,
@@ -18239,7 +18239,7 @@
         "v_match": 296
     },
     "M03592:18:000000000-AHJWK:1:1102:8565:7789": {
-        "ai": 449,
+        "ai": 447,
         "cdr3_aa": "CASATGWRDYW",
         "cdr3_nt": "TGTGCAAGCGCCACTGGCTGGAGGGACTACTGG",
         "cdr3_num_nts": 33,
@@ -18469,7 +18469,7 @@
         "v_match": 270
     },
     "M03592:18:000000000-AHJWK:1:1102:9014:6796": {
-        "ai": 628,
+        "ai": 625,
         "cdr3_aa": "CAELFDRGPW",
         "cdr3_nt": "TGTGCGGAACTCTTCGACCGTGGCCCCTGG",
         "cdr3_num_nts": 30,
@@ -18561,7 +18561,7 @@
         "v_match": 255
     },
     "M03592:18:000000000-AHJWK:1:1102:9235:9377": {
-        "ai": 205,
+        "ai": 210,
         "cdr3_aa": "CARWAGAPQHDLWSGPLDYW",
         "cdr3_nt": "TGTGCGAGATGGGCAGGGGCCCCCCAACACGATCTTTGGAGTGGACCTCTTGACTACTGG",
         "cdr3_num_nts": 60,
@@ -18630,7 +18630,7 @@
         "v_match": 290
     },
     "M03592:18:000000000-AHJWK:1:1102:9395:8361": {
-        "ai": 543,
+        "ai": 540,
         "cdr3_aa": "CVRSYMRGGSTRCFDSW",
         "cdr3_nt": "TGTGTGCGATCTTATATGAGGGGGGGTTCTACGAGGTGCTTTGACTCCTGG",
         "cdr3_num_nts": 51,
@@ -18699,7 +18699,7 @@
         "v_match": 270
     },
     "M03592:18:000000000-AHJWK:1:1102:9604:10207": {
-        "ai": 612,
+        "ai": 609,
         "cdr3_aa": "CARLVVGVTLGDSWLDPW",
         "cdr3_nt": "TGTGCGAGACTGGTTGTGGGAGTAACGTTGGGGGATTCCTGGTTAGACCCCTGG",
         "cdr3_num_nts": 54,
@@ -18768,7 +18768,7 @@
         "v_match": 178
     },
     "M03592:18:000000000-AHJWK:1:1102:9851:9758": {
-        "ai": 390,
+        "ai": 388,
         "cdr3_aa": "CASLQLVLLLVRPL",
         "cdr3_nt": "TGTGCGAGTTTGCAGCTGGTACTCTTGCTGGTTCGACCCCTGG",
         "cdr3_num_nts": 43,
@@ -18791,7 +18791,7 @@
         "v_match": 286
     },
     "M03592:18:000000000-AHJWK:1:1102:9856:7192": {
-        "ai": 638,
+        "ai": 635,
         "cdr3_aa": "CARAGAAAGTRDSNWFDPW",
         "cdr3_nt": "TGTGCGAGAGCGGGAGCAGCAGCTGGTACAAGGGACTCCAACTGGTTCGACCCCTGG",
         "cdr3_num_nts": 57,
@@ -18814,7 +18814,7 @@
         "v_match": 294
     },
     "M03592:18:000000000-AHJWK:1:1102:9917:9815": {
-        "ai": 369,
+        "ai": 367,
         "cdr3_aa": "CARGGQLQPLDLW",
         "cdr3_nt": "TGTGCGCGAGGGGGACAATTACAACCTCTTGACCTCTGG",
         "cdr3_num_nts": 39,
@@ -18837,7 +18837,7 @@
         "v_match": 265
     },
     "M03592:18:000000000-AHJWK:1:1102:9924:8727": {
-        "ai": 431,
+        "ai": 429,
         "cdr3_aa": "CAREIGARSGSNYW",
         "cdr3_nt": "TGTGCGAGAGAAATTGGCGCACGTAGTGGGTCTAACTACTGG",
         "cdr3_num_nts": 42,
@@ -19228,7 +19228,7 @@
         "v_match": 272
     },
     "M03592:18:000000000-AHJWK:1:1103:18959:12197": {
-        "ai": 210,
+        "ai": 215,
         "cdr3_aa": "CAREYSGSSQWDW",
         "cdr3_nt": "TGTGCGAGAGAATATAGCGGCTCGTCCCAGTGGGACTGG",
         "cdr3_num_nts": 39,
@@ -19251,7 +19251,7 @@
         "v_match": 284
     },
     "M03592:18:000000000-AHJWK:1:1103:19329:15246": {
-        "ai": 217,
+        "ai": 222,
         "cdr3_aa": "CARQMTTALGPDRIDPW",
         "cdr3_nt": "TGTGCGAGACAGATGACTACGGCTCTAGGCCCGGACCGGATCGACCCCTGG",
         "cdr3_num_nts": 51,
@@ -19297,7 +19297,7 @@
         "v_match": 279
     },
     "M03592:18:000000000-AHJWK:1:1103:19995:11260": {
-        "ai": 236,
+        "ai": 241,
         "cdr3_aa": "CARHGGRHQYGSASYSAYFEDW",
         "cdr3_nt": "TGTGCGAGACATGGAGGGCGACATCAGTATGGTTCGGCGAGTTATTCGGCCTACTTTGAGGACTGG",
         "cdr3_num_nts": 66,
@@ -19320,7 +19320,7 @@
         "v_match": 266
     },
     "M03592:18:000000000-AHJWK:1:1103:20860:22396": {
-        "ai": 244,
+        "ai": 249,
         "cdr3_aa": "CTTDRYADYAFNFW",
         "cdr3_nt": "TGTACCACAGATAGGTACGCTGACTACGCATTTAACTTCTGG",
         "cdr3_num_nts": 42,
@@ -19366,7 +19366,7 @@
         "v_match": 274
     },
     "M03592:18:000000000-AHJWK:1:1103:21154:10022": {
-        "ai": 222,
+        "ai": 227,
         "cdr3_aa": "CARDRGYSSGSRQLGFDPW",
         "cdr3_nt": "TGTGCGAGAGACCGAGGGTATAGCAGTGGCAGCCGTCAACTGGGGTTCGACCCCTGG",
         "cdr3_num_nts": 57,
@@ -19389,7 +19389,7 @@
         "v_match": 289
     },
     "M03592:18:000000000-AHJWK:1:1103:21352:13716": {
-        "ai": 255,
+        "ai": 260,
         "cdr3_aa": "CARDHSTATARSWWFDPW",
         "cdr3_nt": "TGTGCGAGAGATCACTCTACGGCGACGGCTCGAAGTTGGTGGTTCGACCCCTGG",
         "cdr3_num_nts": 54,
@@ -19458,7 +19458,7 @@
         "v_match": 269
     },
     "M03592:18:000000000-AHJWK:1:1103:21900:19868": {
-        "ai": 252,
+        "ai": 257,
         "cdr3_aa": "CATYRYNSPTSRTGVLDSW",
         "cdr3_nt": "TGTGCGACTTACCGGTATAACAGTCCGACCTCACGCACTGGGGTACTTGACTCCTGG",
         "cdr3_num_nts": 57,
@@ -19527,7 +19527,7 @@
         "v_match": 260
     },
     "M03592:18:000000000-AHJWK:1:1103:22119:20237": {
-        "ai": 257,
+        "ai": 262,
         "cdr3_aa": "CARDWNGDSVIEGW",
         "cdr3_nt": "TGTGCGAGAGATTGGAACGGTGACTCCGTTATCGAAGGTTGG",
         "cdr3_num_nts": 42,
@@ -19642,7 +19642,7 @@
         "v_match": 257
     },
     "M03592:18:000000000-AHJWK:1:1103:23647:11978": {
-        "ai": 209,
+        "ai": 214,
         "cdr3_aa": "CARGGHSGRFDPW",
         "cdr3_nt": "TGTGCGAGAGGGGGACACTCGGGGCGGTTCGACCCCTGG",
         "cdr3_num_nts": 39,
@@ -19849,7 +19849,7 @@
         "v_match": 281
     },
     "M03592:18:000000000-AHJWK:1:1103:26223:4363": {
-        "ai": 254,
+        "ai": 259,
         "cdr3_aa": "CARDHSTATARSWWFDPW",
         "cdr3_nt": "TGTGCGAGAGATCACTCTACGGCGACGGCTCGAAGTTGGTGGTTCGACCCCTGG",
         "cdr3_num_nts": 54,
@@ -19964,7 +19964,7 @@
         "v_match": 288
     },
     "M03592:18:000000000-AHJWK:1:1103:27574:15825": {
-        "ai": 263,
+        "ai": 201,
         "cdr3_aa": "CTRVAVVGEANFVHW",
         "cdr3_nt": "TGTACGAGAGTTGCCGTGGTTGGTGAGGCGAACTTCGTCCACTGG",
         "cdr3_num_nts": 45,
@@ -20240,7 +20240,7 @@
         "v_match": 283
     },
     "M03592:18:000000000-AHJWK:1:1104:10320:18575": {
-        "ai": 197,
+        "ai": 264,
         "cdr3_aa": "CARDPTGRGKFDDW",
         "cdr3_nt": "TGTGCGAGAGACCCCACGGGCCGGGGAAAATTTGACGACTGG",
         "cdr3_num_nts": 42,
@@ -20309,7 +20309,7 @@
         "v_match": 295
     },
     "M03592:18:000000000-AHJWK:1:1104:11960:15208": {
-        "ai": 201,
+        "ai": 206,
         "cdr3_aa": "CAFGHFDSW",
         "cdr3_nt": "TGTGCATTCGGACACTTTGACTCCTGG",
         "cdr3_num_nts": 27,
@@ -20355,7 +20355,7 @@
         "v_match": 272
     },
     "M03592:18:000000000-AHJWK:1:1104:15106:11102": {
-        "ai": 204,
+        "ai": 209,
         "cdr3_aa": "CSRDTFGRDDQW",
         "cdr3_nt": "TGTTCAAGAGATACCTTCGGCAGGGATGACCAGTGG",
         "cdr3_num_nts": 36,
@@ -20378,7 +20378,7 @@
         "v_match": 264
     },
     "M03592:18:000000000-AHJWK:1:1104:15342:14108": {
-        "ai": 242,
+        "ai": 247,
         "cdr3_aa": "CARGPFSGFWSGYPRPPYYFDFW",
         "cdr3_nt": "TGTGCGCGGGGCCCCTTCTCGGGGTTTTGGAGTGGTTATCCCCGCCCCCCTTATTATTTTGACTTCTGG",
         "cdr3_num_nts": 69,
@@ -20470,7 +20470,7 @@
         "v_match": 275
     },
     "M03592:18:000000000-AHJWK:1:1104:17445:14981": {
-        "ai": 240,
+        "ai": 245,
         "cdr3_aa": "CARDPYYRNYGDSW",
         "cdr3_nt": "TGTGCGAGAGATCCCTACTACAGAAACTACGGGGACTCCTGG",
         "cdr3_num_nts": 42,
@@ -20539,7 +20539,7 @@
         "v_match": 264
     },
     "M03592:18:000000000-AHJWK:1:1104:18655:9971": {
-        "ai": 216,
+        "ai": 221,
         "cdr3_aa": "CARTQGRGYDRADFDYW",
         "cdr3_nt": "TGTGCGAGAACTCAGGGTCGTGGCTACGATCGAGCTGACTTTGACTACTGG",
         "cdr3_num_nts": 51,
@@ -20585,7 +20585,7 @@
         "v_match": 287
     },
     "M03592:18:000000000-AHJWK:1:1104:19570:14103": {
-        "ai": 262,
+        "ai": 200,
         "cdr3_aa": "CTRVAVVGEANFVHW",
         "cdr3_nt": "TGTACGAGAGTAGCCGTGGTTGGTGAGGCGAACTTCGTCCACTGG",
         "cdr3_num_nts": 45,
@@ -20700,7 +20700,7 @@
         "v_match": 258
     },
     "M03592:18:000000000-AHJWK:1:1104:20575:18959": {
-        "ai": 251,
+        "ai": 256,
         "cdr3_aa": "CATYRYNSPTSRTGVLDSW",
         "cdr3_nt": "TGTGCGACTTACCGGTATAACAGTCCGACCTCACGCACTGGGGTACTTGACTCCTGG",
         "cdr3_num_nts": 57,
@@ -20723,7 +20723,7 @@
         "v_match": 282
     },
     "M03592:18:000000000-AHJWK:1:1104:20657:20668": {
-        "ai": 221,
+        "ai": 226,
         "cdr3_aa": "CARDRGYSSGSRQLGFDPW",
         "cdr3_nt": "TGTGCGAGAGACCGAGGGTATAGCAGTGGCAGCCGTCAACTGGGGTTCGACCCCTGG",
         "cdr3_num_nts": 57,
@@ -20838,7 +20838,7 @@
         "v_match": 279
     },
     "M03592:18:000000000-AHJWK:1:1104:21408:11706": {
-        "ai": 215,
+        "ai": 220,
         "cdr3_aa": "CARQMTAALGPDRIDPW",
         "cdr3_nt": "TGTGCGAGACAGATGACTGCGGCTCTAGGCCCGGACCGGATCGACCCCTGG",
         "cdr3_num_nts": 51,
@@ -21091,7 +21091,7 @@
         "v_match": 299
     },
     "M03592:18:000000000-AHJWK:1:1104:24537:16561": {
-        "ai": 203,
+        "ai": 208,
         "cdr3_aa": "CVADLGGSSDYW",
         "cdr3_nt": "TGTGTAGCAGATCTAGGTGGGAGCAGTGACTACTGG",
         "cdr3_num_nts": 36,
@@ -21413,7 +21413,7 @@
         "v_match": 273
     },
     "M03592:18:000000000-AHJWK:1:1104:28308:7918": {
-        "ai": 224,
+        "ai": 229,
         "cdr3_aa": "CARGRGLYYGSGRLSWFDPW",
         "cdr3_nt": "TGTGCGAGAGGAAGGGGGCTTTACTATGGTTCGGGGAGATTAAGCTGGTTCGACCCCTGG",
         "cdr3_num_nts": 60,
@@ -21436,7 +21436,7 @@
         "v_match": 279
     },
     "M03592:18:000000000-AHJWK:1:1104:28468:8585": {
-        "ai": 261,
+        "ai": 199,
         "cdr3_aa": "CTRVAVVGEANFVHW",
         "cdr3_nt": "TGTACGAGAGTAGCCGTGGTTGGTGAGGCGAACTTCGTCCACTGG",
         "cdr3_num_nts": 45,
@@ -21528,7 +21528,7 @@
         "v_match": 276
     },
     "M03592:18:000000000-AHJWK:1:1104:8484:11023": {
-        "ai": 199,
+        "ai": 204,
         "cdr3_aa": "CARSYGSSGFWWFDTS",
         "cdr3_nt": "TGTGCGAGGTCATATGGTAGTAGTGGATTTTGGTGGTTCGACACTTCTGG",
         "cdr3_num_nts": 50,
@@ -21574,7 +21574,7 @@
         "v_match": 271
     },
     "M03592:18:000000000-AHJWK:1:1104:9135:20343": {
-        "ai": 246,
+        "ai": 251,
         "cdr3_aa": "CARGRNGSLDYW",
         "cdr3_nt": "TGTGCGAGAGGGAGAAATGGCTCCCTTGACTACTGG",
         "cdr3_num_nts": 36,
@@ -21620,7 +21620,7 @@
         "v_match": 285
     },
     "M03592:18:000000000-AHJWK:1:1104:9296:6919": {
-        "ai": 200,
+        "ai": 205,
         "cdr3_aa": "CANDDYGSFDYW",
         "cdr3_nt": "TGTGCGAACGACGACTACGGGTCCTTTGACTACTGG",
         "cdr3_num_nts": 36,
@@ -21666,7 +21666,7 @@
         "v_match": 273
     },
     "M03592:18:000000000-AHJWK:1:1105:10375:17569": {
-        "ai": 214,
+        "ai": 219,
         "cdr3_aa": "CARTQGRGYDRADFDYW",
         "cdr3_nt": "TGTGCGAGAACTCAGGGTCGTGGCTACGATCGAGCTGACTTTGACTACTGG",
         "cdr3_num_nts": 51,
@@ -21873,7 +21873,7 @@
         "v_match": 278
     },
     "M03592:18:000000000-AHJWK:1:1105:14679:21247": {
-        "ai": 226,
+        "ai": 231,
         "cdr3_aa": "CASTRETPMAYW",
         "cdr3_nt": "TGTGCGAGTACCCGCGAAACACCTATGGCCTACTGG",
         "cdr3_num_nts": 36,
@@ -21942,7 +21942,7 @@
         "v_match": 278
     },
     "M03592:18:000000000-AHJWK:1:1105:15783:14666": {
-        "ai": 208,
+        "ai": 213,
         "cdr3_aa": "CARGGHSGRFDPW",
         "cdr3_nt": "TGTGCGAGAGGGGGACACTCGGGGCGGTTCGACCCCTGG",
         "cdr3_num_nts": 39,
@@ -21988,7 +21988,7 @@
         "v_match": 285
     },
     "M03592:18:000000000-AHJWK:1:1105:16186:12034": {
-        "ai": 196,
+        "ai": 263,
         "cdr3_aa": "CARFGGYSSPTEFW",
         "cdr3_nt": "TGTGCGCGCTTCGGCGGTTACTCCTCTCCGACAGAATTCTGG",
         "cdr3_num_nts": 42,
@@ -22034,7 +22034,7 @@
         "v_match": 270
     },
     "M03592:18:000000000-AHJWK:1:1105:16715:14230": {
-        "ai": 260,
+        "ai": 198,
         "cdr3_aa": "CARSDYSYTHYFDYW",
         "cdr3_nt": "TGTGCGAGGAGCGACTACTCATACACCCACTACTTTGACTACTGG",
         "cdr3_num_nts": 45,
@@ -22080,7 +22080,7 @@
         "v_match": 274
     },
     "M03592:18:000000000-AHJWK:1:1105:17846:16043": {
-        "ai": 253,
+        "ai": 258,
         "cdr3_aa": "CARDHSTATARSWWFDPW",
         "cdr3_nt": "TGTGCGAGAGATCACTCTACGGCGACGGCTCGAAGTTGGTGGTTCGACCCCTGG",
         "cdr3_num_nts": 54,
@@ -22103,7 +22103,7 @@
         "v_match": 273
     },
     "M03592:18:000000000-AHJWK:1:1105:17901:12565": {
-        "ai": 229,
+        "ai": 234,
         "cdr3_aa": "CARVPDFW",
         "cdr3_nt": "TGTGCGAGAGTTCCTGACTTTTGG",
         "cdr3_num_nts": 24,
@@ -22195,7 +22195,7 @@
         "v_match": 283
     },
     "M03592:18:000000000-AHJWK:1:1105:19046:19393": {
-        "ai": 241,
+        "ai": 246,
         "cdr3_aa": "CARDRGWEQLFFDYW",
         "cdr3_nt": "TGTGCGAGAGATCGAGGGTGGGAGCAACTATTCTTTGACTACTGG",
         "cdr3_num_nts": 45,
@@ -22379,7 +22379,7 @@
         "v_match": 296
     },
     "M03592:18:000000000-AHJWK:1:1105:22192:20121": {
-        "ai": 259,
+        "ai": 197,
         "cdr3_aa": "CARSDYSYTHYFDYW",
         "cdr3_nt": "TGTGCGAGGAGCGACTACTCATACACCCACTACTTTGACTACTGG",
         "cdr3_num_nts": 45,
@@ -22494,7 +22494,7 @@
         "v_match": 296
     },
     "M03592:18:000000000-AHJWK:1:1105:23845:12364": {
-        "ai": 220,
+        "ai": 225,
         "cdr3_aa": "CTRRSPTGWYNSHEGFDPW",
         "cdr3_nt": "TGTACGAGACGATCGCCTACAGGATGGTACAATTCCCACGAGGGGTTCGACCCCTGG",
         "cdr3_num_nts": 57,
@@ -22517,7 +22517,7 @@
         "v_match": 291
     },
     "M03592:18:000000000-AHJWK:1:1105:23915:11873": {
-        "ai": 206,
+        "ai": 211,
         "cdr3_aa": "CLGVTEPNAVDAW",
         "cdr3_nt": "TGTCTGGGGGTGACCGAGCCCAATGCTGTGGACGCCTGG",
         "cdr3_num_nts": 39,
@@ -22678,7 +22678,7 @@
         "v_match": 283
     },
     "M03592:18:000000000-AHJWK:1:1105:24625:7506": {
-        "ai": 243,
+        "ai": 248,
         "cdr3_aa": "CTTEWSGYVDPDYW",
         "cdr3_nt": "TGTACCACAGAATGGAGTGGCTACGTCGACCCTGACTACTGG",
         "cdr3_num_nts": 42,
@@ -22724,7 +22724,7 @@
         "v_match": 276
     },
     "M03592:18:000000000-AHJWK:1:1105:24970:7115": {
-        "ai": 239,
+        "ai": 244,
         "cdr3_aa": "CARGRSSSLGEDYW",
         "cdr3_nt": "TGTGCGAGAGGTCGAAGCAGCAGCTTGGGGGAAGACTACTGG",
         "cdr3_num_nts": 42,
@@ -22816,7 +22816,7 @@
         "v_match": 293
     },
     "M03592:18:000000000-AHJWK:1:1105:25821:16401": {
-        "ai": 258,
+        "ai": 196,
         "cdr3_aa": "CAAERIGAAGKFDYW",
         "cdr3_nt": "TGTGCGGCAGAGCGAATAGGAGCAGCTGGTAAATTTGACTACTGG",
         "cdr3_num_nts": 45,
@@ -22885,7 +22885,7 @@
         "v_match": 281
     },
     "M03592:18:000000000-AHJWK:1:1105:26551:12042": {
-        "ai": 223,
+        "ai": 228,
         "cdr3_aa": "CAGLFFWGGYDSW",
         "cdr3_nt": "TGTGCGGGTTTGTTTTTTTGGGGTGGTTATGACTCTTGG",
         "cdr3_num_nts": 39,
@@ -23184,7 +23184,7 @@
         "v_match": 296
     },
     "M03592:18:000000000-AHJWK:1:1106:10838:13481": {
-        "ai": 213,
+        "ai": 218,
         "cdr3_aa": "CARQMTTALGPDRIDPW",
         "cdr3_nt": "TGTGCGAGACAGATGACTACGGCTCTAGGCCCGGACCGGATCGACCCCTGG",
         "cdr3_num_nts": 51,
@@ -23230,7 +23230,7 @@
         "v_match": 273
     },
     "M03592:18:000000000-AHJWK:1:1106:11845:14090": {
-        "ai": 225,
+        "ai": 230,
         "cdr3_aa": "CASSSYSSSFPW",
         "cdr3_nt": "TGTGCGAGTAGCTCGTATAGCAGCTCTTTTCCCTGG",
         "cdr3_num_nts": 36,
@@ -23782,7 +23782,7 @@
         "v_match": 269
     },
     "M03592:18:000000000-AHJWK:1:1106:23385:7451": {
-        "ai": 234,
+        "ai": 239,
         "cdr3_aa": "CARGGQIVMVIDSW",
         "cdr3_nt": "TGTGCGAGAGGCGGCCAAATAGTAATGGTTATTGATTCCTGG",
         "cdr3_num_nts": 42,
@@ -23828,7 +23828,7 @@
         "v_match": 293
     },
     "M03592:18:000000000-AHJWK:1:1106:23856:12205": {
-        "ai": 207,
+        "ai": 212,
         "cdr3_aa": "CAREAYDFWLDYW",
         "cdr3_nt": "TGTGCGAGAGAGGCTTACGATTTTTGGCTTGACTACTGG",
         "cdr3_num_nts": 39,
@@ -23897,7 +23897,7 @@
         "v_match": 254
     },
     "M03592:18:000000000-AHJWK:1:1106:25524:12476": {
-        "ai": 212,
+        "ai": 217,
         "cdr3_aa": "CARQMTTALGPDRIDPW",
         "cdr3_nt": "TGTGCGAGACAGATGACTACGGCTCTAGGCCCGGACCGGATCGACCCCTGG",
         "cdr3_num_nts": 51,
@@ -23920,7 +23920,7 @@
         "v_match": 299
     },
     "M03592:18:000000000-AHJWK:1:1106:25831:9305": {
-        "ai": 238,
+        "ai": 243,
         "cdr3_aa": "CAVWGSESYSFDYW",
         "cdr3_nt": "TGTGCGGTGTGGGGCTCGGAGAGCTACTCCTTTGACTACTGG",
         "cdr3_num_nts": 42,
@@ -23943,7 +23943,7 @@
         "v_match": 289
     },
     "M03592:18:000000000-AHJWK:1:1106:26829:16170": {
-        "ai": 228,
+        "ai": 233,
         "cdr3_aa": "CARVPDFW",
         "cdr3_nt": "TGTGCGAGAGTTCCTGACTTTTGG",
         "cdr3_num_nts": 24,
@@ -23989,7 +23989,7 @@
         "v_match": 280
     },
     "M03592:18:000000000-AHJWK:1:1106:27220:12495": {
-        "ai": 245,
+        "ai": 250,
         "cdr3_aa": "CARDWNYEIDYW",
         "cdr3_nt": "TGTGCGAGAGACTGGAACTACGAAATTGACTACTGG",
         "cdr3_num_nts": 36,
@@ -24311,7 +24311,7 @@
         "v_match": 292
     },
     "M03592:18:000000000-AHJWK:1:1106:8830:15969": {
-        "ai": 237,
+        "ai": 242,
         "cdr3_aa": "CARGRSSSLGEDYW",
         "cdr3_nt": "TGTGCGAGAGGTCGAAGCAGCAGCTTGGGGGAAGACTACTGG",
         "cdr3_num_nts": 42,

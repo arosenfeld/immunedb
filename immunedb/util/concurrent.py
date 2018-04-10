@@ -1,10 +1,9 @@
-import os
-
+import functools
 import multiprocessing as mp
 import traceback
-import Queue
-
 import logging
+import time
+
 from immunedb.util.log import logger
 
 
@@ -93,111 +92,24 @@ class TaskQueue(object):
 
 
 # V2 of multiprocessing
-class _EndOfDataSentinel(object):
-    pass
+def process_data(input_data, process_func, aggregate_func, nproc,
+                 generate_args={}, process_args={}, aggregate_args={}):
+    if callable(input_data):
+        start = time.time()
+        input_data = input_data(**generate_args)
+        logger.info('Generate time: {}'.format(time.time() - start))
 
+    pool = mp.Pool(processes=nproc)
+    f = functools.partial(process_func, **process_args)
+    start = time.time()
+    logger.info('Waiting on pool {}'.format(process_func.__name__))
+    res = list(pool.map(f, input_data,
+                        chunksize=int(len(input_data) / float(nproc))))
+    logger.info('Pool done: {}'.format(time.time() - start))
 
-class EndOfDataException(Exception):
-    pass
+    start = time.time()
+    logger.info('Waiting on aggregation {}'.format(aggregate_func.__name__))
+    ret = aggregate_func(res, **aggregate_args)
+    logger.info('Done aggregation: {}'.format(time.time() - start))
 
-
-class SizedQueue(object):
-    def __init__(self):
-        self.queue = mp.Queue()
-
-    def put(self, val):
-        self.queue.put(val)
-
-    def get(self):
-        res = self.queue.get()
-        if res == _EndOfDataSentinel:
-            raise EndOfDataException()
-        return res
-
-    def __iter__(self):
-        while True:
-            try:
-                yield self.get()
-            except EndOfDataException:
-                break
-
-
-def _process_wrapper(process_func, in_queue, out_queue, **kwargs):
-    logger.info('Starting worker with PID {}'.format(os.getpid()))
-    while True:
-        try:
-            for d in process_func(in_queue.get(), **kwargs):
-                out_queue.put(d)
-        except Queue.Empty:
-            continue
-        except EndOfDataException:
-            break
-        except Exception:
-            logging.warning('Error in process_func:\n{}'.format(
-                traceback.format_exc()))
-    logger.info('Stopping worker with PID {}'.format(os.getpid()))
-
-
-def _agg_wrapper(aggregate_func, aggregate_queue, return_val, **kwargs):
-    ret = aggregate_func(aggregate_queue, **kwargs)
-    if ret:
-        return_val.update(ret)
-
-
-def process_data(generate_func_or_iter,
-                 process_func,
-                 aggregate_func,
-                 nproc,
-                 generate_args={},
-                 process_args={},
-                 aggregate_args={}):
-    process_queue = SizedQueue()
-    aggregate_queue = SizedQueue()
-    return_val = mp.Manager().dict()
-
-    workers = []
-    for i in range(nproc):
-        w = mp.Process(
-            target=_process_wrapper,
-            args=(process_func, process_queue, aggregate_queue),
-            kwargs=process_args
-        )
-        w.start()
-        workers.append(w)
-
-    agg_p = mp.Process(
-        target=_agg_wrapper,
-        args=(aggregate_func, aggregate_queue, return_val,),
-        kwargs=aggregate_args
-    )
-    agg_p.start()
-
-    try:
-        input_p = None
-        iter(generate_func_or_iter)
-        for v in generate_func_or_iter:
-            process_queue.put(v)
-    except TypeError:
-        input_p = mp.Process(
-            target=generate_func_or_iter,
-            args=(process_queue,),
-            kwargs=generate_args
-        )
-        input_p.start()
-
-    if input_p:
-        input_p.join()
-
-    for n in range(nproc):
-        process_queue.put(_EndOfDataSentinel)
-
-    for i, w in enumerate(workers):
-        w.join()
-        logger.info('{} workers finished'.format(i + 1))
-    aggregate_queue.put(_EndOfDataSentinel)
-
-    logger.info('Waiting on aggregation')
-    agg_p.join()
-    logger.info('Done aggregation')
-
-    return return_val.copy()
+    return ret

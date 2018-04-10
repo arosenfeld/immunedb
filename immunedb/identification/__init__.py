@@ -94,12 +94,13 @@ def add_sequences(session, alignments, sample, strip_alleles=True,
         get_seq_from_alignment(session, a, sample, strip_alleles)
         for a in alignments
     ])
-    succeeded = set(
-        [n.seq_id for n in seqs_and_noresults if type(n) == Sequence]
-    )
-    funcs.bulk_add(session, seqs_and_noresults)
+    succeeded = [n for n in seqs_and_noresults if type(n) == Sequence]
+    failed = [n for n in seqs_and_noresults if type(n) == NoResult]
+    funcs.bulk_add(session, succeeded)
+    funcs.bulk_add(session, failed)
     session.flush()
 
+    succeeded = set([s.seq_id for s in succeeded])
     dups = funcs.flatten([
         get_duplicates_from_alignment(alignment, sample)
         for alignment in alignments if alignment.sequence.ids[0] in succeeded

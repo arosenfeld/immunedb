@@ -1,7 +1,6 @@
 import os
 import sys
 import time
-import pygtrie
 from sqlalchemy import func
 
 from Bio import SeqIO
@@ -122,22 +121,22 @@ def setup_sample(session, meta):
 def process_vdj(vdj, aligner):
     try:
         alignment = aligner.get_alignment(vdj)
-        return [{
+        return {
             'status': 'success',
             'alignment': alignment
-        }]
+        }
     except AlignmentException as e:
-        return [{
+        return {
             'status': 'noresult',
             'vdj': vdj,
             'reason': str(e)
-        }]
+        }
     except Exception as e:
-        return [{
+        return {
             'status': 'error',
             'vdj': vdj,
             'reason': str(e)
-        }]
+        }
 
 
 def aggregate_vdj(aggregate_queue):
@@ -171,22 +170,22 @@ def process_vties(alignment, aligner, avg_len, avg_mut, props):
             alignment.trim_to(props.trim_to)
 
         props.validate(alignment)
-        return [{
+        return {
             'status': 'success',
             'alignment': alignment
-        }]
+        }
     except AlignmentException as e:
-        return [{
+        return {
             'status': 'noresult',
             'alignment': alignment,
             'reason': str(e)
-        }]
+        }
     except Exception as e:
-        return [{
+        return {
             'status': 'error',
             'alignment': alignment,
             'reason': str(e)
-        }]
+        }
 
 
 def aggregate_vties(aggregate_queue):
@@ -243,49 +242,46 @@ def process_collapse(sequences):
 
 
 def aggregate_collapse(aggregate_queue, db_config, sample_id, props):
-    bulk_add = []
+    seqs_to_add = []
     session = config.init_db(db_config, create=False)
     sample = session.query(Sample).filter(Sample.id == sample_id).one()
     for i, alignment in enumerate(aggregate_queue):
-        bulk_add.append(alignment)
-        if len(bulk_add) >= 1000:
-            add_sequences(session, bulk_add, sample,
-                          strip_alleles=not props.genotyping)
-            bulk_add = []
-            logger.info('Processed {}'.format(i + 1))
-            session.commit()
-    if bulk_add:
-        add_sequences(session, bulk_add, sample,
+        for seq in alignment:
+            seqs_to_add.append(seq)
+            if len(seqs_to_add) >= 1000:
+                add_sequences(session, seqs_to_add, sample,
+                              strip_alleles=not props.genotyping)
+                seqs_to_add = []
+                logger.info('Processed {}'.format(i + 1))
+                session.commit()
+    if seqs_to_add:
+        add_sequences(session, seqs_to_add, sample,
                       strip_alleles=not props.genotyping)
     logger.info('Finished aggregating sequences')
     session.commit()
     session.close()
 
 
-def collapse_exact(process_queue, path):
-    vdjs = pygtrie.StringTrie()
+def read_input(path):
+    vdjs = []
     parser = SeqIO.parse(path, 'fasta' if path.endswith('.fasta') else 'fastq')
 
     # Collapse identical sequences
     logger.info('Collapsing identical sequences')
     for record in parser:
         try:
-            seq = str(record.seq)
-            if seq not in vdjs:
-                vdjs[seq] = VDJSequence(
-                    ids=[],
-                    sequence=seq,
-                    quality=funcs.ord_to_quality(
-                        record.letter_annotations.get('phred_quality')
-                    )
+            vdjs.append(VDJSequence(
+                ids=record.description,
+                sequence=str(record.seq),
+                quality=funcs.ord_to_quality(
+                    record.letter_annotations.get('phred_quality')
                 )
-            vdjs[seq].ids.append(record.description)
+            ))
         except ValueError:
             continue
 
-    logger.info('There are {} (unaligned) unique sequences'.format(len(vdjs)))
-    for v in vdjs.values():
-        process_queue.put(v)
+    logger.info('There are {} sequences'.format(len(vdjs)))
+    return vdjs
 
 
 def process_sample(db_config, v_germlines, j_germlines, path, meta, props,
@@ -299,7 +295,7 @@ def process_sample(db_config, v_germlines, j_germlines, path, meta, props,
 
     # Initial VJ assignment
     alignments = concurrent.process_data(
-        collapse_exact,
+        read_input,
         process_vdj,
         aggregate_vdj,
         nproc,
