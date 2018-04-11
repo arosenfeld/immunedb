@@ -1,9 +1,9 @@
 {
     "counts": {
         "all": 1998,
-        "clones_all": 247,
-        "clones_functional": 235,
-        "clones_nonfunctional": 12,
+        "clones_all": 234,
+        "clones_functional": 225,
+        "clones_nonfunctional": 9,
         "functional": 1851,
         "nonfunctional": 147,
         "unique": 984,

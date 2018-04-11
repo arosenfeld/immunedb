@@ -645,6 +645,18 @@ def analyze_samples(session, samples, filter_type, include_outliers,
                 reduced.append((x, val))
             key_dict[key] = reduced
 
+
+    clone_cnts = {s.functional: s.clones for s in session.query(
+        CloneStats.functional,
+        func.count(distinct(CloneStats.clone_id)).label('clones')
+    ).filter(
+        CloneStats.sample_id.in_(samples)
+    ).group_by(CloneStats.functional)}
+
+    counts['clones_nonfunctional'] = clone_cnts[False]
+    counts['clones_functional'] = clone_cnts[True]
+    counts['clones_all'] = clone_cnts[False] + clone_cnts[True]
+
     return {'samples': sample_info, 'counts': counts, 'stats': stats}
 
 
