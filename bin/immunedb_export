@@ -1,7 +1,16 @@
 #!/usr/bin/env python2
 import pkg_resources
 import immunedb.common.config as config
-import immunedb.exporting.cli as cli
+import immunedb.exporting as exporting
+
+def add_common_fields(parser):
+    parser.add_argument('--clones-only', action='store_true', default=False,
+                        help='Includes only sequences assigned to a clone')
+    parser.add_argument('--min-subject-copies', default=None,
+                        help='''The minimum copies in the subject required to
+                        be exported.  Set to 1 for all subject-unique
+                        sequences, or higher for more stringent filtering''')
+    return parser
 
 
 if __name__ == '__main__':
@@ -27,21 +36,17 @@ if __name__ == '__main__':
                         help='Species of sequences')
     parser.add_argument('--mol-type', default='DNA', help='Molecule type')
 
-    parser = subparsers.add_parser('changeo')
-    parser.add_argument('--clones-only', action='store_true', default=False,
-                        help='Includes only sequences assigned to a clone')
-    parser.add_argument('--min-subject-copies', default=None,
-                        help='''The minimum copies in the subject required to
-                        be exported.  Set to 1 for all subject-unique
-                        sequences, or higher for more stringent filtering''')
+    parser = add_common_fields(subparsers.add_parser('changeo'))
+    parser = add_common_fields(subparsers.add_parser('airr'))
 
     args = main_parser.parse_args()
     session = config.init_db(args.db_config)
 
     fmts = {
-        'vdjtools': cli.export_vdjtools,
-        'genbank': cli.export_genbank,
-        'changeo': cli.export_changeo,
+        'vdjtools': exporting.write_vdjtools,
+        'genbank': exporting.write_genbank,
+        'changeo': exporting.write_tsv,
+        'airr': exporting.write_tsv,
     }
 
     fmts[args.fmt](session, args)

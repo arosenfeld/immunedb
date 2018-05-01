@@ -525,6 +525,7 @@ class Sequence(Base):
     sample = relationship(Sample, backref=backref('sequences'))
 
     partial = Column(Boolean, index=True)
+    rev_comp = Column(Boolean)
 
     probable_indel_or_misalign = Column(Boolean)
     locally_aligned = Column(Boolean, default=False, nullable=False)
@@ -642,6 +643,27 @@ class Sequence(Base):
         regions.append(self.cdr3_num_nts)
         regions.append(len(self.germline) - sum(regions))
         return regions
+
+    @property
+    def v_cigar(self):
+        cigar = []
+        if self.removed_prefix:
+            cigar.extend((len(self.removed_prefix), 'S'))
+        if self.seq_start:
+            cigar.extend((self.seq_start, 'N'))
+        end = self.seq_start + self.pre_cdr3_length + self.num_gaps
+        ref = self.germline[self.seq_start:end]
+        qry = self.sequence[self.seq_start:end]
+
+        cigar.extend(funcs.get_cigar(ref, qry))
+        return ''.join([str(s) for s in cigar])
+
+    @property
+    def j_cigar(self):
+        return ''.join(funcs.get_cigar(
+            self.germline[-self.post_cdr3_length:],
+            self.sequence[-self.post_cdr3_length:]
+        ))
 
     def get_v_extent(self, in_clone):
         """Returns the estimated V length, including the portion in the

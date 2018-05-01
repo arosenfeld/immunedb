@@ -645,7 +645,6 @@ def analyze_samples(session, samples, filter_type, include_outliers,
                 reduced.append((x, val))
             key_dict[key] = reduced
 
-
     clone_cnts = {s.functional: s.clones for s in session.query(
         CloneStats.functional,
         func.count(distinct(CloneStats.clone_id)).label('clones')
@@ -687,7 +686,7 @@ def get_sequence(session, sample_id, seq_id):
         .filter(Sequence.sample_id == sample_id,
                 Sequence.seq_id == seq_id).one()
     ret = _fields_to_dict([
-        'seq_id', 'partial', 'v_gene', 'j_gene', 'cdr3_nt',
+        'seq_id', 'partial', 'rev_comp', 'v_gene', 'j_gene', 'cdr3_nt',
         'cdr3_aa', 'germline', 'v_match', 'j_match', 'v_length',
         'j_length', 'in_frame', 'functional', 'stop', 'copy_number',
         'sequence', 'pre_cdr3_length', 'pre_cdr3_match', 'post_cdr3_length',

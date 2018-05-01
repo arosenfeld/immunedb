@@ -61,6 +61,6 @@ def tree_compare(found, correct, error):
     for metric_func in metrics:
         found_v = metric_func(found)
         correct_v = metric_func(correct)
-        assert (found_v == correct_v,
-                'Trees mismatch with {}: {} should be {}'.format(
-                    metric_func.__name__, found_v, correct_v))
+        assert found_v == correct_v, \
+            'Trees mismatch with {}: {} should be {}'.format(
+                    metric_func.__name__, found_v, correct_v)

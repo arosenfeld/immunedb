@@ -8,7 +8,7 @@ import immunedb.util.lookups as lookups
 
 
 class VDJSequence(object):
-    def __init__(self, ids, sequence, quality=None):
+    def __init__(self, ids, sequence, quality=None, rev_comp=False):
         if quality and len(sequence) != len(quality):
             raise ValueError('Sequence and quality must be the same length')
         if not all([c in 'ATCGN-' for c in sequence]):
@@ -18,6 +18,7 @@ class VDJSequence(object):
         self.ids = [ids] if type(ids) == str else ids
         self.orig_sequence = sequence[:]
         self.orig_quality = quality[:] if quality else None
+        self.rev_comp = rev_comp
         self._sequence = sequence
         self._quality = quality
         self._removed_prefix_sequence = ''
@@ -39,15 +40,13 @@ class VDJSequence(object):
     def removed_prefix_quality(self):
         return self._removed_prefix_quality
 
-    def reverse_complement(self, in_place=False):
-        if not in_place:
-            return VDJSequence(
-                self.ids,
-                str(Seq(self._sequence).reverse_complement()),
-                self._quality[::-1] if self._quality else None
-            )
-        self._sequence = str(Seq(self._sequence).reverse_complement())
-        self._quality = self._quality[::-1]
+    def reverse_complement(self):
+        return VDJSequence(
+            self.ids,
+            str(Seq(self._sequence).reverse_complement()),
+            self._quality[::-1] if self._quality else None,
+            rev_comp=True
+        )
 
     def pad(self, count):
         self._sequence = ('N' * count) + self._sequence
@@ -212,9 +211,12 @@ class VDJAlignment(object):
 
     def trim_to(self, count):
         old_pad = self.seq_start - self.sequence[:self.seq_start].count('-')
+        n_extension = re.match(
+            '[N]*', self.sequence[count:]).span()[1]
 
         self.sequence.trim(count)
         self.seq_offset = re.match('[N\-]*', self.sequence.sequence).span()[1]
+        self.seq_offset -= n_extension
 
         new_pad = self.sequence[:self.seq_start].count('-')
         self.v_length = self.v_length - self.seq_start + old_pad + new_pad

@@ -4,7 +4,6 @@ import re
 import sys
 import time
 
-from sqlalchemy import distinct
 from sqlalchemy.orm import scoped_session
 
 import bottle
@@ -16,14 +15,10 @@ try:
 except ImportError:
     ROLLBAR_SUPPORT = False
 
-from immunedb.exporting.clone_export import CloneExport
-from immunedb.exporting.sequence_export import SequenceExport
-from immunedb.exporting.mutation_export import MutationExporter
 import immunedb.api.queries as queries
-from immunedb.common.models import CloneStats
-from immunedb.exporting.writers import (CLIPWriter, FASTAWriter, FASTQWriter,
-                                        CSVWriter)
+from immunedb.common.models import Sequence
 from immunedb.util.log import logger
+from immunedb.exporting import get_tsv
 
 
 class EnableCors(object):
@@ -77,12 +72,6 @@ def decode_run_length(encoding):
             ids.extend(range(offset, offset + size))
         offset += size
     return ids
-
-
-def set_download(exp_type, ext):
-    time_str = time.strftime('%Y-%m-%d-%H-%M')
-    response.headers['Content-Disposition'] = 'attachment;filename={}'.format(
-        '{}_{}.{}'.format(exp_type, time_str, ext))
 
 
 def create_app(session_maker, allow_shutdown=False):
@@ -251,83 +240,19 @@ def create_app(session_maker, allow_shutdown=False):
     def subject(session, subject_id):
         return create_response(queries.get_subject(session, subject_id))
 
-    @app.route('/export/sequences/<from_type>/<encoding>', method=['POST'])
+    @app.route('/export/tsv/<schema>', method=['GET', 'OPTIONS'])
     @with_session
-    def export_sequences(session, from_type, encoding):
-        fields = request.forms or {}
-        eformat = fields.get('format')
+    def export_tsv(session, schema):
+        seqs = session.query(Sequence)
+        if request.query.get('clones_only', False):
+            seqs = seqs.filter(~Sequence.clone_id.is_(None))
 
-        set_download('sequences', eformat.split('-', 1)[0])
+        time_str = time.strftime('%Y-%m-%d-%H-%M')
+        fn = '{}_{}.tsv'.format(time_str, schema)
+        response.headers['Content-Disposition'] = 'attachment;filename=' + fn
 
-        if eformat == 'csv':
-            writer = CSVWriter()
-        elif eformat.startswith('fasta'):
-            writer = FASTAWriter(replaced_sequences='fill' in eformat)
-        elif eformat.startswith('fastq'):
-            writer = FASTQWriter(replaced_sequences='fill' in eformat)
-        elif eformat.startswith('clip'):
-            writer = CLIPWriter(replaced_sequences='fill' in eformat)
-
-        if from_type == 'sample':
-            ids = decode_run_length(encoding)
-        else:
-            ids = [int(encoding)]
-
-        export = SequenceExport(
-            session, writer, from_type, ids,
-            selected_fields=fields.get('fields').split(','),
-            subject_uniques=fields.get('subject_uniques', False),
-            only_with_clones=fields.get('only_with_clones', False)
-        )
-        for line in export.get_data():
-            yield line
-
-    @app.route('/export/clones/<from_type>/<encoding>', method=['POST'])
-    @with_session
-    def export_clones(session, from_type, encoding):
-        fields = request.forms or {}
-
-        set_download('clones', 'csv')
-
-        if from_type == 'sample':
-            ids = decode_run_length(encoding)
-        else:
-            ids = [int(encoding)]
-
-        export = CloneExport(
-            session, from_type, ids,
-            fields.get('fields').split(',')
-        )
-        for line in export.get_data():
-            yield line
-
-    @app.route('/export/mutations/<from_type>/<encoding>', method=['POST'])
-    @with_session
-    def export_mutations(session, from_type, encoding):
-        fields = request.forms or {}
-
-        set_download('mutations', 'csv')
-
-        if from_type == 'sample':
-            query = session.query(
-                distinct(CloneStats.clone_id).label('clone_id')
-            ).filter(
-                CloneStats.sample_id.in_(decode_run_length(encoding))
-            )
-            clone_ids = map(lambda r: r.clone_id, query.all())
-        else:
-            clone_ids = [int(encoding)]
-
-        export = MutationExporter(
-            session, clone_ids,
-            decode_run_length(encoding)
-            if fields.get('only_sample_rows') else None,
-            fields.get('thresh_type', 'sequences'),
-            int(fields.get('thresh_value', 0))
-        )
-
-        for line in export.get_data():
-            yield line
+        for row in get_tsv(seqs, schema):
+            yield row
 
     @app.route('/shutdown', method=['POST'])
     def shutdown():

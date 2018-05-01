@@ -2,12 +2,9 @@ import os
 import requests
 import unittest
 
-from immunedb.exporting.clone_export import CloneExport
-from immunedb.exporting.sequence_export import SequenceExport
 
-
-def request(endpoint, data={}):
-    return requests.post('http://localhost:8891' + endpoint, data=data)
+def request(endpoint):
+    return requests.get('http://localhost:8891' + endpoint)
 
 
 class ExportTest(unittest.TestCase):
@@ -15,9 +12,9 @@ class ExportTest(unittest.TestCase):
     def tearDownClass(cls):
         request('/shutdown')
 
-    def check(self, expected_path, url, data={}):
+    def check(self, expected_path, url):
         path = 'tests/data/export/' + expected_path
-        response = request(url, data).text
+        response = request(url).text
         if os.getenv('GENERATE'):
             with open(path, 'w+') as fh:
                 fh.write(response)
@@ -32,29 +29,9 @@ class ExportTest(unittest.TestCase):
                 assert expected == response.strip()
 
     def test_sequences(self):
-        for ext in ('fasta', 'fastq', 'clip'):
-            print 'checking {}'.format(ext)
+        for schema in ('changeo', 'airr'):
+            print 'checking {}'.format(schema)
             self.check(
-                'sequences.' + ext,
-                '/export/sequences/sample/T2', data={
-                    'format': ext,
-                    'fields': ','.join(sorted(
-                        SequenceExport.allowed_fields.keys()))
-                })
-
-    def test_clones(self):
-        self.check(
-            'clones.csv',
-            '/export/clones/sample/T2', data={
-                'fields':
-                ','.join(sorted(
-                    set(CloneExport.allowed_fields.keys()) -
-                    set(['tree'])))
-            })
-
-    def test_mutations(self):
-        self.check(
-            'mutations.csv',
-            '/export/mutations/sample/T2', data={
-                'fields': ','.join(sorted(CloneExport.allowed_fields.keys())),
-            })
+                schema + '.tsv',
+                '/export/tsv/' + schema
+            )

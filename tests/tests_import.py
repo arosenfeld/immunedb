@@ -1,5 +1,3 @@
-import os
-
 from regression import BaseTest, NamespaceMimic
 
 from immunedb.importing.delimited import run_import

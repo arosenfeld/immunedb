@@ -36,7 +36,7 @@ class AnchorAligner(object):
                 best_hamming = hamming
                 is_rc = False
 
-        rc = sequence.reverse_complement(in_place=False)
+        rc = sequence.reverse_complement()
         for pos in range(len(rc) - len(germline)):
             hamming = dnautils.hamming(rc[pos:pos + len(germline)],
                                        germline)
@@ -58,7 +58,7 @@ class AnchorAligner(object):
         # TGGTCACCGTCTCCT
         # TGGTCACCGTCT
 
-        rc = alignment.sequence.reverse_complement(in_place=False)
+        rc = alignment.sequence.reverse_complement()
         for match, j_gene in self.j_germlines.get_all_anchors(limit_js):
             i = alignment.sequence.rfind(match)
             if i >= 0:

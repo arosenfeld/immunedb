@@ -1,6 +1,8 @@
 from collections import Counter
 import itertools
 
+import dnautils
+
 
 def yield_limit(qry, pk_attr, maxrq=5000):
     firstid = None
@@ -112,3 +114,30 @@ def format_ties(ties, strip_alleles=True):
                 name = name.split('*', 1)[0]
             formatted.append(name)
     return '{}{}'.format(prefix, '|'.join(sorted(set(formatted))))
+
+
+def get_cigar(ref, qry):
+    assert len(ref) == len(qry)
+    cnt = 0
+    current_op = None
+    cigar = []
+    for r, q in zip(ref, qry):
+        if r == q == '-':
+            continue
+        elif dnautils.equal(r, q):
+            op = '='
+        elif r == '-':
+            op = 'I'
+        elif q == '-':
+            op = 'D'
+        else:
+            op = 'X'
+        if op != current_op:
+            if current_op:
+                cigar.append('{}{}'.format(cnt, current_op))
+            current_op = op
+            cnt = 1
+        else:
+            cnt += 1
+    cigar.append('{}{}'.format(cnt, current_op))
+    return ''.join(cigar)

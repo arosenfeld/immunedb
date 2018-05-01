@@ -29,6 +29,7 @@ def get_seq_from_alignment(session, alignment, sample, strip_alleles=True):
             subject_id=sample.subject.id,
 
             partial=alignment.partial,
+            rev_comp=alignment.sequence.rev_comp,
 
             probable_indel_or_misalign=alignment.has_possible_indel,
 

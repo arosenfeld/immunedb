@@ -101,7 +101,7 @@ class BaseTest(object):
             self.clones()
             self.clone_stats()
             self.sample_stats()
-            #self.trees()
+            # self.trees()
             self.selection()
 
         def initial_regression(self):

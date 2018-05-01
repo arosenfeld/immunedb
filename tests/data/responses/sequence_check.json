@@ -38,6 +38,7 @@
         57,
         31
     ],
+    "rev_comp": true,
     "sample": {
         "id": 2,
         "metadata": {

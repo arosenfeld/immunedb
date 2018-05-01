@@ -82,7 +82,7 @@ class ApiTest(unittest.TestCase):
                 'max_cdr3_num_nts': 30,
                 'min_size': 2,
                 'max_size': 100,
-                'size_field' :'uniques'
+                'size_field': 'uniques'
             }
         })
         self.check('clones_filters2', '/clones/list', {
