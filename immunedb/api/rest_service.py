@@ -254,7 +254,7 @@ def create_app(session_maker, allow_shutdown=False):
         for row in get_tsv(seqs, schema):
             yield row
 
-    @app.route('/shutdown', method=['POST'])
+    @app.route('/shutdown', method=['GET'])
     def shutdown():
         if allow_shutdown:
             logger.warning('Shutting down from remote request')

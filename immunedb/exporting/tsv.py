@@ -110,6 +110,7 @@ def get_tsv(seqs, format_name):
         joinedload(Sequence.sample),
         joinedload(Sequence.subject),
     )
+    seqs = seqs.order_by(Sequence.ai)
     writer = SequenceWriter(format_name)
 
     yield writer.writeheader()
