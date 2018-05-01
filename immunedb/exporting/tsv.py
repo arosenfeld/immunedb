@@ -26,6 +26,7 @@ mappings = {
         ('v_score', 'v_match'),
         ('v_identity', lambda s: s.v_match / float(s.v_length)),
         ('v_cigar', 'v_cigar'),
+        ('d_cigar', None),
         ('j_identity', lambda s: s.j_match / float(s.j_length)),
         ('j_score', 'j_match'),
         ('j_cigar', 'j_cigar'),
