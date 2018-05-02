@@ -11,23 +11,28 @@ static PyObject *DNAUtilError;
 static PyObject*
 dnautils_equal(PyObject *self, PyObject *args)
 {
+    PyObject *s1, *s2;
     char *str1, *str2;
     unsigned int i;
-    unsigned int distance = 0;
 
-    if (!PyArg_ParseTuple(args, "ss", &str1, &str2)) {
+    if (!PyArg_ParseTuple(args, "SS", &s1, &s2)) {
         return NULL;
     }
 
-    if (strlen(str1) != strlen(str2)) {
+    if (PyString_Size(s1) != PyString_Size(s2)) {
         PyErr_SetString(DNAUtilError, "Sequences have unequal lengths.");
         return NULL;
     }
 
-    for (i = 0; i < strlen(str1); i++) {
-        if (str1[i] != str2[i] && str1[i] != 'N' && str2[i] != 'N' &&
-                str1[i] != '-' && str2[i] != '-') {
-            distance += 1;
+    if ((str1 = PyString_AsString(s1)) == NULL) {
+        return NULL;
+    }
+    if ((str2 = PyString_AsString(s2)) == NULL) {
+        return NULL;
+    }
+
+    for (i = 0; i < PyString_Size(s1); i++) {
+        if (str1[i] != str2[i] && str1[i] != 'N' && str2[i] != 'N') {
             return Py_BuildValue("O", Py_False);
         }
     }
@@ -37,20 +42,28 @@ dnautils_equal(PyObject *self, PyObject *args)
 static PyObject*
 dnautils_hamming(PyObject *self, PyObject *args)
 {
+    PyObject *s1, *s2;
     char *str1, *str2;
     unsigned int i;
     unsigned int distance = 0;
 
-    if (!PyArg_ParseTuple(args, "ss", &str1, &str2)) {
+    if (!PyArg_ParseTuple(args, "SS", &s1, &s2)) {
         return NULL;
     }
 
-    if (strlen(str1) != strlen(str2)) {
+    if (PyString_Size(s1) != PyString_Size(s2)) {
         PyErr_SetString(DNAUtilError, "Sequences have unequal lengths.");
         return NULL;
     }
 
-    for (i = 0; i < strlen(str1); i++) {
+    if ((str1 = PyString_AsString(s1)) == NULL) {
+        return NULL;
+    }
+    if ((str2 = PyString_AsString(s2)) == NULL) {
+        return NULL;
+    }
+
+    for (i = 0; i < PyString_Size(s1); i++) {
         if (str1[i] != str2[i] && str1[i] != 'N' && str2[i] != 'N' &&
                 str1[i] != '-' && str2[i] != '-') {
             distance += 1;
@@ -59,24 +72,33 @@ dnautils_hamming(PyObject *self, PyObject *args)
     return Py_BuildValue("I", distance);
 }
 
+
 static PyObject*
 dnautils_streak_pos(PyObject *self, PyObject *args)
 {
+    PyObject *s1, *s2;
     char *str1, *str2;
     unsigned int max_streak;
     unsigned int i;
-    unsigned int streak;
+    unsigned int streak = 0;
 
-    if (!PyArg_ParseTuple(args, "ssI", &str1, &str2, &max_streak)) {
+    if (!PyArg_ParseTuple(args, "SSI", &s1, &s2, &max_streak)) {
         return NULL;
     }
 
-    if (strlen(str1) != strlen(str2)) {
+    if (PyString_Size(s1) != PyString_Size(s2)) {
         PyErr_SetString(DNAUtilError, "Sequences have unequal lengths.");
         return NULL;
     }
 
-    for (i = 0; i < strlen(str1); i++) {
+    if ((str1 = PyString_AsString(s1)) == NULL) {
+        return NULL;
+    }
+    if ((str2 = PyString_AsString(s2)) == NULL) {
+        return NULL;
+    }
+
+    for (i = 0; i < PyString_Size(s1); i++) {
         if (str1[i] != str2[i]) {
             streak++;
             if (streak >= max_streak) {
@@ -99,24 +121,12 @@ static PyMethodDef DNAUtilsMethods[] = {
     {NULL, NULL, 0, NULL}
 };
 
-static struct PyModuleDef dnautilsmodule = {
-   PyModuleDef_HEAD_INIT,
-   "dnautils",
-   NULL,
-   -1,
-	DNAUtilsMethods
-};
-
 PyMODINIT_FUNC
-PyInit_dnautils(void)
+initdnautils(void)
 {
     PyObject *module;
-    module = PyModule_Create(&dnautilsmodule);
-    if (module == NULL) {
-        return NULL;
-    }
+    module = Py_InitModule("dnautils", DNAUtilsMethods);
     DNAUtilError = PyErr_NewException("dnautil.error", NULL, NULL);
     Py_INCREF(DNAUtilError);
     PyModule_AddObject(module, "error", DNAUtilError);
-    return module;
 }

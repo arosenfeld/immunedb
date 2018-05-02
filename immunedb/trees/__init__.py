@@ -3,7 +3,7 @@ import shlex
 
 from subprocess import Popen, PIPE
 
-import ete2
+import ete3
 
 from immunedb.common.models import Sequence, SequenceCollapse
 
@@ -43,7 +43,7 @@ class PhylogeneticTree(object):
 
 
 def populate_tree(session, newick, germline_seq, removed_muts):
-    tree = ete2.Tree(newick)
+    tree = ete3.Tree(newick)
     for node in tree.traverse():
         if node.name not in ('NoName', 'germline', ''):
             seq = session.query(Sequence).filter(
@@ -253,7 +253,7 @@ def check_supersets(tree):
             if len(overlap) > 0:
                 c1.detach()
                 c2.detach()
-                intermediate = instantiate_node(ete2.Tree(name='NoName'))
+                intermediate = instantiate_node(ete3.Tree(name='NoName'))
                 intermediate.mutations = overlap
                 intermediate.add_child(c1)
                 intermediate.add_child(c2)

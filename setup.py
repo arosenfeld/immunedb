@@ -44,7 +44,7 @@ setup(
         'sqlalchemy',
         'biopython',
         'bottle',
-        'ete2',
+        'ete3',
         'numpy',
         'PyMySQL',
     ],
