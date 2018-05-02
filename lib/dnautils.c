@@ -73,6 +73,7 @@ dnautils_hamming(PyObject *self, PyObject *args)
 }
 
 
+static PyObject*
 dnautils_streak_pos(PyObject *self, PyObject *args)
 {
     PyObject *s1, *s2;
