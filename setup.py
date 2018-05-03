@@ -3,6 +3,10 @@ from setuptools import setup, Extension
 dnautils = Extension('dnautils', sources=['lib/dnautils.c'],
                      extra_compile_args=['-std=c99'])
 
+
+with open('requirements.txt') as req:
+    install_requires = [l.strip() for l in req]
+
 setup(
     name='ImmuneDB',
     version='0.23.0',
@@ -39,15 +43,7 @@ setup(
         'bin/immunedb_genotype',
         'bin/run_tigger'
     ],
-    install_requires=[
-        'gevent',
-        'sqlalchemy',
-        'biopython',
-        'bottle',
-        'ete3',
-        'numpy',
-        'PyMySQL',
-    ],
+    install_requires=install_requires,
     ext_modules=[dnautils],
     license='LICENSE.txt',
     description='A module for efficient storage and analysis of '
