@@ -73,7 +73,7 @@ def _write_sample(session, sample_id, gene_db, inference, header):
                 for seq in seqs:
                     gb_entry, fasta_seq = _get_entries(
                         seq, inference, gene_db)
-                    for entry, indented in gb_entry.iteritems():
+                    for entry, indented in gb_entry.items():
                         writer.writerow(entry)
                         if indented:
                             for indent in indented:

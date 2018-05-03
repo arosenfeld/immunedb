@@ -1,5 +1,5 @@
 from collections import OrderedDict
-import cStringIO
+import io
 import csv
 from sqlalchemy.orm import joinedload
 
@@ -71,25 +71,27 @@ mappings = {
 
 class SequenceWriter(object):
     def __init__(self, format_name):
-        self.out = cStringIO.StringIO()
+        self.out = io.StringIO()
         self.mapping = mappings[format_name]
         self.writer = csv.DictWriter(self.out, fieldnames=self.mapping.keys(),
                                      delimiter='\t')
 
     def writeheader(self):
         self.out.truncate(0)
+        self.out.seek(0)
         self.writer.writeheader()
-        return self.out.getvalue()
+        return self.out.getvalue().strip() + '\n'
 
     def writeseq(self, seq):
         self.out.truncate(0)
+        self.out.seek(0)
         self.writer.writerow(self.format_seq(seq))
-        return self.out.getvalue()
+        return self.out.getvalue().strip() + '\n'
 
     def format_seq(self, seq):
         return {
             out_field: self._get_val(seq, model_field)
-            for out_field, model_field in self.mapping.iteritems()
+            for out_field, model_field in self.mapping.items()
         }
 
     def _get_val(self, model, field):
@@ -111,7 +113,7 @@ def get_tsv(seqs, format_name):
         joinedload(Sequence.sample),
         joinedload(Sequence.subject),
     )
-    seqs = seqs.order_by(Sequence.ai)
+    seqs = seqs.order_by(Sequence.seq_id)
     writer = SequenceWriter(format_name)
 
     yield writer.writeheader()

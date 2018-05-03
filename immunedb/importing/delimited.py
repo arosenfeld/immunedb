@@ -106,7 +106,7 @@ def create_sample(session, metadata):
         session, Sample, name=metadata['sample_name'], study=study)
     if new:
         logger.info('Created new sample "{}"'.format(sample.name))
-        for key, value in metadata.iteritems():
+        for key, value in metadata.items():
             if key not in REQUIRED_FIELDS:
                 session.add(SampleMetadata(
                     sample=sample,

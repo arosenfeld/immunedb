@@ -36,7 +36,7 @@ class IdentificationProps(object):
     }
 
     def __init__(self, **kwargs):
-        for prop, default in self.defaults.iteritems():
+        for prop, default in self.defaults.items():
             setattr(self, prop, kwargs.get(prop, default))
 
     def valid_v_ties(self, alignment):
@@ -108,7 +108,7 @@ def setup_sample(session, meta):
             identifier=meta['subject'])
         sample.subject = subject
 
-        for key, value in meta.iteritems():
+        for key, value in meta.items():
             if key not in REQUIRED_FIELDS:
                 session.add(SampleMetadata(
                     sample=sample, key=key, value=value
@@ -339,8 +339,10 @@ def process_sample(db_config, v_germlines, j_germlines, path, meta, props,
 
         logger.info('Collapsing {} buckets'.format(len(v_ties['success'])))
         session.commit()
+
+        # TODO: Change this so we arent copying everything between processes
         concurrent.process_data(
-            v_ties['success'],
+            [list(v) for v in v_ties['success']],
             process_collapse,
             aggregate_collapse,
             nproc,

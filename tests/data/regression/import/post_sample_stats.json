@@ -252,59 +252,59 @@
         "stop_cnt": 93
     },
     "2-clones_all-False-False": {
-        "functional_cnt": 168,
-        "in_frame_cnt": 170,
+        "functional_cnt": 170,
+        "in_frame_cnt": 172,
         "no_result_cnt": 63,
-        "sequence_cnt": 181,
+        "sequence_cnt": 183,
         "stop_cnt": 6
     },
     "2-clones_all-False-True": {
-        "functional_cnt": 168,
-        "in_frame_cnt": 170,
+        "functional_cnt": 170,
+        "in_frame_cnt": 172,
         "no_result_cnt": 63,
-        "sequence_cnt": 181,
+        "sequence_cnt": 183,
         "stop_cnt": 6
     },
     "2-clones_all-True-False": {
-        "functional_cnt": 168,
-        "in_frame_cnt": 170,
+        "functional_cnt": 170,
+        "in_frame_cnt": 172,
         "no_result_cnt": 63,
-        "sequence_cnt": 181,
+        "sequence_cnt": 183,
         "stop_cnt": 6
     },
     "2-clones_all-True-True": {
-        "functional_cnt": 168,
-        "in_frame_cnt": 170,
+        "functional_cnt": 170,
+        "in_frame_cnt": 172,
         "no_result_cnt": 63,
-        "sequence_cnt": 181,
+        "sequence_cnt": 183,
         "stop_cnt": 6
     },
     "2-clones_functional-False-False": {
-        "functional_cnt": 168,
-        "in_frame_cnt": 168,
+        "functional_cnt": 170,
+        "in_frame_cnt": 170,
         "no_result_cnt": 63,
-        "sequence_cnt": 168,
+        "sequence_cnt": 170,
         "stop_cnt": 0
     },
     "2-clones_functional-False-True": {
-        "functional_cnt": 168,
-        "in_frame_cnt": 168,
+        "functional_cnt": 170,
+        "in_frame_cnt": 170,
         "no_result_cnt": 63,
-        "sequence_cnt": 168,
+        "sequence_cnt": 170,
         "stop_cnt": 0
     },
     "2-clones_functional-True-False": {
-        "functional_cnt": 168,
-        "in_frame_cnt": 168,
+        "functional_cnt": 170,
+        "in_frame_cnt": 170,
         "no_result_cnt": 63,
-        "sequence_cnt": 168,
+        "sequence_cnt": 170,
         "stop_cnt": 0
     },
     "2-clones_functional-True-True": {
-        "functional_cnt": 168,
-        "in_frame_cnt": 168,
+        "functional_cnt": 170,
+        "in_frame_cnt": 170,
         "no_result_cnt": 63,
-        "sequence_cnt": 168,
+        "sequence_cnt": 170,
         "stop_cnt": 0
     },
     "2-clones_nonfunctional-False-False": {
@@ -392,59 +392,59 @@
         "stop_cnt": 93
     },
     "2-unique-False-False": {
-        "functional_cnt": 656,
-        "in_frame_cnt": 656,
-        "no_result_cnt": 63,
-        "sequence_cnt": 656,
-        "stop_cnt": 0
-    },
-    "2-unique-False-True": {
         "functional_cnt": 654,
         "in_frame_cnt": 654,
         "no_result_cnt": 63,
         "sequence_cnt": 654,
         "stop_cnt": 0
     },
-    "2-unique-True-False": {
-        "functional_cnt": 659,
-        "in_frame_cnt": 659,
+    "2-unique-False-True": {
+        "functional_cnt": 652,
+        "in_frame_cnt": 652,
         "no_result_cnt": 63,
-        "sequence_cnt": 659,
+        "sequence_cnt": 652,
         "stop_cnt": 0
     },
-    "2-unique-True-True": {
+    "2-unique-True-False": {
         "functional_cnt": 657,
         "in_frame_cnt": 657,
         "no_result_cnt": 63,
         "sequence_cnt": 657,
         "stop_cnt": 0
     },
-    "2-unique_multiple-False-False": {
-        "functional_cnt": 192,
-        "in_frame_cnt": 192,
+    "2-unique-True-True": {
+        "functional_cnt": 655,
+        "in_frame_cnt": 655,
         "no_result_cnt": 63,
-        "sequence_cnt": 192,
+        "sequence_cnt": 655,
+        "stop_cnt": 0
+    },
+    "2-unique_multiple-False-False": {
+        "functional_cnt": 194,
+        "in_frame_cnt": 194,
+        "no_result_cnt": 63,
+        "sequence_cnt": 194,
         "stop_cnt": 0
     },
     "2-unique_multiple-False-True": {
-        "functional_cnt": 192,
-        "in_frame_cnt": 192,
+        "functional_cnt": 194,
+        "in_frame_cnt": 194,
         "no_result_cnt": 63,
-        "sequence_cnt": 192,
+        "sequence_cnt": 194,
         "stop_cnt": 0
     },
     "2-unique_multiple-True-False": {
-        "functional_cnt": 192,
-        "in_frame_cnt": 192,
+        "functional_cnt": 194,
+        "in_frame_cnt": 194,
         "no_result_cnt": 63,
-        "sequence_cnt": 192,
+        "sequence_cnt": 194,
         "stop_cnt": 0
     },
     "2-unique_multiple-True-True": {
-        "functional_cnt": 192,
-        "in_frame_cnt": 192,
+        "functional_cnt": 194,
+        "in_frame_cnt": 194,
         "no_result_cnt": 63,
-        "sequence_cnt": 192,
+        "sequence_cnt": 194,
         "stop_cnt": 0
     }
 }

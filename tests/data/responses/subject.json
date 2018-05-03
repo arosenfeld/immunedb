@@ -3,7 +3,7 @@
     "identifier": "D123",
     "samples": [
         {
-            "functional_cnt": 495,
+            "functional_cnt": 502,
             "id": 1,
             "metadata": {
                 "date": "2015-09-13",
@@ -12,8 +12,8 @@
                 "tissue": "Colon"
             },
             "name": "input",
-            "no_result_cnt": 21,
-            "sequence_cnt": 541,
+            "no_result_cnt": 13,
+            "sequence_cnt": 549,
             "subject": {
                 "id": 1,
                 "identifier": "D123",
@@ -25,7 +25,7 @@
             "total_cnt": 562
         },
         {
-            "functional_cnt": 1356,
+            "functional_cnt": 1361,
             "id": 2,
             "metadata": {
                 "date": "2015-09-13",
@@ -34,8 +34,8 @@
                 "tissue": "SPL"
             },
             "name": "input2",
-            "no_result_cnt": 13,
-            "sequence_cnt": 1457,
+            "no_result_cnt": 6,
+            "sequence_cnt": 1464,
             "subject": {
                 "id": 1,
                 "identifier": "D123",

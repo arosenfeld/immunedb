@@ -127,7 +127,7 @@ def get_common_seq(seqs, cutoff=True, right=False):
         return seqs[0]
     gene = [
         nts[0] if all([n == nts[0] for n in nts]) else 'N'
-        for nts in itertools.izip_longest(*seqs, fillvalue='N')
+        for nts in itertools.zip_longest(*seqs, fillvalue='N')
     ]
     if right:
         gene = reversed(gene)

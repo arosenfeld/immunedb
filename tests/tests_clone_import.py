@@ -1,12 +1,12 @@
 import os
 
-from regression import BaseTest
+from .regression import BaseTest
 
 import immunedb.common.config as config
 from immunedb.common.models import Clone, Sequence
 from immunedb.importing.clones import generate_template, import_template
 
-from regression import CONFIG_PATH
+from .regression import CONFIG_PATH
 
 
 class TestCloneImport(BaseTest.BaseRegression):

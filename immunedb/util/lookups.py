@@ -38,7 +38,7 @@ def aa_to_all_nts(aas):
     nts = []
     for aa in aas:
         nts.append(_nt_lookup[aa])
-    return map(lambda arr: ''.join(arr), itertools.product(*nts))
+    return [''.join(arr) for arr in itertools.product(*nts)]
 
 
 def has_stop(seq):

@@ -1,4 +1,4 @@
-from regression import NamespaceMimic, BaseTest
+from .regression import NamespaceMimic, BaseTest
 
 from immunedb.identification.identify import run_identify
 

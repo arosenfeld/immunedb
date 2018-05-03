@@ -57,10 +57,10 @@ def create_response(j=None, code=200, ctype='application/json'):
 
 def get_paging():
     data = bottle.request.json or {}
-    return map(int, (
-        data.get('page', 1),
-        data.get('per_page', 10)
-    ))
+    return [
+        int(data.get('page', 1)),
+        int(data.get('per_page', 10))
+    ]
 
 
 def decode_run_length(encoding):

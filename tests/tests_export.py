@@ -14,23 +14,23 @@ class ExportTest(unittest.TestCase):
 
     def check(self, expected_path, url):
         path = 'tests/data/export/' + expected_path
-        response = request(url).text
+        response = request(url).text.strip()
         if os.getenv('GENERATE'):
             with open(path, 'w+') as fh:
                 fh.write(response)
         else:
             with open(path) as fh:
                 expected = fh.read().strip()
-                if expected != response.strip():
-                    print 'EXPECTED'
-                    print expected
-                    print 'RESPONSE'
-                    print response.strip()
-                assert expected == response.strip()
+                if expected != response:
+                    with open('expected.log', 'w+') as fh:
+                        fh.write(expected)
+                    with open('response.log', 'w+') as fh:
+                        fh.write(response)
+                assert expected == response
 
     def test_sequences(self):
         for schema in ('changeo', 'airr'):
-            print 'checking {}'.format(schema)
+            print('checking {}'.format(schema))
             self.check(
                 schema + '.tsv',
                 '/export/tsv/' + schema

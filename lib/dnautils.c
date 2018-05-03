@@ -65,7 +65,7 @@ dnautils_streak_pos(PyObject *self, PyObject *args)
     char *str1, *str2;
     unsigned int max_streak;
     unsigned int i;
-    unsigned int streak;
+    unsigned int streak = 0;
 
     if (!PyArg_ParseTuple(args, "ssI", &str1, &str2, &max_streak)) {
         return NULL;

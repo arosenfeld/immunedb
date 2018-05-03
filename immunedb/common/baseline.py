@@ -105,7 +105,7 @@ def _make_input_file(session, input_path, clone, samples, min_mut_count,
 
             # Filter out the mutations
             removes = [
-                mut for mut, cnt in removes.iteritems()
+                mut for mut, cnt in removes.items()
                 if cnt < min_mut_count or cnt > max_mut_count
             ]
 
@@ -130,10 +130,10 @@ def _parse_output(session, clone, fh):
         if row['Type'] == 'Sequence':
             del row['Type']
             del row['ID']
-            row = {k: v.strip() for k, v in row.iteritems()}
+            row = {k: v.strip() for k, v in row.items()}
             row = {
                 k: v.strip() if v == 'NA' else float(v.strip()) for k, v in
-                row.iteritems()
+                row.items()
             }
             return row
 
@@ -216,7 +216,7 @@ class SelectionPressureWorker(concurrent.Worker):
 
             pressure = base_call(min_mut_count=min_seqs,
                                  max_mut_count=max_seqs)
-            pressure = {k: na_to_null(v) for k, v in pressure.iteritems()}
+            pressure = {k: na_to_null(v) for k, v in pressure.items()}
             self._session.add(SelectionPressure(
                 clone_id=clone_id,
                 sample_id=sample_id,
@@ -256,10 +256,10 @@ def run_selection_pressure(session, args):
     if args.clone_ids is not None:
         clones = args.clone_ids
     elif args.subject_ids is not None:
-        clones = map(lambda c: c.id, session.query(Clone.id).filter(
-            Clone.subject_id.in_(args.subject_ids)).all())
+        clones = [c.id for c in session.query(Clone.id).filter(
+            Clone.subject_id.in_(args.subject_ids))]
     else:
-        clones = map(lambda c: c.id, session.query(Clone.id).all())
+        clones = [c.id for c in session.query(Clone.id)]
     clones.sort()
 
     tasks = concurrent.TaskQueue()

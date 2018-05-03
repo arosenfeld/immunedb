@@ -23,7 +23,10 @@ CDR3_OFFSET = 309
 def deserialize_gaps(gaps):
     if gaps is None:
         return []
-    return map(lambda e: map(int, e.split('-')), gaps.split(','))
+    return [
+        [int(p) for p in g.split('-')]
+        for g in gaps.split(',')
+    ]
 
 
 def serialize_gaps(gaps):

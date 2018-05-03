@@ -165,7 +165,7 @@ class SampleStatsWorker(concurrent.Worker):
 
     def _add_stat(self, stats, sample_id, include_outliers,
                   only_full_reads):
-        for name, stat in stats.iteritems():
+        for name, stat in stats.items():
             ss = SampleStats(
                 sample_id=sample_id,
                 filter_type=name,
@@ -188,15 +188,15 @@ class SampleStatsWorker(concurrent.Worker):
             else:
                 ss.quality_dist = json.dumps([])
 
-            for dname, dist in stat.distributions.iteritems():
+            for dname, dist in stat.distributions.items():
                 setattr(ss, '{}_dist'.format(dname),
-                        json.dumps([(k, v) for k, v in dist.iteritems()]))
+                        json.dumps([(k, v) for k, v in dist.items()]))
             self._session.add(ss)
 
     def _calculate_seq_stats(self, sample_id, min_cdr3, max_cdr3,
                              include_outliers, only_full_reads):
         seq_statistics = {}
-        for name, stat in _seq_contexts.iteritems():
+        for name, stat in _seq_contexts.items():
             seq_statistics[name] = SeqContextStats(self._session, **stat)
 
         # TODO: This should be automatically generated from _dist_fields
@@ -228,7 +228,7 @@ class SampleStatsWorker(concurrent.Worker):
             query = query.filter(Sequence.partial == 0)
 
         for seq in query:
-            for stat in seq_statistics.values():
+            for name, stat in seq_statistics.items():
                 stat.add_if_match(seq)
 
         self._add_stat(seq_statistics, sample_id, include_outliers,
@@ -237,7 +237,7 @@ class SampleStatsWorker(concurrent.Worker):
     def _calculate_clone_stats(self, sample_id, min_cdr3, max_cdr3,
                                include_outliers, only_full_reads):
         clone_statistics = {}
-        for name, stat in _clone_contexts.iteritems():
+        for name, stat in _clone_contexts.items():
             clone_statistics[name] = CloneContextStats(seqs=None, **stat)
 
         # TODO: This should be automatically generated from _dist_fields
@@ -280,7 +280,7 @@ class SampleStatsWorker(concurrent.Worker):
             in_frame = len(clone_info.cdr3_nt) % 3 == 0
             stop = '*' in lookups.aas_from_nts(clone_info.cdr3_nt)
             functional = in_frame and not stop
-            for name, stat in clone_statistics.iteritems():
+            for name, stat in clone_statistics.items():
                 stat.add_if_match(clone, in_frame, stop, functional)
 
         self._add_stat(clone_statistics, sample_id, include_outliers,
@@ -357,7 +357,7 @@ def run_sample_stats(session, args):
                      info=vars(args))
 
     if args.sample_ids is None:
-        samples = map(lambda s: s.id, session.query(Sample.id).all())
+        samples = [s.id for s in session.query(Sample.id)]
     else:
         samples = args.sample_ids
 

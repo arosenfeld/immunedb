@@ -6,13 +6,13 @@ import unittest
 
 def compare_dicts(d1, d2):
     assert set(d1.keys()) == set(d2.keys())
-    for k in d1.keys():
+    for k in list(d1.keys()):
         compare_objs(d1[k], d2[k])
 
 
 def compare_objs(o1, o2):
     assert (type(o1) == type(o2) or
-            (type(o1) in (str, unicode) and type(o2) in (str, unicode)))
+            (type(o1) == type(o2) == str))
     if type(o1) == dict:
         compare_dicts(o1, o2)
     elif type(o1) == list:
@@ -73,7 +73,7 @@ class ApiTest(unittest.TestCase):
                 name = ('clone', value, str(cid))
                 endpoints['_'.join(name)] = '/' + '/'.join(name)
 
-        for check, endpoint in endpoints.iteritems():
+        for check, endpoint in endpoints.items():
             self.check(check, endpoint)
 
         self.check('clones_filters1', '/clones/list', {

@@ -86,10 +86,10 @@ class ContextualMutations(object):
     def get_all(self):
         # Strip the dictionary keys and just make a list of mutations
         final_regions = {}
-        for region, types in self.region_muts.iteritems():
+        for region, types in self.region_muts.items():
             final_regions[region] = {}
-            for mtype, mutations in types.iteritems():
-                final_regions[region][mtype] = mutations.values()
+            for mtype, mutations in types.items():
+                final_regions[region][mtype] = list(mutations.values())
 
         return {
             'regions': final_regions,
@@ -142,12 +142,11 @@ class CloneMutations(object):
         if limit_samples is not None:
             sample_ids = limit_samples
         else:
-            sample_ids = map(lambda r: r.sample_id, self._session.query(
+            sample_ids = [r.sample_id for r in self._session.query(
                 distinct(Sequence.sample_id).label('sample_id')
                 ).filter(
                 Sequence.clone == self._clone
-                ).all()
-            )
+                )]
             sample_ids.append(None)
 
         for sample_id in sample_ids:
@@ -206,7 +205,7 @@ def threshold_mutations(all_muts, min_required_seqs):
 
     """
     final = {}
-    for region, types in all_muts['regions'].iteritems():
+    for region, types in all_muts['regions'].items():
         final[region] = {
             'counts': {
                 'total': {},
@@ -214,7 +213,7 @@ def threshold_mutations(all_muts, min_required_seqs):
             },
             'mutations': {}
         }
-        for mtype, mutations in sorted(types.iteritems()):
+        for mtype, mutations in sorted(types.items()):
             for mutation in sorted(
                     mutations,
                     key=lambda m: (m['pos'], m['from_nt'], m['to_nt'])):

@@ -575,35 +575,35 @@
     },
     "83": {
         "clone_id": 40,
-        "sample_id": 1,
+        "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "84": {
         "clone_id": 40,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "85": {
         "clone_id": 41,
         "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "86": {
         "clone_id": 41,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "87": {
         "clone_id": 42,
-        "sample_id": 2,
+        "sample_id": 1,
         "subject_id": 1,
         "total_cnt": 2,
         "unique_cnt": 1
@@ -617,23 +617,23 @@
     },
     "89": {
         "clone_id": 43,
-        "sample_id": 1,
+        "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "90": {
         "clone_id": 43,
-        "sample_id": 2,
+        "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "91": {
-        "clone_id": 43,
-        "sample_id": null,
+        "clone_id": 44,
+        "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 7,
+        "total_cnt": 4,
         "unique_cnt": 1
     },
     "92": {
@@ -647,7 +647,7 @@
         "clone_id": 44,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 7,
         "unique_cnt": 1
     },
     "94": {
@@ -666,175 +666,175 @@
     },
     "96": {
         "clone_id": 46,
-        "sample_id": 1,
+        "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "97": {
         "clone_id": 46,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "98": {
         "clone_id": 47,
-        "sample_id": 2,
+        "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 5,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "99": {
         "clone_id": 47,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 5,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "100": {
         "clone_id": 48,
-        "sample_id": 1,
+        "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 5,
         "unique_cnt": 1
     },
     "101": {
         "clone_id": 48,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 5,
         "unique_cnt": 1
     },
     "102": {
         "clone_id": 49,
         "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "103": {
         "clone_id": 49,
-        "sample_id": 2,
-        "subject_id": 1,
-        "total_cnt": 4,
-        "unique_cnt": 2
-    },
-    "104": {
-        "clone_id": 49,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 7,
-        "unique_cnt": 3
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "104": {
+        "clone_id": 50,
+        "sample_id": 1,
+        "subject_id": 1,
+        "total_cnt": 3,
+        "unique_cnt": 1
     },
     "105": {
         "clone_id": 50,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 2,
-        "unique_cnt": 1
+        "total_cnt": 4,
+        "unique_cnt": 2
     },
     "106": {
         "clone_id": 50,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 2,
-        "unique_cnt": 1
+        "total_cnt": 7,
+        "unique_cnt": 3
     },
     "107": {
         "clone_id": 51,
-        "sample_id": 2,
+        "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 5,
         "unique_cnt": 1
     },
     "108": {
         "clone_id": 51,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 5,
         "unique_cnt": 1
     },
     "109": {
         "clone_id": 52,
-        "sample_id": 2,
+        "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "110": {
         "clone_id": 52,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "111": {
         "clone_id": 53,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "112": {
         "clone_id": 53,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "113": {
         "clone_id": 54,
+        "sample_id": 2,
+        "subject_id": 1,
+        "total_cnt": 4,
+        "unique_cnt": 1
+    },
+    "114": {
+        "clone_id": 54,
+        "sample_id": null,
+        "subject_id": 1,
+        "total_cnt": 4,
+        "unique_cnt": 1
+    },
+    "115": {
+        "clone_id": 55,
+        "sample_id": 2,
+        "subject_id": 1,
+        "total_cnt": 4,
+        "unique_cnt": 1
+    },
+    "116": {
+        "clone_id": 55,
+        "sample_id": null,
+        "subject_id": 1,
+        "total_cnt": 4,
+        "unique_cnt": 1
+    },
+    "117": {
+        "clone_id": 56,
+        "sample_id": 2,
+        "subject_id": 1,
+        "total_cnt": 3,
+        "unique_cnt": 1
+    },
+    "118": {
+        "clone_id": 56,
+        "sample_id": null,
+        "subject_id": 1,
+        "total_cnt": 3,
+        "unique_cnt": 1
+    },
+    "119": {
+        "clone_id": 57,
         "sample_id": 1,
         "subject_id": 1,
         "total_cnt": 1,
         "unique_cnt": 1
     },
-    "114": {
-        "clone_id": 54,
-        "sample_id": 2,
-        "subject_id": 1,
-        "total_cnt": 5,
-        "unique_cnt": 1
-    },
-    "115": {
-        "clone_id": 54,
-        "sample_id": null,
-        "subject_id": 1,
-        "total_cnt": 6,
-        "unique_cnt": 1
-    },
-    "116": {
-        "clone_id": 55,
-        "sample_id": 2,
-        "subject_id": 1,
-        "total_cnt": 2,
-        "unique_cnt": 1
-    },
-    "117": {
-        "clone_id": 55,
-        "sample_id": null,
-        "subject_id": 1,
-        "total_cnt": 2,
-        "unique_cnt": 1
-    },
-    "118": {
-        "clone_id": 56,
-        "sample_id": 2,
-        "subject_id": 1,
-        "total_cnt": 2,
-        "unique_cnt": 1
-    },
-    "119": {
-        "clone_id": 56,
-        "sample_id": null,
-        "subject_id": 1,
-        "total_cnt": 2,
-        "unique_cnt": 1
-    },
     "120": {
         "clone_id": 57,
-        "sample_id": 1,
+        "sample_id": 2,
         "subject_id": 1,
         "total_cnt": 5,
         "unique_cnt": 1
@@ -843,91 +843,91 @@
         "clone_id": 57,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 5,
+        "total_cnt": 6,
         "unique_cnt": 1
     },
     "122": {
         "clone_id": 58,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 9,
-        "unique_cnt": 2
+        "total_cnt": 2,
+        "unique_cnt": 1
     },
     "123": {
         "clone_id": 58,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 9,
-        "unique_cnt": 2
+        "total_cnt": 2,
+        "unique_cnt": 1
     },
     "124": {
         "clone_id": 59,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "125": {
         "clone_id": 59,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "126": {
         "clone_id": 60,
-        "sample_id": 1,
+        "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 2,
-        "unique_cnt": 1
+        "total_cnt": 9,
+        "unique_cnt": 2
     },
     "127": {
         "clone_id": 60,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 2,
-        "unique_cnt": 1
+        "total_cnt": 9,
+        "unique_cnt": 2
     },
     "128": {
         "clone_id": 61,
-        "sample_id": 1,
+        "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "129": {
         "clone_id": 61,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "130": {
         "clone_id": 62,
         "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "131": {
         "clone_id": 62,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "132": {
         "clone_id": 63,
         "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "133": {
         "clone_id": 63,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "134": {
@@ -946,16 +946,16 @@
     },
     "136": {
         "clone_id": 65,
-        "sample_id": 2,
+        "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "137": {
         "clone_id": 65,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "138": {
@@ -976,84 +976,84 @@
         "clone_id": 67,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 4,
         "unique_cnt": 1
     },
     "141": {
         "clone_id": 67,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 4,
         "unique_cnt": 1
     },
     "142": {
         "clone_id": 68,
-        "sample_id": 1,
+        "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 8,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "143": {
         "clone_id": 68,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 8,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "144": {
         "clone_id": 69,
         "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 8,
         "unique_cnt": 1
     },
     "145": {
         "clone_id": 69,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 8,
         "unique_cnt": 1
     },
     "146": {
         "clone_id": 70,
         "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "147": {
         "clone_id": 70,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "148": {
         "clone_id": 71,
         "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "149": {
         "clone_id": 71,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "150": {
         "clone_id": 72,
-        "sample_id": 2,
+        "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "151": {
         "clone_id": 72,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "152": {
@@ -1074,140 +1074,140 @@
         "clone_id": 74,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 5,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "155": {
         "clone_id": 74,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 5,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "156": {
         "clone_id": 75,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 5,
         "unique_cnt": 1
     },
     "157": {
         "clone_id": 75,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 5,
         "unique_cnt": 1
     },
     "158": {
         "clone_id": 76,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 6,
+        "total_cnt": 4,
         "unique_cnt": 1
     },
     "159": {
         "clone_id": 76,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 6,
+        "total_cnt": 4,
         "unique_cnt": 1
     },
     "160": {
         "clone_id": 77,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 6,
         "unique_cnt": 1
     },
     "161": {
         "clone_id": 77,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 6,
         "unique_cnt": 1
     },
     "162": {
         "clone_id": 78,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 4,
         "unique_cnt": 1
     },
     "163": {
         "clone_id": 78,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 4,
         "unique_cnt": 1
     },
     "164": {
         "clone_id": 79,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 7,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "165": {
         "clone_id": 79,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 7,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "166": {
         "clone_id": 80,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 7,
         "unique_cnt": 1
     },
     "167": {
         "clone_id": 80,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 7,
         "unique_cnt": 1
     },
     "168": {
         "clone_id": 81,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 6,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "169": {
         "clone_id": 81,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 6,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "170": {
         "clone_id": 82,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 6,
         "unique_cnt": 1
     },
     "171": {
         "clone_id": 82,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 6,
         "unique_cnt": 1
     },
     "172": {
         "clone_id": 83,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 4,
         "unique_cnt": 1
     },
     "173": {
         "clone_id": 83,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 4,
         "unique_cnt": 1
     },
     "174": {
@@ -1242,14 +1242,14 @@
         "clone_id": 86,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 5,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "179": {
         "clone_id": 86,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 5,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "180": {
@@ -1284,14 +1284,14 @@
         "clone_id": 89,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 5,
         "unique_cnt": 1
     },
     "185": {
         "clone_id": 89,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 5,
         "unique_cnt": 1
     },
     "186": {
@@ -1310,65 +1310,65 @@
     },
     "188": {
         "clone_id": 91,
+        "sample_id": 2,
+        "subject_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "189": {
+        "clone_id": 91,
+        "sample_id": null,
+        "subject_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "190": {
+        "clone_id": 92,
         "sample_id": 1,
         "subject_id": 1,
         "total_cnt": 3,
         "unique_cnt": 1
     },
-    "189": {
-        "clone_id": 91,
-        "sample_id": 2,
-        "subject_id": 1,
-        "total_cnt": 4,
-        "unique_cnt": 1
-    },
-    "190": {
-        "clone_id": 91,
-        "sample_id": null,
-        "subject_id": 1,
-        "total_cnt": 7,
-        "unique_cnt": 2
-    },
     "191": {
         "clone_id": 92,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 4,
         "unique_cnt": 1
     },
     "192": {
         "clone_id": 92,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 2,
-        "unique_cnt": 1
+        "total_cnt": 7,
+        "unique_cnt": 2
     },
     "193": {
         "clone_id": 93,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "194": {
         "clone_id": 93,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "195": {
         "clone_id": 94,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "196": {
         "clone_id": 94,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "197": {
@@ -1401,7 +1401,7 @@
     },
     "201": {
         "clone_id": 97,
-        "sample_id": 1,
+        "sample_id": 2,
         "subject_id": 1,
         "total_cnt": 2,
         "unique_cnt": 1
@@ -1415,30 +1415,30 @@
     },
     "203": {
         "clone_id": 98,
-        "sample_id": 2,
+        "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "204": {
         "clone_id": 98,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "205": {
         "clone_id": 99,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "206": {
         "clone_id": 99,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "207": {
@@ -1569,7 +1569,7 @@
     },
     "225": {
         "clone_id": 109,
-        "sample_id": 1,
+        "sample_id": 2,
         "subject_id": 1,
         "total_cnt": 2,
         "unique_cnt": 1
@@ -1641,19 +1641,19 @@
         "clone_id": 114,
         "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "236": {
         "clone_id": 114,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "237": {
         "clone_id": 115,
-        "sample_id": 2,
+        "sample_id": 1,
         "subject_id": 1,
         "total_cnt": 3,
         "unique_cnt": 1
@@ -1669,56 +1669,56 @@
         "clone_id": 116,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "240": {
         "clone_id": 116,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "241": {
         "clone_id": 117,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 4,
         "unique_cnt": 1
     },
     "242": {
         "clone_id": 117,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 4,
         "unique_cnt": 1
     },
     "243": {
         "clone_id": 118,
-        "sample_id": 1,
+        "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 1,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "244": {
-        "clone_id": 118,
-        "sample_id": 2,
-        "subject_id": 1,
-        "total_cnt": 1,
-        "unique_cnt": 1
-    },
-    "245": {
         "clone_id": 118,
         "sample_id": null,
         "subject_id": 1,
         "total_cnt": 2,
         "unique_cnt": 1
     },
-    "246": {
+    "245": {
         "clone_id": 119,
         "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 1,
+        "unique_cnt": 1
+    },
+    "246": {
+        "clone_id": 119,
+        "sample_id": 2,
+        "subject_id": 1,
+        "total_cnt": 1,
         "unique_cnt": 1
     },
     "247": {
@@ -1730,77 +1730,77 @@
     },
     "248": {
         "clone_id": 120,
-        "sample_id": 2,
+        "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 5,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "249": {
         "clone_id": 120,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 5,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "250": {
         "clone_id": 121,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 5,
         "unique_cnt": 1
     },
     "251": {
         "clone_id": 121,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 5,
         "unique_cnt": 1
     },
     "252": {
         "clone_id": 122,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 4,
         "unique_cnt": 1
     },
     "253": {
         "clone_id": 122,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 4,
         "unique_cnt": 1
     },
     "254": {
         "clone_id": 123,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "255": {
         "clone_id": 123,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "256": {
         "clone_id": 124,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 4,
         "unique_cnt": 1
     },
     "257": {
         "clone_id": 124,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 4,
         "unique_cnt": 1
     },
     "258": {
         "clone_id": 125,
-        "sample_id": 1,
+        "sample_id": 2,
         "subject_id": 1,
         "total_cnt": 2,
         "unique_cnt": 1
@@ -1814,7 +1814,7 @@
     },
     "260": {
         "clone_id": 126,
-        "sample_id": 2,
+        "sample_id": 1,
         "subject_id": 1,
         "total_cnt": 2,
         "unique_cnt": 1
@@ -1830,110 +1830,110 @@
         "clone_id": 127,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "263": {
         "clone_id": 127,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "264": {
         "clone_id": 128,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "265": {
         "clone_id": 128,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "266": {
         "clone_id": 129,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 5,
+        "total_cnt": 4,
         "unique_cnt": 1
     },
     "267": {
         "clone_id": 129,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 5,
+        "total_cnt": 4,
         "unique_cnt": 1
     },
     "268": {
         "clone_id": 130,
-        "sample_id": 1,
+        "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 5,
         "unique_cnt": 1
     },
     "269": {
         "clone_id": 130,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 5,
         "unique_cnt": 1
     },
     "270": {
         "clone_id": 131,
-        "sample_id": 2,
+        "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "271": {
         "clone_id": 131,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "272": {
         "clone_id": 132,
+        "sample_id": 2,
+        "subject_id": 1,
+        "total_cnt": 4,
+        "unique_cnt": 1
+    },
+    "273": {
+        "clone_id": 132,
+        "sample_id": null,
+        "subject_id": 1,
+        "total_cnt": 4,
+        "unique_cnt": 1
+    },
+    "274": {
+        "clone_id": 133,
         "sample_id": 1,
         "subject_id": 1,
         "total_cnt": 2,
         "unique_cnt": 1
     },
-    "273": {
-        "clone_id": 132,
+    "275": {
+        "clone_id": 133,
         "sample_id": 2,
         "subject_id": 1,
         "total_cnt": 1,
-        "unique_cnt": 1
-    },
-    "274": {
-        "clone_id": 132,
-        "sample_id": null,
-        "subject_id": 1,
-        "total_cnt": 3,
-        "unique_cnt": 1
-    },
-    "275": {
-        "clone_id": 133,
-        "sample_id": 1,
-        "subject_id": 1,
-        "total_cnt": 5,
         "unique_cnt": 1
     },
     "276": {
         "clone_id": 133,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 5,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "277": {
         "clone_id": 134,
-        "sample_id": 2,
+        "sample_id": 1,
         "subject_id": 1,
         "total_cnt": 5,
         "unique_cnt": 1
@@ -1949,187 +1949,187 @@
         "clone_id": 135,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 15,
+        "total_cnt": 5,
         "unique_cnt": 1
     },
     "280": {
         "clone_id": 135,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 15,
+        "total_cnt": 5,
         "unique_cnt": 1
     },
     "281": {
         "clone_id": 136,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 14,
+        "total_cnt": 15,
         "unique_cnt": 1
     },
     "282": {
         "clone_id": 136,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 14,
+        "total_cnt": 15,
         "unique_cnt": 1
     },
     "283": {
         "clone_id": 137,
-        "sample_id": 1,
+        "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 8,
+        "total_cnt": 14,
         "unique_cnt": 1
     },
     "284": {
         "clone_id": 137,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 8,
+        "total_cnt": 14,
         "unique_cnt": 1
     },
     "285": {
         "clone_id": 138,
         "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 8,
         "unique_cnt": 1
     },
     "286": {
         "clone_id": 138,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 8,
         "unique_cnt": 1
     },
     "287": {
         "clone_id": 139,
         "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 4,
         "unique_cnt": 1
     },
     "288": {
         "clone_id": 139,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 4,
         "unique_cnt": 1
     },
     "289": {
         "clone_id": 140,
         "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "290": {
         "clone_id": 140,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "291": {
         "clone_id": 141,
-        "sample_id": 2,
+        "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 12,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "292": {
         "clone_id": 141,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 12,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "293": {
         "clone_id": 142,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 5,
+        "total_cnt": 12,
         "unique_cnt": 1
     },
     "294": {
         "clone_id": 142,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 5,
+        "total_cnt": 12,
         "unique_cnt": 1
     },
     "295": {
         "clone_id": 143,
-        "sample_id": 1,
+        "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 5,
         "unique_cnt": 1
     },
     "296": {
         "clone_id": 143,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 5,
         "unique_cnt": 1
     },
     "297": {
         "clone_id": 144,
-        "sample_id": 2,
+        "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 15,
+        "total_cnt": 4,
         "unique_cnt": 1
     },
     "298": {
         "clone_id": 144,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 15,
+        "total_cnt": 4,
         "unique_cnt": 1
     },
     "299": {
         "clone_id": 145,
-        "sample_id": 1,
+        "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 15,
         "unique_cnt": 1
     },
     "300": {
         "clone_id": 145,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 15,
         "unique_cnt": 1
     },
     "301": {
         "clone_id": 146,
-        "sample_id": 2,
+        "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 15,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "302": {
         "clone_id": 146,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 15,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "303": {
         "clone_id": 147,
-        "sample_id": 1,
+        "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 15,
         "unique_cnt": 1
     },
     "304": {
         "clone_id": 147,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 15,
         "unique_cnt": 1
     },
     "305": {
         "clone_id": 148,
-        "sample_id": 2,
+        "sample_id": 1,
         "subject_id": 1,
         "total_cnt": 2,
         "unique_cnt": 1
@@ -2145,105 +2145,105 @@
         "clone_id": 149,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 37,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "308": {
         "clone_id": 149,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 37,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "309": {
         "clone_id": 150,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 9,
+        "total_cnt": 37,
         "unique_cnt": 1
     },
     "310": {
         "clone_id": 150,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 9,
+        "total_cnt": 37,
         "unique_cnt": 1
     },
     "311": {
         "clone_id": 151,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 14,
+        "total_cnt": 9,
         "unique_cnt": 1
     },
     "312": {
         "clone_id": 151,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 14,
+        "total_cnt": 9,
         "unique_cnt": 1
     },
     "313": {
         "clone_id": 152,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 12,
+        "total_cnt": 14,
         "unique_cnt": 1
     },
     "314": {
         "clone_id": 152,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 12,
+        "total_cnt": 14,
         "unique_cnt": 1
     },
     "315": {
         "clone_id": 153,
+        "sample_id": 2,
+        "subject_id": 1,
+        "total_cnt": 12,
+        "unique_cnt": 1
+    },
+    "316": {
+        "clone_id": 153,
+        "sample_id": null,
+        "subject_id": 1,
+        "total_cnt": 12,
+        "unique_cnt": 1
+    },
+    "317": {
+        "clone_id": 154,
         "sample_id": 1,
         "subject_id": 1,
         "total_cnt": 13,
         "unique_cnt": 2
     },
-    "316": {
-        "clone_id": 153,
+    "318": {
+        "clone_id": 154,
         "sample_id": 2,
         "subject_id": 1,
         "total_cnt": 5,
         "unique_cnt": 2
     },
-    "317": {
-        "clone_id": 153,
+    "319": {
+        "clone_id": 154,
         "sample_id": null,
         "subject_id": 1,
         "total_cnt": 18,
         "unique_cnt": 3
     },
-    "318": {
-        "clone_id": 154,
-        "sample_id": 1,
-        "subject_id": 1,
-        "total_cnt": 4,
-        "unique_cnt": 1
-    },
-    "319": {
-        "clone_id": 154,
-        "sample_id": null,
-        "subject_id": 1,
-        "total_cnt": 4,
-        "unique_cnt": 1
-    },
     "320": {
         "clone_id": 155,
         "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 4,
         "unique_cnt": 1
     },
     "321": {
         "clone_id": 155,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 4,
         "unique_cnt": 1
     },
     "322": {
@@ -2264,28 +2264,28 @@
         "clone_id": 157,
         "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 14,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "325": {
         "clone_id": 157,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 14,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "326": {
         "clone_id": 158,
-        "sample_id": 2,
+        "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 10,
+        "total_cnt": 14,
         "unique_cnt": 1
     },
     "327": {
         "clone_id": 158,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 10,
+        "total_cnt": 14,
         "unique_cnt": 1
     },
     "328": {
@@ -2306,47 +2306,47 @@
         "clone_id": 160,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 7,
+        "total_cnt": 10,
         "unique_cnt": 1
     },
     "331": {
         "clone_id": 160,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 7,
+        "total_cnt": 10,
         "unique_cnt": 1
     },
     "332": {
         "clone_id": 161,
-        "sample_id": 1,
+        "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 7,
         "unique_cnt": 1
     },
     "333": {
         "clone_id": 161,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 7,
         "unique_cnt": 1
     },
     "334": {
         "clone_id": 162,
         "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 4,
         "unique_cnt": 1
     },
     "335": {
         "clone_id": 162,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 4,
         "unique_cnt": 1
     },
     "336": {
         "clone_id": 163,
-        "sample_id": 2,
+        "sample_id": 1,
         "subject_id": 1,
         "total_cnt": 3,
         "unique_cnt": 1
@@ -2360,35 +2360,35 @@
     },
     "338": {
         "clone_id": 164,
-        "sample_id": 1,
+        "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "339": {
         "clone_id": 164,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "340": {
         "clone_id": 165,
         "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 4,
         "unique_cnt": 1
     },
     "341": {
         "clone_id": 165,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 4,
         "unique_cnt": 1
     },
     "342": {
         "clone_id": 166,
-        "sample_id": 2,
+        "sample_id": 1,
         "subject_id": 1,
         "total_cnt": 3,
         "unique_cnt": 1
@@ -2402,7 +2402,7 @@
     },
     "344": {
         "clone_id": 167,
-        "sample_id": 1,
+        "sample_id": 2,
         "subject_id": 1,
         "total_cnt": 3,
         "unique_cnt": 1
@@ -2416,268 +2416,268 @@
     },
     "346": {
         "clone_id": 168,
-        "sample_id": 2,
+        "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 5,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "347": {
         "clone_id": 168,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 5,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "348": {
         "clone_id": 169,
-        "sample_id": 1,
+        "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 5,
         "unique_cnt": 1
     },
     "349": {
         "clone_id": 169,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 5,
         "unique_cnt": 1
     },
     "350": {
         "clone_id": 170,
         "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "351": {
         "clone_id": 170,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "352": {
         "clone_id": 171,
-        "sample_id": 2,
+        "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 7,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "353": {
         "clone_id": 171,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 7,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "354": {
         "clone_id": 172,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 7,
         "unique_cnt": 1
     },
     "355": {
         "clone_id": 172,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 7,
         "unique_cnt": 1
     },
     "356": {
         "clone_id": 173,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 7,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "357": {
         "clone_id": 173,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 7,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "358": {
         "clone_id": 174,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 7,
         "unique_cnt": 1
     },
     "359": {
         "clone_id": 174,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 7,
         "unique_cnt": 1
     },
     "360": {
         "clone_id": 175,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 19,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "361": {
         "clone_id": 175,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 19,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "362": {
         "clone_id": 176,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 22,
-        "unique_cnt": 3
+        "total_cnt": 19,
+        "unique_cnt": 1
     },
     "363": {
         "clone_id": 176,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 22,
-        "unique_cnt": 3
+        "total_cnt": 19,
+        "unique_cnt": 1
     },
     "364": {
         "clone_id": 177,
-        "sample_id": 1,
+        "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 5,
-        "unique_cnt": 1
+        "total_cnt": 22,
+        "unique_cnt": 3
     },
     "365": {
         "clone_id": 177,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 5,
-        "unique_cnt": 1
+        "total_cnt": 22,
+        "unique_cnt": 3
     },
     "366": {
         "clone_id": 178,
-        "sample_id": 2,
+        "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 5,
         "unique_cnt": 1
     },
     "367": {
         "clone_id": 178,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 5,
         "unique_cnt": 1
     },
     "368": {
         "clone_id": 179,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 6,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "369": {
         "clone_id": 179,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 6,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "370": {
         "clone_id": 180,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 6,
         "unique_cnt": 1
     },
     "371": {
         "clone_id": 180,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 6,
         "unique_cnt": 1
     },
     "372": {
         "clone_id": 181,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "373": {
         "clone_id": 181,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "374": {
         "clone_id": 182,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 6,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "375": {
         "clone_id": 182,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 6,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "376": {
         "clone_id": 183,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 7,
+        "total_cnt": 6,
         "unique_cnt": 1
     },
     "377": {
         "clone_id": 183,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 7,
+        "total_cnt": 6,
         "unique_cnt": 1
     },
     "378": {
         "clone_id": 184,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 5,
+        "total_cnt": 7,
         "unique_cnt": 1
     },
     "379": {
         "clone_id": 184,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 5,
+        "total_cnt": 7,
         "unique_cnt": 1
     },
     "380": {
         "clone_id": 185,
-        "sample_id": 1,
+        "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 5,
         "unique_cnt": 1
     },
     "381": {
         "clone_id": 185,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 5,
         "unique_cnt": 1
     },
     "382": {
         "clone_id": 186,
-        "sample_id": 2,
+        "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "383": {
         "clone_id": 186,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "384": {
@@ -2726,103 +2726,103 @@
         "clone_id": 190,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 7,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "391": {
         "clone_id": 190,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 7,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "392": {
         "clone_id": 191,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 7,
         "unique_cnt": 1
     },
     "393": {
         "clone_id": 191,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 7,
         "unique_cnt": 1
     },
     "394": {
         "clone_id": 192,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 4,
         "unique_cnt": 1
     },
     "395": {
         "clone_id": 192,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 4,
         "unique_cnt": 1
     },
     "396": {
         "clone_id": 193,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "397": {
         "clone_id": 193,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "398": {
         "clone_id": 194,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 8,
-        "unique_cnt": 2
+        "total_cnt": 4,
+        "unique_cnt": 1
     },
     "399": {
         "clone_id": 194,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 8,
-        "unique_cnt": 2
+        "total_cnt": 4,
+        "unique_cnt": 1
     },
     "400": {
         "clone_id": 195,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 25,
-        "unique_cnt": 1
+        "total_cnt": 8,
+        "unique_cnt": 2
     },
     "401": {
         "clone_id": 195,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 25,
-        "unique_cnt": 1
+        "total_cnt": 8,
+        "unique_cnt": 2
     },
     "402": {
         "clone_id": 196,
-        "sample_id": 1,
+        "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 25,
         "unique_cnt": 1
     },
     "403": {
         "clone_id": 196,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 25,
         "unique_cnt": 1
     },
     "404": {
         "clone_id": 197,
-        "sample_id": 2,
+        "sample_id": 1,
         "subject_id": 1,
         "total_cnt": 3,
         "unique_cnt": 1
@@ -2838,120 +2838,120 @@
         "clone_id": 198,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 38,
-        "unique_cnt": 2
+        "total_cnt": 3,
+        "unique_cnt": 1
     },
     "407": {
         "clone_id": 198,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 38,
-        "unique_cnt": 2
+        "total_cnt": 3,
+        "unique_cnt": 1
     },
     "408": {
         "clone_id": 199,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 3,
-        "unique_cnt": 1
+        "total_cnt": 38,
+        "unique_cnt": 2
     },
     "409": {
         "clone_id": 199,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 3,
-        "unique_cnt": 1
+        "total_cnt": 38,
+        "unique_cnt": 2
     },
     "410": {
         "clone_id": 200,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "411": {
         "clone_id": 200,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "412": {
         "clone_id": 201,
-        "sample_id": 1,
+        "sample_id": 2,
         "subject_id": 1,
         "total_cnt": 2,
         "unique_cnt": 1
     },
     "413": {
         "clone_id": 201,
-        "sample_id": 2,
-        "subject_id": 1,
-        "total_cnt": 17,
-        "unique_cnt": 2
-    },
-    "414": {
-        "clone_id": 201,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 19,
-        "unique_cnt": 2
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "414": {
+        "clone_id": 202,
+        "sample_id": 1,
+        "subject_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
     },
     "415": {
         "clone_id": 202,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 12,
-        "unique_cnt": 1
+        "total_cnt": 17,
+        "unique_cnt": 2
     },
     "416": {
         "clone_id": 202,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 12,
-        "unique_cnt": 1
+        "total_cnt": 19,
+        "unique_cnt": 2
     },
     "417": {
         "clone_id": 203,
-        "sample_id": 1,
+        "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 12,
         "unique_cnt": 1
     },
     "418": {
         "clone_id": 203,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 12,
         "unique_cnt": 1
     },
     "419": {
         "clone_id": 204,
-        "sample_id": 2,
+        "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 9,
-        "unique_cnt": 2
+        "total_cnt": 2,
+        "unique_cnt": 1
     },
     "420": {
         "clone_id": 204,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 9,
-        "unique_cnt": 2
+        "total_cnt": 2,
+        "unique_cnt": 1
     },
     "421": {
         "clone_id": 205,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 2,
-        "unique_cnt": 1
+        "total_cnt": 9,
+        "unique_cnt": 2
     },
     "422": {
         "clone_id": 205,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 2,
-        "unique_cnt": 1
+        "total_cnt": 9,
+        "unique_cnt": 2
     },
     "423": {
         "clone_id": 206,
@@ -2971,28 +2971,28 @@
         "clone_id": 207,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 5,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "426": {
         "clone_id": 207,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 5,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "427": {
         "clone_id": 208,
-        "sample_id": 1,
+        "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 5,
         "unique_cnt": 1
     },
     "428": {
         "clone_id": 208,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 5,
         "unique_cnt": 1
     },
     "429": {
@@ -3011,7 +3011,7 @@
     },
     "431": {
         "clone_id": 210,
-        "sample_id": 2,
+        "sample_id": 1,
         "subject_id": 1,
         "total_cnt": 2,
         "unique_cnt": 1
@@ -3025,7 +3025,7 @@
     },
     "433": {
         "clone_id": 211,
-        "sample_id": 1,
+        "sample_id": 2,
         "subject_id": 1,
         "total_cnt": 2,
         "unique_cnt": 1
@@ -3039,7 +3039,7 @@
     },
     "435": {
         "clone_id": 212,
-        "sample_id": 2,
+        "sample_id": 1,
         "subject_id": 1,
         "total_cnt": 2,
         "unique_cnt": 1
@@ -3053,21 +3053,21 @@
     },
     "437": {
         "clone_id": 213,
-        "sample_id": 2,
+        "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 32,
-        "unique_cnt": 2
+        "total_cnt": 3,
+        "unique_cnt": 1
     },
     "438": {
         "clone_id": 213,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 32,
-        "unique_cnt": 2
+        "total_cnt": 3,
+        "unique_cnt": 1
     },
     "439": {
         "clone_id": 214,
-        "sample_id": 2,
+        "sample_id": 1,
         "subject_id": 1,
         "total_cnt": 2,
         "unique_cnt": 1
@@ -3083,75 +3083,75 @@
         "clone_id": 215,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 11,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "442": {
         "clone_id": 215,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 11,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "443": {
         "clone_id": 216,
-        "sample_id": 1,
+        "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 11,
+        "total_cnt": 5,
         "unique_cnt": 1
     },
     "444": {
         "clone_id": 216,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 11,
+        "total_cnt": 5,
         "unique_cnt": 1
     },
     "445": {
         "clone_id": 217,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 10,
-        "unique_cnt": 1
+        "total_cnt": 32,
+        "unique_cnt": 2
     },
     "446": {
         "clone_id": 217,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 10,
-        "unique_cnt": 1
+        "total_cnt": 32,
+        "unique_cnt": 2
     },
     "447": {
         "clone_id": 218,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "448": {
         "clone_id": 218,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "449": {
         "clone_id": 219,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 5,
+        "total_cnt": 11,
         "unique_cnt": 1
     },
     "450": {
         "clone_id": 219,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 5,
+        "total_cnt": 11,
         "unique_cnt": 1
     },
     "451": {
         "clone_id": 220,
-        "sample_id": 1,
+        "sample_id": 2,
         "subject_id": 1,
         "total_cnt": 3,
         "unique_cnt": 1
@@ -3165,30 +3165,30 @@
     },
     "453": {
         "clone_id": 221,
-        "sample_id": 2,
+        "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 16,
+        "total_cnt": 11,
         "unique_cnt": 1
     },
     "454": {
         "clone_id": 221,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 16,
+        "total_cnt": 11,
         "unique_cnt": 1
     },
     "455": {
         "clone_id": 222,
-        "sample_id": 1,
+        "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 10,
         "unique_cnt": 1
     },
     "456": {
         "clone_id": 222,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 10,
         "unique_cnt": 1
     },
     "457": {
@@ -3209,147 +3209,147 @@
         "clone_id": 224,
         "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 6,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "460": {
         "clone_id": 224,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 6,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "461": {
         "clone_id": 225,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 16,
         "unique_cnt": 1
     },
     "462": {
         "clone_id": 225,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 16,
         "unique_cnt": 1
     },
     "463": {
         "clone_id": 226,
-        "sample_id": 2,
+        "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 7,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "464": {
         "clone_id": 226,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 7,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "465": {
         "clone_id": 227,
-        "sample_id": 2,
+        "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 12,
+        "total_cnt": 6,
         "unique_cnt": 1
     },
     "466": {
         "clone_id": 227,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 12,
+        "total_cnt": 6,
         "unique_cnt": 1
     },
     "467": {
         "clone_id": 228,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "468": {
         "clone_id": 228,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 4,
+        "total_cnt": 3,
         "unique_cnt": 1
     },
     "469": {
         "clone_id": 229,
-        "sample_id": 1,
+        "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 11,
+        "total_cnt": 7,
         "unique_cnt": 1
     },
     "470": {
         "clone_id": 229,
-        "sample_id": 2,
+        "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 7,
         "unique_cnt": 1
     },
     "471": {
-        "clone_id": 229,
-        "sample_id": null,
+        "clone_id": 230,
+        "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 13,
+        "total_cnt": 12,
         "unique_cnt": 1
     },
     "472": {
         "clone_id": 230,
-        "sample_id": 1,
+        "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 11,
+        "total_cnt": 12,
         "unique_cnt": 1
     },
     "473": {
-        "clone_id": 230,
-        "sample_id": null,
+        "clone_id": 231,
+        "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 11,
+        "total_cnt": 4,
         "unique_cnt": 1
     },
     "474": {
         "clone_id": 231,
-        "sample_id": 1,
+        "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 4,
         "unique_cnt": 1
     },
     "475": {
-        "clone_id": 231,
-        "sample_id": null,
+        "clone_id": 232,
+        "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 11,
         "unique_cnt": 1
     },
     "476": {
         "clone_id": 232,
         "sample_id": 2,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 2,
         "unique_cnt": 1
     },
     "477": {
         "clone_id": 232,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 3,
+        "total_cnt": 13,
         "unique_cnt": 1
     },
     "478": {
         "clone_id": 233,
         "sample_id": 1,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 11,
         "unique_cnt": 1
     },
     "479": {
         "clone_id": 233,
         "sample_id": null,
         "subject_id": 1,
-        "total_cnt": 2,
+        "total_cnt": 11,
         "unique_cnt": 1
     },
     "480": {
@@ -3361,6 +3361,48 @@
     },
     "481": {
         "clone_id": 234,
+        "sample_id": null,
+        "subject_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "482": {
+        "clone_id": 235,
+        "sample_id": 2,
+        "subject_id": 1,
+        "total_cnt": 3,
+        "unique_cnt": 1
+    },
+    "483": {
+        "clone_id": 235,
+        "sample_id": null,
+        "subject_id": 1,
+        "total_cnt": 3,
+        "unique_cnt": 1
+    },
+    "484": {
+        "clone_id": 236,
+        "sample_id": 1,
+        "subject_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "485": {
+        "clone_id": 236,
+        "sample_id": null,
+        "subject_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "486": {
+        "clone_id": 237,
+        "sample_id": 1,
+        "subject_id": 1,
+        "total_cnt": 2,
+        "unique_cnt": 1
+    },
+    "487": {
+        "clone_id": 237,
         "sample_id": null,
         "subject_id": 1,
         "total_cnt": 2,

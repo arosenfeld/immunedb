@@ -14,8 +14,8 @@ from immunedb.util.log import logger
 
 def _yn_prompt(prompt):
     while True:
-        print '{} [Y/N]'.format(prompt),
-        v = raw_input().lower()
+        print('{} [Y/N]'.format(prompt), end=' ')
+        v = input().lower()
         if v in ('y', 'n'):
             return v == 'y'
 

@@ -32,9 +32,6 @@ class GeneName(object):
     def __hash__(self):
         return hash(self.name)
 
-    def __cmp__(self, other):
-        return cmp(self.name, other.name)
-
     def __eq__(self, other):
         return hash(self) == hash(other)
 
@@ -42,6 +39,9 @@ class GeneName(object):
         return ('<GeneName={}, base={}, prefix={}, family={}, '
                 'allele={}>').format(str(self), self.base, self.prefix,
                                      self.family, self.allele)
+
+    def __lt__(self, other):
+        return self.name < other.name
 
 
 class GeneTies(dict):
@@ -99,7 +99,7 @@ class GeneTies(dict):
             )
             self.ties[key][gene] = set([gene])
 
-            for name, v in sorted(self.iteritems()):
+            for name, v in sorted(self.items()):
                 s_2 = v.replace('-', '') if self.remove_gaps else v
                 K = dnautils.hamming(s_1[-length:], s_2[-length:])
                 p = self._hypergeom(length, mutation, K)
@@ -149,7 +149,7 @@ class VGermlines(GeneTies):
                 except Exception:
                     continue
 
-        super(VGermlines, self).__init__({k: v for k, v in self.iteritems()},
+        super(VGermlines, self).__init__({k: v for k, v in self.items()},
                                          **kwargs)
 
     def get_single_tie(self, gene, length, mutation):
@@ -175,8 +175,8 @@ class VGene(object):
             raise AlignmentException('Cannot have gaps after CDR3 start '
                                      '(position {})'.format(CDR3_OFFSET))
         try:
-            self.ungapped_anchor_pos = find_v_position(
-                self.sequence_ungapped).next()
+            self.ungapped_anchor_pos = next(find_v_position(
+                self.sequence_ungapped))
         except StopIteration:
             raise AlignmentException('Unable to find anchor')
 
@@ -285,15 +285,15 @@ class JGermlines(GeneTies):
         with open(path_to_germlines) as fh:
             for record in SeqIO.parse(fh, 'fasta'):
                 name = GeneName(record.id)
-                if all(map(lambda c: c in 'ATCGN', record.seq.upper())):
+                if all([c in 'ATCGN' for c in record.seq.upper()]):
                     self[name] = str(record.seq).upper()
                     if (self._min_length is None or
                             len(self[name]) < self._min_length):
                         self._min_length = len(self[name])
 
         self._anchors = {name: seq[-anchor_len:] for name, seq in
-                         self.iteritems()}
-        super(JGermlines, self).__init__({k: v for k, v in self.iteritems()},
+                         self.items()}
+        super(JGermlines, self).__init__({k: v for k, v in self.items()},
                                          **kwargs)
 
     @property
@@ -315,11 +315,11 @@ class JGermlines(GeneTies):
         if allowed_genes is None:
             allowed_genes = self
         else:
-            allowed_genes = {k: v for k, v in self.iteritems() if k.name in
+            allowed_genes = {k: v for k, v in self.items() if k.name in
                              allowed_genes}
         max_len = max(map(len, allowed_genes.values()))
         for trim_len in range(0, max_len, 3):
-            for j, seq in allowed_genes.iteritems():
+            for j, seq in allowed_genes.items():
                 trimmed_seq = seq[-self.anchor_len:-trim_len]
                 if len(trimmed_seq) >= self._min_anchor_len:
                     yield trimmed_seq, j
@@ -330,7 +330,7 @@ class JGermlines(GeneTies):
             return set([gene])
         seq = self[gene][-self.anchor_len:]
         tied = self.all_alleles(set([gene]))
-        for j, other_seq in sorted(self.iteritems()):
+        for j, other_seq in sorted(self.items()):
             other_seq = other_seq[-self.anchor_len:][:len(seq)]
             if other_seq == seq:
                 tied.add(j)

@@ -3,7 +3,7 @@ import os
 import re
 import subprocess
 import shlex
-import StringIO
+import io
 
 from sqlalchemy import desc, text
 
@@ -26,7 +26,7 @@ GAP_PLACEHOLDER = '.'
 
 def get_fasta(sequences):
     return '\n'.join(['>{}\n{}'.format(k, v.replace('-', ''))
-                     for k, v in sequences.iteritems()]) + '\n'
+                     for k, v in sequences.items()]) + '\n'
 
 
 def gaps_before(gaps, pos):
@@ -57,7 +57,8 @@ def align_reference(path, index, sequences, nproc):
     proc = subprocess.Popen(shlex.split(cmd),
                             stderr=subprocess.PIPE,
                             stdout=subprocess.PIPE,
-                            cwd=path)
+                            cwd=path,
+                            encoding='utf-8')
 
     stdout, stderr = proc.communicate()
     return stdout
@@ -77,7 +78,7 @@ def get_reader(output):
         'read_seq',
         'read_quality',
     ]
-    return csv.DictReader(StringIO.StringIO(output), delimiter='\t',
+    return csv.DictReader(io.StringIO(output), delimiter='\t',
                           fieldnames=fieldnames, restkey='optional')
 
 
@@ -157,7 +158,7 @@ def add_imgt_gaps(imgt_germline, aligned_germline, sequence, seq_start):
 
 def get_formatted_ties(genes):
     res = {}
-    for ties, seq in genes.iteritems():
+    for ties, seq in genes.items():
         res[format_ties(ties)] = seq
     return res
 
@@ -239,7 +240,7 @@ def process_sample(session, sample, indexes, temp, v_germlines, j_germlines,
 
     seq_path = os.path.join(temp, 'll_j_{}.fasta'.format(sample.id))
     with open(seq_path, 'w+') as fh:
-        seqs = {k: v['v_rem_seq'] for k, v in alignments.iteritems() if
+        seqs = {k: v['v_rem_seq'] for k, v in alignments.items() if
                 len(v['v_rem_seq']) > 0}
         fh.write(get_fasta(seqs))
 

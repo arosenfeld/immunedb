@@ -19,7 +19,7 @@ def yield_limit(qry, pk_attr, maxrq=5000):
 
 
 def bulk_add(session, objs, chunk_size=100, flush=True):
-    for i in xrange(0, len(objs), chunk_size):
+    for i in range(0, len(objs), chunk_size):
         session.bulk_insert_mappings(
             type(objs[0]),
             [o.__dict__ for o in objs[i:i + chunk_size]]

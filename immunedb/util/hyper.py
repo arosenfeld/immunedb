@@ -20,5 +20,5 @@ def hypergeom(length, mutation, K):
         )
     return np.sum(
         [pmf(k) * np.power(.33, k)
-            for k in xrange(int(np.ceil(K / 2)), K)]
+            for k in range(int(np.ceil(K / 2)), K)]
     )

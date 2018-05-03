@@ -99,16 +99,16 @@ def get_fasta_input(germline_seq, sequences, min_mut_occurrence=1,
             mut_counts[mut]['samples'].add(seq.sample_id)
 
     removed_muts = set([])
-    for mut, cnts in mut_counts.iteritems():
+    for mut, cnts in mut_counts.items():
         if (cnts['count'] < min_mut_occurrence or
                 len(cnts['samples']) < min_mut_samples):
             removed_muts.add(mut)
 
-    for seq_id, seq in seqs.iteritems():
+    for seq_id, seq in seqs.items():
         seqs[seq_id] = remove_muts(seq, removed_muts, germline_seq)
 
     in_data = '>germline\n{}\n'.format(germline_seq)
-    for seq_id, seq in seqs.iteritems():
+    for seq_id, seq in seqs.items():
         in_data += '>{}\n{}\n'.format(seq_id, seq)
     return in_data, removed_muts
 

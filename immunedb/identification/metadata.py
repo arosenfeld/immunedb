@@ -45,7 +45,7 @@ def parse_metadata(session, fh, warn_existing, warn_missing, path):
 
     metadata = {}
     for row in reader:
-        row = {k: v for k, v in row.iteritems()
+        row = {k: v for k, v in row.items()
                if v is not None and len(v) > 0 and v.lower() not in NA_VALUES}
         if len(row) == 0:
             continue

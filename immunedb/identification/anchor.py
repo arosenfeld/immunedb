@@ -81,7 +81,7 @@ class AnchorAligner(object):
         # Last chance, find any matching position
         total_best_hamming = None
         total_best_rc, total_best_pos = None, None
-        for j_gene, germ_seq in self.j_germlines.iteritems():
+        for j_gene, germ_seq in self.j_germlines.items():
             best_pos, best_hamming, is_rc = self._find_index(
                 alignment.sequence, germ_seq)
             if (total_best_hamming is None or
@@ -106,13 +106,13 @@ class AnchorAligner(object):
         best_dist = None
         if limit_js:
             j_germs = {
-                k: v for k, v in self.j_germlines.iteritems()
+                k: v for k, v in self.j_germlines.items()
                 if k.name in limit_js
             }
         else:
             j_germs = self.j_germlines
 
-        for j_gene, j_seq in j_germs.iteritems():
+        for j_gene, j_seq in j_germs.items():
             seq_j = alignment.sequence[end_of_j - len(j_seq):end_of_j]
             dist = dnautils.hamming(seq_j, j_seq[:len(seq_j)])
             if best_dist is None or dist < best_dist:
@@ -180,7 +180,7 @@ class AnchorAligner(object):
     def process_v(self, alignment, anchor_pos, limit_vs):
         aligned_v = VGene(alignment.sequence.sequence)
         v_score = None
-        for v, germ in self.v_germlines.alignments.iteritems():
+        for v, germ in self.v_germlines.alignments.items():
             if limit_vs is not None and v.name not in limit_vs:
                 continue
             try:

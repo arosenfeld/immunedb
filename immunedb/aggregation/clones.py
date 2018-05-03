@@ -123,9 +123,9 @@ class ClonalWorker(concurrent.Worker):
 
     def __init__(self, session, **kwargs):
         self.session = session
-        for prop, default in self.defaults.iteritems():
+        for prop, default in self.defaults.items():
             setattr(self, prop, kwargs.get(prop, default))
-        for prop, value in kwargs.iteritems():
+        for prop, value in kwargs.items():
             if prop not in self.defaults:
                 setattr(self, prop, value)
         self._tasks = 0
@@ -235,7 +235,7 @@ class TCellClonalWorker(ClonalWorker):
             if key in clones:
                 clone = clones[key]
             else:
-                for test_clone in clones.values():
+                for key, test_clone in clones.items():
                     same_bin = (test_clone.v_gene == key[0] and
                                 test_clone.j_gene == key[1] and
                                 test_clone.cdr3_num_nts == len(key[2]))
@@ -279,7 +279,7 @@ class SimilarityClonalWorker(ClonalWorker):
                 clones[seq.clone_id].append(seq)
             if None in clones:
                 for seq_to_add in clones[None]:
-                    for clone_id, existing_seqs in clones.iteritems():
+                    for clone_id, existing_seqs in clones.items():
                         if clone_id is None:
                             continue
                         if similar_to_all(seq_to_add, existing_seqs,
@@ -298,7 +298,7 @@ class SimilarityClonalWorker(ClonalWorker):
                         clones[new_clone.id] = [seq_to_add]
                 del clones[None]
 
-            for clone_id, seqs in clones.iteritems():
+            for clone_id, seqs in clones.items():
                 to_update = [
                     {
                         'sample_id': s.sample_id,
@@ -378,7 +378,7 @@ def run_clones(session, args):
 
     """
     if args.subject_ids is None:
-        subject_ids = map(lambda s: s.id, session.query(Subject.id).all())
+        subject_ids = [s.id for s in session.query(Subject.id)]
     else:
         subject_ids = args.subject_ids
     mod_log.make_mod('clones', session=session, commit=True, info=vars(args))

@@ -30,7 +30,7 @@ class CollapseWorker(concurrent.Worker):
             Sequence.cdr3_num_nts == bucket.cdr3_num_nts,
             Sequence._insertions == bucket._insertions,
             Sequence._deletions == bucket._deletions
-        ).all()
+        )
 
         to_process = sorted([{
             'sample_id': s.sample_id,
@@ -45,7 +45,7 @@ class CollapseWorker(concurrent.Worker):
             larger = to_process.pop(0)
             # Iterate over all smaller sequences to find matches
             instances = 1
-            for i in reversed(range(0, len(to_process))):
+            for i in reversed(range(len(to_process))):
                 smaller = to_process[i]
                 if len(larger['sequence']) != len(smaller['sequence']):
                     self.warning('Tried to collapse sequences of different '
@@ -97,9 +97,8 @@ def run_collapse(session, args):
                      info=vars(args))
     subject_ids = []
 
-    for subject in (args.subject_ids or map(
-                lambda e: e.id, session.query(Subject.id).all()
-                )):
+    subjects = (args.subject_ids or [e.id for e in session.query(Subject.id)])
+    for subject in subjects:
         if session.query(Sample).filter(
                 Sample.subject_id == subject,
                 ~exists().where(
@@ -112,7 +111,7 @@ def run_collapse(session, args):
                 subject))
             samples = session.query(Sample).filter(
                   Sample.subject_id == subject
-            ).all()
+            )
             for sample in samples:
                 session.query(SequenceCollapse).filter(
                     SequenceCollapse.sample_id == sample.id

@@ -35,12 +35,11 @@ class CloneStatsWorker(concurrent.Worker):
             return
 
         self.info('Clone {}'.format(clone_id))
-        sample_ids = map(lambda c: c.sample_id, self._session.query(
+        sample_ids = [c.sample_id for c in self._session.query(
                 distinct(Sequence.sample_id).label('sample_id')
             ).filter(
                 Sequence.clone_id == clone_id
-            )
-        )
+            )]
         sample_ids.append(None)
         for sample_id in sample_ids:
             self._process_sample(clone_id, sample_id)
@@ -123,10 +122,10 @@ def run_clone_stats(session, args):
     if args.clone_ids is not None:
         clones = args.clone_ids
     elif args.subject_ids is not None:
-        clones = map(lambda c: c.id, session.query(Clone.id).filter(
-            Clone.subject_id.in_(args.subject_ids)).all())
+        clones = [c.id for c in session.query(Clone.id).filter(
+            Clone.subject_id.in_(args.subject_ids))]
     else:
-        clones = map(lambda c: c.id, session.query(Clone.id).all())
+        clones = [c.id for c in session.query(Clone.id)]
     clones.sort()
 
     if args.regen:
