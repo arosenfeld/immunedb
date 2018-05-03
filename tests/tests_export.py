@@ -22,10 +22,10 @@ class ExportTest(unittest.TestCase):
             with open(path) as fh:
                 expected = fh.read().strip()
                 if expected != response:
-                    with open('expected.log', 'w+') as fh:
-                        fh.write(expected)
-                    with open('response.log', 'w+') as fh:
-                        fh.write(response)
+                    for e, r in zip(expected, response):
+                        if e != r:
+                            print('expected: ' + expected)
+                            print('response: ' + response)
                 assert expected == response
 
     def test_sequences(self):
