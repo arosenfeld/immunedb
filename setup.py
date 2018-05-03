@@ -1,11 +1,22 @@
+import os
+
 from setuptools import setup, Extension
 
-dnautils = Extension('dnautils', sources=['lib/dnautils.c'],
-                     extra_compile_args=['-std=c99'])
+if os.environ.get('READTHEDOCS'):
+    install_requires = [
+        'sphinxcontrib-programoutput',
+        'sphinxcontrib-websupport',
+        'mock'
+    ]
+    ext_modules = []
+else:
+    with open('requirements.txt') as req:
+        install_requires = [l.strip() for l in req]
+    ext_modules = [
+        Extension('dnautils', sources=['lib/dnautils.c'],
+                  extra_compile_args=['-std=c99'])
+    ]
 
-
-with open('requirements.txt') as req:
-    install_requires = [l.strip() for l in req]
 
 setup(
     name='ImmuneDB',
@@ -44,7 +55,7 @@ setup(
         'bin/run_tigger'
     ],
     install_requires=install_requires,
-    ext_modules=[dnautils],
+    ext_modules=ext_modules,
     license='LICENSE.txt',
     description='A module for efficient storage and analysis of '
                 'high-throughput B-cell sequence data.',

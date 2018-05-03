@@ -25,8 +25,8 @@ class ExportTest(unittest.TestCase):
                     for e, r in zip(expected.split('\n'),
                                     response.split('\n')):
                         if e != r:
-                            print('expected: ' + expected)
-                            print('response: ' + response)
+                            print('expected: ' + e)
+                            print('response: ' + r)
                             break
                 assert expected == response
 
