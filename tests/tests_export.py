@@ -22,7 +22,8 @@ class ExportTest(unittest.TestCase):
             with open(path) as fh:
                 expected = fh.read().strip()
                 if expected != response:
-                    for e, r in zip(expected, response):
+                    for e, r in zip(expected.split('\n'),
+                                    response.split('\n')):
                         if e != r:
                             print('expected: ' + expected)
                             print('response: ' + response)
