@@ -26,6 +26,7 @@ class ExportTest(unittest.TestCase):
                         if e != r:
                             print('expected: ' + expected)
                             print('response: ' + response)
+                            break
                 assert expected == response
 
     def test_sequences(self):
