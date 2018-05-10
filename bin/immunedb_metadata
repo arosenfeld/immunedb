@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 import argparse
 import csv
 import os
@@ -17,6 +17,11 @@ if __name__ == '__main__':
                         'filename without the .fasta or .fastq extension '
                         '(e.g. sample1.fasta would be given the sample name '
                         'sample1)')
+    parser.add_argument('--trim-suffix', action='store_true', help='''Can only
+                        be specified with --use-filenames.  If specified,
+                        removes the common suffix from each sample name.
+                        Useful when using pRESTO files which have common
+                        appended suffixes''')
     parser.add_argument('--include-common', action='store_true',
                         help='''Includes additional common metadata fields:
                         {}'''.format(','.join(COMMON_FIELDS)))
@@ -26,6 +31,8 @@ if __name__ == '__main__':
              if f.endswith('.fasta') or f.endswith('.fastq')]
     if len(files) == 0:
         parser.error('No FASTA or FASTQ files.')
+    if args.trim_suffix and not args.use_filenames:
+        parser.error('Can only specify --trim-suffix with --use-filenames')
 
     with sys.stdout if args.out == '-' else open(args.out, 'w+') as fh:
         fieldnames = REQUIRED_FIELDS
@@ -37,8 +44,14 @@ if __name__ == '__main__':
             delimiter='\t')
 
         writer.writeheader()
+        suffix = ''.join(reversed(
+            os.path.commonprefix([
+                os.path.splitext(fn)[0][::-1] for fn in files])
+        ))
         for fn in files:
             name, ext = os.path.splitext(fn)
+            if args.trim_suffix:
+                name = name[:-len(suffix)]
             row = {'file_name': fn}
             if args.use_filenames:
                 row['sample_name'] = name

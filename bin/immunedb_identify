@@ -1,4 +1,4 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python
 import immunedb.common.config as config
 from immunedb.identification.identify import (IdentificationProps,
                                               run_identify)

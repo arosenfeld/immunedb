@@ -91,6 +91,10 @@ class TaskQueue(object):
         return self._num_tasks
 
 
+def subcaller(func, data, i):
+    return func(data[i])
+
+
 # V2 of multiprocessing
 def process_data(input_data, process_func, aggregate_func, nproc,
                  generate_args={}, process_args={}, aggregate_args={}):
@@ -99,12 +103,20 @@ def process_data(input_data, process_func, aggregate_func, nproc,
         input_data = input_data(**generate_args)
         logger.info('Generate time: {}'.format(time.time() - start))
 
-    pool = mp.Pool(processes=nproc)
-    f = functools.partial(process_func, **process_args)
-    start = time.time()
-    logger.info('Waiting on pool {}'.format(process_func.__name__))
-    res = list(pool.map(f, input_data,
-                        chunksize=int(len(input_data) / float(nproc))))
+    with mp.Manager() as manager:
+        proxy_data = manager.list(input_data)
+        pool = mp.Pool(processes=nproc)
+        f = functools.partial(
+            subcaller,
+            functools.partial(process_func, **process_args),
+            proxy_data
+        )
+        start = time.time()
+        logger.info('Waiting on pool {}'.format(process_func.__name__))
+
+        res = list(pool.map(f, range(len(proxy_data)),
+                            chunksize=int(len(proxy_data) / float(nproc))))
+        pool.close()
     logger.info('Pool done: {}'.format(time.time() - start))
 
     start = time.time()
