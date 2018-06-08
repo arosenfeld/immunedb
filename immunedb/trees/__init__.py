@@ -134,7 +134,7 @@ def remove_muts(seq, removes, germline_seq):
 
 def get_newick(fasta_input, tree_prog):
     proc = Popen(shlex.split('{} --alignment -q --DNA -N -r'.format(
-        tree_prog)), stdin=PIPE, stdout=PIPE, stderr=PIPE)
+        tree_prog)), stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding='utf8')
     return proc.communicate(input=fasta_input)[0]
 
 

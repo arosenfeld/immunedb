@@ -9,15 +9,26 @@ ImmuneDB |travisci| |codecov| |pypi| |docker|
 .. |pypi| image:: https://img.shields.io/pypi/v/immunedb.svg
   :target: https://pypi.python.org/pypi/ImmuneDB
 
-**ImmuneDB** is a system that facilitate efficient storage and analysis
+**ImmuneDB** is a system to facilitate efficient storage and analysis
 of high-throughput B- and T-cell sequence data.  It provides V- and J-gene
 identification, clonal assignment, lineage construction, selection pressure
 calculation, and thorough exporting functionality.
 
-ImmuneDB is comprised of two code bases: Python analysis tools
-(`GitHub <https://github.com/arosenfeld/immunedb>`_) and a web interface
-(`GitHub <https://github.com/arosenfeld/immunedb-frontend>`_).  You can see a
-demo of the interface `here <http://immunedb.com/demo>`_.
+It also provides an intuitive and useful web interface a demo of which you can
+see `here <http://immunedb.com/demo>`_.
+
+Quick Start
+-----------
+To get started immediately, please see the :doc:`Docker installation
+instructions <install_docker>`.
+
+More Information
+----------------
+
+ImmuneDB is comprised of two GitHub repositories: Python analysis tools
+(`arosenfeld/immunedb <https://github.com/arosenfeld/immunedb>`_) and a web
+interface (`arosenfeld/immunedb-frontend
+<https://github.com/arosenfeld/immunedb-frontend>`_)
 
 The system aims to:
 
@@ -84,13 +95,16 @@ Underlying Technologies
   serves content via the REST API allowing web-applications to issue AJAX requests
   to the ImmuneDB framework.
 
+
 .. toctree::
     :maxdepth: 2
     :hidden:
-    :caption: Installation
+    :caption: Getting Started
 
-    install_local
+    Introduction <self>
+
     install_docker
+    install_local
 
 .. toctree::
     :maxdepth: 2

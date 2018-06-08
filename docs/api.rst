@@ -161,9 +161,7 @@ unique to the subject, printing them from least to most frequent.
 **Output**
 
 .. code-block:: bash
-    :emphasize-lines: 1
-
-    # ... output trimmed ...
+    # ... output truncated ...
     IGHV4-34 1128
     IGHV1-2 1160
     IGHV3-48 1169
