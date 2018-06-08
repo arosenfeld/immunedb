@@ -10,6 +10,7 @@ if __name__ == '__main__':
         description='Administrative tools for ImmuneDB database instances')
     subparsers = main_parser.add_subparsers(dest='cmd',
                                             help='The task to begin')
+    subparsers.required = True
 
     parser = subparsers.add_parser(
         'create', help='Creates a new ImmuneDB database')
