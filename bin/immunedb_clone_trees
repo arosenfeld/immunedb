@@ -6,7 +6,6 @@ from immunedb.trees.clearcut import run_clearcut
 
 if __name__ == '__main__':
     parser = config.get_base_arg_parser('Generates JSON trees for clones')
-    parser.add_argument('clearcut_path', help='Path to clearcut binary')
     parser.add_argument('--force', action='store_true', default=False,
                         help='Force updating of trees')
     parser.add_argument('--clone-ids', nargs='+', type=int,

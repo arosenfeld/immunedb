@@ -16,13 +16,13 @@ class PhylogeneticTree(object):
         self.min_mut_occurrence = min_mut_occurrence
         self.min_mut_samples = min_mut_samples
 
-    def run(self, session, clearcut_path):
+    def run(self, session):
         fasta, removed_muts = get_fasta_input(
             self.germline_sequence, self.sequences,
             min_mut_occurrence=self.min_mut_occurrence,
             min_mut_samples=self.min_mut_samples)
 
-        newick = get_newick(fasta, clearcut_path)
+        newick = get_newick(fasta)
         tree = populate_tree(session, newick, self.germline_sequence,
                              removed_muts)
         tree.set_outgroup('germline')
@@ -132,9 +132,9 @@ def remove_muts(seq, removes, germline_seq):
     return seq
 
 
-def get_newick(fasta_input, tree_prog):
-    proc = Popen(shlex.split('{} --alignment -q --DNA -N -r'.format(
-        tree_prog)), stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding='utf8')
+def get_newick(fasta_input):
+    proc = Popen(shlex.split('clearcut --alignment -q --DNA -N -r'),
+                 stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding='utf8')
     return proc.communicate(input=fasta_input)[0]
 
 

@@ -47,7 +47,7 @@ COPY docker/mariadb/my.cnf /etc/mysql
 COPY docker/serve_immunedb.sh /usr/local/sbin
 COPY docker/setup_users.sql /tmp
 COPY docker/example /example
-ENV PATH "${PATH}:/apps/bowtie2"
+ENV PATH "${PATH}:/apps/bowtie2:/apps/clearcut"
 # Expose API and frontend ports
 EXPOSE 5000 8080
 # Setup MySQL volume

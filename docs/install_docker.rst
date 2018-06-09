@@ -36,8 +36,8 @@ This will start a shell with ImmuneDB and accessory scripts pre-installed.  The
 location of important files are:
 
 - ``/root/germlines``: IMGT aligned germlines for IGH, TCRA, and TCRB.
-- ``/apps/clearcut/clearcut``: The path to the ``clearcut`` executable for
-  generating lineages.
+- ``/apps/clearcut/clearcut``: The ``clearcut`` executable for
+  generating lineages.  This file is in the containers ``$PATH``.
 - ``/usr/local/sbin/serve_immunedb.sh``: A helper script to serve the ImmuneDB
   web interface.  This file is in the container's ``$PATH``.
 - ``/apps/bowtie2/bowtie2``: The local-alignment tool Bowtie2.  This file is in
@@ -129,9 +129,7 @@ mutations that occur at least twice:
 
 .. code-block:: bash
 
-    $ immunedb_clone_trees /share/configs/example.json \
-        /apps/clearcut/clearcut \
-        --min-count 2
+    $ immunedb_clone_trees /share/configs/example.json --min-count 2
     2018-06-08 15:12:07 [INFO] Creating task queue for clones
     # ... output truncated ...
     2018-06-08 15:12:08 [INFO] Worker 5: Running clone 236

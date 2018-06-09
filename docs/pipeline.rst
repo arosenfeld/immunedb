@@ -425,17 +425,19 @@ This process is relatively slow and may take some time to complete.
 
 Clone Trees (Optional)
 ----------------------
-Lineage trees for clones is generated with the ``immunedb_clone_trees`` command.  The
-only currently supported method is neighbor-joining as provided by `Clearcut
-<http://bioinformatics.hungry.com/clearcut>`_.  Among others, the ``min-count``
-parameter allows for mutations to be omitted if they have not occurred at least
-a specified number of times.  This can be useful to correct for sequencing
-error.
+Lineage trees for clones is generated with the ``immunedb_clone_trees``
+command.  The only currently supported method is neighbor-joining as provided
+by `Clearcut <http://bioinformatics.hungry.com/clearcut>`_ which must be in
+your ``$PATH``.
+
+Among others, the ``min-count`` parameter allows for mutations to be omitted if
+they have not occurred at least a specified number of times.  This can be
+useful to correct for sequencing error.
 
 
 .. code-block:: bash
 
-    $ immunedb_clone_trees config.json /path/to/clearcut --min-count 2
+    $ immunedb_clone_trees config.json --min-count 2
 
 Web Service (Optional)
 ----------------------

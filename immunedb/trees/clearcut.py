@@ -9,10 +9,9 @@ from immunedb.util.log import logger
 
 
 class ClearcutWorker(concurrent.Worker):
-    def __init__(self, session, tree_prog, min_count, min_samples,
-                 min_seq_copies, exclude_stops):
+    def __init__(self, session, min_count, min_samples, min_seq_copies,
+                 exclude_stops):
         self._session = session
-        self._tree_prog = tree_prog
         self._min_count = min_count
         self._min_samples = min_samples
         self._min_seq_copies = min_seq_copies
@@ -40,7 +39,7 @@ class ClearcutWorker(concurrent.Worker):
 
         try:
             tree = PhylogeneticTree(clone_inst.consensus_germline, sequences)
-            tree.run(self._session, self._tree_prog)
+            tree.run(self._session)
         except Exception as e:
             logger.error('Error running clone {}: {}'.format(clone_id, e))
             return
@@ -84,9 +83,8 @@ def run_clearcut(session, args):
 
     for _ in range(0, args.nproc):
         session = config.init_db(args.db_config)
-        tasks.add_worker(ClearcutWorker(session, args.clearcut_path,
-                                        args.min_count, args.min_samples,
-                                        args.min_seq_copies,
-                                        args.exclude_stops))
+        tasks.add_worker(ClearcutWorker(
+            session, args.min_count, args.min_samples, args.min_seq_copies,
+            args.exclude_stops))
 
     tasks.start()

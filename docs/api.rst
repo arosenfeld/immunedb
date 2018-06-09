@@ -161,6 +161,7 @@ unique to the subject, printing them from least to most frequent.
 **Output**
 
 .. code-block:: bash
+
     # ... output truncated ...
     IGHV4-34 1128
     IGHV1-2 1160
