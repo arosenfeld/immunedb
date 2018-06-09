@@ -48,9 +48,11 @@ The system aims to:
   industry-leading database, MySQL.  When data must be exchanged as a flat-file,
   many export options, including FASTA and tab-delineation, are available.
 
-- **Provide a generic API:** ImmuneDB provides both a REST API for language-agnostic
-  database querying as well as a suite of Python classes for interacting directly
-  with the database for customized querying.
+- **Interoperate with existing tools:** ImmuneDB integrates tools from other
+  researchers to provide features such as lineage construction, genotyping, and
+  selection pressure calculations.  Further, ImmuneDB can import and export in
+  a variety of common formats, making it compatible with the larger AIRR
+  ecosystem of tools.
 
 ImmuneDB has four primary components:
 

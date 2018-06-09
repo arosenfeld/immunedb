@@ -47,7 +47,7 @@ if __name__ == '__main__':
             parser.error('The threshold \'{}\' is not a valid integer.'.format(
                 orig_threshold))
 
-        if threshold < 0:
+        if int(threshold) < 0:
             parser.error('The threshold \'{}\' is invalid.  Must be a '
                          'positive integer.'.format(orig_threshold))
 

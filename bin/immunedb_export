@@ -3,6 +3,7 @@ import pkg_resources
 import immunedb.common.config as config
 import immunedb.exporting as exporting
 
+
 def add_common_fields(parser):
     parser.add_argument('--clones-only', action='store_true', default=False,
                         help='Includes only sequences assigned to a clone')

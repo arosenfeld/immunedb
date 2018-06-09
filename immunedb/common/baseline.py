@@ -106,7 +106,7 @@ def _make_input_file(session, input_path, clone, samples, min_mut_count,
             # Filter out the mutations
             removes = [
                 mut for mut, cnt in removes.items()
-                if cnt < min_mut_count or cnt > max_mut_count
+                if cnt < min_mut_count or cnt > (max_mut_count or -1)
             ]
 
             # Remove the remaining mutations

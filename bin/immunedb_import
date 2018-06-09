@@ -54,7 +54,6 @@ if __name__ == '__main__':
                         files.  Otherwise, an error is raised and
                         identification will not begin.''')
 
-
     args = parser.parse_args()
 
     if args.max_padding and args.trim_to:

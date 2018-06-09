@@ -130,11 +130,23 @@ mutations that occur at least twice:
 .. code-block:: bash
 
     $ immunedb_clone_trees /share/configs/example.json \
-        ~/applications/clearcut/clearcut \
+        /apps/clearcut/clearcut \
         --min-count 2
     2018-06-08 15:12:07 [INFO] Creating task queue for clones
     # ... output truncated ...
     2018-06-08 15:12:08 [INFO] Worker 5: Running clone 236
+
+Another optional step is to use BASELINe to calculate selection pressure for
+each clone.  Note that this is a relatively slow process, even for this small
+dataset:
+
+.. code-block:: bash
+
+    $ immunedb_clone_pressure /share/configs/example.json \
+        /apps/baseline/Baseline_Main.r
+    2018-06-08 23:34:32 [INFO] Creating task queue to calculate selection pressure for 236 clones.
+    # ... output truncated ...
+    2018-06-09 00:35:46 [INFO] Worker 4: Clone 236
 
 The last step of the pipeline is to calculate statistics for each sample in the
 dataset:
