@@ -17,6 +17,8 @@ else:
                   extra_compile_args=['-std=c99'])
     ]
 
+with open('README.md', 'r') as fh:
+    long_description = fh.read()
 
 setup(
     name='ImmuneDB',
@@ -57,8 +59,10 @@ setup(
     install_requires=install_requires,
     ext_modules=ext_modules,
     license='LICENSE.txt',
-    description='A module for efficient storage and analysis of '
-                'high-throughput B-cell sequence data.',
+    description='''A system for the analysis and exploration of high-throughput
+        adaptive immune receptor sequencing data''',
+    long_description=long_description,
+    long_description_content_type='text/markdown',
     classifiers=[
         'Development Status :: 4 - Beta',
         'Environment :: Console',
