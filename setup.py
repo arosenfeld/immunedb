@@ -20,7 +20,7 @@ else:
 
 setup(
     name='ImmuneDB',
-    version='0.23.0',
+    version='0.24.0',
     author='Aaron M. Rosenfeld',
     author_email='ar374@drexel.edu',
     url='https://github.com/arosenfeld/immunedb',
