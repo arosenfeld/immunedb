@@ -34,7 +34,7 @@ RUN wget http://immunedb.com/patched_baseline.tgz && \
     tar xzf patched_baseline.tgz
 RUN Rscript -e 'install.packages(c("seqinr", "parallel"))'
 # Copy ImmuneDB files and install
-COPY requirements.txt setup.py /apps/immunedb/
+COPY requirements.txt setup.py README.md /apps/immunedb/
 COPY lib/ /apps/immunedb/lib
 COPY bin/ /apps/immunedb/bin
 COPY immunedb/ /apps/immunedb/immunedb
