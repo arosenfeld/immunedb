@@ -15,7 +15,7 @@ With Docker installed run one of these commands:
 .. code-block:: bash
 
     # (Recommended) Pulls a specific release version
-    $ docker pull arosenfeld/immunedb:0.24.0
+    $ docker pull arosenfeld/immunedb:v0.24.0
 
     # Pulls the most recent stable, but not released version
     $ docker pull arosenfeld/immunedb
@@ -30,7 +30,7 @@ version you pulled previously):
 
 .. code-block:: bash
 
-    $ docker run -it arosenfeld/immunedb:0.24.0
+    $ docker run -it arosenfeld/immunedb:v0.24.0
 
 This will start a shell with ImmuneDB and accessory scripts pre-installed.  The
 location of important files are:
