@@ -159,8 +159,8 @@ def create_app(session_maker, allow_shutdown=False):
     @app.route('/clone/pressure/<clone_id>', method=['POST', 'OPTIONS'])
     @with_session
     def clone_pressure(session, clone_id):
-        return create_response(
-            queries.get_selection_pressure(session, clone_id))
+        return create_response(list(
+            queries.get_selection_pressure(session, clone_id)))
 
     @app.route('/samples/analyze/<sample_encoding>', method=[
         'POST', 'OPTIONS'])

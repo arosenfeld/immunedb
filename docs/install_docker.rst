@@ -58,7 +58,7 @@ Further, if using the web interface, you must publish two ports with ``-p``
 .. code-block:: bash
 
     $ docker run -v $HOME/immunedb_share:/share \
-        -p 5000:5000 -p 8080:8080 -it arosenfeld/immunedb:0.24.0
+        -p 5000:5000 -p 8080:8080 -it arosenfeld/immunedb:v0.24.1
 
 You can then put files into your host's ``$HOME/immunedb_share`` directory and
 it will appear in ``/share`` within the Docker container.  Additionally, MySQL
