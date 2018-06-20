@@ -40,6 +40,17 @@ if __name__ == '__main__':
     parser = add_common_fields(subparsers.add_parser('changeo'))
     parser = add_common_fields(subparsers.add_parser('airr'))
 
+    parser = subparsers.add_parser('selection')
+    parser.add_argument('--threshold', default='1',
+                        help='''Then selection pressure threshold to export.
+                        Must be specified with immunedb_clone_pressure''')
+    parser.add_argument('--filter', default='both', choices=[
+        'both', 'samples', 'overall'], help='''What selection pressure to
+        export.  "overall" outputs one row per clone of its overall selection
+        pressure, "samples" outputs one row per sample per clone indicating its
+        selection pressure in those samples, and "both" outputs both of the
+        above.''')
+
     args = main_parser.parse_args()
     session = config.init_db(args.db_config)
 
@@ -48,6 +59,7 @@ if __name__ == '__main__':
         'genbank': exporting.write_genbank,
         'changeo': exporting.write_tsv,
         'airr': exporting.write_tsv,
+        'selection': exporting.write_selection,
     }
 
     fmts[args.fmt](session, args)

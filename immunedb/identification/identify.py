@@ -362,13 +362,17 @@ def process_sample(db_config, v_germlines, j_germlines, path, meta, props,
         ).filter(
             NoResult.sample == sample
         ).scalar() or 0)
+        if identified + noresults:
+            frac = int(100 * identified / float(identified + noresults))
+        else:
+            frac = 0
         logger.info(
             'Completed sample {} in {}m - {}/{} ({}%) identified'.format(
                 sample.name,
                 round((time.time() - start) / 60., 1),
                 identified,
                 identified + noresults,
-                int(100 * identified / float(identified + noresults))
+                frac
             )
         )
     session.close()
@@ -398,7 +402,7 @@ def run_identify(session, args):
             metadata = parse_metadata(session, fh, args.warn_existing,
                                       args.warn_missing, args.sample_dir)
         except MetadataException as ex:
-            logger.error(ex.message)
+            logger.error(ex)
             sys.exit(-1)
 
     session.close()
