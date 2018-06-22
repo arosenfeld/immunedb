@@ -6,6 +6,7 @@ from sqlalchemy.orm import joinedload
 from immunedb.identification.genes import GeneName
 from immunedb.common.models import Sequence, SequenceCollapse, Subject
 from immunedb.util.log import logger
+from immunedb.util.funcs import yield_limit
 
 mappings = {
     'airr': OrderedDict((
@@ -43,6 +44,7 @@ mappings = {
     'changeo': OrderedDict((
         ('SEQUENCE_ID', 'seq_id'),
         ('SEQUENCE_IMGT', 'sequence'),
+        ('GERMLINE_IMGT_D_MASK', 'germline_d_masked'),
         ('FUNCTIONAL', 'functional'),
         ('IN_FRAME', 'in_frame'),
         ('STOP', 'stop'),
@@ -105,7 +107,7 @@ class SequenceWriter(object):
         return ''
 
 
-def get_tsv(seqs, format_name):
+def get_sequences(seqs, format_name):
     seqs = seqs.join(SequenceCollapse)
     seqs = seqs.options(
         joinedload(Sequence.clone),
@@ -116,11 +118,11 @@ def get_tsv(seqs, format_name):
     writer = SequenceWriter(format_name)
 
     yield writer.writeheader()
-    for seq in sorted(seqs, key=lambda s: s.seq_id):
+    for seq in yield_limit(seqs, Sequence.ai):
         yield writer.writeseq(seq)
 
 
-def write_tsv(session, args):
+def write_sequences(session, args):
     for subject in session.query(Subject):
         logger.info('Exporting subject {}'.format(subject.identifier))
         seqs = session.query(Sequence).filter(
@@ -136,5 +138,5 @@ def write_tsv(session, args):
 
         fn = '{}.{}.tsv'.format(subject.identifier, args.fmt)
         with open(fn, 'w+') as fh:
-            for line in get_tsv(seqs, args.fmt):
+            for line in get_sequences(seqs, args.fmt):
                 fh.write(line)

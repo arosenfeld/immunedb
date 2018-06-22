@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+import argparse
 import pkg_resources
 import immunedb.common.config as config
 import immunedb.exporting as exporting
@@ -19,7 +20,9 @@ if __name__ == '__main__':
                                              'various formats',
                                              multiproc=False)
     subparsers = main_parser.add_subparsers(dest='fmt', help='The format')
-    parser = subparsers.add_parser('vdjtools')
+    subparsers.required = True
+    parser = subparsers.add_parser(
+        'vdjtools', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--min-clone-size', type=int, default=1,
                         help='Only export clones with at least this many'
                         ' copies.')
@@ -27,7 +30,8 @@ if __name__ == '__main__':
                         help='Includes how many unique sequences are in'
                         ' clones.')
 
-    parser = subparsers.add_parser('genbank')
+    parser = subparsers.add_parser(
+        'genbank', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--inference', default='ImmuneDB:{}'.format(
                         pkg_resources.get_distribution('immunedb').version),
                         help='Inference tool used for gene assignment')
@@ -37,28 +41,33 @@ if __name__ == '__main__':
                         help='Species of sequences')
     parser.add_argument('--mol-type', default='DNA', help='Molecule type')
 
-    parser = add_common_fields(subparsers.add_parser('changeo'))
-    parser = add_common_fields(subparsers.add_parser('airr'))
+    parser = add_common_fields(subparsers.add_parser(
+        'changeo', formatter_class=argparse.ArgumentDefaultsHelpFormatter))
+    parser = add_common_fields(subparsers.add_parser(
+        'airr', formatter_class=argparse.ArgumentDefaultsHelpFormatter))
 
-    parser = subparsers.add_parser('selection')
+    parser = subparsers.add_parser(
+        'selection', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--threshold', default='1',
                         help='''Then selection pressure threshold to export.
                         Must be specified with immunedb_clone_pressure''')
     parser.add_argument('--filter', default='both', choices=[
-        'both', 'samples', 'overall'], help='''What selection pressure to
-        export.  "overall" outputs one row per clone of its overall selection
-        pressure, "samples" outputs one row per sample per clone indicating its
-        selection pressure in those samples, and "both" outputs both of the
-        above.''')
+                        'both', 'samples', 'overall'], help='''What selection
+                        pressure to export.  "overall" outputs one row per
+                        clone of its overall selection pressure, "samples"
+                        outputs one row per sample per clone indicating its
+                        selection pressure in those samples, and "both" outputs
+                        both of the above.''')
 
     args = main_parser.parse_args()
     session = config.init_db(args.db_config)
 
     fmts = {
+        'changeo': exporting.write_sequences,
+        'airr': exporting.write_sequences,
+
         'vdjtools': exporting.write_vdjtools,
         'genbank': exporting.write_genbank,
-        'changeo': exporting.write_tsv,
-        'airr': exporting.write_tsv,
         'selection': exporting.write_selection,
     }
 

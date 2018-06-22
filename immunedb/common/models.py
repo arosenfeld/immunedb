@@ -668,6 +668,15 @@ class Sequence(Base):
             self.sequence[-self.post_cdr3_length:]
         ))
 
+    @property
+    def germline_d_masked(self):
+        v_end = self.seq_start + self.pre_cdr3_length + self.num_gaps
+        return ''.join((
+            self.germline[:v_end],
+            'N' * self.cdr3_num_nts,
+            self.germline[-self.post_cdr3_length:]
+        ))
+
     def get_v_extent(self, in_clone):
         """Returns the estimated V length, including the portion in the
            CDR3

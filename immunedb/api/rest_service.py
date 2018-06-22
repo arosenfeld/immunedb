@@ -16,9 +16,9 @@ except ImportError:
     ROLLBAR_SUPPORT = False
 
 import immunedb.api.queries as queries
-from immunedb.common.models import Sequence
+from immunedb.common.models import Sequence, SequenceCollapse
 from immunedb.util.log import logger
-from immunedb.exporting import get_tsv
+from immunedb.exporting import get_sequences, mappings
 
 
 class EnableCors(object):
@@ -240,10 +240,20 @@ def create_app(session_maker, allow_shutdown=False):
     def subject(session, subject_id):
         return create_response(queries.get_subject(session, subject_id))
 
-    @app.route('/export/tsv/<schema>', method=['GET', 'OPTIONS'])
+    @app.route('/export/sequences/<schema>', method=['GET', 'OPTIONS'])
     @with_session
-    def export_tsv(session, schema):
+    def export_sequences(session, schema):
+        if schema not in mappings:
+            return create_response(code=400)
+
         seqs = session.query(Sequence)
+
+        min_copies = request.query.get('min_subject_copies', 0)
+        if min_copies:
+            seqs = seqs.filter(
+                SequenceCollapse.copy_number_in_subject >= min_copies
+            )
+
         if request.query.get('clones_only', False):
             seqs = seqs.filter(~Sequence.clone_id.is_(None))
 
@@ -251,7 +261,7 @@ def create_app(session_maker, allow_shutdown=False):
         fn = '{}_{}.tsv'.format(time_str, schema)
         response.headers['Content-Disposition'] = 'attachment;filename=' + fn
 
-        for row in get_tsv(seqs, schema):
+        for row in get_sequences(seqs, schema):
             yield row
 
     @app.route('/shutdown', method=['GET'])

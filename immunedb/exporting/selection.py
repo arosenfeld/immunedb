@@ -3,6 +3,8 @@ import csv
 from sqlalchemy.orm import joinedload
 
 from immunedb.common.models import SelectionPressure
+from immunedb.util.funcs import yield_limit
+from immunedb.util.log import logger
 
 
 def write_selection(session, args):
@@ -23,7 +25,9 @@ def write_selection(session, args):
                             delimiter='\t', fieldnames=['sample', 'subject'] +
                             base_fields)
     writer.writeheader()
-    for sel in query:
+
+    logger.info('Exporting selection pressure')
+    for sel in yield_limit(query, SelectionPressure.id):
         row = {f: getattr(sel, f) for f in base_fields}
         row['sample'] = sel.sample.name if sel.sample else 'All Samples'
         row['subject'] = sel.clone.subject.identifier
