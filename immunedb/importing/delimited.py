@@ -65,15 +65,17 @@ def read_file(session, handle, sample, v_germlines, j_germlines, props):
                           line['SEQUENCE_IMGT'].replace('.', '-'))
         try:
             alignment = create_alignment(seq, line, v_germlines, j_germlines)
+            for other in uniques.setdefault(
+                    len(alignment.sequence.sequence), []):
+                if dnautils.equal(other.sequence.sequence,
+                                  alignment.sequence.sequence):
+                    other.sequence.ids.extend(alignment.sequence.ids)
+                    break
+            else:
+                uniques[len(alignment.sequence.sequence)].append(alignment)
+
         except AlignmentException as e:
             add_noresults_for_vdj(session, seq, sample, str(e))
-        for other in uniques.setdefault(len(alignment.sequence.sequence), []):
-            if dnautils.equal(other.sequence.sequence,
-                              alignment.sequence.sequence):
-                other.sequence.ids.extend(alignment.sequence.ids)
-                break
-        else:
-            uniques[len(alignment.sequence.sequence)].append(alignment)
 
     uniques = [s for k in sorted(uniques.keys()) for s in uniques[k]]
     lens = []
