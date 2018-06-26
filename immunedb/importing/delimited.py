@@ -56,13 +56,64 @@ def create_alignment(seq, line, v_germlines, j_germlines):
     return alignment
 
 
-def read_file(session, handle, sample, v_germlines, j_germlines, props):
+def extract_adaptive_sequence(idx, line, v_germlines, j_germlines):
+    def _format_gene(g):
+        g = g.replace('IGHV0', 'IGHV').replace('IGHJ0', 'IGHJ')
+        if '*' not in g:
+            return g + '*01'
+        return g
+
+    if not line['aminoAcid']:
+        raise AlignmentException('No amino-acids provided')
+
+    v_end = int(line['vIndex'])
+    v_region = line['nucleotide'][:v_end]
+    v_gene = _format_gene(line['vGeneName'])
+    v_germ = v_germlines[GeneName(v_gene)]
+    j_gene = _format_gene(line['jFamilyName'])
+    j_germ = j_germlines[GeneName(j_gene)]
+    v_region = list(('N' * (CDR3_OFFSET - v_end) + v_region))
+
+    for i in range(len(v_germ)):
+        if v_germ[i] == '-':
+            v_region[i] = '-'
+    v_region = ''.join(v_region)
+    cdr3_region = line['nucleotide'][v_end:v_end + int(line['cdr3Length'])]
+    j_region = line['nucleotide'][v_end + int(line['cdr3Length']):]
+    j_region = j_region + ('N' * (j_germlines.upstream_of_cdr3 -
+                           len(j_region)))
+    imgt_sequence = v_region + cdr3_region + j_region
+
+    return {
+        'SEQUENCE_ID': 'seq_{}'.format(idx),
+        'SEQUENCE_IMGT': imgt_sequence,
+        'V_CALL': v_gene,
+        'J_CALL': j_gene,
+        'JUNCTION_LENGTH': line['cdr3Length'],
+        'V_SEQ_LENGTH': v_end,
+        'DUPCOUNT': line['count (templates/reads)']
+    }
+
+
+def read_file(session, fmt, handle, sample, v_germlines, j_germlines, props):
     reader = csv.DictReader(handle, delimiter='\t')
     uniques = {}
 
-    for line in reader:
-        seq = VDJSequence(line['SEQUENCE_ID'],
-                          line['SEQUENCE_IMGT'].replace('.', '-'))
+    for i, line in enumerate(reader):
+        if fmt == 'adaptive':
+            try:
+                line = extract_adaptive_sequence(i, line, v_germlines,
+                                                 j_germlines)
+            except (AlignmentException, KeyError) as e:
+                continue
+        seq_ids = line['SEQUENCE_ID']
+        if 'DUPCOUNT' in line:
+            seq_ids = [
+                '{}_{}'.format(line['SEQUENCE_ID'], j)
+                for j in range(int(line['DUPCOUNT']))
+            ]
+
+        seq = VDJSequence(seq_ids, line['SEQUENCE_IMGT'].replace('.', '-'))
         try:
             alignment = create_alignment(seq, line, v_germlines, j_germlines)
             for other in uniques.setdefault(
@@ -73,7 +124,6 @@ def read_file(session, handle, sample, v_germlines, j_germlines, props):
                     break
             else:
                 uniques[len(alignment.sequence.sequence)].append(alignment)
-
         except AlignmentException as e:
             add_noresults_for_vdj(session, seq, sample, str(e))
 
@@ -155,4 +205,5 @@ def run_import(session, args):
             path = os.path.join(
                 args.sample_dir, metadata[sample_name]['file_name'])
             with open(path) as fh:
-                read_file(session, fh, sample, v_germlines, j_germlines, props)
+                read_file(session, args.format, fh, sample, v_germlines,
+                          j_germlines, props)

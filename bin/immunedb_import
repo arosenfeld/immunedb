@@ -8,8 +8,8 @@ from immunedb.identification.genes import JGermlines
 
 
 if __name__ == '__main__':
-    parser = config.get_base_arg_parser('''Imports V/J identifications from
-                                        Change-O format''')
+    parser = config.get_base_arg_parser('''Imports V/J identifications''')
+    parser.add_argument('format', choices=['changeo', 'adaptive'])
     parser.add_argument('v_germlines', help='''FASTA file with IMGT gapped
                         V-gene germlines''')
     parser.add_argument('j_germlines', help='''FASTA file with J-gene

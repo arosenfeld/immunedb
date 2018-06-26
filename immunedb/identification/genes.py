@@ -18,8 +18,12 @@ class GermlineException(Exception):
 class GeneName(object):
     def __init__(self, name):
         self.name = name
-        parts = re.search('((([A-Z]+)(\d+)([^*]+)?)(\*(\d+))?)',
-                          self.name).groups()
+        try:
+            parts = re.search('((([A-Z]+)(\d+)([^*]+)?)(\*(\d+))?)',
+                              self.name).groups()
+        except AttributeError:
+            raise AlignmentException('Invalid gene name {}'.format(name))
+
         self.name = parts[0]
         self.base = parts[1]
         self.prefix = parts[2]

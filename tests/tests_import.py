@@ -25,6 +25,7 @@ class TestImport(BaseTest.RegressionTest):
                 trim=0,
                 trim_to=None,
                 max_padding=None,
+                format='changeo'
             )
         )
         self.session.commit()
