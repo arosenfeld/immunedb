@@ -29,7 +29,7 @@ class ClearcutWorker(concurrent.Worker):
             Sequence
         ).join(SequenceCollapse).filter(
             Sequence.clone_id == clone_id,
-            SequenceCollapse.copy_number_in_subject > self._min_seq_copies
+            SequenceCollapse.copy_number_in_subject >= self._min_seq_copies
         )
 
         if self._exclude_stops:
