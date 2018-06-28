@@ -690,43 +690,6 @@ class Sequence(Base):
         return extent + len(self.clone_sequence) - len(self.sequence)
 
 
-class DuplicateSequence(Base):
-    """A sequence which is a duplicate of a :py:class:`Sequence`.  This is
-    used to minimize the size of the sequences table.  The ``copy_number``
-    attribute of :py:class:`Sequence` instances is equal to the number of
-    its duplicate sequences plus one.
-
-    :param int pk: A primary key for this duplicate sequence
-    :param str seq_id: A unique identifier for the sequence as output by the \
-        sequencer
-
-    :param str duplicate_seq_seq_id: The seq_id of the sequence \
-        in the same sample with the same sequence
-    :param Relationship duplicate_seq: Reference to the associated \
-        :py:class:`Sequence` instance of which this is a duplicate
-
-    :param int sample_id: The ID of the sample from which this sequence came
-
-    """
-    __tablename__ = 'duplicate_sequences'
-    __table_args__ = (
-        ForeignKeyConstraint(
-            ['sample_id', 'duplicate_seq_seq_id'],
-            ['sequences.sample_id', 'sequences.seq_id'],
-            name='dup_fk'
-        ),
-        {'mysql_row_format': 'DYNAMIC'})
-
-    pk = Column(Integer, primary_key=True)
-
-    seq_id = Column(String(length=64))
-
-    duplicate_seq_seq_id = Column(String(length=64), index=True)
-    duplicate_seq = relationship(Sequence)
-
-    sample_id = Column(Integer, index=True)
-
-
 class NoResult(Base):
     """A sequence which could not be match with a V or J.
 

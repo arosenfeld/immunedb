@@ -1,3 +1,4 @@
+from collections import Counter
 import csv
 import os
 import re
@@ -5,7 +6,7 @@ import subprocess
 import shlex
 import io
 
-from sqlalchemy import desc, text
+from sqlalchemy import desc
 
 import dnautils
 
@@ -14,8 +15,7 @@ from immunedb.identification.vdj_sequence import VDJAlignment, VDJSequence
 from immunedb.identification.genes import (CDR3_OFFSET, GeneName, JGermlines,
                                            VGermlines)
 from immunedb.identification.identify import IdentificationProps
-from immunedb.common.models import (DuplicateSequence, NoResult, Sample,
-                                    Sequence, serialize_gaps)
+from immunedb.common.models import NoResult, Sample, Sequence, serialize_gaps
 from immunedb.util.funcs import format_ties, periodic_commit
 import immunedb.util.lookups as lookups
 from immunedb.util.log import logger
@@ -395,16 +395,16 @@ def add_sequences_from_sample(session, sample, sequences, props):
 def remove_duplicates(session, sample):
     logger.info('Removing duplicates from sample {}'.format(sample.id))
     seqs = session.query(
-        Sequence.ai, Sequence.seq_id, Sequence.v_gene, Sequence.j_gene,
-        Sequence.cdr3_num_nts, Sequence.copy_number, Sequence.sequence
+        Sequence
     ).filter(
         Sequence.locally_aligned.is_(True),
         Sequence.sample_id == sample.id
     ).order_by(Sequence.ai)
+    new_copies = Counter()
 
     for seq in seqs:
         potential_collapse = session.query(
-            Sequence.seq_id, Sequence.sequence, Sequence.copy_number
+            Sequence
         ).filter(
             Sequence.sample_id == sample.id,
             Sequence.v_gene == seq.v_gene,
@@ -418,19 +418,8 @@ def remove_duplicates(session, sample):
                 continue
 
             if dnautils.equal(other_seq.sequence, seq.sequence):
-                session.query(DuplicateSequence).filter(
-                    DuplicateSequence.sample_id == sample.id,
-                    DuplicateSequence.duplicate_seq_seq_id == seq.seq_id
-                ).update({
-                    'sample_id': sample.id,
-                    'duplicate_seq_seq_id': other_seq.seq_id
-                }, synchronize_session=False)
-                session.add(DuplicateSequence(
-                    seq_id=seq.seq_id,
-                    duplicate_seq_seq_id=other_seq.seq_id,
-                    sample_id=sample.id
-                ))
-                session.query(Sequence).filter(Sequence.ai == seq.ai).delete()
+                other_seq.copy_number += seq.copy_number
+                session.delete(seq)
                 break
 
     session.commit()
@@ -450,20 +439,3 @@ def run_fix_sequences(session, args):
                                    v_germlines, j_germlines, args.nproc)
         add_sequences_from_sample(session, sample, sequences, props)
         remove_duplicates(session, sample)
-
-    logger.info('Updating copy numbers')
-    session.connection(mapper=Sequence).execute(text('''
-        UPDATE
-            sequences
-        SET
-            copy_number = 1 + (
-                SELECT
-                    COUNT(*)
-                FROM
-                    duplicate_sequences
-                WHERE
-                    duplicate_sequences.duplicate_seq_seq_id = sequences.seq_id
-                    AND
-                    duplicate_sequences.sample_id = sequences.sample_id
-            )
-    '''))

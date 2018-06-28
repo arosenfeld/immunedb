@@ -3,9 +3,9 @@ import os
 import unittest
 
 import immunedb.common.config as config
-from immunedb.common.models import (Clone, CloneStats, DuplicateSequence,
-                                    NoResult, Sample, SampleMetadata,
-                                    SampleStats, SelectionPressure, Sequence,
+from immunedb.common.models import (Clone, CloneStats, NoResult, Sample,
+                                    SampleMetadata, SampleStats,
+                                    SelectionPressure, Sequence,
                                     SequenceCollapse)
 from immunedb.identification.local_align import run_fix_sequences
 from immunedb.aggregation.clones import run_clones
@@ -131,13 +131,6 @@ class BaseTest(object):
                 ('value',)
             )
 
-            self.regression(
-                self.get_path('post_identification_dups.json'),
-                self.session.query(DuplicateSequence),
-                'seq_id',
-                ('sample_id', 'duplicate_seq_seq_id',)
-            )
-
         def local_align(self):
             run_fix_sequences(
                 self.session,
@@ -173,13 +166,6 @@ class BaseTest(object):
                 self.session.query(NoResult),
                 'seq_id',
                 ('sequence', 'quality')
-            )
-
-            self.regression(
-                self.get_path('post_local_align_dups.json'),
-                self.session.query(DuplicateSequence),
-                'seq_id',
-                ('sample_id', 'duplicate_seq_seq_id',)
             )
 
         def collapse(self):

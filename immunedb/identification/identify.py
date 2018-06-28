@@ -32,7 +32,7 @@ class IdentificationProps(object):
         'allow_cross_family': False,
         'max_insertions': 5,
         'max_deletions': 5,
-        'genotyping': False
+        'genotyping': False,
     }
 
     def __init__(self, **kwargs):

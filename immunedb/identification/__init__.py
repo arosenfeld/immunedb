@@ -1,7 +1,6 @@
 import itertools
 
-from immunedb.common.models import (CDR3_OFFSET, DuplicateSequence, NoResult,
-                                    Sequence)
+from immunedb.common.models import CDR3_OFFSET, NoResult, Sequence
 import immunedb.util.funcs as funcs
 import immunedb.util.lookups as lookups
 
@@ -75,20 +74,6 @@ def get_seq_from_alignment(session, alignment, sample, strip_alleles=True):
                                      str(e))
 
 
-def get_duplicates_from_alignment(alignment, sample, error_action='ignore'):
-    try:
-        return [DuplicateSequence(
-            sample_id=sample.id,
-            seq_id=seq_id,
-            duplicate_seq_seq_id=alignment.sequence.ids[0]
-        ) for seq_id in alignment.sequence.ids[1:]]
-    except ValueError as e:
-        if error_action == 'ignore':
-            return []
-        elif error_action == 'raise':
-            raise e
-
-
 def add_sequences(session, alignments, sample, strip_alleles=True,
                   error_action='discard'):
     seqs_and_noresults = funcs.flatten([
@@ -100,14 +85,6 @@ def add_sequences(session, alignments, sample, strip_alleles=True,
     funcs.bulk_add(session, succeeded)
     funcs.bulk_add(session, failed)
     session.flush()
-
-    succeeded = set([s.seq_id for s in succeeded])
-    dups = funcs.flatten([
-        get_duplicates_from_alignment(alignment, sample)
-        for alignment in alignments if alignment.sequence.ids[0] in succeeded
-    ])
-    if dups:
-        funcs.bulk_add(session, dups)
 
 
 def add_noresults_for_vdj(session, vdj, sample, reason):

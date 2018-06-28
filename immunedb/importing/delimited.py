@@ -71,7 +71,6 @@ def extract_adaptive_sequence(idx, line, v_germlines, j_germlines):
     v_gene = _format_gene(line['vGeneName'])
     v_germ = v_germlines[GeneName(v_gene)]
     j_gene = _format_gene(line['jFamilyName'])
-    j_germ = j_germlines[GeneName(j_gene)]
     v_region = list(('N' * (CDR3_OFFSET - v_end) + v_region))
 
     for i in range(len(v_germ)):
