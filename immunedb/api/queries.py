@@ -645,9 +645,9 @@ def analyze_samples(session, samples, filter_type, include_outliers,
         CloneStats.sample_id.in_(samples)
     ).group_by(CloneStats.functional)}
 
-    counts['clones_nonfunctional'] = clone_cnts[False]
-    counts['clones_functional'] = clone_cnts[True]
-    counts['clones_all'] = clone_cnts[False] + clone_cnts[True]
+    counts['clones_nonfunctional'] = clone_cnts.get(False, 0)
+    counts['clones_functional'] = clone_cnts.get(True, 0)
+    counts['clones_all'] = clone_cnts.get(False, 0) + clone_cnts.get(True, 0)
 
     return {'samples': sample_info, 'counts': counts, 'stats': stats}
 

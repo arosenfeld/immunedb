@@ -58,7 +58,7 @@ def create_alignment(seq, line, v_germlines, j_germlines):
 
 def extract_adaptive_sequence(idx, line, v_germlines, j_germlines):
     def _format_gene(g):
-        g = g.replace('IGHV0', 'IGHV').replace('IGHJ0', 'IGHJ')
+        g = g.replace('V0', 'V').replace('J0', 'J')
         if '*' not in g:
             return g + '*01'
         return g
@@ -104,6 +104,8 @@ def read_file(session, fmt, handle, sample, v_germlines, j_germlines, props):
                 line = extract_adaptive_sequence(i, line, v_germlines,
                                                  j_germlines)
             except (AlignmentException, KeyError) as e:
+                seq = VDJSequence('seq_{}'.format(i), '')
+                add_noresults_for_vdj(session, seq, sample, str(e))
                 continue
         seq_ids = line['SEQUENCE_ID']
         if 'DUPCOUNT' in line:
