@@ -58,19 +58,31 @@ def create_alignment(seq, line, v_germlines, j_germlines):
 
 def extract_adaptive_sequence(idx, line, v_germlines, j_germlines):
     def _format_gene(g):
-        g = g.replace('V0', 'V').replace('J0', 'J')
+        g = g.replace('V0', 'V').replace('J0', 'J').replace('-0', '-')
+        g = g.replace('TCRB', 'TRB')
         if '*' not in g:
             return g + '*01'
         return g
 
+    def _resolve_gene(line, gene, db):
+        full = _format_gene(line[gene.lower() + 'GeneName'])
+        family = _format_gene(line[gene.lower() + 'FamilyName'])
+        try:
+            return full, db[GeneName(full)]
+        except KeyError:
+            return family, db[GeneName(family)]
+        raise AlignmentException('Invalid {} gene: {} / {}'.format(
+            gene.upper(), full, family))
+
+
     if not line['aminoAcid']:
         raise AlignmentException('No amino-acids provided')
 
+    v_gene, v_germ = _resolve_gene(line, 'V', v_germlines)
+    j_gene, j_germ = _resolve_gene(line, 'J', j_germlines)
+
     v_end = int(line['vIndex'])
     v_region = line['nucleotide'][:v_end]
-    v_gene = _format_gene(line['vGeneName'])
-    v_germ = v_germlines[GeneName(v_gene)]
-    j_gene = _format_gene(line['jFamilyName'])
     v_region = list(('N' * (CDR3_OFFSET - v_end) + v_region))
 
     for i in range(len(v_germ)):
@@ -82,6 +94,10 @@ def extract_adaptive_sequence(idx, line, v_germlines, j_germlines):
     j_region = j_region + ('N' * (j_germlines.upstream_of_cdr3 -
                            len(j_region)))
     imgt_sequence = v_region + cdr3_region + j_region
+    try:
+        counts = line['count (templates/reads)']
+    except KeyError:
+        counts = line['count (templates)']
 
     return {
         'SEQUENCE_ID': 'seq_{}'.format(idx),
@@ -90,7 +106,7 @@ def extract_adaptive_sequence(idx, line, v_germlines, j_germlines):
         'J_CALL': j_gene,
         'JUNCTION_LENGTH': line['cdr3Length'],
         'V_SEQ_LENGTH': v_end,
-        'DUPCOUNT': line['count (templates/reads)']
+        'DUPCOUNT': counts
     }
 
 
