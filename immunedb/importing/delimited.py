@@ -51,6 +51,11 @@ def create_alignment(seq, line, v_germlines, j_germlines):
         germ_j[-j_germlines.upstream_of_cdr3:]
     ])
 
+    alignment.sequence.pad_right(
+        len(alignment.germline) -
+        len(alignment.sequence.sequence)
+    )
+
     if len(alignment.germline) != len(alignment.sequence.sequence):
         raise AlignmentException('Sequence and germline differ in size')
     return alignment
@@ -73,7 +78,6 @@ def extract_adaptive_sequence(idx, line, v_germlines, j_germlines):
             return family, db[GeneName(family)]
         raise AlignmentException('Invalid {} gene: {} / {}'.format(
             gene.upper(), full, family))
-
 
     if not line['aminoAcid']:
         raise AlignmentException('No amino-acids provided')
@@ -123,21 +127,18 @@ def read_file(session, fmt, handle, sample, v_germlines, j_germlines, props):
                 seq = VDJSequence('seq_{}'.format(i), '')
                 add_noresults_for_vdj(session, seq, sample, str(e))
                 continue
-        seq_ids = line['SEQUENCE_ID']
+        seq = VDJSequence(line['SEQUENCE_ID'],
+                          line['SEQUENCE_IMGT'].replace('.', '-'))
         if 'DUPCOUNT' in line:
-            seq_ids = [
-                '{}_{}'.format(line['SEQUENCE_ID'], j)
-                for j in range(int(line['DUPCOUNT']))
-            ]
-
-        seq = VDJSequence(seq_ids, line['SEQUENCE_IMGT'].replace('.', '-'))
+            seq.copy_number = int(line['DUPCOUNT'])
         try:
             alignment = create_alignment(seq, line, v_germlines, j_germlines)
             for other in uniques.setdefault(
                     len(alignment.sequence.sequence), []):
                 if dnautils.equal(other.sequence.sequence,
                                   alignment.sequence.sequence):
-                    other.sequence.ids.extend(alignment.sequence.ids)
+                    other.sequence.copy_number += (
+                        alignment.sequence.copy_number)
                     break
             else:
                 uniques[len(alignment.sequence.sequence)].append(alignment)

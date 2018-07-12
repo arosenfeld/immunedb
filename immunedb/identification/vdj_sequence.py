@@ -8,14 +8,16 @@ import immunedb.util.lookups as lookups
 
 
 class VDJSequence(object):
-    def __init__(self, ids, sequence, quality=None, rev_comp=False):
+    def __init__(self, seq_id, sequence, quality=None, rev_comp=False,
+                 copy_number=1):
         if quality and len(sequence) != len(quality):
             raise ValueError('Sequence and quality must be the same length')
         if not all([c in 'ATCGN-' for c in sequence]):
             raise ValueError('Invalid characters in sequence: {}'.format(
                 sequence))
 
-        self.ids = [ids] if type(ids) == str else ids
+        self.seq_id = seq_id
+        self.copy_number = copy_number
         self.orig_sequence = sequence[:]
         self.orig_quality = quality[:] if quality else None
         self.rev_comp = rev_comp
@@ -42,10 +44,11 @@ class VDJSequence(object):
 
     def reverse_complement(self):
         return VDJSequence(
-            self.ids,
+            self.seq_id,
             str(Seq(self._sequence).reverse_complement()),
             self._quality[::-1] if self._quality else None,
-            rev_comp=True
+            rev_comp=True,
+            copy_number=self.copy_number
         )
 
     def pad(self, count):

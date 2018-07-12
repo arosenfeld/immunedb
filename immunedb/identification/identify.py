@@ -149,8 +149,8 @@ def aggregate_vdj(aggregate_queue):
             alignment = result['alignment']
             seq_key = alignment.sequence.sequence
             if seq_key in alignments['success']:
-                alignments['success'][seq_key].sequence.ids.extend(
-                    alignment.sequence.ids)
+                alignments['success'][seq_key].sequence.copy_number += (
+                    alignment.sequence.copy_number)
             else:
                 alignments['success'][seq_key] = alignment
         elif result['status'] == 'noresult':
@@ -158,7 +158,7 @@ def aggregate_vdj(aggregate_queue):
         elif result['status'] == 'error':
             logger.error(
                 'Unexpected error processing sequence {}\n\t{}'.format(
-                    result['vdj'].ids[0], result['reason']))
+                    result['vdj'].seq_id, result['reason']))
     alignments['success'] = alignments['success'].values()
     return alignments
 
@@ -204,8 +204,8 @@ def aggregate_vties(aggregate_queue):
 
             bucket = bucketed_seqs['success'].setdefault(bucket_key, {})
             if alignment.sequence.sequence in bucket:
-                bucket[alignment.sequence.sequence].sequence.ids += (
-                    alignment.sequence.ids
+                bucket[alignment.sequence.sequence].sequence.copy_number += (
+                    alignment.sequence.copy_number
                 )
             else:
                 bucket[alignment.sequence.sequence] = alignment
@@ -214,7 +214,7 @@ def aggregate_vties(aggregate_queue):
         elif result['status'] == 'error':
             logger.error(
                 'Unexpected error processing sequence {}\n\t{}'.format(
-                    result['alignment'].sequence.ids[0]))
+                    result['alignment'].sequence.seq_id))
 
     bucketed_seqs['success'] = [
         b.values() for b in bucketed_seqs['success'].values()
@@ -225,7 +225,7 @@ def aggregate_vties(aggregate_queue):
 def process_collapse(sequences):
     sequences = sorted(
         sequences,
-        key=lambda s: (len(s.sequence.ids), s.sequence.ids[0]),
+        key=lambda s: (s.sequence.copy_number, s.sequence.seq_id),
         reverse=True
     )
     uniques = []
@@ -235,7 +235,7 @@ def process_collapse(sequences):
             smaller = sequences[i]
             if dnautils.equal(larger.sequence.sequence,
                               smaller.sequence.sequence):
-                larger.sequence.ids += smaller.sequence.ids
+                larger.sequence.copy_number += smaller.sequence.copy_number
                 del sequences[i]
         uniques.append(larger)
     return uniques
@@ -267,11 +267,11 @@ def read_input(path):
     parser = SeqIO.parse(path, 'fasta' if path.endswith('.fasta') else 'fastq')
 
     # Collapse identical sequences
-    logger.info('Collapsing identical sequences')
+    logger.info('Parsing inuput')
     for record in parser:
         try:
             vdjs.append(VDJSequence(
-                ids=record.description,
+                seq_id=record.description,
                 sequence=str(record.seq),
                 quality=funcs.ord_to_quality(
                     record.letter_annotations.get('phred_quality')

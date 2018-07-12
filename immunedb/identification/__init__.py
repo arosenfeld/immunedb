@@ -10,19 +10,19 @@ class AlignmentException(Exception):
 
 
 def get_noresult_from_vdj(session, vdj, sample, reason):
-    return [NoResult(
-        seq_id=seq_id,
+    return NoResult(
+        seq_id=vdj.seq_id,
         sample_id=sample.id,
         sequence=vdj.orig_sequence,
         quality=vdj.orig_quality,
         reason=reason
-    ) for seq_id in vdj.ids]
+    )
 
 
 def get_seq_from_alignment(session, alignment, sample, strip_alleles=True):
     try:
         return [Sequence(
-            seq_id=alignment.sequence.ids[0],
+            seq_id=alignment.sequence.seq_id,
             sample_id=sample.id,
 
             subject_id=sample.subject.id,
@@ -55,7 +55,7 @@ def get_seq_from_alignment(session, alignment, sample, strip_alleles=True):
             in_frame=alignment.in_frame,
             functional=alignment.functional,
             stop=alignment.stop,
-            copy_number=len(alignment.sequence.ids),
+            copy_number=alignment.sequence.copy_number,
 
             cdr3_nt=alignment.cdr3,
             cdr3_num_nts=len(alignment.cdr3),
@@ -70,8 +70,8 @@ def get_seq_from_alignment(session, alignment, sample, strip_alleles=True):
 
             germline=alignment.germline)]
     except ValueError as e:
-        return get_noresult_from_vdj(session, alignment.sequence, sample,
-                                     str(e))
+        return [get_noresult_from_vdj(session, alignment.sequence, sample,
+                                      str(e))]
 
 
 def add_sequences(session, alignments, sample, strip_alleles=True,
@@ -89,10 +89,7 @@ def add_sequences(session, alignments, sample, strip_alleles=True,
 
 def add_noresults_for_vdj(session, vdj, sample, reason):
     try:
-        funcs.bulk_add(
-            session,
-            get_noresult_from_vdj(session, vdj, sample, reason)
-        )
+        session.add(get_noresult_from_vdj(session, vdj, sample, reason))
     except ValueError:
         pass
 

@@ -1,4 +1,3 @@
-from collections import Counter
 import csv
 import os
 import re
@@ -400,7 +399,6 @@ def remove_duplicates(session, sample):
         Sequence.locally_aligned.is_(True),
         Sequence.sample_id == sample.id
     ).order_by(Sequence.ai)
-    new_copies = Counter()
 
     for seq in seqs:
         potential_collapse = session.query(
