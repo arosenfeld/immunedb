@@ -114,12 +114,7 @@ def process_data(input_data, process_func, aggregate_func, nproc,
         start = time.time()
         logger.info('Waiting on pool {}'.format(process_func.__name__))
 
-        res = [
-            r for r in pool.map(
-                f, range(len(proxy_data)),
-                chunksize=int(len(proxy_data) / float(nproc)))
-            if r is not None
-        ]
+        res = [r for r in pool.map(f, range(len(proxy_data))) if r is not None]
         pool.close()
     logger.info('Pool done: {}'.format(time.time() - start))
 
