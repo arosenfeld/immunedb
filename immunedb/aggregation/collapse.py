@@ -45,6 +45,7 @@ class CollapseWorker(concurrent.Worker):
             larger = to_process.pop(0)
             # Iterate over all smaller sequences to find matches
             instances = 1
+            samples = set([larger['sample_id']])
             for i in reversed(range(len(to_process))):
                 smaller = to_process[i]
                 if len(larger['sequence']) != len(smaller['sequence']):
@@ -59,13 +60,15 @@ class CollapseWorker(concurrent.Worker):
                     self._session.add(SequenceCollapse(**{
                         'sample_id': smaller['sample_id'],
                         'seq_ai': smaller['ai'],
-                        'copy_number_in_subject': 0,
                         'collapse_to_subject_seq_ai': larger['ai'],
                         'collapse_to_subject_sample_id': larger['sample_id'],
                         'collapse_to_subject_seq_id': larger['seq_id'],
-                        'instances_in_subject': 0
+                        'instances_in_subject': 0,
+                        'copy_number_in_subject': 0,
+                        'samples_in_subject': 0,
                     }))
                     instances += 1
+                    samples.add(smaller['sample_id'])
                     # Delete the smaller sequence from the list to process
                     # since it's been collapsed
                     del to_process[i]
@@ -74,11 +77,12 @@ class CollapseWorker(concurrent.Worker):
             self._session.add(SequenceCollapse(**{
                 'sample_id': larger['sample_id'],
                 'seq_ai': larger['ai'],
-                'copy_number_in_subject': larger['cn'],
                 'collapse_to_subject_sample_id': larger['sample_id'],
                 'collapse_to_subject_seq_id': larger['seq_id'],
                 'collapse_to_subject_seq_ai': larger['ai'],
                 'instances_in_subject': instances,
+                'copy_number_in_subject': larger['cn'],
+                'samples_in_subject': len(samples),
             }))
 
         self._session.commit()

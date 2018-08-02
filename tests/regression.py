@@ -101,7 +101,7 @@ class BaseTest(object):
             self.clones()
             self.clone_stats()
             self.sample_stats()
-            # self.trees()
+            self.trees()
             self.selection()
 
         def initial_regression(self):
@@ -267,15 +267,12 @@ class BaseTest(object):
             )
 
         def trees(self):
-            clearcut_path = os.environ.get('CLEARCUT_PATH')
-            if not clearcut_path:
-                print('Clearcut path not set.  Skipping tree tests.')
+            if not os.environ.get('TEST_TREES'):
+                print('TEST_TREES not set.  Not testing trees')
                 return
-
             run_clearcut(
                 self.session,
                 NamespaceMimic(
-                    clearcut_path=clearcut_path,
                     force=False,
                     clone_ids=None,
                     subject_ids=None,

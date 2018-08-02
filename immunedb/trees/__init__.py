@@ -1,48 +1,116 @@
 import json
-import shlex
-
-from subprocess import Popen, PIPE
 
 import ete3
 
-from immunedb.common.models import Sequence, SequenceCollapse
+from immunedb.common.models import Clone, Sequence, SequenceCollapse
+import immunedb.util.concurrent as concurrent
+from immunedb.util.log import logger
 
 
-class PhylogeneticTree(object):
-    def __init__(self, germline_sequence, sequences, min_mut_occurrence=1,
-                 min_mut_samples=1):
-        self.germline_sequence = germline_sequence
-        self.sequences = sequences
-        self.min_mut_occurrence = min_mut_occurrence
+class LineageWorker(concurrent.Worker):
+    def __init__(self, session, newick_generator, min_mut_copies,
+                 min_mut_samples, min_seq_copies, min_seq_samples,
+                 exclude_stops, post_tree_hook=None):
+        self.session = session
+        self.newick_generator = newick_generator
+        self.min_mut_copies = min_mut_copies
         self.min_mut_samples = min_mut_samples
+        self.min_seq_copies = min_seq_copies
+        self.min_seq_samples = min_seq_samples
+        self.exclude_stops = exclude_stops
+        self.post_tree_hook = post_tree_hook
 
-    def run(self, session):
+    def get_tree(self, germline, sequences):
         fasta, removed_muts = get_fasta_input(
-            self.germline_sequence, self.sequences,
-            min_mut_occurrence=self.min_mut_occurrence,
-            min_mut_samples=self.min_mut_samples)
+            germline, sequences,
+            self.min_mut_copies, self.min_mut_samples
+        )
+        newick = self.newick_generator(fasta)
+        tree = add_tree_metadata(self.session, newick, germline, removed_muts)
+        if self.post_tree_hook:
+            tree = self.post_tree_hook(tree)
+        return tree
 
-        newick = get_newick(fasta)
-        tree = populate_tree(session, newick, self.germline_sequence,
-                             removed_muts)
-        tree.set_outgroup('germline')
-        tree.search_nodes(name='germline')[0].delete()
+    def do_task(self, clone_id):
+        clone_inst = self.session.query(Clone).filter(
+            Clone.id == clone_id).first()
+        if not clone_inst:
+            return
 
-        first = True
-        while True:
-            push_common_mutations_up(tree, first)
-            remove_parent_mutations(tree)
-            rem_null = remove_null_nodes(tree)
-            moved = check_supersets(tree)
-            if not rem_null and not moved and not are_null_nodes(tree):
-                break
-            first = False
+        self.info('Running clone {}'.format(clone_inst.id))
 
-        self.tree = tree
-        return self.tree
+        sequences = self.session.query(
+            Sequence
+        ).join(SequenceCollapse).filter(
+            Sequence.clone_id == clone_id,
+            SequenceCollapse.copy_number_in_subject >= self.min_seq_copies,
+            SequenceCollapse.samples_in_subject >= self.min_seq_samples,
+        )
+
+        if self.exclude_stops:
+            sequences = sequences.filter(Sequence.stop == 0)
+
+        sequences = sequences.order_by(Sequence.v_length)
+
+        try:
+            tree = self.get_tree(clone_inst.consensus_germline, sequences)
+        except Exception as e:
+            logger.error('Error running clone {}: {}'.format(clone_id, e))
+            return
+
+        final = {
+            'info': {
+                'min_mut_copies': self.min_mut_copies,
+                'min_mut_samples': self.min_mut_samples,
+                'min_seq_copies': self.min_seq_copies,
+                'min_seq_samples': self.min_seq_samples,
+                'exclude_stops': self.exclude_stops
+            },
+            'tree': tree_as_dict(tree)
+        }
+        clone_inst.tree = json.dumps(final)
+        self.session.add(clone_inst)
+        self.session.commit()
 
 
-def populate_tree(session, newick, germline_seq, removed_muts):
+def get_fasta_input(germline_seq, sequences, min_mut_copies, min_mut_samples):
+    seqs = {}
+    mut_counts = {}
+    for seq in sequences:
+        seqs[seq.ai] = seq.clone_sequence
+        if seq.mutations_from_clone is None:
+            raise Exception(
+                'Mutation information not available for sequence '
+                '{}. Skipping this clone tree. Was '
+                'immunedb_clone_stats run?'.format(seq.seq_id)
+            )
+
+        mutations = get_mutations(
+            germline_seq, seq.clone_sequence, map(
+                int, json.loads(seq.mutations_from_clone).keys())
+        )
+        for mut in mutations:
+            if mut not in mut_counts:
+                mut_counts[mut] = {'count': 0, 'samples': set([])}
+            mut_counts[mut]['count'] += seq.copy_number
+            mut_counts[mut]['samples'].add(seq.sample_id)
+
+    removed_muts = set([])
+    for mut, cnts in mut_counts.items():
+        if (cnts['count'] < min_mut_copies or
+                len(cnts['samples']) < min_mut_samples):
+            removed_muts.add(mut)
+
+    for seq_id, seq in seqs.items():
+        seqs[seq_id] = remove_muts(seq, removed_muts, germline_seq)
+
+    in_data = '>germline\n{}\n'.format(germline_seq)
+    for seq_id, seq in seqs.items():
+        in_data += '>{}\n{}\n'.format(seq_id, seq)
+    return in_data, removed_muts
+
+
+def add_tree_metadata(session, newick, germline_seq, removed_muts):
     tree = ete3.Tree(newick)
     for node in tree.traverse():
         if node.name not in ('NoName', 'germline', ''):
@@ -75,44 +143,6 @@ def populate_tree(session, newick, germline_seq, removed_muts):
     return tree
 
 
-def get_fasta_input(germline_seq, sequences, min_mut_occurrence=1,
-                    min_mut_samples=1):
-    seqs = {}
-    mut_counts = {}
-    for seq in sequences:
-        seqs[seq.ai] = seq.clone_sequence
-        if seq.mutations_from_clone is None:
-            raise Exception(
-                'Mutation information not available for sequence '
-                '{}. Skipping this clone tree. Was '
-                'immunedb_clone_stats run?'.format(seq.seq_id)
-            )
-
-        mutations = get_mutations(
-            germline_seq, seq.clone_sequence, map(
-                int, json.loads(seq.mutations_from_clone).keys())
-        )
-        for mut in mutations:
-            if mut not in mut_counts:
-                mut_counts[mut] = {'count': 0, 'samples': set([])}
-            mut_counts[mut]['count'] += 1
-            mut_counts[mut]['samples'].add(seq.sample_id)
-
-    removed_muts = set([])
-    for mut, cnts in mut_counts.items():
-        if (cnts['count'] < min_mut_occurrence or
-                len(cnts['samples']) < min_mut_samples):
-            removed_muts.add(mut)
-
-    for seq_id, seq in seqs.items():
-        seqs[seq_id] = remove_muts(seq, removed_muts, germline_seq)
-
-    in_data = '>germline\n{}\n'.format(germline_seq)
-    for seq_id, seq in seqs.items():
-        in_data += '>{}\n{}\n'.format(seq_id, seq)
-    return in_data, removed_muts
-
-
 def get_seqs_collapsed_to(session, seq):
     sample_level_seqs = session.query(SequenceCollapse.seq_ai).filter(
         SequenceCollapse.collapse_to_subject_seq_ai == seq.ai
@@ -130,12 +160,6 @@ def remove_muts(seq, removes, germline_seq):
         if seq[loc] == to:
             seq = seq[:loc] + germline_seq[loc] + seq[loc + 1:]
     return seq
-
-
-def get_newick(fasta_input):
-    proc = Popen(shlex.split('clearcut --alignment -q --DNA -N -r'),
-                 stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding='utf8')
-    return proc.communicate(input=fasta_input)[0]
 
 
 def get_mutations(s1, s2, positions):
@@ -191,90 +215,6 @@ def tree_as_dict(tree, root=True):
         },
         'children': [node]
     }
-
-
-def push_common_mutations_up(tree, first):
-    if tree.is_leaf():
-        return tree.mutations
-
-    common_muts = None
-    for child in tree.children:
-        child_muts = push_common_mutations_up(child, first)
-        if common_muts is None:
-            common_muts = child_muts
-        else:
-            common_muts = common_muts.intersection(child_muts)
-
-    if len(tree.seq_ids) == 0:
-        if first:
-            tree.mutations = common_muts or tree.mutations
-        else:
-            tree.mutations = common_muts.union(tree.mutations)
-
-    return tree.mutations
-
-
-def remove_parent_mutations(tree):
-    for node in tree.traverse(strategy='postorder'):
-        if node.up is not None and node.up.name != 'germline':
-            node.mutations = node.mutations.difference(node.up.mutations)
-
-
-def remove_null_nodes(tree):
-    removed = False
-    for node in tree.traverse():
-        if node.up is not None and len(node.mutations) == 0:
-            node.up.seq_ids.update(node.seq_ids)
-            node.up.copy_number += node.copy_number
-            node.delete(prevent_nondicotomic=False)
-            removed = True
-    return removed
-
-
-def check_supersets(tree):
-    if tree.is_leaf():
-        return False
-
-    moved = False
-    for c1 in tree.children:
-        for c2 in tree.children:
-            if c1 == c2:
-                continue
-            if c1.mutations.issubset(c2.mutations):
-                c1.detach()
-                c2.add_child(c1)
-                moved = True
-            elif c2.mutations.issubset(c1.mutations):
-                c2.detach()
-                c1.add_child(c2)
-                moved = True
-
-            overlap = c1.mutations.intersection(c2.mutations)
-            if len(overlap) > 0:
-                c1.detach()
-                c2.detach()
-                intermediate = instantiate_node(ete3.Tree(name='NoName'))
-                intermediate.mutations = overlap
-                intermediate.add_child(c1)
-                intermediate.add_child(c2)
-                tree.add_child(intermediate)
-            moved = moved or check_supersets(c1)
-
-    return moved
-
-
-def are_null_nodes(tree):
-    for node in tree.traverse():
-        if node.up is not None and len(node.mutations) == 0:
-            return True
-    return False
-
-
-def get_total_muts(tree):
-    muts = 0
-    for node in tree.traverse():
-        muts += len(node.mutations)
-    return muts
 
 
 def cut_tree(tree, max_muts, d=0):

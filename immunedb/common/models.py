@@ -787,6 +787,7 @@ class SequenceCollapse(Base):
     instances_in_subject = Column(Integer, server_default='0', nullable=False)
     copy_number_in_subject = Column(Integer, server_default='0',
                                     nullable=False, index=True)
+    samples_in_subject = Column(Integer, server_default='0', nullable=False)
 
     @property
     def collapse_to_seq(self):

@@ -8,7 +8,8 @@ from immunedb.common.models import (CDR3_OFFSET, Clone, Sequence,
                                     SequenceCollapse, Subject)
 import immunedb.common.modification_log as mod_log
 import immunedb.common.config as config
-from immunedb.trees import cut_tree, get_seq_pks, PhylogeneticTree
+from immunedb.trees import cut_tree, get_seq_pks, LineageWorker
+import immunedb.trees.clearcut as clearcut
 import immunedb.util.concurrent as concurrent
 import immunedb.util.funcs as funcs
 import immunedb.util.lookups as lookups
@@ -194,14 +195,17 @@ class LineageClonalWorker(ClonalWorker):
                 '-' * bucket.cdr3_num_nts,
                 germline[cdr3_start + bucket.cdr3_num_nts:]
             ))
-            phylo = PhylogeneticTree(
-                germline, seqs,
-                min_mut_occurrence=self.min_mut_occurrence,
-                min_mut_samples=self.min_mut_samples,
+            lineage = LineageWorker(
+                self.session,
+                clearcut.get_newick,
+                self.min_mut_copies,
+                self.min_mut_samples,
+                exclude_stops=False,
+                post_tree_hook=clearcut.minimize_tree
             )
-            phylo.run(self.session, self.clearcut_path)
+            tree = lineage.get_tree(germline, seqs)
 
-            for subtree in cut_tree(phylo.tree, self.mut_cutoff):
+            for subtree in cut_tree(tree, self.mut_cutoff):
                 new_clone = Clone(
                       subject_id=bucket.subject_id,
                       v_gene=bucket.v_gene,
