@@ -26,6 +26,8 @@ class LineageWorker(concurrent.Worker):
             self.min_mut_copies, self.min_mut_samples
         )
         newick = self.newick_generator(fasta)
+        if not newick:
+            return None
         tree = add_tree_metadata(self.session, newick, germline, removed_muts)
         if self.post_tree_hook:
             tree = self.post_tree_hook(tree)
@@ -54,6 +56,10 @@ class LineageWorker(concurrent.Worker):
 
         try:
             tree = self.get_tree(clone_inst.consensus_germline, sequences)
+            if not tree:
+                logger.warning('No sequences to make tree for clone {}'.format(
+                    clone_id))
+                return
         except Exception as e:
             logger.error('Error running clone {}: {}'.format(clone_id, e))
             return

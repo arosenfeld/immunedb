@@ -4,9 +4,11 @@ import csv
 from sqlalchemy.orm import joinedload
 
 from immunedb.identification.genes import GeneName
-from immunedb.common.models import Sequence, SequenceCollapse, Subject
+from immunedb.common.models import (SampleMetadata, Sequence, SequenceCollapse,
+                                    Subject)
 from immunedb.util.log import logger
 from immunedb.util.funcs import yield_limit
+from immunedb.exporting.tsv_writer import StreamingTSV
 
 mappings = {
     'airr': OrderedDict((
@@ -39,7 +41,10 @@ mappings = {
         ('clone_junction_nt', lambda s: s.clone.cdr3_nt if s.clone else ''),
         ('clone_junction_aa', lambda s: s.clone.cdr3_aa if s.clone else ''),
         ('sample', lambda s: s.sample.name),
-        ('subject', lambda s: s.subject.identifier))),
+        ('subject', lambda s: s.subject.identifier),
+        ('duplicate_count_in_subject', lambda s:
+            s.collapse.copy_number_in_subject))),
+
 
     'changeo': OrderedDict((
         ('SEQUENCE_ID', 'seq_id'),
@@ -60,7 +65,8 @@ mappings = {
         ('J_IDENTITY', lambda s:
             round(100 * s.j_match / float(s.j_length), 2)),
         ('J_SCORE', 'j_match'),
-        ('DUPCOUNT', lambda s: s.collapse.copy_number_in_subject),
+        ('DUPCOUNT', lambda s: s.copy_number),
+        ('DUPCOUNT_IN_SUBJECT', lambda s: s.collapse.copy_number_in_subject),
         ('CLONE', 'clone_id'),
 
         # Extras
@@ -71,30 +77,28 @@ mappings = {
 }
 
 
-class SequenceWriter(object):
-    def __init__(self, format_name):
-        self.out = io.StringIO()
+class SequenceWriter(StreamingTSV):
+    META_PREFIX = 'METADATA_'
+    def __init__(self, format_name, metadata_fields):
         self.mapping = mappings[format_name]
-        self.writer = csv.DictWriter(self.out, fieldnames=self.mapping.keys(),
-                                     delimiter='\t')
-
-    def writeheader(self):
-        self.out.truncate(0)
-        self.out.seek(0)
-        self.writer.writeheader()
-        return self.out.getvalue().strip() + '\n'
+        fields = list(self.mapping.keys()) + list(sorted([
+            self.META_PREFIX + m for m in metadata_fields]))
+        super(SequenceWriter, self).__init__(fields)
 
     def writeseq(self, seq):
-        self.out.truncate(0)
-        self.out.seek(0)
-        self.writer.writerow(self.format_seq(seq))
-        return self.out.getvalue().strip() + '\n'
+        return super(SequenceWriter, self).writerow(self.format_seq(seq))
 
     def format_seq(self, seq):
-        return {
+        fields = {
             out_field: self._get_val(seq, model_field)
             for out_field, model_field in self.mapping.items()
         }
+
+        fields.update({
+            self.META_PREFIX + k: v
+            for k, v in seq.sample.metadata_dict.items()
+        })
+        return fields
 
     def _get_val(self, model, field):
         if type(field) == str:
@@ -107,7 +111,7 @@ class SequenceWriter(object):
         return ''
 
 
-def get_sequences(seqs, format_name):
+def get_sequences(session, seqs, format_name):
     seqs = seqs.join(SequenceCollapse)
     seqs = seqs.options(
         joinedload(Sequence.clone),
@@ -115,7 +119,8 @@ def get_sequences(seqs, format_name):
         joinedload(Sequence.sample),
         joinedload(Sequence.subject),
     )
-    writer = SequenceWriter(format_name)
+    meta_keys = set([m.key for m in session.query(SampleMetadata.key)])
+    writer = SequenceWriter(format_name, meta_keys)
 
     yield writer.writeheader()
     for seq in yield_limit(seqs, Sequence.ai):
@@ -138,5 +143,5 @@ def write_sequences(session, args):
 
         fn = '{}.{}.tsv'.format(subject.identifier, args.fmt)
         with open(fn, 'w+') as fh:
-            for line in get_sequences(seqs, args.fmt):
+            for line in get_sequences(session, seqs, args.fmt):
                 fh.write(line)

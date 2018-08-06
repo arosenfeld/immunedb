@@ -30,10 +30,17 @@ version you pulled previously):
 
 .. code-block:: bash
 
-    $ docker run -it arosenfeld/immunedb:v0.24.1
+    $ docker run -v $HOME/immunedb_share:/share \
+        -p 5000:5000 -p 8080:8080 -it arosenfeld/immunedb:v0.24.1
 
-This will start a shell with ImmuneDB and accessory scripts pre-installed.  The
-location of important files are:
+This will start a shell with ImmuneDB and accessory scripts pre-installed as
+well as create a shared directory between the host and Docker container.  Files
+placed in the host's ``$HOME/immunedb_share`` directory and it will appear in
+``/share`` within the Docker container (and vice versa).  Additionally, MySQL
+stores its data in ``/share/mysql_data`` so databases will persist across
+multiple container invocations.
+
+The location of important files are:
 
 - ``/root/germlines``: IMGT aligned germlines for IGH, TCRA, and TCRB.
 - ``/apps/clearcut/clearcut``: The ``clearcut`` executable for
@@ -48,22 +55,6 @@ location of important files are:
   its data.
 - ``/example``: A set of example input data to familiarize yourself with
   ImmuneDB
-
-Sharing Data & Ports Between Host and Container
-===============================================
-In most cases you'll want to share input data between the Docker container and
-your host system.  The recommended way to do this is with the ``-v`` flag.
-Further, if using the web interface, you must publish two ports with ``-p``
-
-.. code-block:: bash
-
-    $ docker run -v $HOME/immunedb_share:/share \
-        -p 5000:5000 -p 8080:8080 -it arosenfeld/immunedb:v0.24.1
-
-You can then put files into your host's ``$HOME/immunedb_share`` directory and
-it will appear in ``/share`` within the Docker container.  Additionally, MySQL
-stores its data in ``/share/mysql_data`` so databases will persist across
-multiple container invocations.
 
 Running the Example Pipeline
 ============================

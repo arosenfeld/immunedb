@@ -261,7 +261,7 @@ def create_app(session_maker, allow_shutdown=False):
         fn = '{}_{}.tsv'.format(time_str, schema)
         response.headers['Content-Disposition'] = 'attachment;filename=' + fn
 
-        for row in get_sequences(seqs, schema):
+        for row in get_sequences(session, seqs, schema):
             yield row
 
     @app.route('/shutdown', method=['GET'])
