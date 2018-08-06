@@ -8,8 +8,6 @@ from immunedb.util.lookups import aas_from_nts
 
 def write_vdjtools(session, args):
     fieldnames = ['count', 'freq', 'cdr3nt', 'cdr3aa', 'v', 'd', 'j']
-    if args.include_uniques:
-        fieldnames.append('unique')
 
     clone_features = {c.id: (c.v_gene, c.j_gene, c.cdr3_nt)
                       for c in session.query(Clone.id, Clone.v_gene,
@@ -18,14 +16,13 @@ def write_vdjtools(session, args):
         logger.info('Exporting sample {}'.format(sample.name))
         sample_clones = {}
         stats = session.query(
-            CloneStats.clone_id, CloneStats.total_cnt, CloneStats.unique_cnt
+            CloneStats.clone_id, CloneStats.total_cnt
         ).filter(
             CloneStats.sample_id == sample.id
         )
         for stat in stats:
             key = clone_features[stat.clone_id]
             sample_clones.setdefault(key, Counter())['total'] += stat.total_cnt
-            sample_clones[key]['unique'] += stat.unique_cnt
 
         writer = csv.DictWriter(
             open('{}.sample.txt'.format(sample.name), 'w+'),
@@ -48,5 +45,4 @@ def write_vdjtools(session, args):
                 'v': v,
                 'd': '.',
                 'j': j,
-                'unique': counts['unique']
             })

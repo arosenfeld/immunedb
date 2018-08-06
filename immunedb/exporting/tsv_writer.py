@@ -6,7 +6,7 @@ class StreamingTSV(object):
     def __init__(self, fieldnames):
         self.out = io.StringIO()
         self.writer = csv.DictWriter(self.out, fieldnames=fieldnames,
-                                     delimiter='\t')
+                                     delimiter='\t', extrasaction='ignore')
 
     def writeheader(self):
         return self._stream(self.writer.writeheader)

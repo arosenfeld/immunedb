@@ -1,6 +1,4 @@
 from collections import OrderedDict
-import io
-import csv
 from sqlalchemy.orm import joinedload
 
 from immunedb.identification.genes import GeneName
@@ -9,6 +7,7 @@ from immunedb.common.models import (SampleMetadata, Sequence, SequenceCollapse,
 from immunedb.util.log import logger
 from immunedb.util.funcs import yield_limit
 from immunedb.exporting.tsv_writer import StreamingTSV
+
 
 mappings = {
     'airr': OrderedDict((
@@ -79,6 +78,7 @@ mappings = {
 
 class SequenceWriter(StreamingTSV):
     META_PREFIX = 'METADATA_'
+
     def __init__(self, format_name, metadata_fields):
         self.mapping = mappings[format_name]
         fields = list(self.mapping.keys()) + list(sorted([
