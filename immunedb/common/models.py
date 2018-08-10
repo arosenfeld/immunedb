@@ -120,6 +120,12 @@ class Sample(Base):
     def metadata_dict(self):
         return {m.key: m.value for m in self.metadata_models}
 
+    @property
+    def stats(self):
+        for s in self.sample_stats:
+            if s.filter_type == 'all' and s.outliers and not s.full_reads:
+                return s
+
 
 class SampleMetadata(Base):
     __tablename__ = 'sample_metadata'

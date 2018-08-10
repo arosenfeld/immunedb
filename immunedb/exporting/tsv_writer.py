@@ -5,7 +5,8 @@ import io
 class StreamingTSV(object):
     def __init__(self, fieldnames):
         self.out = io.StringIO()
-        self.writer = csv.DictWriter(self.out, fieldnames=fieldnames,
+        self.fieldnames = fieldnames
+        self.writer = csv.DictWriter(self.out, fieldnames=self.fieldnames,
                                      delimiter='\t', extrasaction='ignore')
 
     def writeheader(self):
@@ -19,3 +20,9 @@ class StreamingTSV(object):
         self.out.seek(0)
         action(*args, **kwargs)
         return self.out.getvalue().strip() + '\n'
+
+
+def write_tsv(fn, func, *args, **kwargs):
+    with open(fn, 'w+') as fh:
+        for line in func(*args, **kwargs):
+            fh.write(line)

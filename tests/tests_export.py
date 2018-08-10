@@ -35,5 +35,5 @@ class ExportTest(unittest.TestCase):
             print('checking {}'.format(schema))
             self.check(
                 schema + '.tsv',
-                '/export/tsv/' + schema
+                '/export/sequences/' + schema
             )
