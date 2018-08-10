@@ -1,4 +1,16 @@
 # CHANGELOG
+## v0.25.0
+* Exporting has been entirely rewritten.  Exporting from the CLI and
+  web-interface via the API now use unified methods.
+* Duplicate sequences at the sample level are no longer stored.  This increase
+  identification / importing speed drastically.
+* Selection pressure, sample metadata, clones summaries, and clonal overlap
+  have all been added to `immunedb_export`.
+* `immunedb_clone_trees` now has new parameters to filter mutations & sequences
+  by copy number and number of samples.
+* Importing for Adaptive data has now been added to the `immunedb_import`
+  command.
+
 ## v0.24.0
 * ImmuneDB has now been ported to Python 3.  ImmuneDB v0.23.0 will be
   maintained in a separate branch for bug fixes only.  No new Python 2 features

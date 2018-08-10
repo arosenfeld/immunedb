@@ -30,9 +30,12 @@ To start a shell session within the container run:
 This will start a shell with ImmuneDB and accessory scripts pre-installed as
 well as create a shared directory between the host and Docker container.  Files
 placed in the host's ``$HOME/immunedb_share`` directory and it will appear in
-``/share`` within the Docker container (and vice versa).  Additionally, MySQL
-stores its data in ``/share/mysql_data`` so databases will persist across
-multiple container invocations.
+``/share`` within the Docker container (and vice versa).  Note ``$HOME`` on
+macOS is generally ``/Users/your_username/`` and on Linux it is generally
+``/home/your_username``.
+
+Additionally, MySQL stores its data in ``/share/mysql_data`` so databases will
+persist across multiple container invocations.
 
 The location of important files are:
 
@@ -142,7 +145,27 @@ dataset:
     2018-06-08 18:04:59 [INFO] Worker 1: Processing clones for sample 2, include_outliers False, only_full_reads False
 
 At this point the database is fully populated and you can use the web interface
-and export data.  First, lets export the data in `AIRR format
+and export data.
+
+Using the Web Interface
+-----------------------
+Now that the database is populated, let's view the data in the web interface
+using the included helper script.  This takes a moment, so wait for the message
+``webpack: Compiled successfully.``.
+
+.. code-block:: bash
+
+    $ serve_immunedb.sh /share/configs/example.json
+    Running for database /share/configs/example.json
+    # ... output truncated ...
+    webpack: Compiled successfully.
+
+You should now be able to navigate to ``http://localhost:8080`` and
+view the web interface.
+
+Exporting the Data
+------------------
+Finally, lets export the data in `AIRR format
 <http://docs.airr-community.org/en/latest/datarep/rearrangements.html>`_ and
 move it to ``/share/export`` so it is available to the host system:
 
@@ -158,20 +181,8 @@ There should now be a ``D1.airr.tsv`` file in the containers
 on the host.  There is only one file since the AIRR format export breaks the
 data into one file per subject and this example only has the subject ``D1``.
 
-Finally, let's view the data in the web interface using the included helper
-script.  This takes a moment, so wait for the message ``webpack: Compiled
-successfully.``.
-
-.. code-block:: bash
-
-    $ serve_immunedb.sh /share/configs/example.json
-    Running for database /share/configs/example.json
-    # ... output truncated ...
-    webpack: Compiled successfully.
-
-You should now be able to navigate to ``http://localhost:8080`` and
-view the web interface.
-
+Conclusion
+----------
 At this point you've completed the example pipeline.  For details on creating
 your own metadata file and tweaking the pipeline to your needs see
 :doc:`pipeline` and :doc:`cli`.

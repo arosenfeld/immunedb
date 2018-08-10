@@ -100,7 +100,7 @@ the ``sample_id`` column meaning "All Samples"):
 
 
 Other Example Queries
----------------
+---------------------
 
 **How many clones have a CDR3 starting with `CARD`?**
 
