@@ -14,24 +14,18 @@ With Docker installed run one of these commands:
 
 .. code-block:: bash
 
-    # (Recommended) Pulls a specific release version
-    $ docker pull arosenfeld/immunedb:v0.24.1
+    # Pulls the most recent ImmuneDB version
+    $ docker pull arosenfeld/immunedb:v0.25.0
 
-    # Pulls the most recent stable, but not released version
-    $ docker pull arosenfeld/immunedb
-
-    # Pulls the development version
-    $ docker pull arosenfeld/immunedb:develop
 
 Running the Container
 =====================
-To start a shell session within the container run (replacing 0.24.1 with a
-version you pulled previously):
+To start a shell session within the container run:
 
 .. code-block:: bash
 
     $ docker run -v $HOME/immunedb_share:/share \
-        -p 5000:5000 -p 8080:8080 -it arosenfeld/immunedb:v0.24.1
+        -p 5000:5000 -p 8080:8080 -it arosenfeld/immunedb:v0.25.0
 
 This will start a shell with ImmuneDB and accessory scripts pre-installed as
 well as create a shared directory between the host and Docker container.  Files

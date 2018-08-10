@@ -6,7 +6,7 @@ from immunedb.common.models import (SampleMetadata, Sequence, SequenceCollapse,
                                     Subject)
 from immunedb.util.log import logger
 from immunedb.util.funcs import yield_limit
-from immunedb.exporting.tsv_writer import StreamingTSV
+from immunedb.exporting.tsv_writer import StreamingTSV, write_tsv
 
 
 mappings = {
@@ -142,6 +142,4 @@ def write_sequences(session, args):
             )
 
         fn = '{}.{}.tsv'.format(subject.identifier, args.fmt)
-        with open(fn, 'w+') as fh:
-            for line in get_sequences(session, seqs, args.fmt):
-                fh.write(line)
+        write_tsv(fn, get_sequences, session, seqs, args.fmt)

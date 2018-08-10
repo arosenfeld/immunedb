@@ -62,6 +62,11 @@ if __name__ == '__main__':
     parser = subparsers.add_parser(
         'clones',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('--include-lineages', action='store_true',
+                        help='''If specified, includes the JSON representation
+                        of clone lineages.  This can drastically increase file
+                        size''')
+
 
     parser = subparsers.add_parser(
         'clone-overlap',
@@ -79,7 +84,7 @@ if __name__ == '__main__':
         'selection': exporting.write_selection,
 
         'samples': exporting.write_samples,
-        'clones': exporting.write_clone_info,
+        'clones': exporting.write_clone_summary,
         'clone-overlap': exporting.write_clone_overlap
     }
 

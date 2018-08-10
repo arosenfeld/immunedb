@@ -1,5 +1,5 @@
 import json
-from functools import wraps
+from functools import partial, wraps
 import re
 import sys
 import time
@@ -18,7 +18,7 @@ except ImportError:
 import immunedb.api.queries as queries
 from immunedb.common.models import Sequence, SequenceCollapse
 from immunedb.util.log import logger
-from immunedb.exporting import get_sequences, mappings
+import immunedb.exporting as exporting
 
 
 class EnableCors(object):
@@ -240,10 +240,15 @@ def create_app(session_maker, allow_shutdown=False):
     def subject(session, subject_id):
         return create_response(queries.get_subject(session, subject_id))
 
+    def set_file(suffix, ext='tsv'):
+        time_str = time.strftime('%Y-%m-%d-%H-%M')
+        fn = '{}_{}.{}'.format(time_str, suffix, ext)
+        response.headers['Content-Disposition'] = 'attachment;filename=' + fn
+
     @app.route('/export/sequences/<schema>', method=['GET', 'OPTIONS'])
     @with_session
     def export_sequences(session, schema):
-        if schema not in mappings:
+        if schema not in exporting.mappings:
             return create_response(code=400)
 
         seqs = session.query(Sequence)
@@ -257,12 +262,35 @@ def create_app(session_maker, allow_shutdown=False):
         if request.query.get('clones_only', False):
             seqs = seqs.filter(~Sequence.clone_id.is_(None))
 
-        time_str = time.strftime('%Y-%m-%d-%H-%M')
-        fn = '{}_{}.tsv'.format(time_str, schema)
-        response.headers['Content-Disposition'] = 'attachment;filename=' + fn
+        set_file(schema)
 
-        for row in get_sequences(session, seqs, schema):
-            yield row
+        yield from exporting.get_sequences(session, seqs, schema)
+
+    @app.route('/export/clones/<schema>', method=['GET', 'OPTIONS'])
+    @with_session
+    def export_clones(session, schema):
+        funcs = {
+            'summary': partial(
+                exporting.get_clone_summary,
+                include_lineages=request.query.get('lineages', False)
+            ),
+            'overlap': exporting.get_clone_overlap,
+            'selection': exporting.get_selection,
+            'vdjtools': exporting.get_vjdtools_as_zip,
+        }
+        if schema not in funcs:
+            return create_response(code=400)
+
+        set_file('clone_' + schema,
+                 'zip' if schema == 'vdjtools' else 'tsv')
+
+        yield from funcs[schema](session)
+
+    @app.route('/export/samples', method=['GET', 'OPTIONS'])
+    @with_session
+    def export_samples(session):
+        set_file('samples')
+        yield from exporting.get_samples(session)
 
     @app.route('/shutdown', method=['GET'])
     def shutdown():

@@ -22,7 +22,7 @@ with open('README.md', 'r', encoding='utf-8') as fh:
 
 setup(
     name='ImmuneDB',
-    version='0.24.1',
+    version='0.25.0',
     author='Aaron M. Rosenfeld',
     author_email='ar374@drexel.edu',
     url='https://github.com/arosenfeld/immunedb',

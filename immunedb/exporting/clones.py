@@ -4,12 +4,15 @@ from immunedb.util.funcs import yield_limit
 from immunedb.util.log import logger
 
 
-def get_clone_info(session):
-    writer = StreamingTSV([
+def get_clone_summary(session, include_lineages):
+    fields = [
         'clone_id', 'subject', 'v_gene', 'j_gene', 'functional', 'insertions',
         'deletions', 'cdr3_nt', 'cdr3_num_nt', 'cdr3_aa',
         'uniques', 'instances', 'copies', 'germline', 'parent_id'
-    ])
+    ]
+    if include_lineages:
+        fields.append('lineage')
+    writer = StreamingTSV(fields)
 
     yield writer.writeheader()
     for clone in yield_limit(session.query(Clone), Clone.id):
@@ -29,6 +32,8 @@ def get_clone_info(session):
             'instances': clone.overall_instance_cnt,
             'copies': clone.overall_total_cnt,
         })
+        if include_lineages:
+            row['lineage'] = clone.tree
         yield writer.writerow(row)
 
 
@@ -51,9 +56,10 @@ def get_clone_overlap(session):
         })
 
 
-def write_clone_info(session, args):
-    logger.info('Exporting clone information')
-    write_tsv('clones.tsv', get_clone_info, session)
+def write_clone_summary(session, args):
+    logger.info('Exporting clone summary {} lineages'.format(
+        'INCLUDING' if args.include_lineages else 'EXCLUDING'))
+    write_tsv('clones.tsv', get_clone_summary, session, args.include_lineages)
 
 
 def write_clone_overlap(session, args):
