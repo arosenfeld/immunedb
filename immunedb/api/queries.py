@@ -90,14 +90,28 @@ def get_samples(session, sample_ids=None):
         )
     )
 
+    clone_counts = session.query(
+        SampleStats.sample_id,
+        SampleStats.sequence_cnt,
+        SampleStats.functional_cnt
+    ).filter(
+        SampleStats.outliers == true(),
+        SampleStats.full_reads == false(),
+        SampleStats.filter_type == 'clones_all'
+    )
+    clone_counts = {s.sample_id: s for s in clone_counts}
+
     result = []
     for sample, stats in query:
         sample_dict = _sample_to_dict(sample)
         if stats is not None:
+            clones = clone_counts[sample.id]
             sample_dict['sequence_cnt'] = stats.sequence_cnt
             sample_dict['functional_cnt'] = stats.functional_cnt
             sample_dict['no_result_cnt'] = stats.no_result_cnt
             sample_dict['total_cnt'] = stats.sequence_cnt + stats.no_result_cnt
+            sample_dict['clone_cnt'] = clones.sequence_cnt
+            sample_dict['functional_clone_cnt'] = clones.functional_cnt
         result.append(sample_dict)
 
     return result

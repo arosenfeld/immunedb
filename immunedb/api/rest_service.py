@@ -57,6 +57,8 @@ def create_response(j=None, code=200, ctype='application/json'):
 
 def get_paging():
     data = bottle.request.json or {}
+    if data.get('nopage', False):
+        return None
     return [
         int(data.get('page', 1)),
         int(data.get('per_page', 10))
