@@ -1,5 +1,7 @@
 [
     {
+        "clone_cnt": 82,
+        "functional_clone_cnt": 80,
         "functional_cnt": 502,
         "id": 1,
         "metadata": {
@@ -22,6 +24,8 @@
         "total_cnt": 562
     },
     {
+        "clone_cnt": 168,
+        "functional_clone_cnt": 158,
         "functional_cnt": 1361,
         "id": 2,
         "metadata": {
