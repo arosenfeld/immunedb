@@ -14,7 +14,9 @@ class ExportTest(unittest.TestCase):
 
     def check(self, expected_path, url):
         path = 'tests/data/export/' + expected_path
-        response = request(url).text.strip()
+        response = request(url)
+        assert response.status_code == 200
+        response = response.text.strip()
         if os.getenv('GENERATE'):
             with open(path, 'w+') as fh:
                 fh.write(response)
@@ -37,3 +39,14 @@ class ExportTest(unittest.TestCase):
                 schema + '.tsv',
                 '/export/sequences/' + schema
             )
+
+    def test_clones(self):
+        for schema in ('summary', 'overlap'):
+            print('checking {}'.format(schema))
+            self.check(
+                schema + '.tsv',
+                '/export/clones/' + schema
+            )
+
+    def test_sample(self):
+        self.check('sample_metadata.tsv', '/export/samples')

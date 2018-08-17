@@ -3,4 +3,4 @@ concurrency = multiprocessing
 include = immunedb*
 
 [report]
-omit=immunedb/util/admin.py,immunedb/common/baseline.py
+omit=immunedb/util/admin.py,immunedb/common/baseline.py,immunedb/exporting/selection.py,immunedb/exporting/genbank.tsv,immunedb/exporting/vdjtools.tsv
