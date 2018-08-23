@@ -5,7 +5,7 @@ from immunedb.exporting.tsv_writer import StreamingTSV, write_tsv
 from immunedb.util.log import logger
 
 
-def get_samples(session):
+def get_samples(session, for_update=False):
     meta = [
         s.key for s in session.query(SampleMetadata.key).group_by(
             SampleMetadata.key).order_by(SampleMetadata.key)
@@ -18,10 +18,12 @@ def get_samples(session):
         ~CloneStats.sample_id.is_(None)
     ).group_by(CloneStats.sample_id)}
 
-    writer = StreamingTSV(['id', 'name', 'subject', 'input_sequences',
-                           'identified', 'in_frame', 'stops', 'functional',
-                           'clones'] +
-                          meta)
+    fields = ['id', 'name', 'subject']
+    if not for_update:
+        fields.extend(['input_sequences', 'identified', 'in_frame', 'stops',
+                       'functional', 'clones'])
+    fields.extend(meta)
+    writer = StreamingTSV(fields)
     yield writer.writeheader()
     for sample in session.query(Sample).order_by(Sample.name):
         row = {
@@ -36,10 +38,11 @@ def get_samples(session):
             'functional': sample.stats.functional_cnt,
             'clones': clone_cnts[sample.id]
         }
+
         row.update(sample.metadata_dict)
         yield writer.writerow(row)
 
 
 def write_samples(session, args):
     logger.info('Exporting samples')
-    write_tsv('samples.tsv', get_samples, session)
+    write_tsv('samples.tsv', get_samples, session, args.for_update)

@@ -50,6 +50,7 @@ setup(
         'bin/immunedb_identify',
         'bin/immunedb_import',
         'bin/immunedb_metadata',
+        'bin/immunedb_modify',
         'bin/immunedb_rest',
         'bin/immunedb_sample_stats',
         'bin/immunedb_sql',

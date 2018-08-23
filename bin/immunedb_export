@@ -58,6 +58,9 @@ if __name__ == '__main__':
 
     parser = subparsers.add_parser(
         'samples', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('--for-update', action='store_true', help='''When set,
+        formats the metadata for use in `immunedb_update update-metadata` to
+        update metadata.''')
 
     parser = subparsers.add_parser(
         'clones',
@@ -66,7 +69,6 @@ if __name__ == '__main__':
                         help='''If specified, includes the JSON representation
                         of clone lineages.  This can drastically increase file
                         size''')
-
 
     parser = subparsers.add_parser(
         'clone-overlap',

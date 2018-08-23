@@ -1,3 +1,4 @@
+coloredlogs==10.0
 gevent==1.3b1
 SQLAlchemy==1.2.7
 biopython==1.71

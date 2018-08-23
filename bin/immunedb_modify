@@ -1,0 +1,19 @@
+#!/usr/bin/env python
+import immunedb.common.config as config
+from immunedb.common.modify import update_metadata
+
+if __name__ == '__main__':
+    main_parser = config.get_base_arg_parser('Modifies an existing database')
+    subparsers = main_parser.add_subparsers(dest='cmd', help='''The
+        modification to make''')
+    subparsers.required = True
+
+    parser = subparsers.add_parser('update-metadata')
+    parser.add_argument('new_metadata')
+
+    args = main_parser.parse_args()
+    session = config.init_db(args.db_config)
+
+    cmds = {
+        'update-metadata': update_metadata,
+    }[args.cmd](session, args)

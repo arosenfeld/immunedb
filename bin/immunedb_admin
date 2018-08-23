@@ -1,7 +1,6 @@
 #!/usr/bin/env python
 import argparse
 
-import immunedb.common.config as config
 import immunedb.util.admin as admin
 
 
