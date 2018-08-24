@@ -18,10 +18,11 @@ def get_samples(session, for_update=False):
         ~CloneStats.sample_id.is_(None)
     ).group_by(CloneStats.sample_id)}
 
-    fields = ['id', 'name', 'subject']
-    if not for_update:
-        fields.extend(['input_sequences', 'identified', 'in_frame', 'stops',
-                       'functional', 'clones'])
+    if for_update:
+        fields = ['name', 'new_name']
+    else:
+        fields = ['id', 'name', 'subject', 'input_sequences', 'identified',
+                  'in_frame', 'stops', 'functional', 'clones']
     fields.extend(meta)
     writer = StreamingTSV(fields)
     yield writer.writeheader()
@@ -29,15 +30,19 @@ def get_samples(session, for_update=False):
         row = {
             'id': sample.id,
             'name': sample.name,
-            'subject': sample.subject.identifier,
-            'input_sequences': sample.stats.sequence_cnt,
-            'identified': sample.stats.sequence_cnt -
-            sample.stats.no_result_cnt,
-            'in_frame': sample.stats.in_frame_cnt,
-            'stops': sample.stats.stop_cnt,
-            'functional': sample.stats.functional_cnt,
-            'clones': clone_cnts[sample.id]
+            'new_name': sample.name
         }
+        if not for_update:
+            row.update({
+                'subject': sample.subject.identifier,
+                'input_sequences': sample.stats.sequence_cnt,
+                'identified': sample.stats.sequence_cnt -
+                sample.stats.no_result_cnt,
+                'in_frame': sample.stats.in_frame_cnt,
+                'stops': sample.stats.stop_cnt,
+                'functional': sample.stats.functional_cnt,
+                'clones': clone_cnts[sample.id]
+            })
 
         row.update(sample.metadata_dict)
         yield writer.writerow(row)

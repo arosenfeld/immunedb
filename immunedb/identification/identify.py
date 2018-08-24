@@ -252,7 +252,6 @@ def aggregate_collapse(aggregate_queue, db_config, sample_id, props):
                 add_sequences(session, seqs_to_add, sample,
                               strip_alleles=not props.genotyping)
                 seqs_to_add = []
-                logger.info('Processed {}'.format(i + 1))
                 session.commit()
     if seqs_to_add:
         add_sequences(session, seqs_to_add, sample,

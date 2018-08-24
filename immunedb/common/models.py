@@ -131,8 +131,8 @@ class SampleMetadata(Base):
     __tablename__ = 'sample_metadata'
     __table_args__ = {'mysql_row_format': 'DYNAMIC'}
 
-    sample_id = Column(Integer, ForeignKey(Sample.id), primary_key=True,
-                       nullable=False)
+    sample_id = Column(Integer, ForeignKey(Sample.id, ondelete='CASCADE'),
+                       primary_key=True, nullable=False)
     sample = relationship(Sample, backref=backref('metadata_models',
                           order_by=sample_id))
 
@@ -362,7 +362,7 @@ class CloneStats(Base):
 
     functional = Column(Boolean, index=True)  # Denormalized
 
-    sample_id = Column(Integer, ForeignKey(Sample.id))
+    sample_id = Column(Integer, ForeignKey(Sample.id, ondelete='CASCADE'))
     sample = relationship(Sample, backref=backref('clone_stats'))
 
     unique_cnt = Column(Integer)
@@ -719,7 +719,7 @@ class NoResult(Base):
 
     seq_id = Column(String(length=64))
 
-    sample_id = Column(Integer, ForeignKey(Sample.id))
+    sample_id = Column(Integer, ForeignKey(Sample.id, ondelete='CASCADE'))
     sample = relationship(Sample)
 
     # Allow longer sequences here since they aren't aligned and we don't know
