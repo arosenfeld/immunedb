@@ -820,10 +820,9 @@ def check_string_length(cls, key, inst):
 
             def set_(instance, value, oldvalue, initiator):
                 if value is not None and len(value) > max_length:
-                    raise ValueError(
-                        'Length {} exceeds allowed {} for {}'.format(
-                            len(value), max_length, col.name)
-                    )
+                    msg = 'Length {} exceeds max {} for column {}, value {}'
+                    raise ValueError(msg.format(len(value), max_length,
+                                                col.name, value))
             event.listen(inst, 'set', set_)
 
 

@@ -4,6 +4,7 @@ import sys
 
 from immunedb.common.models import (Clone, NoResult, SampleMetadata, Sample,
                                     SampleStats, Sequence, SequenceCollapse)
+from immunedb.identification.metadata import NA_VALUES
 from immunedb.util.log import logger
 
 
@@ -34,6 +35,7 @@ def remove_duplicates(session, sample):
 
 
 def update_metadata(session, args):
+    SENTINEL = '__TEMP'  # Used to temporarily avoid duplicate name issues
     with open(args.new_metadata) as fh:
         reader = csv.DictReader(fh, delimiter='\t')
         new_meta = {l['name']: l for l in reader}
@@ -46,19 +48,28 @@ def update_metadata(session, args):
         SampleMetadata.sample_id.in_(sample_ids.values())
     ).delete(synchronize_session='fetch')
 
-    ignore_fields = ['name', 'new_name', 'subject']
+    ignore_fields = ['name', 'new_name', 'subject', 'file_name']
     for sample_name, row in new_meta.items():
+        if sample_name not in sample_ids:
+            logger.warning('No sample {} in database.  Ignoring.'.format(
+                sample_name))
         sample_id = sample_ids[sample_name]
         logger.info('Updating metadata for {}'.format(row['name']))
         session.add_all([
             SampleMetadata(sample_id=sample_id, key=k, value=v)
-            for k, v in row.items() if k not in ignore_fields and v is not None
+            for k, v in row.items() if k not in ignore_fields and v not in
+            NA_VALUES
         ])
         if row['new_name'] != row['name']:
             logger.info('  Updating sample name to {}'.format(row['new_name']))
             session.query(Sample).filter(Sample.name == row['name']).update({
-                Sample.name: row['new_name']
+                Sample.name: row['new_name'] + SENTINEL
             })
+
+    logger.info('Verifying uniqueness')
+    for sample in session.query(Sample).filter(
+            Sample.name.like('%' + SENTINEL)):
+        sample.name = sample.name[:-len(SENTINEL)]
 
     if session.query(Clone.id).filter(~Clone.tree.is_(None)).count() > 0:
         logger.warning('This database has at least one clonal lineage '

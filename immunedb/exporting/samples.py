@@ -5,6 +5,11 @@ from immunedb.exporting.tsv_writer import StreamingTSV, write_tsv
 from immunedb.util.log import logger
 
 
+class Passthrough:
+    def __getattr__(self, attr):
+        return 0
+
+
 def get_samples(session, for_update=False):
     meta = [
         s.key for s in session.query(SampleMetadata.key).group_by(
@@ -32,16 +37,17 @@ def get_samples(session, for_update=False):
             'name': sample.name,
             'new_name': sample.name
         }
+        stats = sample.stats if sample.stats else Passthrough()
         if not for_update:
             row.update({
                 'subject': sample.subject.identifier,
-                'input_sequences': sample.stats.sequence_cnt,
-                'identified': sample.stats.sequence_cnt -
-                sample.stats.no_result_cnt,
-                'in_frame': sample.stats.in_frame_cnt,
-                'stops': sample.stats.stop_cnt,
-                'functional': sample.stats.functional_cnt,
-                'clones': clone_cnts[sample.id]
+                'input_sequences': stats.sequence_cnt,
+                'identified': stats.sequence_cnt -
+                stats.no_result_cnt,
+                'in_frame': stats.in_frame_cnt,
+                'stops': stats.stop_cnt,
+                'functional': stats.functional_cnt,
+                'clones': clone_cnts.get(sample.id, 0)
             })
 
         row.update(sample.metadata_dict)

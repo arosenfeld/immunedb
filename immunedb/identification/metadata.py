@@ -10,7 +10,7 @@ from immunedb.util.log import logger
 REQUIRED_FIELDS = ('file_name', 'study_name', 'sample_name', 'subject')
 COMMON_FIELDS = ('date', 'subset', 'tissue', 'disease', 'lab', 'experimenter',
                  'ig_class', 'timepoint', 'v_primer', 'j_primer')
-NA_VALUES = ('na', 'n/a', 'null', 'none')
+NA_VALUES = ('na', 'n/a', 'null', 'none', '')
 
 
 class MetadataException(Exception):
