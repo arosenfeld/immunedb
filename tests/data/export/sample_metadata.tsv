@@ -1,3 +1,3 @@
 id	name	subject	input_sequences	identified	in_frame	stops	functional	clones	date	experimenter	lab	tissue
-1	input	D123	549	536	524	30	502	82	2015-09-13	Someone	The Lab	Colon
-2	input2	D123	1464	1458	1394	88	1361	168	2015-09-13	Someone	The Lab	SPL
+1	input	D123	562	549	524	30	502	82	2015-09-13	Someone	The Lab	Colon
+2	input2	D123	1470	1464	1394	88	1361	168	2015-09-13	Someone	The Lab	SPL

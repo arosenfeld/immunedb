@@ -41,9 +41,9 @@ def get_samples(session, for_update=False):
         if not for_update:
             row.update({
                 'subject': sample.subject.identifier,
-                'input_sequences': stats.sequence_cnt,
-                'identified': stats.sequence_cnt -
+                'input_sequences': stats.sequence_cnt +
                 stats.no_result_cnt,
+                'identified': stats.sequence_cnt,
                 'in_frame': stats.in_frame_cnt,
                 'stops': stats.stop_cnt,
                 'functional': stats.functional_cnt,
