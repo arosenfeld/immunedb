@@ -251,15 +251,17 @@ def find_v_position(sequence):
         seq = seq[:len(seq) - len(seq) % 3]
         frames.append((shift, str(seq.translate())))
 
-    # Try to find DxxxyzC
-    for found in _find_with_frameshifts(frames, 'D(.{3}((YY)|(YC)|(YH)))C'):
-        yield found
-    # Try to find 'YYC', 'YCC', or 'YHC'
-    for found in _find_with_frameshifts(frames, 'Y([YHC])C'):
-        yield found
-    # Try to find 'DxxxxxC'
-    for found in _find_with_frameshifts(frames, 'D(.{5})C'):
-        yield found
+    patterns = [
+        'D(.{3}((YY)|(YC)|(YH)))C',
+        'Y([YHC])C',
+        'D(.{5})C',
+        'Y..A',
+        'Y.C',
+    ]
+
+    for pattern in patterns:
+        for found in _find_with_frameshifts(frames, pattern):
+            yield found
 
 
 def _find_with_frameshifts(frames, regex):
