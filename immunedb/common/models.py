@@ -1,4 +1,5 @@
 import datetime
+import json
 
 from sqlalchemy import (Column, Boolean, Float, Integer, String, DateTime,
                         ForeignKey, UniqueConstraint, Index, event)
@@ -324,6 +325,10 @@ class Clone(Base):
         return self.overall_instance_cnt + sum([
             s.overall_instance_cnt for s in self.children])
 
+    @property
+    def overall_stats(self):
+        return [s for s in self.stats if not s.sample_id][0]
+
 
 class CloneStats(Base):
     """Stores statistics for a given clone and sample.  If sample is null the
@@ -369,6 +374,14 @@ class CloneStats(Base):
     total_cnt = Column(Integer)
 
     mutations = Column(MEDIUMTEXT)
+
+    def total_mutations(self, normalize=False):
+        muts = json.loads(self.mutations).get('regions', {}).get('ALL', {})
+        muts = sum((
+            sum([s['total'] for s in type_muts])
+            for type_muts in muts.values()
+        ))
+        return muts / self.total_cnt if normalize else muts
 
 
 class SelectionPressure(Base):

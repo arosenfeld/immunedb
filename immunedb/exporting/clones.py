@@ -8,7 +8,8 @@ def get_clone_summary(session, include_lineages):
     fields = [
         'clone_id', 'subject', 'v_gene', 'j_gene', 'functional', 'insertions',
         'deletions', 'cdr3_nt', 'cdr3_num_nt', 'cdr3_aa',
-        'uniques', 'instances', 'copies', 'germline', 'parent_id'
+        'uniques', 'instances', 'copies', 'germline', 'parent_id',
+        'avg_mutations_per_copy'
     ]
     if include_lineages:
         fields.append('lineage')
@@ -31,6 +32,8 @@ def get_clone_summary(session, include_lineages):
             'uniques': clone.overall_unique_cnt,
             'instances': clone.overall_instance_cnt,
             'copies': clone.overall_total_cnt,
+            'avg_mutations_per_copy': round(
+                clone.overall_stats.total_mutations(normalize=True), 2)
         })
         if include_lineages:
             row['lineage'] = clone.tree
@@ -38,7 +41,8 @@ def get_clone_summary(session, include_lineages):
 
 
 def get_clone_overlap(session):
-    writer = StreamingTSV(['clone_id', 'sample', 'uniques', 'copies'])
+    writer = StreamingTSV(['clone_id', 'sample', 'uniques', 'copies',
+                           'avg_mutations_per_copy'])
 
     stats = session.query(
         CloneStats
@@ -52,7 +56,9 @@ def get_clone_overlap(session):
             'clone_id': stat.clone_id,
             'sample': stat.sample.name,
             'uniques': stat.unique_cnt,
-            'copies': stat.total_cnt
+            'copies': stat.total_cnt,
+            'avg_mutations_per_copy': round(
+                stat.total_mutations(normalize=True), 2)
         })
 
 
