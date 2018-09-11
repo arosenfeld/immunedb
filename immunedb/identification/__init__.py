@@ -2,6 +2,7 @@ import itertools
 
 from immunedb.common.models import CDR3_OFFSET, NoResult, Sequence
 import immunedb.util.funcs as funcs
+from immunedb.util.log import logger
 import immunedb.util.lookups as lookups
 
 
@@ -70,8 +71,11 @@ def get_seq_from_alignment(session, alignment, sample, strip_alleles=True):
 
             germline=alignment.germline)]
     except ValueError as e:
-        return [get_noresult_from_vdj(session, alignment.sequence, sample,
-                                      str(e))]
+        try:
+            return [get_noresult_from_vdj(session, alignment.sequence, sample,
+                                          str(e))]
+        except ValueError:
+            return []
 
 
 def add_sequences(session, alignments, sample, strip_alleles=True,
@@ -91,7 +95,7 @@ def add_noresults_for_vdj(session, vdj, sample, reason):
     try:
         session.add(get_noresult_from_vdj(session, vdj, sample, reason))
     except ValueError:
-        pass
+        logger.warning('Unable to add noresult')
 
 
 def get_common_seq(seqs, cutoff=True, right=False):
