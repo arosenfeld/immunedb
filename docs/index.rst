@@ -54,50 +54,6 @@ The system aims to:
   a variety of common formats, making it compatible with the larger AIRR
   ecosystem of tools.
 
-ImmuneDB has four primary components:
-
-- **Clonal identification pipeline:** A series of steps which identify probable
-  V- and J-genes from raw FASTA files and subsequently groups sequences from the
-  same subject into clones.  At each step, statistics and metadata are stored in
-  the underlying database for later analysis.
-
-- **Analysis framework:** A module that provide detailed analysis of sequences.
-  This includes mutation analysis, gene utilization breakdowns, and feature
-  distributions  (e.g. CDR3 length, V-gene utilization).
-
-- **API:**  ImmuneDB includes two APIs.  First, the REST API allows native and web
-  applications (via AJAX) to interact with the underlying database without writing
-  any database specific code.  Further, the REST API is language agnostic, using
-  HTTP to exchange data.
-
-  Second, the Python API which implements the data models and querying
-  functionality.  This allows developers to write customized queries directly
-  interacting with the database.
-
-- **Web interface:** Distributed separately of ImmuneDB is a web interface which
-  utilizes the REST API to allow for easy browsing of analysis results.
-
-
-Each of the components can be used independently so long as the underlying
-database is properly populated.
-
-Underlying Technologies
------------------------
-
-- `MySQL <http://www.mysql.com>`_: The database (agnostic
-  of implementation like `MariaDB <https://mariadb.org>`_) which enforces rigorous
-  data guarantees, indexes the data for fast retrieval, and enforces atomicity
-  of operations
-
-- `SQLAlchemy <http://www.sqlalchemy.org>`_: The interface between Python and
-  the database which abstracts SQL queries from the implementation and enforces
-  the data model within Python.
-
-- `Bottle <http://bottlepy.org>`_: A lightweight web-framework for Python which
-  serves content via the REST API allowing web-applications to issue AJAX requests
-  to the ImmuneDB framework.
-
-
 .. toctree::
     :maxdepth: 2
     :hidden:

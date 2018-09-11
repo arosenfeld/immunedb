@@ -86,7 +86,7 @@ sequences.
     session = config.init_db(...)
 
     for clone in session.query(Clone).filter(Clone.v_gene == 'IGHV3-30'):
-        print 'clone {} has AAs {}'.format(clone.id, clone.cdr3_aa)
+        print('clone {} has AAs {}'.format(clone.id, clone.cdr3_aa))
 
 **Output**
 
@@ -115,11 +115,11 @@ clone.
     session = config.init_db(...)
     for stat in session.query(CloneStats).filter(
             CloneStats.clone_id == 1234).order_by(CloneStats.sample_id):
-        print 'clone {} has {} unique sequences and {} copies {}'.format(
+        print('clone {} has {} unique sequences and {} copies {}'.format(
             stat.clone_id,
             stat.unique_cnt,
             stat.total_cnt,
-            ('in sample ' + stat.sample.name) if stat.sample else 'overall')
+            ('in sample ' + stat.sample.name) if stat.sample else 'overall'))
 
 **Output**
 
@@ -162,7 +162,7 @@ unique to the subject, printing them from least to most frequent.
     )
 
     for seq in subject_unique_seqs:
-        print seq.v_gene, seq.count
+        print(seq.v_gene, seq.count)
 
 **Output**
 

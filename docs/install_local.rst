@@ -1,5 +1,5 @@
 Installing Locally (advanced)
-******************
+*****************************
 This section details how to set ImmuneDB up locally on a machine.  This is a
 more complicated process than using the :doc:`Docker method <install_docker>`
 but may be useful if you plan on running ImmuneDB remotely on a server rather

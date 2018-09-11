@@ -3,7 +3,7 @@ Command Line Reference
 
 This page provides brief descriptions of all the ImmuneDB commands and the
 default help text for each.  For a step-by-step guide to running the pipeline,
-refer to :doc:`pipeline-full`.
+refer to :doc:`pipeline_full`.
 
 immunedb_admin
 ==============

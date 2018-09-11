@@ -23,7 +23,11 @@ Metadata Specification
 ======================
 Before ImmuneDB can be run, metadata must be specified for each input file.
 For this example, one has already been created for you.  To learn how to create
-a metadata file for your own data, see :ref:`metadata-spec`.
+a metadata file for your own data, see :ref:`Creating a Template Metadata
+Sheet`.
+
+
+.. _instance_creation:
 
 
 ImmuneDB Instance Creation
@@ -147,15 +151,15 @@ Lineage trees for clones is generated with the ``immunedb_clone_trees``
 command.  The only currently supported method is neighbor-joining as provided
 by `Clearcut <http://bioinformatics.hungry.com/clearcut>`_.
 
-Among others, the ``--min-count`` parameter allows for mutations to be omitted
-if they have not occurred at least a specified number of times.  This can be
-useful to correct for sequencing error.
+Among others, the ``--min-mut-copies`` parameter allows for mutations to be
+omitted if they have not occurred at least a specified number of times.  This
+can be useful to correct for sequencing error.
 
 
 .. code-block:: bash
    :caption: Run in Docker
 
-    $ immunedb_clone_trees /share/configs/example_db.json --min-count 2
+    $ immunedb_clone_trees /share/configs/example_db.json --min-mut-copies 2
 
 Web Interface
 =============

@@ -25,6 +25,7 @@ into which we'll copy your sequencing data.  Here we're calling it
    $ mkdir $HOME/immunedb_share/sequences
    $ cp PATH_TO_SEQUENCES $HOME/immunedb_share/sequences
 
+
 Creating a Template Metadata Sheet
 ==================================
 Next, we'll use the ``immunedb_metadata`` command to create a template metadata
@@ -62,3 +63,85 @@ following rules:
 
    When data is missing or not necessary in a field, leave it blank or set to
    ``NA``, ``N/A``, ``NULL``, or ``None`` (case-insensitive).
+
+Running the Pipeline
+====================
+Much of the rest of the pipeline follows from the example pipeline's
+:ref:`instance creation step <instance_creation>`.  To start, create a
+database.  Here we'll call it ``my_db`` but you'll probably want to give it a
+more descriptive name:
+
+
+.. code-block:: bash
+   :caption: Run in Docker
+
+   $ immunedb_admin create my_db /share/configs
+
+Then we'll identify the sequences.  For this process the germline genes must be
+specified.  The germlines provided as FASTA files in the Docker image are:
+
+* ``imgt_human_ighv`` & ``imgt_human_ighj``: Human B-cell heavy chains
+* ``imgt_human_trav`` & ``imgt_mouse_traj``: Human T-cell α chains
+* ``imgt_human_trbv`` & ``imgt_mouse_trbj``: Human T-cell β chains
+* ``imgt_mouse_ighv`` & ``imgt_mouse_ighj``: Mouse B-cell heavy chains
+
+For this segment we'll assume human B-cell heavy chains, but the process is the
+same for any dataset:
+
+.. code-block:: bash
+   :caption: Run in Docker
+
+   $ immunedb_identify /share/configs/my_db.json \
+         /root/germlines/imgt_human_ighv.fasta \
+         /root/germlines imgt_human_ighj.fasta \
+         /share/sequences
+   $ immunedb_collapse /share/configs/my_db.json
+
+Then we assign clones.  For B-cells we recommend:
+
+.. code-block:: bash
+   :caption: Run in Docker
+
+   $ immunedb_clones /share/configs/my_db.json similarity
+
+For T-cells we recommend:
+
+.. code-block:: bash
+   :caption: Run in Docker
+
+   $ immunedb_clones /share/configs/my_db.json tcells
+
+The last required step is to generate aggregate statistics:
+
+.. code-block:: bash
+   :caption: Run in Docker
+
+    $ immunedb_sample_stats /share/configs/my_db.json
+    $ immunedb_clone_stats /share/configs/my_db.json
+
+For B-cells, you might want to generate lineages too.  The following excludes
+mutations that only occur once.  ``immunedb_clone_trees`` has many other
+parameters for filtering documented :ref:`here <immunedb_clone_trees>`.
+
+.. code-block:: bash
+   :caption: Run in Docker
+
+    $  immunedb_clone_trees /share/configs/my_db.json --min-mut-copies 2
+
+Selection pressure can be run with the following.  This process is quite
+time-consuming, even for small datasets:
+
+.. code-block:: bash
+   :caption: Run in Docker
+
+    $ immunedb_clone_pressure /share/configs/my_db.json \
+         /apps/baseline/Baseline_Main.r
+
+Finally, start the web interface:
+
+.. code-block:: bash
+   :caption: Run in Docker
+
+    $ serve_immunedb.sh /share/configs/my_db.json
+
+Your data should be available at http://localhost:8080.
