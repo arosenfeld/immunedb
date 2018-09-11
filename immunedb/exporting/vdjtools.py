@@ -48,7 +48,7 @@ def get_sample_vdjtools(session, sample, min_clone_size, clone_features):
 def write_vdjtools(session, args):
     clone_features = get_clone_features(session)
     for sample in session.query(Sample):
-        logger.info('Exportin VDJTools format for sample {}'.format(
+        logger.info('Exporting VDJTools format for sample {}'.format(
             sample.name))
         write_tsv(
             '{}.sample.txt'.format(sample.name),

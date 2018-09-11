@@ -19,13 +19,20 @@ def _yn_prompt(prompt):
         if v in ('y', 'n'):
             return v == 'y'
 
+def _connect(host, user, admin_pass=''):
+    return pymysql.connect(host=host, user=user, password=admin_pass,
+                           cursorclass=pymysql.cursors.DictCursor)
+
 
 def _get_root_connection(host, user, admin_pass=None):
     if admin_pass is None:
-        admin_pass = getpass.getpass('MySQL password for ({}):'.format(
-            user))
-    return pymysql.connect(host=host, user=user, password=admin_pass,
-                           cursorclass=pymysql.cursors.DictCursor)
+        try:
+            return _connect(host, user)
+        except Exception as e:
+            logger.info('Failed connection with empty root password')
+            admin_pass = getpass.getpass('MySQL password for ({}):'.format(
+                user))
+    return _connect(host, user, admin_pass)
 
 
 def _create_user_if_not_exists(conn, host, user, password):
