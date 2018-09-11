@@ -17,6 +17,8 @@ Most programs using ImmuneDB will start with code similar to:
 
 
     import immunedb.common.config as config
+
+
     parser = config.get_base_arg_parser('Some description of the program')
     # ... add any additional arguments to the parser ...
     args = parser.parse_args()
@@ -33,6 +35,8 @@ One can also directly specify the path to a configuration directly.
 
 
     import immunedb.common.config as config
+
+
     session = config.init_db('path/to/config')
 
 Alternatively a dictionary with the same information can be passed:
@@ -41,6 +45,8 @@ Alternatively a dictionary with the same information can be passed:
 
 
     import immunedb.common.config as config
+
+
     session = config.init_db({
         'host': '...',
         'database': '...',

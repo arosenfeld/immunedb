@@ -1,4 +1,4 @@
-Installing Locally
+Installing Locally (advanced)
 ******************
 This section details how to set ImmuneDB up locally on a machine.  This is a
 more complicated process than using the :doc:`Docker method <install_docker>`
@@ -7,6 +7,7 @@ than locally.
 
 Dependency Installation
 =======================
+
 MySQL
 -----
 ImmuneDB utilizes `MySQL <http://mysql.com>`_ as its underlying data store.  We
@@ -52,10 +53,10 @@ To create a virtual environment and activate it run:
 
 .. code-block:: bash
 
-    $ virtualenv immunedb
+    $ python3 -m venv immunedb
     $ source immunedb/bin/activate
 
-Then install ImmuneDB
+Then install ImmuneDB:
 
 .. code-block:: bash
 

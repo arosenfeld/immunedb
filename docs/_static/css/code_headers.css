@@ -1,0 +1,17 @@
+.code-block-caption {
+  background-color: #1abc9c;
+  color: #fff;
+  padding: 5px;
+  margin: 0;
+  font-size: 85%;
+}
+
+.code-block-caption ::before {
+  font-family: "FontAwesome";
+  content: "\f120";
+  margin-right: 5px;
+}
+
+.code-block-caption > .headerlink {
+  display: none;
+}

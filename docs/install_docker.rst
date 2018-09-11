@@ -3,20 +3,17 @@
 Installing with Docker (recommended)
 ************************************
 
-Dependencies
-=======================
-The only dependency for running ImmuneDB in Docker is to have Docker installed
-locally.
-
 Pulling the Docker Image
 ========================
-With Docker installed run one of these commands:
+With Docker installed the following command to get the newest version of the
+ImmuneDB Docker image:
 
 .. code-block:: bash
 
-    # Pulls the most recent ImmuneDB version
     $ docker pull arosenfeld/immunedb:v0.25.0
 
+
+.. _running-the-container:
 
 Running the Container
 =====================
@@ -40,10 +37,6 @@ persist across multiple container invocations.
 The location of important files are:
 
 - ``/root/germlines``: IMGT aligned germlines for IGH, TCRA, and TCRB.
-- ``/apps/clearcut/clearcut``: The ``clearcut`` executable for
-  generating lineages.  This file is in the containers ``$PATH``.
-- ``/usr/local/sbin/serve_immunedb.sh``: A helper script to serve the ImmuneDB
-  web interface.  This file is in the container's ``$PATH``.
 - ``/apps/bowtie2/bowtie2``: The local-alignment tool Bowtie2.  This file is in
   the container's ``$PATH``.
 - ``/share/configs``: The recommended directory to store ImmuneDB
@@ -53,136 +46,7 @@ The location of important files are:
 - ``/example``: A set of example input data to familiarize yourself with
   ImmuneDB
 
-Running the Example Pipeline
-============================
-To get started, two input FASTQ files and an associated ``metadata.tsv`` file
-are included at ``/example``.  We recommend running through this example before
-analyzing your own data to become familiar with the ImmuneDB pipeline.
-
-First, create a database for the example.  Note the database root user does not
-have a password, so we specify a blank one.
-
-.. code-block:: bash
-
-    $ immunedb_admin create example /share/configs/ --admin-pass ""
-    2018-06-08 17:44:20 [INFO] Creating user "example"
-    2018-06-08 17:44:20 [INFO] Creating database "example"
-    2018-06-08 17:44:20 [INFO] Creating config at /share/configs/example.json
-    2018-06-08 17:44:20 [INFO] Initializing tables
-    2018-06-08 17:44:21 [INFO] Success!
-
-Now that a database has been created, start the V- and J-identification:
-
-.. code-block:: bash
-
-    $ immunedb_identify /share/configs/example.json \
-        ~/germlines/imgt_human_ighv.fasta \
-        ~/germlines/imgt_human_ighj.fasta \
-        /example
-    2018-06-08 17:52:28 [INFO] Starting sample Donor1_Colon
-    # ... output truncated ...
-    2018-06-08 17:52:33 [INFO] Completed sample Donor1_Spleen in 0.1m - 1458/1470 (99%) identified
-
-Then collapse the sequences across the samples:
-
-.. code-block:: bash
-
-    $ immunedb_collapse /share/configs/example.json
-    2018-06-08 17:58:05 [INFO] Resetting collapse info for subject 1
-    # ... output truncated ...
-    2018-06-08 17:58:06 [INFO] Worker 2: Committing collapsed sequences
-
-We will then infer clones using the CDR3 similarity method with all default
-parameters:
-
-.. code-block:: bash
-
-    $ immunedb_clones /share/configs/example.json similarity
-    2018-06-08 18:00:31 [INFO] Generating task queue for subject 1
-    # ... output truncated ...
-    2018-06-08 18:00:34 [INFO] Skipping subclones
-
-We then calculate per-sample clone statistics:
-
-.. code-block:: bash
-
-    $ immunedb_clone_stats /share/configs/example.json
-    2018-06-08 18:01:38 [INFO] Creating task queue to generate stats for 236 clones.
-    # ... output truncated ...
-    2018-06-08 18:01:43 [INFO] Worker 2: Clone 236
-
-Optionally, we can also generate a lineage for each clone.  To reduce the
-influence of sequencing error, we use ``--min-count 2`` to include only
-mutations that occur at least twice:
-
-.. code-block:: bash
-
-    $ immunedb_clone_trees /share/configs/example.json --min-count 2
-    2018-06-08 15:12:07 [INFO] Creating task queue for clones
-    # ... output truncated ...
-    2018-06-08 15:12:08 [INFO] Worker 5: Running clone 236
-
-Another optional step is to use BASELINe to calculate selection pressure for
-each clone.  Note that this is a relatively slow process, even for this small
-dataset:
-
-.. code-block:: bash
-
-    $ immunedb_clone_pressure /share/configs/example.json \
-        /apps/baseline/Baseline_Main.r
-    2018-06-08 23:34:32 [INFO] Creating task queue to calculate selection pressure for 236 clones.
-    # ... output truncated ...
-    2018-06-09 00:35:46 [INFO] Worker 4: Clone 236
-
-The last step of the pipeline is to calculate statistics for each sample in the
-dataset:
-
-.. code-block:: bash
-
-    $ immunedb_sample_stats /share/configs/example.json
-    2018-06-08 18:04:58 [INFO] Creating task queue to generate stats for sample 1.
-    # ... output truncated ...
-    2018-06-08 18:04:59 [INFO] Worker 1: Processing clones for sample 2, include_outliers False, only_full_reads False
-
-At this point the database is fully populated and you can use the web interface
-and export data.
-
-Using the Web Interface
------------------------
-Now that the database is populated, let's view the data in the web interface
-using the included helper script.  This takes a moment, so wait for the message
-``webpack: Compiled successfully.``.
-
-.. code-block:: bash
-
-    $ serve_immunedb.sh /share/configs/example.json
-    Running for database /share/configs/example.json
-    # ... output truncated ...
-    webpack: Compiled successfully.
-
-You should now be able to navigate to ``http://localhost:8080`` and
-view the web interface.
-
-Exporting the Data
-------------------
-Finally, lets export the data in `AIRR format
-<http://docs.airr-community.org/en/latest/datarep/rearrangements.html>`_ and
-move it to ``/share/export`` so it is available to the host system:
-
-.. code-block:: bash
-
-    $ mkdir /share/export
-    $ cd /share/export
-    $ immunedb_export /share/configs/example.json airr
-    2018-06-08 18:09:41 [INFO] Exporting subject D1
-
-There should now be a ``D1.airr.tsv`` file in the containers
-``/share/export`` directory and the linked ``$HOME/immunedb_share`` directory
-on the host.  There is only one file since the AIRR format export breaks the
-data into one file per subject and this example only has the subject ``D1``.
-
-Conclusion
-----------
-At this point you've completed the example pipeline.  For details on creating
-your own metadata file and tweaking the pipeline to your needs see
-:doc:`pipeline` and :doc:`cli`.
+Next Steps
+---------------------------
+Once the Docker container is running, you should continue by testing out the
+:ref:`example pipeline <pipeline_example>`.

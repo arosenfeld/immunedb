@@ -111,15 +111,15 @@ Underlying Technologies
 .. toctree::
     :maxdepth: 2
     :hidden:
-    :caption: Creating a Database
+    :caption: Running the Pipeline
 
-    pipeline
-    cli
+    pipeline_example
+    pipeline_full
 
 .. toctree::
     :maxdepth: 2
     :hidden:
-    :caption: Analyzing a Database
+    :caption: Querying an Existing Database
 
     api
     database
@@ -129,5 +129,6 @@ Underlying Technologies
     :hidden:
     :caption: Other
 
+    cli
     referencing
     related
