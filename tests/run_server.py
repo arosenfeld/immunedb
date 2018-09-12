@@ -1,5 +1,3 @@
-from gevent import monkey
-monkey.patch_all()
 from argparse import Namespace  # noqa: E402
 
 from immunedb.api.rest_service import run_rest_service  # noqa: E402
@@ -11,5 +9,6 @@ run_rest_service(session, Namespace(
     debug=True,
     allow_shutdown=True,
     rollbar_token=None,
-    rollbar_env=None
+    rollbar_env=None,
+    server='wsgiref'
 ))

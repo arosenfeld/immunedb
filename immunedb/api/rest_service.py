@@ -1,7 +1,8 @@
 import json
 from functools import partial, wraps
+import os
 import re
-import sys
+import signal
 import time
 
 from sqlalchemy.orm import scoped_session
@@ -298,7 +299,7 @@ def create_app(session_maker, allow_shutdown=False):
     def shutdown():
         if allow_shutdown:
             logger.warning('Shutting down from remote request')
-            sys.exit()
+            os.kill(os.getpid(), signal.SIGHUP)
         return create_response(code=404)
 
     return app
@@ -317,4 +318,5 @@ def run_rest_service(session_maker, args):
     app = create_app(session_maker, args.allow_shutdown)
     if args.debug:
         app.catchall = False
-    app.run(host='0.0.0.0', port=args.port, server='gevent', debug=args.debug)
+    app.run(host='0.0.0.0', port=args.port, server=args.server,
+            debug=args.debug)

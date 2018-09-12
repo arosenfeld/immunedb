@@ -1,6 +1,4 @@
 #!/usr/bin/env python
-from gevent import monkey
-monkey.patch_all()
 import sys
 
 import immunedb.common.config as config
@@ -21,6 +19,8 @@ if __name__ == '__main__':
                         'rollbar reporting')
     parser.add_argument('--rollbar-env', default='develop', help='Environment '
                         'for rollbar reporting')
+    parser.add_argument('--server', default='gunicorn',
+                        help='The server to use.')
     args = parser.parse_args()
 
     session_maker = config.init_db(args.db_config, as_maker=True)

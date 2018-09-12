@@ -19,6 +19,7 @@ def _yn_prompt(prompt):
         if v in ('y', 'n'):
             return v == 'y'
 
+
 def _connect(host, user, admin_pass=''):
     return pymysql.connect(host=host, user=user, password=admin_pass,
                            cursorclass=pymysql.cursors.DictCursor)

@@ -10,7 +10,10 @@ def request(endpoint):
 class ExportTest(unittest.TestCase):
     @classmethod
     def tearDownClass(cls):
-        request('/shutdown')
+        try:
+            request('/shutdown')
+        except requests.exceptions.ConnectionError:
+            return
 
     def check(self, expected_path, url):
         path = 'tests/data/export/' + expected_path
