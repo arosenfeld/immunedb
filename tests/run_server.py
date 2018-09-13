@@ -10,5 +10,5 @@ run_rest_service(session, Namespace(
     allow_shutdown=True,
     rollbar_token=None,
     rollbar_env=None,
-    server='wsgiref'
+    server='gunicorn'
 ))

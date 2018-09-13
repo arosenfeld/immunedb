@@ -299,7 +299,7 @@ def create_app(session_maker, allow_shutdown=False):
     def shutdown():
         if allow_shutdown:
             logger.warning('Shutting down from remote request')
-            os.kill(os.getpid(), signal.SIGHUP)
+            os.kill(os.getppid(), signal.SIGINT)
         return create_response(code=404)
 
     return app
