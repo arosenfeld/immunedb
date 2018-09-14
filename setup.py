@@ -3,6 +3,7 @@ import os
 from setuptools import setup, Extension
 
 if os.environ.get('READTHEDOCS'):
+    import sys
     from unittest.mock import MagicMock
     install_requires = [
         'sphinxcontrib-programoutput',
