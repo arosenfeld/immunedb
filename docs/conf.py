@@ -15,7 +15,7 @@
 
 import sys
 import os
-from mock import Mock as MagicMock
+from unittest.mock import MagicMock
 
 import sphinx_rtd_theme
 
@@ -24,7 +24,7 @@ class Mock(MagicMock):
     def __getattr__(cls, name):
         return MagicMock()
 
-MOCK_MODULES = ['numpy', 'gevent', 'dnautils']
+MOCK_MODULES = ['numpy', 'dnautils']
 sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
 
 # If extensions (or modules to document with autodoc) are in another directory,
@@ -42,7 +42,7 @@ sys.path.insert(0, os.path.abspath('../immunedb'))
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = ['sphinx.ext.autodoc', 'sphinxcontrib.programoutput',
-              'sphinx.ext.autosectionlabel', ]
+              'sphinx.ext.autosectionlabel']
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
