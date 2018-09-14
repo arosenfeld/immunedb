@@ -85,6 +85,5 @@ The system aims to:
     :hidden:
     :caption: Other
 
-    cli
     referencing
     related

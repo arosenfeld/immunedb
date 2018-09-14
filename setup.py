@@ -3,11 +3,8 @@ import os
 from setuptools import setup, Extension
 
 if os.environ.get('READTHEDOCS'):
-    install_requires = ['sphinxcontrib-programoutput',
-                        'sphinxcontrib-websupport']
+    install_requires = ['sphinxcontrib-websupport']
     ext_modules = []
-    os.mkdir('dnautils')
-    setup(name='mock-dnautils', packages=['dnautils'])
 else:
     with open('requirements.txt') as req:
         install_requires = [l.strip() for l in req]

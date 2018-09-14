@@ -121,7 +121,7 @@ The last required step is to generate aggregate statistics:
 
 For B-cells, you might want to generate lineages too.  The following excludes
 mutations that only occur once.  ``immunedb_clone_trees`` has many other
-parameters for filtering documented :ref:`here <immunedb_clone_trees>`.
+parameters for filtering which you can view with the ``--help`` flagu
 
 .. code-block:: bash
    :caption: Run in Docker
