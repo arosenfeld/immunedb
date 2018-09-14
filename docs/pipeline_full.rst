@@ -26,7 +26,7 @@ into which we'll copy your sequencing data.  Here we're calling it
    $ cp PATH_TO_SEQUENCES $HOME/immunedb_share/sequences
 
 
-Creating a Template Metadata Sheet
+Creating a Metadata Sheet
 ==================================
 Next, we'll use the ``immunedb_metadata`` command to create a template metadata
 file for your sequencing data.  In the Docker container run:

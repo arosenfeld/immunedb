@@ -16,15 +16,14 @@ To begin, run the Docker container :ref:`as documented
    :caption: Run on Host
 
     $ docker run -v $HOME/immunedb_share:/share \
-                -p 5000:5000 -p 8080:8080 -it arosenfeld/immunedb:v0.25.0
+         -p 5000:5000 -p 8080:8080 -it arosenfeld/immunedb:v0.25.0
 
 
 Metadata Specification
 ======================
 Before ImmuneDB can be run, metadata must be specified for each input file.
 For this example, one has already been created for you.  To learn how to create
-a metadata file for your own data, see :ref:`Creating a Template Metadata
-Sheet`.
+a metadata file for your own data, see :ref:`Creating a Metadata Sheet`.
 
 
 .. _instance_creation:
