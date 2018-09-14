@@ -1,5 +1,5 @@
-ImmuneDB |travisci| |codecov| |pypi| |docker|
-=============================================
+ImmuneDB |travisci| |docs| |codecov| |pypi| |docker|
+====================================================
 .. |travisci| image:: https://img.shields.io/travis/arosenfeld/immunedb/master.svg
   :target: https://travis-ci.org/arosenfeld/immunedb
 .. |codecov| image:: https://img.shields.io/codecov/c/github/arosenfeld/immunedb.svg
@@ -8,6 +8,8 @@ ImmuneDB |travisci| |codecov| |pypi| |docker|
   :target: https://hub.docker.com/r/arosenfeld/immunedb
 .. |pypi| image:: https://img.shields.io/pypi/v/immunedb.svg
   :target: https://pypi.python.org/pypi/ImmuneDB
+.. |docs| image:: https://readthedocs.org/projects/immunedb/badge/?version=latest
+   :target: https://immunedb.readthedocs.io/en/latest/?badge=latest
 
 **ImmuneDB** is a system to facilitate efficient storage and analysis
 of high-throughput B- and T-cell sequence data.  It provides V- and J-gene
