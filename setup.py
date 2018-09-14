@@ -3,21 +3,11 @@ import os
 from setuptools import setup, Extension
 
 if os.environ.get('READTHEDOCS'):
-    import sys
-    from unittest.mock import MagicMock
-    install_requires = [
-        'sphinxcontrib-programoutput',
-        'sphinxcontrib-websupport',
-        'mock'
-    ]
+    install_requires = ['sphinxcontrib-programoutput',
+                        'sphinxcontrib-websupport']
     ext_modules = []
-    class Mock(MagicMock):
-        @classmethod
-        def __getattr__(cls, name):
-            return MagicMock()
-
-    MOCK_MODULES = ['numpy', 'dnautils']
-    sys.modules.update((mod_name, Mock()) for mod_name in MOCK_MODULES)
+    os.mkdir('dnautils')
+    setup(name='mock-dnautils', packages=['dnautils'])
 else:
     with open('requirements.txt') as req:
         install_requires = [l.strip() for l in req]
