@@ -10,6 +10,8 @@
   by copy number and number of samples.
 * Importing for Adaptive data has now been added to the `immunedb_import`
   command.
+* Metadata can now be updated and samples can be combined with the
+  `immunedb_modify` command.
 
 ## v0.24.0
 * ImmuneDB has now been ported to Python 3.  ImmuneDB v0.23.0 will be
