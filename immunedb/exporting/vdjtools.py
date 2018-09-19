@@ -36,7 +36,7 @@ def get_sample_vdjtools(session, sample, min_clone_size, clone_features):
         v, j, cdr3_nt = key
         yield writer.writerow({
             'count': counts,
-            'freq': round(counts / total, 4),
+            'freq': counts / total,
             'cdr3nt': cdr3_nt,
             'cdr3aa': aas_from_nts(cdr3_nt),
             'v': v,
