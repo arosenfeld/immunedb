@@ -61,3 +61,8 @@ Then install ImmuneDB:
 .. code-block:: bash
 
     $ pip install immunedb
+
+Web Interface Installation
+==========================
+Please refer to the `ImmuneDB Frontend installation instructions
+<https://github.com/arosenfeld/immunedb-frontend#immunedb-frontend>`_.
