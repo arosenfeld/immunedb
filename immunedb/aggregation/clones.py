@@ -411,7 +411,8 @@ def run_clones(session, args):
             Sequence._deletions
         )
         for bucket in buckets:
-            tasks.add_task(bucket)
+            if not args.gene or bucket.v_gene.startswith(args.gene):
+                tasks.add_task(bucket)
 
     logger.info('Generated {} total tasks'.format(tasks.num_tasks()))
 

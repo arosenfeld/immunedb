@@ -37,6 +37,10 @@ def add_defaults(parser):
                         subject if --subject is specified) will be DELETED
                         before creating new clones.  Associated sequences
                         will be re-assigned new clones''')
+    parser.add_argument('--gene', default=None,
+                        help='''If specified, only sequences of the given gene
+                        type will be assigned clones.  Useful if you have
+                        BCR and TCR sequences within a single subject.''')
     parser.add_argument('--subclones', action='store_true',
                         help='''If specified, calculates subclone
                         relationships''')

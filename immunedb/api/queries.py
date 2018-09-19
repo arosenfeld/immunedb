@@ -156,6 +156,9 @@ def get_clones(session, filters, order_field, order_dir, subject_limit=None,
                     clone_q = clone_q.filter(Clone.id == int(value))
                 elif key == 'subject_id':
                     clone_q = clone_q.filter(Clone.subject_id == int(value))
+                else:
+                    clone_q = clone_q.filter(
+                        getattr(Clone, key).like(value))
 
     if order_field:
         order_field = getattr(Clone, order_field)
