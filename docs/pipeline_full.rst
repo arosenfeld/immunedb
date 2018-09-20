@@ -111,6 +111,16 @@ For T-cells we recommend:
 
    $ immunedb_clones /share/configs/my_db.json tcells
 
+If you have a mixed dataset, you can assign clones in different ways, filtering
+on V-gene type.  For example:
+
+.. code-block:: bash
+   :caption: Run in Docker
+
+   $ immunedb_clones /share/configs/my_db.json similarity --gene IGHV
+   $ immunedb_clones /share/configs/my_db.json tcells --gene TCRB
+
+
 The last required step is to generate aggregate statistics:
 
 .. code-block:: bash
@@ -121,7 +131,7 @@ The last required step is to generate aggregate statistics:
 
 For B-cells, you might want to generate lineages too.  The following excludes
 mutations that only occur once.  ``immunedb_clone_trees`` has many other
-parameters for filtering which you can view with the ``--help`` flagu
+parameters for filtering which you can view with the ``--help`` flag:
 
 .. code-block:: bash
    :caption: Run in Docker

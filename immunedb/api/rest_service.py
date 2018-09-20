@@ -319,4 +319,4 @@ def run_rest_service(session_maker, args):
     if args.debug:
         app.catchall = False
     app.run(host='0.0.0.0', port=args.port, server=args.server,
-            debug=args.debug)
+            debug=args.debug, worker_class='eventlet', timeout=0)
