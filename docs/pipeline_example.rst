@@ -65,7 +65,7 @@ Given this, run the ``immunedb_identify`` command:
 
     $ immunedb_identify /share/configs/example_db.json \
          /root/germlines/imgt_human_ighv.fasta \
-         /root/germlines imgt_human_ighj.fasta \
+         /root/germlines/imgt_human_ighj.fasta \
          /example
 
 
@@ -169,6 +169,6 @@ to simplify the process:
 .. code-block:: bash
    :caption: Run in Docker
 
-    $ serve_immunedb.sh /share/configs/example.json
+    $ serve_immunedb.sh /share/configs/example_db.json
 
 You can then navigate to http://localhost:8080.

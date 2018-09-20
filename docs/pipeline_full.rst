@@ -93,7 +93,7 @@ same for any dataset:
 
    $ immunedb_identify /share/configs/my_db.json \
          /root/germlines/imgt_human_ighv.fasta \
-         /root/germlines imgt_human_ighj.fasta \
+         /root/germlines/imgt_human_ighj.fasta \
          /share/sequences
    $ immunedb_collapse /share/configs/my_db.json
 
@@ -154,4 +154,5 @@ Finally, start the web interface:
 
     $ serve_immunedb.sh /share/configs/my_db.json
 
-Your data should be available at http://localhost:8080.
+Wait a few moments until you see ``webpack: Compiled successfully.`` and then
+the data should be available at http://localhost:8080.
