@@ -374,6 +374,9 @@ class CloneStats(Base):
     total_cnt = Column(Integer)
 
     mutations = Column(MEDIUMTEXT)
+    top_copy_seq_ai = Column(Integer, ForeignKey('sequences.ai'))
+    top_copy_seq_copies = Column(Integer)
+    top_copy_seq = relationship('Sequence')
 
     def total_mutations(self, normalize=False):
         muts = json.loads(self.mutations).get('regions', {}).get('ALL', {})

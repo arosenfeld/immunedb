@@ -10,8 +10,6 @@ if __name__ == '__main__':
                                         'database')
     parser.add_argument('-p', default=5000, type=int, dest='port',
                         help='API offer port')
-    parser.add_argument('-d', action='store_true', default=False, dest='debug',
-                        help='Use debug mode')
     parser.add_argument('--allow-shutdown', action='store_true', default=False,
                         help='Allows remote shutdown by accessing /shutdown. '
                         'Only use during testing!')
@@ -19,10 +17,6 @@ if __name__ == '__main__':
                         'rollbar reporting')
     parser.add_argument('--rollbar-env', default='develop', help='Environment '
                         'for rollbar reporting')
-    parser.add_argument('--server', default='gunicorn',
-                        help='The server to use.')
     args = parser.parse_args()
 
-    session_maker = config.init_db(args.db_config, as_maker=True)
-
-    sys.exit(run_rest_service(session_maker, args))
+    sys.exit(run_rest_service(args))

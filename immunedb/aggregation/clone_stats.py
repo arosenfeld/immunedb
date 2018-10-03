@@ -54,6 +54,12 @@ class CloneStatsWorker(concurrent.Worker):
 
         """
 
+        top_seq = self._session.query(
+            Sequence.ai,
+            Sequence.copy_number
+        ).filter(
+            Sequence.clone_id == clone_id
+        )
         if sample_id is None:
             counts = self._session.query(
                 func.count(Sequence.ai).label('unique'),
@@ -71,6 +77,9 @@ class CloneStatsWorker(concurrent.Worker):
                 Sequence.sample_id == sample_id,
                 Sequence.clone_id == clone_id
             ).first()
+            top_seq = top_seq.filter(Sequence.sample_id == sample_id)
+
+        top_seq = top_seq.order_by(Sequence.copy_number.desc()).first()
 
         clone_inst = self._session.query(Clone).filter(
             Clone.id == clone_id).first()
@@ -88,6 +97,8 @@ class CloneStatsWorker(concurrent.Worker):
             'unique_cnt': counts.unique,
             'total_cnt': counts.total,
             'mutations': json.dumps(sample_mutations.get_all()),
+            'top_copy_seq_ai': top_seq.ai,
+            'top_copy_seq_copies': top_seq.copy_number
         }
 
         self._session.add(CloneStats(sample_id=sample_id, **record_values))

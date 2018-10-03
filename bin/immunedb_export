@@ -74,6 +74,13 @@ if __name__ == '__main__':
         'clone-overlap',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
+
+    parser = subparsers.add_parser(
+        'clone-pooled', formatter_class=argparse.ArgumentDefaultsHelpFormatter
+    )
+    parser.add_argument('feature')
+    parser.add_argument('--sample-ids', type=int, nargs='+')
+
     args = main_parser.parse_args()
     session = config.init_db(args.db_config)
 
@@ -87,7 +94,8 @@ if __name__ == '__main__':
 
         'samples': exporting.write_samples,
         'clones': exporting.write_clone_summary,
-        'clone-overlap': exporting.write_clone_overlap
+        'clone-overlap': exporting.write_clone_overlap,
+        'clone-pooled': exporting.write_pooled_samples
     }
 
     fmts[args.fmt](session, args)

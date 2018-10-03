@@ -4,6 +4,11 @@ import itertools
 import dnautils
 
 
+def chunks(l, n):
+    for i in range(0, len(l), n):
+        yield l[i:i + n]
+
+
 def yield_limit(qry, pk_attr, maxrq=5000):
     firstid = None
     while True:

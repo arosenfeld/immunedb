@@ -17,6 +17,7 @@ except ImportError:
     ROLLBAR_SUPPORT = False
 
 import immunedb.api.queries as queries
+import immunedb.common.config as config
 from immunedb.common.models import Sequence, SequenceCollapse
 from immunedb.util.log import logger
 import immunedb.exporting as exporting
@@ -77,14 +78,14 @@ def decode_run_length(encoding):
     return ids
 
 
-def create_app(session_maker, allow_shutdown=False):
+def create_app(db_config, allow_shutdown=False):
     app = bottle.Bottle()
     app.install(EnableCors())
 
     def with_session(f):
         @wraps(f)
         def _wrapper(*args, **kwargs):
-            session = scoped_session(session_maker)()
+            session = config.init_db(db_config)
             try:
                 return f(session, *args, **kwargs)
             except Exception:
@@ -279,13 +280,18 @@ def create_app(session_maker, allow_shutdown=False):
             ),
             'overlap': exporting.get_clone_overlap,
             'selection': exporting.get_selection,
-            'vdjtools': exporting.get_vjdtools_as_zip,
+            'vdjtools': exporting.get_vdjtools_as_zip,
+            'pooled': partial(
+                exporting.get_pooled_samples_as_zip,
+                sample_ids=decode_run_length(request.query.get('samples', '')),
+                feature=request.query.get('feature', 'sample')
+            ),
         }
         if schema not in funcs:
             return create_response(code=400)
 
         set_file('clone_' + schema,
-                 'zip' if schema == 'vdjtools' else 'tsv')
+                 'zip' if schema in ('vdjtools', 'pooled') else 'tsv')
 
         yield from funcs[schema](session)
 
@@ -305,7 +311,7 @@ def create_app(session_maker, allow_shutdown=False):
     return app
 
 
-def run_rest_service(session_maker, args):
+def run_rest_service(args):
     if args.rollbar_token:
         if not ROLLBAR_SUPPORT:
             logger.error('Rollbar is not installed')
@@ -315,8 +321,12 @@ def run_rest_service(session_maker, args):
             environment=args.rollbar_env)
         bottle.install(rbr)
 
-    app = create_app(session_maker, args.allow_shutdown)
-    if args.debug:
-        app.catchall = False
-    app.run(host='0.0.0.0', port=args.port, server=args.server,
-            debug=args.debug, worker_class='eventlet', timeout=0)
+    app = create_app(args.db_config, args.allow_shutdown)
+    app.catchall = False
+    app.run(
+        host='0.0.0.0',
+        port=args.port,
+        server='gunicorn',
+        worker_class='eventlet',
+        timeout=0,
+        workers=args.nproc)

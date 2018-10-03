@@ -57,7 +57,7 @@ def write_vdjtools(session, args):
         )
 
 
-def get_vjdtools_as_zip(session, min_clone_size=0):
+def get_vdjtools_as_zip(session, min_clone_size=0):
     clone_features = get_clone_features(session)
 
     out = io.BytesIO()

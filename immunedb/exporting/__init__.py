@@ -4,3 +4,4 @@ from .vdjtools import *  # noqa: F401, F403
 from .selection import *  # noqa: F401, F403
 from .samples import *  # noqa: F401, F403
 from .clones import *  # noqa: F401, F403
+from .pooled import *  # noqa: F401, F403
