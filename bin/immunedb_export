@@ -5,28 +5,14 @@ import immunedb.common.config as config
 import immunedb.exporting as exporting
 
 
-def add_common_fields(parser):
-    parser.add_argument('--clones-only', action='store_true', default=False,
-                        help='Includes only sequences assigned to a clone')
-    parser.add_argument('--min-subject-copies', default=None,
-                        help='''The minimum copies in the subject required to
-                        be exported.  Set to 1 for all subject-unique
-                        sequences, or higher for more stringent filtering''')
-    return parser
-
-
 if __name__ == '__main__':
     main_parser = config.get_base_arg_parser('Exports ImmuneDB data in '
                                              'various formats',
                                              multiproc=False)
     subparsers = main_parser.add_subparsers(dest='fmt', help='The format')
     subparsers.required = True
-    parser = subparsers.add_parser(
-        'vdjtools', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--min-clone-size', type=int, default=1,
-                        help='Only export clones with at least this many'
-                        ' copies.')
 
+    # Genbank
     parser = subparsers.add_parser(
         'genbank', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--inference', default='ImmuneDB:{}'.format(
@@ -38,16 +24,22 @@ if __name__ == '__main__':
                         help='Species of sequences')
     parser.add_argument('--mol-type', default='DNA', help='Molecule type')
 
-    parser = add_common_fields(subparsers.add_parser(
-        'changeo', formatter_class=argparse.ArgumentDefaultsHelpFormatter))
-    parser = add_common_fields(subparsers.add_parser(
-        'airr', formatter_class=argparse.ArgumentDefaultsHelpFormatter))
+    # Raw sequences
+    parser = subparsers.add_parser(
+        'sequences', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('--format', default='changeo',
+                        choices=['changeo', 'airr'], required=True)
+    parser.add_argument('--clones-only', action='store_true', default=False,
+                        help='Includes only sequences assigned to a clone')
+    parser.add_argument('--min-subject-copies', default=None,
+                        help='''The minimum copies in the subject required to
+                        be exported.  Set to 1 for all subject-unique
+                        sequences, or higher for more stringent filtering''')
 
+
+    # Clone selection pressure
     parser = subparsers.add_parser(
         'selection', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--threshold', default='1',
-                        help='''Then selection pressure threshold to export.
-                        Must be specified with immunedb_clone_pressure''')
     parser.add_argument('--filter', default='both', choices=[
                         'both', 'samples', 'overall'], help='''What selection
                         pressure to export.  "overall" outputs one row per
@@ -56,46 +48,49 @@ if __name__ == '__main__':
                         selection pressure in those samples, and "both" outputs
                         both of the above.''')
 
+    # Sample metadata
     parser = subparsers.add_parser(
         'samples', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--for-update', action='store_true', help='''When set,
         formats the metadata for use in `immunedb_update update-metadata` to
         update metadata.''')
 
+    # Pooled analysis
     parser = subparsers.add_parser(
-        'clones',
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--include-lineages', action='store_true',
-                        help='''If specified, includes the JSON representation
-                        of clone lineages.  This can drastically increase file
-                        size''')
+        'clones', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('--pool-on', nargs='+', default=None, help='''
+        The metadata field(s) on which to pool.''')
+    parser.add_argument('--format', default='immunedb',
+                        choices=['immunedb', 'vdjtools'],
+                        help='''The format in which to export''')
+    parser.add_argument('--sample-ids', type=int, nargs='+', help='''If
+                        specified, limits the export to certain samples.''')
 
+    # Overlap
     parser = subparsers.add_parser(
-        'clone-overlap',
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-
-
-    parser = subparsers.add_parser(
-        'clone-pooled', formatter_class=argparse.ArgumentDefaultsHelpFormatter
+        'overlap',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
-    parser.add_argument('feature')
+    parser.add_argument('--pool-on', nargs='+', default=None, help='''
+        The metadata field(s) on which to pool.''')
+    parser.add_argument('--sim-func', default='cosine',
+                        choices=['cosine', 'jaccard'])
+    parser.add_argument('--size-metric', default='copies',
+                        choices=['copies', 'instances'])
+    parser.add_argument('--agg-func', default='median',
+                        choices=['mean', 'median'])
     parser.add_argument('--sample-ids', type=int, nargs='+')
 
     args = main_parser.parse_args()
     session = config.init_db(args.db_config)
 
     fmts = {
-        'changeo': exporting.write_sequences,
-        'airr': exporting.write_sequences,
-
-        'vdjtools': exporting.write_vdjtools,
         'genbank': exporting.write_genbank,
+        'sequences': exporting.write_sequences,
         'selection': exporting.write_selection,
-
         'samples': exporting.write_samples,
-        'clones': exporting.write_clone_summary,
-        'clone-overlap': exporting.write_clone_overlap,
-        'clone-pooled': exporting.write_pooled_samples
+        'clones': exporting.write_pooled_clones,
+        'overlap': exporting.write_clone_overlap,
     }
 
-    fmts[args.fmt](session, args)
+    fmts[args.fmt](session, **vars(args))

@@ -20,9 +20,3 @@ class StreamingTSV(object):
         self.out.seek(0)
         action(*args, **kwargs)
         return self.out.getvalue().strip() + '\n'
-
-
-def write_tsv(fn, func, *args, **kwargs):
-    with open(fn, 'w+') as fh:
-        for line in func(*args, **kwargs):
-            fh.write(line)

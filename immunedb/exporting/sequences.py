@@ -2,11 +2,12 @@ from collections import OrderedDict
 from sqlalchemy.orm import joinedload
 
 from immunedb.identification.genes import GeneName
+from immunedb.exporting.writer import ExportWriter
 from immunedb.common.models import (SampleMetadata, Sequence, SequenceCollapse,
                                     Subject)
 from immunedb.util.log import logger
 from immunedb.util.funcs import yield_limit
-from immunedb.exporting.tsv_writer import StreamingTSV, write_tsv
+from immunedb.exporting.tsv_writer import StreamingTSV
 
 
 mappings = {
@@ -111,35 +112,43 @@ class SequenceWriter(StreamingTSV):
         return ''
 
 
-def get_sequences(session, seqs, format_name):
-    seqs = seqs.join(SequenceCollapse)
-    seqs = seqs.options(
+def get_sequences(session, subject, fmt, clones_only, min_subject_copies):
+    meta_keys = set([m.key for m in session.query(SampleMetadata.key)])
+
+    seqs = session.query(Sequence).filter(
+        Sequence.subject_id == subject.id
+    ).join(
+        SequenceCollapse
+    ).options(
         joinedload(Sequence.clone),
         joinedload(Sequence.collapse),
         joinedload(Sequence.sample),
         joinedload(Sequence.subject),
     )
-    meta_keys = set([m.key for m in session.query(SampleMetadata.key)])
-    writer = SequenceWriter(format_name, meta_keys)
+
+    if clones_only:
+        seqs = seqs.filter(~Sequence.clone_id.is_(None))
+    if min_subject_copies:
+        seqs = seqs.filter(
+            SequenceCollapse.copy_number_in_subject >=
+            min_subject_copies
+        )
+
+    writer = SequenceWriter(fmt, meta_keys)
 
     yield writer.writeheader()
     for seq in yield_limit(seqs, Sequence.ai):
         yield writer.writeseq(seq)
 
-
-def write_sequences(session, args):
-    for subject in session.query(Subject):
-        logger.info('Exporting subject {}'.format(subject.identifier))
-        seqs = session.query(Sequence).filter(
-            Sequence.subject_id == subject.id
-        )
-        if args.clones_only:
-            seqs = seqs.filter(~Sequence.clone_id.is_(None))
-        if args.min_subject_copies is not None:
-            seqs = seqs.filter(
-                SequenceCollapse.copy_number_in_subject >=
-                args.min_subject_copies
+def write_sequences(session, **kwargs):
+    fmt = kwargs['format']
+    with ExportWriter(zipped=kwargs.get('zipped', False)) as fh:
+        for subject in session.query(Subject):
+            logger.info('Exporting subject {}'.format(subject.identifier))
+            fh.set_filename('{}.{}.tsv'.format(subject.identifier, fmt))
+            fh.write(
+                get_sequences(session, subject, fmt,
+                              kwargs['clones_only'],
+                              kwargs['min_subject_copies'])
             )
-
-        fn = '{}.{}.tsv'.format(subject.identifier, args.fmt)
-        write_tsv(fn, get_sequences, session, seqs, args.fmt)
+        return fh.get_zip_value()

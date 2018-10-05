@@ -56,7 +56,8 @@ class CloneStatsWorker(concurrent.Worker):
 
         top_seq = self._session.query(
             Sequence.ai,
-            Sequence.copy_number
+            Sequence.copy_number,
+            Sequence.sequence
         ).filter(
             Sequence.clone_id == clone_id
         )
@@ -98,6 +99,7 @@ class CloneStatsWorker(concurrent.Worker):
             'total_cnt': counts.total,
             'mutations': json.dumps(sample_mutations.get_all()),
             'top_copy_seq_ai': top_seq.ai,
+            'top_copy_seq_sequence': top_seq.sequence,
             'top_copy_seq_copies': top_seq.copy_number
         }
 

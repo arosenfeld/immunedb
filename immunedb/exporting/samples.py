@@ -1,7 +1,8 @@
 from sqlalchemy import func
 
 from immunedb.common.models import CloneStats, Sample, SampleMetadata
-from immunedb.exporting.tsv_writer import StreamingTSV, write_tsv
+from immunedb.exporting.tsv_writer import StreamingTSV
+from immunedb.exporting.writer import ExportWriter
 from immunedb.util.log import logger
 
 
@@ -54,6 +55,9 @@ def get_samples(session, for_update=False):
         yield writer.writerow(row)
 
 
-def write_samples(session, args):
+def write_samples(session, **kwargs):
     logger.info('Exporting samples')
-    write_tsv('samples.tsv', get_samples, session, args.for_update)
+    with ExportWriter(zipped=kwargs.get('zipped', False)) as fh:
+        fh.set_filename('samples.tsv')
+        fh.write(get_samples(session, kwargs.get('for_update', False)))
+        return fh.get_zip_value()

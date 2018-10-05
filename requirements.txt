@@ -5,6 +5,10 @@ SQLAlchemy==1.2.7
 biopython==1.72
 bottle==0.12.13
 ete3==3.1.1
+matplotlib==3.0.0
 numpy==1.15.1
+pandas==0.23.4
 PyMySQL==0.8.0
+seaborn==0.9.0
+scipy==1.1.0
 six==1.11.0

@@ -375,6 +375,7 @@ class CloneStats(Base):
 
     mutations = Column(MEDIUMTEXT)
     top_copy_seq_ai = Column(Integer, ForeignKey('sequences.ai'))
+    top_copy_seq_sequence = Column(String(length=MAX_SEQ_LEN))
     top_copy_seq_copies = Column(Integer)
     top_copy_seq = relationship('Sequence')
 

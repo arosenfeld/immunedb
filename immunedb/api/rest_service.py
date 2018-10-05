@@ -18,7 +18,6 @@ except ImportError:
 
 import immunedb.api.queries as queries
 import immunedb.common.config as config
-from immunedb.common.models import Sequence, SequenceCollapse
 from immunedb.util.log import logger
 import immunedb.exporting as exporting
 
@@ -68,6 +67,8 @@ def get_paging():
 
 
 def decode_run_length(encoding):
+    if not encoding:
+        return []
     ids = []
     offset = 1
     for match in re.finditer('(T|F)(\d+)', encoding.upper()):
@@ -244,7 +245,7 @@ def create_app(db_config, allow_shutdown=False):
     def subject(session, subject_id):
         return create_response(queries.get_subject(session, subject_id))
 
-    def set_file(suffix, ext='tsv'):
+    def set_file(suffix, ext='zip'):
         time_str = time.strftime('%Y-%m-%d-%H-%M')
         fn = '{}_{}.{}'.format(time_str, suffix, ext)
         response.headers['Content-Disposition'] = 'attachment;filename=' + fn
@@ -255,51 +256,46 @@ def create_app(db_config, allow_shutdown=False):
         if schema not in exporting.mappings:
             return create_response(code=400)
 
-        seqs = session.query(Sequence)
-
-        min_copies = request.query.get('min_subject_copies', 0)
-        if min_copies:
-            seqs = seqs.filter(
-                SequenceCollapse.copy_number_in_subject >= min_copies
-            )
-
-        if request.query.get('clones_only', False):
-            seqs = seqs.filter(~Sequence.clone_id.is_(None))
-
         set_file(schema)
-
-        yield from exporting.get_sequences(session, seqs, schema)
+        return exporting.write_sequences(
+            session, format=schema, zipped=True,
+            clones_only=request.query.get('clones_only', False),
+            min_subject_copies=request.query.get('min_subject_copies', 1))
 
     @app.route('/export/clones/<schema>', method=['GET', 'OPTIONS'])
     @with_session
     def export_clones(session, schema):
-        funcs = {
-            'summary': partial(
-                exporting.get_clone_summary,
-                include_lineages=request.query.get('lineages', False)
-            ),
-            'overlap': exporting.get_clone_overlap,
-            'selection': exporting.get_selection,
-            'vdjtools': exporting.get_vdjtools_as_zip,
-            'pooled': partial(
-                exporting.get_pooled_samples_as_zip,
-                sample_ids=decode_run_length(request.query.get('samples', '')),
-                feature=request.query.get('feature', 'sample')
-            ),
-        }
-        if schema not in funcs:
+        if schema not in ('vdjtools', 'immunedb'):
             return create_response(code=400)
 
-        set_file('clone_' + schema,
-                 'zip' if schema in ('vdjtools', 'pooled') else 'tsv')
+        set_file('clone_' + schema)
 
-        yield from funcs[schema](session)
+        return exporting.write_pooled_clones(
+            session,
+            zipped=True,
+            pool_on=request.query.get('pool_on', 'sample').split(','),
+            sample_ids=decode_run_length(request.query.get('samples')),
+            format=schema
+        )
+
+    @app.route('/export/overlap', method=['GET', 'OPTIONS'])
+    @with_session
+    def export_overlap(session):
+        set_file('overlap')
+        return exporting.write_clone_overlap(
+            session,
+            pool_on=request.query.get('pool_on', 'sample').split(','),
+            sample_ids=decode_run_length(request.query.get('samples')),
+            sim_func=request.query.get('sim_func'),
+            agg_func=request.query.get('agg_func'),
+            size_metric=request.query.get('size_metric'),
+        )
 
     @app.route('/export/samples', method=['GET', 'OPTIONS'])
     @with_session
     def export_samples(session):
         set_file('samples')
-        yield from exporting.get_samples(session)
+        return exporting.write_samples(session)
 
     @app.route('/shutdown', method=['GET'])
     def shutdown():

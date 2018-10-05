@@ -1,7 +1,8 @@
 from sqlalchemy.orm import joinedload
 
 from immunedb.common.models import SelectionPressure
-from immunedb.exporting.tsv_writer import StreamingTSV, write_tsv
+from immunedb.exporting.tsv_writer import StreamingTSV
+from immunedb.exporting.writer import ExportWriter
 from immunedb.util.funcs import yield_limit
 from immunedb.util.log import logger
 
@@ -30,6 +31,9 @@ def get_selection(session, filter_type=None):
         yield writer.writerow(row)
 
 
-def write_selection(session, args):
+def write_selection(session, **kwargs):
     logger.info('Exporting selection pressure')
-    write_tsv('selection_pressure.tsv', get_selection, session, args.filter)
+    with ExportWriter(zipped=kwargs.get('zipped', False)) as fh:
+        fh.set_filename('selection_pressure.tsv')
+        fh.write(get_selection(session, kwargs.get('filter', 'both')))
+        return fh.get_zip_value()
