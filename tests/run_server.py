@@ -7,7 +7,6 @@ run_rest_service(Namespace(
     db_config='test_db.json',
     nproc=1,
     port=8891,
-    debug=True,
     allow_shutdown=True,
     rollbar_token=None,
     rollbar_env=None,

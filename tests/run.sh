@@ -23,8 +23,8 @@ coverage run --source=immunedb -p -m nose tests/tests_parser.py
 coverage run --source=immunedb -p -m nose tests/tests_import.py
 coverage run --source=immunedb -p -m nose tests/tests_pipeline.py
 coverage run --source=immunedb -p -m nose tests/run_server.py &
-sleep 2
+PID=$!
+sleep 5
 coverage run --source=immunedb -p -m nose tests/tests_api.py
 coverage run --source=immunedb -p -m nose tests/tests_export.py
-python tests/validate_airr.py tests/data/export/airr.tsv
 coverage run --source=immunedb -p -m nose tests/tests_clone_import.py
