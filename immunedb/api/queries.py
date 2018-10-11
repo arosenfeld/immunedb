@@ -80,7 +80,7 @@ def get_samples(session, sample_ids=None):
         )
     )
 
-    if sample_ids is not None:
+    if sample_ids:
         query = query.filter(SampleStats.sample_id.in_(sample_ids))
 
     query = query.order_by(Sample.subject_id).options(

@@ -77,7 +77,7 @@ def write_clone_overlap(session, **kwargs):
         samples = samples.filter(Sample.id.in_(sample_ids))
     sample_instances = {s.id: s for s in samples}
 
-    with ExportWriter(zipped=kwargs.get('zipped', True)) as writer:
+    with ExportWriter(zipped=kwargs.get('zipped', False)) as writer:
         for subject in set([s.subject for s in sample_instances.values()]):
             logger.info('Calculating overlap for {}'.format(
                 subject.identifier))
@@ -102,7 +102,7 @@ def write_clone_overlap(session, **kwargs):
                 subject.identifier, ' & '.join(pool_on), sim_func, agg_func
             ))
 
-            with writer.get_handle(name + '.pdf', 'b') as fh:
+            with writer.get_handle(name + '.pdf', 'wb+') as fh:
                 plt.savefig(fh, bbox_inches='tight', format='pdf')
 
         return writer.get_zip_value()

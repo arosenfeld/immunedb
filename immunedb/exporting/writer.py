@@ -8,17 +8,17 @@ class ExportWriter:
         self.zipped = zipped
         self.filename = None
 
-    def get_handle(self, fn, mode='s'):
+    def get_handle(self, fn, mode='w+'):
         class WriterFH:
             def __init__(self, writer):
                 self.writer = writer
 
             def __enter__(self):
-                self.buffer = io.BytesIO() if mode == 'b' else io.StringIO()
+                self.buffer = io.BytesIO() if 'b' in mode else io.StringIO()
                 return self.buffer
 
             def __exit__(self, exc_type, exc_value, traceback):
-                self.writer.set_filename(fn)
+                self.writer.set_filename(fn, mode)
                 self.writer.write(self.buffer.getvalue())
 
         return WriterFH(self)
@@ -33,14 +33,14 @@ class ExportWriter:
         if self.zipped:
             self.zip.writestr(
                 self.filename,
-                ''.join(data) if type(data) == str else data
+                data if type(data) == bytes else ''.join(data)
             )
         else:
-            if type(data) == str:
+            if type(data) == bytes:
+                self.fh.write(data)
+            else:
                 for chunk in data:
                     self.fh.write(chunk)
-            else:
-                self.fh.write(data)
 
     def get_zip_value(self, write_fn=None):
         if self.zipped:

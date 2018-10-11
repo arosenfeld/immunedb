@@ -11,7 +11,7 @@ class Passthrough:
         return 0
 
 
-def get_samples(session, for_update=False):
+def get_samples(session, for_update=False, sample_ids=None):
     meta = [
         s.key for s in session.query(SampleMetadata.key).group_by(
             SampleMetadata.key).order_by(SampleMetadata.key)
@@ -32,7 +32,10 @@ def get_samples(session, for_update=False):
     fields.extend(meta)
     writer = StreamingTSV(fields)
     yield writer.writeheader()
-    for sample in session.query(Sample).order_by(Sample.name):
+    samples = session.query(Sample)
+    if sample_ids:
+        samples = samples.filter(Sample.id.in_(sample_ids))
+    for sample in samples.order_by(Sample.name):
         row = {
             'id': sample.id,
             'name': sample.name,
@@ -59,5 +62,6 @@ def write_samples(session, **kwargs):
     logger.info('Exporting samples')
     with ExportWriter(zipped=kwargs.get('zipped', False)) as fh:
         fh.set_filename('samples.tsv')
-        fh.write(get_samples(session, kwargs.get('for_update', False)))
+        fh.write(get_samples(session, kwargs.get('for_update', False),
+                             kwargs.get('sample_ids')))
         return fh.get_zip_value()

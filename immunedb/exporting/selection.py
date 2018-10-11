@@ -7,7 +7,7 @@ from immunedb.util.funcs import yield_limit
 from immunedb.util.log import logger
 
 
-def get_selection(session, filter_type=None):
+def get_selection(session, filter_type=None, sample_ids=None):
     query = session.query(SelectionPressure).options(
         joinedload(SelectionPressure.clone),
         joinedload(SelectionPressure.sample),
@@ -15,7 +15,10 @@ def get_selection(session, filter_type=None):
     if filter_type == 'overall':
         query = query.filter(SelectionPressure.sample_id.is_(None))
     elif filter_type == 'samples':
-        query = query.filter(~SelectionPressure.sample_id.is_(None))
+        if sample_ids:
+            query.filter(SelectionPressure.sample_id.in_(sample_ids))
+        else:
+            query = query.filter(~SelectionPressure.sample_id.is_(None))
 
     base_fields = SelectionPressure.__table__.c.keys()
     base_fields.remove('id')

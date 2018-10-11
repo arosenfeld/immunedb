@@ -3,8 +3,8 @@ from sqlalchemy.orm import joinedload
 
 from immunedb.identification.genes import GeneName
 from immunedb.exporting.writer import ExportWriter
-from immunedb.common.models import (SampleMetadata, Sequence, SequenceCollapse,
-                                    Subject)
+from immunedb.common.models import (Sample, SampleMetadata, Sequence,
+                                    SequenceCollapse)
 from immunedb.util.log import logger
 from immunedb.util.funcs import yield_limit
 from immunedb.exporting.tsv_writer import StreamingTSV
@@ -112,11 +112,11 @@ class SequenceWriter(StreamingTSV):
         return ''
 
 
-def get_sequences(session, subject, fmt, clones_only, min_subject_copies):
+def get_sequences(session, sample, fmt, clones_only, min_subject_copies):
     meta_keys = set([m.key for m in session.query(SampleMetadata.key)])
 
     seqs = session.query(Sequence).filter(
-        Sequence.subject_id == subject.id
+        Sequence.sample_id == sample.id
     ).join(
         SequenceCollapse
     ).options(
@@ -140,14 +140,18 @@ def get_sequences(session, subject, fmt, clones_only, min_subject_copies):
     for seq in yield_limit(seqs, Sequence.ai):
         yield writer.writeseq(seq)
 
+
 def write_sequences(session, **kwargs):
+    samples = session.query(Sample)
+    if kwargs.get('sample_ids'):
+        samples = samples.filter(Sample.id.in_(kwargs.get('sample_ids')))
     fmt = kwargs['format']
     with ExportWriter(zipped=kwargs.get('zipped', False)) as fh:
-        for subject in session.query(Subject):
-            logger.info('Exporting subject {}'.format(subject.identifier))
-            fh.set_filename('{}.{}.tsv'.format(subject.identifier, fmt))
+        for sample in samples:
+            logger.info('Exporting sample {}'.format(sample.name))
+            fh.set_filename('{}.{}.tsv'.format(sample.name, fmt))
             fh.write(
-                get_sequences(session, subject, fmt,
+                get_sequences(session, sample, fmt,
                               kwargs['clones_only'],
                               kwargs['min_subject_copies'])
             )

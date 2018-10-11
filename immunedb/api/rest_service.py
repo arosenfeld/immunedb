@@ -96,10 +96,12 @@ def create_app(db_config, allow_shutdown=False):
 
         return _wrapper
 
+    @app.route('/samples/list/<sample_encoding>', method=['POST', 'OPTIONS'])
     @app.route('/samples/list', method=['POST', 'OPTIONS'])
     @with_session
-    def samples_list(session):
-        return create_response(queries.get_samples(session))
+    def samples_list(session, sample_encoding=None):
+        sample_ids = decode_run_length(sample_encoding)
+        return create_response(queries.get_samples(session, sample_ids))
 
     @app.route('/sequences/list', method=['POST', 'OPTIONS'])
     @with_session
@@ -250,9 +252,10 @@ def create_app(db_config, allow_shutdown=False):
         fn = '{}_{}.{}'.format(time_str, suffix, ext)
         response.headers['Content-Disposition'] = 'attachment;filename=' + fn
 
-    @app.route('/export/sequences/<schema>', method=['GET', 'OPTIONS'])
+    @app.route('/export/sequences', method=['GET', 'OPTIONS'])
     @with_session
-    def export_sequences(session, schema):
+    def export_sequences(session):
+        schema = request.query.get('format')
         if schema not in exporting.mappings:
             return create_response(code=400)
 
@@ -262,9 +265,10 @@ def create_app(db_config, allow_shutdown=False):
             clones_only=request.query.get('clones_only', False),
             min_subject_copies=request.query.get('min_subject_copies', 1))
 
-    @app.route('/export/clones/<schema>', method=['GET', 'OPTIONS'])
+    @app.route('/export/clones', method=['GET', 'OPTIONS'])
     @with_session
-    def export_clones(session, schema):
+    def export_clones(session):
+        schema = request.query.get('format')
         if schema not in ('vdjtools', 'immunedb'):
             return create_response(code=400)
 
@@ -284,6 +288,7 @@ def create_app(db_config, allow_shutdown=False):
         set_file('overlap')
         return exporting.write_clone_overlap(
             session,
+            zipped=True,
             pool_on=request.query.get('pool_on', 'sample').split(','),
             sample_ids=decode_run_length(request.query.get('samples')),
             sim_func=request.query.get('sim_func'),
@@ -295,7 +300,17 @@ def create_app(db_config, allow_shutdown=False):
     @with_session
     def export_samples(session):
         set_file('samples')
-        return exporting.write_samples(session)
+        return exporting.write_samples(
+                session, zipped=True,
+                sample_ids=decode_run_length(request.query.get('samples')))
+
+    @app.route('/export/selection', method=['GET', 'OPTIONS'])
+    @with_session
+    def export_selection(session):
+        set_file('selection')
+        return exporting.write_selection(
+                session, zipped=True,
+                sample_ids=decode_run_length(request.query.get('samples')))
 
     @app.route('/shutdown', method=['GET'])
     def shutdown():

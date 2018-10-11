@@ -27,6 +27,8 @@ if __name__ == '__main__':
     # Raw sequences
     parser = subparsers.add_parser(
         'sequences', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+    parser.add_argument('--sample-ids', type=int, nargs='+', help='''If
+                        specified, limits the export to certain samples.''')
     parser.add_argument('--format', default='changeo',
                         choices=['changeo', 'airr'], required=True)
     parser.add_argument('--clones-only', action='store_true', default=False,
