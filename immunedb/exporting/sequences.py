@@ -141,18 +141,18 @@ def get_sequences(session, sample, fmt, clones_only, min_subject_copies):
         yield writer.writeseq(seq)
 
 
-def write_sequences(session, **kwargs):
+def write_sequences(session, sample_ids=None, out_format='changeo',
+                    clones_only=False, min_subject_copies=None, zipped=False,
+                    **kwargs):
     samples = session.query(Sample)
-    if kwargs.get('sample_ids'):
-        samples = samples.filter(Sample.id.in_(kwargs.get('sample_ids')))
-    fmt = kwargs['format']
-    with ExportWriter(zipped=kwargs.get('zipped', False)) as fh:
+    if sample_ids:
+        samples = samples.filter(Sample.id.in_(sample_ids))
+    with ExportWriter(zipped=zipped) as fh:
         for sample in samples:
             logger.info('Exporting sample {}'.format(sample.name))
-            fh.set_filename('{}.{}.tsv'.format(sample.name, fmt))
+            fh.set_filename('{}.{}.tsv'.format(sample.name, out_format))
             fh.write(
-                get_sequences(session, sample, fmt,
-                              kwargs['clones_only'],
-                              kwargs['min_subject_copies'])
+                get_sequences(session, sample, out_format, clones_only,
+                              min_subject_copies)
             )
         return fh.get_zip_value()

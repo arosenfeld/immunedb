@@ -62,19 +62,15 @@ def collapse_df_features(df, features, sample_instances, agg_func):
     return df.reindex(sorted(df.columns), axis=1).sort_index()
 
 
-def write_clone_overlap(session, **kwargs):
-    sample_ids = kwargs.get('sample_ids')
-    size_metric = kwargs.get('size_metric') or 'copies'
-    pool_on = kwargs.get('pool_on') or ('sample',)
-    sim_func = kwargs.get('sim_func') or 'cosine'
-    agg_func = kwargs.get('agg_func') or 'median'
-
+def write_clone_overlap(session, sample_ids=None, pool_on=('sample',),
+                        size_metric='copies', sim_func='cosine',
+                        agg_func='median', zipped=False, **kwargs):
     samples = session.query(Sample)
     if sample_ids:
         samples = samples.filter(Sample.id.in_(sample_ids))
     sample_instances = {s.id: s for s in samples}
 
-    with ExportWriter(zipped=kwargs.get('zipped', False)) as writer:
+    with ExportWriter(zipped=zipped) as writer:
         for subject in set([s.subject for s in sample_instances.values()]):
             logger.info('Calculating overlap for {}'.format(
                 subject.identifier))

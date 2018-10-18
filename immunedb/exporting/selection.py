@@ -34,9 +34,10 @@ def get_selection(session, filter_type=None, sample_ids=None):
         yield writer.writerow(row)
 
 
-def write_selection(session, **kwargs):
+def write_selection(session, sample_ids=None, filter_type='both', zipped=False,
+                    **kwargs):
     logger.info('Exporting selection pressure')
-    with ExportWriter(zipped=kwargs.get('zipped', False)) as fh:
+    with ExportWriter(zipped=zipped) as fh:
         fh.set_filename('selection_pressure.tsv')
-        fh.write(get_selection(session, kwargs.get('filter', 'both')))
+        fh.write(get_selection(session, filter_type, sample_ids))
         return fh.get_zip_value()

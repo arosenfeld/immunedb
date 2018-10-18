@@ -29,7 +29,7 @@ if __name__ == '__main__':
         'sequences', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--sample-ids', type=int, nargs='+', help='''If
                         specified, limits the export to certain samples.''')
-    parser.add_argument('--format', default='changeo',
+    parser.add_argument('--format', default='changeo', dest='out_format',
                         choices=['changeo', 'airr'], required=True)
     parser.add_argument('--clones-only', action='store_true', default=False,
                         help='Includes only sequences assigned to a clone')
@@ -42,13 +42,13 @@ if __name__ == '__main__':
     # Clone selection pressure
     parser = subparsers.add_parser(
         'selection', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--filter', default='both', choices=[
-                        'both', 'samples', 'overall'], help='''What selection
-                        pressure to export.  "overall" outputs one row per
-                        clone of its overall selection pressure, "samples"
-                        outputs one row per sample per clone indicating its
-                        selection pressure in those samples, and "both" outputs
-                        both of the above.''')
+    parser.add_argument('--filter', default='both', dest='filter_type',
+                        choices=['both', 'samples', 'overall'],
+                        help='''What selection pressure to export.  "overall"
+                        outputs one row per clone of its overall selection
+                        pressure, "samples" outputs one row per sample per
+                        clone indicating its selection pressure in those
+                        samples, and "both" outputs both of the above.''')
 
     # Sample metadata
     parser = subparsers.add_parser(
@@ -62,7 +62,7 @@ if __name__ == '__main__':
         'clones', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
     parser.add_argument('--pool-on', nargs='+', default=None, help='''
         The metadata field(s) on which to pool.''')
-    parser.add_argument('--format', default='immunedb',
+    parser.add_argument('--format', default='immunedb', dest='out_format',
                         choices=['immunedb', 'vdjtools'],
                         help='''The format in which to export''')
     parser.add_argument('--sample-ids', type=int, nargs='+', help='''If
@@ -73,7 +73,7 @@ if __name__ == '__main__':
         'overlap',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter
     )
-    parser.add_argument('--pool-on', nargs='+', default=None, help='''
+    parser.add_argument('--pool-on', nargs='+', default='sample', help='''
         The metadata field(s) on which to pool.''')
     parser.add_argument('--sim-func', default='cosine',
                         choices=['cosine', 'jaccard'])

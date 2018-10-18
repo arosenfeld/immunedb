@@ -58,10 +58,10 @@ def get_samples(session, for_update=False, sample_ids=None):
         yield writer.writerow(row)
 
 
-def write_samples(session, **kwargs):
+def write_samples(session, sample_ids=None, for_update=False, zipped=False,
+                  **kwargs):
     logger.info('Exporting samples')
-    with ExportWriter(zipped=kwargs.get('zipped', False)) as fh:
+    with ExportWriter(zipped) as fh:
         fh.set_filename('samples.tsv')
-        fh.write(get_samples(session, kwargs.get('for_update', False),
-                             kwargs.get('sample_ids')))
+        fh.write(get_samples(session, for_update, sample_ids))
         return fh.get_zip_value()

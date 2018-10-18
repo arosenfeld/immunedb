@@ -259,9 +259,12 @@ def create_app(db_config, allow_shutdown=False):
 
         set_file(schema)
         return exporting.write_sequences(
-            session, format=schema, zipped=True,
+            session,
+            sample_ids=decode_run_length(request.query.get('samples')),
+            out_format=schema,
             clones_only=request.query.get('clones_only', False),
-            min_subject_copies=request.query.get('min_subject_copies', 1))
+            min_subject_copies=request.query.get('min_subject_copies', 1),
+            zipped=True)
 
     @app.route('/export/clones', method=['GET', 'OPTIONS'])
     @with_session
@@ -274,10 +277,10 @@ def create_app(db_config, allow_shutdown=False):
 
         return exporting.write_pooled_clones(
             session,
-            zipped=True,
-            pool_on=request.query.get('pool_on', 'sample').split(','),
+            schema,
             sample_ids=decode_run_length(request.query.get('samples')),
-            format=schema
+            pool_on=request.query.get('pool_on', 'sample').split(','),
+            zipped=True,
         )
 
     @app.route('/export/overlap', method=['GET', 'OPTIONS'])
@@ -286,12 +289,12 @@ def create_app(db_config, allow_shutdown=False):
         set_file('overlap')
         return exporting.write_clone_overlap(
             session,
-            zipped=True,
-            pool_on=request.query.get('pool_on', 'sample').split(','),
             sample_ids=decode_run_length(request.query.get('samples')),
+            pool_on=request.query.get('pool_on', 'sample').split(','),
+            size_metric=request.query.get('size_metric'),
             sim_func=request.query.get('sim_func'),
             agg_func=request.query.get('agg_func'),
-            size_metric=request.query.get('size_metric'),
+            zipped=True,
         )
 
     @app.route('/export/samples', method=['GET', 'OPTIONS'])
@@ -307,8 +310,9 @@ def create_app(db_config, allow_shutdown=False):
     def export_selection(session):
         set_file('selection')
         return exporting.write_selection(
-                session, zipped=True,
-                sample_ids=decode_run_length(request.query.get('samples')))
+                session,
+                sample_ids=decode_run_length(request.query.get('samples')),
+                zipped=True)
 
     @app.route('/shutdown', method=['GET'])
     def shutdown():

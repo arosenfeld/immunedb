@@ -121,29 +121,28 @@ def get_filename(subject, feature_keys, feature_values):
     return '{}.{}.pooled.tsv'.format(subject, feature_value)
 
 
-def write_pooled_clones(session, **kwargs):
-    features = kwargs.get('pool_on') or ('sample',)
+def write_pooled_clones(session, out_format, sample_ids=None,
+                        pool_on=('sample',), zipped=False, **kwargs):
     # Samples and subjects can't be combined with other features
-    exclusives = set(features).intersection(set(('sample', 'subject')))
-    if len(features) > 1 and exclusives:
-        features = (list(exclusives)[0],)
+    exclusives = set(pool_on).intersection(set(('sample', 'subject')))
+    if len(pool_on) > 1 and exclusives:
+        pool_on = (list(exclusives)[0],)
         logger.warning('You specified pooling on {feat} which '
                        'cannot be combined with other features.'
-                       '  Using only {feat}.'.format(feat=features[0]))
+                       '  Using only {feat}.'.format(feat=pool_on[0]))
 
     logger.info('Writing clones pooled by {} in {} format'.format(
-        ','.join(features), kwargs['format']))
-    sample_ids = (kwargs.get('sample_ids', None) or
-                  [s.id for s in session.query(Sample)])
+        ','.join(pool_on), out_format))
 
-    aggregated = get_pooled_samples(session, sample_ids, features)
+    sample_ids = sample_ids or [s.id for s in session.query(Sample)]
+    aggregated = get_pooled_samples(session, sample_ids, pool_on)
 
     output_func = {
         'immunedb': get_immunedb_output,
         'vdjtools': get_vdjtools_output
-    }[kwargs['format']]
-    with ExportWriter(zipped=kwargs.get('zipped', False)) as fh:
+    }[out_format]
+    with ExportWriter(zipped=zipped) as fh:
         for (subject, feature_value), clones in aggregated.items():
-            fh.set_filename(get_filename(subject, features, feature_value))
+            fh.set_filename(get_filename(subject, pool_on, feature_value))
             fh.write(output_func(session, clones))
         return fh.get_zip_value()
