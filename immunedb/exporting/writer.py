@@ -1,5 +1,4 @@
 import io
-import types
 import zipfile
 
 

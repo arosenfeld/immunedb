@@ -1,11 +1,9 @@
 import json
-from functools import partial, wraps
+from functools import wraps
 import os
 import re
 import signal
 import time
-
-from sqlalchemy.orm import scoped_session
 
 import bottle
 from bottle import response, request

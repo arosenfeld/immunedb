@@ -1,15 +1,12 @@
-import io
 import itertools
 
-import matplotlib
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 import scipy.spatial.distance as distance
 import seaborn as sns
 
-import immunedb.common.config as config
-from immunedb.common.models import CloneStats, Sample, SampleMetadata
+from immunedb.common.models import CloneStats, Sample
 from immunedb.exporting.writer import ExportWriter
 from immunedb.util.log import logger
 
@@ -97,7 +94,7 @@ def write_clone_overlap(session, **kwargs):
             if 'sample' not in pool_on:
                 title_fmt += ', aggregation function={}'
             fig, ax = plt.subplots(figsize=(20, 20))
-            ax = sns.heatmap(sdf, annot=True, linewidths=.25)
+            ax = sns.heatmap(sdf, annot=True, linewidths=.25, vmin=0, vmax=1)
             ax.set_title(title_fmt.format(
                 subject.identifier, ' & '.join(pool_on), sim_func, agg_func
             ))

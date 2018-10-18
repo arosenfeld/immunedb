@@ -1,11 +1,8 @@
 from collections import Counter
-import io
-import zipfile
 
-from sqlalchemy.sql import func
-from sqlalchemy.orm import joinedload, defer
+from sqlalchemy.orm import joinedload
 
-from immunedb.common.models import CloneStats, Sample, Sequence
+from immunedb.common.models import CloneStats, Sample
 from immunedb.exporting.tsv_writer import StreamingTSV
 from immunedb.exporting.writer import ExportWriter
 from immunedb.util.funcs import chunks

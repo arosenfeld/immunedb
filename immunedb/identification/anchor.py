@@ -103,7 +103,6 @@ class AnchorAligner(object):
             alignment.j_anchor_pos + self.j_germlines.anchor_len,
             len(alignment.sequence)
         )
-        best_dist = None
         if limit_js:
             j_germs = {
                 k: v for k, v in self.j_germlines.items()
@@ -112,9 +111,10 @@ class AnchorAligner(object):
         else:
             j_germs = self.j_germlines
 
+        best_dist = None
         for j_gene, j_seq in j_germs.items():
             seq_j = alignment.sequence[end_of_j - len(j_seq):end_of_j]
-            dist = dnautils.hamming(seq_j, j_seq[:len(seq_j)])
+            dist = dnautils.hamming(seq_j, j_seq[:len(seq_j)]) / len(seq_j)
             if best_dist is None or dist < best_dist:
                 best_dist = dist
                 alignment.j_gene = set([j_gene])
