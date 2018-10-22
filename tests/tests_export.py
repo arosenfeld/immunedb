@@ -1,12 +1,12 @@
 import io
 import os
+import time
 import requests
 import unittest
 import zipfile
 
 
 def request(endpoint, query=None):
-    print(endpoint, query)
     return requests.get('http://localhost:8891' + endpoint, params=query)
 
 
@@ -22,6 +22,13 @@ class ExportTest(unittest.TestCase):
         path = 'tests/data/export/' + expected_path
         response = request(url, query)
         assert response.status_code == 200
+        uid = response.json()['uid']
+        while not request('/export/job_log/' + uid).json()['complete']:
+            time.sleep(1)
+
+        response = request('/export/job/' + uid)
+        assert response.status_code == 200
+
         if os.getenv('GENERATE'):
             with open(path, 'wb+') as fh:
                 fh.write(response.content)
