@@ -143,6 +143,9 @@ def write_pooled_clones(session, out_format, sample_ids=None,
     }[out_format]
     with ExportWriter(zipped=zipped) as fh:
         for (subject, feature_value), clones in aggregated.items():
+            logger.info('Pooling subject {} for feature(s) {}'.format(
+                subject,
+                ','.join(feature_value)))
             fh.set_filename(get_filename(subject, pool_on, feature_value))
             fh.write(output_func(session, clones))
         return fh.get_zip_value()

@@ -14,6 +14,7 @@ try:
 except ImportError:
     ROLLBAR_SUPPORT = False
 
+from immunedb.api.jobs import JobQueue
 import immunedb.api.queries as queries
 import immunedb.common.config as config
 from immunedb.util.log import logger
@@ -80,6 +81,8 @@ def decode_run_length(encoding):
 def create_app(db_config, allow_shutdown=False):
     app = bottle.Bottle()
     app.install(EnableCors())
+    job_queue = JobQueue()
+    app.job_queue = job_queue
 
     def with_session(f):
         @wraps(f)
@@ -245,10 +248,20 @@ def create_app(db_config, allow_shutdown=False):
     def subject(session, subject_id):
         return create_response(queries.get_subject(session, subject_id))
 
-    def set_file(suffix, ext='zip'):
-        time_str = time.strftime('%Y-%m-%d-%H-%M')
-        fn = '{}_{}.{}'.format(time_str, suffix, ext)
-        response.headers['Content-Disposition'] = 'attachment;filename=' + fn
+    @app.route('/export/job_log/<uid>', method=['GET', 'OPTIONS'])
+    def job_log(uid):
+        log = job_queue.get_log(uid).split('\n')
+        return {
+            'complete': job_queue.job_complete(uid),
+            'partial': len(log) > 25,
+            'log': '\n'.join(log[-25:]) or ''
+        }
+
+    @app.route('/export/job/<uid>', method=['GET', 'OPTIONS'])
+    def job(uid):
+        if job_queue.job_complete(uid):
+            return bottle.static_file(uid + '.zip', root=job_queue.temp_dir)
+        return create_response(code=400)
 
     @app.route('/export/sequences', method=['GET', 'OPTIONS'])
     @with_session
@@ -257,14 +270,17 @@ def create_app(db_config, allow_shutdown=False):
         if schema not in exporting.mappings:
             return create_response(code=400)
 
-        set_file(schema)
-        return exporting.write_sequences(
-            session,
+        uid = job_queue.start_job(
+            exporting.write_sequences,
+            session=session,
             sample_ids=decode_run_length(request.query.get('samples')),
             out_format=schema,
             clones_only=request.query.get('clones_only', False),
             min_subject_copies=request.query.get('min_subject_copies', 1),
-            zipped=True)
+            zipped=True
+        )
+
+        return create_response({'uid': uid})
 
     @app.route('/export/clones', method=['GET', 'OPTIONS'])
     @with_session
@@ -273,22 +289,23 @@ def create_app(db_config, allow_shutdown=False):
         if schema not in ('vdjtools', 'immunedb'):
             return create_response(code=400)
 
-        set_file('clone_' + schema)
-
-        return exporting.write_pooled_clones(
-            session,
-            schema,
+        uid = job_queue.start_job(
+            exporting.write_pooled_clones,
+            session=session,
+            out_format=schema,
             sample_ids=decode_run_length(request.query.get('samples')),
             pool_on=request.query.get('pool_on', 'sample').split(','),
             zipped=True,
         )
 
+        return create_response({'uid': uid})
+
     @app.route('/export/overlap', method=['GET', 'OPTIONS'])
     @with_session
     def export_overlap(session):
-        set_file('overlap')
-        return exporting.write_clone_overlap(
-            session,
+        uid = job_queue.start_job(
+            exporting.write_clone_overlap,
+            session=session,
             sample_ids=decode_run_length(request.query.get('samples')),
             pool_on=request.query.get('pool_on', 'sample').split(','),
             size_metric=request.query.get('size_metric'),
@@ -297,22 +314,29 @@ def create_app(db_config, allow_shutdown=False):
             zipped=True,
         )
 
+        return create_response({'uid': uid})
+
     @app.route('/export/samples', method=['GET', 'OPTIONS'])
     @with_session
     def export_samples(session):
-        set_file('samples')
-        return exporting.write_samples(
-                session, zipped=True,
-                sample_ids=decode_run_length(request.query.get('samples')))
+        uid = job_queue.start_job(
+            exporting.write_samples,
+            session=session,
+            sample_ids=decode_run_length(request.query.get('samples')),
+            zipped=True
+        )
+        return create_response({'uid': uid})
 
     @app.route('/export/selection', method=['GET', 'OPTIONS'])
     @with_session
     def export_selection(session):
-        set_file('selection')
-        return exporting.write_selection(
-                session,
-                sample_ids=decode_run_length(request.query.get('samples')),
-                zipped=True)
+        uid = job_queue.start_job(
+            exporting.write_selection,
+            session=session,
+            sample_ids=decode_run_length(request.query.get('samples')),
+            zipped=True
+        )
+        return create_response({'uid': uid})
 
     @app.route('/shutdown', method=['GET'])
     def shutdown():
@@ -336,10 +360,15 @@ def run_rest_service(args):
 
     app = create_app(args.db_config, args.allow_shutdown)
     app.catchall = False
-    app.run(
-        host='0.0.0.0',
-        port=args.port,
-        server='gunicorn',
-        worker_class='eventlet',
-        timeout=0,
-        workers=args.nproc)
+
+    try:
+        app.run(
+            host='0.0.0.0',
+            port=args.port,
+            server='gunicorn',
+            worker_class='eventlet',
+            timeout=0,
+            sendfile=False,
+            workers=args.nproc)
+    except (KeyboardInterrupt, SystemExit):
+        app.job_queue.cleanup()
