@@ -114,12 +114,13 @@ class AnchorAligner(object):
         best_dist = None
         for j_gene, j_seq in j_germs.items():
             seq_j = alignment.sequence[end_of_j - len(j_seq):end_of_j]
-            dist = dnautils.hamming(seq_j, j_seq[:len(seq_j)]) / len(seq_j)
-            if best_dist is None or dist < best_dist:
-                best_dist = dist
-                alignment.j_gene = set([j_gene])
-            elif dist == best_dist:
-                alignment.j_gene.add(j_gene)
+            if seq_j:
+                dist = dnautils.hamming(seq_j, j_seq[:len(seq_j)]) / len(seq_j)
+                if best_dist is None or dist < best_dist:
+                    best_dist = dist
+                    alignment.j_gene = set([j_gene])
+                elif dist == best_dist:
+                    alignment.j_gene.add(j_gene)
 
         if len(alignment.j_gene) == 0:
             raise AlignmentException('Could not find suitable J anchor')

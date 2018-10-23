@@ -250,10 +250,12 @@ def create_app(db_config, allow_shutdown=False):
 
     @app.route('/export/job_log/<uid>', method=['GET', 'OPTIONS'])
     def job_log(uid):
-        log = job_queue.get_log(uid).split('\n')
+        log = job_queue.get_log(uid)
+        if not log:
+            return create_response(code=404)
+
         return {
             'complete': job_queue.job_complete(uid),
-            'partial': len(log) > 25,
             'log': '\n'.join(log[-25:]) or ''
         }
 

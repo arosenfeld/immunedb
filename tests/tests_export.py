@@ -23,8 +23,12 @@ class ExportTest(unittest.TestCase):
         response = request(url, query)
         assert response.status_code == 200
         uid = response.json()['uid']
-        while not request('/export/job_log/' + uid).json()['complete']:
+        print(request('/export/job_log/' + uid))
+        while True:
             time.sleep(1)
+            resp = request('/export/job_log/' + uid)
+            if resp.status_code == 200 and resp.json()['complete']:
+                break
 
         response = request('/export/job/' + uid)
         assert response.status_code == 200
