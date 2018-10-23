@@ -8,6 +8,4 @@ run_rest_service(Namespace(
     nproc=1,
     port=8891,
     allow_shutdown=True,
-    rollbar_token=None,
-    rollbar_env=None,
 ))

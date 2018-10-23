@@ -38,7 +38,6 @@ if __name__ == '__main__':
                         be exported.  Set to 1 for all subject-unique
                         sequences, or higher for more stringent filtering''')
 
-
     # Clone selection pressure
     parser = subparsers.add_parser(
         'selection', formatter_class=argparse.ArgumentDefaultsHelpFormatter)

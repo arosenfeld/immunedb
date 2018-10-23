@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import sys
 import immunedb.common.config as config
 from immunedb.aggregation.sample_stats import run_sample_stats
 
@@ -13,4 +12,4 @@ if __name__ == '__main__':
 
     session = config.init_db(args.db_config)
 
-    sys.exit(run_sample_stats(session, args))
+    run_sample_stats(session, args)

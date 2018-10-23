@@ -3,16 +3,11 @@ from functools import wraps
 import os
 import re
 import signal
+import sys
 import time
 
 import bottle
 from bottle import response, request
-
-try:
-    from rollbar.contrib.bottle import RollbarBottleReporter
-    ROLLBAR_SUPPORT = True
-except ImportError:
-    ROLLBAR_SUPPORT = False
 
 from immunedb.api.jobs import JobQueue
 import immunedb.api.queries as queries
@@ -351,19 +346,13 @@ def create_app(db_config, allow_shutdown=False):
 
 
 def run_rest_service(args):
-    if args.rollbar_token:
-        if not ROLLBAR_SUPPORT:
-            logger.error('Rollbar is not installed')
-            return
-        rbr = RollbarBottleReporter(
-            access_token=args.rollbar_token,
-            environment=args.rollbar_env)
-        bottle.install(rbr)
-
     app = create_app(args.db_config, args.allow_shutdown)
     app.catchall = False
 
     try:
+        # This is a hack because gunicorn tries to read the CLI args
+        sys.argv = ['']
+
         app.run(
             host='0.0.0.0',
             port=args.port,

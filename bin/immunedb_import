@@ -1,5 +1,4 @@
 #!/usr/bin/env python
-import sys
 import immunedb.common.config as config
 
 from immunedb.importing.delimited import run_import
@@ -62,4 +61,4 @@ if __name__ == '__main__':
 
     session = config.init_db(args.db_config)
 
-    sys.exit(run_import(session, args))
+    run_import(session, args)
