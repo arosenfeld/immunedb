@@ -251,7 +251,7 @@ def create_app(db_config, allow_shutdown=False):
 
         return {
             'complete': job_queue.job_complete(uid),
-            'log': '\n'.join(log[-25:]) or ''
+            'log': '\n'.join(log.split('\n')[-25:]) or ''
         }
 
     @app.route('/export/job/<uid>', method=['GET', 'OPTIONS'])

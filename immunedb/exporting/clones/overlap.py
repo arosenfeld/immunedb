@@ -79,6 +79,12 @@ def write_clone_overlap(session, sample_ids=None, pool_on=('sample',),
             ]
             sdf = get_sample_df(session, sub_samples, pool_on, size_metric,
                                 getattr(distance, sim_func))
+            if sdf.empty:
+                logger.warning(
+                    'Subject {} had no clones for calculation'.format(
+                        subject.identifier))
+                continue
+
             sdf = collapse_df_features(sdf, pool_on, sample_instances,
                                        getattr(np, agg_func))
             name = '{}.overlap'.format(subject.identifier)
