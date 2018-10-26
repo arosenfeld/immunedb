@@ -16,7 +16,7 @@ To begin, run the Docker container :ref:`as documented
    :caption: Run on Host
 
     $ docker run -v $HOME/immunedb_share:/share \
-         -p 5000:5000 -p 8080:8080 -it arosenfeld/immunedb:v0.25.1
+         -p 5000:5000 -p 8080:8080 -it arosenfeld/immunedb:v0.26.0
 
 
 Metadata Specification
@@ -120,8 +120,8 @@ commands and must be run in that order.
 .. code-block:: bash
    :caption: Run in Docker
 
-    $ immunedb_sample_stats /share/configs/example_db.json
     $ immunedb_clone_stats /share/configs/example_db.json
+    $ immunedb_sample_stats /share/configs/example_db.json
 
 
 Selection Pressure (Optional)

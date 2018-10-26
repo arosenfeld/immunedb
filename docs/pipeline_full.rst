@@ -126,8 +126,8 @@ The last required step is to generate aggregate statistics:
 .. code-block:: bash
    :caption: Run in Docker
 
-    $ immunedb_sample_stats /share/configs/my_db.json
     $ immunedb_clone_stats /share/configs/my_db.json
+    $ immunedb_sample_stats /share/configs/my_db.json
 
 For B-cells, you might want to generate lineages too.  The following excludes
 mutations that only occur once.  ``immunedb_clone_trees`` has many other
