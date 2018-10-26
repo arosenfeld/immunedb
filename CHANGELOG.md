@@ -1,4 +1,14 @@
 # CHANGELOG
+## v0.26.0
+* J-genes are now assigned based on percent identity rather than number of
+  matching bases which favored longer J-genes.
+* Exporting has been cleaned up and the API and CLI have been unified.
+* Clones can now be pooled when exported.
+* Exporting via the API now returns a `uid` token rather than the result.  The
+  result can be accessed once the data is ready using the `uid`.
+* A new `overlap` export format has been added both to the CLI and
+  web-interface.
+
 ## v0.25.0
 * Exporting has been entirely rewritten.  Exporting from the CLI and
   web-interface via the API now use unified methods.
