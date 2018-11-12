@@ -32,4 +32,4 @@ after_success:
 - bash <(curl -s https://codecov.io/bash)
 notifications:
   slack:
-    secure: NI5Q8AuGWfnSwSQxS1PjhE7Cn0eI4Atk4ioUbWxKxFQ9YKNs749a6oCBooxDzv7ztF8MNkc5NS0vXuWYAkvxYmpZ993qlvFIJHFCVjl64h1yQBsfEHZrK4oT4+6cvtKeOuPG60WbUcMO2DrmB2Ldq/wpOct3VGzA5Kniico1Vkw=
+    secure: C5eLcphfLBTJltALo7zDmMifsyAty0Mpi7EZPrrgzNC+4Zn0qoO2LM5nmLL57/Dsue3CYP8iT0Cs9X1E/5GlgzzwX01Swr9VaPcG4UmjepB/hwQWY6E1hdA9BQ6Z3f64VVzMexHRmvf86hlwjZI9G0y4nWD+StQq7ts+ZEQ1ryA=
