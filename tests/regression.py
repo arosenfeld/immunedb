@@ -193,6 +193,7 @@ class BaseTest(object):
                 self.session,
                 NamespaceMimic(
                     method='similarity',
+                    level='aa',
                     similarity=85,
                     subject_ids=None,
                     include_indels=False,

@@ -73,7 +73,7 @@ def push_clone_ids(session):
     '''))
 
 
-def similar_to_all(seq, rest, min_similarity):
+def similar_to_all(seq, rest, field, min_similarity):
     """Determines if the string ``seq`` is at least ``min_similarity``
     similar to the list of strings ``rest``.
 
@@ -87,8 +87,8 @@ def similar_to_all(seq, rest, min_similarity):
     """
     for comp_seq in rest:
         dist = dnautils.hamming(
-            comp_seq.cdr3_aa.replace('X', '-'),
-            seq.cdr3_aa.replace('X', '-')
+            getattr(comp_seq, 'cdr3_' + field).replace('X', '-'),
+            getattr(seq, 'cdr3_' + field).replace('X', '-')
         )
         sim_frac = 1 - dist / float(len(comp_seq.cdr3_aa))
         if sim_frac < min_similarity:
@@ -228,48 +228,6 @@ class LineageClonalWorker(ClonalWorker):
         generate_consensus(self.session, consensus_needed)
 
 
-class TCellClonalWorker(ClonalWorker):
-    def run_bucket(self, bucket):
-        updates = []
-        clones = OrderedDict()
-        consensus_needed = set([])
-
-        for seq in self.get_bucket_seqs(bucket, sort=False):
-            key = (seq.v_gene, seq.j_gene, seq.cdr3_nt)
-            if key in clones:
-                clone = clones[key]
-            else:
-                for key, test_clone in clones.items():
-                    same_bin = (test_clone.v_gene == key[0] and
-                                test_clone.j_gene == key[1] and
-                                test_clone.cdr3_num_nts == len(key[2]))
-                    if same_bin and dnautils.equal(test_clone.cdr3_nt, key[2]):
-                        clone = test_clone
-                        break
-                else:
-                    new_clone = Clone(subject_id=seq.subject_id,
-                                      v_gene=seq.v_gene,
-                                      j_gene=seq.j_gene,
-                                      cdr3_nt=seq.cdr3_nt,
-                                      cdr3_num_nts=seq.cdr3_num_nts,
-                                      _insertions=seq._insertions,
-                                      _deletions=seq._deletions)
-                    clones[key] = new_clone
-                    self.session.add(new_clone)
-                    self.session.flush()
-                    clone = new_clone
-                    consensus_needed.add(new_clone.id)
-            updates.append({
-                'sample_id': seq.sample_id,
-                'ai': seq.ai,
-                'clone_id': clone.id
-            })
-
-        if len(updates) > 0:
-            self.session.bulk_update_mappings(Sequence, updates)
-        generate_consensus(self.session, consensus_needed)
-
-
 class SimilarityClonalWorker(ClonalWorker):
     def run_bucket(self, bucket):
         clones = OrderedDict()
@@ -287,7 +245,7 @@ class SimilarityClonalWorker(ClonalWorker):
                         if clone_id is None:
                             continue
                         if similar_to_all(seq_to_add, existing_seqs,
-                                          self.min_similarity):
+                                          self.level, self.min_similarity):
                             existing_seqs.append(seq_to_add)
                             break
                     else:
@@ -418,7 +376,6 @@ def run_clones(session, args):
 
     methods = {
         'similarity': SimilarityClonalWorker,
-        'tcells': TCellClonalWorker,
         'lineage': LineageClonalWorker,
     }
     for i in range(0, min(tasks.num_tasks(), args.nproc)):

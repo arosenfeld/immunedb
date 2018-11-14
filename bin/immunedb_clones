@@ -56,17 +56,12 @@ if __name__ == '__main__':
         'similarity',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         help='''Constructs clones based on CDR3 amino-acid hamming distance''')
+    parser.add_argument('--level', default='aa', choices=['aa', 'nt'], help='''
+        The level at which to compare similarity, either amino-acids or
+        nucleotides''')
     parser.add_argument('--min-similarity', type=int, default=85,
                         help='''Minimum similarity allowed between sequence
-                        CDR3 AAs within a clone''')
-    add_defaults(parser)
-
-    # T-cells
-    parser = subparsers.add_parser(
-        'tcells',
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        help='''Constructs clones based on exact CDR3 NT identity for
-        T-cells''')
+                        CDR3 within a clone''')
     add_defaults(parser)
 
     # Lineage

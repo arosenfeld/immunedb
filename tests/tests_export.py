@@ -41,7 +41,7 @@ class ExportTest(unittest.TestCase):
             with open(path, 'rb') as fh:
                 expected_zip = zipfile.ZipFile(fh)
                 assert (set(expected_zip.namelist()) ==
-                    set(actual_zip.namelist()))
+                        set(actual_zip.namelist()))
                 for name in expected_zip.namelist():
                     actual_val = actual_zip.read(name)
                     expected_val = expected_zip.read(name)

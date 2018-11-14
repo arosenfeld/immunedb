@@ -1,5 +1,4 @@
 import os
-import sys
 import uuid
 from functools import partial
 import multiprocessing as mp
