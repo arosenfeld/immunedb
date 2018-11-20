@@ -37,9 +37,9 @@ class AnchorAligner(object):
                 is_rc = False
 
         rc = sequence.reverse_complement()
-        for pos in range(len(rc) - len(germline)):
+        for pos in range(len(rc) - len(germline) + 1):
             hamming = dnautils.hamming(rc[pos:pos + len(germline)],
-                                       germline)
+                                       germline) / len(germline)
             if best_hamming is None or hamming < best_hamming:
                 best_pos = pos
                 best_hamming = hamming
