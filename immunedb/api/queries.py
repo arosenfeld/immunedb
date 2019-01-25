@@ -1,4 +1,4 @@
-from collections import OrderedDict
+from collections import Counter
 import json
 import math
 import re
@@ -344,59 +344,48 @@ def get_clone_tree(session, clone_id):
     return json.loads(tree) if tree is not None else None
 
 
-def get_clone_overlap(session, sample_ids, filter_type, paging=None,
-                      all_clones_cache=[], query_cache=OrderedDict(),
-                      max_cache_size=5):
+def get_clone_overlap(session, sample_ids, filter_type, order_by='total_cnt',
+                      paging=None):
     """Gets a list of clones and the samples in `samples` which they appear"""
-    res = []
-    key = (tuple(sample_ids), filter_type)
-    if key in query_cache:
-        clones = query_cache[key]
-    else:
-        if len(all_clones_cache) == 0:
-            clones = session.query(
-                CloneStats.clone_id,
-                CloneStats.functional,
-                CloneStats.unique_cnt,
-                CloneStats.total_cnt
-            ).filter(
-                CloneStats.sample_id.is_(None)
-            )
-            all_clones_cache.extend(clones.all())
-        clones = all_clones_cache
+    stats = session.query(
+        CloneStats.clone_id,
+        CloneStats.functional,
+        CloneStats.unique_cnt,
+        CloneStats.total_cnt
+    ).filter(
+        CloneStats.sample_id.in_(sample_ids),
+    )
+    if filter_type != 'clones_all':
+        stats = stats.filter(
+            CloneStats.functional == (filter_type == 'clones_functional')
+        )
 
-        # NOTE: This is not part of the above query since for very large
-        # datasets doing this in-memory drastically reduces processing time
-        clones_present = set([
-            c.cid for c in
-            session.query(distinct(CloneStats.clone_id).label('cid')).filter(
-                CloneStats.sample_id.in_(sample_ids)
-            )
-        ])
-
-        clones = [c for c in clones if c.clone_id in clones_present]
-        if filter_type != 'clones_all':
-            clones = [
-                c for c in clones
-                if c.functional == (filter_type == 'clones_functional')
-            ]
-        clones = sorted(clones, key=lambda v: v.unique_cnt)
-        if len(query_cache) >= max_cache_size:
-            query_cache.pop(last=False)
-        query_cache[key] = clones
+    aggregated_stats = {}
+    for clone_id, functional, unique_cnt, total_cnt in stats:
+        aggregated_stats.setdefault(clone_id, Counter()).update({
+            'unique_cnt': unique_cnt,
+            'total_cnt': total_cnt
+        })
+    aggregated_stats = sorted(
+        aggregated_stats.items(),
+        key=lambda kv: kv[1][order_by], reverse=True
+    )
 
     if paging:
         start, per_page = paging
-        clones = clones[(start - 1) * per_page:start * per_page]
+        aggregated_stats = aggregated_stats[
+            (start - 1) * per_page:start * per_page]
 
-    for clone_id, functional, unique_cnt, total_cnt in clones:
+    res = []
+    for clone_id, counts in aggregated_stats:
         selected_samples = []
         other_samples = []
+        clone = session.query(Clone).filter(Clone.id == clone_id).one()
         query = session.query(CloneStats).filter(
             CloneStats.clone_id == clone_id,
             ~CloneStats.sample_id.is_(None)
         ).order_by(
-            desc(CloneStats.unique_cnt)
+            desc(getattr(CloneStats, order_by))
         )
         for stat in query:
             data = {
@@ -410,10 +399,9 @@ def get_clone_overlap(session, sample_ids, filter_type, paging=None,
             else:
                 other_samples.append(data)
 
-        clone = session.query(Clone).filter(Clone.id == clone_id).one()
         res.append({
-            'unique_sequences': int(unique_cnt),
-            'total_sequences': int(total_cnt),
+            'unique_sequences': counts['unique_cnt'],
+            'total_sequences': counts['total_cnt'],
             'clone': {
                 'id': clone.id,
                 'v_gene': clone.v_gene,

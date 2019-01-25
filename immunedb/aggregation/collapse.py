@@ -120,6 +120,7 @@ def run_collapse(session, args):
                 session.query(SequenceCollapse).filter(
                     SequenceCollapse.sample_id == sample.id
                 ).delete(synchronize_session=False)
+                sample.sample_stats = []
             logger.info('Resetting clone info for subject {}'.format(subject))
             session.query(Clone).filter(Clone.subject_id == subject).delete()
             subject_ids.append(subject)

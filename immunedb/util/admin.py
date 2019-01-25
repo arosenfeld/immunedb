@@ -29,7 +29,7 @@ def _get_root_connection(host, user, admin_pass=None):
     if admin_pass is None:
         try:
             return _connect(host, user)
-        except Exception as e:
+        except Exception:
             logger.info('Failed connection with empty root password')
             admin_pass = getpass.getpass('MySQL password for ({}):'.format(
                 user))

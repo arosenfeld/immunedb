@@ -183,7 +183,7 @@ class SampleStats(Base):
     sample_id = Column(Integer, ForeignKey(Sample.id),
                        primary_key=True)
     sample = relationship(Sample, backref=backref('sample_stats',
-                          order_by=sample_id))
+                          order_by=sample_id, cascade='all, delete-orphan'))
 
     filter_type = Column(String(length=255), primary_key=True)
     outliers = Column(Boolean, primary_key=True)

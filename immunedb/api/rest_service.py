@@ -190,6 +190,7 @@ def create_app(db_config, allow_shutdown=False):
             session,
             decode_run_length(sample_encoding),
             fields.get('filter_type', 'clones_all'),
+            fields.get('order_by', 'total_cnt'),
             get_paging())
         )
 
