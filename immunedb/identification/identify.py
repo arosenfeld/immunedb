@@ -266,7 +266,7 @@ def read_input(path):
     parser = SeqIO.parse(path, 'fasta' if path.endswith('.fasta') else 'fastq')
 
     # Collapse identical sequences
-    logger.info('Parsing inuput')
+    logger.info('Parsing input')
     for record in parser:
         try:
             vdjs.append(VDJSequence(
