@@ -43,8 +43,7 @@ class IdentificationProps(object):
         return len(alignment.v_gene) <= self.max_v_ties
 
     def valid_min_similarity(self, alignment):
-        return (alignment.v_match / float(alignment.v_length) >=
-                self.min_similarity)
+        return alignment.v_match / alignment.v_length >= self.min_similarity
 
     def valid_padding(self, alignment):
         return (self.max_padding is None or
@@ -73,7 +72,7 @@ class IdentificationProps(object):
         if not self.valid_min_similarity(alignment):
             raise AlignmentException(
                 'V-identity too low {} < {}'.format(
-                    alignment.v_match / float(alignment.v_length),
+                    alignment.v_match / alignment.v_length,
                     self.min_similarity))
         if not self.valid_v_ties(alignment):
             raise AlignmentException('Too many V-ties {} > {}'.format(
@@ -309,10 +308,10 @@ def process_sample(db_config, v_germlines, j_germlines, path, meta, props,
     if alignments:
         avg_len = (
             sum([v.v_length for v in alignments]) /
-            float(len(alignments)))
+            len(alignments))
         avg_mut = (
             sum([v.v_mutation_fraction for v in alignments]) /
-            float(len(alignments))
+            len(alignments)
         )
         sample.v_ties_mutations = avg_mut
         sample.v_ties_len = avg_len
@@ -362,7 +361,7 @@ def process_sample(db_config, v_germlines, j_germlines, path, meta, props,
             NoResult.sample == sample
         ).scalar() or 0)
         if identified + noresults:
-            frac = int(100 * identified / float(identified + noresults))
+            frac = int(100 * identified / identified + noresults)
         else:
             frac = 0
         logger.info(

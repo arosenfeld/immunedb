@@ -90,7 +90,7 @@ def similar_to_all(seq, rest, field, min_similarity):
             getattr(comp_seq, 'cdr3_' + field).replace('X', '-'),
             getattr(seq, 'cdr3_' + field).replace('X', '-')
         )
-        sim_frac = 1 - dist / float(len(comp_seq.cdr3_aa))
+        sim_frac = 1 - dist / len(comp_seq.cdr3_aa)
         if sim_frac < min_similarity:
             return False
     return True
@@ -108,7 +108,7 @@ class ClonalWorker(concurrent.Worker):
         # common
         'include_indels': False,
         'exclude_partials': False,
-        'min_identity': 0,
+        'min_identity': 0.0,
         'min_copy': 2,
         'max_padding': None,
 
@@ -328,7 +328,7 @@ def run_subclones(session, subject_ids, args):
     logger.info('Generated {} total subclone tasks'.format(tasks.num_tasks()))
     for i in range(0, min(tasks.num_tasks(), args.nproc)):
         tasks.add_worker(SubcloneWorker(config.init_db(args.db_config),
-                                        args.similarity / 100.0))
+                                        args.similarity))
     tasks.start()
 
 

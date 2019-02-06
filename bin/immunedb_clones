@@ -18,7 +18,7 @@ def add_defaults(parser):
                         in clones.  Note partial sequences which were
                         collapse to a full sequence will always be
                         included.''')
-    parser.add_argument('--min-identity', type=int,
+    parser.add_argument('--min-identity', type=float,
                         default=ClonalWorker.defaults['min_identity'],
                         help='''Minimum V identity of sequences to
                         germline required for inclusion in clones.''')
@@ -59,7 +59,7 @@ if __name__ == '__main__':
     parser.add_argument('--level', default='aa', choices=['aa', 'nt'], help='''
         The level at which to compare similarity, either amino-acids or
         nucleotides''')
-    parser.add_argument('--min-similarity', type=int, default=85,
+    parser.add_argument('--min-similarity', type=float, default=.85,
                         help='''Minimum similarity allowed between sequence
                         CDR3 within a clone''')
     add_defaults(parser)

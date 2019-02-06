@@ -158,8 +158,8 @@ def read_file(session, fmt, handle, sample, v_germlines, j_germlines, props):
             add_noresults_for_vdj(session, seq, sample, str(e))
 
     if len(lens) > 0:
-        sample.v_ties_len = sum(lens) / float(len(lens))
-        sample.v_ties_mutations = sum(muts) / float(len(muts))
+        sample.v_ties_len = sum(lens) / len(lens)
+        sample.v_ties_mutations = sum(muts) / len(muts)
 
     session.commit()
 

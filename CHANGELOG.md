@@ -1,4 +1,14 @@
 # CHANGELOG
+## v0.27.0
+* Identity filtering for all CLI commands has been changed to use fractions
+  rather than integers.
+* The `similarity` clonal assignment method now has a `--level` flag taking
+  either `aa` (the default) or `nt` which sets the level at which similarity is
+  calculated.
+* Due to the change above, the `tcell` clonal assignment method has been
+  removed.  Use `similarity` with the flags `--level nt --min-similarity 1`
+  for the same results.
+
 ## v0.26.0
 * J-genes are now assigned based on percent identity rather than number of
   matching bases which favored longer J-genes.

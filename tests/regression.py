@@ -194,7 +194,7 @@ class BaseTest(object):
                 NamespaceMimic(
                     method='similarity',
                     level='aa',
-                    similarity=85,
+                    similarity=.85,
                     subject_ids=None,
                     include_indels=False,
                     exclude_partials=False,

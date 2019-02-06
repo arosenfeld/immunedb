@@ -109,7 +109,8 @@ For T-cells we recommend:
 .. code-block:: bash
    :caption: Run in Docker
 
-   $ immunedb_clones /share/configs/my_db.json tcells
+   $ immunedb_clones /share/configs/my_db.json similarity --level nt \
+         --min-similarity 1
 
 If you have a mixed dataset, you can assign clones in different ways, filtering
 on V-gene type.  For example:
@@ -118,7 +119,8 @@ on V-gene type.  For example:
    :caption: Run in Docker
 
    $ immunedb_clones /share/configs/my_db.json similarity --gene IGHV
-   $ immunedb_clones /share/configs/my_db.json tcells --gene TCRB
+   $ immunedb_clones /share/configs/my_db.json similarity --gene TCRB \
+         --level nt --min-similarity 1
 
 
 The last required step is to generate aggregate statistics:

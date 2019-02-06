@@ -632,14 +632,13 @@ def analyze_samples(session, samples, filter_type, include_outliers,
     for group, key_dict in stats.items():
         for key, vals in key_dict.items():
             if key == 'quality_dist':
-                vals = {k: v / float(group_sizes[group])
-                        for k, v in vals.items()}
+                vals = {k: v / group_sizes[group] for k, v in vals.items()}
             reduced = []
             for x in sorted(vals.keys()):
                 val = vals[x]
                 if (key != 'quality_dist' and
                         percentages and sum(vals.values()) > 0):
-                    val = round(100 * vals[x] / float(sum(vals.values())), 2)
+                    val = round(100 * vals[x] / sum(vals.values()), 2)
                 reduced.append((x, val))
             key_dict[key] = reduced
 

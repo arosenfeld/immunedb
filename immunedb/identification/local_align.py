@@ -301,7 +301,7 @@ def process_sample(session, sample, indexes, temp, v_germlines, j_germlines,
         ) - gaps_in_seq
         alignment.j_length = j_length
         alignment.v_mutation_fraction = 1 - (alignment.v_match /
-                                             float(alignment.v_length))
+                                             alignment.v_length)
         alignment.cdr3_start = alignments[line['seq_id']]['cdr3_start']
         alignment.cdr3_num_nts = cdr3_length
         alignment.post_cdr3_length = j_length

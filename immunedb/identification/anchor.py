@@ -205,7 +205,7 @@ class AnchorAligner(object):
             # Determine the pad length
             alignment.seq_offset = germ_pos - anchor_pos
             # Mutation ratio is the distance divided by the length of overlap
-            alignment.v_mutation_fraction = v_score / float(alignment.v_length)
+            alignment.v_mutation_fraction = v_score / alignment.v_length
 
     def align_to_germline(self, alignment, avg_len=None, avg_mut=None):
         if avg_len is not None and avg_mut is not None:
