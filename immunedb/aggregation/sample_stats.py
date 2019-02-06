@@ -119,7 +119,7 @@ class SeqContextStats(ContextStats):
                 self.quality.extend([[] for _ in range(0, diff)])
 
             for i, b in enumerate(seq_record.quality):
-                if b is not ' ':
+                if b != ' ':
                     self.quality[i].append(ord(b) - 33)
 
     def add_if_match(self, seq_record):
