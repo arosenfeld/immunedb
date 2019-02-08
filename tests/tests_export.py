@@ -1,4 +1,5 @@
 import io
+import difflib
 import os
 import time
 import requests
@@ -44,9 +45,14 @@ class ExportTest(unittest.TestCase):
                 for name in expected_zip.namelist():
                     actual_val = actual_zip.read(name)
                     expected_val = expected_zip.read(name)
-                    assert expected_val == actual_val, '''{}, expected {},
-                        actual {}'''.format(name, len(expected_val),
-                                len(actual_val))
+                    if expected_val != actual_val:
+                        diff = difflib.unified_diff(
+                            actual_val.split(),
+                            expected_val.split()
+                        )
+                        raise AssertionError('Invalid file {}:\n{}'.format(
+                            name, '\n'.join(diff))
+
 
     def test_sequences(self):
         for schema in ('changeo', 'airr'):
