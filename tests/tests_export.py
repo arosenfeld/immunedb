@@ -23,7 +23,6 @@ class ExportTest(unittest.TestCase):
         response = request(url, query)
         assert response.status_code == 200
         uid = response.json()['uid']
-        print(request('/export/job_log/' + uid))
         while True:
             time.sleep(1)
             resp = request('/export/job_log/' + uid)
@@ -45,7 +44,9 @@ class ExportTest(unittest.TestCase):
                 for name in expected_zip.namelist():
                     actual_val = actual_zip.read(name)
                     expected_val = expected_zip.read(name)
-                    assert expected_val == actual_val, name
+                    assert expected_val == actual_val, '''{}, expected {},
+                        actual {}'''.format(name, len(expected_val),
+                                len(actual_val))
 
     def test_sequences(self):
         for schema in ('changeo', 'airr'):
