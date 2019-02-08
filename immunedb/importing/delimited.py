@@ -23,7 +23,7 @@ def create_alignment(seq, line, v_germlines, j_germlines):
     alignment.j_gene = set([GeneName(g) for g in line['J_CALL'].split(',')])
     alignment.cdr3_num_nts = int(line['JUNCTION_LENGTH'])
     alignment.v_length = int(line['V_SEQ_LENGTH'])
-    alignment.seq_offset = re.match('[\-]*', alignment.sequence.sequence).end()
+    alignment.seq_offset = re.match(r'[-]*', alignment.sequence.sequence).end()
 
     # TODO: Calculate these
     alignment.v_length = CDR3_OFFSET - seq[:CDR3_OFFSET].count('-')

@@ -238,8 +238,9 @@ class BaseTest(object):
                 self.get_path('post_clone_stats.json'),
                 self.session.query(CloneStats),
                 'id',
-                ('clone_id', 'sample_id', 'subject_id', 'unique_cnt',
-                 'total_cnt')
+                ('clone_id', 'sample_id', 'subject_id', 'functional',
+                    'unique_cnt', 'total_cnt', 'avg_v_identity',
+                    'top_copy_seq_ai')
             )
 
             self.regression(

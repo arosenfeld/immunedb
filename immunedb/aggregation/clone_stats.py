@@ -65,7 +65,11 @@ class CloneStatsWorker(concurrent.Worker):
             counts = self._session.query(
                 func.count(Sequence.ai).label('unique'),
                 func.sum(SequenceCollapse.copy_number_in_subject).label(
-                    'total')
+                    'total'),
+                func.sum(
+                    (Sequence.v_match / Sequence.v_length) *
+                    Sequence.copy_number
+                ).label('v_identity')
             ).join(SequenceCollapse).filter(
                 Sequence.clone_id == clone_id,
                 SequenceCollapse.copy_number_in_subject > 0
@@ -73,7 +77,11 @@ class CloneStatsWorker(concurrent.Worker):
         else:
             counts = self._session.query(
                 func.count(Sequence.ai).label('unique'),
-                func.sum(Sequence.copy_number).label('total')
+                func.sum(Sequence.copy_number).label('total'),
+                func.sum(
+                    (Sequence.v_match / Sequence.v_length) *
+                    Sequence.copy_number
+                ).label('v_identity')
             ).filter(
                 Sequence.sample_id == sample_id,
                 Sequence.clone_id == clone_id
@@ -98,6 +106,7 @@ class CloneStatsWorker(concurrent.Worker):
             'unique_cnt': counts.unique,
             'total_cnt': counts.total,
             'mutations': json.dumps(sample_mutations.get_all()),
+            'avg_v_identity': counts.v_identity / counts.total,
             'top_copy_seq_ai': top_seq.ai,
             'top_copy_seq_sequence': top_seq.sequence,
             'top_copy_seq_copies': top_seq.copy_number

@@ -91,7 +91,7 @@ def create_seqs(read_seq, ref_seq, cigar, ref_offset, min_size, **kwargs):
     final_ref = [ref_seq[:ref_offset]]
     skips = []
 
-    ops = re.findall('(\d+)([A-Z])', cigar)
+    ops = re.findall(r'(\d+)([A-Z])', cigar)
     for i, (cnt, op) in enumerate(ops):
         cnt = int(cnt)
         if op == 'M':

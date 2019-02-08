@@ -61,7 +61,7 @@ def _get_user_pass(conn, host, user, existing_password):
 
 
 def create(main_parser, args):
-    if re.search('[^A-Za-z0-9_\-]', args.db_name) is not None:
+    if re.search(r'[^A-Za-z0-9_-]', args.db_name) is not None:
         main_parser.error('Database name must only contain letters, numbers, '
                           'dashes and underscores.')
 

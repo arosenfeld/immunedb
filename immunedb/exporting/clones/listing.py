@@ -1,5 +1,6 @@
 from collections import Counter
 
+import numpy as np
 from sqlalchemy.orm import joinedload
 
 from immunedb.common.models import CloneStats, Sample
@@ -13,19 +14,17 @@ DEFAULT_CLONE_FIELDS = [
     'clone_id', 'subject', 'v_gene', 'j_gene', 'functional', 'insertions',
     'deletions', 'cdr3_nt', 'cdr3_num_nts', 'cdr3_aa',
     'uniques', 'instances', 'copies', 'germline', 'parent_id',
-    'avg_mutations_per_copy', 'top_copy_seq'
+    'avg_v_identity', 'top_copy_seq'
 ]
 
 
-def get_clone_row(clone, muts=None):
+def get_clone_row(clone):
     row = {}
     for field in DEFAULT_CLONE_FIELDS:
         try:
             row[field] = getattr(clone, field)
         except AttributeError:
             pass
-    if muts is None:
-        muts = clone.overall_stats.total_mutations(normalize=True)
     row.update({
         'clone_id': clone.id,
         'subject': clone.subject.identifier,
@@ -35,7 +34,6 @@ def get_clone_row(clone, muts=None):
         'uniques': clone.overall_unique_cnt,
         'instances': clone.overall_instance_cnt,
         'copies': clone.overall_total_cnt,
-        'avg_mutations_per_copy': round(muts, 2),
     })
     return row
 
@@ -46,10 +44,11 @@ def get_immunedb_output(session, clones):
 
     for clone, agg in clones.items():
         counts = agg['counts']
-        row = get_clone_row(clone, counts['mutations'] / counts['copies'])
+        row = get_clone_row(clone)
         row['copies'] = counts['copies']
         row['instances'] = counts['instances']
         row['top_copy_seq'] = agg['top_seq']
+        row['avg_v_identity'] = agg['avg_v_identity']
         yield writer.writerow(row)
 
 
@@ -102,14 +101,21 @@ def get_pooled_samples(session, sample_ids, features):
             key = (stat.sample.subject.identifier, sample_feature)
             agg = aggregated.setdefault(key, {}).setdefault(
                 stat.clone,
-                {'top_seq': None, 'top_copies': 0, 'counts': Counter()}
+                {'top_seq': None, 'top_copies': 0, 'counts': Counter(),
+                    'avg_v_identity': []}
             )
             if stat.top_copy_seq_copies > agg['top_copies']:
                 agg['top_copies'] = stat.top_copy_seq_copies
                 agg['top_seq'] = stat.top_copy_seq_sequence
             agg['counts']['copies'] += stat.total_cnt
             agg['counts']['instances'] += stat.unique_cnt
-            agg['counts']['mutations'] += stat.total_mutations()
+            agg['avg_v_identity'].append(stat.avg_v_identity * stat.total_cnt)
+
+    for clones in aggregated.values():
+        for agg in clones.values():
+            agg['avg_v_identity'] = (
+                    np.array(agg['avg_v_identity']) / agg['counts']['copies']
+            ).mean()
 
     return aggregated
 

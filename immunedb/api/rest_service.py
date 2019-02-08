@@ -64,7 +64,7 @@ def decode_run_length(encoding):
         return []
     ids = []
     offset = 1
-    for match in re.finditer('(T|F)(\d+)', encoding.upper()):
+    for match in re.finditer(r'(T|F)(\d+)', encoding.upper()):
         size = int(match.group(2))
         if match.group(1) == 'T':
             ids.extend(range(offset, offset + size))

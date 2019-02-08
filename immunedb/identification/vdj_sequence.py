@@ -218,7 +218,7 @@ class VDJAlignment(object):
             '[N]*', self.sequence[count:]).span()[1]
 
         self.sequence.trim(count)
-        self.seq_offset = re.match('[N\-]*', self.sequence.sequence).span()[1]
+        self.seq_offset = re.match(r'[N-]*', self.sequence.sequence).span()[1]
         self.seq_offset -= n_extension
 
         new_pad = self.sequence[:self.seq_start].count('-')

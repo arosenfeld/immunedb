@@ -267,7 +267,7 @@ def get_clone_sequences(session, clone_id, get_collapse, paging):
     query = _page_query(query, paging)
 
     sequences = {}
-    start_ptrn = re.compile('[N\-]*')
+    start_ptrn = re.compile(r'[N-]*')
     for seq, copy_number_in_subject, instances_in_subject in query:
         sequences[(seq.sample.id, seq.seq_id)] = {
             'seq_id': seq.seq_id,
@@ -692,7 +692,7 @@ def get_sequence(session, sample_id, seq_id):
         'quality', 'regions'
     ], seq)
     ret['sample'] = _sample_to_dict(seq.sample)
-    ret['read_start'] = re.compile('[N\-]*').match(
+    ret['read_start'] = re.compile(r'[N-]*').match(
         seq.sequence).span()[1] or 0
 
     ret['v_extent'] = seq.get_v_extent(in_clone=False)

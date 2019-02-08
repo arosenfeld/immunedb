@@ -374,18 +374,24 @@ class CloneStats(Base):
     total_cnt = Column(Integer)
 
     mutations = Column(MEDIUMTEXT)
+    avg_v_identity = Column(Float)
+
     top_copy_seq_ai = Column(Integer, ForeignKey('sequences.ai'))
     top_copy_seq_sequence = Column(String(length=MAX_SEQ_LEN))
     top_copy_seq_copies = Column(Integer)
     top_copy_seq = relationship('Sequence')
 
-    def total_mutations(self, normalize=False):
-        muts = json.loads(self.mutations).get('regions', {}).get('ALL', {})
-        muts = sum((
-            sum([s['total'] for s in type_muts])
-            for type_muts in muts.values()
-        ))
-        return muts / self.total_cnt if normalize else muts
+    @property
+    def v_mutations(self):
+        muts = json.loads(self.mutations).get('regions', {})
+        aggregate = 0
+        for region in ['FR1', 'CDR1', 'FR2', 'CDR2', 'FR3']:
+            region_muts = muts.get(region, {})
+            aggregate += sum((
+                sum([s['total'] for s in type_muts])
+                for type_muts in region_muts.values()
+            ))
+        return aggregate
 
 
 class SelectionPressure(Base):

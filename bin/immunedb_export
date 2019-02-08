@@ -59,7 +59,7 @@ if __name__ == '__main__':
     # Pooled analysis
     parser = subparsers.add_parser(
         'clones', formatter_class=argparse.ArgumentDefaultsHelpFormatter)
-    parser.add_argument('--pool-on', nargs='+', default=None, help='''
+    parser.add_argument('--pool-on', nargs='+', default=('sample',), help='''
         The metadata field(s) on which to pool.''')
     parser.add_argument('--format', default='immunedb', dest='out_format',
                         choices=['immunedb', 'vdjtools'],

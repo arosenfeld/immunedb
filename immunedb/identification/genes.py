@@ -19,7 +19,7 @@ class GeneName(object):
     def __init__(self, name):
         self.name = name
         try:
-            parts = re.search('((([A-Z]+)(\d+)([^*]+)?)(\*(\d+))?)',
+            parts = re.search(r'((([A-Z]+)(\d+)([^\*]+)?)(\*(\d+))?)',
                               self.name).groups()
         except AttributeError:
             raise AlignmentException('Invalid gene name {}'.format(name))

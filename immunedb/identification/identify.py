@@ -361,7 +361,7 @@ def process_sample(db_config, v_germlines, j_germlines, path, meta, props,
             NoResult.sample == sample
         ).scalar() or 0)
         if identified + noresults:
-            frac = int(100 * identified / identified + noresults)
+            frac = int(100 * identified / (identified + noresults))
         else:
             frac = 0
         logger.info(
