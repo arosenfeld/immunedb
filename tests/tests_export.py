@@ -51,7 +51,7 @@ class ExportTest(unittest.TestCase):
                             expected_val.split()
                         )
                         raise AssertionError('Invalid file {}:\n{}'.format(
-                            name, '\n'.join(diff))
+                            name, '\n'.join(diff)))
 
 
     def test_sequences(self):
