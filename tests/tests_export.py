@@ -47,8 +47,8 @@ class ExportTest(unittest.TestCase):
                     expected_val = expected_zip.read(name)
                     if expected_val != actual_val:
                         diff = difflib.unified_diff(
-                            actual_val.split(),
-                            expected_val.split()
+                            str(actual_val, encoding='utf8').split(),
+                            str(expected_val, encoding='utf8').split()
                         )
                         raise AssertionError('Invalid file {}:\n{}'.format(
                             name, '\n'.join(diff)))
