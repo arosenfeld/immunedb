@@ -48,7 +48,7 @@ def get_immunedb_output(session, clones):
         row['copies'] = counts['copies']
         row['instances'] = counts['instances']
         row['top_copy_seq'] = agg['top_seq']
-        row['avg_v_identity'] = agg['avg_v_identity']
+        row['avg_v_identity'] = round(agg['avg_v_identity'], 4)
         yield writer.writerow(row)
 
 
