@@ -45,7 +45,8 @@ class ExportTest(unittest.TestCase):
                 for name in expected_zip.namelist():
                     actual_val = actual_zip.read(name)
                     expected_val = expected_zip.read(name)
-                    assert expected_val == actual_val, name
+                    assert (expected_val == actual_val,
+                            (name, len(actual_val), len(expected_val)))
 
     def test_sequences(self):
         for schema in ('changeo', 'airr'):
