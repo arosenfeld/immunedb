@@ -81,8 +81,8 @@ Then we'll identify the sequences.  For this process the germline genes must be
 specified.  The germlines provided as FASTA files in the Docker image are:
 
 * ``imgt_human_ighv`` & ``imgt_human_ighj``: Human B-cell heavy chains
-* ``imgt_human_trav`` & ``imgt_mouse_traj``: Human T-cell α chains
-* ``imgt_human_trbv`` & ``imgt_mouse_trbj``: Human T-cell β chains
+* ``imgt_human_trav`` & ``imgt_human_traj``: Human T-cell α chains
+* ``imgt_human_trbv`` & ``imgt_human_trbj``: Human T-cell β chains
 * ``imgt_mouse_ighv`` & ``imgt_mouse_ighj``: Mouse B-cell heavy chains
 
 For this segment we'll assume human B-cell heavy chains, but the process is the
