@@ -64,6 +64,8 @@ class LineageWorker(concurrent.Worker):
             logger.error('Error running clone {}: {}'.format(clone_id, e))
             return
 
+        for node_id, node in enumerate(tree.traverse()):
+            node.add_feature('node_id', node_id)
         final = {
             'info': {
                 'min_mut_copies': self.min_mut_copies,
@@ -194,6 +196,7 @@ def tree_as_dict(tree, root=True):
     node = {
         'data': {
             'seq_ids': tree.seq_ids,
+            'node_id': tree.node_id,
             'copy_number': tree.copy_number,
             'metadata': {
                 k: get_nested(tree.seq_ids, k) for k in all_meta
@@ -206,7 +209,7 @@ def tree_as_dict(tree, root=True):
         },
         'children': []
     }
-    for child in tree.children:
+    for i, child in enumerate(tree.children):
         node['children'].append(tree_as_dict(child, root=False))
 
     if not root or (len(tree.mutations) == 0 and len(tree.seq_ids) == 0):
