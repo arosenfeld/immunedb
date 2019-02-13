@@ -16,7 +16,7 @@ To begin, run the Docker container :ref:`as documented
    :caption: Run on Host
 
     $ docker run -v $HOME/immunedb_share:/share \
-         -p 5000:5000 -p 8080:8080 -it arosenfeld/immunedb:v0.27.0
+         -p 8080:8080 -it arosenfeld/immunedb:v0.27.0
 
 
 Metadata Specification
@@ -162,13 +162,9 @@ can be useful to correct for sequencing error.
 
 Web Interface
 =============
-ImmuneDB has a web interface to interact with a database instance.  Running
-this can be slightly complicated, but the Docker image contains a helper script
-to simplify the process:
+ImmuneDB has a web interface to interact with a database instance.  The Docker
+container automatically makes this available at
+http://localhost:8080/frontend/example_db
 
-.. code-block:: bash
-   :caption: Run in Docker
-
-    $ serve_immunedb.sh /share/configs/example_db.json
-
-You can then navigate to http://localhost:8080.
+When you create more databases, simply replace `example_db` with the proper
+databse name.

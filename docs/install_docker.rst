@@ -22,7 +22,7 @@ To start a shell session within the container run:
 .. code-block:: bash
 
     $ docker run -v $HOME/immunedb_share:/share \
-        -p 5000:5000 -p 8080:8080 -it arosenfeld/immunedb:v0.27.0
+        -p 8080:8080 -it arosenfeld/immunedb:v0.27.0
 
 This will start a shell with ImmuneDB and accessory scripts pre-installed as
 well as create a shared directory between the host and Docker container.  Files

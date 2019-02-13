@@ -29,6 +29,10 @@ WORKDIR /apps/clearcut
 RUN make
 WORKDIR /apps/immunedb-frontend
 RUN npm install
+ENV BASENAME __BASENAME__
+ENV API_ENDPOINT __ENDPOINT__
+ENV NODE_ENV production
+RUN npm run build
 WORKDIR /apps/baseline
 RUN wget http://immunedb.com/patched_baseline.tgz && \
     tar xzf patched_baseline.tgz
@@ -43,8 +47,8 @@ RUN python3 setup.py install
 # Copy germlines and scripts
 COPY docker/germlines/ /root/germlines
 COPY docker/run.sh /root
+COPY docker/proxy.py /apps/immunedb
 COPY docker/mariadb/my.cnf /etc/mysql
-COPY docker/serve_immunedb.sh /usr/local/sbin
 COPY docker/setup_users.sql /tmp
 COPY docker/example /example
 ENV PATH "${PATH}:/apps/bowtie2:/apps/clearcut"

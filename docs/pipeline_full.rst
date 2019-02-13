@@ -149,12 +149,4 @@ time-consuming, even for small datasets:
     $ immunedb_clone_pressure /share/configs/my_db.json \
          /apps/baseline/Baseline_Main.r
 
-Finally, start the web interface:
-
-.. code-block:: bash
-   :caption: Run in Docker
-
-    $ serve_immunedb.sh /share/configs/my_db.json
-
-Wait a few moments until you see ``webpack: Compiled successfully.`` and then
-the data should be available at http://localhost:8080.
+Finally, the data should be available at http://localhost:8080/frontend/my_db.
