@@ -113,7 +113,7 @@ class ClonalWorker(concurrent.Worker):
         'max_padding': None,
 
         # similarity
-        'min_similarity': .85,
+        'min_similarity': 0.85,
 
         # lineage
         'mut_cutoff': 4,
