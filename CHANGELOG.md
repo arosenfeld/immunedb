@@ -1,4 +1,11 @@
 # CHANGELOG
+## v0.28.0
+* Fix for clonal similarity.
+* The Docker container now proxies both the frontend and API through port 8080.
+  Instead of running `serve_immunedb.sh`, simply navigate to
+  http://localhost:8080/frontend/`db_name`.
+* Exporting clones now includes a `v_identity` column.
+
 ## v0.27.0
 * Identity filtering for all CLI commands has been changed to use fractions
   rather than integers.
