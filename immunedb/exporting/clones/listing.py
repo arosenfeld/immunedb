@@ -113,9 +113,8 @@ def get_pooled_samples(session, sample_ids, features):
 
     for clones in aggregated.values():
         for agg in clones.values():
-            agg['avg_v_identity'] = (
-                    np.array(agg['avg_v_identity']) / agg['counts']['copies']
-            ).mean()
+            agg['avg_v_identity'] = np.sum(
+                    agg['avg_v_identity']) / agg['counts']['copies']
 
     return aggregated
 
