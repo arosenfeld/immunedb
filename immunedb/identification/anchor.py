@@ -30,7 +30,7 @@ class AnchorAligner(object):
         best_pos, best_hamming = None, None
         for pos in range(len(sequence) - len(germline)):
             hamming = dnautils.hamming(sequence[pos:pos + len(germline)],
-                                       germline)
+                                       germline) / len(germline)
             if best_hamming is None or hamming < best_hamming:
                 best_pos = pos
                 best_hamming = hamming
