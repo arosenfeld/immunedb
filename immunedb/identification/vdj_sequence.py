@@ -47,7 +47,7 @@ class VDJSequence(object):
             self.seq_id,
             str(Seq(self._sequence).reverse_complement()),
             self._quality[::-1] if self._quality else None,
-            rev_comp=True,
+            rev_comp=not self.rev_comp,
             copy_number=self.copy_number
         )
 

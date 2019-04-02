@@ -1,31 +1,17 @@
 #!/usr/bin/env python
 import immunedb.common.config as config
 
-from immunedb.importing.delimited import run_import
+from immunedb.importing.alignments import import_alignments
 from immunedb.identification.identify import IdentificationProps
 from immunedb.identification.genes import JGermlines
 
-
-if __name__ == '__main__':
-    parser = config.get_base_arg_parser('''Imports V/J identifications''')
-    parser.add_argument('format', choices=['changeo', 'adaptive'])
+def add_defaults(parser):
     parser.add_argument('v_germlines', help='''FASTA file with IMGT gapped
                         V-gene germlines''')
     parser.add_argument('j_germlines', help='''FASTA file with J-gene
                         germlines. The final nucleotide in all genes must be
                         aligned. Sequence cannot contain any gaps.''')
     parser.add_argument('sample_dir', help='Base directory for samples.')
-    parser.add_argument('--metadata', default=None, help='''Path to metadata
-                        file.  If not specified, expects "metadata.tsv" to
-                        exist in the base_dir''')
-    parser.add_argument('--upstream-of-cdr3', type=int,
-                        default=JGermlines.defaults['upstream_of_cdr3'],
-                        help='''The number of nucleotides in the J germlines
-                        upstream of the CDR3''')
-    parser.add_argument('--anchor-len', type=int,
-                        default=JGermlines.defaults['anchor_len'],
-                        help='''The number of nucleotides at the end of the J
-                        germlines to use as anchors.''')
     parser.add_argument('--max-vties', type=int,
                         default=IdentificationProps.defaults['max_v_ties'],
                         help='''Maximum number of V-ties to allow in a valid
@@ -52,13 +38,37 @@ if __name__ == '__main__':
                         help='''If specified, warns of samples missing input
                         files.  Otherwise, an error is raised and
                         identification will not begin.''')
+    parser.add_argument('--metadata', default=None, help='''Path to metadata
+                        file.  If not specified, expects "metadata.tsv" to
+                        exist in the base_dir''')
+
+
+def add_anchors(parser):
+    parser.add_argument('--upstream-of-cdr3', type=int,
+                        default=JGermlines.defaults['upstream_of_cdr3'],
+                        help='''The number of nucleotides in the J germlines
+                        upstream of the CDR3''')
+    parser.add_argument('--anchor-len', type=int,
+                        default=JGermlines.defaults['anchor_len'],
+                        help='''The number of nucleotides at the end of the J
+                        germlines to use as anchors.''')
+
+
+if __name__ == '__main__':
+    parser = config.get_base_arg_parser('Imports V/J identifications')
+    subparsers = main_parser.add_subparsers(
+        dest='format',
+        help='''The method to use for clonal inference'''
+    )
+
+    parser = subparsers.add_parser('airr')
+    add_defaults(parser)
 
     args = parser.parse_args()
-
     if args.max_padding and args.trim_to:
         if args.max_padding < args.trim_to:
             parser.error('--max-padding cannot be less than --trim-to')
 
     session = config.init_db(args.db_config)
 
-    run_import(session, args)
+    import_alignments(session, args)

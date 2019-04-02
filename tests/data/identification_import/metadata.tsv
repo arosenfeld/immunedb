@@ -1,3 +1,4 @@
 file_name	study_name	sample_name	date	subject	subset	tissue	disease	lab	experimenter	ig_class	v_primer	j_primer
-input.tab	Test Study	input	2015-09-13	D123		Colon		The Lab	Someone
-input2.tab	Test Study	input2	2015-09-13	D123		SPL		The Lab	Someone
+edges.igblast.tsv	Test Study	edges	2015-09-13	D123		Colon		The Lab	Someone
+input.igblast.tsv	Test Study	input	2015-09-13	D123		Colon		The Lab	Someone
+input2.igblast.tsv	Test Study	input2	2015-09-13	D123		SPL		The Lab	Someone

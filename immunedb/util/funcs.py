@@ -1,5 +1,6 @@
 from collections import Counter
 import itertools
+import re
 
 import dnautils
 
@@ -146,3 +147,34 @@ def get_cigar(ref, qry):
             cnt += 1
     cigar.append('{}{}'.format(cnt, current_op))
     return ''.join(cigar)
+
+
+def create_proxy(inst):
+    class ClassProxy:
+        def __init__(self, inst):
+            self._inst = inst
+
+        def __setattr__(self, name, value):
+            if name == '_inst':
+                super().__setattr__(name, value)
+            else:
+                try:
+                    setattr(self._inst, name, value)
+                except AttributeError:
+                    super().__setattr__(name, value)
+
+        def __getattr__(self, name):
+            try:
+                return super().__getattr__(self, name)
+            except AttributeError:
+                return getattr(self._inst, name)
+
+    return ClassProxy(inst)
+
+
+def gap_positions(seq, char='-'):
+    gaps = []
+    for diff in re.finditer('[{}]+'.format(char), seq):
+        start, end = diff.span()
+        gaps.append((start, end - start))
+    return gaps

@@ -15,7 +15,7 @@ from immunedb.identification.genes import (CDR3_OFFSET, GeneName, JGermlines,
                                            VGermlines)
 from immunedb.identification.identify import IdentificationProps
 from immunedb.common.models import NoResult, Sample, Sequence, serialize_gaps
-from immunedb.util.funcs import format_ties, periodic_commit
+from immunedb.util.funcs import format_ties, periodic_commit, gap_positions
 import immunedb.util.lookups as lookups
 from immunedb.util.log import logger
 
@@ -30,14 +30,6 @@ def get_fasta(sequences):
 
 def gaps_before(gaps, pos):
     return sum((e[1] for e in gaps if e[0] < pos))
-
-
-def gap_positions(seq, char='-'):
-    gaps = []
-    for diff in re.finditer('[{}]+'.format(char), seq):
-        start, end = diff.span()
-        gaps.append((start, end - start))
-    return gaps
 
 
 def build_index(germlines, path):

@@ -21,6 +21,18 @@
         "value": "The Lab"
     },
     "2-tissue": {
+        "value": "Colon"
+    },
+    "3-date": {
+        "value": "2015-09-13"
+    },
+    "3-experimenter": {
+        "value": "Someone"
+    },
+    "3-lab": {
+        "value": "The Lab"
+    },
+    "3-tissue": {
         "value": "SPL"
     }
 }
