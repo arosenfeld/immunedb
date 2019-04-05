@@ -3,6 +3,14 @@
         "clone_id": null,
         "seq_id": "M03592:18:000000000-AHJWK:1:1104:22351:15061_insertion"
     },
+    "M03592:18:000000000-AHJWK:1:1104:22351:15061_j_deletion": {
+        "clone_id": null,
+        "seq_id": "M03592:18:000000000-AHJWK:1:1104:22351:15061_j_deletion"
+    },
+    "M03592:18:000000000-AHJWK:1:1104:22351:15061_j_insertion": {
+        "clone_id": null,
+        "seq_id": "M03592:18:000000000-AHJWK:1:1104:22351:15061_j_insertion"
+    },
     "M03592:18:000000000-AHJWK:1:1104:22351:15061_normal": {
         "clone_id": 140,
         "seq_id": "M03592:18:000000000-AHJWK:1:1104:22351:15061_normal"
