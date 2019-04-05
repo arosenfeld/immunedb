@@ -1,5 +1,6 @@
 import argparse
 import json
+import os
 import multiprocessing as mp
 
 from sqlalchemy import create_engine
@@ -8,6 +9,17 @@ from sqlalchemy.orm import sessionmaker
 from pymysql.cursors import SSCursor
 
 from immunedb.common.models import Base
+
+
+def get_config_from_env():
+    config = {
+        'database': os.getenv('IMMUNEDB_DB'),
+        'host': os.getenv('IMMUNEDB_HOST', 'localhost'),
+        'password': os.getenv('IMMUNEDB_PASS'),
+        'username': os.getenv('IMMUNEDB_USER')
+    }
+    if all(config.values()):
+        return config
 
 
 def get_base_arg_parser(desc='', multiproc=True, **kwargs):
@@ -24,7 +36,12 @@ def get_base_arg_parser(desc='', multiproc=True, **kwargs):
             formatter_class=argparse.ArgumentDefaultsHelpFormatter,
             **kwargs)
 
-    parser.add_argument('db_config', help='Path to database config')
+    if get_config_from_env():
+        parser.add_argument('--db_config', default=get_config_from_env(),
+                            help='If set, overrides environment config')
+    else:
+        parser.add_argument('db_config', help='Path to database config')
+
     if multiproc:
         try:
             num_cpu = mp.cpu_count()
@@ -36,7 +53,7 @@ def get_base_arg_parser(desc='', multiproc=True, **kwargs):
     return parser
 
 
-def init_db(database_config, drop_all=False, as_maker=False, create=True):
+def init_db(database_config=None, drop_all=False, as_maker=False, create=True):
     """Initializes a session with the specified database.
 
     :param str database_config: If ``from_dict`` is ``False``, the path to
@@ -51,6 +68,8 @@ def init_db(database_config, drop_all=False, as_maker=False, create=True):
     if isinstance(database_config, str):
         with open(database_config) as fh:
             database_config = json.load(fh)
+    elif not database_config:
+        database_config = get_config_from_env()
 
     conn = 'mysql+pymysql://{}:{}@{}/{}'.format(
         database_config['username'], database_config['password'],

@@ -15,8 +15,11 @@ if __name__ == '__main__':
                         help='''Disables headers for --query flag''')
     args = parser.parse_args()
 
-    with open(args.db_config) as fh:
-        config = json.load(fh)
+    if isinstance(args.db_config, str):
+        with open(args.db_config) as fh:
+            config = json.load(fh)
+    else:
+        config = args.db_config
 
     cmd = shlex.split('mysql -h {} -u {} {} {}'.format(
         config['host'], config['username'],

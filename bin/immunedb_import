@@ -5,6 +5,7 @@ from immunedb.importing.alignments import import_alignments
 from immunedb.identification.identify import IdentificationProps
 from immunedb.identification.genes import JGermlines
 
+
 def add_defaults(parser):
     parser.add_argument('v_germlines', help='''FASTA file with IMGT gapped
                         V-gene germlines''')
@@ -55,7 +56,7 @@ def add_anchors(parser):
 
 
 if __name__ == '__main__':
-    parser = config.get_base_arg_parser('Imports V/J identifications')
+    main_parser = config.get_base_arg_parser('Imports V/J identifications')
     subparsers = main_parser.add_subparsers(
         dest='format',
         help='''The method to use for clonal inference'''
@@ -64,7 +65,7 @@ if __name__ == '__main__':
     parser = subparsers.add_parser('airr')
     add_defaults(parser)
 
-    args = parser.parse_args()
+    args = main_parser.parse_args()
     if args.max_padding and args.trim_to:
         if args.max_padding < args.trim_to:
             parser.error('--max-padding cannot be less than --trim-to')
