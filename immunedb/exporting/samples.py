@@ -28,7 +28,8 @@ def get_samples(session, for_update=False, sample_ids=None):
         fields = ['name', 'new_name']
     else:
         fields = ['id', 'name', 'subject', 'input_sequences', 'identified',
-                  'in_frame', 'stops', 'functional', 'clones']
+                  'in_frame', 'stops', 'avg_clone_cdr3_num_nts',
+                  'avg_clone_v_identity', 'functional', 'clones']
     fields.extend(meta)
     writer = StreamingTSV(fields)
     yield writer.writeheader()
@@ -43,6 +44,22 @@ def get_samples(session, for_update=False, sample_ids=None):
         }
         stats = sample.stats if sample.stats else Passthrough()
         if not for_update:
+            v_iden = session.query(
+                func.avg(CloneStats.avg_v_identity).label('avg')
+            ).filter(
+                CloneStats.sample_id == sample.id
+            ).first()
+            cdr3_len = session.query(
+                CloneStats
+            ).filter(
+                CloneStats.sample_id == sample.id
+            )
+            cdr3_len = [c.clone.cdr3_num_nts for c in cdr3_len]
+            if cdr3_len:
+                cdr3_len = sum(cdr3_len) / len(cdr3_len)
+            else:
+                cdr3_len = 'NA'
+
             row.update({
                 'subject': sample.subject.identifier,
                 'input_sequences': stats.sequence_cnt +
@@ -50,6 +67,9 @@ def get_samples(session, for_update=False, sample_ids=None):
                 'identified': stats.sequence_cnt,
                 'in_frame': stats.in_frame_cnt,
                 'stops': stats.stop_cnt,
+                'avg_clone_v_identity': round(v_iden.avg, 5)
+                if v_iden else 'NA',
+                'avg_clone_cdr3_num_nts': round(cdr3_len, 5),
                 'functional': stats.functional_cnt,
                 'clones': clone_cnts.get(sample.id, 0)
             })
