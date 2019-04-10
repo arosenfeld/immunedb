@@ -1,4 +1,20 @@
 # CHANGELOG
+## v0.28.3
+* Importing is now supported for only IgBLAST in AIRR format.
+* Database configuration can now be specified with environment variables.
+  `IMMUNEDB_DB`, `IMMUNEDB_PASS`, `IMMUNEDB_USER` are required to be set and
+  `IMMUNEDB_HOST` is optional (defaults to `localhost`).  When using
+  environment variables, the common first parameter to all commands,
+  `db_config` should be excluded.
+* Sample export now includes average clonal V-identity and CDR3 length as
+  columns.
+
+## v0.28.2
+* J-assignment fix for reverse-complement sequences.
+
+## v0.28.1
+* Minor fix for V-identity when exporting clones.
+
 ## v0.28.0
 * Fix for clonal similarity.
 * The Docker container now proxies both the frontend and API through port 8080.
