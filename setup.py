@@ -20,7 +20,7 @@ setup(
     name='ImmuneDB',
     version='0.28.2',
     author='Aaron M. Rosenfeld',
-    author_email='ar374@drexel.edu',
+    author_email='aaron.rosenfeld@pennmedicine.upenn.edu',
     url='https://github.com/arosenfeld/immunedb',
     packages=[
         'immunedb',
@@ -62,7 +62,7 @@ setup(
     long_description=long_description,
     long_description_content_type='text/markdown',
     classifiers=[
-        'Development Status :: 4 - Beta',
+        'Development Status :: 5 - Production/Stable',
         'Environment :: Console',
         'Intended Audience :: Science/Research',
         'Natural Language :: English',
