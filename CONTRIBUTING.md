@@ -24,12 +24,13 @@ reference database, when running the tests, set the `GENERATE` environment
 variable.  Please verify that the changes to the files in `tests/data/regression/`
 accurately represent your intentions.
 
-Further, we will **only** accept pull requests if they are
+Further, pull requests should be
 [PEP8](https://www.python.org/dev/peps/pep-0008/) compliant.  To check your code
 for compliance, you should get no style warning after running:
 
-        $ pip install pycodestyle
+        $ pip install pycodestyle flake8
         $ pycodestyle immunedb
+        $ flake8 immunedb
 
 After completing these steps, please submit a pull request.  Tests will be run
 on [Travis](https://travis-ci.com/arosenfeld/immunedb).  After they pass, we'll
