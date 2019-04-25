@@ -25,7 +25,7 @@
         "functional": true,
         "sample_id": null,
         "subject_id": 1,
-        "top_copy_seq_ai": 980,
+        "top_copy_seq_ai": 185,
         "total_cnt": 4,
         "unique_cnt": 1
     },
@@ -585,7 +585,7 @@
         "functional": true,
         "sample_id": null,
         "subject_id": 1,
-        "top_copy_seq_ai": 708,
+        "top_copy_seq_ai": 210,
         "total_cnt": 2,
         "unique_cnt": 1
     },
@@ -1125,7 +1125,7 @@
         "functional": true,
         "sample_id": null,
         "subject_id": 1,
-        "top_copy_seq_ai": 824,
+        "top_copy_seq_ai": 823,
         "total_cnt": 4,
         "unique_cnt": 2
     },
@@ -2355,7 +2355,7 @@
         "functional": true,
         "sample_id": null,
         "subject_id": 1,
-        "top_copy_seq_ai": 870,
+        "top_copy_seq_ai": 93,
         "total_cnt": 2,
         "unique_cnt": 1
     },

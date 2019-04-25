@@ -88,7 +88,10 @@ class CloneStatsWorker(concurrent.Worker):
             ).first()
             top_seq = top_seq.filter(Sequence.sample_id == sample_id)
 
-        top_seq = top_seq.order_by(Sequence.copy_number.desc()).first()
+        top_seq = top_seq.order_by(
+            Sequence.copy_number.desc(),
+            Sequence.seq_id.desc()
+        ).first()
 
         clone_inst = self._session.query(Clone).filter(
             Clone.id == clone_id).first()
