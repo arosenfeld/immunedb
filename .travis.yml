@@ -21,10 +21,6 @@ install:
 - wget https://github.com/BenLangmead/bowtie2/releases/download/v2.3.3/bowtie2-2.3.3-linux-x86_64.zip
 - unzip bowtie2-2.3.3-linux-x86_64.zip
 - PATH=$PATH:`pwd`/bowtie2-2.3.3
-before_script:
-- mysql -u root -e 'SET GLOBAL innodb_file_format=barracuda;';
-- mysql -u root -e 'SET GLOBAL innodb_file_per_table=ON;';
-- mysql -u root -e 'SET GLOBAL innodb_large_prefix=ON;';
 script:
 - cd $TRAVIS_BUILD_DIR
 - "./tests/run.sh"
