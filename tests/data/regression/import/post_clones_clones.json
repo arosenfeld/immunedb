@@ -2212,8 +2212,8 @@
         "v_gene": "IGHV4-39"
     },
     "170": {
-        "cdr3_aa": "CTGEKAGTIVDYW",
-        "cdr3_nt": "TGTACGGGAGAGAAAGCTGGAACTATTGTCGACTACTGG",
+        "cdr3_aa": "CARDRDISWFFYW",
+        "cdr3_nt": "TGTGCGAGAGATCGTGACATCAGTTGGTTCTTCTACTGG",
         "cdr3_num_nts": 39,
         "deletions": [],
         "functional": true,
@@ -2225,8 +2225,8 @@
         "v_gene": "IGHV4-39"
     },
     "171": {
-        "cdr3_aa": "CARDRDISWFFYW",
-        "cdr3_nt": "TGTGCGAGAGATCGTGACATCAGTTGGTTCTTCTACTGG",
+        "cdr3_aa": "CTGEKAGTIVDYW",
+        "cdr3_nt": "TGTACGGGAGAGAAAGCTGGAACTATTGTCGACTACTGG",
         "cdr3_num_nts": 39,
         "deletions": [],
         "functional": true,

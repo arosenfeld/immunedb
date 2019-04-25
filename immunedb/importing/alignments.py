@@ -75,7 +75,8 @@ def collapse_duplicates(alignment, uniques):
         funcs.format_ties(alignment.j_gene), alignment.cdr3_num_nts,
         len(alignment.sequence.sequence)
     )
-    for other in uniques.setdefault(key, []):
+    for other in sorted(uniques.setdefault(key, []), key=lambda u:
+            (-u.sequence.copy_number, u.sequence.seq_id)):
         if dnautils.equal(other.sequence.sequence,
                           alignment.sequence.sequence):
             other.sequence.copy_number += alignment.sequence.copy_number
