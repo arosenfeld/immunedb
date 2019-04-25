@@ -616,31 +616,31 @@
         "stop_cnt": 85
     },
     "3-unique-False-False": {
-        "functional_cnt": 639,
-        "in_frame_cnt": 639,
+        "functional_cnt": 640,
+        "in_frame_cnt": 640,
         "no_result_cnt": 38,
-        "sequence_cnt": 639,
+        "sequence_cnt": 640,
         "stop_cnt": 0
     },
     "3-unique-False-True": {
-        "functional_cnt": 610,
-        "in_frame_cnt": 610,
+        "functional_cnt": 611,
+        "in_frame_cnt": 611,
         "no_result_cnt": 38,
-        "sequence_cnt": 610,
+        "sequence_cnt": 611,
         "stop_cnt": 0
     },
     "3-unique-True-False": {
-        "functional_cnt": 678,
-        "in_frame_cnt": 678,
+        "functional_cnt": 679,
+        "in_frame_cnt": 679,
         "no_result_cnt": 38,
-        "sequence_cnt": 678,
+        "sequence_cnt": 679,
         "stop_cnt": 0
     },
     "3-unique-True-True": {
-        "functional_cnt": 649,
-        "in_frame_cnt": 649,
+        "functional_cnt": 650,
+        "in_frame_cnt": 650,
         "no_result_cnt": 38,
-        "sequence_cnt": 649,
+        "sequence_cnt": 650,
         "stop_cnt": 0
     },
     "3-unique_multiple-False-False": {

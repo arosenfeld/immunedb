@@ -19,8 +19,22 @@ from immunedb.identification.identify import IdentificationProps
 
 
 def raw_germlines(fn):
+    class _CachedTies(dict):
+        def __init__(self, *args, **kw):
+            super(_CachedTies, self).__init__(*args, **kw)
+            self.ties = {}
+
+        def get_ties(self, genes):
+            key = tuple(sorted(genes))
+            if key in self.ties:
+                return self.ties[key]
+            return self.ties.setdefault(key, funcs.consensus(
+                [self[v] for v in genes]))
+
     with open(fn) as fh:
-        return {r.description: str(r.seq) for r in SeqIO.parse(fh, 'fasta')}
+        return _CachedTies({
+            r.description: str(r.seq).upper() for r in SeqIO.parse(fh, 'fasta')
+        })
 
 
 def create_sample(session, metadata):
@@ -56,14 +70,18 @@ def create_sample(session, metadata):
 
 
 def collapse_duplicates(alignment, uniques):
-    seq_len = len(alignment.sequence.sequence)
-    for other in uniques.setdefault(seq_len, []):
+    key = (
+        funcs.format_ties(alignment.v_gene),
+        funcs.format_ties(alignment.j_gene), alignment.cdr3_num_nts,
+        len(alignment.sequence.sequence)
+    )
+    for other in uniques.setdefault(key, []):
         if dnautils.equal(other.sequence.sequence,
                           alignment.sequence.sequence):
             other.sequence.copy_number += alignment.sequence.copy_number
             break
     else:
-        uniques[seq_len].append(alignment)
+        uniques[key].append(alignment)
 
 
 def parse_file(fh, sample, session, alignment_func, props, v_germlines,
@@ -71,6 +89,9 @@ def parse_file(fh, sample, session, alignment_func, props, v_germlines,
     uniques = {}
     reader = csv.DictReader(fh, delimiter='\t')
     for i, line in enumerate(reader):
+        if i % 100 == 0:
+            logger.info('Processed {}, {} uniques'.format(
+                i, sum([len(u) for u in uniques.values()])))
         try:
             alignment = alignment_func(line, v_germlines, j_germlines)
             if props.trim_to:
@@ -88,9 +109,10 @@ def parse_file(fh, sample, session, alignment_func, props, v_germlines,
         except AlignmentException as e:
             add_noresults_for_vdj(session, unique.sequence, sample, str(e))
 
-    if metrics:
+    if metrics['lens']:
         sample.v_ties_len = sum(metrics['lens']) / len(metrics['lens'])
         sample.v_ties_mutations = sum(metrics['muts']) / len(metrics['muts'])
+    session.commit()
 
 
 def add_imgt_gaps(germline, sequence):
@@ -115,9 +137,7 @@ def parse_airr(line, v_germlines, j_germlines):
 
     seq.pad(int(line['v_germline_start']) - 1)
     try:
-        v_germ_seq = funcs.consensus(
-            [v_germlines[v] for v in line['v_call'].split(',')]
-        )
+        v_germ_seq = v_germlines.get_ties(line['v_call'].split(','))
     except KeyError:
         raise AlignmentException(
             seq,
@@ -129,9 +149,7 @@ def parse_airr(line, v_germlines, j_germlines):
         line['germline_alignment']
     ])
     # Append the missing portion, if any, of the J to the germline
-    j_germ_seq = funcs.consensus(
-        [j_germlines[j] for j in line['j_call'].split(',')]
-    )
+    j_germ_seq = j_germlines.get_ties(line['j_call'].split(','))
     append_j = len(j_germ_seq) - int(line['j_germline_end'])
     if append_j:
         aligned_germ += j_germ_seq[-append_j:]
@@ -148,6 +166,10 @@ def parse_airr(line, v_germlines, j_germlines):
     cdr3_start += aligned_seq.sequence[:cdr3_start].count('-')
     cdr3_start += int(line['v_germline_start']) - 1
     cdr3_end = cdr3_start + len(line['cdr3']) + 6
+    # If there is an insertion in the CDR3 but not junction, increase CDR3
+    # length
+    junction_insertions = aligned_germ[cdr3_end - 3:cdr3_end].count('-')
+    cdr3_end += junction_insertions
     cdr3_seq = aligned_seq.sequence[cdr3_start:cdr3_end]
 
     aligned_germ = ''.join([
