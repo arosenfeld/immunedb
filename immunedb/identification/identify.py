@@ -43,6 +43,8 @@ class IdentificationProps(object):
         return len(alignment.v_gene) <= self.max_v_ties
 
     def valid_min_similarity(self, alignment):
+        if not alignment.v_length:
+            return False
         return alignment.v_match / alignment.v_length >= self.min_similarity
 
     def valid_padding(self, alignment):
