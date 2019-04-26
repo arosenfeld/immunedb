@@ -1,17 +1,17 @@
 {
     "1": {
         "name": "edges",
-        "v_ties_len": 297.75,
-        "v_ties_mutations": 0.009215
+        "v_ties_len": 284.833,
+        "v_ties_mutations": 0.0123333
     },
     "2": {
         "name": "input",
-        "v_ties_len": 292.304,
-        "v_ties_mutations": 0.0773668
+        "v_ties_len": 292.506,
+        "v_ties_mutations": 0.0770157
     },
     "3": {
         "name": "input2",
-        "v_ties_len": 294.769,
-        "v_ties_mutations": 0.0780163
+        "v_ties_len": 294.776,
+        "v_ties_mutations": 0.0776788
     }
 }
