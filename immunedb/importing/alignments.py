@@ -1,5 +1,4 @@
 import csv
-import itertools
 import os
 
 import dnautils
@@ -69,40 +68,50 @@ def create_sample(session, metadata):
     return sample
 
 
-def collapse_duplicates(alignment, uniques):
-    key = (
-        funcs.format_ties(alignment.v_gene),
-        funcs.format_ties(alignment.j_gene), alignment.cdr3_num_nts,
-        len(alignment.sequence.sequence)
-    )
-    for other in sorted(uniques.setdefault(key, []), key=lambda u:
-            (-u.sequence.copy_number, u.sequence.seq_id)):
-        if dnautils.equal(other.sequence.sequence,
-                          alignment.sequence.sequence):
-            other.sequence.copy_number += alignment.sequence.copy_number
-            break
-    else:
-        uniques[key].append(alignment)
+def collapse_duplicates(alignments):
+    uniques = []
+    for bucket_alignments in alignments.values():
+        while bucket_alignments:
+            alignment = bucket_alignments.pop()
+            for i, other_alignment in enumerate(bucket_alignments):
+                if dnautils.equal(alignment.sequence.sequence,
+                                  other_alignment.sequence.sequence):
+                    alignment.sequence.copy_number += (
+                        other_alignment.sequence.copy_number
+                    )
+                    bucket_alignments.pop(i)
+            uniques.append(alignment)
+    return uniques
 
 
 def parse_file(fh, sample, session, alignment_func, props, v_germlines,
-               j_germlines):
-    uniques = {}
+               j_germlines, preprocess_func=None):
     reader = csv.DictReader(fh, delimiter='\t')
+    if preprocess_func:
+        reader = preprocess_func(reader)
+
+    alignments = {}
     for i, line in enumerate(reader):
         if i % 100 == 0:
-            logger.info('Processed {}, {} uniques'.format(
-                i, sum([len(u) for u in uniques.values()])))
+            logger.info('Processed {} reads'.format(i))
         try:
             alignment = alignment_func(line, v_germlines, j_germlines)
             if props.trim_to:
                 alignment.trim_to(props.trim_to)
-            collapse_duplicates(alignment, uniques)
+            key = (
+                funcs.format_ties(alignment.v_gene),
+                funcs.format_ties(alignment.j_gene),
+                alignment.cdr3_num_nts,
+                tuple(alignment.insertions),
+                tuple(alignment.deletions)
+            )
+            alignments.setdefault(key, []).append(alignment)
         except AlignmentException as e:
             add_noresults_for_vdj(session, e.args[0], sample, str(e.args[1]))
+    uniques = collapse_duplicates(alignments)
 
     metrics = {'muts': [], 'lens': []}
-    for unique in itertools.chain.from_iterable(uniques.values()):
+    for unique in uniques:
         try:
             add_sequences(session, [unique], sample)
             metrics['lens'].append(unique.v_length)
@@ -125,6 +134,17 @@ def add_imgt_gaps(germline, sequence):
             sequence.add_gap(i + gaps_before, '.')
             added += 1
     return sequence, added
+
+
+def preprocess_airr(reader):
+    seen = {}
+    for l in reader:
+        if l['sequence_alignment'] in seen:
+            seen[l['sequence_alignment']]['copy_number'] += 1
+        else:
+            l['copy_number'] = 1
+            seen[l['sequence_alignment']] = l
+    return sorted(seen.values(), key=lambda s: s['sequence_id'])
 
 
 def parse_airr(line, v_germlines, j_germlines):
@@ -210,7 +230,7 @@ def parse_airr(line, v_germlines, j_germlines):
 
 def import_alignments(session, args):
     parse_funcs = {
-        'airr': parse_airr
+        'airr': (parse_airr, preprocess_airr),
     }
 
     meta_fn = args.metadata if args.metadata else os.path.join(
@@ -236,5 +256,6 @@ def import_alignments(session, args):
             path = os.path.join(
                 args.sample_dir, metadata[sample_name]['file_name'])
             with open(path) as fh:
-                parse_file(fh, sample, session, parse_funcs[args.format],
-                           props, v_germlines, j_germlines)
+                parse_file(fh, sample, session, parse_funcs[args.format][0],
+                           props, v_germlines, j_germlines,
+                           preprocess_func=parse_funcs[args.format][1])
