@@ -31,12 +31,7 @@ def raw_germlines(fn, gene):
                 return self.ties[key]
             step = 1 if gene == 'v' else -1
             seqs = [self[v][::step] for v in genes]
-            max_length = max([len(s) for s in seqs])
-            seqs = [s.ljust(max_length, 'N') for s in seqs]
-            for s in seqs:
-                print(s)
             cons = funcs.consensus(seqs)[::step]
-            print(cons)
             return self.ties.setdefault(key, cons)
 
     with open(fn) as fh:
