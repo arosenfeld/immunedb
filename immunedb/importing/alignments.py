@@ -26,11 +26,12 @@ def raw_germlines(fn, gene):
             self.ties = {}
 
         def get_ties(self, genes):
+            length = len(self[genes[0]])
             key = tuple(sorted(genes))
             if key in self.ties:
                 return self.ties[key]
             step = 1 if gene == 'v' else -1
-            seqs = [self[v][::step] for v in genes]
+            seqs = [self[v].ljust(length, 'N')[::step] for v in genes]
             cons = funcs.consensus(seqs)[::step]
             return self.ties.setdefault(key, cons)
 
