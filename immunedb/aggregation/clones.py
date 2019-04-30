@@ -73,6 +73,39 @@ def push_clone_ids(session):
     '''))
 
 
+def collapse_identical(session, buckets):
+    for i, bucket in enumerate(buckets):
+        clones = session.query(
+            Clone.id, Clone.cdr3_aa
+        ).filter(
+            Clone.subject_id == bucket.subject_id,
+            Clone.v_gene == bucket.v_gene,
+            Clone.j_gene == bucket.j_gene,
+            Clone.cdr3_num_nts == bucket.cdr3_num_nts,
+            Clone._insertions == bucket._insertions,
+            Clone._deletions == bucket._deletions,
+        )
+        if clones.count() < 2:
+            continue
+        logger.info('Reducing bucket {} / {} ({} clones)'.format(
+            i, len(buckets), clones.count()))
+        uniques = {}
+        for c in clones:
+            uniques.setdefault(c.cdr3_aa, []).append(c.id)
+        uniques = [sorted(u) for u in uniques.values() if len(u) > 1]
+        if len(uniques) > 1:
+            logger.info('Collapsing {} duplicate CDR3s'.format(len(uniques)))
+        for identical in uniques:
+            rep_id = identical[0]
+            session.query(Sequence).filter(
+                Sequence.clone_id.in_(identical)
+            ).update({'clone_id': rep_id}, synchronize_session=False)
+            session.query(Clone).filter(
+                Clone.id.in_(identical[1:])
+            ).delete(synchronize_session=False)
+    session.commit()
+
+
 def similar_to_all(seq, rest, field, min_similarity):
     """Determines if the string ``seq`` is at least ``min_similarity``
     similar to the list of strings ``rest``.
@@ -353,6 +386,7 @@ def run_clones(session, args):
         session.commit()
 
     tasks = concurrent.TaskQueue()
+    all_buckets = []
     for subject_id in subject_ids:
         logger.info('Generating task queue for subject {}'.format(
             subject_id))
@@ -371,6 +405,7 @@ def run_clones(session, args):
         for bucket in buckets:
             if not args.gene or bucket.v_gene.startswith(args.gene):
                 tasks.add_task(bucket)
+        all_buckets.extend(buckets)
 
     logger.info('Generated {} total tasks'.format(tasks.num_tasks()))
 
@@ -390,5 +425,7 @@ def run_clones(session, args):
     else:
         logger.info('Skipping subclones')
 
+    if args.reduce:
+        collapse_identical(session, all_buckets)
     push_clone_ids(session)
     session.commit()

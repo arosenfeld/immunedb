@@ -40,6 +40,11 @@ def add_defaults(parser):
                         help='''If specified, only sequences of the given gene
                         type will be assigned clones.  Useful if you have
                         BCR and TCR sequences within a single subject.''')
+    parser.add_argument('--reduce', action='store_true', default=False,
+                        help='''If specified, clones with the same V, J, and
+                        CDR3 AA sequence will be further reduced into
+                        clones''')
+
     parser.add_argument('--subclones', action='store_true',
                         help='''If specified, calculates subclone
                         relationships''')

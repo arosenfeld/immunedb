@@ -99,10 +99,9 @@ class AnchorAligner(object):
     def process_j(self, alignment, i, match_len, limit_js):
         # If a match is found, record its location and gene
         alignment.j_anchor_pos = i
-        end_of_j = min(
-            alignment.j_anchor_pos + self.j_germlines.anchor_len,
-            len(alignment.sequence)
-        )
+        end_of_j = alignment.j_anchor_pos + self.j_germlines.anchor_len
+        if end_of_j > len(alignment.sequence):
+            alignment.sequence.pad_right(end_of_j - len(alignment.sequence))
         if limit_js:
             j_germs = {
                 k: v for k, v in self.j_germlines.items()
