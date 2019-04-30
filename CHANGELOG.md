@@ -1,4 +1,10 @@
 # CHANGELOG
+## v0.28.4
+* Various IgBLAST importing improvements.  Still considered in beta.
+* Short-read edge case for J-alignment now assigns proper gene.
+* A `--reduce` flag has been added to `immunedb_clones` which combines all
+  clones from the same subject with the same V, J, and CDR3 AA sequence.
+
 ## v0.28.3
 * Importing is now supported for only IgBLAST in AIRR format.
 * Database configuration can now be specified with environment variables.
