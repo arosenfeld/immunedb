@@ -10,7 +10,7 @@ from immunedb.util.log import logger
 class LineageWorker(concurrent.Worker):
     def __init__(self, session, newick_generator, min_mut_copies,
                  min_mut_samples, min_seq_copies, min_seq_samples,
-                 exclude_stops, post_tree_hook=None):
+                 exclude_stops, full_seq, post_tree_hook=None):
         self.session = session
         self.newick_generator = newick_generator
         self.min_mut_copies = min_mut_copies
@@ -18,17 +18,21 @@ class LineageWorker(concurrent.Worker):
         self.min_seq_copies = min_seq_copies
         self.min_seq_samples = min_seq_samples
         self.exclude_stops = exclude_stops
+        self.full_seq = full_seq
         self.post_tree_hook = post_tree_hook
 
-    def get_tree(self, germline, sequences):
+    def get_tree(self, clone, sequences):
         fasta, removed_muts = get_fasta_input(
-            germline, sequences,
-            self.min_mut_copies, self.min_mut_samples
+            clone.consensus_germline, sequences,
+            self.min_mut_copies, self.min_mut_samples,
+            None if self.full_seq else clone.cdr3_start
         )
         newick = self.newick_generator(fasta)
         if not newick:
             return None
-        tree = add_tree_metadata(self.session, newick, germline, removed_muts)
+        tree = add_tree_metadata(self.session, newick,
+                                 clone.consensus_germline, removed_muts,
+                                 None if self.full_seq else clone.cdr3_start)
         if self.post_tree_hook:
             tree = self.post_tree_hook(tree)
         return tree
@@ -55,7 +59,7 @@ class LineageWorker(concurrent.Worker):
         sequences = sequences.order_by(Sequence.v_length)
 
         try:
-            tree = self.get_tree(clone_inst.consensus_germline, sequences)
+            tree = self.get_tree(clone_inst, sequences)
             if not tree:
                 logger.warning('No sequences to make tree for clone {}'.format(
                     clone_id))
@@ -72,7 +76,8 @@ class LineageWorker(concurrent.Worker):
                 'min_mut_samples': self.min_mut_samples,
                 'min_seq_copies': self.min_seq_copies,
                 'min_seq_samples': self.min_seq_samples,
-                'exclude_stops': self.exclude_stops
+                'exclude_stops': self.exclude_stops,
+                'full_seq': self.full_seq,
             },
             'tree': tree_as_dict(tree)
         }
@@ -81,7 +86,8 @@ class LineageWorker(concurrent.Worker):
         self.session.commit()
 
 
-def get_fasta_input(germline_seq, sequences, min_mut_copies, min_mut_samples):
+def get_fasta_input(germline_seq, sequences, min_mut_copies, min_mut_samples,
+                    limit=None):
     seqs = {}
     mut_counts = {}
     for seq in sequences:
@@ -97,6 +103,8 @@ def get_fasta_input(germline_seq, sequences, min_mut_copies, min_mut_samples):
             germline_seq, seq.clone_sequence, map(
                 int, json.loads(seq.mutations_from_clone).keys())
         )
+        if limit:
+            mutations = set([m for m in mutations if m[0] < limit])
         for mut in mutations:
             if mut not in mut_counts:
                 mut_counts[mut] = {'count': 0, 'samples': set([])}
@@ -112,13 +120,13 @@ def get_fasta_input(germline_seq, sequences, min_mut_copies, min_mut_samples):
     for seq_id, seq in seqs.items():
         seqs[seq_id] = remove_muts(seq, removed_muts, germline_seq)
 
-    in_data = '>germline\n{}\n'.format(germline_seq)
+    in_data = '>germline\n{}\n'.format(germline_seq[:limit])
     for seq_id, seq in seqs.items():
-        in_data += '>{}\n{}\n'.format(seq_id, seq)
+        in_data += '>{}\n{}\n'.format(seq_id, seq[:limit])
     return in_data, removed_muts
 
 
-def add_tree_metadata(session, newick, germline_seq, removed_muts):
+def add_tree_metadata(session, newick, germline_seq, removed_muts, limit=None):
     tree = ete3.Tree(newick)
     for node in tree.traverse():
         if node.name not in ('NoName', 'germline', ''):
@@ -142,9 +150,13 @@ def add_tree_metadata(session, newick, germline_seq, removed_muts):
             ))
             modified_seq = remove_muts(seq.sequence,
                                        removed_muts, germline_seq)
-            node.add_feature('mutations', get_mutations(
+            muts = get_mutations(
                 germline_seq, modified_seq,
-                map(int, json.loads(seq.mutations_from_clone).keys())))
+                map(int, json.loads(seq.mutations_from_clone).keys())
+            )
+            if limit:
+                muts = set([m for m in muts if m[0] < limit])
+            node.add_feature('mutations', muts)
         else:
             node = instantiate_node(node)
 

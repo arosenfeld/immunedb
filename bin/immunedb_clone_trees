@@ -31,6 +31,9 @@ if __name__ == '__main__':
     parser.add_argument('--exclude-stops', action='store_true',
                         help='''If specified, excludes sequences with a stop
                         codon from being included in trees.''')
+    parser.add_argument('--full-seq', action='store_true',
+                        help='''If specified, trees will be generated for full
+                        sequences rather than just the V-region''')
     args = parser.parse_args()
 
     if args.subject_ids is not None and args.clone_ids is not None:

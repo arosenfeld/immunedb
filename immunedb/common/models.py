@@ -299,15 +299,19 @@ class Clone(Base):
         return regions
 
     @property
+    def cdr3_start(self):
+        cdr3_start = CDR3_OFFSET
+        if self.insertions:
+            cdr3_start += sum((e[1] for e in self.insertions))
+        return cdr3_start
+
+    @property
     def consensus_germline(self):
         """Returns the consensus germline for the clone"""
-        cdr3_start = CDR3_OFFSET
-        if self.insertions is not None:
-            cdr3_start += sum((e[1] for e in self.insertions))
         return ''.join([
-            self.germline[0:cdr3_start],
+            self.germline[0:self.cdr3_start],
             self.cdr3_nt,
-            self.germline[cdr3_start + self.cdr3_num_nts:]
+            self.germline[self.cdr3_start + self.cdr3_num_nts:]
         ])
 
     @property

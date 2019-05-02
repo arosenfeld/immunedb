@@ -1,5 +1,7 @@
 # CHANGELOG
 ## v0.28.4
+* `immunedb_clone_trees` defaults to only include the V-gene in lineage
+  construction.  To use full sequences, specify the `--full-seq` flag.
 * Various IgBLAST importing improvements.  Still considered in beta.
 * Short-read edge case for J-alignment now assigns proper gene.
 * A `--reduce` flag has been added to `immunedb_clones` which combines all
