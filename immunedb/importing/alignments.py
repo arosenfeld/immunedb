@@ -1,5 +1,6 @@
 import csv
 import os
+import itertools
 
 import dnautils
 
@@ -10,6 +11,7 @@ from immunedb.identification.vdj_sequence import VDJAlignment, VDJSequence
 from immunedb.identification.metadata import (parse_metadata, REQUIRED_FIELDS,
                                               MetadataException)
 from immunedb.common.models import Sample, SampleMetadata, Study, Subject
+import immunedb.util.concurrent as concurrent
 import immunedb.util.funcs as funcs
 from immunedb.util.log import logger
 from Bio import SeqIO
@@ -17,26 +19,28 @@ from Bio import SeqIO
 from immunedb.identification.identify import IdentificationProps
 
 
+class CachedTies(dict):
+    def __init__(self, gene, *args, **kw):
+        super(CachedTies, self).__init__(*args, **kw)
+        self.gene = gene
+        self.ties = {}
+
+    def get_ties(self, genes):
+        length = len(self[genes[0]])
+        key = tuple(sorted(genes))
+        if key in self.ties:
+            return self.ties[key]
+        step = 1 if self.gene == 'v' else -1
+        seqs = [self[v].ljust(length, 'N')[::step] for v in genes]
+        cons = funcs.consensus(seqs)[::step]
+        return self.ties.setdefault(key, cons)
+
+
 def raw_germlines(fn, gene):
     assert gene in ('v', 'j')
 
-    class _CachedTies(dict):
-        def __init__(self, *args, **kw):
-            super(_CachedTies, self).__init__(*args, **kw)
-            self.ties = {}
-
-        def get_ties(self, genes):
-            length = len(self[genes[0]])
-            key = tuple(sorted(genes))
-            if key in self.ties:
-                return self.ties[key]
-            step = 1 if gene == 'v' else -1
-            seqs = [self[v].ljust(length, 'N')[::step] for v in genes]
-            cons = funcs.consensus(seqs)[::step]
-            return self.ties.setdefault(key, cons)
-
     with open(fn) as fh:
-        return _CachedTies({
+        return CachedTies(gene, {
             r.description: str(r.seq).upper() for r in SeqIO.parse(fh, 'fasta')
         })
 
@@ -73,46 +77,56 @@ def create_sample(session, metadata):
     return sample
 
 
-def collapse_duplicates(alignments):
-    logger.info('Collapsing duplicate alignments')
+def collapse_duplicates(bucket):
     uniques = []
-    for bucket_alignments in alignments.values():
-        while bucket_alignments:
-            alignment = bucket_alignments.pop()
-            for i, other_alignment in enumerate(bucket_alignments):
-                if (len(alignment.sequence.sequence) !=
-                        len(other_alignment.sequence.sequence)):
-                    logger.warning('Sequence lengths differ {} {}'.format(
-                        alignment.sequence.seq_id,
-                        other_alignment.sequence.seq_id)
-                    )
-                    continue
-                if dnautils.equal(alignment.sequence.sequence,
-                                  other_alignment.sequence.sequence):
-                    alignment.sequence.copy_number += (
-                        other_alignment.sequence.copy_number
-                    )
-                    bucket_alignments.pop(i)
-            uniques.append(alignment)
+    while bucket:
+        alignment = bucket.pop()
+        for i, other_alignment in enumerate(bucket):
+            if (len(alignment.sequence.sequence) !=
+                    len(other_alignment.sequence.sequence)):
+                logger.warning('Sequence lengths differ {} {}'.format(
+                    alignment.sequence.seq_id,
+                    other_alignment.sequence.seq_id)
+                )
+                continue
+            if dnautils.equal(alignment.sequence.sequence,
+                              other_alignment.sequence.sequence):
+                alignment.sequence.copy_number += (
+                    other_alignment.sequence.copy_number
+                )
+                bucket.pop(i)
+        uniques.append(alignment)
     return uniques
 
 
-def parse_file(fh, sample, session, alignment_func, props, v_germlines,
-               j_germlines, preprocess_func=None):
-    reader = csv.DictReader(fh, delimiter='\t')
-    if preprocess_func:
-        reader = preprocess_func(reader)
+def process_line(line, alignment_func, props, v_germlines, j_germlines):
+    try:
+        alignment = alignment_func(line, v_germlines, j_germlines)
+        if props.trim_to:
+            alignment.trim_to(props.trim_to)
+        props.validate(alignment)
+        return {
+            'status': 'success',
+            'alignment': alignment
+        }
+    except AlignmentException as e:
+        if len(e.args) == 1:
+            vdj, msg = alignment.sequence, str(e)
+        else:
+            vdj, msg = e.args
 
+        return {
+            'status': 'noresult',
+            'vdj': vdj,
+            'reason': msg
+        }
+
+
+def aggregate_results(results, session, sample):
     alignments = {}
-    for i, line in enumerate(reader):
-        if i % 100 == 0:
-            logger.info('Processed {} / {} reads ({}%)'.format(
-                i, len(reader), round(100 * i / len(reader), 2)))
-        try:
-            alignment = alignment_func(line, v_germlines, j_germlines)
-            if props.trim_to:
-                alignment.trim_to(props.trim_to)
-            props.validate(alignment)
+    for result in results:
+        if result['status'] == 'success':
+            alignment = result['alignment']
             key = (
                 funcs.format_ties(alignment.v_gene),
                 funcs.format_ties(alignment.j_gene),
@@ -121,16 +135,16 @@ def parse_file(fh, sample, session, alignment_func, props, v_germlines,
                 tuple(alignment.deletions)
             )
             alignments.setdefault(key, []).append(alignment)
-        except AlignmentException as e:
-            if len(e.args) == 1:
-                vdj, msg = alignment.sequence, str(e)
-            else:
-                vdj, msg = e.args
-            add_noresults_for_vdj(session, vdj, sample, msg)
-    uniques = collapse_duplicates(alignments)
+        elif result['status'] == 'noresult':
+            add_noresults_for_vdj(session, result['vdj'], sample,
+                                  result['reason'])
+    session.commit()
+    return alignments
 
+
+def add_results(uniques, sample, session):
     metrics = {'muts': [], 'lens': []}
-    for unique in uniques:
+    for unique in itertools.chain(*uniques):
         try:
             add_sequences(session, [unique], sample)
             metrics['lens'].append(unique.v_length)
@@ -142,6 +156,41 @@ def parse_file(fh, sample, session, alignment_func, props, v_germlines,
         sample.v_ties_len = sum(metrics['lens']) / len(metrics['lens'])
         sample.v_ties_mutations = sum(metrics['muts']) / len(metrics['muts'])
     session.commit()
+
+
+def parse_file(fh, sample, session, alignment_func, props, v_germlines,
+               j_germlines, nproc, preprocess_func=None):
+    reader = csv.DictReader(fh, delimiter='\t')
+    if preprocess_func:
+        reader = preprocess_func(reader)
+
+    alignments = concurrent.process_data(
+        reader,
+        process_line,
+        aggregate_results,
+        nproc,
+        process_args={
+            'alignment_func': alignment_func,
+            'props': props,
+            'v_germlines': v_germlines,
+            'j_germlines': j_germlines
+        },
+        aggregate_args={
+            'session': session,
+            'sample': sample
+        }
+    )
+
+    concurrent.process_data(
+        alignments.values(),
+        collapse_duplicates,
+        add_results,
+        nproc,
+        aggregate_args={
+            'session': session,
+            'sample': sample
+        }
+    )
 
 
 def add_imgt_gaps(germline, sequence):
@@ -224,7 +273,7 @@ def parse_airr(line, v_germlines, j_germlines):
         cdr3_seq,
         aligned_seq.sequence[cdr3_end:]
     ])
-    alignment = funcs.create_proxy(VDJAlignment(
+    alignment = funcs.ClassProxy(VDJAlignment(
         VDJSequence(line['sequence_id'], aligned_seq.replace('.', '-'))
     ))
     alignment.germline = aligned_germ.replace('.', '-')
@@ -279,4 +328,5 @@ def import_alignments(session, args):
             with open(path) as fh:
                 parse_file(fh, sample, session, parse_funcs[args.format][0],
                            props, v_germlines, j_germlines,
+                           args.nproc,
                            preprocess_func=parse_funcs[args.format][1])

@@ -149,27 +149,26 @@ def get_cigar(ref, qry):
     return ''.join(cigar)
 
 
-def create_proxy(inst):
-    class ClassProxy:
-        def __init__(self, inst):
-            self._inst = inst
+class ClassProxy:
+    def __init__(self, inst):
+        self._inst = inst
 
-        def __setattr__(self, name, value):
-            if name == '_inst':
-                super().__setattr__(name, value)
-            else:
-                try:
-                    setattr(self._inst, name, value)
-                except AttributeError:
-                    super().__setattr__(name, value)
-
-        def __getattr__(self, name):
+    def __setattr__(self, name, value):
+        if name == '_inst':
+            super().__setattr__(name, value)
+        else:
             try:
-                return super().__getattr__(self, name)
+                setattr(self._inst, name, value)
             except AttributeError:
-                return getattr(self._inst, name)
+                super().__setattr__(name, value)
 
-    return ClassProxy(inst)
+    def __getattr__(self, name):
+        if isinstance(name, str) and name[:2] == name[-2:] == '__':
+            raise AttributeError(name)
+        try:
+            return super().__getattr__(self, name)
+        except AttributeError:
+            return getattr(self._inst, name)
 
 
 def gap_positions(seq, char='-'):

@@ -74,7 +74,8 @@ class IdentificationProps(object):
         if not self.valid_min_similarity(alignment):
             raise AlignmentException(
                 'V-identity too low {} < {}'.format(
-                    alignment.v_match / alignment.v_length,
+                    alignment.v_match / alignment.v_length
+                    if alignment.v_length else 'NaN',
                     self.min_similarity))
         if not self.valid_v_ties(alignment):
             raise AlignmentException('Too many V-ties {} > {}'.format(
