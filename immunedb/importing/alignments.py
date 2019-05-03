@@ -1,5 +1,6 @@
 import csv
 import os
+import time
 import itertools
 
 import dnautils
@@ -10,7 +11,8 @@ from immunedb.identification.genes import GeneName
 from immunedb.identification.vdj_sequence import VDJAlignment, VDJSequence
 from immunedb.identification.metadata import (parse_metadata, REQUIRED_FIELDS,
                                               MetadataException)
-from immunedb.common.models import Sample, SampleMetadata, Study, Subject
+from immunedb.common.models import (CDR3_OFFSET, Sample, SampleMetadata, Study,
+                                    Subject)
 import immunedb.util.concurrent as concurrent
 import immunedb.util.funcs as funcs
 from immunedb.util.log import logger
@@ -160,6 +162,7 @@ def add_results(uniques, sample, session):
 
 def parse_file(fh, sample, session, alignment_func, props, v_germlines,
                j_germlines, nproc, preprocess_func=None):
+    start = time.time()
     reader = csv.DictReader(fh, delimiter='\t')
     if preprocess_func:
         reader = preprocess_func(reader)
@@ -191,6 +194,9 @@ def parse_file(fh, sample, session, alignment_func, props, v_germlines,
             'sample': sample
         }
     )
+
+    logger.info('Completed sample {} in {}m'.format(
+        sample.name, round((time.time() - start) / 60., 1)))
 
 
 def add_imgt_gaps(germline, sequence):
@@ -273,6 +279,14 @@ def parse_airr(line, v_germlines, j_germlines):
         cdr3_seq,
         aligned_seq.sequence[cdr3_end:]
     ])
+
+    total_insertions = line['v_germline_alignment'].count('-')
+    correct_cdr3_start = CDR3_OFFSET + total_insertions
+    if cdr3_start != correct_cdr3_start:
+        raise AlignmentException(
+            seq, 'CDR3 starts at {} instead of {} ({} insertions)'.format(
+                cdr3_start, correct_cdr3_start, total_insertions))
+
     alignment = funcs.ClassProxy(VDJAlignment(
         VDJSequence(line['sequence_id'], aligned_seq.replace('.', '-'))
     ))
