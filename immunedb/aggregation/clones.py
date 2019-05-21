@@ -3,6 +3,11 @@ from collections import OrderedDict
 from sqlalchemy import desc
 from sqlalchemy.sql import text
 
+import numpy as np
+import pandas as pd
+from scipy.spatial.distance import squareform
+from scipy.cluster.hierarchy import fcluster, linkage
+
 import dnautils
 from immunedb.common.models import (CDR3_OFFSET, Clone, Sequence,
                                     SequenceCollapse, Subject)
@@ -24,7 +29,7 @@ def generate_consensus(session, clone_ids):
 
     """
 
-    if len(clone_ids) == 0:
+    if not clone_ids:
         return
     for clone in funcs.periodic_commit(
             session,
@@ -307,6 +312,69 @@ class SimilarityClonalWorker(ClonalWorker):
         generate_consensus(self.session, consensus_needed)
 
 
+class ClusteringClonalWorker(ClonalWorker):
+    def get_distances(self, seqs):
+        dists = np.zeros((len(seqs), len(seqs)))
+        for i, s1 in enumerate(seqs):
+            for j, s2 in enumerate(seqs):
+                d = dnautils.hamming(s1, s2)
+                dists[i, j] = dists[j, i] = d / len(s1)
+        return dists
+
+    def assign_clones(self, df):
+        seq = df.iloc[0]
+        new_clone = Clone(subject_id=int(seq.subject_id),
+                          v_gene=seq.v_gene,
+                          j_gene=seq.j_gene,
+                          cdr3_num_nts=int(seq.cdr3_num_nts),
+                          _insertions=seq._insertions,
+                          _deletions=seq._deletions)
+        self.session.add(new_clone)
+        self.session.flush()
+        to_update = [
+            {
+                'sample_id': s.sample_id,
+                'ai': s.ai,
+                'clone_id': new_clone.id
+            } for _, s in df.iterrows()
+        ]
+        self.session.bulk_update_mappings(Sequence, to_update)
+        return int(new_clone.id)
+
+    def run_bucket(self, bucket):
+        seqs = self.get_bucket_seqs(bucket, sort=True)
+        if seqs.count():
+            df = pd.DataFrame({
+                'sample_id': s.sample_id,
+                'ai': s.ai,
+
+                'subject_id': s.subject_id,
+                'v_gene': s.v_gene,
+                'j_gene': s.j_gene,
+                'cdr3_num_nts': s.cdr3_num_nts,
+                '_insertions': s._insertions,
+                '_deletions': s._deletions,
+
+                'cdr3': getattr(s, 'cdr3_' + self.level).replace('X', '-'),
+                'current_clone_id': s.clone_id
+            } for s in seqs)
+
+            if len(df) == 1:
+                df['clone'] = 1
+            else:
+                dists = squareform(self.get_distances(df.cdr3))
+                clusters = fcluster(linkage(dists), self.min_similarity,
+                                    criterion='distance')
+                df['clone'] = clusters
+            # NOTE: .groupby() doesn't work here since self.assign_clones has
+            # side effects
+            consensus_needed = []
+            for clone in df.clone.unique():
+                new_id = self.assign_clones(df[df.clone == clone])
+                consensus_needed.append(new_id)
+            generate_consensus(self.session, consensus_needed)
+
+
 class SubcloneWorker(concurrent.Worker):
     def __init__(self, session, min_similarity):
         self.session = session
@@ -412,6 +480,7 @@ def run_clones(session, args):
     methods = {
         'similarity': SimilarityClonalWorker,
         'lineage': LineageClonalWorker,
+        'cluster': ClusteringClonalWorker
     }
     for i in range(0, min(tasks.num_tasks(), args.nproc)):
         worker = methods[args.method](

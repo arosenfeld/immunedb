@@ -69,6 +69,19 @@ if __name__ == '__main__':
                         CDR3 within a clone''')
     add_defaults(parser)
 
+    # Clustering
+    parser = subparsers.add_parser(
+        'cluster',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        help='''Constructs clones based on hierarchical clustering''')
+    parser.add_argument('--level', default='aa', choices=['aa', 'nt'], help='''
+        The level at which to compare similarity, either amino-acids or
+        nucleotides''')
+    parser.add_argument('--min-similarity', type=float, default=.85,
+                        help='''Minimum similarity allowed between sequence
+                        CDR3 within a clone''')
+    add_defaults(parser)
+
     # Lineage
     parser = subparsers.add_parser(
         'lineage',
