@@ -26,5 +26,6 @@ class TestPipeline(BaseTest.RegressionTest):
                 trim_to=None,
                 max_padding=None,
                 genotyping=False,
+                no_ties=False,
             )
         )

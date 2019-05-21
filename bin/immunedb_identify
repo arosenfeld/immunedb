@@ -58,6 +58,10 @@ if __name__ == '__main__':
                         default=IdentificationProps.defaults['genotyping'],
                         help='''Alters identification to process sequences for
                         genotyping with TIgGER''')
+    parser.add_argument('--no-ties', action='store_true',
+                        default=IdentificationProps.defaults['no_ties'],
+                        help='''If specified, V-ties will not be
+                        calculated''')
 
     args = parser.parse_args()
     if args.min_anchor_len > args.anchor_len:
