@@ -1,5 +1,6 @@
 import csv
 import os
+import re
 import time
 import itertools
 
@@ -214,10 +215,14 @@ def preprocess_airr(reader):
     logger.info('Collapsing identical sequences')
     seen = {}
     for l in reader:
+        copies = re.search(r'DUPCOUNT=(\d+)', l['sequence_id'])
+        copies = int(copies.group(1)) if copies else 1
+        l['sequence_id'] = l['sequence_id'].split(
+            '|DUPCOUNT')[0].replace('reversed|', '')
         if l['sequence_alignment'] in seen:
-            seen[l['sequence_alignment']]['copy_number'] += 1
+            seen[l['sequence_alignment']]['copy_number'] += copies
         else:
-            l['copy_number'] = 1
+            l['copy_number'] = copies
             seen[l['sequence_alignment']] = l
     return sorted(seen.values(), key=lambda s: s['sequence_id'])
 
@@ -226,7 +231,6 @@ def parse_airr(line, v_germlines, j_germlines):
     seq = VDJSequence(
         seq_id=line['sequence_id'].replace('reversed|', ''),
         sequence=line['sequence_alignment'],
-        rev_comp=line['rev_comp'] == 'T',
     )
     if not all([line['v_call'], line['j_call'], line['junction_aa']]):
         raise AlignmentException(seq, 'Missing v_gene, j_gene, or junction_aa')
@@ -288,8 +292,11 @@ def parse_airr(line, v_germlines, j_germlines):
                 cdr3_start, correct_cdr3_start, total_insertions))
 
     alignment = funcs.ClassProxy(VDJAlignment(
-        VDJSequence(line['sequence_id'], aligned_seq.replace('.', '-'))
-    ))
+        VDJSequence(
+            line['sequence_id'],
+            aligned_seq.replace('.', '-'),
+            rev_comp=line['rev_comp'] == 'T',
+            copy_number=line['copy_number'])))
     alignment.germline = aligned_germ.replace('.', '-')
     alignment.v_gene = set([GeneName(c) for c in line['v_call'].split(',')])
     alignment.j_gene = set([GeneName(c) for c in line['j_call'].split(',')])

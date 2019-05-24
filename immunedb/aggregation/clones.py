@@ -134,11 +134,11 @@ def similar_to_all(seq, rest, field, min_similarity):
     return True
 
 
-def can_subclone(sub_seqs, parent_seqs, min_similarity):
-    for seq in sub_seqs:
-        if not similar_to_all(seq, parent_seqs, min_similarity):
-            return False
-    return True
+def can_subclone(sub_clone, parent_clone):
+    return dnautils.equal(
+        parent_clone.cdr3_aa.replace('X', '-'),
+        sub_clone.cdr3_aa.replace('X', '-')
+    )
 
 
 class ClonalWorker(concurrent.Worker):
@@ -376,9 +376,8 @@ class ClusteringClonalWorker(ClonalWorker):
 
 
 class SubcloneWorker(concurrent.Worker):
-    def __init__(self, session, min_similarity):
+    def __init__(self, session):
         self.session = session
-        self.min_similarity = min_similarity
 
     def do_task(self, bucket):
         clones = self.session.query(Clone).filter(
@@ -388,7 +387,7 @@ class SubcloneWorker(concurrent.Worker):
             Clone.cdr3_num_nts == bucket.cdr3_num_nts,
         ).all()
 
-        if len(clones) == 0:
+        if not clones:
             return
         # The clones with indels are the only ones which can be subclones
         parent_clones = set([c for c in clones if len(c.insertions) == 0 and
@@ -400,8 +399,7 @@ class SubcloneWorker(concurrent.Worker):
 
         for subclone in potential_subclones:
             for parent in parent_clones:
-                if can_subclone(subclone.sequences, parent.sequences,
-                                self.min_similarity):
+                if can_subclone(subclone, parent):
                     subclone.parent = parent
                     break
         self.session.commit()
@@ -428,8 +426,7 @@ def run_subclones(session, subject_ids, args):
 
     logger.info('Generated {} total subclone tasks'.format(tasks.num_tasks()))
     for i in range(0, min(tasks.num_tasks(), args.nproc)):
-        tasks.add_worker(SubcloneWorker(config.init_db(args.db_config),
-                                        args.similarity))
+        tasks.add_worker(SubcloneWorker(config.init_db(args.db_config)))
     tasks.start()
 
 
@@ -489,12 +486,12 @@ def run_clones(session, args):
         tasks.add_worker(worker)
     tasks.start()
 
-    if args.subclones:
-        run_subclones(session, subject_ids, args)
-    else:
-        logger.info('Skipping subclones')
-
     if args.reduce:
         collapse_identical(session, all_buckets)
     push_clone_ids(session)
     session.commit()
+
+    if args.subclones:
+        run_subclones(session, subject_ids, args)
+    else:
+        logger.info('Skipping subclones')
