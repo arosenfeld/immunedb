@@ -300,10 +300,7 @@ class Clone(Base):
 
     @property
     def cdr3_start(self):
-        cdr3_start = CDR3_OFFSET
-        if self.insertions:
-            cdr3_start += sum((e[1] for e in self.insertions))
-        return cdr3_start
+        return sum(self.regions[:-2])
 
     @property
     def consensus_germline(self):
