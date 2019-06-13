@@ -1,45 +1,66 @@
 {
     "positions": {
-        "104": {
-            "synonymous": 1
-        },
-        "105": {
+        "108": {
             "conservative": 1
         },
-        "106": {
+        "130": {
             "nonconservative": 1
         },
-        "119": {
-            "synonymous": 1
-        },
-        "128": {
-            "synonymous": 1
-        },
-        "146": {
-            "synonymous": 1
+        "133": {
+            "nonconservative": 1
         },
         "171": {
             "conservative": 1
         },
-        "189": {
+        "188": {
+            "synonymous": 1
+        },
+        "210": {
             "conservative": 1
         },
-        "209": {
+        "228": {
             "conservative": 1
         },
-        "243": {
+        "237": {
+            "conservative": 1
+        },
+        "254": {
+            "synonymous": 1
+        },
+        "258": {
+            "conservative": 1
+        },
+        "259": {
+            "nonconservative": 1
+        },
+        "260": {
+            "synonymous": 1
+        },
+        "277": {
+            "nonconservative": 1
+        },
+        "284": {
+            "synonymous": 1
+        },
+        "300": {
             "conservative": 1
         },
         "302": {
             "synonymous": 1
         },
-        "32": {
+        "35": {
             "synonymous": 1
         },
-        "85": {
+        "365": {
+            "synonymous": 1
+        },
+        "366": {
             "conservative": 1
         },
-        "9": {
+        "380": {
+            "synonymous": 1
+        },
+        "39": {
             "conservative": 1
         }
     },
@@ -47,176 +68,236 @@
         "ALL": {
             "counts": {
                 "total": {
-                    "conservative": 7,
-                    "nonconservative": 1,
-                    "synonymous": 6
+                    "conservative": 9,
+                    "nonconservative": 4,
+                    "synonymous": 8
                 },
                 "unique": {
-                    "conservative": 7,
-                    "nonconservative": 1,
-                    "synonymous": 6
+                    "conservative": 9,
+                    "nonconservative": 4,
+                    "synonymous": 8
                 }
             },
             "mutations": {
                 "conservative": [
                     {
+                        "from_aa": "K",
+                        "from_nt": "A",
+                        "intermediate_aa": "Q",
+                        "pos": 39,
+                        "to_aas": [
+                            "Q"
+                        ],
+                        "to_nt": "C",
+                        "total": 4,
+                        "unique": 1
+                    },
+                    {
+                        "from_aa": "Y",
+                        "from_nt": "T",
+                        "intermediate_aa": "H",
+                        "pos": 108,
+                        "to_aas": [
+                            "H"
+                        ],
+                        "to_nt": "C",
+                        "total": 4,
+                        "unique": 1
+                    },
+                    {
+                        "from_aa": "A",
+                        "from_nt": "G",
+                        "intermediate_aa": "P",
+                        "pos": 171,
+                        "to_aas": [
+                            "P"
+                        ],
+                        "to_nt": "C",
+                        "total": 4,
+                        "unique": 1
+                    },
+                    {
                         "from_aa": "L",
                         "from_nt": "C",
                         "intermediate_aa": "V",
-                        "pos": 9,
+                        "pos": 210,
                         "to_aas": [
                             "V"
                         ],
                         "to_nt": "G",
-                        "total": 5,
+                        "total": 4,
                         "unique": 1
                     },
                     {
                         "from_aa": "T",
-                        "from_nt": "C",
+                        "from_nt": "A",
                         "intermediate_aa": "S",
-                        "pos": 85,
+                        "pos": 228,
                         "to_aas": [
                             "S"
                         ],
-                        "to_nt": "G",
-                        "total": 5,
+                        "to_nt": "T",
+                        "total": 4,
                         "unique": 1
                     },
                     {
-                        "from_aa": "S",
+                        "from_aa": "T",
                         "from_nt": "A",
-                        "intermediate_aa": "G",
-                        "pos": 105,
+                        "intermediate_aa": "S",
+                        "pos": 237,
                         "to_aas": [
-                            "D"
+                            "S"
                         ],
-                        "to_nt": "G",
-                        "total": 5,
+                        "to_nt": "T",
+                        "total": 4,
                         "unique": 1
                     },
                     {
                         "from_aa": "A",
                         "from_nt": "G",
                         "intermediate_aa": "T",
-                        "pos": 171,
+                        "pos": 258,
                         "to_aas": [
-                            "T"
+                            "I"
                         ],
                         "to_nt": "A",
-                        "total": 5,
+                        "total": 4,
                         "unique": 1
                     },
                     {
-                        "from_aa": "N",
-                        "from_nt": "A",
-                        "intermediate_aa": "D",
-                        "pos": 189,
-                        "to_aas": [
-                            "D"
-                        ],
-                        "to_nt": "G",
-                        "total": 5,
-                        "unique": 1
-                    },
-                    {
-                        "from_aa": "K",
+                        "from_aa": "V",
                         "from_nt": "G",
-                        "intermediate_aa": "N",
-                        "pos": 209,
+                        "intermediate_aa": "L",
+                        "pos": 300,
                         "to_aas": [
-                            "N"
+                            "F"
+                        ],
+                        "to_nt": "T",
+                        "total": 4,
+                        "unique": 1
+                    },
+                    {
+                        "from_aa": "M",
+                        "from_nt": "A",
+                        "intermediate_aa": "L",
+                        "pos": 366,
+                        "to_aas": [
+                            "L"
                         ],
                         "to_nt": "C",
-                        "total": 5,
-                        "unique": 1
-                    },
-                    {
-                        "from_aa": "T",
-                        "from_nt": "A",
-                        "intermediate_aa": "A",
-                        "pos": 243,
-                        "to_aas": [
-                            "A"
-                        ],
-                        "to_nt": "G",
-                        "total": 5,
+                        "total": 4,
                         "unique": 1
                     }
                 ],
                 "nonconservative": [
                     {
+                        "from_aa": "Q",
+                        "from_nt": "A",
+                        "intermediate_aa": "L",
+                        "pos": 130,
+                        "to_aas": [
+                            "L"
+                        ],
+                        "to_nt": "T",
+                        "total": 4,
+                        "unique": 1
+                    },
+                    {
+                        "from_aa": "A",
+                        "from_nt": "C",
+                        "intermediate_aa": "V",
+                        "pos": 133,
+                        "to_aas": [
+                            "V"
+                        ],
+                        "to_nt": "T",
+                        "total": 4,
+                        "unique": 1
+                    },
+                    {
+                        "from_aa": "A",
+                        "from_nt": "C",
+                        "intermediate_aa": "V",
+                        "pos": 259,
+                        "to_aas": [
+                            "I"
+                        ],
+                        "to_nt": "T",
+                        "total": 4,
+                        "unique": 1
+                    },
+                    {
                         "from_aa": "S",
                         "from_nt": "G",
                         "intermediate_aa": "N",
-                        "pos": 106,
+                        "pos": 277,
                         "to_aas": [
-                            "D"
+                            "N"
                         ],
                         "to_nt": "A",
-                        "total": 5,
+                        "total": 4,
                         "unique": 1
                     }
                 ],
                 "synonymous": [
                     {
-                        "from_aa": "E",
+                        "from_aa": "V",
                         "from_nt": "G",
-                        "intermediate_aa": "E",
-                        "pos": 32,
+                        "intermediate_aa": "V",
+                        "pos": 35,
                         "to_aas": [
-                            "E"
+                            "V"
                         ],
-                        "to_nt": "A",
-                        "total": 5,
+                        "to_nt": "T",
+                        "total": 4,
                         "unique": 1
                     },
                     {
-                        "from_aa": "T",
-                        "from_nt": "C",
-                        "intermediate_aa": "T",
-                        "pos": 104,
+                        "from_aa": "G",
+                        "from_nt": "T",
+                        "intermediate_aa": "G",
+                        "pos": 188,
                         "to_aas": [
-                            "T"
+                            "G"
                         ],
-                        "to_nt": "T",
-                        "total": 5,
+                        "to_nt": "C",
+                        "total": 4,
                         "unique": 1
                     },
                     {
                         "from_aa": "S",
                         "from_nt": "C",
                         "intermediate_aa": "S",
-                        "pos": 119,
+                        "pos": 254,
                         "to_aas": [
                             "S"
                         ],
                         "to_nt": "T",
-                        "total": 5,
+                        "total": 4,
+                        "unique": 1
+                    },
+                    {
+                        "from_aa": "A",
+                        "from_nt": "C",
+                        "intermediate_aa": "A",
+                        "pos": 260,
+                        "to_aas": [
+                            "I"
+                        ],
+                        "to_nt": "T",
+                        "total": 4,
                         "unique": 1
                     },
                     {
                         "from_aa": "R",
                         "from_nt": "A",
                         "intermediate_aa": "R",
-                        "pos": 128,
+                        "pos": 284,
                         "to_aas": [
                             "R"
                         ],
-                        "to_nt": "C",
-                        "total": 5,
-                        "unique": 1
-                    },
-                    {
-                        "from_aa": "G",
-                        "from_nt": "G",
-                        "intermediate_aa": "G",
-                        "pos": 146,
-                        "to_aas": [
-                            "G"
-                        ],
-                        "to_nt": "A",
-                        "total": 5,
+                        "to_nt": "G",
+                        "total": 4,
                         "unique": 1
                     },
                     {
@@ -225,10 +306,34 @@
                         "intermediate_aa": "V",
                         "pos": 302,
                         "to_aas": [
-                            "V"
+                            "F"
                         ],
-                        "to_nt": "A",
-                        "total": 5,
+                        "to_nt": "T",
+                        "total": 4,
+                        "unique": 1
+                    },
+                    {
+                        "from_aa": "T",
+                        "from_nt": "A",
+                        "intermediate_aa": "T",
+                        "pos": 365,
+                        "to_aas": [
+                            "T"
+                        ],
+                        "to_nt": "C",
+                        "total": 4,
+                        "unique": 1
+                    },
+                    {
+                        "from_aa": "S",
+                        "from_nt": "T",
+                        "intermediate_aa": "S",
+                        "pos": 380,
+                        "to_aas": [
+                            "S"
+                        ],
+                        "to_nt": "C",
+                        "total": 4,
                         "unique": 1
                     }
                 ]
@@ -237,68 +342,24 @@
         "CDR1": {
             "counts": {
                 "total": {
-                    "conservative": 2,
-                    "nonconservative": 1,
-                    "synonymous": 1
+                    "conservative": 1
                 },
                 "unique": {
-                    "conservative": 2,
-                    "nonconservative": 1,
-                    "synonymous": 1
+                    "conservative": 1
                 }
             },
             "mutations": {
                 "conservative": [
                     {
-                        "from_aa": "T",
-                        "from_nt": "C",
-                        "intermediate_aa": "S",
-                        "pos": 85,
+                        "from_aa": "Y",
+                        "from_nt": "T",
+                        "intermediate_aa": "H",
+                        "pos": 108,
                         "to_aas": [
-                            "S"
+                            "H"
                         ],
-                        "to_nt": "G",
-                        "total": 5,
-                        "unique": 1
-                    },
-                    {
-                        "from_aa": "S",
-                        "from_nt": "A",
-                        "intermediate_aa": "G",
-                        "pos": 105,
-                        "to_aas": [
-                            "D"
-                        ],
-                        "to_nt": "G",
-                        "total": 5,
-                        "unique": 1
-                    }
-                ],
-                "nonconservative": [
-                    {
-                        "from_aa": "S",
-                        "from_nt": "G",
-                        "intermediate_aa": "N",
-                        "pos": 106,
-                        "to_aas": [
-                            "D"
-                        ],
-                        "to_nt": "A",
-                        "total": 5,
-                        "unique": 1
-                    }
-                ],
-                "synonymous": [
-                    {
-                        "from_aa": "T",
-                        "from_nt": "C",
-                        "intermediate_aa": "T",
-                        "pos": 104,
-                        "to_aas": [
-                            "T"
-                        ],
-                        "to_nt": "T",
-                        "total": 5,
+                        "to_nt": "C",
+                        "total": 4,
                         "unique": 1
                     }
                 ]
@@ -307,10 +368,12 @@
         "CDR2": {
             "counts": {
                 "total": {
-                    "conservative": 2
+                    "conservative": 1,
+                    "synonymous": 1
                 },
                 "unique": {
-                    "conservative": 2
+                    "conservative": 1,
+                    "synonymous": 1
                 }
             },
             "mutations": {
@@ -318,25 +381,27 @@
                     {
                         "from_aa": "A",
                         "from_nt": "G",
-                        "intermediate_aa": "T",
+                        "intermediate_aa": "P",
                         "pos": 171,
                         "to_aas": [
-                            "T"
+                            "P"
                         ],
-                        "to_nt": "A",
-                        "total": 5,
+                        "to_nt": "C",
+                        "total": 4,
                         "unique": 1
-                    },
+                    }
+                ],
+                "synonymous": [
                     {
-                        "from_aa": "N",
-                        "from_nt": "A",
-                        "intermediate_aa": "D",
-                        "pos": 189,
+                        "from_aa": "G",
+                        "from_nt": "T",
+                        "intermediate_aa": "G",
+                        "pos": 188,
                         "to_aas": [
-                            "D"
+                            "G"
                         ],
-                        "to_nt": "G",
-                        "total": 5,
+                        "to_nt": "C",
+                        "total": 4,
                         "unique": 1
                     }
                 ]
@@ -356,119 +421,15 @@
             "mutations": {
                 "conservative": [
                     {
-                        "from_aa": "L",
-                        "from_nt": "C",
-                        "intermediate_aa": "V",
-                        "pos": 9,
-                        "to_aas": [
-                            "V"
-                        ],
-                        "to_nt": "G",
-                        "total": 5,
-                        "unique": 1
-                    }
-                ],
-                "synonymous": [
-                    {
-                        "from_aa": "E",
-                        "from_nt": "G",
-                        "intermediate_aa": "E",
-                        "pos": 32,
-                        "to_aas": [
-                            "E"
-                        ],
-                        "to_nt": "A",
-                        "total": 5,
-                        "unique": 1
-                    }
-                ]
-            }
-        },
-        "FW2": {
-            "counts": {
-                "total": {
-                    "synonymous": 3
-                },
-                "unique": {
-                    "synonymous": 3
-                }
-            },
-            "mutations": {
-                "synonymous": [
-                    {
-                        "from_aa": "S",
-                        "from_nt": "C",
-                        "intermediate_aa": "S",
-                        "pos": 119,
-                        "to_aas": [
-                            "S"
-                        ],
-                        "to_nt": "T",
-                        "total": 5,
-                        "unique": 1
-                    },
-                    {
-                        "from_aa": "R",
-                        "from_nt": "A",
-                        "intermediate_aa": "R",
-                        "pos": 128,
-                        "to_aas": [
-                            "R"
-                        ],
-                        "to_nt": "C",
-                        "total": 5,
-                        "unique": 1
-                    },
-                    {
-                        "from_aa": "G",
-                        "from_nt": "G",
-                        "intermediate_aa": "G",
-                        "pos": 146,
-                        "to_aas": [
-                            "G"
-                        ],
-                        "to_nt": "A",
-                        "total": 5,
-                        "unique": 1
-                    }
-                ]
-            }
-        },
-        "FW3": {
-            "counts": {
-                "total": {
-                    "conservative": 2,
-                    "synonymous": 1
-                },
-                "unique": {
-                    "conservative": 2,
-                    "synonymous": 1
-                }
-            },
-            "mutations": {
-                "conservative": [
-                    {
                         "from_aa": "K",
-                        "from_nt": "G",
-                        "intermediate_aa": "N",
-                        "pos": 209,
+                        "from_nt": "A",
+                        "intermediate_aa": "Q",
+                        "pos": 39,
                         "to_aas": [
-                            "N"
+                            "Q"
                         ],
                         "to_nt": "C",
-                        "total": 5,
-                        "unique": 1
-                    },
-                    {
-                        "from_aa": "T",
-                        "from_nt": "A",
-                        "intermediate_aa": "A",
-                        "pos": 243,
-                        "to_aas": [
-                            "A"
-                        ],
-                        "to_nt": "G",
-                        "total": 5,
+                        "total": 4,
                         "unique": 1
                     }
                 ],
@@ -477,12 +438,258 @@
                         "from_aa": "V",
                         "from_nt": "G",
                         "intermediate_aa": "V",
-                        "pos": 302,
+                        "pos": 35,
                         "to_aas": [
                             "V"
                         ],
+                        "to_nt": "T",
+                        "total": 4,
+                        "unique": 1
+                    }
+                ]
+            }
+        },
+        "FW2": {
+            "counts": {
+                "total": {
+                    "nonconservative": 2
+                },
+                "unique": {
+                    "nonconservative": 2
+                }
+            },
+            "mutations": {
+                "nonconservative": [
+                    {
+                        "from_aa": "Q",
+                        "from_nt": "A",
+                        "intermediate_aa": "L",
+                        "pos": 130,
+                        "to_aas": [
+                            "L"
+                        ],
+                        "to_nt": "T",
+                        "total": 4,
+                        "unique": 1
+                    },
+                    {
+                        "from_aa": "A",
+                        "from_nt": "C",
+                        "intermediate_aa": "V",
+                        "pos": 133,
+                        "to_aas": [
+                            "V"
+                        ],
+                        "to_nt": "T",
+                        "total": 4,
+                        "unique": 1
+                    }
+                ]
+            }
+        },
+        "FW3": {
+            "counts": {
+                "total": {
+                    "conservative": 5,
+                    "nonconservative": 2,
+                    "synonymous": 4
+                },
+                "unique": {
+                    "conservative": 5,
+                    "nonconservative": 2,
+                    "synonymous": 4
+                }
+            },
+            "mutations": {
+                "conservative": [
+                    {
+                        "from_aa": "L",
+                        "from_nt": "C",
+                        "intermediate_aa": "V",
+                        "pos": 210,
+                        "to_aas": [
+                            "V"
+                        ],
+                        "to_nt": "G",
+                        "total": 4,
+                        "unique": 1
+                    },
+                    {
+                        "from_aa": "T",
+                        "from_nt": "A",
+                        "intermediate_aa": "S",
+                        "pos": 228,
+                        "to_aas": [
+                            "S"
+                        ],
+                        "to_nt": "T",
+                        "total": 4,
+                        "unique": 1
+                    },
+                    {
+                        "from_aa": "T",
+                        "from_nt": "A",
+                        "intermediate_aa": "S",
+                        "pos": 237,
+                        "to_aas": [
+                            "S"
+                        ],
+                        "to_nt": "T",
+                        "total": 4,
+                        "unique": 1
+                    },
+                    {
+                        "from_aa": "A",
+                        "from_nt": "G",
+                        "intermediate_aa": "T",
+                        "pos": 258,
+                        "to_aas": [
+                            "I"
+                        ],
                         "to_nt": "A",
-                        "total": 5,
+                        "total": 4,
+                        "unique": 1
+                    },
+                    {
+                        "from_aa": "V",
+                        "from_nt": "G",
+                        "intermediate_aa": "L",
+                        "pos": 300,
+                        "to_aas": [
+                            "F"
+                        ],
+                        "to_nt": "T",
+                        "total": 4,
+                        "unique": 1
+                    }
+                ],
+                "nonconservative": [
+                    {
+                        "from_aa": "A",
+                        "from_nt": "C",
+                        "intermediate_aa": "V",
+                        "pos": 259,
+                        "to_aas": [
+                            "I"
+                        ],
+                        "to_nt": "T",
+                        "total": 4,
+                        "unique": 1
+                    },
+                    {
+                        "from_aa": "S",
+                        "from_nt": "G",
+                        "intermediate_aa": "N",
+                        "pos": 277,
+                        "to_aas": [
+                            "N"
+                        ],
+                        "to_nt": "A",
+                        "total": 4,
+                        "unique": 1
+                    }
+                ],
+                "synonymous": [
+                    {
+                        "from_aa": "S",
+                        "from_nt": "C",
+                        "intermediate_aa": "S",
+                        "pos": 254,
+                        "to_aas": [
+                            "S"
+                        ],
+                        "to_nt": "T",
+                        "total": 4,
+                        "unique": 1
+                    },
+                    {
+                        "from_aa": "A",
+                        "from_nt": "C",
+                        "intermediate_aa": "A",
+                        "pos": 260,
+                        "to_aas": [
+                            "I"
+                        ],
+                        "to_nt": "T",
+                        "total": 4,
+                        "unique": 1
+                    },
+                    {
+                        "from_aa": "R",
+                        "from_nt": "A",
+                        "intermediate_aa": "R",
+                        "pos": 284,
+                        "to_aas": [
+                            "R"
+                        ],
+                        "to_nt": "G",
+                        "total": 4,
+                        "unique": 1
+                    },
+                    {
+                        "from_aa": "V",
+                        "from_nt": "G",
+                        "intermediate_aa": "V",
+                        "pos": 302,
+                        "to_aas": [
+                            "F"
+                        ],
+                        "to_nt": "T",
+                        "total": 4,
+                        "unique": 1
+                    }
+                ]
+            }
+        },
+        "FW4": {
+            "counts": {
+                "total": {
+                    "conservative": 1,
+                    "synonymous": 2
+                },
+                "unique": {
+                    "conservative": 1,
+                    "synonymous": 2
+                }
+            },
+            "mutations": {
+                "conservative": [
+                    {
+                        "from_aa": "M",
+                        "from_nt": "A",
+                        "intermediate_aa": "L",
+                        "pos": 366,
+                        "to_aas": [
+                            "L"
+                        ],
+                        "to_nt": "C",
+                        "total": 4,
+                        "unique": 1
+                    }
+                ],
+                "synonymous": [
+                    {
+                        "from_aa": "T",
+                        "from_nt": "A",
+                        "intermediate_aa": "T",
+                        "pos": 365,
+                        "to_aas": [
+                            "T"
+                        ],
+                        "to_nt": "C",
+                        "total": 4,
+                        "unique": 1
+                    },
+                    {
+                        "from_aa": "S",
+                        "from_nt": "T",
+                        "intermediate_aa": "S",
+                        "pos": 380,
+                        "to_aas": [
+                            "S"
+                        ],
+                        "to_nt": "C",
+                        "total": 4,
                         "unique": 1
                     }
                 ]

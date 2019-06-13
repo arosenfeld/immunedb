@@ -51,11 +51,11 @@ class GeneName(object):
 class GeneTies(dict):
     TIES_PROB_THRESHOLD = 0.01
 
-    def __init__(self, genes, remove_gaps=True, no_ties=False):
+    def __init__(self, genes, remove_gaps=True, ties=False):
         self.ties = {}
         self.hypers = {}
         self.remove_gaps = remove_gaps
-        self.no_ties = no_ties
+        self.ties = ties
 
         self.update(genes)
 
@@ -84,7 +84,7 @@ class GeneTies(dict):
 
     def get_single_tie(self, gene, length, mutation):
         # Used to disable gene ties for genotyping
-        if self.no_ties:
+        if not self.ties:
             return set([gene])
         length = int(length)
         mutation = round(mutation, 3)
@@ -332,7 +332,7 @@ class JGermlines(GeneTies):
 
     def get_single_tie(self, gene, length, mutation):
         # Used to disable gene ties for genotyping
-        if self.no_ties:
+        if not self.ties:
             return set([gene])
         seq = self[gene][-self.anchor_len:]
         tied = self.all_alleles(set([gene]))

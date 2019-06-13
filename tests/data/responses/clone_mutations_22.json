@@ -28,7 +28,7 @@
             "synonymous": 1
         },
         "231": {
-            "unknown": 1
+            "conservative": 1
         },
         "253": {
             "nonconservative": 1
@@ -68,16 +68,14 @@
         "ALL": {
             "counts": {
                 "total": {
-                    "conservative": 11,
+                    "conservative": 12,
                     "nonconservative": 4,
-                    "synonymous": 5,
-                    "unknown": 1
+                    "synonymous": 5
                 },
                 "unique": {
-                    "conservative": 11,
+                    "conservative": 12,
                     "nonconservative": 4,
-                    "synonymous": 5,
-                    "unknown": 1
+                    "synonymous": 5
                 }
             },
             "mutations": {
@@ -175,6 +173,18 @@
                             "R"
                         ],
                         "to_nt": "G",
+                        "total": 4,
+                        "unique": 1
+                    },
+                    {
+                        "from_aa": "M",
+                        "from_nt": "A",
+                        "intermediate_aa": "L",
+                        "pos": 231,
+                        "to_aas": [
+                            "L"
+                        ],
+                        "to_nt": "T",
                         "total": 4,
                         "unique": 1
                     },
@@ -323,20 +333,6 @@
                             "Y"
                         ],
                         "to_nt": "C",
-                        "total": 4,
-                        "unique": 1
-                    }
-                ],
-                "unknown": [
-                    {
-                        "from_aa": null,
-                        "from_nt": "A",
-                        "intermediate_aa": null,
-                        "pos": 231,
-                        "to_aas": [
-                            "L"
-                        ],
-                        "to_nt": "T",
                         "total": 4,
                         "unique": 1
                     }
@@ -542,16 +538,14 @@
         "FW3": {
             "counts": {
                 "total": {
-                    "conservative": 4,
+                    "conservative": 5,
                     "nonconservative": 4,
-                    "synonymous": 1,
-                    "unknown": 1
+                    "synonymous": 1
                 },
                 "unique": {
-                    "conservative": 4,
+                    "conservative": 5,
                     "nonconservative": 4,
-                    "synonymous": 1,
-                    "unknown": 1
+                    "synonymous": 1
                 }
             },
             "mutations": {
@@ -565,6 +559,18 @@
                             "R"
                         ],
                         "to_nt": "G",
+                        "total": 4,
+                        "unique": 1
+                    },
+                    {
+                        "from_aa": "M",
+                        "from_nt": "A",
+                        "intermediate_aa": "L",
+                        "pos": 231,
+                        "to_aas": [
+                            "L"
+                        ],
+                        "to_nt": "T",
                         "total": 4,
                         "unique": 1
                     },
@@ -665,20 +671,6 @@
                             "Y"
                         ],
                         "to_nt": "C",
-                        "total": 4,
-                        "unique": 1
-                    }
-                ],
-                "unknown": [
-                    {
-                        "from_aa": null,
-                        "from_nt": "A",
-                        "intermediate_aa": null,
-                        "pos": 231,
-                        "to_aas": [
-                            "L"
-                        ],
-                        "to_nt": "T",
                         "total": 4,
                         "unique": 1
                     }

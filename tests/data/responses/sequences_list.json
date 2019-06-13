@@ -7,7 +7,7 @@
         "functional": true,
         "in_frame": true,
         "instances_in_subject": 1,
-        "j_gene": "IGHJ1|4|5",
+        "j_gene": "IGHJ5",
         "j_length": 50,
         "j_match": 46,
         "partial": false,
@@ -44,7 +44,7 @@
         "functional": false,
         "in_frame": true,
         "instances_in_subject": 1,
-        "j_gene": "IGHJ1|4|5",
+        "j_gene": "IGHJ5",
         "j_length": 50,
         "j_match": 46,
         "partial": false,
@@ -74,43 +74,6 @@
         "v_match": 297
     },
     {
-        "cdr3_aa": "CARTQGRGYDRADFDYW",
-        "cdr3_num_nts": 51,
-        "copy_number": 1,
-        "copy_number_in_subject": 1,
-        "functional": true,
-        "in_frame": true,
-        "instances_in_subject": 1,
-        "j_gene": "IGHJ1|4|5",
-        "j_length": 47,
-        "j_match": 45,
-        "partial": false,
-        "probable_indel_or_misalign": false,
-        "sample": {
-            "id": 1,
-            "metadata": {
-                "date": "2015-09-13",
-                "experimenter": "Someone",
-                "lab": "The Lab",
-                "tissue": "Colon"
-            },
-            "name": "input",
-            "subject": {
-                "id": 1,
-                "identifier": "D123",
-                "study": {
-                    "id": 1,
-                    "name": "Test Study"
-                }
-            }
-        },
-        "seq_id": "M03592:18:000000000-AHJWK:1:1105:10375:17569",
-        "stop": false,
-        "v_gene": "IGHV4-31",
-        "v_length": 294,
-        "v_match": 282
-    },
-    {
         "cdr3_aa": "CARQMTAALGPDRIDPW",
         "cdr3_num_nts": 51,
         "copy_number": 1,
@@ -118,7 +81,7 @@
         "functional": true,
         "in_frame": true,
         "instances_in_subject": 1,
-        "j_gene": "IGHJ1|4|5",
+        "j_gene": "IGHJ5",
         "j_length": 50,
         "j_match": 46,
         "partial": false,
@@ -148,43 +111,6 @@
         "v_match": 299
     },
     {
-        "cdr3_aa": "CARTQGRGYDRADFDYW",
-        "cdr3_num_nts": 51,
-        "copy_number": 1,
-        "copy_number_in_subject": 1,
-        "functional": true,
-        "in_frame": true,
-        "instances_in_subject": 1,
-        "j_gene": "IGHJ1|4|5",
-        "j_length": 47,
-        "j_match": 45,
-        "partial": false,
-        "probable_indel_or_misalign": false,
-        "sample": {
-            "id": 1,
-            "metadata": {
-                "date": "2015-09-13",
-                "experimenter": "Someone",
-                "lab": "The Lab",
-                "tissue": "Colon"
-            },
-            "name": "input",
-            "subject": {
-                "id": 1,
-                "identifier": "D123",
-                "study": {
-                    "id": 1,
-                    "name": "Test Study"
-                }
-            }
-        },
-        "seq_id": "M03592:18:000000000-AHJWK:1:1104:18655:9971",
-        "stop": false,
-        "v_gene": "IGHV4-31",
-        "v_length": 294,
-        "v_match": 284
-    },
-    {
         "cdr3_aa": "CARQMTTALGPDRIDPW",
         "cdr3_num_nts": 51,
         "copy_number": 1,
@@ -192,7 +118,7 @@
         "functional": true,
         "in_frame": true,
         "instances_in_subject": 1,
-        "j_gene": "IGHJ1|4|5",
+        "j_gene": "IGHJ5",
         "j_length": 50,
         "j_match": 46,
         "partial": false,
@@ -222,43 +148,6 @@
         "v_match": 298
     },
     {
-        "cdr3_aa": "CARDTRSGTPGGTLDFW",
-        "cdr3_num_nts": 51,
-        "copy_number": 1,
-        "copy_number_in_subject": 1,
-        "functional": true,
-        "in_frame": true,
-        "instances_in_subject": 1,
-        "j_gene": "IGHJ1|4|5",
-        "j_length": 46,
-        "j_match": 40,
-        "partial": false,
-        "probable_indel_or_misalign": false,
-        "sample": {
-            "id": 1,
-            "metadata": {
-                "date": "2015-09-13",
-                "experimenter": "Someone",
-                "lab": "The Lab",
-                "tissue": "Colon"
-            },
-            "name": "input",
-            "subject": {
-                "id": 1,
-                "identifier": "D123",
-                "study": {
-                    "id": 1,
-                    "name": "Test Study"
-                }
-            }
-        },
-        "seq_id": "M03592:18:000000000-AHJWK:1:1102:26869:15153",
-        "stop": false,
-        "v_gene": "IGHV4-31",
-        "v_length": 299,
-        "v_match": 267
-    },
-    {
         "cdr3_aa": "CARQMTTALGPDRIDPW",
         "cdr3_num_nts": 51,
         "copy_number": 1,
@@ -266,7 +155,7 @@
         "functional": true,
         "in_frame": true,
         "instances_in_subject": 1,
-        "j_gene": "IGHJ1|4|5",
+        "j_gene": "IGHJ5",
         "j_length": 50,
         "j_match": 46,
         "partial": false,
@@ -303,7 +192,7 @@
         "functional": true,
         "in_frame": true,
         "instances_in_subject": 1,
-        "j_gene": "IGHJ1|4|5",
+        "j_gene": "IGHJ5",
         "j_length": 51,
         "j_match": 50,
         "partial": false,
@@ -328,9 +217,9 @@
         },
         "seq_id": "M03592:18:000000000-AHJWK:1:1105:28314:14287",
         "stop": false,
-        "v_gene": "IGHV1-69|1-69D",
+        "v_gene": "IGHV1-69",
         "v_length": 296,
-        "v_match": 271
+        "v_match": 270
     },
     {
         "cdr3_aa": "CARDPGNKGDYANWFDLW",
@@ -340,7 +229,7 @@
         "functional": true,
         "in_frame": true,
         "instances_in_subject": 1,
-        "j_gene": "IGHJ1|4|5",
+        "j_gene": "IGHJ5",
         "j_length": 51,
         "j_match": 49,
         "partial": false,
@@ -365,8 +254,119 @@
         },
         "seq_id": "M03592:18:000000000-AHJWK:1:1105:23917:22245",
         "stop": false,
-        "v_gene": "IGHV1-69|1-69D",
+        "v_gene": "IGHV1-69",
         "v_length": 296,
-        "v_match": 273
+        "v_match": 272
+    },
+    {
+        "cdr3_aa": "CARGRWEARRPFDYW",
+        "cdr3_num_nts": 45,
+        "copy_number": 2,
+        "copy_number_in_subject": 2,
+        "functional": true,
+        "in_frame": true,
+        "instances_in_subject": 1,
+        "j_gene": "IGHJ4",
+        "j_length": 46,
+        "j_match": 44,
+        "partial": false,
+        "probable_indel_or_misalign": false,
+        "sample": {
+            "id": 1,
+            "metadata": {
+                "date": "2015-09-13",
+                "experimenter": "Someone",
+                "lab": "The Lab",
+                "tissue": "Colon"
+            },
+            "name": "input",
+            "subject": {
+                "id": 1,
+                "identifier": "D123",
+                "study": {
+                    "id": 1,
+                    "name": "Test Study"
+                }
+            }
+        },
+        "seq_id": "M03592:18:000000000-AHJWK:1:1106:23712:20506",
+        "stop": false,
+        "v_gene": "IGHV4-34",
+        "v_length": 293,
+        "v_match": 293
+    },
+    {
+        "cdr3_aa": "CGRAGSGWYDGIDFW",
+        "cdr3_num_nts": 45,
+        "copy_number": 1,
+        "copy_number_in_subject": 1,
+        "functional": true,
+        "in_frame": true,
+        "instances_in_subject": 1,
+        "j_gene": "IGHJ4",
+        "j_length": 44,
+        "j_match": 41,
+        "partial": false,
+        "probable_indel_or_misalign": false,
+        "sample": {
+            "id": 1,
+            "metadata": {
+                "date": "2015-09-13",
+                "experimenter": "Someone",
+                "lab": "The Lab",
+                "tissue": "Colon"
+            },
+            "name": "input",
+            "subject": {
+                "id": 1,
+                "identifier": "D123",
+                "study": {
+                    "id": 1,
+                    "name": "Test Study"
+                }
+            }
+        },
+        "seq_id": "M03592:18:000000000-AHJWK:1:1104:10959:21068",
+        "stop": false,
+        "v_gene": "IGHV4-34",
+        "v_length": 293,
+        "v_match": 278
+    },
+    {
+        "cdr3_aa": "CGRAGSGWYDGIDFW",
+        "cdr3_num_nts": 45,
+        "copy_number": 1,
+        "copy_number_in_subject": 1,
+        "functional": true,
+        "in_frame": true,
+        "instances_in_subject": 1,
+        "j_gene": "IGHJ4",
+        "j_length": 44,
+        "j_match": 41,
+        "partial": false,
+        "probable_indel_or_misalign": false,
+        "sample": {
+            "id": 1,
+            "metadata": {
+                "date": "2015-09-13",
+                "experimenter": "Someone",
+                "lab": "The Lab",
+                "tissue": "Colon"
+            },
+            "name": "input",
+            "subject": {
+                "id": 1,
+                "identifier": "D123",
+                "study": {
+                    "id": 1,
+                    "name": "Test Study"
+                }
+            }
+        },
+        "seq_id": "M03592:18:000000000-AHJWK:1:1102:20052:11826",
+        "stop": false,
+        "v_gene": "IGHV4-34",
+        "v_length": 293,
+        "v_match": 284
     }
 ]

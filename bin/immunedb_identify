@@ -58,9 +58,9 @@ if __name__ == '__main__':
                         default=IdentificationProps.defaults['genotyping'],
                         help='''Alters identification to process sequences for
                         genotyping with TIgGER''')
-    parser.add_argument('--no-ties', action='store_true',
-                        default=IdentificationProps.defaults['no_ties'],
-                        help='''If specified, V-ties will not be
+    parser.add_argument('--ties', action='store_true',
+                        default=IdentificationProps.defaults['ties'],
+                        help='''If specified, V-ties will be
                         calculated''')
 
     args = parser.parse_args()
@@ -69,6 +69,8 @@ if __name__ == '__main__':
     if args.max_padding and args.trim_to:
         if args.max_padding < args.trim_to:
             parser.error('--max-padding cannot be less than --trim-to')
+    if args.genotyping and args.ties:
+        parser.error('Cannot specify both --genotyping and --ties')
 
     session = config.init_db(args.db_config)
     run_identify(session, args)

@@ -33,7 +33,7 @@ class IdentificationProps(object):
         'max_insertions': 5,
         'max_deletions': 5,
         'genotyping': False,
-        'no_ties': False
+        'ties': False
     }
 
     def __init__(self, **kwargs):
@@ -384,11 +384,11 @@ def run_identify(session, args):
     mod_log.make_mod('identification', session=session, commit=True,
                      info=vars(args))
     # Load the germlines from files
-    v_germlines = VGermlines(args.v_germlines, no_ties=args.genotyping or
-                             args.no_ties)
+    v_germlines = VGermlines(args.v_germlines,
+                             ties=args.ties and not args.genotyping)
     j_germlines = JGermlines(args.j_germlines, args.upstream_of_cdr3,
                              args.anchor_len, args.min_anchor_len,
-                             no_ties=args.genotyping or args.no_ties)
+                             ties=args.ties and not args.genotyping)
 
     # If metadata is not specified, assume it is "metadata." in the
     # directory
