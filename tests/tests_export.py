@@ -53,7 +53,6 @@ class ExportTest(unittest.TestCase):
                         raise AssertionError('Invalid file {}:\n{}'.format(
                             name, '\n'.join(diff)))
 
-
     def test_sequences(self):
         for schema in ('changeo', 'airr'):
             print('checking {}'.format(schema))

@@ -74,6 +74,7 @@ class ApiTest(unittest.TestCase):
                 endpoints['_'.join(name)] = '/' + '/'.join(name)
 
         for check, endpoint in endpoints.items():
+            print(check, endpoint)
             self.check(check, endpoint)
 
         self.check('clones_filters1', '/clones/list', {

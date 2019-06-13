@@ -369,7 +369,7 @@ class ClusteringClonalWorker(ClonalWorker):
             # NOTE: .groupby() doesn't work here since self.assign_clones has
             # side effects
             consensus_needed = []
-            for clone in df.clone.unique():
+            for clone in sorted(df.clone.unique()):
                 new_id = self.assign_clones(df[df.clone == clone])
                 consensus_needed.append(new_id)
             generate_consensus(self.session, consensus_needed)

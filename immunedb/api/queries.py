@@ -176,7 +176,8 @@ def get_clones(session, filters, order_field, order_dir, subject_limit=None,
             CloneStats.clone_id == c.id,
             ~CloneStats.sample_id.is_(None)
         ).order_by(
-            desc(CloneStats.unique_cnt), desc(CloneStats.total_cnt)
+            desc(CloneStats.unique_cnt), desc(CloneStats.total_cnt),
+            desc(CloneStats.sample_id)
         )
         for stat in query:
             stats_comb.append({

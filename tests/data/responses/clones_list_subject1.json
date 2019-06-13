@@ -26,16 +26,16 @@
         "stats": [
             {
                 "sample": {
-                    "id": 1,
-                    "name": "input"
+                    "id": 2,
+                    "name": "input2"
                 },
                 "total_sequences": 2,
                 "unique_sequences": 1
             },
             {
                 "sample": {
-                    "id": 2,
-                    "name": "input2"
+                    "id": 1,
+                    "name": "input"
                 },
                 "total_sequences": 2,
                 "unique_sequences": 1
