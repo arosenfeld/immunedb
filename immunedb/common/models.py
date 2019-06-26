@@ -265,7 +265,8 @@ class Clone(Base):
     overall_instance_cnt = Column(Integer, index=True)  # Denormalized
     overall_total_cnt = Column(Integer, index=True)  # Denormalized
 
-    parent_id = Column(Integer, ForeignKey('clones.id'), index=True)
+    parent_id = Column(Integer, ForeignKey('clones.id', ondelete='SET NULL'),
+                       index=True)
 
     children = relationship('Clone')
     parent = relationship('Clone', remote_side=[id], back_populates='children')

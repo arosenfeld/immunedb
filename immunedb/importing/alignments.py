@@ -139,8 +139,11 @@ def aggregate_results(results, session, sample):
             )
             alignments.setdefault(key, []).append(alignment)
         elif result['status'] == 'noresult':
-            add_noresults_for_vdj(session, result['vdj'], sample,
-                                  result['reason'])
+            orig_id = result['vdj'].seq_id
+            for i in range(result['vdj'].copy_number):
+                result['vdj'].seq_id = '{}_{}'.format(orig_id, i)
+                add_noresults_for_vdj(session, result['vdj'], sample,
+                                      result['reason'])
     session.commit()
     return alignments
 
@@ -224,6 +227,10 @@ def preprocess_airr(reader):
         else:
             l['copy_number'] = copies
             seen[l['sequence_alignment']] = l
+    logger.info('Found {} total copies, {} unique'.format(
+        sum([s['copy_number'] for s in seen.values()]),
+        len(seen)
+    ))
     return sorted(seen.values(), key=lambda s: s['sequence_id'])
 
 
@@ -231,8 +238,10 @@ def parse_airr(line, v_germlines, j_germlines):
     seq = VDJSequence(
         seq_id=line['sequence_id'].replace('reversed|', ''),
         sequence=line['sequence_alignment'],
+        copy_number=line['copy_number']
     )
-    if not all([line['v_call'], line['j_call'], line['junction_aa']]):
+    if not all([line['sequence_id'], line['v_call'], line['j_call'],
+               line['junction_aa']]):
         raise AlignmentException(seq, 'Missing v_gene, j_gene, or junction_aa')
 
     seq.pad(int(line['v_germline_start']) - 1)

@@ -2,6 +2,8 @@ import json
 import os
 import unittest
 
+from sqlalchemy.sql import text
+
 import immunedb.common.config as config
 from immunedb.common.models import (Clone, CloneStats, NoResult, Sample,
                                     SampleMetadata, SampleStats,
@@ -189,40 +191,47 @@ class BaseTest(object):
             )
 
         def clones(self):
-            run_clones(
-                self.session,
-                NamespaceMimic(
-                    method='similarity',
-                    level='aa',
-                    similarity=.85,
-                    subject_ids=None,
-                    include_indels=False,
-                    exclude_partials=False,
-                    min_identity=0,
-                    min_copy=2,
-                    max_padding=None,
-                    regen=False,
-                    subclones=False,
-                    gene=None,
-                    reduce=True
+            for method in ('cluster', 'similarity'):
+                self.session.connection(mapper=Clone).execute(text('''
+                    DELETE FROM clones
+                '''))
+                self.session.connection(mapper=Clone).execute(text('''
+                    ALTER TABLE clones AUTO_INCREMENT=1
+                '''))
+                self.session.commit()
+                run_clones(
+                    self.session,
+                    NamespaceMimic(
+                        method=method,
+                        subject_ids=None,
+                        level='aa',
+                        similarity=.85,
+                        exclude_partials=False,
+                        min_copy=2,
+                        max_padding=None,
+                        skip_regen=False,
+                        gene=None,
+                        skip_reduce=False,
+                        skip_subclones=False,
+                    )
                 )
-            )
-            self.session.commit()
+                self.session.commit()
 
-            self.regression(
-                self.get_path('post_clones_clones.json'),
-                self.session.query(Clone),
-                'id',
-                ('id', 'functional', 'v_gene', 'j_gene', 'insertions',
-                 'deletions', 'cdr3_nt', 'cdr3_num_nts', 'cdr3_aa',
-                 'germline', 'parent'),
-            )
-            self.regression(
-                self.get_path('post_clones_assignment.json'),
-                self.session.query(Sequence),
-                'seq_id',
-                ('seq_id', 'clone_id'),
-            )
+                self.regression(
+                    self.get_path('post_clones_clones_{}.json'.format(method)),
+                    self.session.query(Clone),
+                    'id',
+                    ('id', 'functional', 'v_gene', 'j_gene', 'insertions',
+                     'deletions', 'cdr3_nt', 'cdr3_num_nts', 'cdr3_aa',
+                     'germline', 'parent_id'),
+                )
+                self.regression(
+                    self.get_path('post_clones_assignment_{}.json'.format(
+                        method)),
+                    self.session.query(Sequence),
+                    'seq_id',
+                    ('seq_id', 'clone_id'),
+                )
 
         def clone_stats(self):
             run_clone_stats(

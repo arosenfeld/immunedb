@@ -9,12 +9,9 @@ from scipy.spatial.distance import squareform
 from scipy.cluster.hierarchy import fcluster, linkage
 
 import dnautils
-from immunedb.common.models import (CDR3_OFFSET, Clone, Sequence,
-                                    SequenceCollapse, Subject)
+from immunedb.common.models import Clone, Sequence, SequenceCollapse, Subject
 import immunedb.common.modification_log as mod_log
 import immunedb.common.config as config
-from immunedb.trees import cut_tree, get_seq_pks, LineageWorker
-import immunedb.trees.clearcut as clearcut
 import immunedb.util.concurrent as concurrent
 import immunedb.util.funcs as funcs
 import immunedb.util.lookups as lookups
@@ -144,19 +141,10 @@ def can_subclone(sub_clone, parent_clone):
 class ClonalWorker(concurrent.Worker):
     defaults = {
         # common
-        'include_indels': False,
         'exclude_partials': False,
-        'min_identity': 0.0,
         'min_copy': 2,
         'max_padding': None,
-
-        # similarity
         'min_similarity': 0.85,
-
-        # lineage
-        'mut_cutoff': 4,
-        'min_mut_occurrence': 2,
-        'min_mut_samples': 1,
         'min_seq_instances': 1,
     }
 
@@ -187,16 +175,10 @@ class ClonalWorker(concurrent.Worker):
                 desc(SequenceCollapse.copy_number_in_subject),
                 Sequence.ai
             )
-        if self.min_identity > 0:
-            query = query.filter(
-                Sequence.v_match / Sequence.v_length >= self.min_identity
-            )
         if self.min_seq_instances > 1:
             query = query.filter(
                 SequenceCollapse.instances_in_subject >= self.min_seq_instances
             )
-        if not self.include_indels:
-            query = query.filter(Sequence.probable_indel_or_misalign == 0)
         if self.exclude_partials:
             query = query.filter(Sequence.partial == 0)
         if self.max_padding is not None:
@@ -213,57 +195,6 @@ class ClonalWorker(concurrent.Worker):
     def cleanup(self):
         self.session.commit()
         self.session.close()
-
-
-class LineageClonalWorker(ClonalWorker):
-    def run_bucket(self, bucket):
-        updates = []
-        consensus_needed = set([])
-
-        seqs = self.get_bucket_seqs(bucket, sort=False)
-        if seqs.count() > 0:
-            cdr3_start = CDR3_OFFSET
-            if bucket._insertions:
-                cdr3_start += sum(
-                    (i[1] for i in bucket._insertions)
-                )
-            germline = seqs[0].germline
-            germline = ''.join((
-                germline[:cdr3_start],
-                '-' * bucket.cdr3_num_nts,
-                germline[cdr3_start + bucket.cdr3_num_nts:]
-            ))
-            lineage = LineageWorker(
-                self.session,
-                clearcut.get_newick,
-                self.min_mut_copies,
-                self.min_mut_samples,
-                exclude_stops=False,
-                post_tree_hook=clearcut.minimize_tree
-            )
-            tree = lineage.get_tree(germline, seqs)
-
-            for subtree in cut_tree(tree, self.mut_cutoff):
-                new_clone = Clone(
-                      subject_id=bucket.subject_id,
-                      v_gene=bucket.v_gene,
-                      j_gene=bucket.j_gene,
-                      cdr3_num_nts=bucket.cdr3_num_nts,
-                      _insertions=bucket._insertions,
-                      _deletions=bucket._deletions
-                )
-                self.session.add(new_clone)
-                self.session.flush()
-                consensus_needed.add(new_clone.id)
-                updates.extend([{
-                    'sample_id': s[0],
-                    'ai': s[1],
-                    'clone_id': new_clone.id
-                } for s in get_seq_pks(subtree)])
-
-        if len(updates) > 0:
-            self.session.bulk_update_mappings(Sequence, updates)
-        generate_consensus(self.session, consensus_needed)
 
 
 class SimilarityClonalWorker(ClonalWorker):
@@ -443,7 +374,7 @@ def run_clones(session, args):
         subject_ids = args.subject_ids
     mod_log.make_mod('clones', session=session, commit=True, info=vars(args))
 
-    if args.regen:
+    if not args.skip_regen:
         logger.info('Deleting existing clones')
         session.query(Clone).filter(
             Clone.subject_id.in_(subject_ids)
@@ -476,7 +407,6 @@ def run_clones(session, args):
 
     methods = {
         'similarity': SimilarityClonalWorker,
-        'lineage': LineageClonalWorker,
         'cluster': ClusteringClonalWorker
     }
     for i in range(0, min(tasks.num_tasks(), args.nproc)):
@@ -486,12 +416,14 @@ def run_clones(session, args):
         tasks.add_worker(worker)
     tasks.start()
 
-    if args.reduce:
+    if not args.skip_reduce:
         collapse_identical(session, all_buckets)
+    else:
+        logger.info('Skipping reduce')
     push_clone_ids(session)
     session.commit()
 
-    if args.subclones:
+    if not args.skip_subclones:
         run_subclones(session, subject_ids, args)
     else:
         logger.info('Skipping subclones')

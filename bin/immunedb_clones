@@ -8,20 +8,18 @@ from immunedb.aggregation.clones import ClonalWorker, run_clones
 def add_defaults(parser):
     parser.add_argument('--subject-ids', nargs='+', type=int,
                         help='Limit generation to certain subjects')
-    parser.add_argument('--include-indels', action='store_true',
-                        default=ClonalWorker.defaults['include_indels'],
-                        help='''If specified, includes indels (or poorly
-                        aligned sequences) in clones.''')
+    parser.add_argument('--level', default='aa', choices=['aa', 'nt'], help='''
+        The level at which to compare similarity, either amino-acids or
+        nucleotides''')
+    parser.add_argument('--min-similarity', type=float, default=.85,
+                        help='''Minimum similarity allowed between sequence
+                        CDR3 within a clone''')
     parser.add_argument('--exclude-partials', action='store_true',
                         default=ClonalWorker.defaults['include_indels'],
                         help=''''If specified, excludes partial sequences
                         in clones.  Note partial sequences which were
                         collapse to a full sequence will always be
                         included.''')
-    parser.add_argument('--min-identity', type=float,
-                        default=ClonalWorker.defaults['min_identity'],
-                        help='''Minimum V identity of sequences to
-                        germline required for inclusion in clones.''')
     parser.add_argument('--min-copy', type=int,
                         default=ClonalWorker.defaults['min_copy'],
                         help='''The minimum copy number that sequences
@@ -31,21 +29,19 @@ def add_defaults(parser):
                         default=ClonalWorker.defaults['max_padding'],
                         help='''Maximum V-padding a sequence may have to
                         be added to a clone.''')
-    parser.add_argument('--regen', action='store_true',
+    parser.add_argument('--skip-regen', action='store_true',
                         help='''If specified all clones (limited by
-                        subject if --subject is specified) will be DELETED
-                        before creating new clones.  Associated sequences
-                        will be re-assigned new clones''')
+                        subject if --subject is specified) will be KEPT
+                        before creating new clones.''')
     parser.add_argument('--gene', default=None,
                         help='''If specified, only sequences of the given gene
                         type will be assigned clones.  Useful if you have
                         BCR and TCR sequences within a single subject.''')
-    parser.add_argument('--reduce', action='store_true', default=False,
+    parser.add_argument('--skip-reduce', action='store_true', default=False,
                         help='''If specified, clones with the same V, J, and
-                        CDR3 AA sequence will be further reduced into
+                        CDR3 AA sequence will NOT be further reduced into
                         clones''')
-
-    parser.add_argument('--subclones', action='store_true',
+    parser.add_argument('--skip-subclones', action='store_true',
                         help='''If specified, calculates subclone
                         relationships''')
 
@@ -61,12 +57,6 @@ if __name__ == '__main__':
         'similarity',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         help='''Constructs clones based on CDR3 amino-acid hamming distance''')
-    parser.add_argument('--level', default='aa', choices=['aa', 'nt'], help='''
-        The level at which to compare similarity, either amino-acids or
-        nucleotides''')
-    parser.add_argument('--min-similarity', type=float, default=.85,
-                        help='''Minimum similarity allowed between sequence
-                        CDR3 within a clone''')
     add_defaults(parser)
 
     # Clustering
@@ -74,38 +64,6 @@ if __name__ == '__main__':
         'cluster',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
         help='''Constructs clones based on hierarchical clustering''')
-    parser.add_argument('--level', default='aa', choices=['aa', 'nt'], help='''
-        The level at which to compare similarity, either amino-acids or
-        nucleotides''')
-    parser.add_argument('--min-similarity', type=float, default=.85,
-                        help='''Minimum similarity allowed between sequence
-                        CDR3 within a clone''')
-    add_defaults(parser)
-
-    # Lineage
-    parser = subparsers.add_parser(
-        'lineage',
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        help='''Constructs clones based on lineage trees''')
-    parser.add_argument('clearcut_path', help='Path to clearcut binary')
-    parser.add_argument('--mut-cuttoff', type=int,
-                        default=ClonalWorker.defaults['mut_cutoff'],
-                        help='''The number of mutations allowed along a path in
-                        the linage before the linage is split into two
-                        clones''')
-    parser.add_argument('--min-mut-occurrence', type=int,
-                        default=ClonalWorker.defaults['min_mut_occurrence'],
-                        help='''The minimum number of times a mutation must
-                        occur to be included in the lineage''')
-    parser.add_argument('--min-mut-samples', type=int,
-                        default=ClonalWorker.defaults['min_mut_samples'],
-                        help='''The minimum number of samples in which a
-                        mutation must occur to be incorporated into tree
-                        calculation''')
-    parser.add_argument('--min-seq-instances', type=int,
-                        default=ClonalWorker.defaults['min_seq_instances'],
-                        help='''The minimum number of instances a sequence must
-                        have to be incorporated into tree calculation''')
     add_defaults(parser)
 
     args = main_parser.parse_args()
