@@ -343,7 +343,7 @@ def import_alignments(session, args):
             metadata = parse_metadata(session, fh, args.warn_existing,
                                       args.warn_missing, args.sample_dir)
         except MetadataException as ex:
-            logger.error(ex.message)
+            logger.error(ex)
             return
 
     props = IdentificationProps(**args.__dict__)

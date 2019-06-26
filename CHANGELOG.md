@@ -1,11 +1,22 @@
 # CHANGELOG
-## v0.28.4
+## v0.29.0
+* `immunedb_import` for IgBLAST results in AIRR format has been greatly
+  improved both in performance and accuracy.
+* Short-read edge case for J-alignment now assigns proper gene.
+* `immunedb_identify` now requires the `--ties` flag to be specified to enable
+  V-tie calculations.  By default simply the highest-identity gene is assigned.
 * `immunedb_clone_trees` defaults to only include the V-gene in lineage
   construction.  To use full sequences, specify the `--full-seq` flag.
-* Various IgBLAST importing improvements.  Still considered in beta.
-* Short-read edge case for J-alignment now assigns proper gene.
 * A `--reduce` flag has been added to `immunedb_clones` which combines all
   clones from the same subject with the same V, J, and CDR3 AA sequence.
+* `immunedb_clones` now implements hierarchical clustering with the `cluster`
+  method.
+* The `lineage` method for `immunedb_clones` has been removed.
+* `immunedb_clones` now defaults to resetting existing clones.  To avoid this
+  behavior specify the `--skip-regen` flag.
+* `immunedb_clones` now automatically combines clones with the same V, J, and
+  CDR3 AA sequence.  To avoid this behavior specify the `--skip-reduce` flag.
+* `immunedb_clones` now defaults to assigning sub-clones.
 
 ## v0.28.3
 * Importing is now supported for only IgBLAST in AIRR format.
