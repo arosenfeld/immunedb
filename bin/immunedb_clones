@@ -15,7 +15,7 @@ def add_defaults(parser):
                         help='''Minimum similarity allowed between sequence
                         CDR3 within a clone''')
     parser.add_argument('--exclude-partials', action='store_true',
-                        default=ClonalWorker.defaults['include_indels'],
+                        default=ClonalWorker.defaults['exclude_partials'],
                         help=''''If specified, excludes partial sequences
                         in clones.  Note partial sequences which were
                         collapse to a full sequence will always be

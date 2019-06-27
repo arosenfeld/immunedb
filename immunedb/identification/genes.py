@@ -140,13 +140,14 @@ class VGermlines(GeneTies):
 
         with open(path_to_germlines) as fh:
             for record in SeqIO.parse(fh, 'fasta'):
-                if record.seq.startswith('-'):
+                seq = str(record.seq).replace('.', '-')
+                if seq.startswith('-'):
                     continue
                 try:
-                    v = VGene(str(record.seq))
+                    v = VGene(seq)
                     name = GeneName(record.id)
                     self.alignments[name] = v
-                    self[name] = str(record.seq)
+                    self[name] = seq
                     if (self._min_length is None or
                             self._min_length > len(v.sequence_ungapped)):
                         self._min_length = len(v.sequence_ungapped)

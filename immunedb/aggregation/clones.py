@@ -416,10 +416,10 @@ def run_clones(session, args):
         tasks.add_worker(worker)
     tasks.start()
 
-    if not args.skip_reduce:
-        collapse_identical(session, all_buckets)
-    else:
+    if args.skip_reduce:
         logger.info('Skipping reduce')
+    else:
+        collapse_identical(session, all_buckets)
     push_clone_ids(session)
     session.commit()
 

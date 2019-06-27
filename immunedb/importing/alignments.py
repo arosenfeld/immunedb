@@ -44,7 +44,8 @@ def raw_germlines(fn, gene):
 
     with open(fn) as fh:
         return CachedTies(gene, {
-            r.description: str(r.seq).upper() for r in SeqIO.parse(fh, 'fasta')
+            r.description: str(r.seq).upper().replace('.', '-')
+            for r in SeqIO.parse(fh, 'fasta')
         })
 
 
