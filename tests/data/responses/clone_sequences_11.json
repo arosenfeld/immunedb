@@ -3,6 +3,8 @@
         "cdr3_nt": "TGTGCGAGAAATACCGGAAACAGCCATGGTTTCTGGTCCTACTGG",
         "collapse_to": [],
         "copy_number_in_subject": 3,
+        "deletions": [],
+        "insertions": [],
         "instances_in_subject": 1,
         "j_length": 40,
         "mutations": {
