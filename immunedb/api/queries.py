@@ -277,6 +277,8 @@ def get_clone_sequences(session, clone_id, get_collapse, paging):
                 'name': seq.sample.name,
             },
             'cdr3_nt': seq.cdr3_nt,
+            'insertions': seq.insertions,
+            'deletions': seq.deletions,
             'sequence': seq.clone_sequence,
             'read_start': start_ptrn.match(seq.sequence).span()[1] or 0,
             'copy_number_in_subject': int(copy_number_in_subject),
