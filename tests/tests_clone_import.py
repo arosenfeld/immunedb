@@ -37,8 +37,9 @@ class TestCloneImport(BaseTest.BaseRegression):
             self.get_path('post_clone_import_clones.json'),
             self.session.query(Clone),
             'id',
-            ('id', 'functional', 'v_gene', 'j_gene', 'insertions',
-             'cdr3_nt', 'cdr3_num_nts', 'cdr3_aa', 'germline'),
+            ('id', 'functional', 'v_gene', 'j_gene', '_insertions',
+                '_deletions', 'cdr3_nt', 'cdr3_num_nts', 'cdr3_aa',
+                'germline'),
         )
         self.regression(
             self.get_path('post_clone_import_assignment.json'),

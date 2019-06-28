@@ -17,15 +17,15 @@ MAX_CDR3_NTS = 96
 MAX_CDR3_AAS = int(MAX_CDR3_NTS / 3)
 MAX_SEQ_LEN = 512
 MAX_GENE_LEN = 64
-MAX_INDEL_LEN = 64
+MAX_INDEL_LEN = 256
 CDR3_OFFSET = 309
 
 
 def deserialize_gaps(gaps):
     if gaps is None:
-        return []
+        return tuple()
     return [
-        [int(p) for p in g.split('-')]
+        tuple(int(p) for p in g.split('-'))
         for g in gaps.split(',')
     ]
 
@@ -294,20 +294,20 @@ class Clone(Base):
     @property
     def regions(self):
         """Returns the IMGT region boundaries for the clone"""
-        regions = funcs.get_regions(self.insertions)
+        regions = funcs.get_regions()
         regions.append(self.cdr3_num_nts)
         regions.append(len(self.germline) - sum(regions))
         return regions
 
     @property
     def cdr3_start(self):
-        return sum(self.regions[:-2])
+        return CDR3_OFFSET
 
     @property
     def consensus_germline(self):
         """Returns the consensus germline for the clone"""
         return ''.join([
-            self.germline[0:self.cdr3_start],
+            self.germline[:self.cdr3_start],
             self.cdr3_nt,
             self.germline[self.cdr3_start + self.cdr3_num_nts:]
         ])
@@ -654,21 +654,24 @@ class Sequence(Base):
                              self.quality.replace(' ', ''))
 
     @property
-    def clone_sequence(self):
-        """Gets the sequence within the context of the associated clone by
-        adding insertions from other sequences to this one.
+    def cdr3_start(self):
+        return sum(funcs.get_regions(self.insertions)[:5])
 
-        """
-        seq = self.sequence
-        if self.clone is None:
-            return seq
-        for ins in sorted(self.clone.insertions):
-            if ins in self.insertions:
+    @property
+    def alignment_without_insertions(self):
+        new_germ = list(self.germline)
+        new_seq = list(self.sequence)
+
+        for pos, size in sorted(self.insertions, reverse=True):
+            if pos + size >= len(self.sequence):
                 continue
-            pos, size = ins
-            seq = seq[:pos] + ('-' * size) + seq[pos:]
+            new_germ = new_germ[:pos] + new_germ[pos + size:]
+            new_seq = new_seq[:pos] + new_seq[pos + size:]
+        return ''.join(new_germ), ''.join(new_seq)
 
-        return seq
+    @property
+    def clone_sequence(self):
+        return self.alignment_without_insertions[1]
 
     @property
     def regions(self):

@@ -160,7 +160,7 @@ class BaseTest(object):
                  'pre_cdr3_length', 'pre_cdr3_match', 'post_cdr3_length',
                  'post_cdr3_match', 'copy_number', 'cdr3_num_nts',
                  'cdr3_num_nts', 'cdr3_nt', 'cdr3_aa', 'sequence', 'quality',
-                 'germline', 'insertions', 'deletions')
+                 'germline', '_insertions', '_deletions')
             )
 
             self.regression(
@@ -221,8 +221,8 @@ class BaseTest(object):
                     self.get_path('post_clones_clones_{}.json'.format(method)),
                     self.session.query(Clone),
                     'id',
-                    ('id', 'functional', 'v_gene', 'j_gene', 'insertions',
-                     'deletions', 'cdr3_nt', 'cdr3_num_nts', 'cdr3_aa',
+                    ('id', 'functional', 'v_gene', 'j_gene', '_insertions',
+                     '_deletions', 'cdr3_nt', 'cdr3_num_nts', 'cdr3_aa',
                      'germline', 'parent_id'),
                 )
                 self.regression(

@@ -51,9 +51,9 @@ def consensus(strings):
     return ''.join(chrs)
 
 
-def get_regions(insertions):
+def get_regions(insertions=None):
     regions = [78, 36, 51, 30, 114]
-    if insertions is not None and len(insertions) > 0:
+    if insertions:
         for pos, size in insertions:
             offset = 0
             for i, region_start in enumerate(regions):

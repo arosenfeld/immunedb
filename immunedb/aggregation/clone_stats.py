@@ -29,7 +29,8 @@ class CloneStatsWorker(concurrent.Worker):
         """
 
         existing = self._session.query(CloneStats).filter(
-            CloneStats.clone_id == clone_id).first()
+            CloneStats.clone_id == clone_id,
+            ~CloneStats.sample_id.is_(None)).first()
 
         if existing is not None:
             return

@@ -9,7 +9,8 @@ from scipy.spatial.distance import squareform
 from scipy.cluster.hierarchy import fcluster, linkage
 
 import dnautils
-from immunedb.common.models import Clone, Sequence, SequenceCollapse, Subject
+from immunedb.common.models import (CDR3_OFFSET, Clone, Sequence,
+                                    SequenceCollapse, Subject)
 import immunedb.common.modification_log as mod_log
 import immunedb.common.config as config
 import immunedb.util.concurrent as concurrent
@@ -43,23 +44,22 @@ def generate_consensus(session, clone_ids):
 
         clone.germline = generate_germline(session, seqs, clone)
 
+        clone.functional = (
+            clone.cdr3_num_nts % 3 == 0 and
+            not lookups.has_stop(clone.germline)
+        )
+
     session.commit()
 
 
 def generate_germline(session, seqs, clone):
     rep_seq = seqs[0]
-    cdr3_start_pos = sum(rep_seq.regions[:5])
-    germline = rep_seq.germline[:cdr3_start_pos]
-    germline += '-' * clone.cdr3_num_nts
-    clone.functional = (
-        len(germline) % 3 == 0 and
-        not lookups.has_stop(germline)
-    )
-
-    j_region = rep_seq.germline[cdr3_start_pos + rep_seq.cdr3_num_nts:]
-    germline += j_region
-
-    return germline
+    germ = rep_seq.alignment_without_insertions[0]
+    return ''.join((
+        germ[:CDR3_OFFSET],
+        '-' * clone.cdr3_num_nts,
+        germ[CDR3_OFFSET + clone.cdr3_num_nts:]
+    ))
 
 
 def push_clone_ids(session):
@@ -84,8 +84,6 @@ def collapse_identical(session, buckets):
             Clone.v_gene == bucket.v_gene,
             Clone.j_gene == bucket.j_gene,
             Clone.cdr3_num_nts == bucket.cdr3_num_nts,
-            Clone._insertions == bucket._insertions,
-            Clone._deletions == bucket._deletions,
         )
         if clones.count() < 2:
             continue
@@ -165,8 +163,6 @@ class ClonalWorker(concurrent.Worker):
             Sequence.v_gene == bucket.v_gene,
             Sequence.j_gene == bucket.j_gene,
             Sequence.cdr3_num_nts == bucket.cdr3_num_nts,
-            Sequence._insertions == bucket._insertions,
-            Sequence._deletions == bucket._deletions,
 
             SequenceCollapse.copy_number_in_subject >= self.min_copy,
         )
@@ -221,9 +217,7 @@ class SimilarityClonalWorker(ClonalWorker):
                         new_clone = Clone(subject_id=seq.subject_id,
                                           v_gene=seq.v_gene,
                                           j_gene=seq.j_gene,
-                                          cdr3_num_nts=seq.cdr3_num_nts,
-                                          _insertions=seq._insertions,
-                                          _deletions=seq._deletions)
+                                          cdr3_num_nts=seq.cdr3_num_nts)
                         self.session.add(new_clone)
                         self.session.flush()
                         clones[new_clone.id] = [seq_to_add]
@@ -257,9 +251,7 @@ class ClusteringClonalWorker(ClonalWorker):
         new_clone = Clone(subject_id=int(seq.subject_id),
                           v_gene=seq.v_gene,
                           j_gene=seq.j_gene,
-                          cdr3_num_nts=int(seq.cdr3_num_nts),
-                          _insertions=seq._insertions,
-                          _deletions=seq._deletions)
+                          cdr3_num_nts=int(seq.cdr3_num_nts))
         self.session.add(new_clone)
         self.session.flush()
         to_update = [
@@ -283,8 +275,6 @@ class ClusteringClonalWorker(ClonalWorker):
                 'v_gene': s.v_gene,
                 'j_gene': s.j_gene,
                 'cdr3_num_nts': s.cdr3_num_nts,
-                '_insertions': s._insertions,
-                '_deletions': s._deletions,
 
                 'cdr3': getattr(s, 'cdr3_' + self.level).replace('X', '-'),
                 'current_clone_id': s.clone_id
@@ -388,15 +378,13 @@ def run_clones(session, args):
             subject_id))
         buckets = session.query(
             Sequence.subject_id, Sequence.v_gene, Sequence.j_gene,
-            Sequence.cdr3_num_nts, Sequence._insertions,
-            Sequence._deletions
+            Sequence.cdr3_num_nts
         ).filter(
             Sequence.subject_id == subject_id,
             Sequence.clone_id.is_(None)
         ).group_by(
             Sequence.subject_id, Sequence.v_gene, Sequence.j_gene,
-            Sequence.cdr3_num_nts, Sequence._insertions,
-            Sequence._deletions
+            Sequence.cdr3_num_nts
         )
         for bucket in buckets:
             if not args.gene or bucket.v_gene.startswith(args.gene):

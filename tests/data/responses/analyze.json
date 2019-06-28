@@ -2,8 +2,8 @@
     "counts": {
         "all": 2022,
         "clones_all": 239,
-        "clones_functional": 229,
-        "clones_nonfunctional": 10,
+        "clones_functional": 230,
+        "clones_nonfunctional": 9,
         "functional": 1869,
         "nonfunctional": 153,
         "unique": 998,

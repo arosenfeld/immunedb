@@ -2012,7 +2012,7 @@
     "202": {
         "avg_v_identity": 0.90645,
         "clone_id": 98,
-        "functional": false,
+        "functional": true,
         "sample_id": 2,
         "subject_id": 1,
         "top_copy_seq_ai": 877,
@@ -2022,7 +2022,7 @@
     "203": {
         "avg_v_identity": 0.90645,
         "clone_id": 98,
-        "functional": false,
+        "functional": true,
         "sample_id": null,
         "subject_id": 1,
         "top_copy_seq_ai": 877,
