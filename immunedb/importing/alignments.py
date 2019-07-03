@@ -8,7 +8,7 @@ import dnautils
 
 from immunedb.identification import (add_noresults_for_vdj, add_sequences,
                                      AlignmentException)
-from immunedb.identification.genes import GeneName
+from immunedb.identification.genes import GeneName, JGermlines
 from immunedb.identification.vdj_sequence import VDJAlignment, VDJSequence
 from immunedb.identification.metadata import (parse_metadata, REQUIRED_FIELDS,
                                               MetadataException)
@@ -128,7 +128,8 @@ def process_line(line, alignment_func, props, v_germlines, j_germlines):
 
 def aggregate_results(results, session, sample):
     alignments = {}
-    for result in results:
+    for cnt, result in funcs.periodic_commit(session, enumerate(results),
+                                             interval=1000):
         if result['status'] == 'success':
             alignment = result['alignment']
             key = (
@@ -145,13 +146,15 @@ def aggregate_results(results, session, sample):
                 result['vdj'].seq_id = '{}_{}'.format(orig_id, i)
                 add_noresults_for_vdj(session, result['vdj'], sample,
                                       result['reason'])
+            session.commit()
     session.commit()
     return alignments
 
 
 def add_results(uniques, sample, session):
     metrics = {'muts': [], 'lens': []}
-    for unique in itertools.chain(*uniques):
+    for unique in funcs.periodic_commit(session, itertools.chain(*uniques),
+                                        interval=1000):
         try:
             add_sequences(session, [unique], sample)
             metrics['lens'].append(unique.v_length)
@@ -242,7 +245,7 @@ def parse_airr(line, v_germlines, j_germlines):
         copy_number=line['copy_number']
     )
     if not all([line['sequence_id'], line['v_call'], line['j_call'],
-               line['junction_aa']]):
+                line['junction_aa']]):
         raise AlignmentException(seq, 'Missing v_gene, j_gene, or junction_aa')
 
     seq.pad(int(line['v_germline_start']) - 1)
@@ -261,6 +264,8 @@ def parse_airr(line, v_germlines, j_germlines):
     # Append the missing portion, if any, of the J to the germline
     j_germ_seq = j_germlines.get_ties(line['j_call'].split(','))
     append_j = len(j_germ_seq) - int(line['j_germline_end'])
+    if append_j > JGermlines.defaults['upstream_of_cdr3']:
+        raise AlignmentException(seq, 'No sequencing data past the CDR3')
     if append_j > 0:
         aligned_germ += j_germ_seq[-append_j:]
         seq.pad_right(append_j)
@@ -280,9 +285,13 @@ def parse_airr(line, v_germlines, j_germlines):
     # length
     junction_insertions = aligned_germ[cdr3_end - 3:cdr3_end].count('-')
     cdr3_end += junction_insertions
+
+    junction_insertions = aligned_germ[cdr3_start:cdr3_start + 3].count('-')
+    cdr3_start -= junction_insertions
     cdr3_seq = aligned_seq.sequence[cdr3_start:cdr3_end]
 
     germline_cdr3 = aligned_germ[cdr3_start:cdr3_end]
+
     aligned_germ = ''.join([
         aligned_germ[:cdr3_start],
         '.' * (cdr3_end - cdr3_start),

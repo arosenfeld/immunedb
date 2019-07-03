@@ -7,8 +7,6 @@
   V-tie calculations.  By default simply the highest-identity gene is assigned.
 * `immunedb_clone_trees` defaults to only include the V-gene in lineage
   construction.  To use full sequences, specify the `--full-seq` flag.
-* A `--reduce` flag has been added to `immunedb_clones` which combines all
-  clones from the same subject with the same V, J, and CDR3 AA sequence.
 * `immunedb_clones` now implements hierarchical clustering with the `cluster`
   method.
 * The `lineage` method for `immunedb_clones` has been removed.

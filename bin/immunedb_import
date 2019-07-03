@@ -44,17 +44,6 @@ def add_defaults(parser):
                         exist in the base_dir''')
 
 
-def add_anchors(parser):
-    parser.add_argument('--upstream-of-cdr3', type=int,
-                        default=JGermlines.defaults['upstream_of_cdr3'],
-                        help='''The number of nucleotides in the J germlines
-                        upstream of the CDR3''')
-    parser.add_argument('--anchor-len', type=int,
-                        default=JGermlines.defaults['anchor_len'],
-                        help='''The number of nucleotides at the end of the J
-                        germlines to use as anchors.''')
-
-
 if __name__ == '__main__':
     main_parser = config.get_base_arg_parser('Imports V/J identifications')
     subparsers = main_parser.add_subparsers(
@@ -63,6 +52,7 @@ if __name__ == '__main__':
     )
 
     parser = subparsers.add_parser('airr')
+    subparsers.required = True
     add_defaults(parser)
 
     args = main_parser.parse_args()

@@ -11,10 +11,10 @@ ImmuneDB |travisci| |docs| |codecov| |pypi| |docker|
 .. |docs| image:: https://readthedocs.org/projects/immunedb/badge/?version=latest
    :target: https://immunedb.readthedocs.io/en/latest/?badge=latest
 
-**ImmuneDB** is a system to facilitate efficient storage and analysis
-of high-throughput B- and T-cell sequence data.  It provides V- and J-gene
-identification, clonal assignment, lineage construction, selection pressure
-calculation, and thorough exporting functionality.
+**ImmuneDB** is a system to efficiently storage and analyze high-throughput B-
+and T-cell sequencing data.  It provides V- and J-gene identification, clonal
+assignment, lineage construction, selection pressure calculation, and thorough
+exporting functionality.
 
 It also provides an intuitive and useful web interface a demo of which you can
 see `here <http://immunedb.com/demo>`_.
