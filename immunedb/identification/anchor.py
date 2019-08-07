@@ -265,3 +265,5 @@ class AnchorAligner(object):
         elif len(alignment.sequence) < len(alignment.germline):
             alignment.sequence.pad_right(len(alignment.germline) -
                                          len(alignment.sequence))
+        if len(alignment.cdr3) != alignment.cdr3_num_nts:
+            raise AlignmentException('Invalid CDR3 length')
