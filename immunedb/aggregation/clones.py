@@ -366,9 +366,12 @@ def run_clones(session, args):
 
     if not args.skip_regen:
         logger.info('Deleting existing clones')
-        session.query(Clone).filter(
+        q = session.query(Clone).filter(
             Clone.subject_id.in_(subject_ids)
-        ).delete(synchronize_session=False)
+        )
+        if args.gene:
+            q = q.filter(Clone.v_gene.like(args.gene + '%'))
+        q.delete(synchronize_session=False)
         session.commit()
 
     tasks = concurrent.TaskQueue()

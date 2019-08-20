@@ -288,18 +288,20 @@ def parse_airr(line, v_germlines, j_germlines):
 
     junction_insertions = aligned_germ[cdr3_start:cdr3_start + 3].count('-')
     cdr3_start -= junction_insertions
+
     cdr3_seq = aligned_seq.sequence[cdr3_start:cdr3_end]
+    cdr3_deletions = cdr3_seq.count('-')
 
     germline_cdr3 = aligned_germ[cdr3_start:cdr3_end]
 
     aligned_germ = ''.join([
         aligned_germ[:cdr3_start],
         '.' * (cdr3_end - cdr3_start),
-        aligned_germ[cdr3_end:]
+        aligned_germ[cdr3_end + cdr3_deletions:]
     ])
     aligned_seq = ''.join([
         aligned_seq.sequence[:cdr3_start],
-        cdr3_seq,
+        cdr3_seq.replace('-', ''),
         aligned_seq.sequence[cdr3_end:]
     ])
 
