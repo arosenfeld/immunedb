@@ -86,6 +86,11 @@ class VDJSequence(object):
         if self._quality:
             self._quality = self._quality[:pos] + ' ' + self._quality[pos:]
 
+    def remove(self, pos):
+        self._sequence = self._sequence[:pos] + self._sequence[pos + 1:]
+        if self._quality:
+            self._quality = self._quality[:pos] + self._quality[pos + 1:]
+
     def rfind(self, seq):
         return self._sequence.rfind(seq)
 

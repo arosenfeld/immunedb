@@ -211,7 +211,7 @@ class BaseTest(object):
                         max_padding=None,
                         skip_regen=False,
                         gene=None,
-                        skip_reduce=False,
+                        reduce_difference=4,
                         skip_subclones=False,
                     )
                 )

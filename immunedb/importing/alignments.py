@@ -299,11 +299,18 @@ def parse_airr(line, v_germlines, j_germlines):
         '.' * (cdr3_end - cdr3_start),
         aligned_germ[cdr3_end + cdr3_deletions:]
     ])
+    gap = re.match('[.]+', aligned_germ)
+    if gap:
+        aligned_germ = ('N' * gap.end()) + aligned_germ[gap.end():]
+
     aligned_seq = ''.join([
         aligned_seq.sequence[:cdr3_start],
         cdr3_seq.replace('-', ''),
         aligned_seq.sequence[cdr3_end:]
     ])
+    gap = re.match('[.]+', aligned_seq)
+    if gap:
+        aligned_seq = ('N' * gap.end()) + aligned_seq[gap.end():]
 
     total_insertions = line['v_germline_alignment'].count('-')
     correct_cdr3_start = CDR3_OFFSET + total_insertions

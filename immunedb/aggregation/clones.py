@@ -44,8 +44,11 @@ def generate_consensus(session, clone_ids):
 
         clone.germline = generate_germline(session, seqs, clone)
 
+        clone.overall_total_cnt = sum([s.copy_number for s in seqs])
+
         clone.functional = (
             clone.cdr3_num_nts % 3 == 0 and
+            '*' not in clone.cdr3_aa and
             not lookups.has_stop(clone.germline)
         )
 
@@ -75,33 +78,43 @@ def push_clone_ids(session):
     '''))
 
 
-def collapse_identical(session, buckets):
+def collapse_similar_cdr3s(session, buckets, difference_allowed):
+    logger.info('Collapsing similar clones in {} buckets'.format(
+        buckets.count()
+    ))
     for i, bucket in enumerate(buckets):
         clones = session.query(
-            Clone.id, Clone.cdr3_aa
+            Clone.id, Clone.cdr3_aa, Clone.cdr3_nt
         ).filter(
             Clone.subject_id == bucket.subject_id,
-            Clone.v_gene == bucket.v_gene,
-            Clone.j_gene == bucket.j_gene,
             Clone.cdr3_num_nts == bucket.cdr3_num_nts,
+        ).order_by(
+            Clone.overall_total_cnt.desc()
         )
         if clones.count() < 2:
             continue
         logger.info('Reducing bucket {} / {} ({} clones)'.format(
-            i, len(buckets), clones.count()))
-        uniques = {}
+            i, buckets.count(), clones.count()))
+        reduced = {}
         for c in clones:
-            uniques.setdefault(c.cdr3_aa, []).append(c.id)
-        uniques = [sorted(u) for u in uniques.values() if len(u) > 1]
-        if len(uniques) > 1:
-            logger.info('Collapsing {} duplicate CDR3s'.format(len(uniques)))
-        for identical in uniques:
-            rep_id = identical[0]
+            for larger_cdr3_nt, others in reduced.items():
+                if (dnautils.hamming(larger_cdr3_nt, c.cdr3_nt) <=
+                        difference_allowed):
+                    others.append(c.id)
+                    break
+            else:
+                reduced[c.cdr3_nt] = [c.id]
+
+        for collapse in reduced.values():
+            rep_id, others = collapse[0], collapse[1:]
             session.query(Sequence).filter(
-                Sequence.clone_id.in_(identical)
-            ).update({'clone_id': rep_id}, synchronize_session=False)
+                Sequence.clone_id.in_(others)
+            ).update(
+                {'clone_id': rep_id},
+                synchronize_session=False
+            )
             session.query(Clone).filter(
-                Clone.id.in_(identical[1:])
+                Clone.id.in_(others)
             ).delete(synchronize_session=False)
     session.commit()
 
@@ -139,11 +152,9 @@ def can_subclone(sub_clone, parent_clone):
 class ClonalWorker(concurrent.Worker):
     defaults = {
         # common
-        'exclude_partials': False,
         'min_copy': 2,
         'max_padding': None,
         'min_similarity': 0.85,
-        'min_seq_instances': 1,
     }
 
     def __init__(self, session, **kwargs):
@@ -171,12 +182,6 @@ class ClonalWorker(concurrent.Worker):
                 desc(SequenceCollapse.copy_number_in_subject),
                 Sequence.ai
             )
-        if self.min_seq_instances > 1:
-            query = query.filter(
-                SequenceCollapse.instances_in_subject >= self.min_seq_instances
-            )
-        if self.exclude_partials:
-            query = query.filter(Sequence.partial == 0)
         if self.max_padding is not None:
             query = query.filter(Sequence.seq_start <= self.max_padding)
         return query
@@ -242,8 +247,7 @@ class ClusteringClonalWorker(ClonalWorker):
         dists = np.zeros((len(seqs), len(seqs)))
         for i, s1 in enumerate(seqs):
             for j, s2 in enumerate(seqs):
-                d = dnautils.hamming(s1, s2)
-                dists[i, j] = dists[j, i] = d / len(s1)
+                dists[i, j] = dists[j, i] = dnautils.hamming(s1, s2) / len(s1)
         return dists
 
     def assign_clones(self, df):
@@ -284,8 +288,11 @@ class ClusteringClonalWorker(ClonalWorker):
                 df['clone'] = 1
             else:
                 dists = squareform(self.get_distances(df.cdr3))
-                clusters = fcluster(linkage(dists), self.min_similarity,
-                                    criterion='distance')
+                clusters = fcluster(
+                    linkage(dists, 'complete'),
+                    1 - self.min_similarity,
+                    criterion='distance'
+                )
                 df['clone'] = clusters
             # NOTE: .groupby() doesn't work here since self.assign_clones has
             # side effects
@@ -352,6 +359,8 @@ def run_subclones(session, subject_ids, args):
 
 
 def run_clones(session, args):
+    import warnings
+    warnings.filterwarnings('error')
     """Runs the clone-assignment pipeline stage.
 
     :param Session session: The database session
@@ -407,10 +416,21 @@ def run_clones(session, args):
         tasks.add_worker(worker)
     tasks.start()
 
-    if args.skip_reduce:
-        logger.info('Skipping reduce')
+    session.commit()
+    if args.reduce_difference:
+        buckets = session.query(
+            Clone.subject_id,
+            Clone.cdr3_num_nts
+        ).filter(
+            Clone.subject_id.in_(subject_ids)
+        ).group_by(
+            Clone.subject_id,
+            Clone.cdr3_num_nts
+        )
+        collapse_similar_cdr3s(session, buckets, args.reduce_difference)
     else:
-        collapse_identical(session, all_buckets)
+        logger.info('Skipping reduce since --reduce-differece set to 0')
+
     push_clone_ids(session)
     session.commit()
 

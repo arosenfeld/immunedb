@@ -14,12 +14,9 @@ def add_defaults(parser):
     parser.add_argument('--min-similarity', type=float, default=.85,
                         help='''Minimum similarity allowed between sequence
                         CDR3 within a clone''')
-    parser.add_argument('--exclude-partials', action='store_true',
-                        default=ClonalWorker.defaults['exclude_partials'],
-                        help=''''If specified, excludes partial sequences
-                        in clones.  Note partial sequences which were
-                        collapse to a full sequence will always be
-                        included.''')
+    parser.add_argument('--reduce-difference', default=4,
+                        help='''Collapses clones with this many different
+                        nucleotides in the CDR3, regardless of gene calls''')
     parser.add_argument('--min-copy', type=int,
                         default=ClonalWorker.defaults['min_copy'],
                         help='''The minimum copy number that sequences
@@ -37,10 +34,6 @@ def add_defaults(parser):
                         help='''If specified, only sequences of the given gene
                         type will be assigned clones.  Useful if you have
                         BCR and TCR sequences within a single subject.''')
-    parser.add_argument('--skip-reduce', action='store_true', default=False,
-                        help='''If specified, clones with the same V, J, and
-                        CDR3 AA sequence will NOT be further reduced into
-                        clones''')
     parser.add_argument('--skip-subclones', action='store_true',
                         help='''If specified, calculates subclone
                         relationships''')
