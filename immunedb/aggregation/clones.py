@@ -359,8 +359,6 @@ def run_subclones(session, subject_ids, args):
 
 
 def run_clones(session, args):
-    import warnings
-    warnings.filterwarnings('error')
     """Runs the clone-assignment pipeline stage.
 
     :param Session session: The database session
