@@ -264,6 +264,7 @@ def parse_airr(line, v_germlines, j_germlines):
     # Append the missing portion, if any, of the J to the germline
     j_germ_seq = j_germlines.get_ties(line['j_call'].split(','))
     append_j = len(j_germ_seq) - int(line['j_germline_end'])
+
     if append_j > JGermlines.defaults['upstream_of_cdr3']:
         raise AlignmentException(seq, 'No sequencing data past the CDR3')
     if append_j > 0:
@@ -297,7 +298,9 @@ def parse_airr(line, v_germlines, j_germlines):
     aligned_germ = ''.join([
         aligned_germ[:cdr3_start],
         '.' * (cdr3_end - cdr3_start),
-        aligned_germ[cdr3_end + cdr3_deletions:]
+        aligned_germ[cdr3_end + cdr3_deletions:].ljust(
+            JGermlines.defaults['upstream_of_cdr3'], 'N'
+        )
     ])
     gap = re.match('[.]+', aligned_germ)
     if gap:
@@ -306,7 +309,9 @@ def parse_airr(line, v_germlines, j_germlines):
     aligned_seq = ''.join([
         aligned_seq.sequence[:cdr3_start],
         cdr3_seq.replace('-', ''),
-        aligned_seq.sequence[cdr3_end:]
+        aligned_seq.sequence[cdr3_end:].ljust(
+            JGermlines.defaults['upstream_of_cdr3'], 'N'
+        )
     ])
     gap = re.match('[.]+', aligned_seq)
     if gap:
