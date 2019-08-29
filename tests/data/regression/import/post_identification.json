@@ -367,8 +367,31 @@
         "v_length": 293,
         "v_match": 269
     },
+    "M03592:18:000000000-AHJWK:1:1101:10735:11729": {
+        "ai": 577,
+        "cdr3_aa": "CAREGEMATSIW",
+        "cdr3_nt": "TGTGCGCGAGAAGGAGAGATGGCTACAAGTATCTGG",
+        "cdr3_num_nts": 36,
+        "copy_number": 1,
+        "germline": "CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCACAGACCCTGTCCCTCACCTGCACTGTCTCTGGTGGCTCCATCAGC------AGTGGTGGTTACTACTGGAGCTGGATCCGCCAGCACCCAGGGAAGGGCCTGGAGTGGATTGGGTACATCTATTACAGT---------GGGAGCACCTACTACAACCCGTCCCTCAAG---AGTCGAGTTACCATATCAGTAGACACGTCTAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACTGCCGCGGACACGGCCGTGTATTAC------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
+        "j_gene": "IGHJ4|5",
+        "j_length": 34,
+        "j_match": 34,
+        "num_gaps": 21,
+        "post_cdr3_length": 31,
+        "post_cdr3_match": 31,
+        "pre_cdr3_length": 288,
+        "pre_cdr3_match": 260,
+        "quality": null,
+        "seq_id": "M03592:18:000000000-AHJWK:1:1101:10735:11729",
+        "seq_start": 0,
+        "sequence": "CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCACAGACCCTGTCCCTCACCTGCACTGTCTCTGGTGGCTCCATCAGT------AGTCCTGGTTATTACTGGACCTGGATCCGCCAGCACCCAGGGAAGGGCCTGAAGTGGATTGGCTTCTTCTCCTATGGT---------GGGACCACCCACTACAACCCGTCCCTCATG---AGTCGATTAACCATATCAGTAGACATAACTAAGAGTCAGTTCTCCCTGAACCTGAGCGCTGTTACTGCCGCGGACACGGCCGTTTACTACTGTGCGCGAGAAGGAGAGATGGCTACAAGTATCTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
+        "v_gene": "IGHV4-31",
+        "v_length": 299,
+        "v_match": 270
+    },
     "M03592:18:000000000-AHJWK:1:1101:10764:20077": {
-        "ai": 585,
+        "ai": 586,
         "cdr3_aa": "CARVIVVVPAASRPIFDYW",
         "cdr3_nt": "TGTGCGAGAGTCATTGTAGTAGTACCAGCTGCTTCACGGCCCATCTTTGACTACTGG",
         "cdr3_num_nts": 57,
@@ -391,7 +414,7 @@
         "v_match": 297
     },
     "M03592:18:000000000-AHJWK:1:1101:10825:17316": {
-        "ai": 586,
+        "ai": 587,
         "cdr3_aa": "CAREVGDW",
         "cdr3_nt": "TGTGCGAGAGAAGTGGGAGACTGG",
         "cdr3_num_nts": 24,
@@ -437,7 +460,7 @@
         "v_match": 261
     },
     "M03592:18:000000000-AHJWK:1:1101:11030:18277": {
-        "ai": 595,
+        "ai": 596,
         "cdr3_aa": "CARETSRLYYDARVYAALDFW",
         "cdr3_nt": "TGTGCGCGAGAAACCTCGCGACTTTACTACGATGCTAGGGTTTACGCTGCCCTCGACTTCTGG",
         "cdr3_num_nts": 63,
@@ -460,7 +483,7 @@
         "v_match": 270
     },
     "M03592:18:000000000-AHJWK:1:1101:11051:23010": {
-        "ai": 598,
+        "ai": 599,
         "cdr3_aa": "CAREFVTGDGQRSYW",
         "cdr3_nt": "TGTGCGAGAGAATTCGTGACTGGGGATGGACAGAGGTCTTACTGG",
         "cdr3_num_nts": 45,
@@ -483,7 +506,7 @@
         "v_match": 282
     },
     "M03592:18:000000000-AHJWK:1:1101:11109:18485": {
-        "ai": 622,
+        "ai": 623,
         "cdr3_aa": "CARQRVPAVFQYW",
         "cdr3_nt": "TGTGCGAGACAGCGAGTACCAGCTGTCTTTCAGTACTGG",
         "cdr3_num_nts": 39,
@@ -506,7 +529,7 @@
         "v_match": 280
     },
     "M03592:18:000000000-AHJWK:1:1101:11140:16132": {
-        "ai": 625,
+        "ai": 626,
         "cdr3_aa": "CATSGTVARTLGNW",
         "cdr3_nt": "TGTGCGACATCCGGAACAGTAGCTCGAACGCTCGGCAACTGG",
         "cdr3_num_nts": 42,
@@ -529,7 +552,7 @@
         "v_match": 276
     },
     "M03592:18:000000000-AHJWK:1:1101:11164:15336": {
-        "ai": 630,
+        "ai": 631,
         "cdr3_aa": "CTNLSGYTSVFDSW",
         "cdr3_nt": "TGTACGAATCTAAGTGGATACACCTCTGTTTTTGACTCCTGG",
         "cdr3_num_nts": 42,
@@ -621,7 +644,7 @@
         "v_match": 281
     },
     "M03592:18:000000000-AHJWK:1:1101:11555:14735": {
-        "ai": 665,
+        "ai": 666,
         "cdr3_aa": "CARDDILEGNAFDIW",
         "cdr3_nt": "TGTGCGAGAGATGATATTCTGGAGGGAAACGCTTTTGATATCTGG",
         "cdr3_num_nts": 45,
@@ -644,7 +667,7 @@
         "v_match": 275
     },
     "M03592:18:000000000-AHJWK:1:1101:11625:9633": {
-        "ai": 652,
+        "ai": 653,
         "cdr3_aa": "CARGKWGGFDSW",
         "cdr3_nt": "TGTGCGCGAGGCAAATGGGGGGGTTTTGACTCCTGG",
         "cdr3_num_nts": 36,
@@ -667,7 +690,7 @@
         "v_match": 276
     },
     "M03592:18:000000000-AHJWK:1:1101:11630:16919": {
-        "ai": 668,
+        "ai": 669,
         "cdr3_aa": "CARTPCTSAGCYTSYWYFDLW",
         "cdr3_nt": "TGTGCGAGGACACCTTGTACTAGTGCCGGCTGCTATACATCGTACTGGTACTTCGATCTCTGG",
         "cdr3_num_nts": 63,
@@ -690,7 +713,7 @@
         "v_match": 259
     },
     "M03592:18:000000000-AHJWK:1:1101:11656:19225": {
-        "ai": 670,
+        "ai": 671,
         "cdr3_aa": "CASPVSHW",
         "cdr3_nt": "TGTGCGAGTCCCGTGTCTCACTGG",
         "cdr3_num_nts": 24,
@@ -713,7 +736,7 @@
         "v_match": 255
     },
     "M03592:18:000000000-AHJWK:1:1101:11677:12757": {
-        "ai": 673,
+        "ai": 674,
         "cdr3_aa": "CAREGQMLRGREEDDFW",
         "cdr3_nt": "TGTGCGAGAGAGGGCCAAATGCTTCGGGGGAGGGAGGAAGATGACTTCTGG",
         "cdr3_num_nts": 51,
@@ -736,7 +759,7 @@
         "v_match": 272
     },
     "M03592:18:000000000-AHJWK:1:1101:11830:20696": {
-        "ai": 707,
+        "ai": 708,
         "cdr3_aa": "CTRERPLTWNPDFW",
         "cdr3_nt": "TGTACGAGGGAACGGCCCCTGACGTGGAACCCCGACTTCTGG",
         "cdr3_num_nts": 42,
@@ -759,7 +782,7 @@
         "v_match": 265
     },
     "M03592:18:000000000-AHJWK:1:1101:11908:18095": {
-        "ai": 714,
+        "ai": 715,
         "cdr3_aa": "CARRGSSWYHRGFDYW",
         "cdr3_nt": "TGTGCGAGACGGGGAAGCAGCTGGTACCACCGGGGCTTTGACTACTGG",
         "cdr3_num_nts": 48,
@@ -782,7 +805,7 @@
         "v_match": 291
     },
     "M03592:18:000000000-AHJWK:1:1101:11960:13779": {
-        "ai": 701,
+        "ai": 702,
         "cdr3_aa": "CAREGIGYNPGDFW",
         "cdr3_nt": "TGTGCGAGGGAAGGTATAGGCTACAACCCGGGGGACTTCTGG",
         "cdr3_num_nts": 42,
@@ -828,7 +851,7 @@
         "v_match": 266
     },
     "M03592:18:000000000-AHJWK:1:1101:12079:11960": {
-        "ai": 718,
+        "ai": 719,
         "cdr3_aa": "CASKWPPQQTT",
         "cdr3_nt": "TGTGCGAGTAAATGGCCCCCCCAACAGACTACTGG",
         "cdr3_num_nts": 35,
@@ -920,7 +943,7 @@
         "v_match": 275
     },
     "M03592:18:000000000-AHJWK:1:1101:12206:10500": {
-        "ai": 621,
+        "ai": 622,
         "cdr3_aa": "CARQRVPAVFQYW",
         "cdr3_nt": "TGTGCGAGACAGCGAGTACCAGCTGTCTTTCAGTACTGG",
         "cdr3_num_nts": 39,
@@ -966,7 +989,7 @@
         "v_match": 293
     },
     "M03592:18:000000000-AHJWK:1:1101:12361:14666": {
-        "ai": 632,
+        "ai": 633,
         "cdr3_aa": "CARDVSDCSNDCYHHWYFDLW",
         "cdr3_nt": "TGTGCGAGAGACGTTTCTGATTGTTCTAATGACTGCTACCACCACTGGTACTTCGATCTCTGG",
         "cdr3_num_nts": 63,
@@ -1219,7 +1242,7 @@
         "v_match": 279
     },
     "M03592:18:000000000-AHJWK:1:1101:12764:14168": {
-        "ai": 651,
+        "ai": 652,
         "cdr3_aa": "CARGRDGSLDYW",
         "cdr3_nt": "TGTGCGAGAGGGAGAGATGGCTCCCTTGACTACTGG",
         "cdr3_num_nts": 36,
@@ -1242,7 +1265,7 @@
         "v_match": 291
     },
     "M03592:18:000000000-AHJWK:1:1101:12765:17053": {
-        "ai": 700,
+        "ai": 701,
         "cdr3_aa": "CTRQMATVTSLENW",
         "cdr3_nt": "TGTACGAGGCAGATGGCTACAGTTACTAGCCTTGAAAACTGG",
         "cdr3_num_nts": 42,
@@ -1288,7 +1311,7 @@
         "v_match": 272
     },
     "M03592:18:000000000-AHJWK:1:1101:12924:10112": {
-        "ai": 706,
+        "ai": 707,
         "cdr3_aa": "CARGGGYSYGSDYW",
         "cdr3_nt": "TGTGCGAGAGGTGGAGGATACAGCTATGGTTCTGACTACTGG",
         "cdr3_num_nts": 42,
@@ -1380,7 +1403,7 @@
         "v_match": 273
     },
     "M03592:18:000000000-AHJWK:1:1101:12998:13083": {
-        "ai": 620,
+        "ai": 621,
         "cdr3_aa": "CARQRVPAVFQYW",
         "cdr3_nt": "TGTGCGAGACAGCGAGTACCAGCTGTCTTTCAGTACTGG",
         "cdr3_num_nts": 39,
@@ -1403,7 +1426,7 @@
         "v_match": 287
     },
     "M03592:18:000000000-AHJWK:1:1101:13082:12228": {
-        "ai": 589,
+        "ai": 590,
         "cdr3_aa": "CARGSCGGDCYSGEL*LL",
         "cdr3_nt": "TGTGCGAGAGGCAGTTGTGGTGGTGACTGCTATTCCGGGGAACTTTGACTACTGG",
         "cdr3_num_nts": 55,
@@ -1518,7 +1541,7 @@
         "v_match": 265
     },
     "M03592:18:000000000-AHJWK:1:1101:13221:15958": {
-        "ai": 607,
+        "ai": 608,
         "cdr3_aa": "CASRNTIRLLVLTTLTT",
         "cdr3_nt": "TGCGCGAGCCGAAATACTATCAGACTATTGGTCCTTACTACTTTGACCACTGG",
         "cdr3_num_nts": 53,
@@ -1587,7 +1610,7 @@
         "v_match": 259
     },
     "M03592:18:000000000-AHJWK:1:1101:13427:12230": {
-        "ai": 672,
+        "ai": 673,
         "cdr3_aa": "CARESQMLRGREEDDFW",
         "cdr3_nt": "TGTGCGAGAGAGAGCCAAATGCTTCGGGGGAGGGAGGAAGATGACTTCTGG",
         "cdr3_num_nts": 51,
@@ -1610,7 +1633,7 @@
         "v_match": 271
     },
     "M03592:18:000000000-AHJWK:1:1101:13429:9356": {
-        "ai": 660,
+        "ai": 661,
         "cdr3_aa": "CARGSVLAWEVLSRW",
         "cdr3_nt": "TGTGCGAGAGGCTCAGTGTTGGCCTGGGAAGTTCTCTCACGTTGG",
         "cdr3_num_nts": 45,
@@ -1747,31 +1770,8 @@
         "v_length": 298,
         "v_match": 280
     },
-    "M03592:18:000000000-AHJWK:1:1101:13706:12306": {
-        "ai": 711,
-        "cdr3_aa": "CARQAEVGYW",
-        "cdr3_nt": "TGTGCGAGACAGGCAGAAGTGGGCTACTGG",
-        "cdr3_num_nts": 30,
-        "copy_number": 1,
-        "germline": "CAGCTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCGGAGACCCTGTCCCTCACCTGCACTGTCTCTGGTGGCTCCATCAGC------AGTAGTAGTTACTACTGGGGCTGGATCCGCCAGCCCCCAGGGAAGGGGCTGGAGTGGATTGGGAGTATCTATTATAGT---------GGGAGCACCTACTACAACCCGTCCCTCAAG---AGTCGAGTCACCATATCCGTAGACACGTCCAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACCGCCGCAGACACGGCTGTGTATTAC------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
-        "j_gene": "IGHJ4",
-        "j_length": 37,
-        "j_match": 37,
-        "num_gaps": 21,
-        "post_cdr3_length": 31,
-        "post_cdr3_match": 31,
-        "pre_cdr3_length": 288,
-        "pre_cdr3_match": 287,
-        "quality": null,
-        "seq_id": "M03592:18:000000000-AHJWK:1:1101:13706:12306",
-        "seq_start": 0,
-        "sequence": "CAGCTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTNAAGCCTTCGGAGACCCTGTCCCTCACCTGCNTTGTCTCTGGTGGCNCCATCAGC------AGTAGTAGTTACTACTGGGGCTGGATCNGCCAGCCCCCAGGGAAGGGGCTGGAGTGGATTGGGAGTATCTATTATAGT---------GGGAGCACCTACTACAACCCGTCCCTCAAG---AGTCGAGTCACCATATCCGTAGACACGTCCAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACCGCCGCAGACACGGCTGTGTATTACTGTGCGAGACAGGCAGAAGTGGGCTACTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
-        "v_gene": "IGHV4-39",
-        "v_length": 299,
-        "v_match": 298
-    },
     "M03592:18:000000000-AHJWK:1:1101:13733:15592": {
-        "ai": 606,
+        "ai": 607,
         "cdr3_aa": "CASRNTIRLLVLTTLTT",
         "cdr3_nt": "TGCGCGAGCCGAAATACTATCAGACTATTGGTCCTTACTACTTTGACCACTGG",
         "cdr3_num_nts": 53,
@@ -1863,7 +1863,7 @@
         "v_match": 290
     },
     "M03592:18:000000000-AHJWK:1:1101:13864:16005": {
-        "ai": 619,
+        "ai": 620,
         "cdr3_aa": "CARQRVPAVFQYW",
         "cdr3_nt": "TGTGCGAGACAGCGAGTACCAGCTGTCTTTCAGTACTGG",
         "cdr3_num_nts": 39,
@@ -1886,7 +1886,7 @@
         "v_match": 286
     },
     "M03592:18:000000000-AHJWK:1:1101:13908:13060": {
-        "ai": 650,
+        "ai": 651,
         "cdr3_aa": "CARGRDGSLDYW",
         "cdr3_nt": "TGTGCGAGAGGGAGAGATGGCTCCCTTGACTACTGG",
         "cdr3_num_nts": 36,
@@ -1955,7 +1955,7 @@
         "v_match": 299
     },
     "M03592:18:000000000-AHJWK:1:1101:13974:11855": {
-        "ai": 699,
+        "ai": 700,
         "cdr3_aa": "CAREGMGYNPGDFW",
         "cdr3_nt": "TGTGCGAGGGAAGGTATGGGCTACAACCCGGGGGACTTCTGG",
         "cdr3_num_nts": 42,
@@ -1978,7 +1978,7 @@
         "v_match": 276
     },
     "M03592:18:000000000-AHJWK:1:1101:13976:10987": {
-        "ai": 592,
+        "ai": 593,
         "cdr3_aa": "CARAIPADYW",
         "cdr3_nt": "TGTGCGAGAGCGATCCCCGCGGACTATTGG",
         "cdr3_num_nts": 30,
@@ -2093,7 +2093,7 @@
         "v_match": 273
     },
     "M03592:18:000000000-AHJWK:1:1101:14201:13344": {
-        "ai": 618,
+        "ai": 619,
         "cdr3_aa": "CARQRVPAVFQYW",
         "cdr3_nt": "TGTGCGAGACAGCGAGTACCAGCTGTCTTTCAGTACTGG",
         "cdr3_num_nts": 39,
@@ -2185,7 +2185,7 @@
         "v_match": 261
     },
     "M03592:18:000000000-AHJWK:1:1101:14355:9556": {
-        "ai": 683,
+        "ai": 684,
         "cdr3_aa": "CASLLQWHQMNWFDPW",
         "cdr3_nt": "TGTGCCTCCCTACTACAGTGGCACCAAATGAACTGGTTCGACCCCTGG",
         "cdr3_num_nts": 48,
@@ -2415,7 +2415,7 @@
         "v_match": 277
     },
     "M03592:18:000000000-AHJWK:1:1101:14718:18995": {
-        "ai": 849,
+        "ai": 848,
         "cdr3_aa": "CARGGQLQPLDLW",
         "cdr3_nt": "TGTGCGCGAGGGGGACAATTACAACCTCTTGACCTCTGG",
         "cdr3_num_nts": 39,
@@ -2484,7 +2484,7 @@
         "v_match": 278
     },
     "M03592:18:000000000-AHJWK:1:1101:14836:21122": {
-        "ai": 646,
+        "ai": 647,
         "cdr3_aa": "CAASRSYRYVDYW",
         "cdr3_nt": "TGTGCGGCATCTAGGAGTTACCGCTATGTTGACTACTGG",
         "cdr3_num_nts": 39,
@@ -2507,7 +2507,7 @@
         "v_match": 265
     },
     "M03592:18:000000000-AHJWK:1:1101:14873:9175": {
-        "ai": 445,
+        "ai": 444,
         "cdr3_aa": "CARSSCTNGVCPFDNW",
         "cdr3_nt": "TGTGCGAGATCGTCGTGTACTAATGGTGTATGCCCGTTTGACAACTGG",
         "cdr3_num_nts": 48,
@@ -2622,7 +2622,7 @@
         "v_match": 292
     },
     "M03592:18:000000000-AHJWK:1:1101:15222:15851": {
-        "ai": 584,
+        "ai": 585,
         "cdr3_aa": "CARVIVVVPAASRPIFDYW",
         "cdr3_nt": "TGTGCGAGAGTCATTGTAGTAGTACCAGCTGCTTCACGGCCCATCTTTGACTACTGG",
         "cdr3_num_nts": 57,
@@ -2691,7 +2691,7 @@
         "v_match": 270
     },
     "M03592:18:000000000-AHJWK:1:1101:15268:22759": {
-        "ai": 645,
+        "ai": 646,
         "cdr3_aa": "CAASRSYRYVDYW",
         "cdr3_nt": "TGTGCGGCATCTAGGAGTTACCGCTATGTTGACTACTGG",
         "cdr3_num_nts": 39,
@@ -2783,7 +2783,7 @@
         "v_match": 261
     },
     "M03592:18:000000000-AHJWK:1:1101:15405:7394": {
-        "ai": 594,
+        "ai": 595,
         "cdr3_aa": "CARDPNHYDSNGQRSLPFAFW",
         "cdr3_nt": "TGTGCGAGAGATCCCAATCACTATGATAGTAATGGTCAACGATCATTACCCTTTGCCTTCTGG",
         "cdr3_num_nts": 63,
@@ -3036,7 +3036,7 @@
         "v_match": 267
     },
     "M03592:18:000000000-AHJWK:1:1101:15794:15061": {
-        "ai": 444,
+        "ai": 443,
         "cdr3_aa": "CARSSCTNGVCPFDNW",
         "cdr3_nt": "TGTGCGAGATCGTCGTGTACTAATGGTGTGTGCCCATTTGACAACTGG",
         "cdr3_num_nts": 48,
@@ -3082,7 +3082,7 @@
         "v_match": 268
     },
     "M03592:18:000000000-AHJWK:1:1101:15931:13765": {
-        "ai": 664,
+        "ai": 665,
         "cdr3_aa": "CARAVSWIPNFDYW",
         "cdr3_nt": "TGTGCGAGAGCCGTCTCGTGGATTCCGAACTTTGACTACTGG",
         "cdr3_num_nts": 42,
@@ -3289,7 +3289,7 @@
         "v_match": 263
     },
     "M03592:18:000000000-AHJWK:1:1101:16592:13487": {
-        "ai": 698,
+        "ai": 699,
         "cdr3_aa": "CAREGIGYNPGDFW",
         "cdr3_nt": "TGTGCGAGGGAAGGTATAGGCTACAACCCGGGGGACTTCTGG",
         "cdr3_num_nts": 42,
@@ -3565,7 +3565,7 @@
         "v_match": 271
     },
     "M03592:18:000000000-AHJWK:1:1101:17033:14034": {
-        "ai": 617,
+        "ai": 618,
         "cdr3_aa": "CARDRDISWFFYW",
         "cdr3_nt": "TGTGCGAGAGATCGTGACATCAGTTGGTTCTTCTACTGG",
         "cdr3_num_nts": 39,
@@ -3611,7 +3611,7 @@
         "v_match": 278
     },
     "M03592:18:000000000-AHJWK:1:1101:17042:20724": {
-        "ai": 443,
+        "ai": 442,
         "cdr3_aa": "CARSSCTNGVCPFDNW",
         "cdr3_nt": "TGTGCGAGATCGTCGTGTACTAATGGTGTATGCCCGTTTGACAACTGG",
         "cdr3_num_nts": 48,
@@ -3956,7 +3956,7 @@
         "v_match": 292
     },
     "M03592:18:000000000-AHJWK:1:1101:17930:15035": {
-        "ai": 667,
+        "ai": 668,
         "cdr3_aa": "CARTPCTSAGCYTSYWYFDPW",
         "cdr3_nt": "TGTGCGAGGACACCTTGTACTAGTGCCGGCTGCTATACATCGTACTGGTACTTCGATCCCTGG",
         "cdr3_num_nts": 63,
@@ -4140,7 +4140,7 @@
         "v_match": 271
     },
     "M03592:18:000000000-AHJWK:1:1101:18399:12997": {
-        "ai": 848,
+        "ai": 849,
         "cdr3_aa": "CARGGQLQPLDLW",
         "cdr3_nt": "TGTGCGCGAGGGGGACAATTACAACCTCTTGACCTCTGG",
         "cdr3_num_nts": 39,
@@ -4232,7 +4232,7 @@
         "v_match": 296
     },
     "M03592:18:000000000-AHJWK:1:1101:18929:12327": {
-        "ai": 644,
+        "ai": 645,
         "cdr3_aa": "CAASRSYRYVDYW",
         "cdr3_nt": "TGTGCGGCATCTAGGAGTTACCGCTATGTTGACTACTGG",
         "cdr3_num_nts": 39,
@@ -4324,7 +4324,7 @@
         "v_match": 287
     },
     "M03592:18:000000000-AHJWK:1:1101:19059:19070": {
-        "ai": 605,
+        "ai": 606,
         "cdr3_aa": "CASRNTIRLLVLTTLTT",
         "cdr3_nt": "TGCGCGAGCCGAAATACTATCAGACTATTGGTCCTTACTACTTTGACCACTGG",
         "cdr3_num_nts": 53,
@@ -4347,7 +4347,7 @@
         "v_match": 257
     },
     "M03592:18:000000000-AHJWK:1:1101:19075:19105": {
-        "ai": 697,
+        "ai": 698,
         "cdr3_aa": "CAREGIGYNPGDFW",
         "cdr3_nt": "TGTGCGAGGGAAGGTATAGGCTACAACCCGGGGGACTTCTGG",
         "cdr3_num_nts": 42,
@@ -4414,6 +4414,29 @@
         "v_gene": "IGHV3-15",
         "v_length": 301,
         "v_match": 285
+    },
+    "M03592:18:000000000-AHJWK:1:1101:19271:19969": {
+        "ai": 712,
+        "cdr3_aa": "CARQAEVGYW",
+        "cdr3_nt": "TGTGCGAGACAGGCAGAAGTGGGCTACTGG",
+        "cdr3_num_nts": 30,
+        "copy_number": 1,
+        "germline": "CAGCTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCGGAGACCCTGTCCCTCACCTGCACTGTCTCTGGTGGCTCCATCAGC------AGTAGTAGTTACTACTGGGGCTGGATCCGCCAGCCCCCAGGGAAGGGGCTGGAGTGGATTGGGAGTATCTATTATAGT---------GGGAGCACCTACTACAACCCGTCCCTCAAG---AGTCGAGTCACCATATCCGTAGACACGTCCAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACCGCCGCAGACACGGCTGTGTATTAC------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
+        "j_gene": "IGHJ4",
+        "j_length": 37,
+        "j_match": 37,
+        "num_gaps": 21,
+        "post_cdr3_length": 31,
+        "post_cdr3_match": 31,
+        "pre_cdr3_length": 288,
+        "pre_cdr3_match": 288,
+        "quality": null,
+        "seq_id": "M03592:18:000000000-AHJWK:1:1101:19271:19969",
+        "seq_start": 0,
+        "sequence": "CAGCTGCAGCTGCAGGAGTCGGGCCCA---GGNCTGGTGAAGCCTTCGGAGNCCCTGTCCCTCNCCTGCNCTGTCTCTGGTGGCTCCATCAGC------AGTAGTAGTTACTACTGGGGCTGGATCCGCCAGCCCCCAGGGAAGGGGCTGGAGTGGATTGGGAGTATCTATTATAGT---------GGGAGCACCTACTACAACCCGTCCCTCAAG---AGTCGAGTCACCATATCCGTAGACACGTCCAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACCGCCGCAGACACGGCTGTGTATTACTGTGCGAGACAGGCAGAAGTGGGCTACTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
+        "v_gene": "IGHV4-39",
+        "v_length": 299,
+        "v_match": 299
     },
     "M03592:18:000000000-AHJWK:1:1101:19326:17412": {
         "ai": 956,
@@ -4715,7 +4738,7 @@
         "v_match": 290
     },
     "M03592:18:000000000-AHJWK:1:1101:19580:11052": {
-        "ai": 682,
+        "ai": 683,
         "cdr3_aa": "CARGVFRTEYNWFDPW",
         "cdr3_nt": "TGTGCGAGAGGGGTCTTCCGGACAGAGTACAACTGGTTCGACCCCTGG",
         "cdr3_num_nts": 48,
@@ -4807,7 +4830,7 @@
         "v_match": 267
     },
     "M03592:18:000000000-AHJWK:1:1101:19940:17286": {
-        "ai": 659,
+        "ai": 660,
         "cdr3_aa": "CARGSVLAWEVLSRW",
         "cdr3_nt": "TGTGCGAGAGGCTCAGTGTTGGCCTGGGAAGTTCTCTCACGTTGG",
         "cdr3_num_nts": 45,
@@ -4830,7 +4853,7 @@
         "v_match": 264
     },
     "M03592:18:000000000-AHJWK:1:1101:20028:22203": {
-        "ai": 643,
+        "ai": 644,
         "cdr3_aa": "CASLLDSKYFDNW",
         "cdr3_nt": "TGTGCGAGTCTTCTAGATTCGAAGTACTTTGACAACTGG",
         "cdr3_num_nts": 39,
@@ -4991,7 +5014,7 @@
         "v_match": 286
     },
     "M03592:18:000000000-AHJWK:1:1101:20120:22802": {
-        "ai": 717,
+        "ai": 718,
         "cdr3_aa": "CASKWPPQQTT",
         "cdr3_nt": "TGTGCGAGTAAATGGCCCCCCCAACAGACTACTGG",
         "cdr3_num_nts": 35,
@@ -5451,7 +5474,7 @@
         "v_match": 296
     },
     "M03592:18:000000000-AHJWK:1:1101:20845:14087": {
-        "ai": 696,
+        "ai": 697,
         "cdr3_aa": "CAREGIGYNPGDFW",
         "cdr3_nt": "TGTGCGAGGGAAGGTATAGGCTACAACCCGGGGGACTTCTGG",
         "cdr3_num_nts": 42,
@@ -5842,7 +5865,7 @@
         "v_match": 290
     },
     "M03592:18:000000000-AHJWK:1:1101:21690:12448": {
-        "ai": 658,
+        "ai": 659,
         "cdr3_aa": "CARGSVLAWEVLSRW",
         "cdr3_nt": "TGTGCGAGAGGCTCAGTGTTGGCCTGGGAAGTTCTCTCACGTTGG",
         "cdr3_num_nts": 45,
@@ -5886,29 +5909,6 @@
         "v_gene": "IGHV3-23|3-23D",
         "v_length": 295,
         "v_match": 275
-    },
-    "M03592:18:000000000-AHJWK:1:1101:21882:16266": {
-        "ai": 723,
-        "cdr3_aa": "CARGRSGGPRGDYW",
-        "cdr3_nt": "TGTGCGAGAGGACGCTCGGGGGGGCCCAGGGGGGACTACTGG",
-        "cdr3_num_nts": 42,
-        "copy_number": 1,
-        "germline": "CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCGGAGACCCTGTCCCTCACCTGCACTGTCTCTGGTGGCTCCGTCAGC------AGTGGTAGTTACTACTGGAGCTGGATCCGGCAGCCCCCAGGGAAGGGACTGGAGTGGATTGGGTATATCTATTACAGT---------GGGAGCACCAACTACAACCCCTCCCTCAAG---AGTCGAGTCACCATATCAGTAGACACGTCCAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACCGCTGCGGACACGGCCGTGTATTAC------------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
-        "j_gene": "IGHJ4",
-        "j_length": 39,
-        "j_match": 39,
-        "num_gaps": 21,
-        "post_cdr3_length": 31,
-        "post_cdr3_match": 31,
-        "pre_cdr3_length": 288,
-        "pre_cdr3_match": 260,
-        "quality": null,
-        "seq_id": "M03592:18:000000000-AHJWK:1:1101:21882:16266",
-        "seq_start": 0,
-        "sequence": "CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAGGCCCTCGGAGACCCTGTCCCTCACCTGCNNCGTCNNTNGTGCCTCCGTCAAC------AGTGACACTTATTACTGGAATTGGATCCGGCAGCCCCCAGGGAAGGGACTGGAGTGGATTGGGCACATCTATAACGGT---------GGGAGCACCAACCAGAACCCCTCCCTCAAG---AGTCGGCTCGCCATGTCAGTAGACACGTCCAAGAACCTTTTCTCCCTGAAGTTAACCTCTGTGACCGCTGCGGACACGGCCGTTTATTATTGTGCGAGAGGACGCTCGGGGGGGCCCAGGGGGGACTACTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
-        "v_gene": "IGHV4-61",
-        "v_length": 298,
-        "v_match": 270
     },
     "M03592:18:000000000-AHJWK:1:1101:21896:11051": {
         "ai": 517,
@@ -6118,7 +6118,7 @@
         "v_match": 282
     },
     "M03592:18:000000000-AHJWK:1:1101:22123:21446": {
-        "ai": 629,
+        "ai": 630,
         "cdr3_aa": "CARDGTLTASLDFW",
         "cdr3_nt": "TGTGCGAGAGATGGCACTTTGACTGCTTCCCTTGACTTCTGG",
         "cdr3_num_nts": 42,
@@ -6164,7 +6164,7 @@
         "v_match": 274
     },
     "M03592:18:000000000-AHJWK:1:1101:22152:21210": {
-        "ai": 642,
+        "ai": 643,
         "cdr3_aa": "CAASRSYRYVDYW",
         "cdr3_nt": "TGTGCGGCATCTAGGAGTTACCGCTATGTTGACTACTGG",
         "cdr3_num_nts": 39,
@@ -6191,7 +6191,7 @@
         "cdr3_aa": "CAREAEECSSTICYTRLDYW",
         "cdr3_nt": "TGTGCGAGAGAGGCCGAGGAATGTAGTAGTACCATCTGCTATACACGCCTTGACTACTGG",
         "cdr3_num_nts": 60,
-        "copy_number": 3,
+        "copy_number": 2,
         "germline": "CAGGTCCAGCTTGTGCAGTCTGGGGCT---GAGGTGAAGAAGCCTGGGGCCTCAGTGAAGGTTTCCTGCAAGGCTTCTGGATACACCTTC------------ACTAGCTATGCTATGCATTGGGTGCGCCAGGCCCCCGGACAAAGGCTTGAGTGGATGGGATGGATCAACGCTGGC------AATGGTAACACAAAATATTCACAGAAGTTCCAG---GGCAGAGTCACCATTACCAGGGACACATCCGCGAGCACAGCCTACATGGAGCTGAGCAGCCTGAGATCTGAAGACACGGCTGTGTATTAC------------------------------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
         "j_gene": "IGHJ4",
         "j_length": 41,
@@ -6256,7 +6256,7 @@
         "v_match": 276
     },
     "M03592:18:000000000-AHJWK:1:1101:22258:13858": {
-        "ai": 713,
+        "ai": 714,
         "cdr3_aa": "CARRGSSWYHRGFDYW",
         "cdr3_nt": "TGTGCGAGACGGGGAAGCAGCTGGTACCACCGGGGCTTTGACTACTGG",
         "cdr3_num_nts": 48,
@@ -6486,7 +6486,7 @@
         "v_match": 292
     },
     "M03592:18:000000000-AHJWK:1:1101:22517:12585": {
-        "ai": 616,
+        "ai": 617,
         "cdr3_aa": "CARQRVPAVFQYW",
         "cdr3_nt": "TGTGCGAGACAGCGAGTACCAGCTGTCTTTCAGTACTGG",
         "cdr3_num_nts": 39,
@@ -6532,7 +6532,7 @@
         "v_match": 274
     },
     "M03592:18:000000000-AHJWK:1:1101:22604:11992": {
-        "ai": 695,
+        "ai": 696,
         "cdr3_aa": "CAREGIGYNPGDFW",
         "cdr3_nt": "TGTGCGAGGGAAGGTATAGGCTACAACCCGGGGGACTTCTGG",
         "cdr3_num_nts": 42,
@@ -6762,7 +6762,7 @@
         "v_match": 275
     },
     "M03592:18:000000000-AHJWK:1:1101:22981:18434": {
-        "ai": 657,
+        "ai": 658,
         "cdr3_aa": "CARGSVLAWEVLSRW",
         "cdr3_nt": "TGTGCGAGAGGCTCAGTGTTGGCCTGGGAAGTTCTCTCACGTTGG",
         "cdr3_num_nts": 45,
@@ -6831,7 +6831,7 @@
         "v_match": 260
     },
     "M03592:18:000000000-AHJWK:1:1101:23049:11027": {
-        "ai": 641,
+        "ai": 642,
         "cdr3_aa": "CAASRSYRYVDYW",
         "cdr3_nt": "TGTGCGGCATCTAGGAGTTACCGCTATGTTGACTACTGG",
         "cdr3_num_nts": 39,
@@ -6992,7 +6992,7 @@
         "v_match": 267
     },
     "M03592:18:000000000-AHJWK:1:1101:23284:16548": {
-        "ai": 722,
+        "ai": 723,
         "cdr3_aa": "CARGRSGGPRGDYW",
         "cdr3_nt": "TGTGCGAGAGGACGCTCGGGGGGGCCCAGGGGGGACTACTGG",
         "cdr3_num_nts": 42,
@@ -7130,7 +7130,7 @@
         "v_match": 264
     },
     "M03592:18:000000000-AHJWK:1:1101:23441:15116": {
-        "ai": 624,
+        "ai": 625,
         "cdr3_aa": "CATSGTVARTLGNW",
         "cdr3_nt": "TGTGCGACATCCGGAACAGTAGCTCGAACGCTCGGCAACTGG",
         "cdr3_num_nts": 42,
@@ -7153,7 +7153,7 @@
         "v_match": 279
     },
     "M03592:18:000000000-AHJWK:1:1101:23444:15818": {
-        "ai": 663,
+        "ai": 664,
         "cdr3_aa": "CARDSEQWLAFDYW",
         "cdr3_nt": "TGTGCGAGAGATTCAGAGCAGTGGCTGGCTTTTGACTACTGG",
         "cdr3_num_nts": 42,
@@ -7222,7 +7222,7 @@
         "v_match": 280
     },
     "M03592:18:000000000-AHJWK:1:1101:23470:15320": {
-        "ai": 442,
+        "ai": 441,
         "cdr3_aa": "CARSSCTNGVCPFDNW",
         "cdr3_nt": "TGTGCGAGATCGTCGTGTACTAATGGTGTATGCCCGTTTGACAACTGG",
         "cdr3_num_nts": 48,
@@ -7245,7 +7245,7 @@
         "v_match": 286
     },
     "M03592:18:000000000-AHJWK:1:1101:23606:8685": {
-        "ai": 583,
+        "ai": 584,
         "cdr3_aa": "CARVIVVVPAASRPIFDYW",
         "cdr3_nt": "TGTGCGAGAGTCATTGTAGTAGTACCAGCTGCTTCACGGCCCATCTTTGACTACTGG",
         "cdr3_num_nts": 57,
@@ -7268,7 +7268,7 @@
         "v_match": 298
     },
     "M03592:18:000000000-AHJWK:1:1101:23657:8837": {
-        "ai": 681,
+        "ai": 682,
         "cdr3_aa": "CASLLQWHQMNWFDPW",
         "cdr3_nt": "TGTGCCTCCCTACTACAGTGGCACCAAATGAACTGGTTCGACCCCTGG",
         "cdr3_num_nts": 48,
@@ -7544,7 +7544,7 @@
         "v_match": 259
     },
     "M03592:18:000000000-AHJWK:1:1101:2397:10595": {
-        "ai": 441,
+        "ai": 440,
         "cdr3_aa": "CARSSCTNGVCPFDNW",
         "cdr3_nt": "TGTGCGAGATCGTCGTGTACTAATGGTGTGTGCCCATTTGACAACTGG",
         "cdr3_num_nts": 48,
@@ -7682,7 +7682,7 @@
         "v_match": 258
     },
     "M03592:18:000000000-AHJWK:1:1101:24130:16236": {
-        "ai": 662,
+        "ai": 663,
         "cdr3_aa": "CARDSEQWLAFDYW",
         "cdr3_nt": "TGTGCGAGAGATTCAGAGCAGTGGCTGGCTTTTGACTACTGG",
         "cdr3_num_nts": 42,
@@ -7774,7 +7774,7 @@
         "v_match": 284
     },
     "M03592:18:000000000-AHJWK:1:1101:24335:8360": {
-        "ai": 582,
+        "ai": 583,
         "cdr3_aa": "CARVIVVVPAASRPIFDYW",
         "cdr3_nt": "TGTGCGAGAGTCATTGTAGTAGTACCAGCTGCTTCACGGCCCATCTTTGACTACTGG",
         "cdr3_num_nts": 57,
@@ -7820,7 +7820,7 @@
         "v_match": 272
     },
     "M03592:18:000000000-AHJWK:1:1101:24401:19388": {
-        "ai": 591,
+        "ai": 592,
         "cdr3_aa": "CARAIPADYW",
         "cdr3_nt": "TGTGCGAGAGCGATCCCCGCGGACTATTGG",
         "cdr3_num_nts": 30,
@@ -7911,31 +7911,8 @@
         "v_length": 296,
         "v_match": 264
     },
-    "M03592:18:000000000-AHJWK:1:1101:24469:20347": {
-        "ai": 543,
-        "cdr3_aa": "CARDTDYSSYTFDTW",
-        "cdr3_nt": "TGTGCGAGAGACACTGACTACAGTAGTTACACATTCGACACCTGG",
-        "cdr3_num_nts": 45,
-        "copy_number": 4,
-        "germline": "CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCACAGACCCTGTCCCTCACCTGCACTGTCTCTGGTGGCTCCATCAGC------AGTGGTGGTTACTACTGGAGCTGGATCCGCCAGCACCCAGGGAAGGGCCTGGAGTGGATTGGGTACATCTATTACAGT---------GGGAGCACCTACTACAACCCGTCCCTCAAG---AGTCGAGTTACCATATCAGTAGACACGTCTAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACTGCCGCGGACACGGCCGTGTATTAC---------------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
-        "j_gene": "IGHJ5",
-        "j_length": 42,
-        "j_match": 41,
-        "num_gaps": 21,
-        "post_cdr3_length": 31,
-        "post_cdr3_match": 31,
-        "pre_cdr3_length": 285,
-        "pre_cdr3_match": 256,
-        "quality": null,
-        "seq_id": "M03592:18:000000000-AHJWK:1:1101:24469:20347",
-        "seq_start": 3,
-        "sequence": "NNNGTGCAGCTGCAGGAGTCGGGCCCA---GGACNGGTGAAGCCTTTACAGACCCTGTCCCTCANCTGCACTGTCTCAGGTGACTCCATCAGC------CGTAATAGTCACTACTGGAGCTGGCTTCGCCATCACCNAGGGAAGGACCTGGAGTGGATTGGTTACATCCATAAGAGT---------GGCGGTACCTACTACAACCCGTCCCTCGAG---AGTCGAGTTTCCATGTCAATAGACACGTCTAAGAACCAATTCTCCCTGAGGCTGACTTCTGTGACTGCCGCGGACACGGCCCTGTATTTCTGTGCGAGAGACACTGACTACAGTAGTTACACATTCGACACCTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
-        "v_gene": "IGHV4-31",
-        "v_length": 296,
-        "v_match": 267
-    },
     "M03592:18:000000000-AHJWK:1:1101:2454:11279": {
-        "ai": 581,
+        "ai": 582,
         "cdr3_aa": "CARVIVVVPAASRPIFDYW",
         "cdr3_nt": "TGTGCGAGAGTCATTGTAGTAGTACCAGCTGCTTCACGGCCCATCTTTGACTACTGG",
         "cdr3_num_nts": 57,
@@ -8050,7 +8027,7 @@
         "v_match": 292
     },
     "M03592:18:000000000-AHJWK:1:1101:24627:18275": {
-        "ai": 694,
+        "ai": 695,
         "cdr3_aa": "CTRQMATVTSLENW",
         "cdr3_nt": "TGTACGAGGCAGATGGCTACAGTTACTAGCCTTGAAAACTGG",
         "cdr3_num_nts": 42,
@@ -8165,7 +8142,7 @@
         "v_match": 281
     },
     "M03592:18:000000000-AHJWK:1:1101:24867:10976": {
-        "ai": 686,
+        "ai": 687,
         "cdr3_aa": "CARAELVPAAIRPYNWFDPW",
         "cdr3_nt": "TGTGCGAGAGCCGAGCTAGTACCAGCTGCTATACGCCCGTACAACTGGTTCGACCCCTGG",
         "cdr3_num_nts": 60,
@@ -8234,7 +8211,7 @@
         "v_match": 279
     },
     "M03592:18:000000000-AHJWK:1:1101:24925:9907": {
-        "ai": 640,
+        "ai": 641,
         "cdr3_aa": "CAASRSYRYVDYW",
         "cdr3_nt": "TGTGCGGCATCTAGGAGTTACCGCTATGTTGACTACTGG",
         "cdr3_num_nts": 39,
@@ -8280,7 +8257,7 @@
         "v_match": 292
     },
     "M03592:18:000000000-AHJWK:1:1101:24995:8455": {
-        "ai": 716,
+        "ai": 717,
         "cdr3_aa": "CASKWPPQQTT",
         "cdr3_nt": "TGTGCGAGTAAATGGCCCCCCCAACAGACTACTGG",
         "cdr3_num_nts": 35,
@@ -8395,7 +8372,7 @@
         "v_match": 276
     },
     "M03592:18:000000000-AHJWK:1:1101:25100:6512": {
-        "ai": 649,
+        "ai": 650,
         "cdr3_aa": "CARGKWGGFDSW",
         "cdr3_nt": "TGTGCGCGAGGCAAATGGGGGGGTTTTGACTCCTGG",
         "cdr3_num_nts": 36,
@@ -8533,7 +8510,7 @@
         "v_match": 271
     },
     "M03592:18:000000000-AHJWK:1:1101:25295:19172": {
-        "ai": 693,
+        "ai": 694,
         "cdr3_aa": "CAREGIGYNPGDFW",
         "cdr3_nt": "TGTGCGAGGGAAGGTATAGGCTACAACCCGGGGGACTTCTGG",
         "cdr3_num_nts": 42,
@@ -8717,7 +8694,7 @@
         "v_match": 261
     },
     "M03592:18:000000000-AHJWK:1:1101:25508:16087": {
-        "ai": 440,
+        "ai": 439,
         "cdr3_aa": "CARSSCTNGVCPFDNW",
         "cdr3_nt": "TGTGCGAGATCGTCGTGTACTAATGGTGTGTGCCCATTTGACAACTGG",
         "cdr3_num_nts": 48,
@@ -8809,7 +8786,7 @@
         "v_match": 291
     },
     "M03592:18:000000000-AHJWK:1:1101:25616:12777": {
-        "ai": 692,
+        "ai": 693,
         "cdr3_aa": "CTRQMATVTSLENW",
         "cdr3_nt": "TGTACGAGGCAGATGGCTACAGTTACTAGCCTTGAAAACTGG",
         "cdr3_num_nts": 42,
@@ -8970,7 +8947,7 @@
         "v_match": 295
     },
     "M03592:18:000000000-AHJWK:1:1101:25726:18757": {
-        "ai": 691,
+        "ai": 692,
         "cdr3_aa": "CTRQMATVTSLENW",
         "cdr3_nt": "TGTACGAGGCAGATGGCTACAGTTACTAGCCTTGAAAACTGG",
         "cdr3_num_nts": 42,
@@ -9016,7 +8993,7 @@
         "v_match": 279
     },
     "M03592:18:000000000-AHJWK:1:1101:25765:19351": {
-        "ai": 705,
+        "ai": 706,
         "cdr3_aa": "CARGGGYSYGSDYW",
         "cdr3_nt": "TGTGCGAGAGGTGGAGGATACAGCTATGGTTCTGACTACTGG",
         "cdr3_num_nts": 42,
@@ -9085,11 +9062,11 @@
         "v_match": 268
     },
     "M03592:18:000000000-AHJWK:1:1101:25866:6312": {
-        "ai": 615,
+        "ai": 616,
         "cdr3_aa": "CARQRVPAVFQYW",
         "cdr3_nt": "TGTGCGAGACAGCGAGTACCAGCTGTCTTTCAGTACTGG",
         "cdr3_num_nts": 39,
-        "copy_number": 3,
+        "copy_number": 2,
         "germline": "CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCACAGACCCTGTCCCTCACCTGCACTGTCTCTGGTGGCTCCATCAGC------AGTGGTGGTTACTACTGGAGCTGGATCCGCCAGCACCCAGGGAAGGGCCTGGAGTGGATTGGGTACATCTATTACAGT---------GGGAGCACCTACTACAACCCGTCCCTCAAG---AGTCGAGTTACCATATCAGTAGACACGTCTAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACTGCCGCGGACACGGCCGTGTATTAC---------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
         "j_gene": "IGHJ4",
         "j_length": 43,
@@ -9108,7 +9085,7 @@
         "v_match": 287
     },
     "M03592:18:000000000-AHJWK:1:1101:25886:9908": {
-        "ai": 721,
+        "ai": 722,
         "cdr3_aa": "CAREGIGYNPGDFW",
         "cdr3_nt": "TGTGCGAGGGAAGGTATAGGCTACAACCCGGGGGACTTCTGG",
         "cdr3_num_nts": 42,
@@ -9269,7 +9246,7 @@
         "v_match": 278
     },
     "M03592:18:000000000-AHJWK:1:1101:26172:19742": {
-        "ai": 580,
+        "ai": 581,
         "cdr3_aa": "CARVIVVVPAASRPIFDYW",
         "cdr3_nt": "TGTGCGAGAGTCATTGTAGTAGTACCAGCTGCTTCACGGCCCATCTTTGACTACTGG",
         "cdr3_num_nts": 57,
@@ -9338,7 +9315,7 @@
         "v_match": 275
     },
     "M03592:18:000000000-AHJWK:1:1101:26226:21695": {
-        "ai": 648,
+        "ai": 649,
         "cdr3_aa": "CARGRDGSLDYW",
         "cdr3_nt": "TGTGCGAGAGGGAGAGATGGCTCCCTTGACTACTGG",
         "cdr3_num_nts": 36,
@@ -9567,29 +9544,6 @@
         "v_length": 296,
         "v_match": 274
     },
-    "M03592:18:000000000-AHJWK:1:1101:26510:18058": {
-        "ai": 513,
-        "cdr3_aa": "CAILVVPGVWFDPW",
-        "cdr3_nt": "TGTGCGATCCTAGTAGTACCAGGCGTCTGGTTCGACCCCTGG",
-        "cdr3_num_nts": 42,
-        "copy_number": 7,
-        "germline": "CAGGTGCAGCTACAGCAGTGGGGCGCA---GGACTGTTGAAGCCTTCGGAGACCCTGTCCCTCACCTGCGCTGTCTATGGTGGGTCCTTC------------AGTGGTTACTACTGGAGCTGGATCCGCCAGCCCCCAGGGAAGGGGCTGGAGTGGATTGGGGAAATCAATCATAGT---------GGAAGCACCAACTACAACCCGTCCCTCAAG---AGTCGAGTCACCATATCAGTAGACACGTCCAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACCGCCGCGGACACGGCTGTGTATTAC------------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
-        "j_gene": "IGHJ5",
-        "j_length": 46,
-        "j_match": 46,
-        "num_gaps": 27,
-        "post_cdr3_length": 31,
-        "post_cdr3_match": 31,
-        "pre_cdr3_length": 282,
-        "pre_cdr3_match": 282,
-        "quality": null,
-        "seq_id": "M03592:18:000000000-AHJWK:1:1101:26510:18058",
-        "seq_start": 0,
-        "sequence": "CAGGTGCAGCTACAGCAGTGGGGCGCA---GGACTGTTGAAGCCTTCGGAGACCCTGTCCCTCACCTGCGCTGTCTATGGTGGGTCCTTC------------AGTGGTTACTACTGGAGCTGGATCCGCCAGCCCCCAGGGAAGGGGCTGGAGTGGATTGGGGAAATCAATCATAGT---------GGAAGCACCAACTACAACCCGTCCCTCAAG---AGTCGAGTCACCATATCAGTAGACACGTCCAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACCGCCGCGGACACGGCTGTGTATTACTGTGCGATCCTAGTAGTACCAGGCGTCTGGTTCGACCCCTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
-        "v_gene": "IGHV4-34",
-        "v_length": 289,
-        "v_match": 289
-    },
     "M03592:18:000000000-AHJWK:1:1101:26549:9370": {
         "ai": 841,
         "cdr3_aa": "CTTEGYDFWKTIDNW",
@@ -9637,7 +9591,7 @@
         "v_match": 259
     },
     "M03592:18:000000000-AHJWK:1:1101:26582:9009": {
-        "ai": 604,
+        "ai": 605,
         "cdr3_aa": "CASRNTIRLLVLTTLTT",
         "cdr3_nt": "TGCGCGAGCCGAAATACTATCAGACTATTGGTCCTTACTACTTTGACCACTGG",
         "cdr3_num_nts": 53,
@@ -9797,6 +9751,29 @@
         "v_length": 299,
         "v_match": 275
     },
+    "M03592:18:000000000-AHJWK:1:1101:26841:10744": {
+        "ai": 543,
+        "cdr3_aa": "CARDTDYSSYTFDTW",
+        "cdr3_nt": "TGTGCGAGAGACACTGACTACAGTAGTTACACATTCGACACCTGG",
+        "cdr3_num_nts": 45,
+        "copy_number": 2,
+        "germline": "CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCACAGACCCTGTCCCTCACCTGCACTGTCTCTGGTGGCTCCATCAGC------AGTGGTGGTTACTACTGGAGCTGGATCCGCCAGCACCCAGGGAAGGGCCTGGAGTGGATTGGGTACATCTATTACAGT---------GGGAGCACCTACTACAACCCGTCCCTCAAG---AGTCGAGTTACCATATCAGTAGACACGTCTAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACTGCCGCGGACACGGCCGTGTATTAC---------------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
+        "j_gene": "IGHJ5",
+        "j_length": 42,
+        "j_match": 41,
+        "num_gaps": 21,
+        "post_cdr3_length": 31,
+        "post_cdr3_match": 31,
+        "pre_cdr3_length": 288,
+        "pre_cdr3_match": 259,
+        "quality": null,
+        "seq_id": "M03592:18:000000000-AHJWK:1:1101:26841:10744",
+        "seq_start": 0,
+        "sequence": "CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTTACAGACCCTGTCCCTCNCCTGCNCTGTCTCAGGTGACTCCATCAGC------CGTAATAGTCACTACTGGAGCTGGCTTCGCCATCACCCAGGGAAGGACCTGGAGTGGATTGGTTACATCCATAAGAGT---------GGCGGTACCTACTACAACCCGTCCCTCGAG---AGTCGAGTTTCCATGTCAATAGACACGTCTAAGAACCAATTCTCCCTGAGGCTGACTTCTGTGACTGCCGCGGACACGGCCCTGTATTTCTGTGCGAGAGACACTGACTACAGTAGTTACACATTCGACACCTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
+        "v_gene": "IGHV4-31",
+        "v_length": 299,
+        "v_match": 270
+    },
     "M03592:18:000000000-AHJWK:1:1101:26857:9207": {
         "ai": 735,
         "cdr3_aa": "CARGSDMVRGVRLPPNYW",
@@ -9890,7 +9867,7 @@
         "v_match": 261
     },
     "M03592:18:000000000-AHJWK:1:1101:26975:14015": {
-        "ai": 614,
+        "ai": 615,
         "cdr3_aa": "CARQRVPAVFQYW",
         "cdr3_nt": "TGTGCGAGACAGCGAGTACCAGCTGTCTTTCAGTACTGG",
         "cdr3_num_nts": 39,
@@ -9982,7 +9959,7 @@
         "v_match": 259
     },
     "M03592:18:000000000-AHJWK:1:1101:27126:16682": {
-        "ai": 613,
+        "ai": 614,
         "cdr3_aa": "CARQRVPAVFQYW",
         "cdr3_nt": "TGTGCGAGACAGCGAGTACCAGCTGTCTTTCAGTACTGG",
         "cdr3_num_nts": 39,
@@ -10051,7 +10028,7 @@
         "v_match": 281
     },
     "M03592:18:000000000-AHJWK:1:1101:27406:13210": {
-        "ai": 656,
+        "ai": 657,
         "cdr3_aa": "CARGSVLAWEVLSRW",
         "cdr3_nt": "TGTGCGAGAGGCTCAGTGTTGGCCTGGGAAGTTCTCTCACGTTGG",
         "cdr3_num_nts": 45,
@@ -10120,7 +10097,7 @@
         "v_match": 296
     },
     "M03592:18:000000000-AHJWK:1:1101:27593:19735": {
-        "ai": 690,
+        "ai": 691,
         "cdr3_aa": "CAREGIGYNPGDFW",
         "cdr3_nt": "TGTGCGAGGGAAGGTATAGGCTACAACCCGGGGGACTTCTGG",
         "cdr3_num_nts": 42,
@@ -10212,7 +10189,7 @@
         "v_match": 265
     },
     "M03592:18:000000000-AHJWK:1:1101:27861:18345": {
-        "ai": 655,
+        "ai": 656,
         "cdr3_aa": "CARGSVLAWEVLSRW",
         "cdr3_nt": "TGTGCGAGAGGCTCAGTGTTGGCCTGGGAAGTTCTCTCACGTTGG",
         "cdr3_num_nts": 45,
@@ -10279,6 +10256,29 @@
         "v_gene": "IGHV1-18",
         "v_length": 296,
         "v_match": 281
+    },
+    "M03592:18:000000000-AHJWK:1:1101:27907:9181": {
+        "ai": 513,
+        "cdr3_aa": "CAILVVPGVWFDPW",
+        "cdr3_nt": "TGTGCGATCCTAGTAGTACCAGGCGTCTGGTTCGACCCCTGG",
+        "cdr3_num_nts": 42,
+        "copy_number": 2,
+        "germline": "CAGGTGCAGCTACAGCAGTGGGGCGCA---GGACTGTTGAAGCCTTCGGAGACCCTGTCCCTCACCTGCGCTGTCTATGGTGGGTCCTTC------------AGTGGTTACTACTGGAGCTGGATCCGCCAGCCCCCAGGGAAGGGGCTGGAGTGGATTGGGGAAATCAATCATAGT---------GGAAGCACCAACTACAACCCGTCCCTCAAG---AGTCGAGTCACCATATCAGTAGACACGTCCAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACCGCCGCGGACACGGCTGTGTATTAC------------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
+        "j_gene": "IGHJ5",
+        "j_length": 46,
+        "j_match": 46,
+        "num_gaps": 27,
+        "post_cdr3_length": 31,
+        "post_cdr3_match": 31,
+        "pre_cdr3_length": 282,
+        "pre_cdr3_match": 282,
+        "quality": null,
+        "seq_id": "M03592:18:000000000-AHJWK:1:1101:27907:9181",
+        "seq_start": 0,
+        "sequence": "CAGGTGCAGCTACAGCAGTGGGGCGCA---GGACTGTTGAAGCCTNCGGAGACCCTGTCCCNCACCTGCGCTGTCNATGGTGGGTCCTTC------------NGTGGTTACTACTGGAGCTGGATCCGCCAGCCCCCAGGGAAGGGGCTGGAGTGGATTGGGGAAATCAATCATAGT---------GGAAGCACCAACTACAACCCGTCCCTCAAG---AGTCGAGTCACCATATCAGTAGACACGTCCAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACCGCCGCGGACACGGCTGTGTATTACTGTGCGATCCTAGTAGTACCAGGCGTCTGGTTCGACCCCTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
+        "v_gene": "IGHV4-34",
+        "v_length": 289,
+        "v_match": 289
     },
     "M03592:18:000000000-AHJWK:1:1101:28154:17353": {
         "ai": 372,
@@ -10487,6 +10487,29 @@
         "v_length": 295,
         "v_match": 266
     },
+    "M03592:18:000000000-AHJWK:1:1101:28593:9587": {
+        "ai": 512,
+        "cdr3_aa": "CARGIRFFPWFDPW",
+        "cdr3_nt": "TGTGCGAGAGGGATACGATTTTTTCCCTGGTTCGACCCCTGG",
+        "cdr3_num_nts": 42,
+        "copy_number": 2,
+        "germline": "CAGGTGCAGCTACAGCAGTGGGGCGCA---GGACTGTTGAAGCCTTCGGAGACCCTGTCCCTCACCTGCGCTGTCTATGGTGGGTCCTTC------------AGTGGTTACTACTGGAGCTGGATCCGCCAGCCCCCAGGGAAGGGGCTGGAGTGGATTGGGGAAATCAATCATAGT---------GGAAGCACCAACTACAACCCGTCCCTCAAG---AGTCGAGTCACCATATCAGTAGACACGTCCAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACCGCCGCGGACACGGCTGTGTATTAC------------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
+        "j_gene": "IGHJ5",
+        "j_length": 46,
+        "j_match": 46,
+        "num_gaps": 27,
+        "post_cdr3_length": 31,
+        "post_cdr3_match": 31,
+        "pre_cdr3_length": 282,
+        "pre_cdr3_match": 282,
+        "quality": null,
+        "seq_id": "M03592:18:000000000-AHJWK:1:1101:28593:9587",
+        "seq_start": 0,
+        "sequence": "CAGNTGCAGCTACAGCAGTGGGGCGCA---GGACTGTTGAAGCNTTCGGAGACCCTGTCCCTCACNNGNGCTGTCTANGGTGGGTNCNTC------------AGTGGTTACTACTGGAGCTGGATCCGCCAGCCCCCAGGGAAGGGGCTGGAGTNGATTGGGGAAATCAATCATAGT---------GGAAGCACCAACTACAACCCGTCCCTCAAG---AGTCGAGTCACCATATCAGTAGACACGTCCAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACCGCCGCGGACACGGCTGTGTATTACTGTGCGAGAGGGATACGATTTTTTCCCTGGTTCGACCCCTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
+        "v_gene": "IGHV4-34",
+        "v_length": 293,
+        "v_match": 293
+    },
     "M03592:18:000000000-AHJWK:1:1101:28612:14328": {
         "ai": 928,
         "cdr3_aa": "CARDQSSSNWWKYW",
@@ -10511,7 +10534,7 @@
         "v_match": 273
     },
     "M03592:18:000000000-AHJWK:1:1101:28638:11124": {
-        "ai": 704,
+        "ai": 705,
         "cdr3_aa": "CARGGGYSYGSDYW",
         "cdr3_nt": "TGTGCGAGAGGTGGAGGATACAGCTATGGTTCTGACTACTGG",
         "cdr3_num_nts": 42,
@@ -10722,7 +10745,7 @@
         "cdr3_aa": "CAFNGPYRLDHW",
         "cdr3_nt": "TGTGCGTTTAACGGCCCGTATCGACTTGACCACTGG",
         "cdr3_num_nts": 36,
-        "copy_number": 6,
+        "copy_number": 3,
         "germline": "CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCGGGGACCCTGTCCCTCACCTGCGCTGTCTCTGGTGGCTCCATCAGC---------AGTAGTAACTGGTGGAGTTGGGTCCGCCAGCCCCCAGGGAAGGGGCTGGAGTGGATTGGGGAAATCTATCATAGT---------GGGAGCACCAACTACAACCCGTCCCTCAAG---AGTCGAGTCACCATATCAGTAGACAAGTCCAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACCGCCGCGGACACGGCCGTGTATTAC------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
         "j_gene": "IGHJ4",
         "j_length": 41,
@@ -10833,7 +10856,7 @@
         "v_match": 271
     },
     "M03592:18:000000000-AHJWK:1:1101:3324:9790": {
-        "ai": 639,
+        "ai": 640,
         "cdr3_aa": "CASLLDSKYFDNW",
         "cdr3_nt": "TGTGCGAGTCTTCTAGATTCGAAGTACTTTGACAACTGG",
         "cdr3_num_nts": 39,
@@ -10856,7 +10879,7 @@
         "v_match": 251
     },
     "M03592:18:000000000-AHJWK:1:1101:3338:11319": {
-        "ai": 628,
+        "ai": 629,
         "cdr3_aa": "CTNLSGYTSVFDSW",
         "cdr3_nt": "TGTACGAATCTAAGTGGATACACCTCTGTTTTTGACTCCTGG",
         "cdr3_num_nts": 42,
@@ -10994,7 +11017,7 @@
         "v_match": 275
     },
     "M03592:18:000000000-AHJWK:1:1101:4096:10053": {
-        "ai": 612,
+        "ai": 613,
         "cdr3_aa": "CARQRVPAVFQYW",
         "cdr3_nt": "TGTGCGAGACAGCGAGTACCAGCTGTCTTTCAGTACTGG",
         "cdr3_num_nts": 39,
@@ -11247,7 +11270,7 @@
         "v_match": 257
     },
     "M03592:18:000000000-AHJWK:1:1101:5094:9513": {
-        "ai": 703,
+        "ai": 704,
         "cdr3_aa": "CATGRWEMFGIYYW",
         "cdr3_nt": "TGTGCGACTGGACGGTGGGAAATGTTCGGGATTTACTACTGG",
         "cdr3_num_nts": 42,
@@ -11274,7 +11297,7 @@
         "cdr3_aa": "CARNLRDSKYAFSFDYW",
         "cdr3_nt": "TGTGCGAGAAATCTCCGGGACAGTAAATACGCCTTTTCGTTTGACTACTGG",
         "cdr3_num_nts": 51,
-        "copy_number": 2,
+        "copy_number": 1,
         "germline": "CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCGGAGACCCTGTCCCTCACCTGCACTGTCTCTGGTGGCTCCGTCAGC------AGTGGTAGTTACTACTGGAGCTGGATCCGGCAGCCCCCAGGGAAGGGACTGGAGTGGATTGGGTATATCTATTACAGT---------GGGAGCACCAACTACAACCCCTCCCTCAAG---AGTCGAGTCACCATATCAGTAGACACGTCCAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACCGCTGCGGACACGGCCGTGTATTAC---------------------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
         "j_gene": "IGHJ4",
         "j_length": 42,
@@ -11661,7 +11684,7 @@
         "v_match": 278
     },
     "M03592:18:000000000-AHJWK:1:1101:5924:6720": {
-        "ai": 627,
+        "ai": 628,
         "cdr3_aa": "CTNLSGYTSVFDSW",
         "cdr3_nt": "TGTACGAATCTAAGTGGATACACCTCTGTTTTTGACTCCTGG",
         "cdr3_num_nts": 42,
@@ -11914,7 +11937,7 @@
         "v_match": 264
     },
     "M03592:18:000000000-AHJWK:1:1101:6861:23417": {
-        "ai": 715,
+        "ai": 716,
         "cdr3_aa": "CASKWPPQQTT",
         "cdr3_nt": "TGTGCGAGTAAATGGCCCCCCCAACAGACTACTGG",
         "cdr3_num_nts": 35,
@@ -12029,11 +12052,11 @@
         "v_match": 295
     },
     "M03592:18:000000000-AHJWK:1:1101:7076:6829": {
-        "ai": 603,
+        "ai": 604,
         "cdr3_aa": "CASRNTIRLLVLTTLTT",
         "cdr3_nt": "TGCGCGAGCCGAAATACTATCAGACTATTGGTCCTTACTACTTTGACCACTGG",
         "cdr3_num_nts": 53,
-        "copy_number": 5,
+        "copy_number": 4,
         "germline": "CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCACAGACCCTGTCCCTCACCTGCACTGTCTCTGGTGGCTCCATCAGC------AGTGGTGGTTACTACTGGAGCTGGATCCGCCAGCACCCAGGGAAGGGCCTGGAGTGGATTGGGTACATCTATTACAGT---------GGGAGCACCTACTACAACCCGTCCCTCAAG---AGTCGAGTTACCATATCAGTAGACACGTCTAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACTGCCGCGGACACGGCCGTGTATTAC-----------------------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
         "j_gene": "IGHJ4",
         "j_length": 47,
@@ -12052,7 +12075,7 @@
         "v_match": 257
     },
     "M03592:18:000000000-AHJWK:1:1101:7077:21221": {
-        "ai": 439,
+        "ai": 438,
         "cdr3_aa": "CARSSCTNGVCPFDNW",
         "cdr3_nt": "TGTGCGAGATCGTCGTGTACTAATGGTGTGTGCCCATTTGACAACTGG",
         "cdr3_num_nts": 48,
@@ -12121,7 +12144,7 @@
         "v_match": 295
     },
     "M03592:18:000000000-AHJWK:1:1101:7131:18265": {
-        "ai": 438,
+        "ai": 437,
         "cdr3_aa": "CARSSCTNGVCPFDNW",
         "cdr3_nt": "TGTGCGAGATCGTCGTGTACTAATGGTGTATGCCCGTTTGACAACTGG",
         "cdr3_num_nts": 48,
@@ -12167,7 +12190,7 @@
         "v_match": 294
     },
     "M03592:18:000000000-AHJWK:1:1101:7146:22488": {
-        "ai": 623,
+        "ai": 624,
         "cdr3_aa": "CATSGTVARTLGNW",
         "cdr3_nt": "TGTGCGACATCCGGAACAGTAGCTCGAACGCTCGGCAACTGG",
         "cdr3_num_nts": 42,
@@ -12328,7 +12351,7 @@
         "v_match": 279
     },
     "M03592:18:000000000-AHJWK:1:1101:7370:20710": {
-        "ai": 611,
+        "ai": 612,
         "cdr3_aa": "CARQRVPAVFQYW",
         "cdr3_nt": "TGTGCGAGACAGCGAGTACCAGCTGTCTTTCAGTACTGG",
         "cdr3_num_nts": 39,
@@ -12374,7 +12397,7 @@
         "v_match": 274
     },
     "M03592:18:000000000-AHJWK:1:1101:7420:15423": {
-        "ai": 631,
+        "ai": 632,
         "cdr3_aa": "CARDVSDCSNDCYHHWYFDLW",
         "cdr3_nt": "TGTGCGAGAGACGTTTCTGATTGTTCTAATGACTGCTACCACCACTGGTACTTCGATCTCTGG",
         "cdr3_num_nts": 63,
@@ -12443,7 +12466,7 @@
         "v_match": 278
     },
     "M03592:18:000000000-AHJWK:1:1101:7524:22156": {
-        "ai": 638,
+        "ai": 639,
         "cdr3_aa": "CASLLDSKYFDNW",
         "cdr3_nt": "TGTGCGAGTCTTCTAGATTCGAAGTACTTTGACAACTGG",
         "cdr3_num_nts": 39,
@@ -12558,7 +12581,7 @@
         "v_match": 243
     },
     "M03592:18:000000000-AHJWK:1:1101:7606:7336": {
-        "ai": 437,
+        "ai": 436,
         "cdr3_aa": "CARSSCTNGVCPFDNW",
         "cdr3_nt": "TGTGCGAGATCGTCGTGTACTAATGGTGTGTGCCCATTTGACAACTGG",
         "cdr3_num_nts": 48,
@@ -12627,7 +12650,7 @@
         "v_match": 268
     },
     "M03592:18:000000000-AHJWK:1:1101:7772:10594": {
-        "ai": 637,
+        "ai": 638,
         "cdr3_aa": "CAGSSGWYRIDSW",
         "cdr3_nt": "TGCGCGGGTAGCAGTGGCTGGTACAGGATTGACTCCTGG",
         "cdr3_num_nts": 39,
@@ -12719,7 +12742,7 @@
         "v_match": 268
     },
     "M03592:18:000000000-AHJWK:1:1101:7937:6173": {
-        "ai": 647,
+        "ai": 648,
         "cdr3_aa": "CARGKWGGFDSW",
         "cdr3_nt": "TGTGCGCGAGGCAAATGGGGGGGTTTTGACTCCTGG",
         "cdr3_num_nts": 36,
@@ -12765,7 +12788,7 @@
         "v_match": 291
     },
     "M03592:18:000000000-AHJWK:1:1101:7980:16367": {
-        "ai": 579,
+        "ai": 580,
         "cdr3_aa": "CARVIVVVPAASRPIFDYW",
         "cdr3_nt": "TGTGCGAGAGTCATTGTAGTAGTACCAGCTGCTTCACGGCCCATCTTTGACTACTGG",
         "cdr3_num_nts": 57,
@@ -12788,7 +12811,7 @@
         "v_match": 298
     },
     "M03592:18:000000000-AHJWK:1:1101:8002:8869": {
-        "ai": 602,
+        "ai": 603,
         "cdr3_aa": "CASRNTIRLLVLTTLTT",
         "cdr3_nt": "TGCGCGAGCCGAAATACTATCAGACTATTGGTCCTTACTACTTTGACCACTGG",
         "cdr3_num_nts": 53,
@@ -12811,7 +12834,7 @@
         "v_match": 257
     },
     "M03592:18:000000000-AHJWK:1:1101:8079:16605": {
-        "ai": 680,
+        "ai": 681,
         "cdr3_aa": "CARPRVGTRKGWFDPW",
         "cdr3_nt": "TGTGCGAGACCCAGAGTGGGAACCAGGAAGGGCTGGTTCGACCCCTGG",
         "cdr3_num_nts": 48,
@@ -12995,11 +13018,11 @@
         "v_match": 269
     },
     "M03592:18:000000000-AHJWK:1:1101:8425:15329": {
-        "ai": 720,
+        "ai": 721,
         "cdr3_aa": "CARGRSGGPRGDYW",
         "cdr3_nt": "TGTGCGAGAGGACGCTCGGGGGGGCCCAGGGGGGACTACTGG",
         "cdr3_num_nts": 42,
-        "copy_number": 2,
+        "copy_number": 3,
         "germline": "CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCGGAGACCCTGTCCCTCACCTGCACTGTCTCTGGTGGCTCCGTCAGC------AGTGGTAGTTACTACTGGAGCTGGATCCGGCAGCCCCCAGGGAAGGGACTGGAGTGGATTGGGTATATCTATTACAGT---------GGGAGCACCAACTACAACCCCTCCCTCAAG---AGTCGAGTCACCATATCAGTAGACACGTCCAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACCGCTGCGGACACGGCCGTGTATTAC------------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
         "j_gene": "IGHJ4",
         "j_length": 39,
@@ -13018,7 +13041,7 @@
         "v_match": 270
     },
     "M03592:18:000000000-AHJWK:1:1101:8527:18366": {
-        "ai": 636,
+        "ai": 637,
         "cdr3_aa": "CAASRSYRYVDYW",
         "cdr3_nt": "TGTGCGGCATCTAGGAGTTACCGCTATGTTGACTACTGG",
         "cdr3_num_nts": 39,
@@ -13202,7 +13225,7 @@
         "v_match": 273
     },
     "M03592:18:000000000-AHJWK:1:1101:9160:21738": {
-        "ai": 610,
+        "ai": 611,
         "cdr3_aa": "CARQRVPAVFQYW",
         "cdr3_nt": "TGTGCGAGACAGCGAGTACCAGCTGTCTTTCAGTACTGG",
         "cdr3_num_nts": 39,
@@ -13294,7 +13317,7 @@
         "v_match": 283
     },
     "M03592:18:000000000-AHJWK:1:1101:9200:21565": {
-        "ai": 712,
+        "ai": 713,
         "cdr3_aa": "CARSSCTNGVCPFDNW",
         "cdr3_nt": "TGTGCGAGATCGTCGTGTACTAATGGTGTGTGCCCATTTGACAACTGG",
         "cdr3_num_nts": 48,
@@ -13317,7 +13340,7 @@
         "v_match": 260
     },
     "M03592:18:000000000-AHJWK:1:1101:9264:13787": {
-        "ai": 685,
+        "ai": 686,
         "cdr3_aa": "CARAELVPAAIRPYNWFDPW",
         "cdr3_nt": "TGTGCGAGAGCCGAGCTAGTACCAGCTGCTATACGCCCGTACAACTGGTTCGACCCCTGG",
         "cdr3_num_nts": 60,
@@ -13454,6 +13477,29 @@
         "v_length": 295,
         "v_match": 285
     },
+    "M03592:18:000000000-AHJWK:1:1101:9517:16172": {
+        "ai": 690,
+        "cdr3_aa": "CAREGIGYNPGDFW",
+        "cdr3_nt": "TGTGCGAGGGAAGGTATAGGCTACAACCCGGGGGACTTCTGG",
+        "cdr3_num_nts": 42,
+        "copy_number": 3,
+        "germline": "CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCGGGGACCCTGTCCCTCACCTGCGCTGTCTCTGGTGGCTCCATCAGC---------AGTAGTAACTGGTGGAGTTGGGTCCGCCAGCCCCCAGGGAAGGGGCTGGAGTGGATTGGGGAAATCTATCATAGT---------GGGAGCACCAACTACAACCCGTCCCTCAAG---AGTCGAGTCACCATATCAGTAGACAAGTCCAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACCGCCGCGGACACGGCCGTGTATTAC------------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
+        "j_gene": "IGHJ4",
+        "j_length": 39,
+        "j_match": 37,
+        "num_gaps": 24,
+        "post_cdr3_length": 31,
+        "post_cdr3_match": 30,
+        "pre_cdr3_length": 285,
+        "pre_cdr3_match": 267,
+        "quality": null,
+        "seq_id": "M03592:18:000000000-AHJWK:1:1101:9517:16172",
+        "seq_start": 0,
+        "sequence": "CAGGTGCGGCTGCAGGAGTCGGGCNCA---GGACTGGTGGAGCCTTCGGGGACCCNGTNCCNNNCCTGCACTGTCTCTGATGGCTCCATCAGC---------AGTAGTAACTGGTGGAGTTGGGTCCGCCAGCCCCCAGGGAAGGGGCTGGAGTGGGTTGGGGAAATCTCTCATAGT---------GGGGGGACCACCTACAACCCGTCCGTCAAG---AGTCGAGTCAGCATGTCACTGGACAGTTCCAAGAACCAGTTCTCCCTGAAGCTGAGTTCTGTGACCGCCGCGGACACGGCCGTCTATTATTGTGCGAGGGAAGGTATAGGCTACAACCCGGGGGACTTCTGGGGCCAGGGAATCCTGGTCACCGTCTCCTCAG",
+        "v_gene": "IGHV4-4",
+        "v_length": 296,
+        "v_match": 276
+    },
     "M03592:18:000000000-AHJWK:1:1101:9558:7495": {
         "ai": 927,
         "cdr3_aa": "CAREIGARSGSNYW",
@@ -13473,6 +13519,29 @@
         "seq_id": "M03592:18:000000000-AHJWK:1:1101:9558:7495",
         "seq_start": 0,
         "sequence": "CAGCTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCGGAGACCCTGTCCCTCACTTGCACTGTCTCTGGTGGCTCCATCAGC------AGTAGTACTTTCTACTGGGGCTGGATCCGCCAGCNCCCAGGGAAGGGCCTGGAGTGGATTGGGACTATCTATTCTAGT---------GGGAACACCCACTACAACCCGTCCCTCAAG---AGTCGAGTCACCATATCAGTTGACACGTCGAAGAACCAGTTCTCCCTGCGGCTGAGCTCTGTGACCGCCGCGGACACGGCCATGTATTACTGTGCGAGAGAAATTGGCGCACGTAGTGGGTCTAACTACTGGGGCTGGGGAACCCTGGTCACCGTCTCCTCAG",
+        "v_gene": "IGHV4-39",
+        "v_length": 299,
+        "v_match": 286
+    },
+    "M03592:18:000000000-AHJWK:1:1101:9629:11562": {
+        "ai": 926,
+        "cdr3_aa": "CAREIGARSGSNYW",
+        "cdr3_nt": "TGTGCGAGAGAAATTGGCGCACGTAGTGGGTCTAACTACTGG",
+        "cdr3_num_nts": 42,
+        "copy_number": 3,
+        "germline": "CAGCTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCGGAGACCCTGTCCCTCACCTGCACTGTCTCTGGTGGCTCCATCAGC------AGTAGTAGTTACTACTGGGGCTGGATCCGCCAGCCCCCAGGGAAGGGGCTGGAGTGGATTGGGAGTATCTATTATAGT---------GGGAGCACCTACTACAACCCGTCCCTCAAG---AGTCGAGTCACCATATCAGTAGACACGTCCAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACCGCCGCGGACACGGCCGTGTATTAC------------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
+        "j_gene": "IGHJ4",
+        "j_length": 38,
+        "j_match": 37,
+        "num_gaps": 21,
+        "post_cdr3_length": 31,
+        "post_cdr3_match": 30,
+        "pre_cdr3_length": 288,
+        "pre_cdr3_match": 275,
+        "quality": null,
+        "seq_id": "M03592:18:000000000-AHJWK:1:1101:9629:11562",
+        "seq_start": 0,
+        "sequence": "CAGCTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGNGAAGCCTTCGGAGACCCTGTCCCTCNCTTGCACTGTCTCTGGTGGCTCCATCAGC------AGTAGTACTTTCTACTGGGGCTGGANCCGCCAGCCCCCAGGGAAGGGCCTGGAGTGGATTGGGACTATCTATTCTAGT---------GGGAACACCCACTACAACCCGTCCCTCAAG---AGTCGAGTCACCATATCAGTTGACACGTCGAAGAACCAGTTCTCCCTGCGGCTGAGCTCTGTGACCGCCGCGGACACGGCCATGTATTACTGTGCGAGAGAAATTGGCGCACGTAGTGGGTCTAACTACTGGGGCCGGGGAACCCTGGTCACCGTCTCCTCAG",
         "v_gene": "IGHV4-39",
         "v_length": 299,
         "v_match": 286
@@ -13823,7 +13892,7 @@
         "v_match": 287
     },
     "M03592:18:000000000-AHJWK:1:1102:10160:7270": {
-        "ai": 679,
+        "ai": 680,
         "cdr3_aa": "CASLLQWHQMNWFDPW",
         "cdr3_nt": "TGTGCCTCCCTACTACAGTGGCACCAAATGAACTGGTTCGACCCCTGG",
         "cdr3_num_nts": 48,
@@ -13896,7 +13965,7 @@
         "cdr3_aa": "CARNLRDSKYAFSFDYW",
         "cdr3_nt": "TGTGCGAGAAATCTCCGGGACAGTAAATACGCCTTTTCGTTTGACTACTGG",
         "cdr3_num_nts": 51,
-        "copy_number": 6,
+        "copy_number": 4,
         "germline": "CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCGGAGACCCTGTCCCTCACCTGCACTGTCTCTGGTGGCTCCGTCAGC------AGTGGTAGTTACTACTGGAGCTGGATCCGGCAGCCCCCAGGGAAGGGACTGGAGTGGATTGGGTATATCTATTACAGT---------GGGAGCACCAACTACAACCCCTCCCTCAAG---AGTCGAGTCACCATATCAGTAGACACGTCCAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACCGCTGCGGACACGGCCGTGTATTAC---------------------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
         "j_gene": "IGHJ4",
         "j_length": 42,
@@ -13984,7 +14053,7 @@
         "v_match": 265
     },
     "M03592:18:000000000-AHJWK:1:1102:10894:10051": {
-        "ai": 436,
+        "ai": 435,
         "cdr3_aa": "CARSSCTNGVCPFDNW",
         "cdr3_nt": "TGTGCGAGATCGTCGTGTACTAATGGTGTGTGCCCATTTGACAACTGG",
         "cdr3_num_nts": 48,
@@ -14007,7 +14076,7 @@
         "v_match": 268
     },
     "M03592:18:000000000-AHJWK:1:1102:11012:10290": {
-        "ai": 666,
+        "ai": 667,
         "cdr3_aa": "CARTPCTSAGCYTSYWYFDLW",
         "cdr3_nt": "TGTGCGAGGACACCTTGTACTAGTGCCGGCTGCTATACATCGTACTGGTACTTCGATCTCTGG",
         "cdr3_num_nts": 63,
@@ -14076,7 +14145,7 @@
         "v_match": 258
     },
     "M03592:18:000000000-AHJWK:1:1102:11307:9459": {
-        "ai": 626,
+        "ai": 627,
         "cdr3_aa": "CTNLSGYTSVFDSW",
         "cdr3_nt": "TGTACGAATCTAAGTGGATACACCTCTGTTTTTGACTCCTGG",
         "cdr3_num_nts": 42,
@@ -14143,29 +14212,6 @@
         "v_gene": "IGHV3-21",
         "v_length": 296,
         "v_match": 268
-    },
-    "M03592:18:000000000-AHJWK:1:1102:11541:9098": {
-        "ai": 512,
-        "cdr3_aa": "CARGIRFFPWFDPW",
-        "cdr3_nt": "TGTGCGAGAGGGATACGATTTTTTCCCTGGTTCGACCCCTGG",
-        "cdr3_num_nts": 42,
-        "copy_number": 5,
-        "germline": "CAGGTGCAGCTACAGCAGTGGGGCGCA---GGACTGTTGAAGCCTTCGGAGACCCTGTCCCTCACCTGCGCTGTCTATGGTGGGTCCTTC------------AGTGGTTACTACTGGAGCTGGATCCGCCAGCCCCCAGGGAAGGGGCTGGAGTGGATTGGGGAAATCAATCATAGT---------GGAAGCACCAACTACAACCCGTCCCTCAAG---AGTCGAGTCACCATATCAGTAGACACGTCCAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACCGCCGCGGACACGGCTGTGTATTAC------------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
-        "j_gene": "IGHJ5",
-        "j_length": 46,
-        "j_match": 46,
-        "num_gaps": 27,
-        "post_cdr3_length": 31,
-        "post_cdr3_match": 31,
-        "pre_cdr3_length": 282,
-        "pre_cdr3_match": 282,
-        "quality": null,
-        "seq_id": "M03592:18:000000000-AHJWK:1:1102:11541:9098",
-        "seq_start": 0,
-        "sequence": "CAGGTGCAGCTACAGCAGTGGGGCGCA---GGACTGTTGAAGCCTTCGGAGACCCTGTCCCTCACCTGCGCTGTCTATGGTGGGTCCTTC------------AGTGGTTACTACTGGAGCTGGATCCGCCAGCCCCCAGGGAAGGGGCTGGAGTGGATTGGGGAAATCAATCATAGT---------GGAAGCACCAACTACAACCCGTCCCTCAAG---AGTCGAGTCACCATATCAGTAGACACGTCCAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACCGCCGCGGACACGGCTGTGTATTACTGTGCGAGAGGGATACGATTTTTTCCCTGGTTCGACCCCTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
-        "v_gene": "IGHV4-34",
-        "v_length": 293,
-        "v_match": 293
     },
     "M03592:18:000000000-AHJWK:1:1102:11554:8605": {
         "ai": 456,
@@ -14490,7 +14536,7 @@
         "v_match": 277
     },
     "M03592:18:000000000-AHJWK:1:1102:12882:7750": {
-        "ai": 684,
+        "ai": 685,
         "cdr3_aa": "CARAELVPAAIRPYNWFDPW",
         "cdr3_nt": "TGTGCGAGAGCCGAGCTAGTACCAGCTGCTATACGCCCGTACAACTGGTTCGACCCCTGG",
         "cdr3_num_nts": 60,
@@ -14536,7 +14582,7 @@
         "v_match": 275
     },
     "M03592:18:000000000-AHJWK:1:1102:13003:9447": {
-        "ai": 597,
+        "ai": 598,
         "cdr3_aa": "CARVNADFGVVIDYW",
         "cdr3_nt": "TGTGCGAGAGTTAATGCCGATTTTGGAGTGGTTATTGACTACTGG",
         "cdr3_num_nts": 45,
@@ -14586,7 +14632,7 @@
         "cdr3_aa": "CAILVVPGVWFDPW",
         "cdr3_nt": "TGTGCGATCCTAGTAGTACCAGGCGTCTGGTTCGACCCCTGG",
         "cdr3_num_nts": 42,
-        "copy_number": 5,
+        "copy_number": 10,
         "germline": "CAGGTGCAGCTACAGCAGTGGGGCGCA---GGACTGTTGAAGCCTTCGGAGACCCTGTCCCTCACCTGCGCTGTCTATGGTGGGTCCTTC------------AGTGGTTACTACTGGAGCTGGATCCGCCAGCCCCCAGGGAAGGGGCTGGAGTGGATTGGGGAAATCAATCATAGT---------GGAAGCACCAACTACAACCCGTCCCTCAAG---AGTCGAGTCACCATATCAGTAGACACGTCCAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACCGCCGCGGACACGGCTGTGTATTAC------------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
         "j_gene": "IGHJ5",
         "j_length": 46,
@@ -14604,35 +14650,35 @@
         "v_length": 289,
         "v_match": 289
     },
-    "M03592:18:000000000-AHJWK:1:1102:13230:9672": {
-        "ai": 570,
-        "cdr3_aa": "CAREGEMATSIW",
-        "cdr3_nt": "TGTGCGCGAGAAGGAGAGATGGCTACAAGTATCTGG",
+    "M03592:18:000000000-AHJWK:1:1102:13160:19422": {
+        "ai": 20,
+        "cdr3_aa": "CARSEAAGLVYW",
+        "cdr3_nt": "TGTGCGAGATCCGAAGCAGCTGGTCTGGTCTACTGG",
         "cdr3_num_nts": 36,
-        "copy_number": 4,
-        "germline": "CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCACAGACCCTGTCCCTCACCTGCACTGTCTCTGGTGGCTCCATCAGC------AGTGGTGGTTACTACTGGAGCTGGATCCGCCAGCACCCAGGGAAGGGCCTGGAGTGGATTGGGTACATCTATTACAGT---------GGGAGCACCTACTACAACCCGTCCCTCAAG---AGTCGAGTTACCATATCAGTAGACACGTCTAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACTGCCGCGGACACGGCCGTGTATTAC------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
-        "j_gene": "IGHJ4|5",
-        "j_length": 34,
-        "j_match": 34,
-        "num_gaps": 21,
+        "copy_number": 1,
+        "germline": "CAGGTGCAGCTGGTGCAATCTGGGTCT---GAGTTGAAGAAGCCTGGGGCCTCAGTGAAGGTTTCCTGCAAGGCTTCTGGATACACCTTC------------ACTAGCTATGCTATGAATTGGGTGCGACAGGCCCCTGGACAAGGGCTTGAGTGGATGGGATGGATCAACACCAAC------ACTGGGAACCCAACGTATGCCCAGGGCTTCACA---GGACGGTTTGTCTTCTCCTTGGACACCTCTGTCAGCACGGCATATCTGCAGATCAGCAGCCTAAAGGCTGAGGACACTGCCGTGTATTAC------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
+        "j_gene": "IGHJ4",
+        "j_length": 37,
+        "j_match": 37,
+        "num_gaps": 24,
         "post_cdr3_length": 31,
         "post_cdr3_match": 31,
-        "pre_cdr3_length": 288,
-        "pre_cdr3_match": 261,
+        "pre_cdr3_length": 285,
+        "pre_cdr3_match": 272,
         "quality": null,
-        "seq_id": "M03592:18:000000000-AHJWK:1:1102:13230:9672",
+        "seq_id": "M03592:18:000000000-AHJWK:1:1102:13160:19422",
         "seq_start": 0,
-        "sequence": "CAGGTGCAGCTGCAGGAGTCGGGNCCA---GGACTGGTGAAGNCTNCACAGACCCTGTCCCTCACCTGCACTGTCTCNGGTGGCTCCATCAGT------AGTCCTGGTTATTACTGGACCTGGANCCGCCAGCACCCAGGGAAGGGCCTGNAGTGGATTGGCTTCTTCTCCTATGGT---------GGGACCACCCACTACAACCCGTCCCTCATG---AGTCGATTAACCATATCAGTAGACATAACTAAGAGTCAGTTCTCCCTGAACCTGAGCGCTGTTACTGCCGCGGACACGGCCGTTTACTACTGTGCGCGAGAAGGAGAGATGGCTACAAGTATCTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
-        "v_gene": "IGHV4-31",
-        "v_length": 299,
-        "v_match": 271
+        "sequence": "CAGGTGCANCTGGTGCAANCTGGGTCT---GAATTGAAGNAGCCTNNGGCCTCAGTGAGGGTTTCCTGCAAGGCTTNTGGATACACCTTC------------AGTAGCTATGCTATGAATTGGGTGCGACAGGCCCCTGGACAAGGACTTGATTGGATGGGATGGATCAGCACCAAC------ACTGGGAACCCAACATATGCCCAGGGCTTCAAG---GGACGGTTTGTCTTCTCCTTGGACACCTCTGTCAGTACGTCATATCTGCAGATCAGTAGCCTAAAGGCTGAGGACACTGCCGTATATTACTGTGCGAGATCCGAAGCAGCTGGTCTGGTCTACTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
+        "v_gene": "IGHV7-4-1",
+        "v_length": 294,
+        "v_match": 281
     },
     "M03592:18:000000000-AHJWK:1:1102:13258:9173": {
         "ai": 398,
         "cdr3_aa": "CTRSNSGSSVWTFW",
         "cdr3_nt": "TGTACGAGAAGTAATAGTGGTAGTTCCGTCTGGACCTTCTGG",
         "cdr3_num_nts": 42,
-        "copy_number": 2,
+        "copy_number": 3,
         "germline": "CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCGGGGACCCTGTCCCTCACCTGCGCTGTCTCTGGTGGCTCCATCAGC---------AGTAGTAACTGGTGGAGTTGGGTCCGCCAGCCCCCAGGGAAGGGGCTGGAGTGGATTGGGGAAATCTATCATAGT---------GGGAGCACCAACTACAACCCGTCCCTCAAG---AGTCGAGTCACCATATCAGTAGACAAGTCCAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACCGCCGCGGACACGGCCGTGTATTAC------------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
         "j_gene": "IGHJ4|5",
         "j_length": 34,
@@ -14651,7 +14697,7 @@
         "v_match": 279
     },
     "M03592:18:000000000-AHJWK:1:1102:13470:7446": {
-        "ai": 609,
+        "ai": 610,
         "cdr3_aa": "CARQRVPAVFQYW",
         "cdr3_nt": "TGTGCGAGACAGCGAGTACCAGCTGTCTTTCAGTACTGG",
         "cdr3_num_nts": 39,
@@ -14812,7 +14858,7 @@
         "v_match": 293
     },
     "M03592:18:000000000-AHJWK:1:1102:14160:8166": {
-        "ai": 601,
+        "ai": 602,
         "cdr3_aa": "CASRNTIRLLVLTTLTT",
         "cdr3_nt": "TGCGCGAGCCGAAATACTATCAGACTATTGGTCCTTACTACTTTGACCACTGG",
         "cdr3_num_nts": 53,
@@ -15019,11 +15065,11 @@
         "v_match": 283
     },
     "M03592:18:000000000-AHJWK:1:1102:14912:8478": {
-        "ai": 710,
+        "ai": 711,
         "cdr3_aa": "CARQAEVGYW",
         "cdr3_nt": "TGTGCGAGACAGGCAGAAGTGGGCTACTGG",
         "cdr3_num_nts": 30,
-        "copy_number": 3,
+        "copy_number": 2,
         "germline": "CAGCTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCGGAGACCCTGTCCCTCACCTGCACTGTCTCTGGTGGCTCCATCAGC------AGTAGTAGTTACTACTGGGGCTGGATCCGCCAGCCCCCAGGGAAGGGGCTGGAGTGGATTGGGAGTATCTATTATAGT---------GGGAGCACCTACTACAACCCGTCCCTCAAG---AGTCGAGTCACCATATCCGTAGACACGTCCAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACCGCCGCAGACACGGCTGTGTATTAC------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
         "j_gene": "IGHJ4",
         "j_length": 37,
@@ -15042,7 +15088,7 @@
         "v_match": 299
     },
     "M03592:18:000000000-AHJWK:1:1102:14993:7902": {
-        "ai": 709,
+        "ai": 710,
         "cdr3_aa": "CARQAEVGYW",
         "cdr3_nt": "TGTGCGAGACAGGCAGAAGTGGGCTACTGG",
         "cdr3_num_nts": 30,
@@ -15157,7 +15203,7 @@
         "v_match": 283
     },
     "M03592:18:000000000-AHJWK:1:1102:15238:9476": {
-        "ai": 593,
+        "ai": 594,
         "cdr3_aa": "CARDLPLGYCSSTSCSGGDYW",
         "cdr3_nt": "TGTGCGAGAGATTTGCCCCTTGGATATTGTAGTAGTACCAGCTGCTCGGGGGGTGACTACTGG",
         "cdr3_num_nts": 63,
@@ -15249,7 +15295,7 @@
         "v_match": 262
     },
     "M03592:18:000000000-AHJWK:1:1102:15754:8210": {
-        "ai": 435,
+        "ai": 434,
         "cdr3_aa": "CARSSCTNGVCPFDNW",
         "cdr3_nt": "TGTGCGAGATCGTCGTGTACTAATGGTGTGTGCCCATTTGACAACTGG",
         "cdr3_num_nts": 48,
@@ -15318,7 +15364,7 @@
         "v_match": 295
     },
     "M03592:18:000000000-AHJWK:1:1102:16097:7882": {
-        "ai": 719,
+        "ai": 720,
         "cdr3_aa": "CARGRSGGPRGDYW",
         "cdr3_nt": "TGTGCGAGAGGACGCTCGGGGGGGCCCAGGGGGGACTACTGG",
         "cdr3_num_nts": 42,
@@ -15662,29 +15708,6 @@
         "v_length": 293,
         "v_match": 275
     },
-    "M03592:18:000000000-AHJWK:1:1102:17504:6833": {
-        "ai": 829,
-        "cdr3_aa": "CARHMSQRSASRYFDYW",
-        "cdr3_nt": "TGTGCGAGACACATGTCCCAACGTTCAGCGTCTCGATACTTTGACTACTGG",
-        "cdr3_num_nts": 51,
-        "copy_number": 2,
-        "germline": "CAGGTCCAGCTTGTGCAGTCTGGGGCT---GAGGTGAAGAAGCCTGGGGCCTCAGTGAAGGTTTCCTGCAAGGCTTCTGGATACACCTTC------------ACTAGCTATGCTATGCATTGGGTGCGCCAGGCCCCCGGACAAAGGCTTGAGTGGATGGGATGGATCAACGCTGGC------AATGGTAACACAAAATATTCACAGAAGTTCCAG---GGCAGAGTCACCATTACCAGGGACACATCCGCGAGCACAGCCTACATGGAGCTGAGCAGCCTGAGATCTGAAGACACGGCTGTGTATTAC---------------------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
-        "j_gene": "IGHJ4",
-        "j_length": 45,
-        "j_match": 45,
-        "num_gaps": 24,
-        "post_cdr3_length": 31,
-        "post_cdr3_match": 31,
-        "pre_cdr3_length": 285,
-        "pre_cdr3_match": 258,
-        "quality": null,
-        "seq_id": "M03592:18:000000000-AHJWK:1:1102:17504:6833",
-        "seq_start": 0,
-        "sequence": "CAGGTCCACCTTGTGCAGTCTGGGGTT---NAGGTGAAGGAGCCTGGGGCCTCNGTGAAGGTTTCCTGCAAGNCTTCTGGATACACCTTC------------ACCAGAAATGGTATCCATTGGGTGCGCCAGGCCCCCGGACAAAGACTGGAGTGGATGGGATGGATGAACACAGCC------AGTGGTAACACAGGGTCTTCACAGCAGTTTCAG---GGTAGAGTCACCATTTCCAGGGACACATCCTCGAGCACAGCCTACATGGAGCTGAGGAGCCTGAGTTCTGAAGACACGGCTGTCTACTACTGTGCGAGACACATGTCCCAACGTTCAGCGTCTCGATACTTTGACTACTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
-        "v_gene": "IGHV1-3",
-        "v_length": 294,
-        "v_match": 266
-    },
     "M03592:18:000000000-AHJWK:1:1102:17555:9282": {
         "ai": 1186,
         "cdr3_aa": "CVRAHGLIAASAFDPW",
@@ -15824,7 +15847,7 @@
         "v_match": 254
     },
     "M03592:18:000000000-AHJWK:1:1102:18036:8656": {
-        "ai": 661,
+        "ai": 662,
         "cdr3_aa": "CARVYYKAAPFDYW",
         "cdr3_nt": "TGTGCGAGAGTTTATTATAAGGCTGCTCCTTTTGACTACTGG",
         "cdr3_num_nts": 42,
@@ -15847,7 +15870,7 @@
         "v_match": 295
     },
     "M03592:18:000000000-AHJWK:1:1102:18048:8121": {
-        "ai": 654,
+        "ai": 655,
         "cdr3_aa": "CARGSVLAWEVLSRW",
         "cdr3_nt": "TGTGCGAGAGGCTCAGTGTTGGCCTGGGAAGTACTCTCACGTTGG",
         "cdr3_num_nts": 45,
@@ -15916,7 +15939,7 @@
         "v_match": 294
     },
     "M03592:18:000000000-AHJWK:1:1102:18233:8913": {
-        "ai": 702,
+        "ai": 703,
         "cdr3_aa": "CATGRWEMFGIYYW",
         "cdr3_nt": "TGTGCGACTGGACGGTGGGAAATGTTCGGGATTTACTACTGG",
         "cdr3_num_nts": 42,
@@ -16031,7 +16054,7 @@
         "v_match": 259
     },
     "M03592:18:000000000-AHJWK:1:1102:18664:6249": {
-        "ai": 596,
+        "ai": 597,
         "cdr3_aa": "CARVNADFGVVIDYW",
         "cdr3_nt": "TGTGCGAGAGTTAATGCCGATTTTGGAGTGGTTATTGACTACTGG",
         "cdr3_num_nts": 45,
@@ -16168,8 +16191,31 @@
         "v_length": 292,
         "v_match": 291
     },
+    "M03592:18:000000000-AHJWK:1:1102:18955:7347": {
+        "ai": 570,
+        "cdr3_aa": "CAREGEMATSIW",
+        "cdr3_nt": "TGTGCGCGAGAAGGAGAGATGGCTACAAGTATCTGG",
+        "cdr3_num_nts": 36,
+        "copy_number": 3,
+        "germline": "CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCACAGACCCTGTCCCTCACCTGCACTGTCTCTGGTGGCTCCATCAGC------AGTGGTGGTTACTACTGGAGCTGGATCCGCCAGCACCCAGGGAAGGGCCTGGAGTGGATTGGGTACATCTATTACAGT---------GGGAGCACCTACTACAACCCGTCCCTCAAG---AGTCGAGTTACCATATCAGTAGACACGTCTAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACTGCCGCGGACACGGCCGTGTATTAC------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
+        "j_gene": "IGHJ4|5",
+        "j_length": 34,
+        "j_match": 34,
+        "num_gaps": 21,
+        "post_cdr3_length": 31,
+        "post_cdr3_match": 31,
+        "pre_cdr3_length": 288,
+        "pre_cdr3_match": 261,
+        "quality": null,
+        "seq_id": "M03592:18:000000000-AHJWK:1:1102:18955:7347",
+        "seq_start": 0,
+        "sequence": "CANGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCACAGACCCTGTCCCTCACCTNCACTGTCTCTGGTGGCTCCATCAGT------AGTCCTGGTTATTACTGGACCTGGATCCGCCAGCACCCAGGGAAGGGCCTGGAGTGGATTGGCTTCTTCTCCTATGGT---------GGGACCACCCACTACAACCCGTCCCTCATG---AGTCGATTAACCATATCAGTAGACATAACTAAGAGTCAGTTCTCCCTGAACCTGAGCGCTGTTACTGCCGCGGACACGGCCGTTTACTACTGTGCGCGAGAAGGAGAGATGGCTACAAGTATCTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
+        "v_gene": "IGHV4-31",
+        "v_length": 299,
+        "v_match": 271
+    },
     "M03592:18:000000000-AHJWK:1:1102:18999:7331": {
-        "ai": 678,
+        "ai": 679,
         "cdr3_aa": "CARPRVGTRKGWFDPW",
         "cdr3_nt": "TGTGCGAGACCCAGAGTGGGAACCAGGAAGGGCTGGTTCGACCCCTGG",
         "cdr3_num_nts": 48,
@@ -16583,7 +16629,7 @@
         "v_match": 295
     },
     "M03592:18:000000000-AHJWK:1:1102:20464:9430": {
-        "ai": 653,
+        "ai": 654,
         "cdr3_aa": "CARGSVLAWEVLSRW",
         "cdr3_nt": "TGTGCGAGAGGCTCAGTGTTGGCCTGGGAAGTTCTCTCACGTTGG",
         "cdr3_num_nts": 45,
@@ -16698,7 +16744,7 @@
         "v_match": 281
     },
     "M03592:18:000000000-AHJWK:1:1102:21090:10269": {
-        "ai": 635,
+        "ai": 636,
         "cdr3_aa": "CAASRSYRYVDYW",
         "cdr3_nt": "TGTGCGGCATCTAGGAGTTACCGCTATGTTGACTACTGG",
         "cdr3_num_nts": 39,
@@ -17134,8 +17180,31 @@
         "v_length": 296,
         "v_match": 267
     },
+    "M03592:18:000000000-AHJWK:1:1102:22777:16988": {
+        "ai": 230,
+        "cdr3_aa": "CARGGQLQPLDFW",
+        "cdr3_nt": "TGTGCGCGAGGGGGACAATTACAACCTCTTGACTTCTGG",
+        "cdr3_num_nts": 39,
+        "copy_number": 3,
+        "germline": "CAGGTCCAGCTGGTGCAGTCTGGGGCT---GAGGTGAAGAAGCCTGGGTCCTCGGTGAAGGTCTCCTGCAAGGCTTCTGGAGGCACCTTC------------AGCAGCTATGCTATCAGCTGGGTGCGACAGGCCCCTGGACAAGGGCTTGAGTGGATGGGAGGGATCATCCCTATC------TTTGGTACAGCAAACTACGCACAGAAGTTCCAG---GGCAGAGTCACGATTACCGCGGACGAATCCACGAGCACAGCCTACATGGAGCTGAGCAGCCTGAGATCTGAGGACACGGCCGTGTATTAC---------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
+        "j_gene": "IGHJ4",
+        "j_length": 41,
+        "j_match": 40,
+        "num_gaps": 24,
+        "post_cdr3_length": 31,
+        "post_cdr3_match": 31,
+        "pre_cdr3_length": 285,
+        "pre_cdr3_match": 261,
+        "quality": null,
+        "seq_id": "M03592:18:000000000-AHJWK:1:1102:22777:16988",
+        "seq_start": 0,
+        "sequence": "CAGGTCCAGCTGGTGCAGTCTGGGGCT---GAGGTAAAGAAGCCTGGGTCCNCGGNNNAGGTCNCCTGCAAGGTTTCTGGANANANCTTC------------AGTAGTTATGCCATCACCTGGGTGCGACGGGCCCCTGGACAAGGGCTTGAGTGGATTGGAGGCGTCATCCCTATC------TATGATTCAACAAACTACGCACAGAAGTTCCAG---GGCAGAGTCACAATTAGCGCGGACGAATCCACGAGCACAGCCTACATGGAGCTGGACGGCCTGACATCTGAGGACACGGCCACTTATTACTGTGCGCGAGGGGGACAATTACAACCTCTTGACTTCTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
+        "v_gene": "IGHV1-69",
+        "v_length": 295,
+        "v_match": 270
+    },
     "M03592:18:000000000-AHJWK:1:1102:22810:6833": {
-        "ai": 671,
+        "ai": 672,
         "cdr3_aa": "CAREGQMLRGREEDDFW",
         "cdr3_nt": "TGTGCGAGAGAGGGCCAAATGCTTCGGGGGAGGGAGGAAGATGACTTCTGG",
         "cdr3_num_nts": 51,
@@ -17273,7 +17342,7 @@
         "v_match": 287
     },
     "M03592:18:000000000-AHJWK:1:1102:23106:7314": {
-        "ai": 578,
+        "ai": 579,
         "cdr3_aa": "CARVIVVVPAASRPIFDYW",
         "cdr3_nt": "TGTGCGAGAGTCATTGTAGTAGTACCAGCTGCTTCACGGCCCATCTTTGACTACTGG",
         "cdr3_num_nts": 57,
@@ -17342,7 +17411,7 @@
         "v_match": 271
     },
     "M03592:18:000000000-AHJWK:1:1102:23314:9501": {
-        "ai": 590,
+        "ai": 591,
         "cdr3_aa": "CARAIPADYW",
         "cdr3_nt": "TGTGCGAGAGCGATCCCCGCGGACTATTGG",
         "cdr3_num_nts": 30,
@@ -17388,11 +17457,11 @@
         "v_match": 272
     },
     "M03592:18:000000000-AHJWK:1:1102:23482:9067": {
-        "ai": 434,
+        "ai": 445,
         "cdr3_aa": "CARSSCTNGVCPFDNW",
         "cdr3_nt": "TGTGCGAGATCGTCGTGTACTAATGGTGTATGCCCGTTTGACAACTGG",
         "cdr3_num_nts": 48,
-        "copy_number": 4,
+        "copy_number": 2,
         "germline": "CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCACAGACCCTGTCCCTCACCTGCACTGTCTCTGGTGGCTCCATCAGC------AGTGGTGGTTACTACTGGAGCTGGATCCGCCAGCACCCAGGGAAGGGCCTGGAGTGGATTGGGTACATCTATTACAGT---------GGGAGCACCTACTACAACCCGTCCCTCAAG---AGTCGAGTTACCATATCAGTAGACACGTCTAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACTGCCGCGGACACGGCCGTGTATTAC------------------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
         "j_gene": "IGHJ4",
         "j_length": 42,
@@ -17686,29 +17755,6 @@
         "v_length": 295,
         "v_match": 282
     },
-    "M03592:18:000000000-AHJWK:1:1102:24205:8263": {
-        "ai": 688,
-        "cdr3_aa": "CAREGIGYNPGDFW",
-        "cdr3_nt": "TGTGCGAGGGAAGGTATAGGCTACAACCCGGGGGACTTCTGG",
-        "cdr3_num_nts": 42,
-        "copy_number": 4,
-        "germline": "CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCGGGGACCCTGTCCCTCACCTGCGCTGTCTCTGGTGGCTCCATCAGC---------AGTAGTAACTGGTGGAGTTGGGTCCGCCAGCCCCCAGGGAAGGGGCTGGAGTGGATTGGGGAAATCTATCATAGT---------GGGAGCACCAACTACAACCCGTCCCTCAAG---AGTCGAGTCACCATATCAGTAGACAAGTCCAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACCGCCGCGGACACGGCCGTGTATTAC------------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
-        "j_gene": "IGHJ4",
-        "j_length": 39,
-        "j_match": 37,
-        "num_gaps": 24,
-        "post_cdr3_length": 31,
-        "post_cdr3_match": 30,
-        "pre_cdr3_length": 285,
-        "pre_cdr3_match": 267,
-        "quality": null,
-        "seq_id": "M03592:18:000000000-AHJWK:1:1102:24205:8263",
-        "seq_start": 0,
-        "sequence": "CAGGTGCGGCTGCAGGAGTCGGGCCCA---GGACTGGTGGAGCCTTCGGGGACCCTGTCCCTCACCTGCACTGTCTCTGATGGCTCCATCAGC---------AGTAGTAACTGGTGGAGTTGGGTCCGCCAGCCCCCAGGGAAGGGGCTGGAGTGGGTTGGGGAAATCTCTCATAGT---------GGGGGGACCACCTACAACCCGTCCGTCAAG---AGTCGAGTCAGCATGTCACTGGACAGTTCCAAGAACCAGTTCTCCCTGAAGCTGAGTTCTGTGACCGCCGCGGACACGGCCGTCTATTATTGTGCGAGGGAAGGTATAGGCTACAACCCGGGGGACTTCTGGGGCCAGGGAATCCTGGTCACCGTCTCCTCAG",
-        "v_gene": "IGHV4-4",
-        "v_length": 296,
-        "v_match": 276
-    },
     "M03592:18:000000000-AHJWK:1:1102:24243:9488": {
         "ai": 969,
         "cdr3_aa": "CATLVAWVSTTGLYSDSW",
@@ -17733,7 +17779,7 @@
         "v_match": 262
     },
     "M03592:18:000000000-AHJWK:1:1102:24260:16158": {
-        "ai": 230,
+        "ai": 229,
         "cdr3_aa": "CARGGQLQPLDFW",
         "cdr3_nt": "TGTGCGCGAGGGGGACAATTACAACCTCTTGACTTCTGG",
         "cdr3_num_nts": 39,
@@ -17756,11 +17802,11 @@
         "v_match": 270
     },
     "M03592:18:000000000-AHJWK:1:1102:24315:8154": {
-        "ai": 608,
+        "ai": 609,
         "cdr3_aa": "CARQRVPAVFQYW",
         "cdr3_nt": "TGTGCGAGACAGCGAGTACCAGCTGTCTTTCAGTACTGG",
         "cdr3_num_nts": 39,
-        "copy_number": 11,
+        "copy_number": 12,
         "germline": "CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCACAGACCCTGTCCCTCACCTGTACTGTCTCTGGTGGCTCCATCAGC------AGTGGTGGTTACTACTGGAGCTGGATCCGCCAGCACCCAGGGAAGGGCCTGGAGTGGATTGGGTACATCTATTACAGT---------GGGAGCACCTACTACAACCCGTCCCTCAAG---AGTCGAGTTACCATATCAGTAGACACGTCTAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACTGCCGCGGACACGGCCGTGTATTAC---------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
         "j_gene": "IGHJ4",
         "j_length": 43,
@@ -17783,7 +17829,7 @@
         "cdr3_aa": "CARSSCTNGVCPFDNW",
         "cdr3_nt": "TGTGCGAGATCGTCGTGTACTAATGGTGTATGCCCGTTTGACAACTGG",
         "cdr3_num_nts": 48,
-        "copy_number": 8,
+        "copy_number": 10,
         "germline": "CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCACAGACCCTGTCCCTCACCTGCACTGTCTCTGGTGGCTCCATCAGC------AGTGGTGGTTACTACTGGAGCTGGATCCGCCAGCACCCAGGGAAGGGCCTGGAGTGGATTGGGTACATCTATTACAGT---------GGGAGCACCTACTACAACCCGTCCCTCAAG---AGTCGAGTTACCATATCAGTAGACACGTCTAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACTGCCGCGGACACGGCCGTGTATTAC------------------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
         "j_gene": "IGHJ4",
         "j_length": 42,
@@ -17962,6 +18008,29 @@
         "v_length": 293,
         "v_match": 273
     },
+    "M03592:18:000000000-AHJWK:1:1102:24607:7572": {
+        "ai": 829,
+        "cdr3_aa": "CARHMSQRSASRYFDYW",
+        "cdr3_nt": "TGTGCGAGACACATGTCCCAACGTTCAGCGTCTCGATACTTTGACTACTGG",
+        "cdr3_num_nts": 51,
+        "copy_number": 2,
+        "germline": "CAGGTCCAGCTTGTGCAGTCTGGGGCT---GAGGTGAAGAAGCCTGGGGCCTCAGTGAAGGTTTCCTGCAAGGCTTCTGGATACACCTTC------------ACTAGCTATGCTATGCATTGGGTGCGCCAGGCCCCCGGACAAAGGCTTGAGTGGATGGGATGGATCAACGCTGGC------AATGGTAACACAAAATATTCACAGAAGTTCCAG---GGCAGAGTCACCATTACCAGGGACACATCCGCGAGCACAGCCTACATGGAGCTGAGCAGCCTGAGATCTGAAGACACGGCTGTGTATTAC---------------------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
+        "j_gene": "IGHJ4",
+        "j_length": 45,
+        "j_match": 45,
+        "num_gaps": 24,
+        "post_cdr3_length": 31,
+        "post_cdr3_match": 31,
+        "pre_cdr3_length": 285,
+        "pre_cdr3_match": 258,
+        "quality": null,
+        "seq_id": "M03592:18:000000000-AHJWK:1:1102:24607:7572",
+        "seq_start": 0,
+        "sequence": "CAGGTCCACCTTGTGCAGNCNGGGGTT---GAGGTGAAGGAGCCTGGGGCCTCAGTGAAGGTTTCCTGCAAGGCTTCTGGATACACCTTC------------ACCAGAAATGGTATCCATTGGGTGCGCCAGGCCCCCGGACAAAGACTGGAGTGGATGGGATGGATGAACACAGCC------AGTGGTAACACAGGGTCTTCACAGCAGTTTCAG---GGTAGAGTCACCATTTCCAGGGACACATCCTCGAGCACAGCCTACATGGAGCTGAGGAGCCTGAGTTCTGAAGACACGGCTGTCTACTACTGTGCGAGACACATGTCCCAACGTTCAGCGTCTCGATACTTTGACTACTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
+        "v_gene": "IGHV1-3",
+        "v_length": 294,
+        "v_match": 266
+    },
     "M03592:18:000000000-AHJWK:1:1102:24623:17250": {
         "ai": 235,
         "cdr3_aa": "CARNGAYVLDSW",
@@ -18124,7 +18193,7 @@
         "v_match": 293
     },
     "M03592:18:000000000-AHJWK:1:1102:24974:4212": {
-        "ai": 600,
+        "ai": 601,
         "cdr3_aa": "CASRNTIRLLVLTTLTT",
         "cdr3_nt": "TGCGCGAGCCGAAATACTATCAGACTATTGGTCCTTACTACTTTGACCACTGG",
         "cdr3_num_nts": 53,
@@ -18151,7 +18220,7 @@
         "cdr3_aa": "CTRSNSGSSVWTFW",
         "cdr3_nt": "TGTACGAGAAGTAATAGTGGTAGTTCCGTCTGGACCTTCTGG",
         "cdr3_num_nts": 42,
-        "copy_number": 11,
+        "copy_number": 10,
         "germline": "CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCGGGGACCCTGTCCCTCACCTGCGCTGTCTCTGGTGGCTCCATCAGC---------AGTAGTAACTGGTGGAGTTGGGTCCGCCAGCCCCCAGGGAAGGGGCTGGAGTGGATTGGGGAAATCTATCATAGT---------GGGAGCACCAACTACAACCCGTCCCTCAAG---AGTCGAGTCACCATATCAGTAGACAAGTCCAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACCGCCGCGGACACGGCCGTGTATTAC------------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
         "j_gene": "IGHJ4|5",
         "j_length": 34,
@@ -18170,7 +18239,7 @@
         "v_match": 279
     },
     "M03592:18:000000000-AHJWK:1:1102:25055:6455": {
-        "ai": 677,
+        "ai": 678,
         "cdr3_aa": "CASLLQWHQMNWFDPW",
         "cdr3_nt": "TGTGCCTCCCTACTACAGTGGCACCAAATGAACTGGTTCGACCCCTGG",
         "cdr3_num_nts": 48,
@@ -18193,11 +18262,11 @@
         "v_match": 290
     },
     "M03592:18:000000000-AHJWK:1:1102:25184:5633": {
-        "ai": 599,
+        "ai": 600,
         "cdr3_aa": "CASRNTIRLLVLTTLTT",
         "cdr3_nt": "TGCGCGAGCCGAAATACTATCAGACTATTGGTCCTTACTACTTTGACCACTGG",
         "cdr3_num_nts": 53,
-        "copy_number": 9,
+        "copy_number": 10,
         "germline": "CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCACAGACCCTGTCCCTCACCTGTACTGTCTCTGGTGGCTCCATCAGC------AGTGGTGGTTACTACTGGAGCTGGATCCGCCAGCACCCAGGGAAGGGCCTGGAGTGGATTGGGTACATCTATTACAGT---------GGGAGCACCTACTACAACCCGTCCCTCAAG---AGTCGAGTTACCATATCAGTAGACACGTCTAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACTGCCGCGGACACGGCCGTGTATTAC-----------------------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
         "j_gene": "IGHJ4",
         "j_length": 47,
@@ -18400,7 +18469,7 @@
         "v_match": 277
     },
     "M03592:18:000000000-AHJWK:1:1102:25580:9851": {
-        "ai": 634,
+        "ai": 635,
         "cdr3_aa": "CAASRSYRYVDYW",
         "cdr3_nt": "TGTGCGGCATCTAGGAGTTACCGCTATGTTGACTACTGG",
         "cdr3_num_nts": 39,
@@ -18652,29 +18721,6 @@
         "v_length": 290,
         "v_match": 263
     },
-    "M03592:18:000000000-AHJWK:1:1102:26022:18008": {
-        "ai": 20,
-        "cdr3_aa": "CARSEAAGLVYW",
-        "cdr3_nt": "TGTGCGAGATCCGAAGCAGCTGGTCTGGTCTACTGG",
-        "cdr3_num_nts": 36,
-        "copy_number": 1,
-        "germline": "CAGGTGCAGCTGGTGCAATCTGGGTCT---GAGTTGAAGAAGCCTGGGGCCTCAGTGAAGGTTTCCTGCAAGGCTTCTGGATACACCTTC------------ACTAGCTATGCTATGAATTGGGTGCGACAGGCCCCTGGACAAGGGCTTGAGTGGATGGGATGGATCAACACCAAC------ACTGGGAACCCAACGTATGCCCAGGGCTTCACA---GGACGGTTTGTCTTCTCCTTGGACACCTCTGTCAGCACGGCATATCTGCAGATCAGCAGCCTAAAGGCTGAGGACACTGCCGTGTATTAC------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
-        "j_gene": "IGHJ4",
-        "j_length": 37,
-        "j_match": 37,
-        "num_gaps": 24,
-        "post_cdr3_length": 31,
-        "post_cdr3_match": 31,
-        "pre_cdr3_length": 285,
-        "pre_cdr3_match": 273,
-        "quality": null,
-        "seq_id": "M03592:18:000000000-AHJWK:1:1102:26022:18008",
-        "seq_start": 0,
-        "sequence": "CAGGTGCAACTGGTGCAATCTGGGTCT---GAATNGAAGAAGCCTGGGGCCTCAGTGNNGGTTTCCTGCAAGGCTTCNGGATACNCCTTC------------AGTAGCTATGCTATGAATTGNGTGCNACAGGCCNCTGGACAAGGACTTGATTGGATGGGATGGATCAGCACCAAC------ACTGGGAACCCAACATATGCCCAGGGCTTCAAG---GGACGGTTTGTCTTCTCCTTGGACACCTCTGTCAGTACGTCATATCTGCAGATCAGTAGCCTAAAGGCTGAGGACACTGCCGTATATTACTGTGCGAGATCCGAAGCAGCTGGTCTGGTCTACTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
-        "v_gene": "IGHV7-4-1",
-        "v_length": 294,
-        "v_match": 281
-    },
     "M03592:18:000000000-AHJWK:1:1102:26023:7352": {
         "ai": 1019,
         "cdr3_aa": "CAKDDSRGYWDW",
@@ -18745,7 +18791,7 @@
         "v_match": 261
     },
     "M03592:18:000000000-AHJWK:1:1102:26134:8769": {
-        "ai": 588,
+        "ai": 589,
         "cdr3_aa": "CARGSCGGDCYSGEL*LL",
         "cdr3_nt": "TGTGCGAGAGGCAGTTGTGGTGGTGACTGCTATTCCGGGGAACTTTGACTACTGG",
         "cdr3_num_nts": 55,
@@ -19113,11 +19159,11 @@
         "v_match": 268
     },
     "M03592:18:000000000-AHJWK:1:1102:27436:7729": {
-        "ai": 687,
+        "ai": 688,
         "cdr3_aa": "CAREGIGYNPGDFW",
         "cdr3_nt": "TGTGCGAGGGAAGGTATAGGCTACAACCCGGGGGACTTCTGG",
         "cdr3_num_nts": 42,
-        "copy_number": 8,
+        "copy_number": 9,
         "germline": "CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCGGGGACCCTGTCCCTCACCTGCGCTGTCTCTGGTGGCTCCATCAGC---------AGTAGTAACTGGTGGAGTTGGGTCCGCCAGCCCCCAGGGAAGGGGCTGGAGTGGATTGGGGAAATCTATCATAGT---------GGGAGCACCAACTACAACCCGTCCCTCAAG---AGTCGAGTCACCATATCAGTAGACAAGTCCAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACCGCCGCGGACACGGCCGTGTATTAC------------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
         "j_gene": "IGHJ4",
         "j_length": 39,
@@ -19136,7 +19182,7 @@
         "v_match": 276
     },
     "M03592:18:000000000-AHJWK:1:1102:27444:8650": {
-        "ai": 633,
+        "ai": 634,
         "cdr3_aa": "CAASRSYRYVDYW",
         "cdr3_nt": "TGTGCGGCATCTAGGAGTTACCGCTATGTTGACTACTGG",
         "cdr3_num_nts": 39,
@@ -19251,7 +19297,7 @@
         "v_match": 284
     },
     "M03592:18:000000000-AHJWK:1:1102:27974:9393": {
-        "ai": 587,
+        "ai": 588,
         "cdr3_aa": "CARGSCGGDCYSGEL*LL",
         "cdr3_nt": "TGTGCGAGAGGCAGTTGTGGTGGTGACTGCTATTCCGGGGAACTTTGACTACTGG",
         "cdr3_num_nts": 55,
@@ -19389,7 +19435,7 @@
         "v_match": 266
     },
     "M03592:18:000000000-AHJWK:1:1102:28168:9158": {
-        "ai": 577,
+        "ai": 578,
         "cdr3_aa": "CARVIVVVPAASRPIFDYW",
         "cdr3_nt": "TGTGCGAGAGTCATTGTAGTAGTACCAGCTGCTTCACGGCCCATCTTTGACTACTGG",
         "cdr3_num_nts": 57,
@@ -19619,7 +19665,7 @@
         "v_match": 273
     },
     "M03592:18:000000000-AHJWK:1:1102:4457:9476": {
-        "ai": 676,
+        "ai": 677,
         "cdr3_aa": "CASLLQWHQMNWFDPW",
         "cdr3_nt": "TGTGCCTCCCTACTACAGTGGCACCAAATGAACTGGTTCGACCCCTGG",
         "cdr3_num_nts": 48,
@@ -19669,7 +19715,7 @@
         "cdr3_aa": "CARGIRFFPWFDPW",
         "cdr3_nt": "TGTGCGAGAGGGATACGATTTTTTCCCTGGTTCGACCCCTGG",
         "cdr3_num_nts": 42,
-        "copy_number": 9,
+        "copy_number": 12,
         "germline": "CAGGTGCAGCTACAGCAGTGGGGCGCA---GGACTGTTGAAGCCTTCGGAGACCCTGTCCCTCACCTGCGCTGTCTATGGTGGGTCCTTC------------AGTGGTTACTACTGGAGCTGGATCCGCCAGCCCCCAGGGAAGGGGCTGGAGTGGATTGGGGAAATCAATCATAGT---------GGAAGCACCAACTACAACCCGTCCCTCAAG---AGTCGAGTCACCATATCAGTAGACACGTCCAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACCGCCGCGGACACGGCTGTGTATTAC------------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
         "j_gene": "IGHJ5",
         "j_length": 46,
@@ -19918,11 +19964,11 @@
         "v_match": 274
     },
     "M03592:18:000000000-AHJWK:1:1102:5427:10358": {
-        "ai": 708,
+        "ai": 709,
         "cdr3_aa": "CARQAEVGYW",
         "cdr3_nt": "TGTGCGAGACAGGCAGAAGTGGGCTACTGG",
         "cdr3_num_nts": 30,
-        "copy_number": 4,
+        "copy_number": 5,
         "germline": "CAGCTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCGGAGACCCTGTCCCTCACCTGCACTGTCTCTGGTGGCTCCATCAGC------AGTAGTAGTTACTACTGGGGCTGGATCCGCCAGCCCCCAGGGAAGGGGCTGGAGTGGATTGGGAGTATCTATTATAGT---------GGGAGCACCTACTACAACCCGTCCCTCAAG---AGTCGAGTCACCATATCCGTAGACACGTCCAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACCGCCGCAGACACGGCTGTGTATTAC------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
         "j_gene": "IGHJ4",
         "j_length": 37,
@@ -20083,7 +20129,7 @@
         "cdr3_aa": "CARDTDYSSYTFDTW",
         "cdr3_nt": "TGTGCGAGAGACACTGACTACAGTAGTTACACATTCGACACCTGG",
         "cdr3_num_nts": 45,
-        "copy_number": 6,
+        "copy_number": 8,
         "germline": "CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCACAGACCCTGTCCCTCACCTGCACTGTCTCTGGTGGCTCCATCAGC------AGTGGTGGTTACTACTGGAGCTGGATCCGCCAGCACCCAGGGAAGGGCCTGGAGTGGATTGGGTACATCTATTACAGT---------GGGAGCACCTACTACAACCCGTCCCTCAAG---AGTCGAGTTACCATATCAGTAGACACGTCTAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACTGCCGCGGACACGGCCGTGTATTAC---------------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
         "j_gene": "IGHJ5",
         "j_length": 42,
@@ -20451,7 +20497,7 @@
         "cdr3_aa": "CAFNGPYRLDHW",
         "cdr3_nt": "TGTGCGTTTAACGGCCCGTATCGACTTGACCACTGG",
         "cdr3_num_nts": 36,
-        "copy_number": 11,
+        "copy_number": 14,
         "germline": "CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCGGGGACCCTGTCCCTCACCTGCGCTGTCTCTGGTGGCTCCATCAGC---------AGTAGTAACTGGTGGAGTTGGGTCCGCCAGCCCCCAGGGAAGGGGCTGGAGTGGATTGGGGAAATCTATCATAGT---------GGGAGCACCAACTACAACCCGTCCCTCAAG---AGTCGAGTCACCATATCAGTAGACAAGTCCAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACCGCCGCGGACACGGCCGTGTATTAC------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
         "j_gene": "IGHJ4",
         "j_length": 41,
@@ -20515,8 +20561,31 @@
         "v_length": 301,
         "v_match": 280
     },
+    "M03592:18:000000000-AHJWK:1:1102:7974:4895": {
+        "ai": 431,
+        "cdr3_aa": "CARSSCTNGVCPFDNW",
+        "cdr3_nt": "TGTGCGAGATCGTCGTGTACTAATGGTGTGTGCCCATTTGACAACTGG",
+        "cdr3_num_nts": 48,
+        "copy_number": 13,
+        "germline": "CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCACAGACCCTGTCCCTCACCTGCACTGTCTCTGGTGGCTCCATCAGC------AGTGGTGGTTACTACTGGAGCTGGATCCGCCAGCACCCAGGGAAGGGCCTGGAGTGGATTGGGTACATCTATTACAGT---------GGGAGCACCTACTACAACCCGTCCCTCAAG---AGTCGAGTTACCATATCAGTAGACACGTCTAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACTGCCGCGGACACGGCCGTGTATTAC------------------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
+        "j_gene": "IGHJ4",
+        "j_length": 42,
+        "j_match": 39,
+        "num_gaps": 27,
+        "post_cdr3_length": 31,
+        "post_cdr3_match": 29,
+        "pre_cdr3_length": 282,
+        "pre_cdr3_match": 254,
+        "quality": null,
+        "seq_id": "M03592:18:000000000-AHJWK:1:1102:7974:4895",
+        "seq_start": 0,
+        "sequence": "CAGGTGCAGTTGCAGGAGTCGGGCCCA---GGGCTGGTGAAGCCTTCACAGACCCTGTCCCTCACCTNCGATGTCTCTGGTGACTCCTTCACT------ACT------TACTACTGGAACTGGANCCGCCAGCACCCAGTGAAGGGCCTGGAGTGGATTGGGCGCATCTATGACAAT---------GGGGGCACTAACTACAGCCCGTCCCTCGAG---AGTCGAGTGACCATATCACTAGACACGTCTAAGAGCCAGTTTTCCCTGAGGCTGAACTCTGTGACTGCCGCGGACTCGGCCGTCTATTATTGTGCGAGATCGTCGTGTACTAATGGTGTGTGCCCATTTGACAACTGGGGCCAGGGAGTCCTGGTCACCGTCTCCTCAG",
+        "v_gene": "IGHV4-31",
+        "v_length": 297,
+        "v_match": 268
+    },
     "M03592:18:000000000-AHJWK:1:1102:8098:8542": {
-        "ai": 669,
+        "ai": 670,
         "cdr3_aa": "CASPVSHW",
         "cdr3_nt": "TGTGCGAGTCCCGTGTCTCACTGG",
         "cdr3_num_nts": 24,
@@ -20543,7 +20612,7 @@
         "cdr3_aa": "CARNLRDSKYAFSFDYW",
         "cdr3_nt": "TGTGCGAGAAATCTCCGGGACAGTAAATACGCCTTTTCGTTTGACTACTGG",
         "cdr3_num_nts": 51,
-        "copy_number": 8,
+        "copy_number": 11,
         "germline": "CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCGGAGACCCTGTCCCTCACCTGCACTGTCTCTGGTGGCTCCGTCAGC------AGTGGTAGTTACTACTGGAGCTGGATCCGGCAGCCCCCAGGGAAGGGACTGGAGTGGATTGGGTATATCTATTACAGT---------GGGAGCACCAACTACAACCCCTCCCTCAAG---AGTCGAGTCACCATATCAGTAGACACGTCCAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACCGCTGCGGACACGGCCGTGTATTAC---------------------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
         "j_gene": "IGHJ4",
         "j_length": 42,
@@ -20608,7 +20677,7 @@
         "v_match": 270
     },
     "M03592:18:000000000-AHJWK:1:1102:8322:3753": {
-        "ai": 926,
+        "ai": 925,
         "cdr3_aa": "CARAYDSSGYGYYW",
         "cdr3_nt": "TGTGCGAGAGCCTATGATAGTAGTGGTTATGGCTACTACTGG",
         "cdr3_num_nts": 42,
@@ -20746,7 +20815,7 @@
         "v_match": 267
     },
     "M03592:18:000000000-AHJWK:1:1102:8607:9430": {
-        "ai": 675,
+        "ai": 676,
         "cdr3_aa": "CARPRVGTRKGWFDPW",
         "cdr3_nt": "TGTGCGAGACCCAGAGTGGGAACCAGGAAGGGCTGGTTCGACCCCTGG",
         "cdr3_num_nts": 48,
@@ -20815,7 +20884,7 @@
         "v_match": 278
     },
     "M03592:18:000000000-AHJWK:1:1102:8675:9251": {
-        "ai": 431,
+        "ai": 430,
         "cdr3_aa": "CARSSCTNGVCPFDNW",
         "cdr3_nt": "TGTGCGAGATCGTCGTGTACTAATGGTGTGTGCCCATTTGACAACTGG",
         "cdr3_num_nts": 48,
@@ -20904,29 +20973,6 @@
         "sequence": "CAGGTGCAGCTGGTGCAGTCCGGGACT---GAGGNGAAGAAGCCTGGGGCCTCAATTACGGTTTCCTGCAAGNCATCNGGNNACACGTTC------------ACCAGTTACTNTATTNACTGGGTGCGACAGGCCCNTGGACAAGGCCCAATGTGGATGGGAATGATCAATCCTAGT------GGTGGGAGCGCAACCTACGCACAGAGGTNCCAG---GGCAGAGTCACCATGACCAGTGACACGTCCACGGCGACAGTCTACATGGAGCTGAGCAGCCTGAAATCTGAAGACACGGCCGTCTATTACTGTGCGAGACCCCGATACGATGGCCCGGACACCCCATTTGACCACTGGGGCCANGGCACCCTGGTCACCGTCTCCTCAG",
         "v_gene": "IGHV1-46",
         "v_length": 294,
-        "v_match": 268
-    },
-    "M03592:18:000000000-AHJWK:1:1102:8894:9946": {
-        "ai": 430,
-        "cdr3_aa": "CARSSCTNGVCPFDNW",
-        "cdr3_nt": "TGTGCGAGATCGTCGTGTACTAATGGTGTGTGCCCATTTGACAACTGG",
-        "cdr3_num_nts": 48,
-        "copy_number": 13,
-        "germline": "CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCACAGACCCTGTCCCTCACCTGCACTGTCTCTGGTGGCTCCATCAGC------AGTGGTGGTTACTACTGGAGCTGGATCCGCCAGCACCCAGGGAAGGGCCTGGAGTGGATTGGGTACATCTATTACAGT---------GGGAGCACCTACTACAACCCGTCCCTCAAG---AGTCGAGTTACCATATCAGTAGACACGTCTAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACTGCCGCGGACACGGCCGTGTATTAC------------------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
-        "j_gene": "IGHJ4",
-        "j_length": 42,
-        "j_match": 39,
-        "num_gaps": 27,
-        "post_cdr3_length": 31,
-        "post_cdr3_match": 29,
-        "pre_cdr3_length": 282,
-        "pre_cdr3_match": 254,
-        "quality": null,
-        "seq_id": "M03592:18:000000000-AHJWK:1:1102:8894:9946",
-        "seq_start": 0,
-        "sequence": "CAGGTGCAGTTGCAGGAGTCGGGCCCA---GGGCTGGTGAAGCCTTCACAGACCCTGTCCCTCACCTGCGATGTCTCTGGTGACTCCTTCACT------ACT------TACTACTGGAACTGGATCCGCCAGCACCCAGTGAAGGGCCTGGAGTGGATTGGGCGCATCTATGACAAT---------GGGGGCACTAACTACAGCCCGTCCCTCGAG---AGTCGAGTGACCATATCACTAGACACGTCTAAGAGCCAGTTTTCCCTGAGGCTGAACTCTGTGACTGCCGCGGACTCGGCCGTCTATTATTGTGCGAGATCGTCGTGTACTAATGGTGTGTGCCCATTTGACAACTGGGGCCAGGGAGTCCTGGTCACCGTCTCCTCAG",
-        "v_gene": "IGHV4-31",
-        "v_length": 297,
         "v_match": 268
     },
     "M03592:18:000000000-AHJWK:1:1102:8910:10187": {
@@ -21141,7 +21187,7 @@
         "cdr3_aa": "CAREAEECSSTICYTRLDYW",
         "cdr3_nt": "TGTGCGAGAGAGGCCGAGGAATGTAGTAGTACCATCTGCTATACACGCCTTGACTACTGG",
         "cdr3_num_nts": 60,
-        "copy_number": 4,
+        "copy_number": 5,
         "germline": "CAGGTCCAGCTTGTGCAGTCTGGGGCT---GAGGTGAAGAAGCCTGGGGCCTCAGTGAAGGTTTCCTGCAAGGCTTCTGGATACACCTTC------------ACTAGCTATGCTATGCATTGGGTGCGCCAGGCCCCCGGACAAAGGCTTGAGTGGATGGGATGGATCAACGCTGGC------AATGGTAACACAAAATATTCACAGAAGTTCCAG---GGCAGAGTCACCATTACCAGGGACACATCCGCGAGCACAGCCTACATGGAGCTGAGCAGCCTGAGATCTGAAGACACGGCTGTGTATTAC------------------------------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
         "j_gene": "IGHJ4",
         "j_length": 41,
@@ -21206,7 +21252,7 @@
         "v_match": 278
     },
     "M03592:18:000000000-AHJWK:1:1102:9489:9383": {
-        "ai": 674,
+        "ai": 675,
         "cdr3_aa": "CARPRVGTRKGWFDPW",
         "cdr3_nt": "TGTGCGAGACCCAGAGTGGGAACCAGGAAGGGCTGGTTCGACCCCTGG",
         "cdr3_num_nts": 48,
@@ -21411,29 +21457,6 @@
         "v_gene": "IGHV1-69",
         "v_length": 295,
         "v_match": 266
-    },
-    "M03592:18:000000000-AHJWK:1:1102:9924:8727": {
-        "ai": 925,
-        "cdr3_aa": "CAREIGARSGSNYW",
-        "cdr3_nt": "TGTGCGAGAGAAATTGGCGCACGTAGTGGGTCTAACTACTGG",
-        "cdr3_num_nts": 42,
-        "copy_number": 3,
-        "germline": "CAGCTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCGGAGACCCTGTCCCTCACCTGCACTGTCTCTGGTGGCTCCATCAGC------AGTAGTAGTTACTACTGGGGCTGGATCCGCCAGCCCCCAGGGAAGGGGCTGGAGTGGATTGGGAGTATCTATTATAGT---------GGGAGCACCTACTACAACCCGTCCCTCAAG---AGTCGAGTCACCATATCAGTAGACACGTCCAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACCGCCGCGGACACGGCCGTGTATTAC------------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
-        "j_gene": "IGHJ4",
-        "j_length": 38,
-        "j_match": 37,
-        "num_gaps": 21,
-        "post_cdr3_length": 31,
-        "post_cdr3_match": 30,
-        "pre_cdr3_length": 288,
-        "pre_cdr3_match": 275,
-        "quality": null,
-        "seq_id": "M03592:18:000000000-AHJWK:1:1102:9924:8727",
-        "seq_start": 0,
-        "sequence": "CAGCTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCGGAGACCCTGTCCCTCACTTGCACTGTCTCTGGTGGCTCCATCAGC------AGTAGTACTTTCTACTGGGGCTGGATCCGCCAGCCCCCAGGGAAGGGCCTGGAGTGGATTGGGACTATCTATTCTAGT---------GGGAACACCCACTACAACCCGTCCCTCAAG---AGTCGAGTCACCATATCAGTTGACACGTCGAAGAACCAGTTCTCCCTGCGGCTGAGCTCTGTGACCGCCGCGGACACGGCCATGTATTACTGTGCGAGAGAAATTGGCGCACGTAGTGGGTCTAACTACTGGGGCCGGGGAACCCTGGTCACCGTCTCCTCAG",
-        "v_gene": "IGHV4-39",
-        "v_length": 299,
-        "v_match": 286
     },
     "M03592:18:000000000-AHJWK:1:1103:10466:22580": {
         "ai": 250,
@@ -22586,7 +22609,7 @@
         "v_match": 284
     },
     "M03592:18:000000000-AHJWK:1:1103:25660:3688": {
-        "ai": 229,
+        "ai": 228,
         "cdr3_aa": "CARGGQLQPLDFW",
         "cdr3_nt": "TGTGCGCGAGGGGGACAATTACAACCTCTTGACTTCTGG",
         "cdr3_num_nts": 39,
@@ -24011,6 +24034,29 @@
         "v_length": 297,
         "v_match": 297
     },
+    "M03592:18:000000000-AHJWK:1:1104:22351:15061_j_deletion_late": {
+        "ai": 5,
+        "cdr3_aa": "CARQMTTALGPDRIDPW",
+        "cdr3_nt": "TGTGCGAGACAGATGACTACGGCTCTAGGCCCGGACCGGATCGACCCCTGG",
+        "cdr3_num_nts": 51,
+        "copy_number": 1,
+        "germline": "CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCACAGACCCTGTCCCTCACCTGCACTGTCTCTGGTGGCTCCATCAGC------AGTGGTGGTTACTACTGGAGCTGGATCCGCCAGCACCCAGGGAAGGGCCTGGAGTGGATTGGGTACATCTATTACAGT---------GGGAGCACCTACTACAACCCGTCCCTCAAG---AGTCGAGTTACCATATCAGTAGACACGTCTAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACTGCCGCGGACACGGCCGTGTATTAC---------------------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
+        "j_gene": "IGHJ5",
+        "j_length": 36,
+        "j_match": 35,
+        "num_gaps": 21,
+        "post_cdr3_length": 31,
+        "post_cdr3_match": 30,
+        "pre_cdr3_length": 288,
+        "pre_cdr3_match": 288,
+        "quality": null,
+        "seq_id": "M03592:18:000000000-AHJWK:1:1104:22351:15061_j_deletion_late",
+        "seq_start": 0,
+        "sequence": "CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCACAGACCCTGTCCCTCACCTGCACTGTCTCTGGTGGCTCCATCAGC------AGTGGTGGTTACTANTGGNGCTGGATCCGCCAGCACCCAGGGAAGGGCCTGGAGTGGATTGGGTACATCTATTACAGT---------GGGAGCACCTACTACAACCCGTCCCTCAAG---AGTCGAGTTACCATATCAGTAGACACGTCTAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACTGCCGCGGACACGGCCGTGTATTACTGTGCGAGACAGATGACTACGGCTCTAGGCCCGGACCGGATCGACCCCTGGGGCCAGGGAACCCTGGTCACCGCCTCNNNNN",
+        "v_gene": "IGHV4-31",
+        "v_length": 297,
+        "v_match": 297
+    },
     "M03592:18:000000000-AHJWK:1:1104:22351:15061_j_insertion": {
         "ai": 6,
         "cdr3_aa": "CARQMTTALGPDRIDPW",
@@ -24034,35 +24080,12 @@
         "v_length": 297,
         "v_match": 297
     },
-    "M03592:18:000000000-AHJWK:1:1104:22351:15061_partial_j": {
-        "ai": 5,
-        "cdr3_aa": "CARQMTTALGPDRIDPW",
-        "cdr3_nt": "TGTGCGAGACAGATGACTACGGCTCTAGGCCCGGACCGGATCGACCCCTGG",
-        "cdr3_num_nts": 51,
-        "copy_number": 2,
-        "germline": "CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCACAGACCCTGTCCCTCACCTGCACTGTCTCTGGTGGCTCCATCAGC------AGTGGTGGTTACTACTGGAGCTGGATCCGCCAGCACCCAGGGAAGGGCCTGGAGTGGATTGGGTACATCTATTACAGT---------GGGAGCACCTACTACAACCCGTCCCTCAAG---AGTCGAGTTACCATATCAGTAGACACGTCTAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACTGCCGCGGACACGGCCGTGTATTAC---------------------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
-        "j_gene": "IGHJ5",
-        "j_length": 14,
-        "j_match": 14,
-        "num_gaps": 21,
-        "post_cdr3_length": 31,
-        "post_cdr3_match": 31,
-        "pre_cdr3_length": 288,
-        "pre_cdr3_match": 288,
-        "quality": null,
-        "seq_id": "M03592:18:000000000-AHJWK:1:1104:22351:15061_partial_j",
-        "seq_start": 0,
-        "sequence": "CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCACAGACCCTGTCCCTCACCTGCACTGTCTCTGGTGGCTCCATCAGC------AGTGGTGGTTACTANTGGNGCTGGATCCGCCAGCACCCAGGGAAGGGCCTGGAGTGGATTGGGTACATCTATTACAGT---------GGGAGCACCTACTACAACCCGTCCCTCAAG---AGTCGAGTTACCATATCAGTAGACACGTCTAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACTGCCGCGGACACGGCCGTGTATTACTGTGCGAGACAGATGACTACGGCTCTAGGCCCGGACCGGATCGACCCCTGGGGCCNNNNNNNNNNNNNNNNNNNNNNNNNNN",
-        "v_gene": "IGHV4-31",
-        "v_length": 297,
-        "v_match": 297
-    },
     "M03592:18:000000000-AHJWK:1:1104:22351:15061_truncated": {
         "ai": 4,
         "cdr3_aa": "CARQMTTALGPDRIDPW",
         "cdr3_nt": "TGTGCGAGACAGATGACTACGGCTCTAGGCCCGGACCGGATCGACCCCTGG",
         "cdr3_num_nts": 51,
-        "copy_number": 3,
+        "copy_number": 4,
         "germline": "CAGGTGCAGCTGCAGGAGTCGGGCCCA---GGACTGGTGAAGCCTTCACAGACCCTGTCCCTCACCTGCACTGTCTCTGGTGGCTCCATCAGC------AGTGGTGGTTACTACTGGAGCTGGATCCGCCAGCACCCAGGGAAGGGCCTGGAGTGGATTGGGTACATCTATTACAGT---------GGGAGCACCTACTACAACCCGTCCCTCAAG---AGTCGAGTTACCATATCAGTAGACACGTCTAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACTGCCGCGGACACGGCCGTGTATTAC---------------------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
         "j_gene": "IGHJ5",
         "j_length": 41,
@@ -26224,7 +26247,7 @@
         "cdr3_aa": "CARSEAAGLVYW",
         "cdr3_nt": "TGTGCGAGATCCGAAGCAGCTGGTCTGGTCTACTGG",
         "cdr3_num_nts": 36,
-        "copy_number": 3,
+        "copy_number": 4,
         "germline": "CAGGTGCAGCTGGTGCAATCTGGGTCT---GAGTTGAAGAAGCCTGGGGCCTCAGTGAAGGTTTCCTGCAAGGCTTCTGGATACACCTTC------------ACTAGCTATGCTATGAATTGGGTGCGACAGGCCCCTGGACAAGGGCTTGAGTGGATGGGATGGATCAACACCAAC------ACTGGGAACCCAACGTATGCCCAGGGCTTCACA---GGACGGTTTGTCTTCTCCTTGGACACCTCTGTCAGCACGGCATATCTGCAGATCAGCAGCCTAAAGGCTGAGGACACTGCCGTGTATTAC------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
         "j_gene": "IGHJ4",
         "j_length": 37,
@@ -26358,7 +26381,7 @@
         "v_match": 294
     },
     "M03592:18:000000000-AHJWK:1:1105:6441:22706": {
-        "ai": 228,
+        "ai": 227,
         "cdr3_aa": "CARGGQLQPLDFW",
         "cdr3_nt": "TGTGCGCGAGGGGGACAATTACAACCTCTTGACTTCTGG",
         "cdr3_num_nts": 39,
@@ -26588,7 +26611,7 @@
         "v_match": 276
     },
     "M03592:18:000000000-AHJWK:1:1106:12031:9652": {
-        "ai": 227,
+        "ai": 226,
         "cdr3_aa": "CARGGQLQPLDFW",
         "cdr3_nt": "TGTGCGCGAGGGGGACAATTACAACCTCTTGACTTCTGG",
         "cdr3_num_nts": 39,
@@ -27093,29 +27116,6 @@
         "v_length": 296,
         "v_match": 267
     },
-    "M03592:18:000000000-AHJWK:1:1106:22755:17280": {
-        "ai": 226,
-        "cdr3_aa": "CARGGQLQPLDFW",
-        "cdr3_nt": "TGTGCGCGAGGGGGACAATTACAACCTCTTGACTTCTGG",
-        "cdr3_num_nts": 39,
-        "copy_number": 3,
-        "germline": "CAGGTCCAGCTGGTGCAGTCTGGGGCT---GAGGTGAAGAAGCCTGGGTCCTCGGTGAAGGTCTCCTGCAAGGCTTCTGGAGGCACCTTC------------AGCAGCTATGCTATCAGCTGGGTGCGACAGGCCCCTGGACAAGGGCTTGAGTGGATGGGAGGGATCATCCCTATC------TTTGGTACAGCAAACTACGCACAGAAGTTCCAG---GGCAGAGTCACGATTACCGCGGACGAATCCACGAGCACAGCCTACATGGAGCTGAGCAGCCTGAGATCTGAGGACACGGCCGTGTATTAC---------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
-        "j_gene": "IGHJ4",
-        "j_length": 41,
-        "j_match": 40,
-        "num_gaps": 24,
-        "post_cdr3_length": 31,
-        "post_cdr3_match": 31,
-        "pre_cdr3_length": 285,
-        "pre_cdr3_match": 261,
-        "quality": null,
-        "seq_id": "M03592:18:000000000-AHJWK:1:1106:22755:17280",
-        "seq_start": 0,
-        "sequence": "CAGGTCCAGCTGGTGCAGTCTGGGGCT---GAGGTAAAGAAGCCTGGGTCCTCGGTGAAGGTCTCCTGCAAGGTTTCTGGAGACACCTTC------------AGTAGTTATGCCATCACCTGGGTGCGACGGGCCCCTGGACAAGGGCTTGAGTGGATTGGAGGCGTCATCCCTATC------TATGATTCAACAAACTACGCACAGAAGTTCCAG---GGCAGAGTCACAATTAGCGCGGACGAATCCACGAGCACAGCCTACATGGAGCTGGACGGCCTGACATCTGAGGACACGGCCACTTATTACTGTGCGCGAGGGGGACAATTACAACCTCTTGACTTCTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
-        "v_gene": "IGHV1-69",
-        "v_length": 295,
-        "v_match": 270
-    },
     "M03592:18:000000000-AHJWK:1:1106:23239:18291": {
         "ai": 71,
         "cdr3_aa": "CARGSRGLRSTLPYFDYW",
@@ -27553,6 +27553,29 @@
         "v_length": 289,
         "v_match": 289
     },
+    "M03592:18:000000000-AHJWK:1:1106:6639:9759": {
+        "ai": 17,
+        "cdr3_aa": "CARSEAAGLVYW",
+        "cdr3_nt": "TGTGCGAGATCCGAAGCAGCTGGTCTGGTCTACTGG",
+        "cdr3_num_nts": 36,
+        "copy_number": 7,
+        "germline": "CAGGTGCAGCTGGTGCAATCTGGGTCT---GAGTTGAAGAAGCCTGGGGCCTCAGTGAAGGTTTCCTGCAAGGCTTCTGGATACACCTTC------------ACTAGCTATGCTATGAATTGGGTGCGACAGGCCCCTGGACAAGGGCTTGAGTGGATGGGATGGATCAACACCAAC------ACTGGGAACCCAACGTATGCCCAGGGCTTCACA---GGACGGTTTGTCTTCTCCTTGGACACCTCTGTCAGCACGGCATATCTGCAGATCAGCAGCCTAAAGGCTGAGGACACTGCCGTGTATTAC------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
+        "j_gene": "IGHJ4",
+        "j_length": 37,
+        "j_match": 37,
+        "num_gaps": 24,
+        "post_cdr3_length": 31,
+        "post_cdr3_match": 31,
+        "pre_cdr3_length": 285,
+        "pre_cdr3_match": 272,
+        "quality": null,
+        "seq_id": "M03592:18:000000000-AHJWK:1:1106:6639:9759",
+        "seq_start": 0,
+        "sequence": "CAGGTGCAACTGGTGCANTCTGGGTCN---GAATTGAAGAAGCCTGGGGCCTCAGTGAGGGTTTCCTGCAAGGCTTCTNGATACACCTTC------------AGTAGCTATGCTATGAATTGGGTGCGACAGGCNCNTGGNNAAGGACNTGATTGGATGGGATGGATCAGNACCAAC------ACTGGGAACCCAACATATGCCCAGGGCTTCAAG---GGACGGTTTGTCTTCTCCTTGGACACCTCTGTCAGTACGTCATATCTGCAGATCAGTAGCCTAAAGGCTGAGGACACTGCCGTATATTACTGTGCGAGATCCGAAGCAGCTGGTCTGGTCTACTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
+        "v_gene": "IGHV7-4-1",
+        "v_length": 294,
+        "v_match": 280
+    },
     "M03592:18:000000000-AHJWK:1:1106:6712:6818": {
         "ai": 120,
         "cdr3_aa": "CANSVPSSGKFDNW",
@@ -27598,29 +27621,6 @@
         "v_gene": "IGHV3-21",
         "v_length": 293,
         "v_match": 253
-    },
-    "M03592:18:000000000-AHJWK:1:1106:7041:12196": {
-        "ai": 17,
-        "cdr3_aa": "CARSEAAGLVYW",
-        "cdr3_nt": "TGTGCGAGATCCGAAGCAGCTGGTCTGGTCTACTGG",
-        "cdr3_num_nts": 36,
-        "copy_number": 8,
-        "germline": "CAGGTGCAGCTGGTGCAATCTGGGTCT---GAGTTGAAGAAGCCTGGGGCCTCAGTGAAGGTTTCCTGCAAGGCTTCTGGATACACCTTC------------ACTAGCTATGCTATGAATTGGGTGCGACAGGCCCCTGGACAAGGGCTTGAGTGGATGGGATGGATCAACACCAAC------ACTGGGAACCCAACGTATGCCCAGGGCTTCACA---GGACGGTTTGTCTTCTCCTTGGACACCTCTGTCAGCACGGCATATCTGCAGATCAGCAGCCTAAAGGCTGAGGACACTGCCGTGTATTAC------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
-        "j_gene": "IGHJ4",
-        "j_length": 37,
-        "j_match": 37,
-        "num_gaps": 24,
-        "post_cdr3_length": 31,
-        "post_cdr3_match": 31,
-        "pre_cdr3_length": 285,
-        "pre_cdr3_match": 272,
-        "quality": null,
-        "seq_id": "M03592:18:000000000-AHJWK:1:1106:7041:12196",
-        "seq_start": 0,
-        "sequence": "CAGGTGCAACTGGTGCAATCTGGGTCT---GAATTGAAGAAGCCTGGGGCCTCAGTGAGGGTTTCCTGCAAGGCTTCTGGATACACCTTC------------AGTAGCTATGCTATGAATTGGGTGCGACAGGCCCCTGGACAAGGACTTGATTGGATGGGATGGATCAGCACCAAC------ACTGGGAACCCAACATATGCCCAGGGCTTCAAG---GGACGGTTTGTCTTCTCCTTGGACACCTCTGTCAGTACGTCATATCTGCAGATCAGTAGCCTAAAGGCTGAGGACACTGCCGTATATTACTGTGCGAGATCCGAAGCAGCTGGTCTGGTCTACTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
-        "v_gene": "IGHV7-4-1",
-        "v_length": 294,
-        "v_match": 280
     },
     "M03592:18:000000000-AHJWK:1:1106:7344:19992": {
         "ai": 119,

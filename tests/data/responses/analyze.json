@@ -23,7 +23,7 @@
                 "tissue": "Colon"
             },
             "name": "input",
-            "no_result_cnt": 10,
+            "no_result_cnt": 11,
             "sequence_cnt": 552,
             "stop_cnt": 30,
             "subject": {
@@ -34,7 +34,7 @@
                     "name": "Test Study"
                 }
             },
-            "total_cnt": 562,
+            "total_cnt": 563,
             "unique_cnt": 302,
             "unique_multiple_cnt": 76
         },

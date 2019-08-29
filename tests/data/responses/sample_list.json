@@ -11,7 +11,7 @@
             "tissue": "Colon"
         },
         "name": "input",
-        "no_result_cnt": 10,
+        "no_result_cnt": 11,
         "sequence_cnt": 552,
         "subject": {
             "id": 1,
@@ -21,7 +21,7 @@
                 "name": "Test Study"
             }
         },
-        "total_cnt": 562
+        "total_cnt": 563
     },
     {
         "clone_cnt": 168,

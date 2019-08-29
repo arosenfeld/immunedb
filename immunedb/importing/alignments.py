@@ -82,6 +82,37 @@ def create_sample(session, metadata):
 
 
 def collapse_duplicates(bucket):
+    use_heuristic = len(bucket) > 10000
+    bucket = sorted(bucket, key=lambda s: s.sequence.copy_number, reverse=True)
+
+    if use_heuristic:
+        uniques = {}
+        for alignment in bucket:
+            if alignment.cdr3 not in uniques:
+                uniques[alignment.cdr3] = alignment
+            else:
+                uniques[alignment.cdr3].sequence.copy_number += (
+                    alignment.sequence.copy_number)
+
+        logger.info(
+            'Bucket {v_gene} {j_gene} {cdr3_num_nts} had {cnt} '
+            'sequences.  Used heuristic to reduce to {new_cnt}.'.format(
+                v_gene=[g.name for g in bucket[0].v_gene],
+                j_gene=[g.name for g in bucket[0].j_gene],
+                cdr3_num_nts=bucket[0].cdr3_num_nts,
+                cnt=len(bucket),
+                new_cnt=len(uniques))
+        )
+        bucket = sorted(
+            uniques.values(),
+            key=lambda s: s.sequence.copy_number,
+            reverse=True
+        )
+
+    return collapse_duplicate_alignments(bucket)
+
+
+def collapse_duplicate_alignments(bucket):
     uniques = []
     while bucket:
         alignment = bucket.pop()
@@ -128,25 +159,34 @@ def process_line(line, alignment_func, props, v_germlines, j_germlines):
 
 def aggregate_results(results, session, sample):
     alignments = {}
-    for cnt, result in funcs.periodic_commit(session, enumerate(results),
-                                             interval=1000):
-        if result['status'] == 'success':
-            alignment = result['alignment']
-            key = (
-                funcs.format_ties(alignment.v_gene),
-                funcs.format_ties(alignment.j_gene),
-                alignment.cdr3_num_nts,
-                tuple(alignment.insertions),
-                tuple(alignment.deletions)
-            )
-            alignments.setdefault(key, []).append(alignment)
-        elif result['status'] == 'noresult':
-            orig_id = result['vdj'].seq_id
-            for i in range(result['vdj'].copy_number):
-                result['vdj'].seq_id = '{}_{}'.format(orig_id, i)
-                add_noresults_for_vdj(session, result['vdj'], sample,
-                                      result['reason'])
+    success = [r for r in results if r['status'] == 'success']
+    noresults = [r for r in results if r['status'] == 'noresult']
+    logger.info('{} total sequences ({} alignments, {} noresults)'.format(
+        len(results), len(success), len(noresults)))
+
+    for result in success:
+        alignment = result['alignment']
+        key = (
+            funcs.format_ties(alignment.v_gene),
+            funcs.format_ties(alignment.j_gene),
+            alignment.cdr3_num_nts,
+            tuple(alignment.insertions),
+            tuple(alignment.deletions)
+        )
+        alignments.setdefault(key, []).append(alignment)
+
+    copies = 0
+    for i, result in enumerate(noresults):
+        logger.debug('noresult {} / {}'.format(i, len(noresults)))
+        orig_id = result['vdj'].seq_id
+        copies += result['vdj'].copy_number
+        for i in range(result['vdj'].copy_number):
+            result['vdj'].seq_id = '{}_{}'.format(orig_id, i)
+            add_noresults_for_vdj(session, result['vdj'], sample,
+                                  result['reason'])
+        if copies % 1000 == 0:
             session.commit()
+
     session.commit()
     return alignments
 
@@ -192,6 +232,7 @@ def parse_file(fh, sample, session, alignment_func, props, v_germlines,
         }
     )
 
+    logger.info('There are {} buckets to collapse'.format(len(alignments)))
     concurrent.process_data(
         alignments.values(),
         collapse_duplicates,
@@ -231,7 +272,7 @@ def preprocess_airr(reader):
         else:
             l['copy_number'] = copies
             seen[l['sequence_alignment']] = l
-    logger.info('Found {} total copies, {} unique'.format(
+    logger.info('Sample has {} total copies, {} unique'.format(
         sum([s['copy_number'] for s in seen.values()]),
         len(seen)
     ))
@@ -323,6 +364,11 @@ def parse_airr(line, v_germlines, j_germlines):
         raise AlignmentException(
             seq, 'CDR3 starts at {} instead of {} ({} insertions)'.format(
                 cdr3_start, correct_cdr3_start, total_insertions))
+
+    if len(aligned_germ) != len(aligned_seq):
+        raise AlignmentException(
+            seq, 'Germline length {} != sequence length {}'.format(
+                len(aligned_germ), len(aligned_seq)))
 
     alignment = funcs.ClassProxy(VDJAlignment(
         VDJSequence(

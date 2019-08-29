@@ -12,9 +12,8 @@ class VDJSequence(object):
                  copy_number=1):
         if quality and len(sequence) != len(quality):
             raise ValueError('Sequence and quality must be the same length')
-        if not all([c in 'ATCGN-' for c in sequence]):
-            raise ValueError('Invalid characters in sequence: {}'.format(
-                sequence))
+
+        sequence = re.sub(r'[^ATCGN-]', 'N', sequence)
 
         self.seq_id = seq_id
         self.copy_number = copy_number
