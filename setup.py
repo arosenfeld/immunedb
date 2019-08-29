@@ -18,7 +18,7 @@ with open('README.md', 'r', encoding='utf-8') as fh:
 
 setup(
     name='ImmuneDB',
-    version='0.29.2',
+    version='0.29.3',
     author='Aaron M. Rosenfeld',
     author_email='aaron.rosenfeld@pennmedicine.upenn.edu',
     url='https://github.com/arosenfeld/immunedb',
