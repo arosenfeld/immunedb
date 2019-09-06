@@ -18,7 +18,8 @@ def remove_duplicates(session, sample):
 
     buckets = {}
     for seq in all_seqs:
-        key = (seq.v_gene, seq.j_gene, seq.cdr3_num_nts)
+        key = (seq.v_gene, seq.j_gene, seq.cdr3_num_nts, seq._insertions,
+               seq._deletions)
         buckets.setdefault(key, []).append(seq)
 
     for i, bucket in enumerate(buckets.values()):
