@@ -177,7 +177,6 @@ def aggregate_results(results, session, sample):
 
     copies = 0
     for i, result in enumerate(noresults):
-        logger.debug('noresult {} / {}'.format(i, len(noresults)))
         orig_id = result['vdj'].seq_id
         copies += result['vdj'].copy_number
         for i in range(result['vdj'].copy_number):
