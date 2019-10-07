@@ -261,16 +261,41 @@ def add_imgt_gaps(germline, sequence):
 def preprocess_airr(reader):
     logger.info('Collapsing identical sequences')
     seen = {}
-    for l in reader:
-        copies = re.search(r'DUPCOUNT=(\d+)', l['sequence_id'])
+    # Filtering on columns used downstream greatly reduce memory usage
+    headers_to_keep = [
+        'sequence_id',
+        'sequence',
+        'rev_comp',
+        'v_call',
+        'j_call',
+        'sequence_alignment',
+        'germline_alignment',
+        'v_alignment_end',
+        'j_alignment_start',
+        'j_alignment_end',
+        'v_sequence_alignment',
+        'v_germline_alignment',
+        'cdr3',
+        'junction_aa',
+        'v_identity',
+        'j_identity',
+        'v_sequence_start',
+        'v_sequence_end',
+        'v_germline_start',
+        'j_germline_end',
+        'cdr3_start',
+    ]
+    for full_line in reader:
+        line = {k: full_line[k] for k in headers_to_keep}
+        copies = re.search(r'DUPCOUNT=(\d+)', line['sequence_id'])
         copies = int(copies.group(1)) if copies else 1
-        l['sequence_id'] = l['sequence_id'].split(
+        line['sequence_id'] = line['sequence_id'].split(
             '|DUPCOUNT')[0].replace('reversed|', '')
-        if l['sequence_alignment'] in seen:
-            seen[l['sequence_alignment']]['copy_number'] += copies
+        if line['sequence_alignment'] in seen:
+            seen[line['sequence_alignment']]['copy_number'] += copies
         else:
-            l['copy_number'] = copies
-            seen[l['sequence_alignment']] = l
+            line['copy_number'] = copies
+            seen[line['sequence_alignment']] = line
     logger.info('Sample has {} total copies, {} unique'.format(
         sum([s['copy_number'] for s in seen.values()]),
         len(seen)
