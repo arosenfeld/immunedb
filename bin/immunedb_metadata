@@ -28,7 +28,7 @@ if __name__ == '__main__':
     args = parser.parse_args()
 
     files = [os.path.basename(f) for f in os.listdir(args.path)
-             if f.endswith('.fasta') or f.endswith('.fastq')]
+             if '.fasta' in f or '.fastq' in f]
     if len(files) == 0:
         parser.error('No FASTA or FASTQ files.')
     if args.trim_suffix and not args.use_filenames:

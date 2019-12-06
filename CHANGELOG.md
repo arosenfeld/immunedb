@@ -1,4 +1,24 @@
 # CHANGELOG
+## v0.29.6
+* `immunedb_identify` now accepts gzipped files.
+
+## v0.29.5
+* Minor fix for sequences with indels in `immunedb_modify ... combine-samples`
+
+## v0.29.3
+* Collapsing sequences imported from AIRR format now uses substantially less
+  memory.
+
+## v0.29.2
+* CDR3 indels are now supported for AIRR formatted input.
+* Clonal assignment has been greatly enhanced by allowing sequences with
+  different V-gene and J-gene calls but similar CDR3 nucleotide sequences to be
+  combined.  This is helpful in highly mutated populations where gene
+  assignments may be incorrect for some sequences.
+* Clones with less than or equal to 4 (default) nucleotide differences are
+  automatically combined.  You can tweak this behavior in `immunedb_clones`
+  with the `--reduce-difference` flag.
+
 ## v0.29.0
 * `immunedb_import` for IgBLAST results in AIRR format has been greatly
   improved both in performance and accuracy.
