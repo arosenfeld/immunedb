@@ -6,6 +6,7 @@ import itertools
 
 import dnautils
 
+import immunedb.common.modification_log as mod_log
 from immunedb.identification import (add_noresults_for_vdj, add_sequences,
                                      AlignmentException)
 from immunedb.identification.genes import GeneName, JGermlines
@@ -423,6 +424,8 @@ def parse_airr(line, v_germlines, j_germlines):
 
 
 def import_alignments(session, args):
+    mod_log.make_mod('import_alignments', session=session, commit=True,
+                     info=vars(args))
     parse_funcs = {
         'airr': (parse_airr, preprocess_airr),
     }

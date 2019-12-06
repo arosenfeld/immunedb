@@ -1,3 +1,4 @@
+import gzip
 import os
 import sys
 import time
@@ -266,21 +267,25 @@ def aggregate_collapse(aggregate_queue, db_config, sample_id, props):
 
 def read_input(path):
     vdjs = []
-    parser = SeqIO.parse(path, 'fasta' if path.endswith('.fasta') else 'fastq')
+    with gzip.open(path, 'rt') if path.endswith('.gz') else open(path) as fh:
+        parser = SeqIO.parse(
+            fh,
+            'fasta' if '.fasta' in path else 'fastq'
+        )
 
-    # Collapse identical sequences
-    logger.info('Parsing input')
-    for record in parser:
-        try:
-            vdjs.append(VDJSequence(
-                seq_id=record.description,
-                sequence=str(record.seq),
-                quality=funcs.ord_to_quality(
-                    record.letter_annotations.get('phred_quality')
-                )
-            ))
-        except ValueError:
-            continue
+        # Collapse identical sequences
+        logger.info('Parsing input')
+        for record in parser:
+            try:
+                vdjs.append(VDJSequence(
+                    seq_id=record.description,
+                    sequence=str(record.seq),
+                    quality=funcs.ord_to_quality(
+                        record.letter_annotations.get('phred_quality')
+                    )
+                ))
+            except ValueError:
+                continue
 
     logger.info('There are {} sequences'.format(len(vdjs)))
     return vdjs

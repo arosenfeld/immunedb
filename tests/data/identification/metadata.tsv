@@ -1,3 +1,3 @@
 file_name	study_name	sample_name	date	subject	subset	tissue	disease	lab	experimenter	ig_class	v_primer	j_primer
-input.fastq	Test Study	input	2015-09-13	D123		Colon		The Lab	Someone
+input.fastq.gz	Test Study	input	2015-09-13	D123		Colon		The Lab	Someone
 input2.fastq	Test Study	input2	2015-09-13	D123		SPL		The Lab	Someone
