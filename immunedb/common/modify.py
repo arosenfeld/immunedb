@@ -3,7 +3,7 @@ import dnautils
 import sys
 
 from immunedb.common.models import (Clone, NoResult, SampleMetadata, Sample,
-                                    SampleStats, Sequence, SequenceCollapse)
+                                    Sequence, Subject)
 from immunedb.identification.metadata import NA_VALUES
 from immunedb.util.log import logger
 
@@ -37,37 +37,68 @@ def remove_duplicates(session, sample):
 
 def update_metadata(session, args):
     SENTINEL = '__TEMP'  # Used to temporarily avoid duplicate name issues
+    IGNORE_FIELDS = ['id', 'name']
     with open(args.new_metadata) as fh:
         reader = csv.DictReader(fh, delimiter='\t')
-        new_meta = {l['name']: l for l in reader}
-
-    # delete existing metadata
-    sample_ids = {s.name: s.id for s in session.query(Sample).filter(
-        Sample.name.in_(new_meta))}
+        new_meta = {int(l['id']): l for l in reader}
 
     session.query(SampleMetadata).filter(
-        SampleMetadata.sample_id.in_(sample_ids.values())
+        SampleMetadata.sample_id.in_(new_meta.keys())
     ).delete(synchronize_session='fetch')
 
-    ignore_fields = ['name', 'new_name', 'subject', 'file_name']
-    for sample_name, row in new_meta.items():
-        if sample_name not in sample_ids:
-            logger.warning('No sample {} in database.  Ignoring.'.format(
-                sample_name))
-        sample_id = sample_ids[sample_name]
-        logger.info('Updating metadata for {}'.format(row['name']))
-        session.add_all([
-            SampleMetadata(sample_id=sample_id, key=k, value=v)
-            for k, v in row.items() if k not in ignore_fields and v not in
-            NA_VALUES
-        ])
-        if row['new_name'] != row['name']:
-            logger.info('  Updating sample name to {}'.format(row['new_name']))
-            session.query(Sample).filter(Sample.name == row['name']).update({
-                Sample.name: row['new_name'] + SENTINEL
+    old_subjects = set()
+    for sample_id, row in new_meta.items():
+        logger.info('Updating metadata for #{id}: {name}'.format(
+            **row))
+        sample = session.query(Sample).get(sample_id)
+        # Update subject
+        if sample.subject.identifier != row['subject']:
+            logger.info('Subject for sample "{}" changed from {} -> {}'.format(
+                sample.name, sample.subject.identifier, row['subject']
+            ))
+            old_subjects.add(sample.subject)
+            new_subject = session.query(Subject).filter(
+                Subject.study == sample.study,
+                Subject.identifier == row['subject']
+            ).first()
+            if not new_subject:
+                new_subject = Subject(
+                    study=sample.study,
+                    identifier=row['subject']
+                )
+                session.add(new_subject)
+                session.flush()
+                logger.info('\tNew subject found')
+            else:
+                old_subjects.add(new_subject)
+
+            sample.subject = new_subject
+            assert new_subject.id is not None
+            session.query(Sequence).filter(Sequence.sample == sample).update({
+                'subject_id': new_subject.id
             })
 
-    logger.info('Verifying uniqueness')
+        for subject in session.query(Subject):
+            if not subject.samples:
+                logger.info('Deleting orphan subject "{}"'.format(
+                    subject.identifier))
+                session.delete(subject)
+            elif subject in old_subjects:
+                logger.info('Resetting subject "{}"'.format(
+                    subject.identifier))
+                subject.reset()
+
+        # Update metadata
+        session.add_all([
+            SampleMetadata(sample=sample, key=k, value=v)
+            for k, v in row.items() if k not in IGNORE_FIELDS and v not in
+            NA_VALUES
+        ])
+        # Update name
+        sample.name = row['name'] + SENTINEL
+
+    session.commit()
+
     for sample in session.query(Sample).filter(
             Sample.name.like('%' + SENTINEL)):
         sample.name = sample.name[:-len(SENTINEL)]
@@ -82,46 +113,30 @@ def update_metadata(session, args):
 def combine_samples(session, args):
     groups = {}
 
+    subjects = set()
     for meta in session.query(SampleMetadata).filter(
             SampleMetadata.key == args.combine_field):
-        groups.setdefault(meta.value, set()).add(meta.sample_id)
-    all_subjects = set()
+        groups.setdefault(meta.value, set()).add(meta.sample)
+        subjects.add(meta.sample.subject)
+
     for group_id, samples in groups.items():
-        group_subs = session.query(Sample.subject_id).filter(
-            Sample.id.in_(samples)
-        ).group_by(Sample.subject_id)
-        group_subs = [s.subject_id for s in group_subs]
-        all_subjects.update(set(group_subs))
+        group_subs = set(s.subject for s in samples)
         if len(group_subs) > 1:
             logger.error('Cannot combine samples across subjects '
                          '(group "{}" has {} subjects)'.format(
                              group_id, len(group_subs)))
             sys.exit(1)
 
-    all_samples = [s.id for s in session.query(Sample.id).filter(
-        Sample.subject_id.in_(all_subjects))]
-
-    logger.info('Resetting information for {} subjects'.format(
-        len(all_subjects), len(all_samples)))
-    logger.info('   Resetting collapsing')
-    session.query(SequenceCollapse).filter(
-        SequenceCollapse.sample_id.in_(all_samples)
-    ).delete(synchronize_session=False)
-    logger.info('   Resetting clones')
-    session.query(Clone).filter(
-        Clone.subject_id.in_(all_subjects)
-    ).delete(synchronize_session=False)
-    logger.info('   Resetting sample statistics')
-    session.query(SampleStats).filter(
-        SampleStats.sample_id.in_(all_samples)
-    ).delete(synchronize_session=False)
+    for subject in subjects:
+        subject.reset()
 
     for group_id, samples in groups.items():
-        final_sample_id = min(samples)
+        all_sample_ids = set(s.id for s in samples)
+        final_sample_id = min(all_sample_ids)
         logger.info('Combining {} samples into new sample "{}" (ID {})'.format(
             len(samples), group_id, final_sample_id))
         session.query(Sequence).filter(
-            Sequence.sample_id.in_(samples)
+            Sequence.sample_id.in_(all_sample_ids)
         ).update({
             Sequence.sample_id: final_sample_id,
         }, synchronize_session=False)
@@ -134,16 +149,37 @@ def combine_samples(session, args):
 
         logger.info('Moving noresults')
         session.query(NoResult).filter(
-            NoResult.sample_id.in_(samples)
+            NoResult.sample_id.in_(all_sample_ids)
         ).update({
             'sample_id': final_sample_id
         }, synchronize_session=False)
 
         # delete the now-empty samples
         session.query(Sample).filter(
-            Sample.id.in_(samples - set([final_sample_id]))
+            Sample.id.in_(all_sample_ids - set([final_sample_id]))
         ).delete(synchronize_session=False)
 
     session.commit()
     logger.info('Sequences successfully collapsed: please re-run '
                 'immunedb_collapse and later pipeline steps.')
+
+
+def delete_samples(session, args):
+    for sample_id in args.sample_ids:
+        sample = session.query(Sample).get(sample_id)
+        if not sample:
+            logger.warning('Sample #{} does not exist'.format(sample_id))
+            continue
+
+        logger.info('Deleting sample #{}'.format(sample_id))
+        sample.subject.reset()
+        session.query(Sequence).filter(Sequence.sample == sample).delete()
+        session.delete(sample)
+    session.commit()
+
+    for subject in session.query(Subject):
+        if not subject.samples:
+            logger.info('Deleting orphan subject "{}"'.format(
+                subject.identifier))
+            session.delete(subject)
+    session.commit()

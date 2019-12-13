@@ -44,7 +44,7 @@ The location of important files are:
 - ``/share/mysql_data``: The location MySQL (specifically MariaDB) will store
   its data.
 - ``/example``: A set of example input data to familiarize yourself with
-  ImmuneDB
+  ImmuneDB.
 
 Next Steps
 ---------------------------

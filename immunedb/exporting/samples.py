@@ -25,11 +25,11 @@ def get_samples(session, for_update=False, sample_ids=None):
     ).group_by(CloneStats.sample_id)}
 
     if for_update:
-        fields = ['name', 'new_name']
+        fields = ['id', 'name', 'subject']
     else:
         fields = ['id', 'name', 'subject', 'input_sequences', 'identified',
-                  'in_frame', 'stops', 'avg_clone_cdr3_num_nts',
-                  'avg_clone_v_identity', 'functional', 'clones']
+                  'in_frame', 'stops', 'functional', 'avg_clone_cdr3_num_nts',
+                  'avg_clone_v_identity', 'clones']
     fields.extend(meta)
     writer = StreamingTSV(fields)
     yield writer.writeheader()
@@ -40,7 +40,7 @@ def get_samples(session, for_update=False, sample_ids=None):
         row = {
             'id': sample.id,
             'name': sample.name,
-            'new_name': sample.name
+            'subject': sample.subject.identifier,
         }
         stats = sample.stats if sample.stats else Passthrough()
         if not for_update:
@@ -61,7 +61,6 @@ def get_samples(session, for_update=False, sample_ids=None):
                 cdr3_len = 'NA'
 
             row.update({
-                'subject': sample.subject.identifier,
                 'input_sequences': stats.sequence_cnt +
                 stats.no_result_cnt,
                 'identified': stats.sequence_cnt,

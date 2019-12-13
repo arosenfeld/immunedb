@@ -1,6 +1,7 @@
 Related Publications & Software
 ===========================================
-`Clumpiness <https://github.com/DrexelSystemsImmunologyLab/clumpiness>`_: Schwartz, G.W., Shokoufandeh, A., Ontanon, S., Hershberg, U. (2016) **Using a
+`Clumpiness <https://github.com/DrexelSystemsImmunologyLab/clumpiness>`_:
+Schwartz, G.W., Shokoufandeh, A., Ontanon, S., Hershberg, U. (2016) **Using a
 novel clumpiness measure to unite data with metadata: finding common sequence
 patterns in immune receptor germline V genes**. Pattern Recognition Letters 74:
 24-29

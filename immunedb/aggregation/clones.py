@@ -417,7 +417,7 @@ def run_clones(session, args):
     tasks.start()
 
     session.commit()
-    if args.reduce_difference:
+    if args.reduce_difference >= 0:
         buckets = session.query(
             Clone.subject_id,
             Clone.cdr3_num_nts

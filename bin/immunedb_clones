@@ -14,7 +14,7 @@ def add_defaults(parser):
     parser.add_argument('--min-similarity', type=float, default=.85,
                         help='''Minimum similarity allowed between sequence
                         CDR3 within a clone''')
-    parser.add_argument('--reduce-difference', default=4,
+    parser.add_argument('--reduce-difference', default=0,
                         help='''Collapses clones with this many different
                         nucleotides in the CDR3, regardless of gene calls''')
     parser.add_argument('--min-copy', type=int,

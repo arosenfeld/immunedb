@@ -77,6 +77,21 @@ class Subject(Base):
     study = relationship(Study, backref=backref('subjects',
                          order_by=identifier))
 
+    def reset(self):
+        sample_ids = [s.id for s in self.samples]
+
+        session = Session.object_session(self)
+
+        session.query(SequenceCollapse).filter(
+            SequenceCollapse.sample_id.in_(sample_ids)
+        ).delete(synchronize_session=False)
+        session.query(Clone).filter(
+            Clone.subject_id == self.id
+        ).delete(synchronize_session=False)
+        session.query(SampleStats).filter(
+            SampleStats.sample_id.in_(sample_ids)
+        ).delete(synchronize_session=False)
+
 
 class Sample(Base):
     """A sample of sequences.
@@ -134,8 +149,12 @@ class SampleMetadata(Base):
 
     sample_id = Column(Integer, ForeignKey(Sample.id, ondelete='CASCADE'),
                        primary_key=True, nullable=False)
-    sample = relationship(Sample, backref=backref('metadata_models',
-                          order_by=sample_id))
+    sample = relationship(
+        Sample,
+        backref=backref('metadata_models',
+                        order_by=sample_id,
+                        cascade='save-update,merge,delete,delete-orphan')
+    )
 
     key = Column(String(length=32), primary_key=True, index=True,
                  nullable=False)

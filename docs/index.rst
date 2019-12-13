@@ -11,50 +11,41 @@ ImmuneDB |travisci| |docs| |codecov| |pypi| |docker|
 .. |docs| image:: https://readthedocs.org/projects/immunedb/badge/?version=latest
    :target: https://immunedb.readthedocs.io/en/latest/?badge=latest
 
-**ImmuneDB** is a system to efficiently storage and analyze high-throughput B-
-and T-cell sequencing data.  It provides V- and J-gene identification, clonal
-assignment, lineage construction, selection pressure calculation, and thorough
-exporting functionality.
+**ImmuneDB** is a database-backed system to analyze and store large amounts
+(terabytes) of high-throughput B-cell receptor (BCR) and T-cell receptor (TCR)
+data.  Although it can be used as a stand-alone package for comprehensive
+repertoire profiling, ImmuneDB excels at acting as a central data store and
+interface between other tools such as `IgBLAST
+<https://ncbi.github.io/igblast>`_, `pRESTO <https://presto.readthedocs.io>`_,
+and `VDJtools <https://vdjtools-doc.readthedocs.io>`_ via `AIRR compliant
+<http://docs.airr-community.org/en/latest/resources/support.html#rearrangement-schema>`_
+importing and exporting routines.
 
-It also provides an intuitive and useful web interface a demo of which you can
-see `here <http://immunedb.com/demo>`_.
+Feature Highlights
+------------------
+
+* **Relational storage of repertoire data**: Sequences, annotations, clones,
+  lineages, and statistics are all stored in a relational database to
+  promote consistent formatting and easy querying.
+* **Consolidated metadata**: Custom study, experiment, and replicate metadata
+  is stored alongside your sequencing data in a non-redundant format to avoid
+  inconsistencies and errors over the life of your study.
+* **Web interface**: ImmuneDB provides a built-in web interface for interactive
+  exploration of data.
+* **Interoperability**: With AIRR compliant input and output methods, ImmuneDB
+  can interface with other software in the AIRR ecosystem.  Other output
+  formats include Change-O and VDJtools.
+* **Proven at scale**: Used as the primary repertoire profiling software at the
+  `Human Immunology Core at the University of Pennsylvania
+  <https://www.med.upenn.edu/cores/human_immunology.html>`_, ImmuneDB is used
+  to manage terabytes of data comprised of billions of sequences in dozens of
+  projects.
+
 
 Quick Start
 -----------
 To get started immediately, please see the :doc:`Docker installation
 instructions <install_docker>`.
-
-More Information
-----------------
-
-ImmuneDB is comprised of two GitHub repositories: Python analysis tools
-(`arosenfeld/immunedb <https://github.com/arosenfeld/immunedb>`_) and a web
-interface (`arosenfeld/immunedb-frontend
-<https://github.com/arosenfeld/immunedb-frontend>`_)
-
-The system aims to:
-
-- **Reduce ad-hoc scripting:** Data analysis performed on an ad-hoc basis with
-  custom scripts and data formats is error-prone and leads to inconsistencies.
-  ImmuneDB provides a standardized analysis platform, performing many common tasks
-  automatically.
-
-- **Minimize flat-files:** Flat files are currently the standard method of
-  data exchange in the biological sciences.  There are a myriad of drawbacks
-  when using these including a lack of `referential integrity
-  <http://en.wikipedia.org/wiki/Referential_integrity>`_, unclear `provenance
-  <http://en.wikipedia.org/wiki/Provenance#Data_provenance>`_, and
-  non-standardized formats.
-
-  ImmuneDB attempts to reduce the need for flat files, through the use of an
-  industry-leading database, MySQL.  When data must be exchanged as a flat-file,
-  many export options, including FASTA and tab-delineation, are available.
-
-- **Interoperate with existing tools:** ImmuneDB integrates tools from other
-  researchers to provide features such as lineage construction, genotyping, and
-  selection pressure calculations.  Further, ImmuneDB can import and export in
-  a variety of common formats, making it compatible with the larger AIRR
-  ecosystem of tools.
 
 .. toctree::
     :maxdepth: 2
@@ -73,14 +64,16 @@ The system aims to:
 
     pipeline_example
     pipeline_full
+    modifying
 
 .. toctree::
     :maxdepth: 2
     :hidden:
-    :caption: Querying an Existing Database
+    :caption: Using a Database
 
+    exporting
+    querying
     api
-    database
 
 .. toctree::
     :maxdepth: 2

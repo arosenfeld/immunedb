@@ -4,7 +4,7 @@ import csv
 import os
 import sys
 
-from immunedb.identification.metadata import COMMON_FIELDS, REQUIRED_FIELDS
+from immunedb.identification.metadata import REQUIRED_FIELDS
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('Generates a template metadata file')
@@ -17,41 +17,22 @@ if __name__ == '__main__':
                         'filename without the .fasta or .fastq extension '
                         '(e.g. sample1.fasta would be given the sample name '
                         'sample1)')
-    parser.add_argument('--trim-suffix', action='store_true', help='''Can only
-                        be specified with --use-filenames.  If specified,
-                        removes the common suffix from each sample name.
-                        Useful when using pRESTO files which have common
-                        appended suffixes''')
-    parser.add_argument('--include-common', action='store_true',
-                        help='''Includes additional common metadata fields:
-                        {}'''.format(','.join(COMMON_FIELDS)))
     args = parser.parse_args()
 
     files = [os.path.basename(f) for f in os.listdir(args.path)
-             if '.fasta' in f or '.fastq' in f]
-    if len(files) == 0:
-        parser.error('No FASTA or FASTQ files.')
-    if args.trim_suffix and not args.use_filenames:
-        parser.error('Can only specify --trim-suffix with --use-filenames')
+             if '.fasta' in f or '.fastq' in f or '.tsv' in f]
+    if not files:
+        parser.error('No FASTA, FASTQ, or TSV files.')
 
     with sys.stdout if args.out == '-' else open(args.out, 'w+') as fh:
-        fieldnames = REQUIRED_FIELDS
-        if args.include_common:
-            fieldnames += COMMON_FIELDS
         writer = csv.DictWriter(
             fh,
-            fieldnames=fieldnames,
+            fieldnames=REQUIRED_FIELDS,
             delimiter='\t')
 
         writer.writeheader()
-        suffix = ''.join(reversed(
-            os.path.commonprefix([
-                os.path.splitext(fn)[0][::-1] for fn in files])
-        ))
         for fn in files:
             name, ext = os.path.splitext(fn)
-            if args.trim_suffix:
-                name = name[:-len(suffix)]
             row = {'file_name': fn}
             if args.use_filenames:
                 row['sample_name'] = name
