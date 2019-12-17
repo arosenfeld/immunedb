@@ -144,13 +144,6 @@ def similar_to_all(seq, rest, field, min_similarity):
     return True
 
 
-def can_subclone(sub_clone, parent_clone):
-    return dnautils.equal(
-        parent_clone.cdr3_aa.replace('X', '-'),
-        sub_clone.cdr3_aa.replace('X', '-')
-    )
-
-
 class ClonalWorker(concurrent.Worker):
     defaults = {
         # common
@@ -305,61 +298,6 @@ class ClusteringClonalWorker(ClonalWorker):
             generate_consensus(self.session, consensus_needed)
 
 
-class SubcloneWorker(concurrent.Worker):
-    def __init__(self, session):
-        self.session = session
-
-    def do_task(self, bucket):
-        clones = self.session.query(Clone).filter(
-            Clone.subject_id == bucket.subject_id,
-            Clone.v_gene == bucket.v_gene,
-            Clone.j_gene == bucket.j_gene,
-            Clone.cdr3_num_nts == bucket.cdr3_num_nts,
-        ).all()
-
-        if not clones:
-            return
-        # The clones with indels are the only ones which can be subclones
-        parent_clones = set([c for c in clones if len(c.insertions) == 0 and
-                             len(c.deletions) == 0])
-        potential_subclones = [c for c in clones if c not in parent_clones and
-                               c.parent_id is None]
-        self.info('Bucket {} has {} clones; parents={}, subs={}'.format(
-            bucket, len(clones), len(parent_clones), len(potential_subclones)))
-
-        for subclone in potential_subclones:
-            for parent in parent_clones:
-                if can_subclone(subclone, parent):
-                    subclone.parent = parent
-                    break
-        self.session.commit()
-
-    def cleanup(self):
-        self.session.commit()
-        self.session.close()
-
-
-def run_subclones(session, subject_ids, args):
-    tasks = concurrent.TaskQueue()
-    for subject_id in subject_ids:
-        logger.info('Generating subclone task queue for subject {}'.format(
-            subject_id))
-        buckets = session.query(
-            Clone.subject_id, Clone.v_gene, Clone.j_gene, Clone.cdr3_num_nts
-        ).filter(
-            Clone.subject_id == subject_id
-        ).group_by(
-            Clone.subject_id, Clone.v_gene, Clone.j_gene, Clone.cdr3_num_nts
-        )
-        for bucket in buckets:
-            tasks.add_task(bucket)
-
-    logger.info('Generated {} total subclone tasks'.format(tasks.num_tasks()))
-    for i in range(0, min(tasks.num_tasks(), args.nproc)):
-        tasks.add_worker(SubcloneWorker(config.init_db(args.db_config)))
-    tasks.start()
-
-
 def run_clones(session, args):
     """Runs the clone-assignment pipeline stage.
 
@@ -429,12 +367,7 @@ def run_clones(session, args):
         )
         collapse_similar_cdr3s(session, buckets, args.reduce_difference)
     else:
-        logger.info('Skipping reduce since --reduce-differece set to 0')
+        logger.info('Skipping reduce since --reduce-differece < 0')
 
     push_clone_ids(session)
     session.commit()
-
-    if not args.skip_subclones:
-        run_subclones(session, subject_ids, args)
-    else:
-        logger.info('Skipping subclones')

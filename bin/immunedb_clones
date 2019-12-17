@@ -34,9 +34,6 @@ def add_defaults(parser):
                         help='''If specified, only sequences of the given gene
                         type will be assigned clones.  Useful if you have
                         BCR and TCR sequences within a single subject.''')
-    parser.add_argument('--skip-subclones', action='store_true',
-                        help='''If specified, calculates subclone
-                        relationships''')
 
 
 if __name__ == '__main__':
