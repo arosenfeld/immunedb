@@ -79,8 +79,9 @@ def push_clone_ids(session):
 
 
 def collapse_similar_cdr3s(session, buckets, difference_allowed):
+    total_buckets = buckets.count()
     logger.info('Collapsing similar clones in {} buckets'.format(
-        buckets.count()
+        total_buckets
     ))
     for i, bucket in enumerate(buckets):
         clones = session.query(
@@ -91,10 +92,11 @@ def collapse_similar_cdr3s(session, buckets, difference_allowed):
         ).order_by(
             Clone.overall_total_cnt.desc()
         )
-        if clones.count() < 2:
+        clones_cnt = clones.count()
+        if clones_cnt < 2:
             continue
         logger.info('Reducing bucket {} / {} ({} clones)'.format(
-            i, buckets.count(), clones.count()))
+            i, total_buckets, clones_cnt))
         reduced = {}
         for c in clones:
             for larger_cdr3_nt, others in reduced.items():
