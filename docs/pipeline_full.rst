@@ -24,19 +24,46 @@ Replace ``PATH_TO_SEQUENCES`` with the path to your sequencing data.
 .. code-block:: bash
    :caption: Run on Host
 
-   $ mkdir -p $HOME/immunedb_share/sequences
-   $ cp PATH_TO_SEQUENCES $HOME/immunedb_share/sequences
+   $ mkdir -p $HOME/immunedb_share/input
+   $ cp PATH_TO_SEQUENCES $HOME/immunedb_share/input
 
+
+Running IgBLAST (optional)
+==========================
+
+.. note::
+
+    If your data is already in AIRR-compliant IgBLAST format or you are
+    planning on using the built in anchoring method, you can skip this step.
+
+The following command will run IgBLAST on your files.  Valid values for species
+and locus are:
+
+* ``SPECIES``:``human``, ``mouse``
+* ``LOCUS``: ``IGH``, ``IGL``, ``IGK``, ``TRA``, ``TRB``,
+
+.. code-block:: bash
+
+    $ run_igblast.sh SPECIES LOCUS /share/input /share/input
+
+For consistency with the commands in the rest of this tutorial, we'll move the
+new IgBLAST output files to ``/share/input`` and move the FASTA/FASTQ files to
+``/share/sequences``.
+
+.. code-block:: bash
+
+    $ mkdir -p /share/sequences
+    $ mv /share/input/*.fast[aq] /share/sequences
 
 Creating a Metadata Sheet
-==================================
+=========================
 Next, we'll use the ``immunedb_metadata`` command to create a template metadata
 file for your sequencing data.  In the Docker container run:
 
 .. code-block:: bash
    :caption: Run in Docker
 
-   $ cd /share/sequences
+   $ cd /share/input
    $ immunedb_metadata --use-filenames
 
 .. note::
@@ -44,19 +71,18 @@ file for your sequencing data.  In the Docker container run:
     This command expects the files to end in .fasta for FASTA, .fastq for
     FASTQ, or .tsv for AIRR.
 
-This creates a ``metadata.tsv`` file in ``/share/sequences`` in Docker or
-``$HOME/immunedb_share/sequences`` on the host.
+This creates a ``metadata.tsv`` file in ``/share/input`` in Docker which is
+linked to ``$HOME/immunedb_share/input`` on the host.
 
 The ``--use-filenames`` flag is optional, and simply populates the
 ``sample_name`` field with the file names stripped of their extension.
 
 Editing the Metadata Sheet
 --------------------------
-On the host open the ``$HOME/immunedb_share/sequences`` file in Excel or your
-favorite spreadsheet editor.  The headers included in the file are
-**required**.  You may add additional headers as necessary for your dataset
-(e.g. ``tissue``, ``cell_subset``, ``timepoint``) so long as they follow the
-following rules:
+On the host open the metadata file in Excel or your favorite spreadsheet
+editor.  The headers included in the file are **required**.  You may add
+additional headers as necessary for your dataset (e.g. ``tissue``,
+``cell_subset``, ``timepoint``) so long as they follow the following rules:
 
 * The headers must all be unique
 * Each header may only contain *lowercase* letters, numbers, and underscores
@@ -70,7 +96,7 @@ following rules:
    ``NA``, ``N/A``, ``NULL``, or ``None`` (case-insensitive).
 
 Pipeline Steps
-=================================
+==============
 Much of the rest of the pipeline follows from the example pipeline's
 :ref:`instance creation step <instance_creation>`.  To start, create a
 database.  Here we'll call it ``my_db`` but you'll probably want to give it a
@@ -83,13 +109,8 @@ more descriptive name:
    $ immunedb_admin create my_db /share/configs
 
 Then we'll identify or import the sequences.  For this process the germline
-genes must be specified.  The germlines provided as FASTA files in the Docker
-image at ``/root/germlines`` are:
-
-* ``human/IGHV`` & ``human/IGHJ``: Human B-cell heavy chains
-* ``human/TRAV`` & ``human/TRAJ``: Human T-cell α chains
-* ``human/TRBV`` & ``human/TRBJ``: Human T-cell β chains
-* ``mouse/IGHV`` & ``mouse/IGHJ``: Mouse B-cell heavy chains
+genes must be specified.  The germlines are provided FASTA files in the Docker
+image at ``/root/germlines``.
 
 .. note::
 
@@ -97,29 +118,29 @@ image at ``/root/germlines`` are:
     gapped.
 
 For this segment we'll assume human B-cell heavy chains, but the process is the
-same for any dataset.  Depending on if you have FASTA/FASTQ files or
-AIRR-formatted data, you'll need to follow only one of the two commands below:
+same for any dataset.  Depending on if you want to use IgBLAST input
+(recommended) or the built-in annotation method the command will be one of the
+following:
 
-*If using AIRR-formatted-data*:
+**Option 1: Importing from IgBLAST output (recommended)**:
 
 .. code-block:: bash
     :caption: Run in Docker
 
     $ immunedb_import /share/configs/example_db.json airr \
-         /root/germlines/human/IGHV.gapped.fasta \
-         /root/germlines/human/IGHJ.gapped.fasta \
-         /share/sequences
+         /root/germlines/igblast/human/IGHV.gapped.fasta \
+         /root/germlines/igblast/human/IGHJ.gapped.fasta \
+         /share/input
 
-*If using FASTA/FASTQ files*:
+**Option 2: Using anchoring method**:
 
 .. code-block:: bash
    :caption: Run in Docker
 
    $ immunedb_identify /share/configs/my_db.json \
-         /root/germlines/human/IGHV.gapped.fasta \
-         /root/germlines/human/IGHJ.gapped.fasta \
-         /share/sequences
-
+         /root/germlines/anchor/human/IGHV.gapped.fasta \
+         /root/germlines/anchor/human/IGHJ.gapped.fasta \
+         /share/input
 
 After importing or identifying sequences, continue running the pipeline from
 here:

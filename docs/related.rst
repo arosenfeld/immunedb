@@ -1,19 +1,17 @@
-Related Publications & Software
-===========================================
-`Clumpiness <https://github.com/DrexelSystemsImmunologyLab/clumpiness>`_:
-Schwartz, G.W., Shokoufandeh, A., Ontanon, S., Hershberg, U. (2016) **Using a
-novel clumpiness measure to unite data with metadata: finding common sequence
-patterns in immune receptor germline V genes**. Pattern Recognition Letters 74:
-24-29
+Related Publications
+===============================
+Rosenfeld, A.M., Meng, W., Chen, D.Y., Zhang, B., Granot, T.,
+Farber, D.L., Hershberg, U., and Prak, E.T.L., **Computational Evaluation of
+B-Cell Clone Sizes in Bulk Populations**. Frontiers in Immunology 9 (2018).
 
-`ConservedIdentification
-<https://github.com/bochaozhang/ConservedIdentification>`_: Zhang, B., Meng, W.,
-Luning Prak, E.T. and Hershberg U. (2015) **Discrimination of germline V genes
-at different sequencing lengths and mutational burdens: A new tool for
-identifying and evaluating the reliability of V gene assignment**. Journal of
-Immunological Methods 427: 105-116
+Vander Heiden, J.A., Marquez, S., Marthandan, N., Bukhari, S.A.C., Busse, C.
+E., Corrie, B., Hershberg, U., Kleinstein, S.H., Matsen, F.A., Ralph, D.K.,
+Rosenfeld, A.M., Schramm, C.A., Christley, S., and Laserson, U.,  **AIRR Community
+Standardized Representations for Annotated Immune Repertoires**. Frontiers in
+Immunology 9 (2018).
 
-`Diversity <https://github.com/GregorySchwartz/diversity>`_: Schwartz, G.W.,
-Hershberg, U. (2013) **Conserved variation: identifying patterns of stability
-and variability in BCR and TCR V genes with different diversity and richness
-metrics**. Phys Biol 10
+Zhang, B., Meng, W., Luning Prak, E.T. and
+Hershberg U.  (2015) **Discrimination of germline V genes at different
+sequencing lengths and mutational burdens: A new tool for identifying and
+evaluating the reliability of V gene assignment**. Journal of Immunological
+Methods 427: 105-116

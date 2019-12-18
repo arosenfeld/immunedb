@@ -16,8 +16,9 @@ ImmuneDB |travisci| |docs| |codecov| |pypi| |docker|
 data.  Although it can be used as a stand-alone package for comprehensive
 repertoire profiling, ImmuneDB excels at acting as a central data store and
 interface between other tools such as `IgBLAST
-<https://ncbi.github.io/igblast>`_, `pRESTO <https://presto.readthedocs.io>`_,
-and `VDJtools <https://vdjtools-doc.readthedocs.io>`_ via `AIRR compliant
+<https://ncbi.github.io/igblast>`_, the `Immcantation Framework
+<http://immcantation.com>`_, `MiXCR <https://mixcr.readthedocs.io>`_, and
+`VDJtools <https://vdjtools-doc.readthedocs.io>`_ via `AIRR compliant
 <http://docs.airr-community.org/en/latest/resources/support.html#rearrangement-schema>`_
 importing and exporting routines.
 
@@ -35,11 +36,8 @@ Feature Highlights
 * **Interoperability**: With AIRR compliant input and output methods, ImmuneDB
   can interface with other software in the AIRR ecosystem.  Other output
   formats include Change-O and VDJtools.
-* **Proven at scale**: Used as the primary repertoire profiling software at the
-  `Human Immunology Core at the University of Pennsylvania
-  <https://www.med.upenn.edu/cores/human_immunology.html>`_, ImmuneDB is used
-  to manage terabytes of data comprised of billions of sequences in dozens of
-  projects.
+* **Proven reliability**: ImmuneDB is used by multiple labs to manage terabytes
+  of data comprised of billions of sequences in dozens of projects.
 
 
 Quick Start
