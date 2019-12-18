@@ -51,7 +51,23 @@ COPY docker/proxy.py /apps/immunedb
 COPY docker/mariadb/my.cnf /etc/mysql
 COPY docker/setup_users.sql /tmp
 COPY docker/example /example
-ENV PATH "${PATH}:/apps/bowtie2:/apps/clearcut"
+# IgBLAST
+ENV IGDATA /apps/igblast
+WORKDIR /apps/igblast
+COPY docker/run_igblast.sh /usr/sbin
+COPY docker/make_db.sh /usr/sbin
+RUN wget -q \
+    ftp://ftp.ncbi.nih.gov/blast/executables/igblast/release/LATEST/ncbi-igblast-\*-x64-linux.tar.gz && \
+    tar xzf ncbi*.gz && \
+    rm *.gz && \
+    mv ncbi* src && \
+    mv src/* . && \
+    rm -r src
+ENV PATH "${PATH}:/apps/bowtie2:/apps/clearcut:/apps/igblast/bin"
+RUN make_db.sh database/human /root/germlines/igblast/human/*.fasta && \
+    make_db.sh database/mouse /root/germlines/igblast/mouse/*.fasta && \
+    mv database/human/*gapped* /root/germlines/igblast/human && \
+    mv database/mouse/*gapped* /root/germlines/igblast/mouse
 # Expose API and frontend ports
 EXPOSE 5000 8080
 # Setup MySQL volume

@@ -46,7 +46,7 @@ The location of important files are:
 - ``/example``: A set of example input data to familiarize yourself with
   ImmuneDB.
 
-Next Steps
----------------------------
+Running ImmuneDB
+====================
 Once the Docker container is running, you should continue by testing out the
 :ref:`example pipeline <pipeline_example>`.

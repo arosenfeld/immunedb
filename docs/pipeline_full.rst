@@ -69,8 +69,8 @@ following rules:
    When data is missing or not necessary in a field, leave it blank or set to
    ``NA``, ``N/A``, ``NULL``, or ``None`` (case-insensitive).
 
-Running the Pipeline
-====================
+Pipeline Steps
+=================================
 Much of the rest of the pipeline follows from the example pipeline's
 :ref:`instance creation step <instance_creation>`.  To start, create a
 database.  Here we'll call it ``my_db`` but you'll probably want to give it a

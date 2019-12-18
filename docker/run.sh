@@ -8,4 +8,9 @@ service mysql start
 echo 'Setting up database'
 cat /tmp/setup_users.sql | mysql -u root &> /dev/null
 echo 'Starting webserver'
-python3 /apps/immunedb/proxy.py &> /apps/immunedb/proxy.log &
+if [ -z "$IMMUNEDB_DAEMON" ]
+then
+    python3 /apps/immunedb/proxy.py &> /apps/immunedb/proxy.log &
+else
+    python3 /apps/immunedb/proxy.py
+fi

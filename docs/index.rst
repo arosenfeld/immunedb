@@ -65,6 +65,7 @@ instructions <install_docker>`.
     pipeline_example
     pipeline_full
     modifying
+    background
 
 .. toctree::
     :maxdepth: 2
