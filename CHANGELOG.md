@@ -1,4 +1,13 @@
 # CHANGELOG
+## v0.29.8
+* Removed unused code from `immunedb_clones`.
+* An IgBLAST helper script is now included in the Docker image.
+* Documentation has been substantially updated and includes information about
+  running IgBLAST.
+
+## v0.29.7
+* Merging similar clones in `immunedb_clones` is now much faster.
+
 ## v0.29.6
 * `immunedb_identify` now accepts gzipped files.
 
