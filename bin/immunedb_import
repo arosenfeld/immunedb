@@ -3,7 +3,6 @@ import immunedb.common.config as config
 
 from immunedb.importing.alignments import import_alignments
 from immunedb.identification.identify import IdentificationProps
-from immunedb.identification.genes import JGermlines
 
 
 def add_defaults(parser):
