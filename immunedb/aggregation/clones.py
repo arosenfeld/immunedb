@@ -39,7 +39,8 @@ def generate_consensus(session, clone_ids):
             Sequence.clone_id == clone.id,
             SequenceCollapse.copy_number_in_subject > 0
         ).all()
-        clone.cdr3_nt = funcs.consensus([s.cdr3_nt for s in seqs])
+        clone.cdr3_nt = funcs.consensus([s.cdr3_nt for s in seqs],
+                                        skip_ambig=True)
         clone.cdr3_aa = lookups.aas_from_nts(clone.cdr3_nt)
 
         clone.germline = generate_germline(session, seqs, clone)

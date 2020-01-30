@@ -8,7 +8,7 @@ ImmuneDB in detached mode with the following:
 
     $ docker run -v $HOME/immunedb_share:/share \
          -p 8080:8080 -e IMMUNEDB_DAEMON=1 -d=true \
-         arosenfeld/immunedb:v0.29.8
+         arosenfeld/immunedb:v0.29.9
 
 If you want to stop the process in the future, get its process ID with
 

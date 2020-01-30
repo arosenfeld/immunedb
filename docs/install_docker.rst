@@ -5,12 +5,12 @@ Installing with Docker (recommended)
 
 Pulling the Docker Image
 ========================
-With Docker installed the following command to get the newest version of the
-ImmuneDB Docker image:
+With Docker installed, run the following command to pull the newest version of
+the ImmuneDB Docker image:
 
 .. code-block:: bash
 
-    $ docker pull arosenfeld/immunedb:v0.29.8
+    $ docker pull arosenfeld/immunedb:v0.29.9
 
 
 .. _running-the-container:
@@ -22,7 +22,7 @@ To start a shell session within the container run:
 .. code-block:: bash
 
     $ docker run -v $HOME/immunedb_share:/share \
-        -p 8080:8080 -it arosenfeld/immunedb:v0.29.8
+        -p 8080:8080 -it arosenfeld/immunedb:v0.29.9
 
 This will start a shell with ImmuneDB and accessory scripts pre-installed as
 well as create a shared directory between the host and Docker container.  Files

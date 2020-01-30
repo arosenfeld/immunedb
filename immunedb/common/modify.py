@@ -37,7 +37,7 @@ def remove_duplicates(session, sample):
 
 def update_metadata(session, args):
     SENTINEL = '__TEMP'  # Used to temporarily avoid duplicate name issues
-    IGNORE_FIELDS = ['id', 'name']
+    IGNORE_FIELDS = ['id', 'name', 'subject']
     with open(args.new_metadata) as fh:
         reader = csv.DictReader(fh, delimiter='\t')
         new_meta = {int(l['id']): l for l in reader}

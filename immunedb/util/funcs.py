@@ -38,7 +38,7 @@ def flatten(iterable):
     return list(itertools.chain.from_iterable(iterable))
 
 
-def consensus(strings):
+def consensus(strings, skip_ambig=False):
     """Gets the unweighted consensus from a list of strings
 
     :param list strings: A set of equal-length strings.
@@ -47,7 +47,18 @@ def consensus(strings):
     :rtype: str
 
     """
-    chrs = [Counter(chars).most_common(1)[0][0] for chars in zip(*strings)]
+
+    chrs = [
+            Counter(chars).most_common(2) for chars in zip(*strings)
+    ]
+    if skip_ambig:
+        chrs = [
+            c[0][0] if (c[0][0] != 'N' or len(c) == 1) else c[1][0]
+            for c in chrs
+        ]
+    else:
+        chrs = [c[0][0] for c in chrs]
+
     return ''.join(chrs)
 
 
