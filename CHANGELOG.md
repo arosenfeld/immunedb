@@ -1,4 +1,10 @@
 # CHANGELOG
+## v0.29.9
+* Fixed a bug where `subject` would be added to metadata after `immunedb_modify
+  .. update-metadata`
+* Fixed a type conversion bug for the `--reduce-difference` flag in
+  `immunedb_clones`.
+
 ## v0.29.8
 * Removed unused code from `immunedb_clones`.
 * An IgBLAST helper script is now included in the Docker image.
