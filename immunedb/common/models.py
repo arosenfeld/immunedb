@@ -574,7 +574,7 @@ class Sequence(Base):
     subject_id = Column(Integer, ForeignKey(Subject.id), index=True)
     subject = relationship(Subject)
 
-    seq_id = Column(String(64), index=True)
+    seq_id = Column(String(128), index=True)
     sample = relationship(Sample, backref=backref('sequences'))
 
     partial = Column(Boolean, index=True)
@@ -764,7 +764,7 @@ class NoResult(Base):
 
     pk = Column(Integer, primary_key=True)
 
-    seq_id = Column(String(length=64))
+    seq_id = Column(String(length=128))
 
     sample_id = Column(Integer, ForeignKey(Sample.id, ondelete='CASCADE'))
     sample = relationship(Sample)
@@ -836,7 +836,7 @@ class SequenceCollapse(Base):
 
     collapse_to_subject_sample_id = Column(Integer)
     collapse_to_subject_seq_ai = Column(Integer, index=True)
-    collapse_to_subject_seq_id = Column(String(64))  # Denormalized
+    collapse_to_subject_seq_id = Column(String(128))  # Denormalized
     instances_in_subject = Column(Integer, server_default='0', nullable=False)
     copy_number_in_subject = Column(Integer, server_default='0',
                                     nullable=False, index=True)
