@@ -18,7 +18,7 @@ To begin, run the Docker container :ref:`as documented
    :caption: Run on Host
 
     $ docker run -v $HOME/immunedb_share:/share \
-         -p 8080:8080 -it arosenfeld/immunedb:v0.29.9
+         -p 8080:8080 -it arosenfeld/immunedb:v0.29.10
 
 
 Metadata Specification
