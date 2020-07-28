@@ -13,6 +13,12 @@ high-throughput B- and T-cell sequence data.
 # Documentation
 Installation and usage instructions can be found at [immunedb.com](http://immunedb.com)
 
+# Support
+Basic questions regarding installing and running ImmuneDB can be emailed to
+aaron.rosenfeld@pennmedicine.upenn.edu.  Bugs and feature requests should be
+submitted as [Issues](https://github.com/arosenfeld/immunedb/issues).  I try to
+respond to both within 2 business days if possible.
+
 # Citing
 If you use ImmuneDB, please cite the tool as:
 
