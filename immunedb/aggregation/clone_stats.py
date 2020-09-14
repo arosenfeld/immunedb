@@ -110,7 +110,7 @@ class CloneStatsWorker(concurrent.Worker):
             'unique_cnt': counts.unique,
             'total_cnt': counts.total,
             'mutations': json.dumps(sample_mutations.get_all()),
-            'avg_v_identity': round(counts.v_identity / counts.total, 3),
+            'avg_v_identity': counts.v_identity / counts.total,
             'top_copy_seq_ai': top_seq.ai,
             'top_copy_seq_sequence': top_seq.sequence,
             'top_copy_seq_copies': top_seq.copy_number

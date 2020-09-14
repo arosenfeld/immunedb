@@ -249,7 +249,7 @@ class BaseTest(object):
                 self.session.query(CloneStats),
                 'id',
                 ('clone_id', 'sample_id', 'subject_id', 'functional',
-                    'unique_cnt', 'total_cnt', 'avg_v_identity',
+                    'unique_cnt', 'total_cnt',# 'avg_v_identity',
                     'top_copy_seq_ai')
             )
 
