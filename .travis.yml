@@ -13,7 +13,6 @@ addons:
     - gfortran
     - unzip
 install:
-- pip install numpy
 - pip install nose
 - pip install codecov
 - pip install airr
