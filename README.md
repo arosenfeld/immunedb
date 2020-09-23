@@ -6,6 +6,7 @@ ImmuneDB
 [![codecov](https://codecov.io/gh/arosenfeld/immunedb/branch/master/graph/badge.svg)](https://codecov.io/gh/arosenfeld/immunedb)
 [![PyPI](https://img.shields.io/pypi/v/immunedb.svg)](https://pypi.python.org/pypi/ImmuneDB)
 [![Docker Pulls](https://img.shields.io/docker/pulls/arosenfeld/immunedb.svg)](https://hub.docker.com/r/arosenfeld/immunedb)
+[![](https://img.shields.io/static/v1?label=AIRR-C%20sw-tools%20v1&message=compliant&color=008AFF&labelColor=000000&style=plastic)](https://docs.airr-community.org/en/stable/swtools/airr_swtools_standard.html)
 
 ImmuneDB is a Python module that facilitates efficient storage and analysis of
 high-throughput B- and T-cell sequence data.
