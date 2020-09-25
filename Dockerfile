@@ -16,11 +16,12 @@ RUN apt-get update && apt-get install -y \
     git \
     npm \
     r-base
+RUN npm install -g npm@latest
 WORKDIR /apps
 # Get the frontend source, clearcut, and bowtie2
 RUN git clone https://github.com/arosenfeld/immunedb-frontend
-RUN wget http://bioinformatics.hungry.com/clearcut/clearcut-1.0.9.tar.gz && \
-    tar xzf clearcut-1.0.9.tar.gz && mv clearcut-1.0.9 clearcut
+RUN wget http://immunedb-deps.s3-website-us-east-1.amazonaws.com/clearcut.tgz && \
+    tar xzf clearcut.tgz
 RUN wget https://github.com/BenLangmead/bowtie2/releases/download/v2.3.4.1/bowtie2-2.3.4.1-linux-x86_64.zip && \
     unzip bowtie2-2.3.4.1-linux-x86_64.zip && \
     mv bowtie2-2.3.4.1-linux-x86_64 bowtie2
