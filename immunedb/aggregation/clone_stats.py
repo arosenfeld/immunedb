@@ -69,7 +69,7 @@ class CloneStatsWorker(concurrent.Worker):
                     'total'),
                 func.sum(
                     (Sequence.v_match / Sequence.v_length) *
-                    Sequence.copy_number
+                    SequenceCollapse.copy_number_in_subject
                 ).label('v_identity')
             ).join(SequenceCollapse).filter(
                 Sequence.clone_id == clone_id,

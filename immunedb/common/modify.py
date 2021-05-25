@@ -27,7 +27,12 @@ def remove_duplicates(session, sample):
             larger = bucket.pop(0)
             for i in reversed(range(len(bucket))):
                 smaller = bucket[i]
-                if dnautils.equal(larger.sequence, smaller.sequence):
+
+                if len(larger.sequence) != len(smaller.sequence):
+                    logger.warning('Tried to collapse sequences of different '
+                                 'lengths.  AIs are {} {}'.format(
+                                     larger.ai, smaller.ai))
+                elif dnautils.equal(larger.sequence, smaller.sequence):
                     larger.copy_number += smaller.copy_number
                     session.delete(smaller)
                     del bucket[i]
@@ -133,31 +138,38 @@ def combine_samples(session, args):
     for group_id, samples in groups.items():
         all_sample_ids = set(s.id for s in samples)
         final_sample_id = min(all_sample_ids)
-        logger.info('Combining {} samples into new sample "{}" (ID {})'.format(
-            len(samples), group_id, final_sample_id))
-        session.query(Sequence).filter(
-            Sequence.sample_id.in_(all_sample_ids)
-        ).update({
-            Sequence.sample_id: final_sample_id,
-        }, synchronize_session=False)
+        if len(samples) > 1:
+            logger.info('Combining {} samples into new sample "{}" (ID {})'.format(
+                len(samples), group_id, final_sample_id))
+            session.query(Sequence).filter(
+                Sequence.sample_id.in_(all_sample_ids)
+            ).update({
+                Sequence.sample_id: final_sample_id,
+            }, synchronize_session=False)
 
-        logger.info('Updating sample name and deleting empty samples')
-        # collapse to one sample
-        final_sample = session.query(Sample).get(final_sample_id)
-        final_sample.name = group_id
-        remove_duplicates(session, final_sample)
+            logger.info('Updating sample name and deleting empty samples')
+            # collapse to one sample
+            final_sample = session.query(Sample).get(final_sample_id)
+            final_sample.name = group_id
+            remove_duplicates(session, final_sample)
 
-        logger.info('Moving noresults')
-        session.query(NoResult).filter(
-            NoResult.sample_id.in_(all_sample_ids)
-        ).update({
-            'sample_id': final_sample_id
-        }, synchronize_session=False)
+            logger.info('Moving noresults')
+            session.query(NoResult).filter(
+                NoResult.sample_id.in_(all_sample_ids)
+            ).update({
+                'sample_id': final_sample_id
+            }, synchronize_session=False)
 
-        # delete the now-empty samples
-        session.query(Sample).filter(
-            Sample.id.in_(all_sample_ids - set([final_sample_id]))
-        ).delete(synchronize_session=False)
+            # delete the now-empty samples
+            session.query(Sample).filter(
+                Sample.id.in_(all_sample_ids - set([final_sample_id]))
+            ).delete(synchronize_session=False)
+        else:
+            logger.info(
+                'Only one sample for group "{}" (ID {}). Skipping.'.format(
+                    group_id, final_sample_id
+                )
+            )
 
     session.commit()
     logger.info('Sequences successfully collapsed: please re-run '

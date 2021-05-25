@@ -1,4 +1,15 @@
 # CHANGELOG
+## v0.29.11
+* Fix for a bug in aggregated `avg_v_identity` across all samples has been
+  fixed.
+* pRESTO has been pre-installed in the ImmuneDB Docker container.
+* Collapsing sequences of different lengths now issues a warning rather than
+  raising an exception.
+
+## v0.29.10
+* Sequence IDs can now be up to 128 characters, up from 64
+* Various Docker image and Travis updates
+
 ## v0.29.9
 * Fixed a bug where `subject` would be added to metadata after `immunedb_modify
   .. update-metadata`

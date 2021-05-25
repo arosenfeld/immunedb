@@ -52,6 +52,10 @@ COPY docker/proxy.py /apps/immunedb
 COPY docker/mariadb/my.cnf /etc/mysql
 COPY docker/setup_users.sql /tmp
 COPY docker/example /example
+# pRESTO
+RUN apt-get update
+RUN apt-get install -y python3-pip
+RUN pip3 install presto
 # IgBLAST
 ENV IGDATA /apps/igblast
 WORKDIR /apps/igblast
