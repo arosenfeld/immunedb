@@ -20,7 +20,7 @@
         "unique_cnt": 1
     },
     "3": {
-        "avg_v_identity": 0.4696,
+        "avg_v_identity": 0.9392,
         "clone_id": 1,
         "functional": true,
         "sample_id": null,
@@ -410,7 +410,7 @@
         "unique_cnt": 1
     },
     "42": {
-        "avg_v_identity": 0.786241,
+        "avg_v_identity": 0.864864,
         "clone_id": 20,
         "functional": true,
         "sample_id": null,
@@ -600,7 +600,7 @@
         "unique_cnt": 1
     },
     "61": {
-        "avg_v_identity": 0.4493,
+        "avg_v_identity": 0.89865,
         "clone_id": 29,
         "functional": true,
         "sample_id": null,
@@ -730,7 +730,7 @@
         "unique_cnt": 1
     },
     "74": {
-        "avg_v_identity": 0.85135,
+        "avg_v_identity": 0.972975,
         "clone_id": 35,
         "functional": true,
         "sample_id": null,
@@ -900,7 +900,7 @@
         "unique_cnt": 1
     },
     "91": {
-        "avg_v_identity": 0.538157,
+        "avg_v_identity": 0.941786,
         "clone_id": 43,
         "functional": true,
         "sample_id": null,
@@ -1280,7 +1280,7 @@
         "unique_cnt": 1
     },
     "129": {
-        "avg_v_identity": 0.816433,
+        "avg_v_identity": 0.979733,
         "clone_id": 61,
         "functional": true,
         "sample_id": null,
@@ -2440,7 +2440,7 @@
         "unique_cnt": 1
     },
     "245": {
-        "avg_v_identity": 0.47805,
+        "avg_v_identity": 0.9561,
         "clone_id": 119,
         "functional": true,
         "sample_id": null,
@@ -2710,7 +2710,7 @@
         "unique_cnt": 1
     },
     "272": {
-        "avg_v_identity": 0.6036,
+        "avg_v_identity": 0.9054,
         "clone_id": 132,
         "functional": true,
         "sample_id": null,
@@ -3080,7 +3080,7 @@
         "unique_cnt": 2
     },
     "309": {
-        "avg_v_identity": 0.804322,
+        "avg_v_identity": 0.904817,
         "clone_id": 151,
         "functional": true,
         "sample_id": null,
@@ -4130,7 +4130,7 @@
         "unique_cnt": 2
     },
     "414": {
-        "avg_v_identity": 0.843884,
+        "avg_v_identity": 0.9431,
         "clone_id": 203,
         "functional": true,
         "sample_id": null,
@@ -4780,7 +4780,7 @@
         "unique_cnt": 1
     },
     "479": {
-        "avg_v_identity": 0.785715,
+        "avg_v_identity": 0.928569,
         "clone_id": 235,
         "functional": false,
         "sample_id": null,
