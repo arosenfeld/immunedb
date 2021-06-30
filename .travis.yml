@@ -1,6 +1,8 @@
 language: python
 python:
 - '3.6.9'
+- '3.7'
+- '3.8'
 services:
 - mysql
 addons:

@@ -37,6 +37,8 @@ def get_samples(session, for_update=False, sample_ids=None):
     if sample_ids:
         samples = samples.filter(Sample.id.in_(sample_ids))
     for sample in samples.order_by(Sample.name):
+        logger.info('Exporting sample {} (ID {})'.format(
+            sample.name, sample.id))
         row = {
             'id': sample.id,
             'name': sample.name,
@@ -67,8 +69,9 @@ def get_samples(session, for_update=False, sample_ids=None):
                 'in_frame': stats.in_frame_cnt,
                 'stops': stats.stop_cnt,
                 'avg_clone_v_identity': round(v_iden.avg, 5)
-                if v_iden else 'NA',
-                'avg_clone_cdr3_num_nts': round(cdr3_len, 5),
+                if v_iden and (v_iden.avg is not None) else 'NA',
+                'avg_clone_cdr3_num_nts': round(cdr3_len, 5)
+                if cdr3_len != 'NA' else 'NA',
                 'functional': stats.functional_cnt,
                 'clones': clone_cnts.get(sample.id, 0)
             })

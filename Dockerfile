@@ -1,4 +1,4 @@
-FROM ubuntu:18.04
+FROM ubuntu:20.04
 # Get dependencies
 ENV DEBIAN_FRONTEND noninteractive
 RUN apt-get update && apt-get install -y \
@@ -14,9 +14,10 @@ RUN apt-get update && apt-get install -y \
     wget \
     unzip \
     git \
+    nodejs \
     npm \
-    r-base
-RUN npm install -g npm@latest
+    r-base \
+    python3-pip
 WORKDIR /apps
 # Get the frontend source, clearcut, and bowtie2
 RUN git clone https://github.com/arosenfeld/immunedb-frontend
@@ -44,6 +45,7 @@ COPY lib/ /apps/immunedb/lib
 COPY bin/ /apps/immunedb/bin
 COPY immunedb/ /apps/immunedb/immunedb
 WORKDIR /apps/immunedb
+RUN grep -e "numpy\|scipy" requirements.txt | xargs -L 1 pip3 install
 RUN python3 setup.py install
 # Copy germlines and scripts
 COPY docker/germlines/ /root/germlines
@@ -53,8 +55,6 @@ COPY docker/mariadb/my.cnf /etc/mysql
 COPY docker/setup_users.sql /tmp
 COPY docker/example /example
 # pRESTO
-RUN apt-get update
-RUN apt-get install -y python3-pip
 RUN pip3 install presto
 # IgBLAST
 ENV IGDATA /apps/igblast
