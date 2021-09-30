@@ -25,10 +25,15 @@ do
     out_fn=$out_dir/`basename $fn .fastq`.airr.tsv
     echo "Running IgBLAST on $fn (saving to $out_fn)"
 
+    # A bit of a hack for D-genes in TRA/IGK/IGL
+    d_file=${locus/TRA/TRB}D.edited.fasta
+    d_file=${d_file/IGL/IGH}
+    d_file=${d_file/IGK/IGH}
+
     cat $fn | ([[ $fn == *.fastq ]] && sed -n '1~4s/^@/>/p;2~4p' || cat -) | \
         ${IGDATA}/bin/igblastn \
         -germline_db_V ${IGDATA}/database/${species}/${locus}V.edited.fasta \
-        -germline_db_D ${IGDATA}/database/${species}/${locus/TRA/TRB}D.edited.fasta \
+        -germline_db_D ${IGDATA}/database/${species}/$d_file \
         -germline_db_J ${IGDATA}/database/${species}/${locus}J.edited.fasta \
         -outfmt 19 \
         -num_threads 12 \
