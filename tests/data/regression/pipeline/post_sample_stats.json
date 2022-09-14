@@ -252,59 +252,59 @@
         "stop_cnt": 89
     },
     "2-clones_all-False-False": {
-        "functional_cnt": 158,
-        "in_frame_cnt": 160,
+        "functional_cnt": 160,
+        "in_frame_cnt": 162,
         "no_result_cnt": 0,
-        "sequence_cnt": 168,
+        "sequence_cnt": 170,
         "stop_cnt": 5
     },
     "2-clones_all-False-True": {
-        "functional_cnt": 158,
-        "in_frame_cnt": 160,
+        "functional_cnt": 159,
+        "in_frame_cnt": 161,
         "no_result_cnt": 0,
-        "sequence_cnt": 168,
+        "sequence_cnt": 169,
         "stop_cnt": 5
     },
     "2-clones_all-True-False": {
-        "functional_cnt": 158,
-        "in_frame_cnt": 160,
+        "functional_cnt": 160,
+        "in_frame_cnt": 162,
         "no_result_cnt": 0,
-        "sequence_cnt": 168,
+        "sequence_cnt": 170,
         "stop_cnt": 5
     },
     "2-clones_all-True-True": {
-        "functional_cnt": 158,
-        "in_frame_cnt": 160,
+        "functional_cnt": 159,
+        "in_frame_cnt": 161,
         "no_result_cnt": 0,
-        "sequence_cnt": 168,
+        "sequence_cnt": 169,
         "stop_cnt": 5
     },
     "2-clones_functional-False-False": {
-        "functional_cnt": 158,
-        "in_frame_cnt": 158,
+        "functional_cnt": 160,
+        "in_frame_cnt": 160,
         "no_result_cnt": 0,
-        "sequence_cnt": 158,
+        "sequence_cnt": 160,
         "stop_cnt": 0
     },
     "2-clones_functional-False-True": {
-        "functional_cnt": 158,
-        "in_frame_cnt": 158,
+        "functional_cnt": 159,
+        "in_frame_cnt": 159,
         "no_result_cnt": 0,
-        "sequence_cnt": 158,
+        "sequence_cnt": 159,
         "stop_cnt": 0
     },
     "2-clones_functional-True-False": {
-        "functional_cnt": 158,
-        "in_frame_cnt": 158,
+        "functional_cnt": 160,
+        "in_frame_cnt": 160,
         "no_result_cnt": 0,
-        "sequence_cnt": 158,
+        "sequence_cnt": 160,
         "stop_cnt": 0
     },
     "2-clones_functional-True-True": {
-        "functional_cnt": 158,
-        "in_frame_cnt": 158,
+        "functional_cnt": 159,
+        "in_frame_cnt": 159,
         "no_result_cnt": 0,
-        "sequence_cnt": 158,
+        "sequence_cnt": 159,
         "stop_cnt": 0
     },
     "2-clones_nonfunctional-False-False": {

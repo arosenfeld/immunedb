@@ -30,7 +30,7 @@ def remove_duplicates(session, sample):
 
                 if len(larger.sequence) != len(smaller.sequence):
                     logger.warning('Tried to collapse sequences of different '
-                                 'lengths.  AIs are {} {}'.format(
+                                   'lengths.  AIs are {} {}'.format(
                                      larger.ai, smaller.ai))
                 elif dnautils.equal(larger.sequence, smaller.sequence):
                     larger.copy_number += smaller.copy_number
@@ -139,8 +139,9 @@ def combine_samples(session, args):
         all_sample_ids = set(s.id for s in samples)
         final_sample_id = min(all_sample_ids)
         if len(samples) > 1:
-            logger.info('Combining {} samples into new sample "{}" (ID {})'.format(
-                len(samples), group_id, final_sample_id))
+            logger.info(
+                'Combining {} samples into new sample "{}" (ID {})'.format(
+                    len(samples), group_id, final_sample_id))
             session.query(Sequence).filter(
                 Sequence.sample_id.in_(all_sample_ids)
             ).update({

@@ -610,6 +610,19 @@
         "parent_id": null,
         "v_gene": "IGHV1-69"
     },
+    "48": {
+        "_deletions": null,
+        "_insertions": null,
+        "cdr3_aa": "CARGGQLQPLDFW",
+        "cdr3_nt": "TGTGCGCGAGGGGGACAATTACAACCTCTTGACTTCTGG",
+        "cdr3_num_nts": 39,
+        "functional": true,
+        "germline": "CAGGTCCAGCTGGTGCAGTCTGGGGCT---GAGGTGAAGAAGCCTGGGTCCTCGGTGAAGGTCTCCTGCAAGGCTTCTGGAGGCACCTTC------------AGCAGCTATGCTATCAGCTGGGTGCGACAGGCCCCTGGACAAGGGCTTGAGTGGATGGGAGGGATCATCCCTATC------TTTGGTACAGCAAACTACGCACAGAAGTTCCAG---GGCAGAGTCACGATTACCGCGGACGAATCCACGAGCACAGCCTACATGGAGCTGAGCAGCCTGAGATCTGAGGACACGGCCGTGTATTAC---------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
+        "id": 48,
+        "j_gene": "IGHJ4",
+        "parent_id": null,
+        "v_gene": "IGHV1-69"
+    },
     "49": {
         "_deletions": null,
         "_insertions": null,
