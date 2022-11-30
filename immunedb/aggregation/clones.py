@@ -79,36 +79,50 @@ def push_clone_ids(session):
     '''))
 
 
-def collapse_similar_cdr3s(session, buckets, difference_allowed):
+def collapse_similar_cdr3s(session, buckets, difference_allowed,
+                           difference_metric, level, restrict_genes):
     total_buckets = buckets.count()
     logger.info('Collapsing similar clones in {} buckets'.format(
         total_buckets
     ))
+
     for i, bucket in enumerate(buckets):
         clones = session.query(
             Clone.id, Clone.cdr3_aa, Clone.cdr3_nt
         ).filter(
             Clone.subject_id == bucket.subject_id,
             Clone.cdr3_num_nts == bucket.cdr3_num_nts,
-        ).order_by(
+        )
+        for gene in restrict_genes:
+            clones = clones.filter(
+                getattr(Clone, '{}_gene'.format(gene)) ==
+                getattr(bucket, '{}_gene'.format(gene))
+            )
+
+        clones = clones.order_by(
             Clone.overall_total_cnt.desc()
         )
         clones_cnt = clones.count()
+
         if clones_cnt < 2:
             continue
+
         logger.info('Reducing bucket {} / {} ({} clones)'.format(
             i, total_buckets, clones_cnt))
-        reduced = {}
+        collapsed = {}
         for c in clones:
-            for larger_cdr3_nt, others in reduced.items():
-                if (dnautils.hamming(larger_cdr3_nt, c.cdr3_nt) <=
-                        difference_allowed):
+            cdr3 = getattr(c, 'cdr3_{}'.format(level)).replace('X', '-')
+            for larger_cdr3, others in collapsed.items():
+                diff = dnautils.hamming(larger_cdr3, cdr3)
+                if difference_metric == 'percent':
+                    diff = 100 * (diff / len(larger_cdr3))
+                if diff <= difference_allowed:
                     others.append(c.id)
                     break
             else:
-                reduced[c.cdr3_nt] = [c.id]
+                collapsed[cdr3] = [c.id]
 
-        for collapse in reduced.values():
+        for collapse in collapsed.values():
             rep_id, others = collapse[0], collapse[1:]
             session.query(Sequence).filter(
                 Sequence.clone_id.in_(others)
@@ -356,19 +370,34 @@ def run_clones(session, args):
     tasks.start()
 
     session.commit()
-    if args.reduce_difference >= 0:
-        buckets = session.query(
+    if args.collapse_difference >= 0:
+        logger.info('Collapsing similar clones: dist={}, level={}, '
+                    'genes={}'.format(args.collapse_difference,
+                                      args.collapse_level,
+                                      args.collapse_restrict_genes))
+        bucket_key = [
             Clone.subject_id,
             Clone.cdr3_num_nts
+        ]
+        for gene in args.collapse_restrict_genes:
+            bucket_key.append(getattr(Clone, '{}_gene'.format(gene)))
+        buckets = session.query(
+            *bucket_key
         ).filter(
             Clone.subject_id.in_(subject_ids)
         ).group_by(
-            Clone.subject_id,
-            Clone.cdr3_num_nts
+            *bucket_key
         )
-        collapse_similar_cdr3s(session, buckets, args.reduce_difference)
+        collapse_similar_cdr3s(
+            session,
+            buckets,
+            args.collapse_difference,
+            args.collapse_metric,
+            args.collapse_level,
+            args.collapse_restrict_genes
+        )
     else:
-        logger.info('Skipping reduce since --reduce-differece < 0')
+        logger.info('Skipping collapse since --collapse-differece < 0')
 
     push_clone_ids(session)
     session.commit()

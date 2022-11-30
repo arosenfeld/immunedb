@@ -237,40 +237,6 @@
     },
     {
         "clone": {
-            "cdr3_aa": "CARGSVLAWEVLSRW",
-            "cdr3_num_nts": 45,
-            "id": 151,
-            "j_gene": "IGHJ1|4",
-            "subject": {
-                "id": 1,
-                "identifier": "D123",
-                "study": {
-                    "id": 1,
-                    "name": "Test Study"
-                }
-            },
-            "v_gene": "IGHV4-34"
-        },
-        "other_samples": [],
-        "selected_samples": [
-            {
-                "id": 1,
-                "name": "input",
-                "total_sequences": 13,
-                "unique_sequences": 2
-            },
-            {
-                "id": 2,
-                "name": "input2",
-                "total_sequences": 5,
-                "unique_sequences": 2
-            }
-        ],
-        "total_sequences": 18,
-        "unique_sequences": 4
-    },
-    {
-        "clone": {
             "cdr3_aa": "CARNLRDSKYAFSFDYW",
             "cdr3_num_nts": 51,
             "id": 227,
@@ -296,5 +262,39 @@
         ],
         "total_sequences": 16,
         "unique_sequences": 1
+    },
+    {
+        "clone": {
+            "cdr3_aa": "CARGSVLAWEVLSRW",
+            "cdr3_num_nts": 45,
+            "id": 151,
+            "j_gene": "IGHJ1|4",
+            "subject": {
+                "id": 1,
+                "identifier": "D123",
+                "study": {
+                    "id": 1,
+                    "name": "Test Study"
+                }
+            },
+            "v_gene": "IGHV4-34"
+        },
+        "other_samples": [],
+        "selected_samples": [
+            {
+                "id": 1,
+                "name": "input",
+                "total_sequences": 13,
+                "unique_sequences": 2
+            },
+            {
+                "id": 2,
+                "name": "input2",
+                "total_sequences": 2,
+                "unique_sequences": 1
+            }
+        ],
+        "total_sequences": 15,
+        "unique_sequences": 3
     }
 ]
