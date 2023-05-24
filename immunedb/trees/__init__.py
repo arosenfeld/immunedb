@@ -10,7 +10,7 @@ from immunedb.util.log import logger
 class LineageWorker(concurrent.Worker):
     def __init__(self, session, newick_generator, min_mut_copies,
                  min_mut_samples, min_seq_copies, min_seq_samples,
-                 exclude_stops, full_seq, post_tree_hook=None):
+                 exclude_stops, full_seq, max_muts, post_tree_hook=None):
         self.session = session
         self.newick_generator = newick_generator
         self.min_mut_copies = min_mut_copies
@@ -19,13 +19,14 @@ class LineageWorker(concurrent.Worker):
         self.min_seq_samples = min_seq_samples
         self.exclude_stops = exclude_stops
         self.full_seq = full_seq
+        self.max_muts = max_muts
         self.post_tree_hook = post_tree_hook
 
     def get_tree(self, clone, sequences):
         fasta, removed_muts = get_fasta_input(
             clone.consensus_germline, sequences,
             self.min_mut_copies, self.min_mut_samples,
-            None if self.full_seq else clone.cdr3_start
+            self.max_muts, None if self.full_seq else clone.cdr3_start
         )
         newick = self.newick_generator(fasta)
         if not newick:
@@ -87,7 +88,7 @@ class LineageWorker(concurrent.Worker):
 
 
 def get_fasta_input(germline_seq, sequences, min_mut_copies, min_mut_samples,
-                    limit=None):
+                    max_muts, limit=None):
     seqs = {}
     mut_counts = {}
     for seq in sequences:
@@ -105,6 +106,8 @@ def get_fasta_input(germline_seq, sequences, min_mut_copies, min_mut_samples,
         )
         if limit:
             mutations = set([m for m in mutations if m[0] < limit])
+        if len(mutations) > max_muts:
+            continue
         for mut in mutations:
             if mut not in mut_counts:
                 mut_counts[mut] = {'count': 0, 'samples': set([])}

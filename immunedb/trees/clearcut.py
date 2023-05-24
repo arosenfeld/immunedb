@@ -141,6 +141,7 @@ def run_clearcut(session, args):
             args.min_seq_samples,
             args.exclude_stops,
             args.full_seq,
+            args.max_muts,
             post_tree_hook=minimize_tree))
 
     tasks.start()
