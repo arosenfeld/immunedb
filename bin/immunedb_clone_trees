@@ -34,7 +34,7 @@ if __name__ == '__main__':
     parser.add_argument('--full-seq', action='store_true',
                         help='''If specified, trees will be generated for full
                         sequences rather than just the V-region''')
-    parser.add_argument('--max-muts', default=100, type=int,
+    parser.add_argument('--max-muts', default=50, type=int,
                         help='''The maximum number of mutations for a sequence
                         to be included in a tree''')
     args = parser.parse_args()
