@@ -1,7 +1,7 @@
 ImmuneDB
 ========
 
-[![Build Status](https://img.shields.io/travis/arosenfeld/immunedb/master.svg)](https://travis-ci.org/arosenfeld/immunedb)
+[![Build Status](https://app.travis-ci.com/arosenfeld/immunedb.svg?branch=master)](https://app.travis-ci.com/arosenfeld/immunedb)
 [![Documentation Status](https://readthedocs.org/projects/immunedb/badge/?version=latest)](https://immunedb.readthedocs.io/en/latest/?badge=latest)
 [![codecov](https://codecov.io/gh/arosenfeld/immunedb/branch/master/graph/badge.svg)](https://codecov.io/gh/arosenfeld/immunedb)
 [![PyPI](https://img.shields.io/pypi/v/immunedb.svg)](https://pypi.python.org/pypi/ImmuneDB)
