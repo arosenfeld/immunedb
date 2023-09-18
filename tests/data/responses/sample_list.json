@@ -24,8 +24,8 @@
         "total_cnt": 563
     },
     {
-        "clone_cnt": 168,
-        "functional_clone_cnt": 158,
+        "clone_cnt": 170,
+        "functional_clone_cnt": 160,
         "functional_cnt": 1364,
         "id": 2,
         "metadata": {

@@ -9,14 +9,33 @@ def add_defaults(parser):
     parser.add_argument('--subject-ids', nargs='+', type=int,
                         help='Limit generation to certain subjects')
     parser.add_argument('--level', default='aa', choices=['aa', 'nt'], help='''
-        The level at which to compare similarity, either amino-acids or
-        nucleotides''')
+                        The level at which to compare similarity, either
+                        amino-acids or nucleotides''')
     parser.add_argument('--min-similarity', type=float, default=.85,
                         help='''Minimum similarity allowed between sequence
                         CDR3 within a clone''')
-    parser.add_argument('--reduce-difference', type=int, default=0,
-                        help='''Collapses clones with this many different
-                        nucleotides in the CDR3, regardless of gene calls''')
+
+    parser.add_argument('--collapse-difference', type=int, default=0,
+                        help='''Further collapses clones based on CDR3s that
+                        differ by no more than this many NTs or AAs (specified
+                        by --collapse-level).  Only clones with the same V & J
+                        will be collapsed unless --collapse-restrict-genes is
+                        specified.''')
+    parser.add_argument('--collapse-metric', default='count',
+                        choices=['count', 'percent'], help='''If
+                        --collapse-difference is in number of bases/AAs or
+                        percentage'''))
+    parser.add_argument('--collapse-level', nargs='+',
+                        choices=['nt', 'aa'], type=str, default='aa',
+                        help='''If --collapse-difference is
+                        specified, specifies if the difference is in NT or AA
+                        ''')
+    parser.add_argument('--collapse-restrict-genes', nargs='?',
+                        choices=['v', 'j'], type=str, default=['v', 'j'],
+                        help='''If --collapse-difference is
+                        specified, requires clones to have the same specified
+                        gene calls to allow for collapsing.''')
+
     parser.add_argument('--min-copy', type=int,
                         default=ClonalWorker.defaults['min_copy'],
                         help='''The minimum copy number that sequences
@@ -57,6 +76,8 @@ if __name__ == '__main__':
     add_defaults(parser)
 
     args = main_parser.parse_args()
+    if not args.collapse_restrict_genes:
+        args.collapse_restrict_genes = []
     session = config.init_db(args.db_config)
 
     run_clones(session, args)

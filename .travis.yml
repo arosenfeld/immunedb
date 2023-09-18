@@ -1,8 +1,7 @@
 language: python
 python:
-- '3.6.9'
-- '3.7'
 - '3.8'
+- '3.9'
 services:
 - mysql
 addons:
@@ -15,9 +14,10 @@ addons:
     - gfortran
     - unzip
 install:
+- pip install --upgrade pip
 - pip install nose
 - pip install codecov
-- pip install airr
+- pip install cppy
 - python setup.py install
 - wget https://github.com/BenLangmead/bowtie2/releases/download/v2.3.3/bowtie2-2.3.3-linux-x86_64.zip
 - unzip bowtie2-2.3.3-linux-x86_64.zip

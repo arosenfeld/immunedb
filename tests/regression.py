@@ -212,7 +212,10 @@ class BaseTest(object):
                         max_padding=None,
                         skip_regen=False,
                         gene=None,
-                        reduce_difference=4,
+                        collapse_difference=0,
+                        collapse_level='aa',
+                        collapse_metric='count',
+                        collapse_restrict_genes=['v', 'j'],
                         skip_subclones=False,
                     )
                 )

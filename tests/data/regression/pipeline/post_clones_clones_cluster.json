@@ -1260,6 +1260,19 @@
         "parent_id": null,
         "v_gene": "IGHV3-21"
     },
+    "98": {
+        "_deletions": null,
+        "_insertions": null,
+        "cdr3_aa": "CARDYHNSDFW",
+        "cdr3_nt": "TGTGCCAGAGATTACCATAATTCTGACTTCTGG",
+        "cdr3_num_nts": 33,
+        "functional": true,
+        "germline": "GCTGGTGGGCTGGTGGAGTCTGGGGGA---GGCCTGGTCAAGCCTGGGGGGTCCCTGAGACTCTCCTGTGCAGCCTCTGGATTCACCTTC------------AGTAGCTATAGCATGAACTGGGTCCGCCAGGCTCCAGGGAAGGGGCTGGAGTGGGTCTCATCCATTAGTAGTAGT------AGTAGTTACATATACTACGCAGACTCAGTGAAG---GGCCGATTCACCATCTCCAGAGACAACGCCAAGAACTCACTGTATCTGCAAATGAACAGCCTGAGAGCCGAGGACACGGCCGTGTATTAC---------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
+        "id": 98,
+        "j_gene": "IGHJ5",
+        "parent_id": null,
+        "v_gene": "IGHV3-21"
+    },
     "99": {
         "_deletions": null,
         "_insertions": null,
@@ -1922,6 +1935,19 @@
         "j_gene": "IGHJ5",
         "parent_id": null,
         "v_gene": "IGHV4-31"
+    },
+    "150": {
+        "_deletions": null,
+        "_insertions": null,
+        "cdr3_aa": "CARGSVLAWEVLSRW",
+        "cdr3_nt": "TGTGCGAGAGGCTCAGTGTTGGCCTGGGAAGTACTCTCACGTTGG",
+        "cdr3_num_nts": 45,
+        "functional": true,
+        "germline": "CAGGTGCAGCTACAGCAGTGGGGCGCA---GGACTGTTGAAGCCTTCGGAGACCCTGTCCCTCACCTGCGCTGTCTATGGTGGGNCCTTC------------AGTGGTTACTACTGGAGCTGGATCCGCCAGCCCCCAGGGAAGGGGCTGGAGTGGATTGGGGAAATCAATCATAGT---------GGAAGCACCAACTACAACCCGTCCCTCAAG---AGTCGAGTCACCATATCAGTAGACACGTCCAAGAACCAGTTCTCCCTGAAGCTGAGCTCTGTGACCGCCGCGGACACGGCTGTGTATTAC---------------------------------------------GGCCAGGGCACCCTGGTCACCGTCTCCTCAG",
+        "id": 150,
+        "j_gene": "IGHJ1",
+        "parent_id": null,
+        "v_gene": "IGHV4-34"
     },
     "151": {
         "_deletions": null,

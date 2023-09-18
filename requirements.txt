@@ -12,3 +12,4 @@ PyMySQL==0.9.3
 seaborn==0.9.0
 scipy==1.5.4
 six==1.11.0
+kiwisolver==1.0.1

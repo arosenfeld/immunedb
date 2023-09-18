@@ -122,6 +122,7 @@ def run_clearcut(session, args):
 
     if not args.force:
         clones = clones.filter(Clone.tree.is_(None))
+
     clones = [c.id for c in clones]
     mod_log.make_mod('clone_tree', session=session, commit=True,
                      info=vars(args))
@@ -141,6 +142,7 @@ def run_clearcut(session, args):
             args.min_seq_samples,
             args.exclude_stops,
             args.full_seq,
+            args.max_muts,
             post_tree_hook=minimize_tree))
 
     tasks.start()
