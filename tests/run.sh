@@ -1,12 +1,19 @@
 #!/usr/bin/env bash
 set -e
 function setup() {
-    immunedb_admin create test_db . --admin-pass "$DB_ADMIN_PASS"
+    immunedb_admin \
+        create test_db . \
+        --admin-user "${DB_ADMIN_USER/root}" \
+        --admin-pass "$DB_ADMIN_PASS"
 }
 
 function teardown() {
     trap '' INT TERM
-    immunedb_admin delete test_db.json --delete-user --admin-pass "$DB_ADMIN_PASS"
+    immunedb_admin
+        delete test_db.json \
+        --delete-user \
+        --admin-user "${DB_ADMIN_USER/root}" \
+        --admin-pass "$DB_ADMIN_PASS"
     rm test_db.json
 }
 
