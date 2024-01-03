@@ -13,6 +13,7 @@ addons:
     - libatlas-base-dev
     - gfortran
     - unzip
+    - openssl
 install:
 - pip install --upgrade pip
 - pip install nose
