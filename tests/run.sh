@@ -3,7 +3,6 @@ set -e
 function setup() {
     immunedb_admin \
         create test_db . \
-        --admin-user "${DB_ADMIN_USER/root}" \
         --admin-pass "$DB_ADMIN_PASS"
 }
 
@@ -12,7 +11,6 @@ function teardown() {
     immunedb_admin
         delete test_db.json \
         --delete-user \
-        --admin-user "${DB_ADMIN_USER/root}" \
         --admin-pass "$DB_ADMIN_PASS"
     rm test_db.json
 }
