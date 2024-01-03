@@ -8,7 +8,7 @@ function setup() {
 
 function teardown() {
     trap '' INT TERM
-    immunedb_admin
+    immunedb_admin \
         delete test_db.json \
         --delete-user \
         --admin-pass "$DB_ADMIN_PASS"
