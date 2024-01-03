@@ -6,7 +6,7 @@ python:
 services:
 - mysql
 addons:
-  mariadb: '10.3'
+  mariadb: '10.6'
   apt:
     packages:
     - python3-dev
