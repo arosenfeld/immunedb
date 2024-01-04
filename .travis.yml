@@ -1,3 +1,4 @@
+dist: jammy
 language: python
 python:
 - '3.8'
@@ -5,10 +6,10 @@ python:
 services:
 - mysql
 addons:
-  mariadb: '10.3'
+  mariadb: '10.6'
   apt:
     packages:
-    - python-dev
+    - python3-dev
     - build-essential
     - libatlas-base-dev
     - gfortran
@@ -18,11 +19,13 @@ install:
 - pip install nose
 - pip install codecov
 - pip install cppy
+- pip install setuptools==69.0.3
 - python setup.py install
 - wget https://github.com/BenLangmead/bowtie2/releases/download/v2.3.3/bowtie2-2.3.3-linux-x86_64.zip
 - unzip bowtie2-2.3.3-linux-x86_64.zip
 - PATH=$PATH:`pwd`/bowtie2-2.3.3
 script:
+- sudo mysql -e "ALTER USER root@localhost IDENTIFIED VIA mysql_native_password USING PASSWORD(\"\")"
 - cd $TRAVIS_BUILD_DIR
 - "./tests/run.sh"
 after_success:
