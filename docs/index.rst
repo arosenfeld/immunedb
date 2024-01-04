@@ -1,15 +1,5 @@
-ImmuneDB |travisci| |docs| |codecov| |pypi| |docker|
-====================================================
-.. |travisci| image:: https://img.shields.io/travis/arosenfeld/immunedb/master.svg
-  :target: https://travis-ci.org/arosenfeld/immunedb
-.. |codecov| image:: https://img.shields.io/codecov/c/github/arosenfeld/immunedb.svg
-  :target: https://codecov.io/gh/arosenfeld/immunedb
-.. |docker| image:: https://img.shields.io/docker/pulls/arosenfeld/immunedb.svg
-  :target: https://hub.docker.com/r/arosenfeld/immunedb
-.. |pypi| image:: https://img.shields.io/pypi/v/immunedb.svg
-  :target: https://pypi.python.org/pypi/ImmuneDB
-.. |docs| image:: https://readthedocs.org/projects/immunedb/badge/?version=latest
-   :target: https://immunedb.readthedocs.io/en/latest/?badge=latest
+ImmuneDB
+========
 
 **ImmuneDB** is a database-backed system to analyze and store large amounts
 (terabytes) of high-throughput B-cell receptor (BCR) and T-cell receptor (TCR)
