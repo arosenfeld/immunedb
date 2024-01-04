@@ -3,6 +3,7 @@ import argparse
 
 import immunedb.common.config as config
 from immunedb.aggregation.clones import ClonalWorker, run_clones
+from immunedb.aggregation.clone_trim import trim_clones
 
 
 def add_defaults(parser):
@@ -24,7 +25,7 @@ def add_defaults(parser):
     parser.add_argument('--collapse-metric', default='count',
                         choices=['count', 'percent'], help='''If
                         --collapse-difference is in number of bases/AAs or
-                        percentage'''))
+                        percentage''')
     parser.add_argument('--collapse-level', nargs='+',
                         choices=['nt', 'aa'], type=str, default='aa',
                         help='''If --collapse-difference is
@@ -65,7 +66,8 @@ if __name__ == '__main__':
     parser = subparsers.add_parser(
         'similarity',
         formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-        help='''Constructs clones based on CDR3 amino-acid hamming distance''')
+        help='''Constructs clones based on CDR3 amino-acid hamming distance'''
+    )
     add_defaults(parser)
 
     # Clustering
@@ -75,7 +77,19 @@ if __name__ == '__main__':
         help='''Constructs clones based on hierarchical clustering''')
     add_defaults(parser)
 
+    parser = subparsers.add_parser(
+        'trim',
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+        help='''Modifies existing clone definitions based on lineages'''
+    )
+    parser.add_argument('--cutoff', type=int, help='''Maximum number of
+        mutations to trim.''')
+
+
     args = main_parser.parse_args()
     session = config.init_db(args.db_config)
 
-    run_clones(session, args)
+    if args.method in ('similarity', 'cluster'):
+        run_clones(session, args)
+    else:
+        trim_clones(session, args)
