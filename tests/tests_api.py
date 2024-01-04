@@ -74,7 +74,11 @@ class ApiTest(unittest.TestCase):
 
         for check, endpoint in endpoints.items():
             print(check, endpoint)
-            self.check(check, endpoint)
+            try:
+                self.check(check, endpoint)
+            except AssertionError e:
+                print('Exception testing {}'.format(e))
+                raise e
 
         self.check('clones_filters1', '/clones/list', {
             'filters': {
