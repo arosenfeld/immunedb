@@ -76,7 +76,7 @@ class ApiTest(unittest.TestCase):
             print(check, endpoint)
             try:
                 self.check(check, endpoint)
-            except AssertionError e:
+            except AssertionError as e:
                 print('Exception testing {}'.format(e))
                 raise e
 
