@@ -64,6 +64,8 @@ class LineageWorker(concurrent.Worker):
             if not tree:
                 logger.warning('No sequences to make tree for clone {}'.format(
                     clone_id))
+                clone_inst.tree = None
+                self.session.commit()
                 return
         except Exception as e:
             logger.error('Error running clone {}: {}'.format(clone_id, e))
