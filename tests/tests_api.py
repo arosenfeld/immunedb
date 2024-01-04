@@ -73,7 +73,6 @@ class ApiTest(unittest.TestCase):
                 endpoints['_'.join(name)] = '/' + '/'.join(name)
 
         for check, endpoint in endpoints.items():
-            print(check, endpoint)
             try:
                 self.check(check, endpoint)
             except AssertionError as e:
