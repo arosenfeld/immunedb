@@ -36,8 +36,8 @@ ENV API_ENDPOINT __ENDPOINT__
 ENV NODE_ENV production
 RUN npm run build
 WORKDIR /apps/baseline
-RUN wget http://immunedb.com/patched_baseline.tgz && \
-    tar xzf patched_baseline.tgz
+COPY docker/patched_baseline.tgz .
+RUN tar xzf patched_baseline.tgz
 RUN Rscript -e 'install.packages(c("seqinr", "parallel"))'
 # Copy ImmuneDB files and install
 COPY requirements.txt setup.py README.md /apps/immunedb/
