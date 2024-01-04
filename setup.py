@@ -1,6 +1,6 @@
 import os
 
-from setuptools import setup, Extension
+from distutils.core import setup, Extension
 
 if os.environ.get('READTHEDOCS'):
     install_requires = ['sphinxcontrib-websupport']
@@ -18,7 +18,7 @@ with open('README.md', 'r', encoding='utf-8') as fh:
 
 setup(
     name='ImmuneDB',
-    version='0.29.11',
+    version='1.5.0',
     author='Aaron M. Rosenfeld',
     author_email='aaron.rosenfeld@pennmedicine.upenn.edu',
     url='https://github.com/arosenfeld/immunedb',
