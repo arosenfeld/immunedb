@@ -83,7 +83,7 @@ def get_samples(session, sample_ids=None):
     if sample_ids:
         query = query.filter(SampleStats.sample_id.in_(sample_ids))
 
-    query = query.order_by(Sample.subject_id).options(
+    query = query.order_by(Sample.subject_id, Sample.name).options(
         Load(SampleStats).load_only(
             'sequence_cnt', 'in_frame_cnt', 'stop_cnt', 'functional_cnt',
             'no_result_cnt'
