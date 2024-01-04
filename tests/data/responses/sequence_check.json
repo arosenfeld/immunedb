@@ -1,33 +1,88 @@
 {
-    "cdr3_aa": "CARAGAAAGTRDSNWFDPW",
-    "cdr3_nt": "TGTGCGAGAGCGGGAGCAGCAGCTGGTACAAGGGACTCCAACTGGTTCGACCCCTGG",
-    "clone": null,
-    "collapse_info": {
-        "ai": 1033,
-        "copy_number": 1,
-        "instances": 1,
-        "sample_id": 2,
-        "sample_name": "input2",
-        "seq_id": "M03592:18:000000000-AHJWK:1:1102:9856:7192"
+    "cdr3_aa": "CARSQPEDPW",
+    "cdr3_nt": "TGTGCGAGATCGCAGCCTGAAGACCCCTGG",
+    "clone": {
+        "cdr3_aa": "CARSQPEDPW",
+        "cdr3_nt": "TGTGCGAGATCGCAGCCTGAAGACCCCTGG",
+        "cdr3_num_nts": 30,
+        "deletions": [],
+        "germline": "CAGGTGCAGCTGGTGCAGTCTGGGGCT---GAGGTGAAGAAGCCTGGGGCCTCAGTGAAGGTCTCCTGCAAGGCTTCTGGATACACCTTC------------ACCAGTTATGATATCAACTGGGTGCGACAGGCCACTGGACAAGGGCTTGAGTGGATGGGATGGATGAACCCTAAC------AGTGGTAACACAGGCTATGCACAGAAGTTCCAG---GGCAGAGTCACCATGACCAGGAACACCTCCATAAGCACAGCCTACATGGAGCTGAGCAGCCTGAGATCTGAGGACACGGCCGTGTATTACTGTGCGAGATCGCAGCCTGAAGACCCCTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
+        "id": 73,
+        "insertions": [],
+        "j_gene": "IGHJ5",
+        "overall_instance_cnt": 3,
+        "overall_instance_cnt_with_subclones": 3,
+        "overall_total_cnt": 8,
+        "overall_total_cnt_with_subclones": 8,
+        "overall_unique_cnt": 1,
+        "overall_unique_cnt_with_subclones": 1,
+        "regions": [
+            78,
+            36,
+            51,
+            30,
+            114,
+            30,
+            31
+        ],
+        "subject": {
+            "id": 1,
+            "identifier": "D123",
+            "study": {
+                "id": 1,
+                "name": "Test Study"
+            }
+        },
+        "v_gene": "IGHV1-8"
     },
-    "copy_number": 1,
+    "collapse_info": {
+        "ai": 10,
+        "copy_number": 8,
+        "instances": 3,
+        "sample_id": 2,
+        "sample_name": "input",
+        "seq_id": "M03592:18:000000000-AHJWK:1:1106:11135:9840"
+    },
+    "copy_number": 5,
     "deletions": [],
     "functional": true,
-    "germline": "CAGGTCCAGCTTGTGCAGTCTGGGGCT---GAGGTGAAGAAGCCTGGGGCCTCAGTGAAGGTTTCCTGCAAGGCTTCTGGATACACCTTC------------ACTAGCTATGCTATGCATTGGGTGCGCCAGGCCCCCGGACAAAGGCTTGAGTGGATGGGATGGATCAACGCTGGC------AATGGTAACACAAAATATTCACAGAAGTTCCAG---GGCAGAGTCACCATTACCAGGGACACATCCGCGAGCACAGCCTACATGGAGCTGAGCAGCCTGAGATCTGAAGACACGGCTGTGTATTAC---------------------------------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
+    "germline": "CAGGTGCAGCTGGTGCAGTCTGGGGCT---GAGGTGAAGAAGCCTGGGGCCTCAGTGAAGGTCTCCTGCAAGGCTTCTGGATACACCTTC------------ACCAGTTATGATATCAACTGGGTGCGACAGGCCACTGGACAAGGGCTTGAGTGGATGGGATGGATGAACCCTAAC------AGTGGTAACACAGGCTATGCACAGAAGTTCCAG---GGCAGAGTCACCATGACCAGGAACACCTCCATAAGCACAGCCTACATGGAGCTGAGCAGCCTGAGATCTGAGGACACGGCCGTGTATTAC------------------------------GGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
     "in_frame": true,
     "insertions": [],
     "j_gene": "IGHJ5",
-    "j_length": 51,
-    "j_match": 50,
-    "mutations": {},
+    "j_length": 39,
+    "j_match": 39,
+    "mutations": {
+        "108": "nonconservative",
+        "165": "conservative",
+        "170": "synonymous",
+        "191": "conservative",
+        "206": "synonymous",
+        "214": "conservative",
+        "215": "nonconservative",
+        "240": "conservative",
+        "254": "synonymous",
+        "269": "synonymous",
+        "270": "synonymous",
+        "275": "synonymous",
+        "277": "nonconservative",
+        "279": "synonymous",
+        "283": "nonconservative",
+        "288": "conservative",
+        "290": "synonymous",
+        "298": "conservative",
+        "302": "synonymous",
+        "4": "nonconservative",
+        "8": "synonymous"
+    },
     "num_gaps": 24,
     "partial": false,
     "post_cdr3_length": 31,
     "post_cdr3_match": 31,
     "pre_cdr3_length": 285,
-    "pre_cdr3_match": 285,
+    "pre_cdr3_match": 266,
     "probable_indel_or_misalign": false,
-    "quality": "FEFDFGGGFGGGDF8BEEGGCFCGGGG   GGGDGGG9E,@DGEGGGGGGGGGEGGFFFGGFFFFFGFGF:*<2?AFFFF4CE;:>BFFF            AFFBFBFFFFACF>B<?CFECFF@EFFFFB>8BEE>FFFFFGFGFBFGGGGGFGGGGGGGGGGF78GE5GCGGGG      GGGGGGGGGGGGGGGFGGFFGGGGGGGFFFGGG   GGFGGGGFCGGFGGFGGGGGGGGEGGGEGCGEGGGCGFGFCAEFFGFGGGGFGGGGFGGFGGGGGGGGGGGGGGGGDGGFGGFGFFCGGGGGGGGGGGGGEGGGGGGGF@GGGGGGGGGGGGGGGFGFEGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGGG",
+    "quality": null,
     "read_start": 0,
     "regions": [
         78,
@@ -35,7 +90,7 @@
         51,
         30,
         114,
-        57,
+        30,
         31
     ],
     "rev_comp": true,
@@ -45,9 +100,9 @@
             "date": "2015-09-13",
             "experimenter": "Someone",
             "lab": "The Lab",
-            "tissue": "SPL"
+            "tissue": "Colon"
         },
-        "name": "input2",
+        "name": "input",
         "subject": {
             "id": 1,
             "identifier": "D123",
@@ -57,12 +112,12 @@
             }
         }
     },
-    "seq_id": "M03592:18:000000000-AHJWK:1:1102:9856:7192",
+    "seq_id": "M03592:18:000000000-AHJWK:1:1106:11135:9840",
     "seq_start": 0,
-    "sequence": "CAGGTCCAGCTTGCGCAGTCTGGGGCT---GAGGTGAAGNAGCCTGGGGCCTCAGTGAAGGTTTCCTGCAANGNTTCTGGNTACACCTTC------------ACTAGCTATGCTATGCATTGGGTGCGCCAGGCCCCCGGACAAAGGCTTGAGTGGATGGGATGGATCAACGCTGGC------AATGGTAACACAAAATATTCACAGAAGTTCCAG---GGCAGAGTCACCATTACCAGGGACACATCCGCGAGCACAGCCTACATGGAGCTGAGCAGCCTGAGATCTGAAGACACGGCTGTGTATTACTGTGCGAGAGCGGGAGCAGCAGCTGGTACAAGGGACTCCAACTGGTTCGACCCCTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
+    "sequence": "CAGGAGCAACTGGTGCAGTCTGGGGCT---GAGGTGAAGAAGCCTGGGNCCTCAGTGAAGGTCTCCTGCAAGGCTNCTGGATACACCTTC------------ACCAGTAATGATNTCAACTGGGTGCNACAGGCCACTGGACAAGGGCTTGAGTGGATGGGATGGCTGAATCCTAAC------AGTGGTAAAACAGGCTATGCACAAAAGTTCCGC---GGCAGAGTCACCATGACCAGGGACACCTCCATAAGTACAGCCTACATGGAATTGAGTAACTTGACATCTAAAGACACGGGCGTTTATTACTGTGCGAGATCGCAGCCTGAAGACCCCTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
     "stop": false,
-    "v_extent": 320,
-    "v_gene": "IGHV1-3",
-    "v_length": 296,
-    "v_match": 294
+    "v_extent": 318,
+    "v_gene": "IGHV1-8",
+    "v_length": 294,
+    "v_match": 273
 }

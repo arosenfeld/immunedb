@@ -5,16 +5,16 @@
         "copy_number_in_subject": 4,
         "deletions": [],
         "insertions": [],
-        "instances_in_subject": 1,
-        "j_length": 48,
+        "instances_in_subject": 2,
+        "j_length": 45,
         "mutations": {},
         "read_start": 0,
         "sample": {
-            "id": 2,
+            "id": 3,
             "name": "input2"
         },
         "seq_id": "M03592:18:000000000-AHJWK:1:1102:26013:4347",
         "sequence": "CAGGTTCAGCTGGTGCAGTCTGGAGCT---GAGGTGAAGAAGCCTGGGGCCNCAGNGAAGGTCNCCTGCAAGGCTTCTGGTTACACCNTN------------ACCAGCTATGGTATCAGCTGGGTGCGACAGGCNCCTGGACAAGGGCTTGAGTGGATGGGATGGATCAGCGCTTAC------AATGGTAACACAAACTATGCACAGAAGCTCCAG---GGCAGAGTCACCATGACCACAGACACATCCACGAGCACAGCCTACATGGAGCTGAGGAGCCTGAGATCTGACGACACGGCCGTGTATTACTGTGCGAGAGGAGCTGACAGCTATGGACTTATAGGGTGGTTCGACCCCTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
-        "v_extent": 320
+        "v_extent": 319
     }
 ]

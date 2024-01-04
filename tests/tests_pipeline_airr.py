@@ -3,9 +3,11 @@ from .regression import BaseTest, NamespaceMimic
 from immunedb.importing.alignments import import_alignments
 
 
-class TestImport(BaseTest.RegressionTest):
+class TestPipelineAIRR(BaseTest.RegressionTest):
     def __init__(self, *args, **kwargs):
-        super(TestImport, self).__init__('import', *args, **kwargs)
+        super(TestPipelineAIRR, self).__init__(
+            'pipeline_airr', *args, **kwargs
+        )
 
     def identification(self):
         import_alignments(

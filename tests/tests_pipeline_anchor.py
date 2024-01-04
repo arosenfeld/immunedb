@@ -3,9 +3,11 @@ from .regression import NamespaceMimic, BaseTest
 from immunedb.identification.identify import run_identify
 
 
-class TestPipeline(BaseTest.RegressionTest):
+class TestPipelineAnchor(BaseTest.RegressionTest):
     def __init__(self, *args, **kwargs):
-        super(TestPipeline, self).__init__('pipeline', *args, **kwargs)
+        super(TestPipelineAnchor, self).__init__(
+            'pipeline_anchor', *args, **kwargs
+        )
 
     def identification(self):
         run_identify(

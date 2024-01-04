@@ -1,12 +1,17 @@
 #!/usr/bin/env bash
 set -e
 function setup() {
-    immunedb_admin create test_db . --admin-pass "$DB_ADMIN_PASS"
+    immunedb_admin \
+        create test_db . \
+        --admin-pass "$DB_ADMIN_PASS"
 }
 
 function teardown() {
     trap '' INT TERM
-    immunedb_admin delete test_db.json --delete-user --admin-pass "$DB_ADMIN_PASS"
+    immunedb_admin \
+        delete test_db.json \
+        --delete-user \
+        --admin-pass "$DB_ADMIN_PASS"
     rm test_db.json
 }
 
@@ -17,11 +22,18 @@ else
     echo 'Not tearing down since NO_TEARDOWN is set'
 fi
 
+# Setup
 setup
 coverage erase
+# Test CLI argument parser
 coverage run --source=immunedb -p -m nose tests/tests_parser.py
-coverage run --source=immunedb -p -m nose tests/tests_import.py
-coverage run --source=immunedb -p -m nose tests/tests_pipeline.py
+
+# Test anchoring method
+coverage run --source=immunedb -p -m nose tests/tests_pipeline_anchor.py
+# Test AIRR formatted data import
+coverage run --source=immunedb -p -m nose tests/tests_pipeline_airr.py
+
+# Test processed data and REST API
 coverage run --source=immunedb -p -m nose tests/run_server.py &
 PID=$!
 sleep 5

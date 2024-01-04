@@ -31,7 +31,7 @@ def add_defaults(parser):
                         specified, specifies if the difference is in NT or AA
                         ''')
     parser.add_argument('--collapse-restrict-genes', nargs='?',
-                        choices=['v', 'j'], type=str, default=['v', 'j'],
+                        choices=['v', 'j'], type=str, default=[],
                         help='''If --collapse-difference is
                         specified, requires clones to have the same specified
                         gene calls to allow for collapsing.''')
@@ -76,8 +76,6 @@ if __name__ == '__main__':
     add_defaults(parser)
 
     args = main_parser.parse_args()
-    if not args.collapse_restrict_genes:
-        args.collapse_restrict_genes = []
     session = config.init_db(args.db_config)
 
     run_clones(session, args)

@@ -1,39 +1,31 @@
 [
     {
-        "cdr3_nt": "TGTGCGCGAGGCAAATGGGGGGGTTTTGACTCCTGG",
+        "cdr3_nt": "TGTGCGAGAGATGGAATAGCAGTGGCTGTTGACTACTGG",
         "collapse_to": [],
-        "copy_number_in_subject": 3,
+        "copy_number_in_subject": 2,
         "deletions": [],
         "insertions": [],
         "instances_in_subject": 1,
-        "j_length": 45,
+        "j_length": 41,
         "mutations": {
             "107": "synonymous",
-            "112": "conservative",
-            "118": "nonconservative",
-            "146": "synonymous",
-            "172": "conservative",
+            "118": "conservative",
+            "172": "nonconservative",
             "189": "conservative",
-            "197": "conservative",
-            "204": "nonconservative",
-            "205": "nonconservative",
             "209": "conservative",
-            "210": "conservative",
-            "220": "nonconservative",
-            "226": "nonconservative",
-            "236": "synonymous",
-            "302": "synonymous",
-            "40": "nonconservative",
-            "70": "conservative",
-            "74": "synonymous"
+            "242": "conservative",
+            "281": "synonymous",
+            "308": "synonymous",
+            "352": "nonconservative",
+            "85": "nonconservative"
         },
         "read_start": 0,
         "sample": {
-            "id": 2,
+            "id": 3,
             "name": "input2"
         },
-        "seq_id": "M03592:18:000000000-AHJWK:1:1101:25100:6512",
-        "sequence": "CAGGTTCAGCTGGTGCAGTCTGGAGCT---GAGGTGAAGACGCCTGGGGCCTCNGNGAAGGTNTCCTGCAGGGCCTCTGGTTACACCTTT------------ACCAGTTATGCTATCATCTGGGTGCGACAGGCCNCTGGACAAGGTCTTGAGTGGATGGGATGGATCAGCGGTTAC------AATGGTGACACAAAGTATGCATTGAACATCCAG---GACAGAGCCACCATGACTACAGACACATCCACGAGCACAGCCTACATGGAGCTGAGGAGCCTGAGATCTGACGACACGGCCGTTTATTACTGTGCGCGAGGCAAATGGGGGGGTTTTGACTCCTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
+        "seq_id": "M03592:18:000000000-AHJWK:1:1101:5227:17446",
+        "sequence": "CAGGTTCAGCTGGTGCAGTCTGGAGCT---GAGGTNAAGAAGCCTGGGGCCNNNGTGAAGGTCTCCTGCAAGGCTTCTGGTTACATCTTT------------ACCAGTTATGGTATCACCTGGGTGCGACAGGCCCCTGGACAAGGGCTTGAGTGGATGGGATGGATCAGCGTTTAC------AATGGTGACACAAACTATGCACAGAATCTCCAG---GGCAGAGTCACCATGACCACAGAGACATCCACGAGCACAGCCTACATGGAGCTGAGGAGCCTCAGATCTGACGACACGGCCGTGTATTATTGTGCGAGAGATGGAATAGCAGTGGCTGTTGACTACTGGGGCCCGGGAACCCTGGTCACCGTCTCCTCAG",
         "v_extent": 320
     }
 ]

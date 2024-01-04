@@ -26,7 +26,7 @@
         "stats": [
             {
                 "sample": {
-                    "id": 2,
+                    "id": 3,
                     "name": "input2"
                 },
                 "total_sequences": 2,
@@ -34,7 +34,7 @@
             },
             {
                 "sample": {
-                    "id": 1,
+                    "id": 2,
                     "name": "input"
                 },
                 "total_sequences": 2,
@@ -60,8 +60,8 @@
         "id": 2,
         "insertions": [],
         "j_gene": "IGHJ4",
-        "overall_instance_cnt": 1,
-        "overall_instance_cnt_with_subclones": 1,
+        "overall_instance_cnt": 2,
+        "overall_instance_cnt_with_subclones": 2,
         "overall_total_cnt": 5,
         "overall_total_cnt_with_subclones": 5,
         "overall_unique_cnt": 1,
@@ -78,55 +78,11 @@
         "stats": [
             {
                 "sample": {
-                    "id": 2,
+                    "id": 3,
                     "name": "input2"
                 },
                 "total_sequences": 5,
-                "unique_sequences": 1
-            }
-        ],
-        "subject": {
-            "id": 1,
-            "identifier": "D123",
-            "study": {
-                "id": 1,
-                "name": "Test Study"
-            }
-        },
-        "v_gene": "IGHV1-18"
-    },
-    {
-        "cdr3_aa": "CARSYGESGFW",
-        "cdr3_nt": "TGTGCGCGGTCGTACGGTGAAAGTGGCTTCTGG",
-        "cdr3_num_nts": 33,
-        "deletions": [],
-        "germline": "CAGGTTCAGCTGGTGCAGTCTGGAGCT---GAGGTGAAGAAGCCTGGGGCCTCAGTGAAGGTCTCCTGCAAGGCTTCTGGTTACACCTTT------------ACCAGCTATGGTATCAGCTGGGTGCGACAGGCCCCTGGACAAGGGCTTGAGTGGATGGGATGGATCAGCGCTTAC------AATGGTAACACAAACTATGCACAGAAGCTCCAG---GGCAGAGTCACCATGACCACAGACACATCCACGAGCACAGCCTACATGGAGCTGAGGAGCCTGAGATCTGACGACACGGCCGTGTATTACTGTGCGCGGTCGTACGGTGAAAGTGGCTTCTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
-        "id": 3,
-        "insertions": [],
-        "j_gene": "IGHJ4",
-        "overall_instance_cnt": 1,
-        "overall_instance_cnt_with_subclones": 1,
-        "overall_total_cnt": 2,
-        "overall_total_cnt_with_subclones": 2,
-        "overall_unique_cnt": 1,
-        "overall_unique_cnt_with_subclones": 1,
-        "regions": [
-            78,
-            36,
-            51,
-            30,
-            114,
-            33,
-            31
-        ],
-        "stats": [
-            {
-                "sample": {
-                    "id": 1,
-                    "name": "input"
-                },
-                "total_sequences": 2,
-                "unique_sequences": 1
+                "unique_sequences": 2
             }
         ],
         "subject": {
@@ -145,11 +101,11 @@
         "cdr3_num_nts": 36,
         "deletions": [],
         "germline": "CAGGTTCAGCTGGTGCAGTCTGGAGCT---GAGGTGAAGAAGCCTGGGGCCTCAGTGAAGGTCTCCTGCAAGGCTTCTGGTTACACCTTT------------ACCAGCTATGGTATCAGCTGGGTGCGACAGGCCCCTGGACAAGGGCTTGAGTGGATGGGATGGATCAGCGCTTAC------AATGGTAACACAAACTATGCACAGAAGCTCCAG---GGCAGAGTCACCATGACCACAGACACATCCACGAGCACAGCCTACATGGAGCTGAGGAGCCTGAGATCTGACGACACGGCCGTGTATTACTGTGCGAGAGACTGGAACTACGAAATTGACTACTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
-        "id": 4,
+        "id": 3,
         "insertions": [],
         "j_gene": "IGHJ4",
-        "overall_instance_cnt": 1,
-        "overall_instance_cnt_with_subclones": 1,
+        "overall_instance_cnt": 2,
+        "overall_instance_cnt_with_subclones": 2,
         "overall_total_cnt": 5,
         "overall_total_cnt_with_subclones": 5,
         "overall_unique_cnt": 1,
@@ -166,11 +122,11 @@
         "stats": [
             {
                 "sample": {
-                    "id": 1,
+                    "id": 2,
                     "name": "input"
                 },
                 "total_sequences": 5,
-                "unique_sequences": 1
+                "unique_sequences": 2
             }
         ],
         "subject": {
@@ -189,11 +145,11 @@
         "cdr3_num_nts": 36,
         "deletions": [],
         "germline": "CAGGTTCAGCTGGTGCAGTCTGGAGCT---GAGGTGAAGAAGCCTGGGGCCTCAGTGAAGGTCTCCTGCAAGGCTTCTGGTTACACCTTT------------ACCAGCTATGGTATCAGCTGGGTGCGACAGGCCCCTGGACAAGGGCTTGAGTGGATGGGATGGATCAGCGCTTAC------AATGGTAACACAAACTATGCACAGAAGCTCCAG---GGCAGAGTCACCATGACCACAGACACATCCACGAGCACAGCCTACATGGAGCTGAGGAGCCTGAGATCTGACGACACGGCCGTGTATTACTGTGCGAGAGGGAGAAATGGCTCCCTTGACTACTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
-        "id": 5,
+        "id": 4,
         "insertions": [],
         "j_gene": "IGHJ4",
-        "overall_instance_cnt": 1,
-        "overall_instance_cnt_with_subclones": 1,
+        "overall_instance_cnt": 2,
+        "overall_instance_cnt_with_subclones": 2,
         "overall_total_cnt": 4,
         "overall_total_cnt_with_subclones": 4,
         "overall_unique_cnt": 1,
@@ -210,11 +166,11 @@
         "stats": [
             {
                 "sample": {
-                    "id": 1,
+                    "id": 2,
                     "name": "input"
                 },
                 "total_sequences": 4,
-                "unique_sequences": 1
+                "unique_sequences": 2
             }
         ],
         "subject": {
@@ -233,11 +189,11 @@
         "cdr3_num_nts": 36,
         "deletions": [],
         "germline": "CAGGTTCAGCTGGTGCAGTCTGGAGCT---GAGGTGAAGAAGCCTGGGGCCTCAGTGAAGGTCTCCTGCAAGGCTTCTGGTTACACCTTT------------ACCAGCTATGGTATCAGCTGGGTGCGACAGGCCCCTGGACAAGGGCTTGAGTGGATGGGATGGATCAGCGCTTAC------AATGGTAACACAAACTATGCACAGAAGCTCCAG---GGCAGAGTCACCATGACCACAGACACATCCACGAGCACAGCCTACATGGAGCTGAGGAGCCTGAGATCTGACGACACGGCCGTGTATTACTGTGCGCGAGGCAAATGGGGGGGTTTTGACTCCTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
-        "id": 6,
+        "id": 5,
         "insertions": [],
         "j_gene": "IGHJ4",
-        "overall_instance_cnt": 1,
-        "overall_instance_cnt_with_subclones": 1,
+        "overall_instance_cnt": 2,
+        "overall_instance_cnt_with_subclones": 2,
         "overall_total_cnt": 3,
         "overall_total_cnt_with_subclones": 3,
         "overall_unique_cnt": 1,
@@ -254,11 +210,11 @@
         "stats": [
             {
                 "sample": {
-                    "id": 2,
+                    "id": 3,
                     "name": "input2"
                 },
                 "total_sequences": 3,
-                "unique_sequences": 1
+                "unique_sequences": 2
             }
         ],
         "subject": {
@@ -277,7 +233,7 @@
         "cdr3_num_nts": 39,
         "deletions": [],
         "germline": "CAGGTTCAGCTGGTGCAGTCTGGAGCT---GAGGTGAAGAAGCCTGGGGCCTCAGTGAAGGTCTCCTGCAAGGCTTCTGGTTACACCTTT------------ACCAGCTATGGTATCAGCTGGGTGCGACAGGCCCCTGGACAAGGGCTTGAGTGGATGGGATGGATCAGCGCTTAC------AATGGTAACACAAACTATGCACAGAAGCTCCAG---GGCAGAGTCACCATGACCACAGACACATCCACGAGCACAGCCTACATGGAGCTGAGGAGCCTGAGATCTGACGACACGGCCGTGTATTACTGTGCGAGAGATGGAATAGCAGTGGCTGTTGACTACTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
-        "id": 7,
+        "id": 6,
         "insertions": [],
         "j_gene": "IGHJ4",
         "overall_instance_cnt": 1,
@@ -298,54 +254,10 @@
         "stats": [
             {
                 "sample": {
-                    "id": 2,
+                    "id": 3,
                     "name": "input2"
                 },
                 "total_sequences": 2,
-                "unique_sequences": 1
-            }
-        ],
-        "subject": {
-            "id": 1,
-            "identifier": "D123",
-            "study": {
-                "id": 1,
-                "name": "Test Study"
-            }
-        },
-        "v_gene": "IGHV1-18"
-    },
-    {
-        "cdr3_aa": "CARFGGYSSPTEFW",
-        "cdr3_nt": "TGTGCGCGCTTCGGCGGTTACTCCTCTCCGACAGAATTCTGG",
-        "cdr3_num_nts": 42,
-        "deletions": [],
-        "germline": "CAGGTTCAGCTGGTGCAGTCTGGAGCT---GAGGTGAAGAAGCCTGGGGCCTCAGTGAAGGTCTCCTGCAAGGCTTCTGGTTACACCTTT------------ACCAGCTATGGTATCAGCTGGGTGCGACAGGCCCCTGGACAAGGGCTTGAGTGGATGGGATGGATCAGCGCTTAC------AATGGTAACACAAACTATGCACAGAAGCTCCAG---GGCAGAGTCACCATGACCACAGACACATCCACGAGCACAGCCTACATGGAGCTGAGGAGCCTGAGATCTGACGACACGGCCGTGTATTACTGTGCGCGCTTCGGCGGTTACTCCTCTCCGACAGAATTCTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
-        "id": 8,
-        "insertions": [],
-        "j_gene": "IGHJ4",
-        "overall_instance_cnt": 1,
-        "overall_instance_cnt_with_subclones": 1,
-        "overall_total_cnt": 7,
-        "overall_total_cnt_with_subclones": 7,
-        "overall_unique_cnt": 1,
-        "overall_unique_cnt_with_subclones": 1,
-        "regions": [
-            78,
-            36,
-            51,
-            30,
-            114,
-            42,
-            31
-        ],
-        "stats": [
-            {
-                "sample": {
-                    "id": 1,
-                    "name": "input"
-                },
-                "total_sequences": 7,
                 "unique_sequences": 1
             }
         ],
@@ -365,11 +277,11 @@
         "cdr3_num_nts": 42,
         "deletions": [],
         "germline": "CAGGTTCAGCTGGTGCAGTCTGGAGCT---GAGGTGAAGAAGCCTGGGGCCTCAGTGAAGGTCTCCTGCAAGGCTTCTGGTTACACCTTT------------ACCAGCTATGGTATCAGCTGGGTGCGACAGGCCCCTGGACAAGGGCTTGAGTGGATGGGATGGATCAGCGCTTAC------AATGGTAACACAAACTATGCACAGAAGCTCCAG---GGCAGAGTCACCATGACCACAGACACATCCACGAGCACAGCCTACATGGAGCTGAGGAGCCTGAGATCTGACGACACGGCCGTGTATTACTGTGCGAGAGATGGACACACGGTGGCTGTCCCAGACTACTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
-        "id": 9,
+        "id": 7,
         "insertions": [],
         "j_gene": "IGHJ4",
-        "overall_instance_cnt": 1,
-        "overall_instance_cnt_with_subclones": 1,
+        "overall_instance_cnt": 2,
+        "overall_instance_cnt_with_subclones": 2,
         "overall_total_cnt": 3,
         "overall_total_cnt_with_subclones": 3,
         "overall_unique_cnt": 1,
@@ -386,11 +298,11 @@
         "stats": [
             {
                 "sample": {
-                    "id": 2,
+                    "id": 3,
                     "name": "input2"
                 },
                 "total_sequences": 3,
-                "unique_sequences": 1
+                "unique_sequences": 2
             }
         ],
         "subject": {
@@ -409,7 +321,7 @@
         "cdr3_num_nts": 42,
         "deletions": [],
         "germline": "CAGGTTCAGCTGGTGCAGTCTGGAGCT---GAGGTGAAGAAGCCTGGGGCCTCAGTGAAGGTCTCCTGCAAGGCTTCTGGTTACACCTTT------------ACCAGCTATGGTATCAGCTGGGTGCGACAGGCCCCTGGACAAGGGCTTGAGTGGATGGGATGGATCAGCGCTTAC------AATGGTAACACAAACTATGCACAGAAGCTCCAG---GGCAGAGTCACCATGACCACAGACACATCCACGAGCACAGCCTACATGGAGCTGAGGAGCCTGAGATCTGACGACACGGCCGTGTATTACTGTGCGAGACATGACTACGGTGACCCATACGGGGGGAACTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
-        "id": 10,
+        "id": 8,
         "insertions": [],
         "j_gene": "IGHJ4",
         "overall_instance_cnt": 1,
@@ -430,7 +342,95 @@
         "stats": [
             {
                 "sample": {
+                    "id": 3,
+                    "name": "input2"
+                },
+                "total_sequences": 2,
+                "unique_sequences": 1
+            }
+        ],
+        "subject": {
+            "id": 1,
+            "identifier": "D123",
+            "study": {
+                "id": 1,
+                "name": "Test Study"
+            }
+        },
+        "v_gene": "IGHV1-18"
+    },
+    {
+        "cdr3_aa": "CARNTGNSHGFWSYW",
+        "cdr3_nt": "TGTGCGAGAAATACCGGAAACAGCCATGGTTTCTGGTCCTACTGG",
+        "cdr3_num_nts": 45,
+        "deletions": [],
+        "germline": "CAGGTTCAGCTGGTGCAGTCTGGAGCT---GAGGTGAAGAAGCCTGGGGCCTCAGTGAAGGTCTCCTGCAAGGCTTCTGGTTACACCTTT------------ACCAGCTATGGTATCAGCTGGGTGCGACAGGCCCCTGGACAAGGGCTTGAGTGGATGGGATGGATCAGCGCTTAC------AATGGTAACACAAACTATGCACAGAAGCTCCAG---GGCAGAGTCACCATGACCACAGACACATCCACGAGCACAGCCTACATGGAGCTGAGGAGCCTGAGATCTGACGACACGGCCGTGTATTACTGTGCGAGAAATACCGGAAACAGCCATGGTTTCTGGTCCTACTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
+        "id": 9,
+        "insertions": [],
+        "j_gene": "IGHJ4",
+        "overall_instance_cnt": 2,
+        "overall_instance_cnt_with_subclones": 2,
+        "overall_total_cnt": 3,
+        "overall_total_cnt_with_subclones": 3,
+        "overall_unique_cnt": 1,
+        "overall_unique_cnt_with_subclones": 1,
+        "regions": [
+            78,
+            36,
+            51,
+            30,
+            114,
+            45,
+            31
+        ],
+        "stats": [
+            {
+                "sample": {
                     "id": 2,
+                    "name": "input"
+                },
+                "total_sequences": 3,
+                "unique_sequences": 2
+            }
+        ],
+        "subject": {
+            "id": 1,
+            "identifier": "D123",
+            "study": {
+                "id": 1,
+                "name": "Test Study"
+            }
+        },
+        "v_gene": "IGHV1-18"
+    },
+    {
+        "cdr3_aa": "CARVGYDSSGYYIDYW",
+        "cdr3_nt": "TGTGCGAGAGTCGGCTATGATAGTAGTGGTTATTACATTGACTACTGG",
+        "cdr3_num_nts": 48,
+        "deletions": [],
+        "germline": "CAGGTTCAGCTGGTGCAGTCTGGAGCT---GAGGTGAAGAAGCCTGGGGCCTCAGTGAAGGTCTCCTGCAAGGCTTCTGGTTACACCTTT------------ACCAGCTATGGTATCAGCTGGGTGCGACAGGCCCCTGGACAAGGGCTTGAGTGGATGGGATGGATCAGCGCTTAC------AATGGTAACACAAACTATGCACAGAAGCTCCAG---GGCAGAGTCACCATGACCACAGACACATCCACGAGCACAGCCTACATGGAGCTGAGGAGCCTGAGATCTGACGACACGGCCGTGTATTACTGTGCGAGAGTCGGCTATGATAGTAGTGGTTATTACATTGACTACTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
+        "id": 10,
+        "insertions": [],
+        "j_gene": "IGHJ4",
+        "overall_instance_cnt": 1,
+        "overall_instance_cnt_with_subclones": 1,
+        "overall_total_cnt": 2,
+        "overall_total_cnt_with_subclones": 2,
+        "overall_unique_cnt": 1,
+        "overall_unique_cnt_with_subclones": 1,
+        "regions": [
+            78,
+            36,
+            51,
+            30,
+            114,
+            48,
+            31
+        ],
+        "stats": [
+            {
+                "sample": {
+                    "id": 3,
                     "name": "input2"
                 },
                 "total_sequences": 2,

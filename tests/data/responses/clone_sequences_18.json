@@ -6,15 +6,15 @@
         "deletions": [],
         "insertions": [],
         "instances_in_subject": 1,
-        "j_length": 49,
+        "j_length": 46,
         "mutations": {},
         "read_start": 0,
         "sample": {
-            "id": 2,
+            "id": 3,
             "name": "input2"
         },
         "seq_id": "M03592:18:000000000-AHJWK:1:1102:24866:5677",
         "sequence": "CAGGTTCAGCTGGTGCAGTCTGGAGCT---GAGGTGAAGAAGCCTGGGGCCTCAGTGAAGGTCTCCTGCAAGGCTTCTGGTTACACCTTT------------ACCAGCTATGGTATCAGCTGGGTGCGACAGGCCCCTGGACAAGGGCTTGAGTGGATGGGATGGATCAGCGCTTAC------AATGGTAACACAAACTATGCACAGAAGCTCCAG---GGCAGAGTCACCATGACCACAGACACATCCACGAGCACAGCCTACATGGAGCTGAGGAGCCTGAGATCTGACGACACGGCCGTGTATTACTGTGCGAGTTTGCAGCTGGTACTCTTGCTGGTTCGACCCCTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
-        "v_extent": 316
+        "v_extent": 317
     }
 ]

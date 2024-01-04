@@ -5,8 +5,8 @@
         "copy_number_in_subject": 5,
         "deletions": [],
         "insertions": [],
-        "instances_in_subject": 1,
-        "j_length": 42,
+        "instances_in_subject": 2,
+        "j_length": 39,
         "mutations": {
             "104": "synonymous",
             "105": "conservative",
@@ -25,11 +25,11 @@
         },
         "read_start": 0,
         "sample": {
-            "id": 2,
+            "id": 3,
             "name": "input2"
         },
         "seq_id": "M03592:18:000000000-AHJWK:1:1102:23314:9501",
         "sequence": "CAGGTTCAGGTGGTGCAGTCTGGAGCT---GAAGTGAAGAAGCCTGGGGCCNCAGTGAAGGTCTCCTGCAAGGCTTCTGGTTACAGCTTT------------ACTGACTATGGTATCAGTTGGGTGCGCCAGGCCCCTGGACAAGGACTTGAGTGGATGGGATGGATCAGCACTTAC------AATGGTGACACAAACTATGCACAGAACCTCCAG---GGCAGAGTCACCATGACCACAGACGCATCCACGAGCACAGCCTACATGGAGCTGAGGAGCCTGAGATCTGACGACACGGCCGTATATTACTGTGCGAGAGCGATCCCCGCGGACTATTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
-        "v_extent": 320
+        "v_extent": 319
     }
 ]

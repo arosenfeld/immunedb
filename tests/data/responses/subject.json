@@ -3,9 +3,9 @@
     "identifier": "D123",
     "samples": [
         {
-            "clone_cnt": 82,
-            "functional_clone_cnt": 80,
-            "functional_cnt": 505,
+            "clone_cnt": 2,
+            "functional_clone_cnt": 2,
+            "functional_cnt": 41,
             "id": 1,
             "metadata": {
                 "date": "2015-09-13",
@@ -13,9 +13,9 @@
                 "lab": "The Lab",
                 "tissue": "Colon"
             },
-            "name": "input",
-            "no_result_cnt": 11,
-            "sequence_cnt": 552,
+            "name": "edges",
+            "no_result_cnt": 0,
+            "sequence_cnt": 41,
             "subject": {
                 "id": 1,
                 "identifier": "D123",
@@ -24,13 +24,13 @@
                     "name": "Test Study"
                 }
             },
-            "total_cnt": 563
+            "total_cnt": 41
         },
         {
-            "clone_cnt": 170,
-            "functional_clone_cnt": 160,
-            "functional_cnt": 1364,
-            "id": 2,
+            "clone_cnt": 162,
+            "functional_clone_cnt": 152,
+            "functional_cnt": 1328,
+            "id": 3,
             "metadata": {
                 "date": "2015-09-13",
                 "experimenter": "Someone",
@@ -38,8 +38,8 @@
                 "tissue": "SPL"
             },
             "name": "input2",
-            "no_result_cnt": 0,
-            "sequence_cnt": 1470,
+            "no_result_cnt": 38,
+            "sequence_cnt": 1431,
             "subject": {
                 "id": 1,
                 "identifier": "D123",
@@ -48,7 +48,31 @@
                     "name": "Test Study"
                 }
             },
-            "total_cnt": 1470
+            "total_cnt": 1469
+        },
+        {
+            "clone_cnt": 79,
+            "functional_clone_cnt": 78,
+            "functional_cnt": 476,
+            "id": 2,
+            "metadata": {
+                "date": "2015-09-13",
+                "experimenter": "Someone",
+                "lab": "The Lab",
+                "tissue": "Colon"
+            },
+            "name": "input",
+            "no_result_cnt": 44,
+            "sequence_cnt": 518,
+            "subject": {
+                "id": 1,
+                "identifier": "D123",
+                "study": {
+                    "id": 1,
+                    "name": "Test Study"
+                }
+            },
+            "total_cnt": 562
         }
     ],
     "study": {

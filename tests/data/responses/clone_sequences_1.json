@@ -6,7 +6,7 @@
         "deletions": [],
         "insertions": [],
         "instances_in_subject": 2,
-        "j_length": 49,
+        "j_length": 46,
         "mutations": {
             "108": "conservative",
             "130": "nonconservative",
@@ -32,7 +32,7 @@
         },
         "read_start": 0,
         "sample": {
-            "id": 1,
+            "id": 2,
             "name": "input"
         },
         "seq_id": "M03592:18:000000000-AHJWK:1:1105:15716:10232",

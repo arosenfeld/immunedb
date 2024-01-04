@@ -1,29 +1,34 @@
 [
     {
-        "cdr3_nt": "TGTGCGTCCTCTTTCGGGGGGGTAATAATGCCCATGGCCTACTTTGACTTCTGG",
+        "cdr3_nt": "TGTACCAGAGATTCTTTTCATTACTATGGTTCGGGGAATTTTCACCCTTTTGAGTACTGG",
         "collapse_to": [],
-        "copy_number_in_subject": 5,
+        "copy_number_in_subject": 2,
         "deletions": [],
         "insertions": [],
         "instances_in_subject": 1,
-        "j_length": 48,
+        "j_length": 42,
         "mutations": {
-            "106": "nonconservative",
-            "146": "synonymous",
-            "170": "synonymous",
-            "171": "conservative",
-            "188": "synonymous",
-            "210": "conservative",
-            "283": "nonconservative",
-            "302": "synonymous"
+            "114": "conservative",
+            "197": "conservative",
+            "205": "nonconservative",
+            "209": "synonymous",
+            "238": "nonconservative",
+            "24": "conservative",
+            "254": "synonymous",
+            "257": "synonymous",
+            "261": "conservative",
+            "269": "synonymous",
+            "294": "conservative",
+            "302": "synonymous",
+            "89": "conservative"
         },
         "read_start": 0,
         "sample": {
-            "id": 2,
+            "id": 3,
             "name": "input2"
         },
-        "seq_id": "M03592:18:000000000-AHJWK:1:1102:21701:8734",
-        "sequence": "CAGGTTCAGCTGGTGCAGTCTGGAGCT---GAGGTGAAGAAGCCTGGGGCCTCAGTGAAGGTCTCCTGCANNNNTTCTGGTTACACCTTT------------ACCAACTATGGTATCAGCTGGGTGCGACAGGCCCCTGGACAAGGCCTTGAGTGGATGGGATGGATCAGTCCTTAC------AATGGAAACACAAACTATGCACAGAAGTTCCAG---GGCAGAGTCACCATGACCACAGACACATCCACGAGCACAGCCTACATGGAGCTGAGGAGCCTGATATCTGACGACACGGCCGTCTATTACTGTGCGTCCTCTTTCGGGGGGGTAATAATGCCCATGGCCTACTTTGACTTCTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
-        "v_extent": 314
+        "seq_id": "M03592:18:000000000-AHJWK:1:1101:27906:12266",
+        "sequence": "CAGGTTCAGCTGGTGCAGTCTGGAACT---GAGGTGAAGAAGCCTGGGGCCTNAGTGAAGGTCTCCTGCAAGGCNTCTGGNTACACCTTG------------ACCAGCTATGGTTTCAGCTGGGTGCGACAGGCCCCTGGACAAGGGCTTGAGTGGATGGGATGGATCAGCGCTTAC------AATGGTAACACAAAATATGCACCGAAACTCCAG---GGCAGAGTCACCATGACCATAGACACATCCACGAGTACTGCCCACATGGAACTGAGGAGCCTGAGATCTGACGACGCGGCCGTTTATTACTGTACCAGAGATTCTTTTCATTACTATGGTTCGGGGAATTTTCACCCTTTTGAGTACTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
+        "v_extent": 320
     }
 ]

@@ -215,7 +215,7 @@ class BaseTest(object):
                         collapse_difference=0,
                         collapse_level='aa',
                         collapse_metric='count',
-                        collapse_restrict_genes=['v', 'j'],
+                        collapse_restrict_genes=[],
                         skip_subclones=False,
                     )
                 )

@@ -53,8 +53,7 @@ class ApiTest(unittest.TestCase):
             'sample_list': '/samples/list',
             'sequences_list': '/sequences/list',
             'sequence_check':
-                '/sequence/2/M03592:18:000000000-AHJWK:1:1102:9856:7192',
-
+                '/sequence/2/M03592:18:000000000-AHJWK:1:1106:11135:9840',
             'clones_list': '/clones/list',
             'clones_list_subject1': '/clones/list/1',
             'clone': '/clone/10',

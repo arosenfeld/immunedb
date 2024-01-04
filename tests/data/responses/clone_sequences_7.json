@@ -1,31 +1,43 @@
 [
     {
-        "cdr3_nt": "TGTGCGAGAGATGGAATAGCAGTGGCTGTTGACTACTGG",
+        "cdr3_nt": "TGTGCGAGAGATGGACACACGGTGGCTGTCCCAGACTACTGG",
         "collapse_to": [],
-        "copy_number_in_subject": 2,
+        "copy_number_in_subject": 3,
         "deletions": [],
         "insertions": [],
-        "instances_in_subject": 1,
-        "j_length": 44,
+        "instances_in_subject": 2,
+        "j_length": 39,
         "mutations": {
-            "107": "synonymous",
-            "118": "conservative",
+            "104": "synonymous",
+            "106": "nonconservative",
+            "168": "nonconservative",
+            "169": "nonconservative",
             "172": "nonconservative",
-            "189": "conservative",
-            "209": "conservative",
-            "242": "conservative",
-            "281": "synonymous",
+            "174": "nonconservative",
+            "183": "nonconservative",
+            "190": "nonconservative",
+            "208": "conservative",
+            "210": "conservative",
+            "220": "nonconservative",
+            "245": "synonymous",
+            "25": "conservative",
+            "253": "nonconservative",
+            "262": "nonconservative",
+            "278": "nonconservative",
+            "302": "synonymous",
+            "305": "synonymous",
             "308": "synonymous",
-            "352": "nonconservative",
-            "85": "nonconservative"
+            "50": "synonymous",
+            "58": "conservative",
+            "9": "synonymous"
         },
         "read_start": 0,
         "sample": {
-            "id": 2,
+            "id": 3,
             "name": "input2"
         },
-        "seq_id": "M03592:18:000000000-AHJWK:1:1101:5227:17446",
-        "sequence": "CAGGTTCAGCTGGTGCAGTCTGGAGCT---GAGGTNAAGAAGCCTGGGGCCNNNGTGAAGGTCTCCTGCAAGGCTTCTGGTTACATCTTT------------ACCAGTTATGGTATCACCTGGGTGCGACAGGCCCCTGGACAAGGGCTTGAGTGGATGGGATGGATCAGCGTTTAC------AATGGTGACACAAACTATGCACAGAATCTCCAG---GGCAGAGTCACCATGACCACAGAGACATCCACGAGCACAGCCTACATGGAGCTGAGGAGCCTCAGATCTGACGACACGGCCGTGTATTATTGTGCGAGAGATGGAATAGCAGTGGCTGTTGACTACTGGGGCCCGGGAACCCTGGTCACCGTCTCCTCAG",
+        "seq_id": "M03592:18:000000000-AHJWK:1:1101:26501:12611",
+        "sequence": "CAGGTTCAGTTGGTGCAGNCTGGAGGT---GAGGTGAAGAAGCCTGGGGCGTCAGTNNGGGTCTCCTGCAAGGCTTCTGGTTACACCTTT------------ACAAACTATGGTATCAGCTGGGTGCGACAGGCCCCTGGACAAGGGCTTGAGTGGATGGGATGGATCCACGTTGAC------CATGGTAGCACAAACTATGCACAGAGGTTCCAG---GACAGAGTCACCATGACCACAGACACCTCCACGAACACAGCCTTCATGGAGCTGAGGAGGCTGAGATCTGACGACACGGCCGTATACTATTGTGCGAGAGATGGACACACGGTGGCTGTCCCAGACTACTGGGGCCAGGGAACCCTGGTCACCGTCTCCTCAG",
         "v_extent": 320
     }
 ]
