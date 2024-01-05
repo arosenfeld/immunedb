@@ -15,7 +15,7 @@ jobs:
         name: Build & push Docker image
         with:
           image: repo/image
-              registry: ghcr.io
-              tags: ${{ steps.meta.outputs.tags }}
-              username: ${{ secrets.GHCR_USERNAME }}
-              password: ${{ secrets.GHCR_TOKEN }}
+            registry: ghcr.io
+            tags: ${{ steps.meta.outputs.tags }}
+            username: ${{ secrets.GHCR_USERNAME }}
+            password: ${{ secrets.GHCR_TOKEN }}
