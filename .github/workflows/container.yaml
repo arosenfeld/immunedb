@@ -11,11 +11,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       -
-        name: Build and push
-        uses: docker/build-push-action@v5
+        uses: mr-smithers-excellent/docker-build-push@v6
+        name: Build & push Docker image
         with:
-          push: true
-          registry: ghcr.io
-          tags: ${{ steps.meta.outputs.tags }}
-          username: ${{ secrets.GHCR_USERNAME }}
-          password: ${{ secrets.GHCR_TOKEN }}
+          image: repo/image
+              registry: ghcr.io
+              tags: ${{ steps.meta.outputs.tags }}
+              username: ${{ secrets.GHCR_USERNAME }}
+              password: ${{ secrets.GHCR_TOKEN }}
