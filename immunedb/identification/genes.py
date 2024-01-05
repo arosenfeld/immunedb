@@ -19,8 +19,9 @@ class GeneName:
     def __init__(self, name):
         self.name = name
         try:
-            parts = re.search(r'((([A-Z]+)(\d+)([^\*]+)?)(\*(\d+))?)',
-                              self.name).groups()
+            parts = re.search(
+                r'((([A-Z]+)(\d+)([^\*]+)?)(\*(\d+))?)', self.name
+            ).groups()
         except AttributeError:
             raise AlignmentException(f'Invalid gene name {name}')
 
@@ -40,9 +41,9 @@ class GeneName:
         return hash(self) == hash(other)
 
     def __repr__(self):
-        return ('<GeneName={}, base={}, prefix={}, family={}, '
-                'allele={}>').format(str(self), self.base, self.prefix,
-                                     self.family, self.allele)
+        return (
+            '<GeneName={}, base={}, prefix={}, family={}, ' 'allele={}>'
+        ).format(str(self), self.base, self.prefix, self.family, self.allele)
 
     def __lt__(self, other):
         return self.name < other.name
@@ -120,11 +121,11 @@ class GeneTies(dict):
         return self.hypers[key]
 
     def mut_bucket(self, mut):
-        if 0 <= mut <= .05:
-            return .05
-        if mut <= .15:
-            return .15
-        return .30
+        if 0 <= mut <= 0.05:
+            return 0.05
+        if mut <= 0.15:
+            return 0.15
+        return 0.30
 
     def all_alleles(self, genes):
         all_genes = set()
@@ -148,14 +149,14 @@ class VGermlines(GeneTies):
                     name = GeneName(record.id)
                     self.alignments[name] = v
                     self[name] = seq
-                    if (self._min_length is None or
-                            self._min_length > len(v.sequence_ungapped)):
+                    if self._min_length is None or self._min_length > len(
+                        v.sequence_ungapped
+                    ):
                         self._min_length = len(v.sequence_ungapped)
                 except Exception:
                     continue
 
-        super().__init__({k: v for k, v in self.items()},
-                                         **kwargs)
+        super().__init__({k: v for k, v in self.items()}, **kwargs)
 
     def get_single_tie(self, gene, length, mutation):
         return super().get_single_tie(
@@ -177,11 +178,14 @@ class VGene:
         self.sequence = str(gapped_sequence).upper()
         self.sequence_ungapped = self.sequence.replace('-', '')
         if self.sequence[CDR3_OFFSET:].count('-') > 0:
-            raise AlignmentException('Cannot have gaps after CDR3 start '
-                                     '(position {})'.format(CDR3_OFFSET))
+            raise AlignmentException(
+                'Cannot have gaps after CDR3 start '
+                '(position {})'.format(CDR3_OFFSET)
+            )
         try:
-            self.ungapped_anchor_pos = next(find_v_position(
-                self.sequence_ungapped))
+            self.ungapped_anchor_pos = next(
+                find_v_position(self.sequence_ungapped)
+            )
         except StopIteration:
             raise AlignmentException('Unable to find anchor')
 
@@ -203,7 +207,7 @@ class VGene:
             'base': this_seq,
             'seq': other_seq,
             'diff': diff,
-            'cdr3_start': cdr3_start
+            'cdr3_start': cdr3_start,
         }
 
     def compare(self, other_v, max_extent, max_streak):
@@ -223,7 +227,8 @@ class VGene:
 
         # Find the extent of the sequence's V into the CDR3
         streak = dnautils.find_streak_position(
-            this_cdr3, other_cdr3, max_streak)
+            this_cdr3, other_cdr3, max_streak
+        )
         if streak is not None:
             # If there is a streak of mismatches, cut after the streak
             max_index = cdr3_offset + (streak - max_streak)
@@ -249,7 +254,7 @@ def find_v_position(sequence):
     frames = []
     for shift in [2, 1, 0]:
         seq = sequence[shift:]
-        seq = seq[:len(seq) - len(seq) % 3]
+        seq = seq[: len(seq) - len(seq) % 3]
         frames.append((shift, str(seq.translate())))
 
     patterns = [
@@ -265,7 +270,7 @@ def find_v_position(sequence):
 
 
 def _find_with_frameshifts(frames, regex):
-    for (shift, aas) in frames:
+    for shift, aas in frames:
         res = re.search(regex, aas)
         if res is not None:
             yield (res.end() - 1) * 3 + shift
@@ -278,11 +283,14 @@ class JGermlines(GeneTies):
         'min_anchor_len': 12,
     }
 
-    def __init__(self, path_to_germlines,
-                 upstream_of_cdr3=defaults['upstream_of_cdr3'],
-                 anchor_len=defaults['anchor_len'],
-                 min_anchor_len=defaults['min_anchor_len'],
-                 **kwargs):
+    def __init__(
+        self,
+        path_to_germlines,
+        upstream_of_cdr3=defaults['upstream_of_cdr3'],
+        anchor_len=defaults['anchor_len'],
+        min_anchor_len=defaults['min_anchor_len'],
+        **kwargs,
+    ):
         self._upstream_of_cdr3 = upstream_of_cdr3
         self._anchor_len = anchor_len
         self._min_anchor_len = min_anchor_len
@@ -293,14 +301,14 @@ class JGermlines(GeneTies):
                 name = GeneName(record.id)
                 if all([c in 'ATCGN' for c in record.seq.upper()]):
                     self[name] = str(record.seq).upper()
-                    if (self._min_length is None or
-                            len(self[name]) < self._min_length):
+                    if (
+                        self._min_length is None
+                        or len(self[name]) < self._min_length
+                    ):
                         self._min_length = len(self[name])
 
-        self._anchors = {name: seq[-anchor_len:] for name, seq in
-                         self.items()}
-        super().__init__({k: v for k, v in self.items()},
-                                         **kwargs)
+        self._anchors = {name: seq[-anchor_len:] for name, seq in self.items()}
+        super().__init__({k: v for k, v in self.items()}, **kwargs)
 
     @property
     def upstream_of_cdr3(self):
@@ -315,18 +323,19 @@ class JGermlines(GeneTies):
         return self._anchors
 
     def get_j_in_cdr3(self, gene):
-        return self[gene][:-self._upstream_of_cdr3]
+        return self[gene][: -self._upstream_of_cdr3]
 
     def get_all_anchors(self, allowed_genes=None):
         if allowed_genes is None:
             allowed_genes = self
         else:
-            allowed_genes = {k: v for k, v in self.items() if k.name in
-                             allowed_genes}
+            allowed_genes = {
+                k: v for k, v in self.items() if k.name in allowed_genes
+            }
         max_len = max(map(len, allowed_genes.values()))
         for trim_len in range(0, max_len, 3):
             for j, seq in allowed_genes.items():
-                trimmed_seq = seq[-self.anchor_len:-trim_len]
+                trimmed_seq = seq[-self.anchor_len : -trim_len]
                 if len(trimmed_seq) >= self._min_anchor_len:
                     yield trimmed_seq, j
 
@@ -334,10 +343,10 @@ class JGermlines(GeneTies):
         # Used to disable gene ties for genotyping
         if not self.ties:
             return {gene}
-        seq = self[gene][-self.anchor_len:]
+        seq = self[gene][-self.anchor_len :]
         tied = self.all_alleles({gene})
         for j, other_seq in sorted(self.items()):
-            other_seq = other_seq[-self.anchor_len:][:len(seq)]
+            other_seq = other_seq[-self.anchor_len :][: len(seq)]
             if other_seq == seq:
                 tied.add(j)
             elif dnautils.hamming(other_seq, seq) == 0:

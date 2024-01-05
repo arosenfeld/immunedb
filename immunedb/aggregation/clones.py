@@ -9,8 +9,13 @@ from scipy.spatial.distance import squareform
 from scipy.cluster.hierarchy import fcluster, linkage
 
 import dnautils
-from immunedb.common.models import (CDR3_OFFSET, Clone, Sequence,
-                                    SequenceCollapse, Subject)
+from immunedb.common.models import (
+    CDR3_OFFSET,
+    Clone,
+    Sequence,
+    SequenceCollapse,
+    Subject,
+)
 import immunedb.common.modification_log as mod_log
 import immunedb.common.config as config
 import immunedb.util.concurrent as concurrent
@@ -30,17 +35,22 @@ def generate_consensus(session, clone_ids):
     if not clone_ids:
         return
     for clone in funcs.periodic_commit(
-            session,
-            session.query(Clone).filter(Clone.id.in_(clone_ids)),
-            interval=1000):
-        seqs = session.query(
-            Sequence
-        ).join(SequenceCollapse).filter(
-            Sequence.clone_id == clone.id,
-            SequenceCollapse.copy_number_in_subject > 0
-        ).all()
-        clone.cdr3_nt = funcs.consensus([s.cdr3_nt for s in seqs],
-                                        skip_ambig=True)
+        session,
+        session.query(Clone).filter(Clone.id.in_(clone_ids)),
+        interval=1000,
+    ):
+        seqs = (
+            session.query(Sequence)
+            .join(SequenceCollapse)
+            .filter(
+                Sequence.clone_id == clone.id,
+                SequenceCollapse.copy_number_in_subject > 0,
+            )
+            .all()
+        )
+        clone.cdr3_nt = funcs.consensus(
+            [s.cdr3_nt for s in seqs], skip_ambig=True
+        )
         clone.cdr3_aa = lookups.aas_from_nts(clone.cdr3_nt)
 
         clone.germline = generate_germline(session, seqs, clone)
@@ -48,9 +58,9 @@ def generate_consensus(session, clone_ids):
         clone.overall_total_cnt = sum([s.copy_number for s in seqs])
 
         clone.functional = (
-            clone.cdr3_num_nts % 3 == 0 and
-            '*' not in clone.cdr3_aa and
-            not lookups.has_stop(clone.germline)
+            clone.cdr3_num_nts % 3 == 0
+            and '*' not in clone.cdr3_aa
+            and not lookups.has_stop(clone.germline)
         )
 
     session.commit()
@@ -59,15 +69,19 @@ def generate_consensus(session, clone_ids):
 def generate_germline(session, seqs, clone):
     rep_seq = seqs[0]
     germ = rep_seq.alignment_without_insertions[0]
-    return ''.join((
-        germ[:CDR3_OFFSET],
-        '-' * clone.cdr3_num_nts,
-        germ[CDR3_OFFSET + clone.cdr3_num_nts:]
-    ))
+    return ''.join(
+        (
+            germ[:CDR3_OFFSET],
+            '-' * clone.cdr3_num_nts,
+            germ[CDR3_OFFSET + clone.cdr3_num_nts :],
+        )
+    )
 
 
 def push_clone_ids(session):
-    session.connection(mapper=Sequence).execute(text('''
+    session.connection(mapper=Sequence).execute(
+        text(
+            '''
         UPDATE
             sequences AS s
         JOIN sequence_collapse AS c
@@ -76,39 +90,44 @@ def push_clone_ids(session):
             ON c.collapse_to_subject_seq_ai=s2.ai
         SET s.clone_id=s2.clone_id
         WHERE s.seq_id!=s2.seq_id
-    '''))
+    '''
+        )
+    )
 
 
-def collapse_similar_cdr3s(session, buckets, difference_allowed,
-                           difference_metric, level, restrict_genes):
+def collapse_similar_cdr3s(
+    session,
+    buckets,
+    difference_allowed,
+    difference_metric,
+    level,
+    restrict_genes,
+):
     total_buckets = buckets.count()
-    logger.info('Collapsing similar clones in {} buckets'.format(
-        total_buckets
-    ))
+    logger.info('Collapsing similar clones in {} buckets'.format(total_buckets))
 
     for i, bucket in enumerate(buckets):
-        clones = session.query(
-            Clone.id, Clone.cdr3_aa, Clone.cdr3_nt
-        ).filter(
+        clones = session.query(Clone.id, Clone.cdr3_aa, Clone.cdr3_nt).filter(
             Clone.subject_id == bucket.subject_id,
             Clone.cdr3_num_nts == bucket.cdr3_num_nts,
         )
         for gene in restrict_genes:
             clones = clones.filter(
-                getattr(Clone, f'{gene}_gene') ==
-                getattr(bucket, f'{gene}_gene')
+                getattr(Clone, f'{gene}_gene')
+                == getattr(bucket, f'{gene}_gene')
             )
 
-        clones = clones.order_by(
-            Clone.overall_total_cnt.desc()
-        )
+        clones = clones.order_by(Clone.overall_total_cnt.desc())
         clones_cnt = clones.count()
 
         if clones_cnt < 2:
             continue
 
-        logger.info('Reducing bucket {} / {} ({} clones)'.format(
-            i, total_buckets, clones_cnt))
+        logger.info(
+            'Reducing bucket {} / {} ({} clones)'.format(
+                i, total_buckets, clones_cnt
+            )
+        )
         collapsed = {}
         for c in clones:
             cdr3 = getattr(c, f'cdr3_{level}').replace('X', '-')
@@ -126,13 +145,10 @@ def collapse_similar_cdr3s(session, buckets, difference_allowed,
             rep_id, others = collapse[0], collapse[1:]
             session.query(Sequence).filter(
                 Sequence.clone_id.in_(others)
-            ).update(
-                {'clone_id': rep_id},
+            ).update({'clone_id': rep_id}, synchronize_session=False)
+            session.query(Clone).filter(Clone.id.in_(others)).delete(
                 synchronize_session=False
             )
-            session.query(Clone).filter(
-                Clone.id.in_(others)
-            ).delete(synchronize_session=False)
     session.commit()
 
 
@@ -151,7 +167,7 @@ def similar_to_all(seq, rest, field, min_similarity):
     for comp_seq in rest:
         dist = dnautils.hamming(
             getattr(comp_seq, 'cdr3_' + field).replace('X', '-'),
-            getattr(seq, 'cdr3_' + field).replace('X', '-')
+            getattr(seq, 'cdr3_' + field).replace('X', '-'),
         )
         sim_frac = 1 - dist / len(comp_seq.cdr3_aa)
         if sim_frac < min_similarity:
@@ -177,20 +193,20 @@ class ClonalWorker(concurrent.Worker):
         self._tasks = 0
 
     def get_bucket_seqs(self, bucket, sort):
-        query = self.session.query(
-            Sequence
-        ).join(SequenceCollapse).filter(
-            Sequence.subject_id == bucket.subject_id,
-            Sequence.v_gene == bucket.v_gene,
-            Sequence.j_gene == bucket.j_gene,
-            Sequence.cdr3_num_nts == bucket.cdr3_num_nts,
-
-            SequenceCollapse.copy_number_in_subject >= self.min_copy,
+        query = (
+            self.session.query(Sequence)
+            .join(SequenceCollapse)
+            .filter(
+                Sequence.subject_id == bucket.subject_id,
+                Sequence.v_gene == bucket.v_gene,
+                Sequence.j_gene == bucket.j_gene,
+                Sequence.cdr3_num_nts == bucket.cdr3_num_nts,
+                SequenceCollapse.copy_number_in_subject >= self.min_copy,
+            )
         )
         if sort:
             query = query.order_by(
-                desc(SequenceCollapse.copy_number_in_subject),
-                Sequence.ai
+                desc(SequenceCollapse.copy_number_in_subject), Sequence.ai
             )
         if self.max_padding is not None:
             query = query.filter(Sequence.seq_start <= self.max_padding)
@@ -224,15 +240,21 @@ class SimilarityClonalWorker(ClonalWorker):
                     for clone_id, existing_seqs in clones.items():
                         if clone_id is None:
                             continue
-                        if similar_to_all(seq_to_add, existing_seqs,
-                                          self.level, self.min_similarity):
+                        if similar_to_all(
+                            seq_to_add,
+                            existing_seqs,
+                            self.level,
+                            self.min_similarity,
+                        ):
                             existing_seqs.append(seq_to_add)
                             break
                     else:
-                        new_clone = Clone(subject_id=seq.subject_id,
-                                          v_gene=seq.v_gene,
-                                          j_gene=seq.j_gene,
-                                          cdr3_num_nts=seq.cdr3_num_nts)
+                        new_clone = Clone(
+                            subject_id=seq.subject_id,
+                            v_gene=seq.v_gene,
+                            j_gene=seq.j_gene,
+                            cdr3_num_nts=seq.cdr3_num_nts,
+                        )
                         self.session.add(new_clone)
                         self.session.flush()
                         clones[new_clone.id] = [seq_to_add]
@@ -240,11 +262,9 @@ class SimilarityClonalWorker(ClonalWorker):
 
             for clone_id, seqs in clones.items():
                 to_update = [
-                    {
-                        'sample_id': s.sample_id,
-                        'ai': s.ai,
-                        'clone_id': clone_id
-                    } for s in seqs if s.clone_id is None
+                    {'sample_id': s.sample_id, 'ai': s.ai, 'clone_id': clone_id}
+                    for s in seqs
+                    if s.clone_id is None
                 ]
                 if len(to_update) > 0:
                     self.session.bulk_update_mappings(Sequence, to_update)
@@ -262,18 +282,17 @@ class ClusteringClonalWorker(ClonalWorker):
 
     def assign_clones(self, df):
         seq = df.iloc[0]
-        new_clone = Clone(subject_id=int(seq.subject_id),
-                          v_gene=seq.v_gene,
-                          j_gene=seq.j_gene,
-                          cdr3_num_nts=int(seq.cdr3_num_nts))
+        new_clone = Clone(
+            subject_id=int(seq.subject_id),
+            v_gene=seq.v_gene,
+            j_gene=seq.j_gene,
+            cdr3_num_nts=int(seq.cdr3_num_nts),
+        )
         self.session.add(new_clone)
         self.session.flush()
         to_update = [
-            {
-                'sample_id': s.sample_id,
-                'ai': s.ai,
-                'clone_id': new_clone.id
-            } for _, s in df.iterrows()
+            {'sample_id': s.sample_id, 'ai': s.ai, 'clone_id': new_clone.id}
+            for _, s in df.iterrows()
         ]
         self.session.bulk_update_mappings(Sequence, to_update)
         return int(new_clone.id)
@@ -281,18 +300,19 @@ class ClusteringClonalWorker(ClonalWorker):
     def run_bucket(self, bucket):
         seqs = self.get_bucket_seqs(bucket, sort=True)
         if seqs.count():
-            df = pd.DataFrame({
-                'sample_id': s.sample_id,
-                'ai': s.ai,
-
-                'subject_id': s.subject_id,
-                'v_gene': s.v_gene,
-                'j_gene': s.j_gene,
-                'cdr3_num_nts': s.cdr3_num_nts,
-
-                'cdr3': getattr(s, 'cdr3_' + self.level).replace('X', '-'),
-                'current_clone_id': s.clone_id
-            } for s in seqs)
+            df = pd.DataFrame(
+                {
+                    'sample_id': s.sample_id,
+                    'ai': s.ai,
+                    'subject_id': s.subject_id,
+                    'v_gene': s.v_gene,
+                    'j_gene': s.j_gene,
+                    'cdr3_num_nts': s.cdr3_num_nts,
+                    'cdr3': getattr(s, 'cdr3_' + self.level).replace('X', '-'),
+                    'current_clone_id': s.clone_id,
+                }
+                for s in seqs
+            )
 
             if len(df) == 1:
                 df['clone'] = 1
@@ -301,7 +321,7 @@ class ClusteringClonalWorker(ClonalWorker):
                 clusters = fcluster(
                     linkage(dists, 'complete'),
                     1 - self.min_similarity,
-                    criterion='distance'
+                    criterion='distance',
                 )
                 df['clone'] = clusters
             # NOTE: .groupby() doesn't work here since self.assign_clones has
@@ -328,9 +348,7 @@ def run_clones(session, args):
 
     if not args.skip_regen:
         logger.info('Deleting existing clones')
-        q = session.query(Clone).filter(
-            Clone.subject_id.in_(subject_ids)
-        )
+        q = session.query(Clone).filter(Clone.subject_id.in_(subject_ids))
         if args.gene:
             q = q.filter(Clone.v_gene.like(args.gene + '%'))
         q.delete(synchronize_session=False)
@@ -339,17 +357,23 @@ def run_clones(session, args):
     tasks = concurrent.TaskQueue()
     all_buckets = []
     for subject_id in subject_ids:
-        logger.info('Generating task queue for subject {}'.format(
-            subject_id))
-        buckets = session.query(
-            Sequence.subject_id, Sequence.v_gene, Sequence.j_gene,
-            Sequence.cdr3_num_nts
-        ).filter(
-            Sequence.subject_id == subject_id,
-            Sequence.clone_id.is_(None)
-        ).group_by(
-            Sequence.subject_id, Sequence.v_gene, Sequence.j_gene,
-            Sequence.cdr3_num_nts
+        logger.info('Generating task queue for subject {}'.format(subject_id))
+        buckets = (
+            session.query(
+                Sequence.subject_id,
+                Sequence.v_gene,
+                Sequence.j_gene,
+                Sequence.cdr3_num_nts,
+            )
+            .filter(
+                Sequence.subject_id == subject_id, Sequence.clone_id.is_(None)
+            )
+            .group_by(
+                Sequence.subject_id,
+                Sequence.v_gene,
+                Sequence.j_gene,
+                Sequence.cdr3_num_nts,
+            )
         )
         for bucket in buckets:
             if not args.gene or bucket.v_gene.startswith(args.gene):
@@ -360,7 +384,7 @@ def run_clones(session, args):
 
     methods = {
         'similarity': SimilarityClonalWorker,
-        'cluster': ClusteringClonalWorker
+        'cluster': ClusteringClonalWorker,
     }
     for i in range(0, min(tasks.num_tasks(), args.nproc)):
         worker = methods[args.method](
@@ -371,22 +395,21 @@ def run_clones(session, args):
 
     session.commit()
     if args.collapse_difference >= 0:
-        logger.info('Collapsing similar clones: dist={}, level={}, '
-                    'genes={}'.format(args.collapse_difference,
-                                      args.collapse_level,
-                                      args.collapse_restrict_genes))
-        bucket_key = [
-            Clone.subject_id,
-            Clone.cdr3_num_nts
-        ]
+        logger.info(
+            'Collapsing similar clones: dist={}, level={}, '
+            'genes={}'.format(
+                args.collapse_difference,
+                args.collapse_level,
+                args.collapse_restrict_genes,
+            )
+        )
+        bucket_key = [Clone.subject_id, Clone.cdr3_num_nts]
         for gene in args.collapse_restrict_genes:
             bucket_key.append(getattr(Clone, f'{gene}_gene'))
-        buckets = session.query(
-            *bucket_key
-        ).filter(
-            Clone.subject_id.in_(subject_ids)
-        ).group_by(
-            *bucket_key
+        buckets = (
+            session.query(*bucket_key)
+            .filter(Clone.subject_id.in_(subject_ids))
+            .group_by(*bucket_key)
         )
         collapse_similar_cdr3s(
             session,
@@ -394,7 +417,7 @@ def run_clones(session, args):
             args.collapse_difference,
             args.collapse_metric,
             args.collapse_level,
-            args.collapse_restrict_genes
+            args.collapse_restrict_genes,
         )
     else:
         logger.info('Skipping collapse since --collapse-differece < 0')

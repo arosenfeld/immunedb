@@ -21,14 +21,13 @@ def get_feature_str(sample, features):
 
 
 def get_sample_df(session, sample_ids, features, size_metric, dist_func):
-    size_metric = {
-        'copies': 'total_cnt',
-        'instances': 'unique_cnt'
-    }[size_metric]
+    size_metric = {'copies': 'total_cnt', 'instances': 'unique_cnt'}[
+        size_metric
+    ]
     stats = session.query(
         CloneStats.sample_id,
         CloneStats.clone_id,
-        getattr(CloneStats, size_metric).label('size')
+        getattr(CloneStats, size_metric).label('size'),
     ).filter(
         CloneStats.sample_id.in_(sample_ids),
     )
@@ -52,19 +51,28 @@ def collapse_df_features(df, features, sample_instances, agg_func):
             get_feature_str(sample_instances[sample_id], features)
             for sample_id in arr
         ]
+
     df.columns = _apply_feature(df.columns)
     df.index = _apply_feature(df.index)
-    df = df.groupby(
-        df.columns, axis=1
-    ).agg(agg_func).groupby(
-        df.index, axis=0
-    ).agg(agg_func)
+    df = (
+        df.groupby(df.columns, axis=1)
+        .agg(agg_func)
+        .groupby(df.index, axis=0)
+        .agg(agg_func)
+    )
     return df.reindex(sorted(df.columns), axis=1).sort_index()
 
 
-def write_clone_overlap(session, sample_ids=None, pool_on=('sample',),
-                        size_metric='copies', sim_func='cosine',
-                        agg_func='median', zipped=False, **kwargs):
+def write_clone_overlap(
+    session,
+    sample_ids=None,
+    pool_on=('sample',),
+    size_metric='copies',
+    sim_func='cosine',
+    agg_func='median',
+    zipped=False,
+    **kwargs
+):
     samples = session.query(Sample)
     if sample_ids:
         samples = samples.filter(Sample.id.in_(sample_ids))
@@ -72,21 +80,28 @@ def write_clone_overlap(session, sample_ids=None, pool_on=('sample',),
 
     with ExportWriter(zipped=zipped) as writer:
         for subject in set([s.subject for s in sample_instances.values()]):
-            logger.info('Calculating overlap for {}'.format(
-                subject.identifier))
+            logger.info('Calculating overlap for {}'.format(subject.identifier))
             sub_samples = [
                 s.id for s in sample_instances.values() if s.subject == subject
             ]
-            sdf = get_sample_df(session, sub_samples, pool_on, size_metric,
-                                getattr(distance, sim_func))
+            sdf = get_sample_df(
+                session,
+                sub_samples,
+                pool_on,
+                size_metric,
+                getattr(distance, sim_func),
+            )
             if sdf.empty:
                 logger.warning(
                     'Subject {} had no clones for calculation'.format(
-                        subject.identifier))
+                        subject.identifier
+                    )
+                )
                 continue
 
-            sdf = collapse_df_features(sdf, pool_on, sample_instances,
-                                       getattr(np, agg_func))
+            sdf = collapse_df_features(
+                sdf, pool_on, sample_instances, getattr(np, agg_func)
+            )
             name = '{}.overlap'.format(subject.identifier)
 
             with writer.get_handle(name + '.tsv') as fh:
@@ -96,10 +111,12 @@ def write_clone_overlap(session, sample_ids=None, pool_on=('sample',),
             if 'sample' not in pool_on:
                 title_fmt += ', aggregation function={}'
             fig, ax = plt.subplots(figsize=(20, 20))
-            ax = sns.heatmap(sdf, annot=True, linewidths=.25, vmin=0, vmax=1)
-            ax.set_title(title_fmt.format(
-                subject.identifier, ' & '.join(pool_on), sim_func, agg_func
-            ))
+            ax = sns.heatmap(sdf, annot=True, linewidths=0.25, vmin=0, vmax=1)
+            ax.set_title(
+                title_fmt.format(
+                    subject.identifier, ' & '.join(pool_on), sim_func, agg_func
+                )
+            )
 
             with writer.get_handle(name + '.pdf', 'wb+') as fh:
                 plt.savefig(fh, bbox_inches='tight', format='pdf')

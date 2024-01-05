@@ -21,8 +21,12 @@ def _yn_prompt(prompt):
 
 
 def _connect(host, user, admin_pass=''):
-    return pymysql.connect(host=host, user=user, password=admin_pass,
-                           cursorclass=pymysql.cursors.DictCursor)
+    return pymysql.connect(
+        host=host,
+        user=user,
+        password=admin_pass,
+        cursorclass=pymysql.cursors.DictCursor,
+    )
 
 
 def _get_root_connection(host, user, admin_pass=None):
@@ -31,19 +35,25 @@ def _get_root_connection(host, user, admin_pass=None):
             return _connect(host, user)
         except Exception:
             logger.info('Failed connection with empty root password')
-            admin_pass = getpass.getpass('MySQL password for ({}):'.format(
-                user))
+            admin_pass = getpass.getpass(
+                'MySQL password for ({}):'.format(user)
+            )
     return _connect(host, user, admin_pass)
 
 
 def _create_user_if_not_exists(conn, host, user, password):
     with conn.cursor() as cursor:
-        cursor.execute('SELECT host, user, authentication_string from '
-                       'mysql.user WHERE user=%s and host=%s', (user, host))
+        cursor.execute(
+            'SELECT host, user, authentication_string from '
+            'mysql.user WHERE user=%s and host=%s',
+            (user, host),
+        )
         existing = cursor.fetchone()
         if existing is None:
-            cursor.execute('CREATE USER \'{}\'@\'%\' IDENTIFIED BY '
-                           '\'{}\''.format(user, password))
+            cursor.execute(
+                'CREATE USER \'{}\'@\'%\' IDENTIFIED BY '
+                '\'{}\''.format(user, password)
+            )
             return None
         return existing['authentication_string']
 
@@ -62,25 +72,34 @@ def _get_user_pass(conn, host, user, existing_password):
 
 def create(main_parser, args):
     if re.search(r'[^A-Za-z0-9_-]', args.db_name) is not None:
-        main_parser.error('Database name must only contain letters, numbers, '
-                          'dashes and underscores.')
+        main_parser.error(
+            'Database name must only contain letters, numbers, '
+            'dashes and underscores.'
+        )
 
     try:
-        conn = _get_root_connection(args.db_host, args.admin_user,
-                                    args.admin_pass)
+        conn = _get_root_connection(
+            args.db_host, args.admin_user, args.admin_pass
+        )
 
         db_user = args.db_user or args.db_name
         if args.db_pass:
             db_pass = args.db_pass
         else:
             db_pass = ''.join(
-                random.choice(string.ascii_uppercase + string.ascii_lowercase +
-                              string.digits) for _ in range(10))
+                random.choice(
+                    string.ascii_uppercase
+                    + string.ascii_lowercase
+                    + string.digits
+                )
+                for _ in range(10)
+            )
 
         with conn.cursor() as cursor:
             logger.info(f'Creating user "{db_user}"')
-            existing_password = _create_user_if_not_exists(conn, '%', db_user,
-                                                           db_pass)
+            existing_password = _create_user_if_not_exists(
+                conn, '%', db_user, db_pass
+            )
             if existing_password is not None:
                 if not args.db_pass:
                     logger.warning(
@@ -88,8 +107,9 @@ def create(main_parser, args):
                         'configuration file, you must enter it\'s '
                         'password.'.format(db_user)
                     )
-                    db_pass = _get_user_pass(conn, args.db_host, db_user,
-                                             existing_password)
+                    db_pass = _get_user_pass(
+                        conn, args.db_host, db_user, existing_password
+                    )
                 else:
                     db_pass = args.db_pass
 
@@ -98,18 +118,27 @@ def create(main_parser, args):
 
             cursor.execute(
                 'GRANT ALL PRIVILEGES ON {}.* TO \'{}\'@\'%\''.format(
-                    args.db_name, db_user))
+                    args.db_name, db_user
+                )
+            )
 
-        config_path = os.path.join(args.config_dir, '{}.json'.format(
-            args.db_name))
+        config_path = os.path.join(
+            args.config_dir, '{}.json'.format(args.db_name)
+        )
         logger.info(f'Creating config at {config_path}')
         with open(config_path, 'w+') as fh:
-            json.dump({
-                'host': args.db_host,
-                'database': args.db_name,
-                'username': db_user,
-                'password': db_pass
-            }, fh, sort_keys=True, indent=4, separators=(',', ': '))
+            json.dump(
+                {
+                    'host': args.db_host,
+                    'database': args.db_name,
+                    'username': db_user,
+                    'password': db_pass,
+                },
+                fh,
+                sort_keys=True,
+                indent=4,
+                separators=(',', ': '),
+            )
 
         logger.info('Initializing tables')
         config.init_db(config_path)
@@ -124,8 +153,9 @@ def delete(main_parser, args):
     try:
         with open(args.db_config) as fh:
             db_config = json.load(fh)
-        conn = _get_root_connection(db_config['host'], args.admin_user,
-                                    args.admin_pass)
+        conn = _get_root_connection(
+            db_config['host'], args.admin_user, args.admin_pass
+        )
         with conn.cursor() as cursor:
             logger.info('Deleting database {}'.format(db_config['database']))
             cursor.execute('DROP DATABASE `{}`'.format(db_config['database']))
@@ -143,10 +173,13 @@ def backup(main_parser, args):
         db_config = json.load(fh)
     with open(args.backup_path, 'w+') as fh:
         cmd = shlex.split(
-            'mysqldump -h {} -u {} -p{} {}'.format(db_config['host'],
-                                                   db_config['username'],
-                                                   db_config['password'],
-                                                   db_config['database']))
+            'mysqldump -h {} -u {} -p{} {}'.format(
+                db_config['host'],
+                db_config['username'],
+                db_config['password'],
+                db_config['database'],
+            )
+        )
         proc = subprocess.Popen(cmd, stdout=fh)
         proc.communicate()
 
@@ -158,12 +191,16 @@ def restore(main_parser, args):
         db_config = json.load(fh)
     with open(args.backup_path) as fh:
         cmd = shlex.split(
-            'mysql -h {} -u {} -p{} {}'.format(db_config['host'],
-                                               db_config['username'],
-                                               db_config['password'],
-                                               db_config['database']))
-        proc = subprocess.Popen(cmd, stdin=fh, stdout=subprocess.PIPE,
-                                stderr=subprocess.PIPE)
+            'mysql -h {} -u {} -p{} {}'.format(
+                db_config['host'],
+                db_config['username'],
+                db_config['password'],
+                db_config['database'],
+            )
+        )
+        proc = subprocess.Popen(
+            cmd, stdin=fh, stdout=subprocess.PIPE, stderr=subprocess.PIPE
+        )
         stdout, stderr = proc.communicate()
         if stderr:
             logger.warning(stderr)

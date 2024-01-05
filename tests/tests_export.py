@@ -43,36 +43,32 @@ class ExportTest(unittest.TestCase):
             actual_zip = zipfile.ZipFile(io.BytesIO(response.content))
             with open(path, 'rb') as fh:
                 expected_zip = zipfile.ZipFile(fh)
-                assert (set(expected_zip.namelist()) ==
-                        set(actual_zip.namelist()))
+                assert set(expected_zip.namelist()) == set(
+                    actual_zip.namelist()
+                )
                 for name in expected_zip.namelist():
                     actual_val = actual_zip.read(name)
                     expected_val = expected_zip.read(name)
                     if expected_val != actual_val:
                         diff = difflib.unified_diff(
                             str(actual_val, encoding='utf8').split(),
-                            str(expected_val, encoding='utf8').split()
+                            str(expected_val, encoding='utf8').split(),
                         )
-                        raise AssertionError('Invalid file {}:\n{}'.format(
-                            name, '\n'.join(diff)))
+                        raise AssertionError(
+                            'Invalid file {}:\n{}'.format(name, '\n'.join(diff))
+                        )
 
     def test_sequences(self):
         for schema in ('changeo', 'airr'):
-            print('checking {}'.format(schema))
-            self.check(
-                schema + '.zip',
-                '/export/sequences',
-                {'format': schema}
-            )
+            print(f'checking {schema}')
+            self.check(schema + '.zip', '/export/sequences', {'format': schema})
 
     def test_clones(self):
         if not IS_CI:  # This is a hack until we can fix rounding issues
             for schema in ('vdjtools', 'immunedb'):
-                print('checking {}'.format(schema))
+                print(f'checking {schema}')
                 self.check(
-                    schema + '.zip',
-                    '/export/clones',
-                    {'format': schema}
+                    schema + '.zip', '/export/clones', {'format': schema}
                 )
 
     def test_sample(self):

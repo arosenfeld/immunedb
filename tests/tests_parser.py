@@ -10,7 +10,7 @@ class ParserTest(unittest.TestCase):
         parser = get_base_arg_parser(desc)
         assert parser.description == desc
         args = parser.parse_args(['config/path.json'])
-        assert set(vars(args).keys()) == set(('db_config', 'nproc'))
+        assert set(vars(args).keys()) == {'db_config', 'nproc'}
         assert args.db_config == 'config/path.json'
         try:
             num_cpu = mp.cpu_count()

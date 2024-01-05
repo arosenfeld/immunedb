@@ -10,17 +10,13 @@ def _get_entries(seq, inference, gene_db):
     entry = OrderedDict()
     trim_start = re.search('[N-]*', seq.sequence).end()
     trim_end = re.search('[N-]*', seq.sequence[::-1]).end()
-    trimmed_seq = seq.sequence[trim_start:len(seq.sequence) - trim_end]
+    trimmed_seq = seq.sequence[trim_start : len(seq.sequence) - trim_end]
     # Offsets of regions/segments
     v_gaps = trimmed_seq.count('-')
     trimmed_seq = trimmed_seq.replace('-', '')
     v_region = (1, len(trimmed_seq), 'V_region')
     v_segment = (1, 309 - v_gaps - trim_start, 'V_segment')
-    cds = (
-        v_segment[1] + 1,
-        v_segment[1] + seq.cdr3_num_nts,
-        'CDS'
-    )
+    cds = (v_segment[1] + 1, v_segment[1] + seq.cdr3_num_nts, 'CDS')
     j_segment = (cds[1] + 1, v_region[1], 'J_segment')
 
     # Key
@@ -49,7 +45,7 @@ def _get_entries(seq, inference, gene_db):
         ('function', 'junction'),
         ('codon_start', 1),
         ('product', 'immunoglobulin heavy chain variable domain'),
-        ('inference', inference)
+        ('inference', inference),
     )
 
     return entry, trimmed_seq
@@ -57,44 +53,46 @@ def _get_entries(seq, inference, gene_db):
 
 def _write_sample(session, sample_id, gene_db, inference, header):
     for sample in session.query(Sample):
-        seqs = session.query(
-            Sequence.seq_id,
-            Sequence.v_gene,
-            Sequence.j_gene,
-            Sequence.cdr3_num_nts,
-            Sequence.sequence,
-            Sequence.copy_number
-        ).filter(
-            Sequence.sample_id == sample_id
-        ).filter(Sequence.stop == 0)
+        seqs = (
+            session.query(
+                Sequence.seq_id,
+                Sequence.v_gene,
+                Sequence.j_gene,
+                Sequence.cdr3_num_nts,
+                Sequence.sequence,
+                Sequence.copy_number,
+            )
+            .filter(Sequence.sample_id == sample_id)
+            .filter(Sequence.stop == 0)
+        )
         with open(f'{sample.name}.tbl', 'w+') as gb_fh:
             writer = csv.writer(gb_fh, delimiter='\t')
             with open(f'{sample.name}.fsa', 'w+') as fasta_fh:
                 for seq in seqs:
-                    gb_entry, fasta_seq = _get_entries(
-                        seq, inference, gene_db)
+                    gb_entry, fasta_seq = _get_entries(seq, inference, gene_db)
                     for entry, indented in gb_entry.items():
                         writer.writerow(entry)
                         if indented:
                             for indent in indented:
                                 writer.writerow(('', '', '') + indent)
                     seq_header = header + ' [note=AIRR_READ_COUNT:{}]'.format(
-                        seq.copy_number)
-                    fasta_fh.write('>{}\n{}\n'.format(
-                        seq.seq_id.split(' ')[0] + f' {seq_header}',
-                        fasta_seq))
+                        seq.copy_number
+                    )
+                    fasta_fh.write(
+                        '>{}\n{}\n'.format(
+                            seq.seq_id.split(' ')[0] + f' {seq_header}',
+                            fasta_seq,
+                        )
+                    )
 
 
 def write_genbank(session, args):
     args.inference = 'alignment:' + args.inference
 
-    header = (
-        '[organism={}] '
-        '[moltype={}] '
-        '[keywords=AIRR]').format(
-        args.species, args.mol_type)
+    header = ('[organism={}] ' '[moltype={}] ' '[keywords=AIRR]').format(
+        args.species, args.mol_type
+    )
 
     for sample in session.query(Sample):
         logger.info(f'Exporting sample {sample.name}')
-        _write_sample(session, sample.id, args.gene_db, args.inference,
-                      header)
+        _write_sample(session, sample.id, args.gene_db, args.inference, header)

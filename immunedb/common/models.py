@@ -1,8 +1,18 @@
 import datetime
 import json
 
-from sqlalchemy import (Column, Boolean, Float, Integer, String, DateTime,
-                        ForeignKey, UniqueConstraint, Index, event)
+from sqlalchemy import (
+    Column,
+    Boolean,
+    Float,
+    Integer,
+    String,
+    DateTime,
+    ForeignKey,
+    UniqueConstraint,
+    Index,
+    event,
+)
 from sqlalchemy.dialects.mysql import MEDIUMTEXT
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.ext.hybrid import hybrid_property
@@ -24,18 +34,13 @@ CDR3_OFFSET = 309
 def deserialize_gaps(gaps):
     if gaps is None:
         return tuple()
-    return [
-        tuple(int(p) for p in g.split('-'))
-        for g in gaps.split(',')
-    ]
+    return [tuple(int(p) for p in g.split('-')) for g in gaps.split(',')]
 
 
 def serialize_gaps(gaps):
     if gaps is None or len(gaps) == 0:
         return None
-    return ','.join(
-        [f'{start}-{end}' for (start, end) in sorted(gaps)]
-    )
+    return ','.join([f'{start}-{end}' for (start, end) in sorted(gaps)])
 
 
 class Study(Base):
@@ -46,6 +51,7 @@ class Study(Base):
     :param str info: Optional information about the study
 
     """
+
     __tablename__ = 'studies'
     __table_args__ = {'mysql_row_format': 'DYNAMIC'}
 
@@ -66,16 +72,20 @@ class Subject(Base):
         instance
 
     """
+
     __tablename__ = 'subjects'
-    __table_args__ = (UniqueConstraint('study_id', 'identifier'),
-                      {'mysql_row_format': 'DYNAMIC'})
+    __table_args__ = (
+        UniqueConstraint('study_id', 'identifier'),
+        {'mysql_row_format': 'DYNAMIC'},
+    )
 
     id = Column(Integer, primary_key=True)
 
     identifier = Column(String(64))
     study_id = Column(Integer, ForeignKey(Study.id))
-    study = relationship(Study, backref=backref('subjects',
-                         order_by=identifier))
+    study = relationship(
+        Study, backref=backref('subjects', order_by=identifier)
+    )
 
     def reset(self):
         sample_ids = [s.id for s in self.samples]
@@ -85,9 +95,9 @@ class Subject(Base):
         session.query(SequenceCollapse).filter(
             SequenceCollapse.sample_id.in_(sample_ids)
         ).delete(synchronize_session=False)
-        session.query(Clone).filter(
-            Clone.subject_id == self.id
-        ).delete(synchronize_session=False)
+        session.query(Clone).filter(Clone.subject_id == self.id).delete(
+            synchronize_session=False
+        )
         session.query(SampleStats).filter(
             SampleStats.sample_id.in_(sample_ids)
         ).delete(synchronize_session=False)
@@ -116,6 +126,7 @@ class Sample(Base):
     :param float v_ties_len: Average length of sequences in the sample
 
     """
+
     __tablename__ = 'samples'
     __table_args__ = {'mysql_row_format': 'DYNAMIC'}
 
@@ -126,8 +137,7 @@ class Sample(Base):
     study = relationship(Study, backref=backref('samples', order_by=name))
 
     subject_id = Column(Integer, ForeignKey(Subject.id), index=True)
-    subject = relationship(Subject, backref=backref('samples',
-                           order_by=(id)))
+    subject = relationship(Subject, backref=backref('samples', order_by=(id)))
 
     v_ties_mutations = Column(Float)
     v_ties_len = Column(Float)
@@ -147,17 +157,24 @@ class SampleMetadata(Base):
     __tablename__ = 'sample_metadata'
     __table_args__ = {'mysql_row_format': 'DYNAMIC'}
 
-    sample_id = Column(Integer, ForeignKey(Sample.id, ondelete='CASCADE'),
-                       primary_key=True, nullable=False)
+    sample_id = Column(
+        Integer,
+        ForeignKey(Sample.id, ondelete='CASCADE'),
+        primary_key=True,
+        nullable=False,
+    )
     sample = relationship(
         Sample,
-        backref=backref('metadata_models',
-                        order_by=sample_id,
-                        cascade='save-update,merge,delete,delete-orphan')
+        backref=backref(
+            'metadata_models',
+            order_by=sample_id,
+            cascade='save-update,merge,delete,delete-orphan',
+        ),
     )
 
-    key = Column(String(length=32), primary_key=True, index=True,
-                 nullable=False)
+    key = Column(
+        String(length=32), primary_key=True, index=True, nullable=False
+    )
     value = Column(String(length=64), index=True)
 
 
@@ -192,17 +209,31 @@ class SampleStats(Base):
     :param int no_result_cnt: The number of invalid sequences
 
     """
+
     __tablename__ = 'sample_stats'
     __table_args__ = (
-        Index('stat_cover', 'sample_id', 'outliers', 'full_reads',
-              'filter_type', 'sequence_cnt', 'in_frame_cnt', 'stop_cnt',
-              'functional_cnt', 'no_result_cnt'),
-        {'mysql_row_format': 'DYNAMIC'})
+        Index(
+            'stat_cover',
+            'sample_id',
+            'outliers',
+            'full_reads',
+            'filter_type',
+            'sequence_cnt',
+            'in_frame_cnt',
+            'stop_cnt',
+            'functional_cnt',
+            'no_result_cnt',
+        ),
+        {'mysql_row_format': 'DYNAMIC'},
+    )
 
-    sample_id = Column(Integer, ForeignKey(Sample.id),
-                       primary_key=True)
-    sample = relationship(Sample, backref=backref('sample_stats',
-                          order_by=sample_id, cascade='all, delete-orphan'))
+    sample_id = Column(Integer, ForeignKey(Sample.id), primary_key=True)
+    sample = relationship(
+        Sample,
+        backref=backref(
+            'sample_stats', order_by=sample_id, cascade='all, delete-orphan'
+        ),
+    )
 
     filter_type = Column(String(length=255), primary_key=True)
     outliers = Column(Boolean, primary_key=True)
@@ -252,13 +283,22 @@ class Clone(Base):
     :param int parent_id: The (possibly null) ID of the clone's parent
 
     """
+
     __tablename__ = 'clones'
-    __table_args__ = (Index('bucket', 'v_gene', 'j_gene', 'subject_id',
-                            'cdr3_num_nts', 'insertions', 'deletions'),
-                      Index('aa_bucket', 'v_gene', 'j_gene', 'subject_id',
-                            'cdr3_aa'),
-                      Index('tree', 'tree', mysql_length=1),
-                      {'mysql_row_format': 'DYNAMIC'})
+    __table_args__ = (
+        Index(
+            'bucket',
+            'v_gene',
+            'j_gene',
+            'subject_id',
+            'cdr3_num_nts',
+            'insertions',
+            'deletions',
+        ),
+        Index('aa_bucket', 'v_gene', 'j_gene', 'subject_id', 'cdr3_aa'),
+        Index('tree', 'tree', mysql_length=1),
+        {'mysql_row_format': 'DYNAMIC'},
+    )
     id = Column(Integer, primary_key=True)
 
     functional = Column(Boolean, index=True)
@@ -274,8 +314,12 @@ class Clone(Base):
     cdr3_aa = Column(String(length=MAX_CDR3_AAS))
 
     subject_id = Column(Integer, ForeignKey(Subject.id), index=True)
-    subject = relationship(Subject, backref=backref('clones',
-                           order_by=(v_gene, j_gene, cdr3_num_nts, cdr3_aa)))
+    subject = relationship(
+        Subject,
+        backref=backref(
+            'clones', order_by=(v_gene, j_gene, cdr3_num_nts, cdr3_aa)
+        ),
+    )
 
     germline = Column(String(length=MAX_SEQ_LEN))
     tree = Column(MEDIUMTEXT)
@@ -284,8 +328,9 @@ class Clone(Base):
     overall_instance_cnt = Column(Integer, index=True)  # Denormalized
     overall_total_cnt = Column(Integer, index=True)  # Denormalized
 
-    parent_id = Column(Integer, ForeignKey('clones.id', ondelete='SET NULL'),
-                       index=True)
+    parent_id = Column(
+        Integer, ForeignKey('clones.id', ondelete='SET NULL'), index=True
+    )
 
     children = relationship('Clone')
     parent = relationship('Clone', remote_side=[id], back_populates='children')
@@ -325,26 +370,31 @@ class Clone(Base):
     @property
     def consensus_germline(self):
         """Returns the consensus germline for the clone"""
-        return ''.join([
-            self.germline[:self.cdr3_start],
-            self.cdr3_nt,
-            self.germline[self.cdr3_start + self.cdr3_num_nts:]
-        ])
+        return ''.join(
+            [
+                self.germline[: self.cdr3_start],
+                self.cdr3_nt,
+                self.germline[self.cdr3_start + self.cdr3_num_nts :],
+            ]
+        )
 
     @property
     def overall_unique_cnt_with_subclones(self):
-        return self.overall_unique_cnt + sum([
-            s.overall_unique_cnt for s in self.children])
+        return self.overall_unique_cnt + sum(
+            [s.overall_unique_cnt for s in self.children]
+        )
 
     @property
     def overall_total_cnt_with_subclones(self):
-        return self.overall_total_cnt + sum([
-            s.overall_total_cnt for s in self.children])
+        return self.overall_total_cnt + sum(
+            [s.overall_total_cnt for s in self.children]
+        )
 
     @property
     def overall_instance_cnt_with_subclones(self):
-        return self.overall_instance_cnt + sum([
-            s.overall_instance_cnt for s in self.children])
+        return self.overall_instance_cnt + sum(
+            [s.overall_instance_cnt for s in self.children]
+        )
 
     @property
     def overall_stats(self):
@@ -374,17 +424,26 @@ class CloneStats(Base):
     :param str mutations: A JSON stanza of mutation count information
 
     """
+
     __tablename__ = 'clone_stats'
     __table_args__ = (
-        Index('stats_cover', 'sample_id', 'clone_id', 'functional',
-              'total_cnt', 'unique_cnt'),
-        {'mysql_row_format': 'DYNAMIC'})
+        Index(
+            'stats_cover',
+            'sample_id',
+            'clone_id',
+            'functional',
+            'total_cnt',
+            'unique_cnt',
+        ),
+        {'mysql_row_format': 'DYNAMIC'},
+    )
 
     id = Column(Integer, primary_key=True)
     clone_id = Column(Integer, ForeignKey(Clone.id, ondelete='CASCADE'))
     clone = relationship(Clone, backref=backref('stats'))
     subject_id = Column(
-        Integer, ForeignKey(Subject.id, ondelete='CASCADE'))  # Denormalized
+        Integer, ForeignKey(Subject.id, ondelete='CASCADE')
+    )  # Denormalized
 
     functional = Column(Boolean, index=True)  # Denormalized
 
@@ -419,7 +478,8 @@ class SelectionPressure(Base):
     __tablename__ = 'selection_pressure'
     __table_args__ = (
         UniqueConstraint('clone_id', 'sample_id', 'threshold'),
-        {'mysql_row_format': 'DYNAMIC'})
+        {'mysql_row_format': 'DYNAMIC'},
+    )
     id = Column(Integer, primary_key=True)
     clone_id = Column(Integer, ForeignKey(Clone.id, ondelete='CASCADE'))
     clone = relationship(Clone, backref=backref('selection_pressure'))
@@ -456,22 +516,18 @@ class SelectionPressure(Base):
             'expected_cdr_s',
             'expected_fwr_r',
             'expected_cdr_r',
-
             'observed_fwr_s',
             'observed_cdr_s',
             'observed_fwr_r',
             'observed_cdr_r',
-
             'sigma_fwr',
             'sigma_cdr',
-
             'sigma_fwr_cilower',
             'sigma_fwr_ciupper',
             'sigma_cdr_cilower',
             'sigma_cdr_ciupper',
-
             'sigma_p_fwr',
-            'sigma_p_cdr'
+            'sigma_p_cdr',
         ]
         return {field: getattr(self, field) for field in fields}
 
@@ -545,22 +601,52 @@ class Sequence(Base):
 
 
     """
+
     __tablename__ = 'sequences'
     __table_args__ = (
-        Index('local_align_bucket', 'sample_id', 'locally_aligned', 'v_gene',
-              'j_gene', 'cdr3_num_nts', 'copy_number', 'ai'),
-        Index('subject_bucket', 'subject_id', 'v_gene', 'j_gene',
-              'cdr3_num_nts', 'insertions', 'deletions'),
-        Index('subject_clone_bucket', 'subject_id', 'clone_id', 'v_gene',
-              'j_gene', 'cdr3_num_nts', 'insertions', 'deletions'),
-        Index('locally_aligned', 'locally_aligned', 'v_gene', 'j_gene',
-              'cdr3_num_nts', 'sample_id'),
+        Index(
+            'local_align_bucket',
+            'sample_id',
+            'locally_aligned',
+            'v_gene',
+            'j_gene',
+            'cdr3_num_nts',
+            'copy_number',
+            'ai',
+        ),
+        Index(
+            'subject_bucket',
+            'subject_id',
+            'v_gene',
+            'j_gene',
+            'cdr3_num_nts',
+            'insertions',
+            'deletions',
+        ),
+        Index(
+            'subject_clone_bucket',
+            'subject_id',
+            'clone_id',
+            'v_gene',
+            'j_gene',
+            'cdr3_num_nts',
+            'insertions',
+            'deletions',
+        ),
+        Index(
+            'locally_aligned',
+            'locally_aligned',
+            'v_gene',
+            'j_gene',
+            'cdr3_num_nts',
+            'sample_id',
+        ),
         UniqueConstraint('sample_id', 'seq_id'),
         PrimaryKeyConstraint('sample_id', 'ai'),
         # NOTE: This is because sqlalchemy doesn't properly preserve the column
         # ordering.
         UniqueConstraint('sample_id', 'ai'),
-        {'mysql_row_format': 'DYNAMIC'}
+        {'mysql_row_format': 'DYNAMIC'},
     )
 
     def __init__(self, **kwargs):
@@ -609,8 +695,9 @@ class Sequence(Base):
     in_frame = Column(Boolean)
     functional = Column(Boolean)
     stop = Column(Boolean)
-    copy_number = Column(Integer, server_default='0', nullable=False,
-                         index=True)
+    copy_number = Column(
+        Integer, server_default='0', nullable=False, index=True
+    )
 
     # This is just length(cdr3_nt) but is included for fast statistics
     # generation over the index
@@ -624,10 +711,10 @@ class Sequence(Base):
 
     germline = Column(String(length=MAX_SEQ_LEN))
 
-    clone_id = Column(Integer, ForeignKey(Clone.id, ondelete='SET NULL'),
-                      index=True)
-    clone = relationship(Clone, backref=backref('sequences',
-                         order_by=seq_id))
+    clone_id = Column(
+        Integer, ForeignKey(Clone.id, ondelete='SET NULL'), index=True
+    )
+    clone = relationship(Clone, backref=backref('sequences', order_by=seq_id))
     mutations_from_clone = Column(MEDIUMTEXT)
 
     @hybrid_property
@@ -653,24 +740,24 @@ class Sequence(Base):
     @property
     def original_sequence(self):
         """Returns the original sequence given with the J end trimmed to the
-           germline
+        germline
 
         """
         return '{}{}'.format(
-            self.removed_prefix,
-            self.sequence.replace('-', '')
+            self.removed_prefix, self.sequence.replace('-', '')
         )
 
     @property
     def original_quality(self):
         """Returns the original quality given with the J end trimmed to the
-           germline
+        germline
 
         """
         if self.quality is None:
             return None
-        return '{}{}'.format(self.removed_prefix_qual or '',
-                             self.quality.replace(' ', ''))
+        return '{}{}'.format(
+            self.removed_prefix_qual or '', self.quality.replace(' ', '')
+        )
 
     @property
     def cdr3_start(self):
@@ -684,8 +771,8 @@ class Sequence(Base):
         for pos, size in sorted(self.insertions, reverse=True):
             if pos + size >= len(self.sequence):
                 continue
-            new_germ = new_germ[:pos] + new_germ[pos + size:]
-            new_seq = new_seq[:pos] + new_seq[pos + size:]
+            new_germ = new_germ[:pos] + new_germ[pos + size :]
+            new_seq = new_seq[:pos] + new_seq[pos + size :]
         return ''.join(new_germ), ''.join(new_seq)
 
     @property
@@ -708,31 +795,35 @@ class Sequence(Base):
         if self.seq_start:
             cigar.extend((self.seq_start, 'N'))
         end = self.seq_start + self.pre_cdr3_length + self.num_gaps
-        ref = self.germline[self.seq_start:end]
-        qry = self.sequence[self.seq_start:end]
+        ref = self.germline[self.seq_start : end]
+        qry = self.sequence[self.seq_start : end]
 
         cigar.extend(funcs.get_cigar(ref, qry))
         return ''.join([str(s) for s in cigar])
 
     @property
     def j_cigar(self):
-        return ''.join(funcs.get_cigar(
-            self.germline[-self.post_cdr3_length:],
-            self.sequence[-self.post_cdr3_length:]
-        ))
+        return ''.join(
+            funcs.get_cigar(
+                self.germline[-self.post_cdr3_length :],
+                self.sequence[-self.post_cdr3_length :],
+            )
+        )
 
     @property
     def germline_d_masked(self):
         v_end = self.seq_start + self.pre_cdr3_length + self.num_gaps
-        return ''.join((
-            self.germline[:v_end],
-            'N' * self.cdr3_num_nts,
-            self.germline[-self.post_cdr3_length:]
-        ))
+        return ''.join(
+            (
+                self.germline[:v_end],
+                'N' * self.cdr3_num_nts,
+                self.germline[-self.post_cdr3_length :],
+            )
+        )
 
     def get_v_extent(self, in_clone):
         """Returns the estimated V length, including the portion in the
-           CDR3
+        CDR3
 
         """
         extent = self.v_length + self.num_gaps + self.seq_start
@@ -756,10 +847,11 @@ class NoResult(Base):
     :param str sequence: The quality of the non-identifiable input
 
     """
+
     __tablename__ = 'noresults'
     __table_args__ = (
         Index('sample_seq_id', 'sample_id', 'seq_id'),
-        {'mysql_row_format': 'DYNAMIC'}
+        {'mysql_row_format': 'DYNAMIC'},
     )
 
     pk = Column(Integer, primary_key=True)
@@ -786,6 +878,7 @@ class ModificationLog(Base):
     :param str info: A JSON stanza with log message information
 
     """
+
     __tablename__ = 'modification_logs'
     __table_args__ = {'mysql_row_format': 'DYNAMIC'}
 
@@ -820,14 +913,16 @@ class SequenceCollapse(Base):
         sequence in the subject
 
     """
+
     __tablename__ = 'sequence_collapse'
     __table_args__ = (
         PrimaryKeyConstraint('sample_id', 'seq_ai'),
         ForeignKeyConstraint(
             ['sample_id', 'seq_ai'],
             ['sequences.sample_id', 'sequences.ai'],
-            name='seq_fkc'),
-        {'mysql_row_format': 'DYNAMIC'}
+            name='seq_fkc',
+        ),
+        {'mysql_row_format': 'DYNAMIC'},
     )
 
     sample_id = Column(Integer, autoincrement=False)
@@ -838,17 +933,23 @@ class SequenceCollapse(Base):
     collapse_to_subject_seq_ai = Column(Integer, index=True)
     collapse_to_subject_seq_id = Column(String(128))  # Denormalized
     instances_in_subject = Column(Integer, server_default='0', nullable=False)
-    copy_number_in_subject = Column(Integer, server_default='0',
-                                    nullable=False, index=True)
+    copy_number_in_subject = Column(
+        Integer, server_default='0', nullable=False, index=True
+    )
     samples_in_subject = Column(Integer, server_default='0', nullable=False)
 
     @property
     def collapse_to_seq(self):
         """Returns the sequence being collapse to"""
-        return Session.object_session(self).query(Sequence).filter(
-            Sequence.sample_id == self.collapse_to_subject_sample_id,
-            Sequence.ai == self.collapse_to_subject_seq_ai
-        ).one()
+        return (
+            Session.object_session(self)
+            .query(Sequence)
+            .filter(
+                Sequence.sample_id == self.collapse_to_subject_sample_id,
+                Sequence.ai == self.collapse_to_subject_seq_ai,
+            )
+            .one()
+        )
 
 
 def check_string_length(cls, key, inst):
@@ -868,8 +969,10 @@ def check_string_length(cls, key, inst):
             def set_(instance, value, oldvalue, initiator):
                 if value is not None and len(value) > max_length:
                     msg = 'Length {} exceeds max {} for column {}'
-                    raise ValueError(msg.format(len(value), max_length,
-                                                col.name))
+                    raise ValueError(
+                        msg.format(len(value), max_length, col.name)
+                    )
+
             event.listen(inst, 'set', set_)
 
 

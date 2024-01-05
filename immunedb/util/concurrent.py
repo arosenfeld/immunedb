@@ -44,8 +44,7 @@ class TaskQueue:
     def add_worker(self, worker):
         self._workers.append(
             mp.Process(
-                target=self._func_wrap,
-                args=(len(self._workers) + 1, worker)
+                target=self._func_wrap, args=(len(self._workers) + 1, worker)
             )
         )
 
@@ -83,7 +82,9 @@ class TaskQueue:
             except Exception:
                 worker.error(
                     'The task was not completed because:\n{}'.format(
-                        traceback.format_exc()))
+                        traceback.format_exc()
+                    )
+                )
                 self._task_queue.task_done()
         worker.cleanup()
 
@@ -96,8 +97,15 @@ def subcaller(func, data, i):
 
 
 # V2 of multiprocessing
-def process_data(input_data, process_func, aggregate_func, nproc,
-                 generate_args={}, process_args={}, aggregate_args={}):
+def process_data(
+    input_data,
+    process_func,
+    aggregate_func,
+    nproc,
+    generate_args={},
+    process_args={},
+    aggregate_args={},
+):
     if callable(input_data):
         start = time.time()
         input_data = input_data(**generate_args)
@@ -109,7 +117,7 @@ def process_data(input_data, process_func, aggregate_func, nproc,
         f = functools.partial(
             subcaller,
             functools.partial(process_func, **process_args),
-            proxy_data
+            proxy_data,
         )
         start = time.time()
         logger.info(f'Waiting on pool {process_func.__name__}')

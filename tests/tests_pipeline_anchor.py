@@ -5,9 +5,7 @@ from immunedb.identification.identify import run_identify
 
 class TestPipelineAnchor(BaseTest.RegressionTest):
     def __init__(self, *args, **kwargs):
-        super(TestPipelineAnchor, self).__init__(
-            'pipeline_anchor', *args, **kwargs
-        )
+        super().__init__('pipeline_anchor', *args, **kwargs)
 
     def identification(self):
         run_identify(
@@ -21,7 +19,7 @@ class TestPipelineAnchor(BaseTest.RegressionTest):
                 sample_dir='tests/data/identification',
                 metadata=None,
                 max_vties=50,
-                min_similarity=.60,
+                min_similarity=0.60,
                 trim=0,
                 warn_existing=False,
                 warn_missing=False,
@@ -29,5 +27,5 @@ class TestPipelineAnchor(BaseTest.RegressionTest):
                 max_padding=None,
                 genotyping=False,
                 ties=False,
-            )
+            ),
         )

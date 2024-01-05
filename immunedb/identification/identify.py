@@ -10,13 +10,25 @@ import dnautils
 
 import immunedb.common.config as config
 import immunedb.common.modification_log as mod_log
-from immunedb.common.models import (Sample, SampleMetadata, Sequence, NoResult,
-                                    Study, Subject)
-from immunedb.identification import (add_noresults_for_vdj, add_sequences,
-                                     AlignmentException)
+from immunedb.common.models import (
+    Sample,
+    SampleMetadata,
+    Sequence,
+    NoResult,
+    Study,
+    Subject,
+)
+from immunedb.identification import (
+    add_noresults_for_vdj,
+    add_sequences,
+    AlignmentException,
+)
 from immunedb.identification.anchor import AnchorAligner
-from immunedb.identification.metadata import (MetadataException,
-                                              parse_metadata, REQUIRED_FIELDS)
+from immunedb.identification.metadata import (
+    MetadataException,
+    parse_metadata,
+    REQUIRED_FIELDS,
+)
 from immunedb.identification.vdj_sequence import VDJSequence
 from immunedb.identification.genes import JGermlines, VGermlines
 import immunedb.util.concurrent as concurrent
@@ -27,14 +39,14 @@ from immunedb.util.log import logger
 class IdentificationProps:
     defaults = {
         'max_v_ties': 50,
-        'min_similarity': .60,
+        'min_similarity': 0.60,
         'max_padding': None,
         'trim_to': 0,
         'allow_cross_family': False,
         'max_insertions': 5,
         'max_deletions': 5,
         'genotyping': False,
-        'ties': False
+        'ties': False,
     }
 
     def __init__(self, **kwargs):
@@ -50,8 +62,9 @@ class IdentificationProps:
         return alignment.v_match / alignment.v_length >= self.min_similarity
 
     def valid_padding(self, alignment):
-        return (self.max_padding is None or
-                alignment.seq_start <= self.max_padding)
+        return (
+            self.max_padding is None or alignment.seq_start <= self.max_padding
+        )
 
     def valid_families(self, alignment):
         if self.allow_cross_family:
@@ -66,8 +79,10 @@ class IdentificationProps:
         return True
 
     def valid_indels(self, alignment):
-        return (len(alignment.insertions) <= self.max_insertions and
-                len(alignment.deletions) <= self.max_deletions)
+        return (
+            len(alignment.insertions) <= self.max_insertions
+            and len(alignment.deletions) <= self.max_deletions
+        )
 
     def validate_cdr3(self, alignment):
         return alignment.cdr3_num_nts >= 9
@@ -77,23 +92,35 @@ class IdentificationProps:
             raise AlignmentException(
                 'V-identity too low {} < {}'.format(
                     alignment.v_match / alignment.v_length
-                    if alignment.v_length else 'NaN',
-                    self.min_similarity))
+                    if alignment.v_length
+                    else 'NaN',
+                    self.min_similarity,
+                )
+            )
         if not self.valid_v_ties(alignment):
-            raise AlignmentException('Too many V-ties {} > {}'.format(
-                len(alignment.v_gene), self.max_v_ties))
+            raise AlignmentException(
+                'Too many V-ties {} > {}'.format(
+                    len(alignment.v_gene), self.max_v_ties
+                )
+            )
         if not self.valid_padding(alignment):
-            raise AlignmentException('Too much padding {} (max {})'.format(
-                alignment.seq_start, self.max_padding))
+            raise AlignmentException(
+                'Too much padding {} (max {})'.format(
+                    alignment.seq_start, self.max_padding
+                )
+            )
         if not self.valid_families(alignment):
             raise AlignmentException('Cross-family V-call')
         if not self.valid_indels(alignment):
             raise AlignmentException(
                 'Too many indels insertions={} deletions={}'.format(
-                    alignment.insertions, alignment.deletions))
+                    alignment.insertions, alignment.deletions
+                )
+            )
         if not self.validate_cdr3(alignment):
-            raise AlignmentException('CDR3 too short {}'.format(
-                alignment.cdr3_num_nts))
+            raise AlignmentException(
+                'CDR3 too short {}'.format(alignment.cdr3_num_nts)
+            )
 
 
 def setup_sample(session, meta):
@@ -108,15 +135,13 @@ def setup_sample(session, meta):
 
     if new:
         subject, new = funcs.get_or_create(
-            session, Subject, study=study,
-            identifier=meta['subject'])
+            session, Subject, study=study, identifier=meta['subject']
+        )
         sample.subject = subject
 
         for key, value in meta.items():
             if key not in REQUIRED_FIELDS:
-                session.add(SampleMetadata(
-                    sample=sample, key=key, value=value
-                ))
+                session.add(SampleMetadata(sample=sample, key=key, value=value))
 
     session.commit()
     return sample
@@ -125,36 +150,23 @@ def setup_sample(session, meta):
 def process_vdj(vdj, aligner):
     try:
         alignment = aligner.get_alignment(vdj)
-        return {
-            'status': 'success',
-            'alignment': alignment
-        }
+        return {'status': 'success', 'alignment': alignment}
     except AlignmentException as e:
-        return {
-            'status': 'noresult',
-            'vdj': vdj,
-            'reason': str(e)
-        }
+        return {'status': 'noresult', 'vdj': vdj, 'reason': str(e)}
     except Exception as e:
-        return {
-            'status': 'error',
-            'vdj': vdj,
-            'reason': str(e)
-        }
+        return {'status': 'error', 'vdj': vdj, 'reason': str(e)}
 
 
 def aggregate_vdj(aggregate_queue):
-    alignments = {
-        'success': {},
-        'noresult': []
-    }
+    alignments = {'success': {}, 'noresult': []}
     for result in aggregate_queue:
         if result['status'] == 'success':
             alignment = result['alignment']
             seq_key = alignment.sequence.sequence
             if seq_key in alignments['success']:
-                alignments['success'][seq_key].sequence.copy_number += (
-                    alignment.sequence.copy_number)
+                alignments['success'][
+                    seq_key
+                ].sequence.copy_number += alignment.sequence.copy_number
             else:
                 alignments['success'][seq_key] = alignment
         elif result['status'] == 'noresult':
@@ -162,7 +174,9 @@ def aggregate_vdj(aggregate_queue):
         elif result['status'] == 'error':
             logger.error(
                 'Unexpected error processing sequence {}\n\t{}'.format(
-                    result['vdj'].seq_id, result['reason']))
+                    result['vdj'].seq_id, result['reason']
+                )
+            )
     alignments['success'] = alignments['success'].values()
     return alignments
 
@@ -174,43 +188,29 @@ def process_vties(alignment, aligner, avg_len, avg_mut, props):
             alignment.trim_to(props.trim_to)
 
         props.validate(alignment)
-        return {
-            'status': 'success',
-            'alignment': alignment
-        }
+        return {'status': 'success', 'alignment': alignment}
     except AlignmentException as e:
-        return {
-            'status': 'noresult',
-            'alignment': alignment,
-            'reason': str(e)
-        }
+        return {'status': 'noresult', 'alignment': alignment, 'reason': str(e)}
     except Exception as e:
-        return {
-            'status': 'error',
-            'alignment': alignment,
-            'reason': str(e)
-        }
+        return {'status': 'error', 'alignment': alignment, 'reason': str(e)}
 
 
 def aggregate_vties(aggregate_queue):
-    bucketed_seqs = {
-        'success': {},
-        'noresult': []
-    }
+    bucketed_seqs = {'success': {}, 'noresult': []}
     for result in aggregate_queue:
         if result['status'] == 'success':
             alignment = result['alignment']
             bucket_key = (
                 funcs.format_ties(alignment.v_gene),
                 funcs.format_ties(alignment.j_gene),
-                len(alignment.cdr3)
+                len(alignment.cdr3),
             )
 
             bucket = bucketed_seqs['success'].setdefault(bucket_key, {})
             if alignment.sequence.sequence in bucket:
-                bucket[alignment.sequence.sequence].sequence.copy_number += (
-                    alignment.sequence.copy_number
-                )
+                bucket[
+                    alignment.sequence.sequence
+                ].sequence.copy_number += alignment.sequence.copy_number
             else:
                 bucket[alignment.sequence.sequence] = alignment
         elif result['status'] == 'noresult':
@@ -218,7 +218,9 @@ def aggregate_vties(aggregate_queue):
         elif result['status'] == 'error':
             logger.error(
                 'Unexpected error processing sequence {}\n\t{}'.format(
-                    result['alignment'].sequence.seq_id))
+                    result['alignment'].sequence.seq_id
+                )
+            )
 
     bucketed_seqs['success'] = [
         b.values() for b in bucketed_seqs['success'].values()
@@ -230,15 +232,16 @@ def process_collapse(sequences):
     sequences = sorted(
         sequences,
         key=lambda s: (s.sequence.copy_number, s.sequence.seq_id),
-        reverse=True
+        reverse=True,
     )
     uniques = []
     while len(sequences) > 0:
         larger = sequences.pop(0)
         for i in reversed(range(len(sequences))):
             smaller = sequences[i]
-            if dnautils.equal(larger.sequence.sequence,
-                              smaller.sequence.sequence):
+            if dnautils.equal(
+                larger.sequence.sequence, smaller.sequence.sequence
+            ):
                 larger.sequence.copy_number += smaller.sequence.copy_number
                 del sequences[i]
         uniques.append(larger)
@@ -253,13 +256,18 @@ def aggregate_collapse(aggregate_queue, db_config, sample_id, props):
         for seq in alignment:
             seqs_to_add.append(seq)
             if len(seqs_to_add) >= 1000:
-                add_sequences(session, seqs_to_add, sample,
-                              strip_alleles=not props.genotyping)
+                add_sequences(
+                    session,
+                    seqs_to_add,
+                    sample,
+                    strip_alleles=not props.genotyping,
+                )
                 seqs_to_add = []
                 session.commit()
     if seqs_to_add:
-        add_sequences(session, seqs_to_add, sample,
-                      strip_alleles=not props.genotyping)
+        add_sequences(
+            session, seqs_to_add, sample, strip_alleles=not props.genotyping
+        )
     logger.info('Finished aggregating sequences')
     session.commit()
     session.close()
@@ -268,22 +276,21 @@ def aggregate_collapse(aggregate_queue, db_config, sample_id, props):
 def read_input(path):
     vdjs = []
     with gzip.open(path, 'rt') if path.endswith('.gz') else open(path) as fh:
-        parser = SeqIO.parse(
-            fh,
-            'fasta' if '.fasta' in path else 'fastq'
-        )
+        parser = SeqIO.parse(fh, 'fasta' if '.fasta' in path else 'fastq')
 
         # Collapse identical sequences
         logger.info('Parsing input')
         for record in parser:
             try:
-                vdjs.append(VDJSequence(
-                    seq_id=record.description,
-                    sequence=str(record.seq),
-                    quality=funcs.ord_to_quality(
-                        record.letter_annotations.get('phred_quality')
+                vdjs.append(
+                    VDJSequence(
+                        seq_id=record.description,
+                        sequence=str(record.seq),
+                        quality=funcs.ord_to_quality(
+                            record.letter_annotations.get('phred_quality')
+                        ),
                     )
-                ))
+                )
             except ValueError:
                 continue
 
@@ -291,8 +298,9 @@ def read_input(path):
     return vdjs
 
 
-def process_sample(db_config, v_germlines, j_germlines, path, meta, props,
-                   nproc):
+def process_sample(
+    db_config, v_germlines, j_germlines, path, meta, props, nproc
+):
     session = config.init_db(db_config)
     start = time.time()
     logger.info('Starting sample {}'.format(meta['sample_name']))
@@ -315,19 +323,18 @@ def process_sample(db_config, v_germlines, j_germlines, path, meta, props,
 
     alignments = alignments['success']
     if alignments:
-        avg_len = (
-            sum([v.v_length for v in alignments]) /
-            len(alignments))
-        avg_mut = (
-            sum([v.v_mutation_fraction for v in alignments]) /
-            len(alignments)
+        avg_len = sum([v.v_length for v in alignments]) / len(alignments)
+        avg_mut = sum([v.v_mutation_fraction for v in alignments]) / len(
+            alignments
         )
         sample.v_ties_mutations = avg_mut
         sample.v_ties_len = avg_len
-        logger.info('Re-aligning {} sequences to V-ties: Mutations={}, '
-                    'Length={}'.format(len(alignments),
-                                       round(avg_mut, 2),
-                                       round(avg_len, 2)))
+        logger.info(
+            'Re-aligning {} sequences to V-ties: Mutations={}, '
+            'Length={}'.format(
+                len(alignments), round(avg_mut, 2), round(avg_len, 2)
+            )
+        )
         session.commit()
         # Realign to V-ties
         v_ties = concurrent.process_data(
@@ -335,14 +342,19 @@ def process_sample(db_config, v_germlines, j_germlines, path, meta, props,
             process_vties,
             aggregate_vties,
             nproc,
-            process_args={'aligner': aligner, 'avg_len': avg_len, 'avg_mut':
-                          avg_mut, 'props': props},
+            process_args={
+                'aligner': aligner,
+                'avg_len': avg_len,
+                'avg_mut': avg_mut,
+                'props': props,
+            },
         )
         logger.info('Adding noresults')
 
         for result in funcs.periodic_commit(session, v_ties['noresult'], 100):
-            add_noresults_for_vdj(session, result['alignment'].sequence,
-                                  sample, result['reason'])
+            add_noresults_for_vdj(
+                session, result['alignment'].sequence, sample, result['reason']
+            )
 
         logger.info('Collapsing {} buckets'.format(len(v_ties['success'])))
         session.commit()
@@ -353,22 +365,27 @@ def process_sample(db_config, v_germlines, j_germlines, path, meta, props,
             process_collapse,
             aggregate_collapse,
             nproc,
-            aggregate_args={'db_config': db_config, 'sample_id': sample.id,
-                            'props': props}
+            aggregate_args={
+                'db_config': db_config,
+                'sample_id': sample.id,
+                'props': props,
+            },
         )
         session.expire_all()
         session.commit()
 
-        identified = int(session.query(
-            func.sum(Sequence.copy_number)
-        ).filter(
-            Sequence.sample == sample
-        ).scalar() or 0)
-        noresults = int(session.query(
-            func.count(NoResult.pk)
-        ).filter(
-            NoResult.sample == sample
-        ).scalar() or 0)
+        identified = int(
+            session.query(func.sum(Sequence.copy_number))
+            .filter(Sequence.sample == sample)
+            .scalar()
+            or 0
+        )
+        noresults = int(
+            session.query(func.count(NoResult.pk))
+            .filter(NoResult.sample == sample)
+            .scalar()
+            or 0
+        )
         if identified + noresults:
             frac = int(100 * identified / (identified + noresults))
         else:
@@ -376,29 +393,38 @@ def process_sample(db_config, v_germlines, j_germlines, path, meta, props,
         logger.info(
             'Completed sample {} in {}m - {}/{} ({}%) identified'.format(
                 sample.name,
-                round((time.time() - start) / 60., 1),
+                round((time.time() - start) / 60.0, 1),
                 identified,
                 identified + noresults,
-                frac
+                frac,
             )
         )
     session.close()
 
 
 def run_identify(session, args):
-    mod_log.make_mod('identification', session=session, commit=True,
-                     info=vars(args))
+    mod_log.make_mod(
+        'identification', session=session, commit=True, info=vars(args)
+    )
     # Load the germlines from files
-    v_germlines = VGermlines(args.v_germlines,
-                             ties=args.ties and not args.genotyping)
-    j_germlines = JGermlines(args.j_germlines, args.upstream_of_cdr3,
-                             args.anchor_len, args.min_anchor_len,
-                             ties=args.ties and not args.genotyping)
+    v_germlines = VGermlines(
+        args.v_germlines, ties=args.ties and not args.genotyping
+    )
+    j_germlines = JGermlines(
+        args.j_germlines,
+        args.upstream_of_cdr3,
+        args.anchor_len,
+        args.min_anchor_len,
+        ties=args.ties and not args.genotyping,
+    )
 
     # If metadata is not specified, assume it is "metadata." in the
     # directory
-    meta_fn = args.metadata if args.metadata else os.path.join(
-        args.sample_dir, 'metadata.tsv')
+    meta_fn = (
+        args.metadata
+        if args.metadata
+        else os.path.join(args.sample_dir, 'metadata.tsv')
+    )
 
     # Verify the metadata file exists
     if not os.path.isfile(meta_fn):
@@ -407,8 +433,13 @@ def run_identify(session, args):
 
     with open(meta_fn) as fh:
         try:
-            metadata = parse_metadata(session, fh, args.warn_existing,
-                                      args.warn_missing, args.sample_dir)
+            metadata = parse_metadata(
+                session,
+                fh,
+                args.warn_existing,
+                args.warn_missing,
+                args.sample_dir,
+            )
         except MetadataException as ex:
             logger.error(ex)
             sys.exit(-1)
@@ -418,12 +449,11 @@ def run_identify(session, args):
     props = IdentificationProps(**args.__dict__)
     for sample_name in sorted(metadata.keys()):
         process_sample(
-            args.db_config, v_germlines, j_germlines,
-            os.path.join(
-                args.sample_dir,
-                metadata[sample_name]['file_name']
-            ),
+            args.db_config,
+            v_germlines,
+            j_germlines,
+            os.path.join(args.sample_dir, metadata[sample_name]['file_name']),
             metadata[sample_name],
             props,
-            args.nproc
+            args.nproc,
         )

@@ -7,7 +7,7 @@ import dnautils
 
 def chunks(l, n):
     for i in range(0, len(l), n):
-        yield l[i:i + n]
+        yield l[i : i + n]
 
 
 def yield_limit(qry, pk_attr, maxrq=5000):
@@ -27,8 +27,7 @@ def yield_limit(qry, pk_attr, maxrq=5000):
 def bulk_add(session, objs, chunk_size=100, flush=True):
     for i in range(0, len(objs), chunk_size):
         session.bulk_insert_mappings(
-            type(objs[0]),
-            [o.__dict__ for o in objs[i:i + chunk_size]]
+            type(objs[0]), [o.__dict__ for o in objs[i : i + chunk_size]]
         )
         if flush:
             session.flush()
@@ -48,9 +47,7 @@ def consensus(strings, skip_ambig=False):
 
     """
 
-    chrs = [
-            Counter(chars).most_common(2) for chars in zip(*strings)
-    ]
+    chrs = [Counter(chars).most_common(2) for chars in zip(*strings)]
     if skip_ambig:
         chrs = [
             c[0][0] if (c[0][0] != 'N' or len(c) == 1) else c[1][0]

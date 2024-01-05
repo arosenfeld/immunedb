@@ -12,7 +12,8 @@ def make_mod(action_type, info, session=None, commit=False):
     ml = ModificationLog(
         datetime=datetime.datetime.utcnow(),
         action_type=action_type,
-        info=json.dumps(info))
+        info=json.dumps(info),
+    )
     if session is None:
         if commit:
             raise LoggingException('Specified `commit` without `session`')

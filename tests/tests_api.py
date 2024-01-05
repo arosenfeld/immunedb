@@ -11,8 +11,7 @@ def compare_dicts(d1, d2):
 
 
 def compare_objs(o1, o2):
-    assert (type(o1) == type(o2) or
-            (type(o1) == type(o2) == str))
+    assert type(o1) == type(o2) or (type(o1) == type(o2) == str)
     if type(o1) == dict:
         compare_dicts(o1, o2)
     elif type(o1) == list:
@@ -44,24 +43,24 @@ class ApiTest(unittest.TestCase):
                 compare_objs(expected, response)
             except AssertionError:
                 with open('assert.log', 'w+') as err:
-                    err.write('Expected\n{}\n\nResponse\n{}'.format(
-                        pp(expected), pp(response)))
+                    err.write(
+                        'Expected\n{}\n\nResponse\n{}'.format(
+                            pp(expected), pp(response)
+                        )
+                    )
                 raise
 
     def test_endpoints(self):
         endpoints = {
             'sample_list': '/samples/list',
             'sequences_list': '/sequences/list',
-            'sequence_check':
-                '/sequence/2/M03592:18:000000000-AHJWK:1:1106:11135:9840',
+            'sequence_check': '/sequence/2/M03592:18:000000000-AHJWK:1:1106:11135:9840',
             'clones_list': '/clones/list',
             'clones_list_subject1': '/clones/list/1',
             'clone': '/clone/10',
-
             'analyze': '/samples/analyze/T2',
             'overlap': '/samples/overlap/T2',
             'v_usage': '/samples/v_usage/T2',
-
             'subject_list': '/subjects/list',
             'subject': '/subject/1',
         }
@@ -76,30 +75,34 @@ class ApiTest(unittest.TestCase):
             try:
                 self.check(check, endpoint)
             except AssertionError as e:
-                print('Exception with {}, {}'.format(check, endpoint))
+                print(f'Exception with {check}, {endpoint}')
                 raise e
 
-
-        self.check('clones_filters1', '/clones/list', {
-            'filters': {
-                'min_cdr3_num_nts': 5,
-                'max_cdr3_num_nts': 30,
-                'min_size': 2,
-                'max_size': 100,
-                'size_field': 'uniques'
-            }
-        })
-        self.check('clones_filters2', '/clones/list', {
-            'filters': {
-                'subject_id': 1,
-                'id': 1
-            }
-        })
-        self.check('clones_filters3', '/clones/list', {
-            'order_field': 'id',
-            'order_dir': 'asc'
-        })
-        self.check('clones_filters4', '/clones/list', {
-            'order_field': 'id',
-            'order_dir': 'desc'
-        })
+        self.check(
+            'clones_filters1',
+            '/clones/list',
+            {
+                'filters': {
+                    'min_cdr3_num_nts': 5,
+                    'max_cdr3_num_nts': 30,
+                    'min_size': 2,
+                    'max_size': 100,
+                    'size_field': 'uniques',
+                }
+            },
+        )
+        self.check(
+            'clones_filters2',
+            '/clones/list',
+            {'filters': {'subject_id': 1, 'id': 1}},
+        )
+        self.check(
+            'clones_filters3',
+            '/clones/list',
+            {'order_field': 'id', 'order_dir': 'asc'},
+        )
+        self.check(
+            'clones_filters4',
+            '/clones/list',
+            {'order_field': 'id', 'order_dir': 'desc'},
+        )

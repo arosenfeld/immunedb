@@ -8,8 +8,13 @@ import shlex
 import subprocess
 
 import immunedb.common.config as config
-from immunedb.common.models import (Clone, CloneStats, SelectionPressure,
-                                    Sequence, SequenceCollapse)
+from immunedb.common.models import (
+    Clone,
+    CloneStats,
+    SelectionPressure,
+    Sequence,
+    SequenceCollapse,
+)
 import immunedb.common.modification_log as mod_log
 import immunedb.util.concurrent as concurrent
 from immunedb.util.log import logger
@@ -28,38 +33,56 @@ SEQ_CLONAL = 1
 FIX_INDELS = 1
 
 
-def get_selection(session, clone_id, script_path, samples=None,
-                  min_mut_count=1,
-                  max_mut_count=None,
-                  temp_dir='/tmp',
-                  test_type=TEST_FOCUSED,
-                  species=SPECIES_HUMAN,
-                  sub_model=SUB_UNIFORM,
-                  mut_model=MUT_UNIFORM):
+def get_selection(
+    session,
+    clone_id,
+    script_path,
+    samples=None,
+    min_mut_count=1,
+    max_mut_count=None,
+    temp_dir='/tmp',
+    test_type=TEST_FOCUSED,
+    species=SPECIES_HUMAN,
+    sub_model=SUB_UNIFORM,
+    mut_model=MUT_UNIFORM,
+):
     clone = session.query(Clone).filter(Clone.id == clone_id).first()
     last_region = CONSTANT_BOUNDARIES[-1] + clone.cdr3_num_nts // 3
-    boundaries = '{}:{}'.format(':'.join(map(str, CONSTANT_BOUNDARIES)),
-                                last_region)
+    boundaries = '{}:{}'.format(
+        ':'.join(map(str, CONSTANT_BOUNDARIES)), last_region
+    )
     if samples is not None:
         unique_id = '_{}_{}'.format(clone_id, '_'.join(map(str, samples)))
     else:
         unique_id = '_{}_{}'.format(clone_id, '_ALL')
     input_path = os.path.join(temp_dir, f'clone{unique_id}.fasta')
     out_path = os.path.join(temp_dir, f'output{unique_id}')
-    read_path = os.path.join(temp_dir, 'output{}{}.txt'.format(unique_id,
-                             clone.id))
+    read_path = os.path.join(
+        temp_dir, 'output{}{}.txt'.format(unique_id, clone.id)
+    )
 
-    _make_input_file(session, input_path, clone, samples, min_mut_count,
-                     max_mut_count)
+    _make_input_file(
+        session, input_path, clone, samples, min_mut_count, max_mut_count
+    )
     cmd = 'Rscript {} {} {} {} {} {} {} {} {} {} {}'.format(
-        script_path, test_type, species,
-        sub_model, mut_model, SEQ_CLONAL,
-        FIX_INDELS, boundaries, input_path, out_path,
-        clone.id)
-    proc = subprocess.Popen(shlex.split(cmd),
-                            cwd=os.path.dirname(script_path),
-                            stdout=subprocess.PIPE,
-                            stderr=subprocess.PIPE)
+        script_path,
+        test_type,
+        species,
+        sub_model,
+        mut_model,
+        SEQ_CLONAL,
+        FIX_INDELS,
+        boundaries,
+        input_path,
+        out_path,
+        clone.id,
+    )
+    proc = subprocess.Popen(
+        shlex.split(cmd),
+        cwd=os.path.dirname(script_path),
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
     proc.communicate()
 
     with open(read_path) as fh:
@@ -67,30 +90,30 @@ def get_selection(session, clone_id, script_path, samples=None,
 
     os.unlink(input_path)
     os.unlink(read_path)
-    os.unlink(os.path.join(
-        temp_dir, f'output{unique_id}{clone.id}.RData'))
+    os.unlink(os.path.join(temp_dir, f'output{unique_id}{clone.id}.RData'))
 
     return output
 
 
-def _make_input_file(session, input_path, clone, samples, min_mut_count,
-                     max_mut_count):
+def _make_input_file(
+    session, input_path, clone, samples, min_mut_count, max_mut_count
+):
     with open(input_path, 'w+') as fh:
         fh.write('>>>CLONE\n')
         fh.write('>>germline\n')
         fh.write(f'{clone.consensus_germline}\n')
 
-        seqs = session.query(
-            Sequence.sequence,
-            Sequence.mutations_from_clone
-        ).join(SequenceCollapse).filter(
-            Sequence.clone == clone
+        seqs = (
+            session.query(Sequence.sequence, Sequence.mutations_from_clone)
+            .join(SequenceCollapse)
+            .filter(Sequence.clone == clone)
         )
         if samples is None:
             seqs = seqs.filter(SequenceCollapse.copy_number_in_subject > 0)
         else:
-            seqs = seqs.filter(Sequence.sample_id.in_(samples),
-                               Sequence.copy_number > 0)
+            seqs = seqs.filter(
+                Sequence.sample_id.in_(samples), Sequence.copy_number > 0
+            )
 
         if min_mut_count > 1 or max_mut_count is not None:
             removes = collections.Counter()
@@ -98,14 +121,19 @@ def _make_input_file(session, input_path, clone, samples, min_mut_count,
             # Iterate over each sequence and increment the count for each
             # mutation in the counter
             for seq in seqs:
-                removes.update({
-                    (i, seq.sequence[i]): 1 for i in
-                    map(int, json.loads(seq.mutations_from_clone).keys())
-                })
+                removes.update(
+                    {
+                        (i, seq.sequence[i]): 1
+                        for i in map(
+                            int, json.loads(seq.mutations_from_clone).keys()
+                        )
+                    }
+                )
 
             # Filter out the mutations
             removes = [
-                mut for mut, cnt in removes.items()
+                mut
+                for mut, cnt in removes.items()
                 if cnt < min_mut_count or cnt > (max_mut_count or -1)
             ]
 
@@ -132,8 +160,8 @@ def _parse_output(session, clone, fh):
             del row['ID']
             row = {k: v.strip() for k, v in row.items()}
             row = {
-                k: v.strip() if v == 'NA' else float(v.strip()) for k, v in
-                row.items()
+                k: v.strip() if v == 'NA' else float(v.strip())
+                for k, v in row.items()
             }
             return row
 
@@ -149,6 +177,7 @@ class SelectionPressureWorker(concurrent.Worker):
     :param Session session: The database session
 
     """
+
     def __init__(self, session, baseline_path, baseline_temp, thresholds):
         self._session = session
         self._baseline_path = baseline_path
@@ -162,13 +191,17 @@ class SelectionPressureWorker(concurrent.Worker):
 
         """
 
-        if self._session.query(SelectionPressure).filter(
-                SelectionPressure.clone_id == clone_id).count() > 0:
+        if (
+            self._session.query(SelectionPressure)
+            .filter(SelectionPressure.clone_id == clone_id)
+            .count()
+            > 0
+        ):
             return
         self.info(f'Clone {clone_id}')
-        sample_ids = [c.sample_id for c in self._session.query(
-                CloneStats.sample_id
-            ).filter(
+        sample_ids = [
+            c.sample_id
+            for c in self._session.query(CloneStats.sample_id).filter(
                 CloneStats.clone_id == clone_id
             )
         ]
@@ -189,10 +222,15 @@ class SelectionPressureWorker(concurrent.Worker):
 
         """
 
-        total_seqs = int(self._session.query(CloneStats.unique_cnt).filter(
-            CloneStats.clone_id == clone_id,
-            CloneStats.sample_id == sample_id
-        ).one().unique_cnt)
+        total_seqs = int(
+            self._session.query(CloneStats.unique_cnt)
+            .filter(
+                CloneStats.clone_id == clone_id,
+                CloneStats.sample_id == sample_id,
+            )
+            .one()
+            .unique_cnt
+        )
 
         base_call = partial(
             get_selection,
@@ -200,7 +238,7 @@ class SelectionPressureWorker(concurrent.Worker):
             clone_id=clone_id,
             script_path=self._baseline_path,
             samples=[sample_id] if sample_id is not None else None,
-            temp_dir=self._baseline_temp
+            temp_dir=self._baseline_temp,
         )
 
         for threshold in self._thresholds:
@@ -214,35 +252,31 @@ class SelectionPressureWorker(concurrent.Worker):
                 )
                 max_seqs = None
 
-            pressure = base_call(min_mut_count=min_seqs,
-                                 max_mut_count=max_seqs)
+            pressure = base_call(min_mut_count=min_seqs, max_mut_count=max_seqs)
             pressure = {k: na_to_null(v) for k, v in pressure.items()}
-            self._session.add(SelectionPressure(
-                clone_id=clone_id,
-                sample_id=sample_id,
-                threshold=threshold,
-
-                expected_fwr_s=pressure['Expected_FWR_S'],
-                expected_cdr_s=pressure['Expected_CDR_S'],
-                expected_fwr_r=pressure['Expected_FWR_R'],
-                expected_cdr_r=pressure['Expected_CDR_R'],
-
-                observed_fwr_s=pressure['Observed_FWR_S'],
-                observed_cdr_s=pressure['Observed_CDR_S'],
-                observed_fwr_r=pressure['Observed_FWR_R'],
-                observed_cdr_r=pressure['Observed_CDR_R'],
-
-                sigma_fwr=pressure['Focused_Sigma_FWR'],
-                sigma_cdr=pressure['Focused_Sigma_CDR'],
-
-                sigma_fwr_cilower=pressure['Focused_CIlower_FWR'],
-                sigma_fwr_ciupper=pressure['Focused_CIupper_FWR'],
-                sigma_cdr_cilower=pressure['Focused_CIlower_CDR'],
-                sigma_cdr_ciupper=pressure['Focused_CIupper_CDR'],
-
-                sigma_p_fwr=pressure['Focused_P_FWR'],
-                sigma_p_cdr=pressure['Focused_P_CDR'],
-            ))
+            self._session.add(
+                SelectionPressure(
+                    clone_id=clone_id,
+                    sample_id=sample_id,
+                    threshold=threshold,
+                    expected_fwr_s=pressure['Expected_FWR_S'],
+                    expected_cdr_s=pressure['Expected_CDR_S'],
+                    expected_fwr_r=pressure['Expected_FWR_R'],
+                    expected_cdr_r=pressure['Expected_CDR_R'],
+                    observed_fwr_s=pressure['Observed_FWR_S'],
+                    observed_cdr_s=pressure['Observed_CDR_S'],
+                    observed_fwr_r=pressure['Observed_FWR_R'],
+                    observed_cdr_r=pressure['Observed_CDR_R'],
+                    sigma_fwr=pressure['Focused_Sigma_FWR'],
+                    sigma_cdr=pressure['Focused_Sigma_CDR'],
+                    sigma_fwr_cilower=pressure['Focused_CIlower_FWR'],
+                    sigma_fwr_ciupper=pressure['Focused_CIupper_FWR'],
+                    sigma_cdr_cilower=pressure['Focused_CIlower_CDR'],
+                    sigma_cdr_ciupper=pressure['Focused_CIupper_CDR'],
+                    sigma_p_fwr=pressure['Focused_P_FWR'],
+                    sigma_p_cdr=pressure['Focused_P_CDR'],
+                )
+            )
 
     def cleanup(self):
         self._session.commit()
@@ -250,27 +284,35 @@ class SelectionPressureWorker(concurrent.Worker):
 
 
 def run_selection_pressure(session, args):
-    mod_log.make_mod('clone_pressure', session=session, commit=True,
-                     info=vars(args))
+    mod_log.make_mod(
+        'clone_pressure', session=session, commit=True, info=vars(args)
+    )
 
     if args.clone_ids is not None:
         clones = args.clone_ids
     elif args.subject_ids is not None:
-        clones = [c.id for c in session.query(Clone.id).filter(
-            Clone.subject_id.in_(args.subject_ids))]
+        clones = [
+            c.id
+            for c in session.query(Clone.id).filter(
+                Clone.subject_id.in_(args.subject_ids)
+            )
+        ]
     else:
         clones = [c.id for c in session.query(Clone.id)]
     clones.sort()
 
     tasks = concurrent.TaskQueue()
-    logger.info('Creating task queue to calculate selection pressure for {} '
-                'clones.'.format(len(clones)))
+    logger.info(
+        'Creating task queue to calculate selection pressure for {} '
+        'clones.'.format(len(clones))
+    )
 
     if args.regen:
         logger.info('Deleting old selection pressure')
         for clone in clones:
             session.query(SelectionPressure).filter(
-                SelectionPressure.clone_id == clone).delete()
+                SelectionPressure.clone_id == clone
+            ).delete()
         session.commit()
 
     for cid in clones:
@@ -278,7 +320,10 @@ def run_selection_pressure(session, args):
 
     for i in range(0, args.nproc):
         session = config.init_db(args.db_config)
-        tasks.add_worker(SelectionPressureWorker(session, args.baseline_path,
-                                                 args.temp, args.thresholds))
+        tasks.add_worker(
+            SelectionPressureWorker(
+                session, args.baseline_path, args.temp, args.thresholds
+            )
+        )
 
     tasks.start()

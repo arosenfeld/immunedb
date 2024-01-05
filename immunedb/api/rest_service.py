@@ -20,17 +20,19 @@ class EnableCors:
     requests.
 
     """
+
     name = 'enable_cors'
     api = 2
 
     def apply(self, fn, context):
         def _enable_cors(*args, **kwargs):
             response.headers['Access-Control-Allow-Origin'] = '*'
-            response.headers['Access-Control-Allow-Methods'] = ('GET, POST')
+            response.headers['Access-Control-Allow-Methods'] = 'GET, POST'
             response.headers['Access-Control-Allow-Headers'] = (
                 'Origin, '
                 'Accept, Content-Type, '
-                'X-Requested-With, X-CSRF-Token')
+                'X-Requested-With, X-CSRF-Token'
+            )
 
             if bottle.request.method != 'OPTIONS':
                 return fn(*args, **kwargs)
@@ -53,10 +55,7 @@ def get_paging():
     data = bottle.request.json or {}
     if data.get('nopage', False):
         return None
-    return [
-        int(data.get('page', 1)),
-        int(data.get('per_page', 10))
-    ]
+    return [int(data.get('page', 1)), int(data.get('per_page', 10))]
 
 
 def decode_run_length(encoding):
@@ -102,32 +101,37 @@ def create_app(db_config, allow_shutdown=False):
     @with_session
     def sequences_list(session):
         fields = bottle.request.json or {}
-        return create_response(queries.get_sequences(
-            session,
-            fields.get('filters', {}),
-            fields.get('order_field', None),
-            fields.get('order_dir', 'asc'),
-            fields.get('subject_id', None),
-            get_paging()))
+        return create_response(
+            queries.get_sequences(
+                session,
+                fields.get('filters', {}),
+                fields.get('order_field', None),
+                fields.get('order_dir', 'asc'),
+                fields.get('subject_id', None),
+                get_paging(),
+            )
+        )
 
     @app.route('/sequence/<sample_id>/<seq_id>', method=['POST', 'OPTIONS'])
     @with_session
     def sequence(session, sample_id, seq_id):
-        return create_response(queries.get_sequence(session, sample_id,
-                                                    seq_id))
+        return create_response(queries.get_sequence(session, sample_id, seq_id))
 
     @app.route('/clones/list', method=['POST', 'OPTIONS'])
     @app.route('/clones/list/<subject_id>', method=['POST', 'OPTIONS'])
     @with_session
     def clones_list(session, subject_id=None):
         fields = bottle.request.json or {}
-        return create_response(queries.get_clones(
-            session,
-            fields.get('filters', {}),
-            fields.get('order_field', None),
-            fields.get('order_dir', 'asc'),
-            subject_id,
-            get_paging()))
+        return create_response(
+            queries.get_clones(
+                session,
+                fields.get('filters', {}),
+                fields.get('order_field', None),
+                fields.get('order_dir', 'asc'),
+                subject_id,
+                get_paging(),
+            )
+        )
 
     @app.route('/clone/<clone_id>', method=['POST', 'OPTIONS'])
     @with_session
@@ -138,20 +142,27 @@ def create_app(db_config, allow_shutdown=False):
     @with_session
     def clone_sequences(session, clone_id):
         fields = bottle.request.json or {}
-        return create_response(queries.get_clone_sequences(
-            session, clone_id, fields.get('get_collapse', False), get_paging()
-        ))
+        return create_response(
+            queries.get_clone_sequences(
+                session,
+                clone_id,
+                fields.get('get_collapse', False),
+                get_paging(),
+            )
+        )
 
     @app.route('/clone/mutations/<clone_id>', method=['POST', 'OPTIONS'])
     @with_session
     def clone_mutations(session, clone_id):
         fields = bottle.request.json or {}
-        return create_response(queries.get_clone_mutations(
-            session,
-            clone_id,
-            fields.get('type', 'percent'),
-            int(fields.get('value', 0))
-        ))
+        return create_response(
+            queries.get_clone_mutations(
+                session,
+                clone_id,
+                fields.get('type', 'percent'),
+                int(fields.get('value', 0)),
+            )
+        )
 
     @app.route('/clone/lineage/<clone_id>', method=['POST', 'OPTIONS'])
     @with_session
@@ -161,11 +172,11 @@ def create_app(db_config, allow_shutdown=False):
     @app.route('/clone/pressure/<clone_id>', method=['POST', 'OPTIONS'])
     @with_session
     def clone_pressure(session, clone_id):
-        return create_response(list(
-            queries.get_selection_pressure(session, clone_id)))
+        return create_response(
+            list(queries.get_selection_pressure(session, clone_id))
+        )
 
-    @app.route('/samples/analyze/<sample_encoding>', method=[
-        'POST', 'OPTIONS'])
+    @app.route('/samples/analyze/<sample_encoding>', method=['POST', 'OPTIONS'])
     @with_session
     def analyze_samples(session, sample_encoding):
         fields = bottle.request.json or {}
@@ -181,21 +192,21 @@ def create_app(db_config, allow_shutdown=False):
             )
         )
 
-    @app.route('/samples/overlap/<sample_encoding>', method=[
-        'POST', 'OPTIONS'])
+    @app.route('/samples/overlap/<sample_encoding>', method=['POST', 'OPTIONS'])
     @with_session
     def overlap(session, sample_encoding):
         fields = bottle.request.json or {}
-        return create_response(queries.get_clone_overlap(
-            session,
-            decode_run_length(sample_encoding),
-            fields.get('filter_type', 'clones_all'),
-            fields.get('order_by', 'total_cnt'),
-            get_paging())
+        return create_response(
+            queries.get_clone_overlap(
+                session,
+                decode_run_length(sample_encoding),
+                fields.get('filter_type', 'clones_all'),
+                fields.get('order_by', 'total_cnt'),
+                get_paging(),
+            )
         )
 
-    @app.route('/samples/v_usage/<sample_encoding>', method=[
-        'POST', 'OPTIONS'])
+    @app.route('/samples/v_usage/<sample_encoding>', method=['POST', 'OPTIONS'])
     @with_session
     def v_usage(session, sample_encoding):
         fields = bottle.request.json or {}
@@ -206,7 +217,7 @@ def create_app(db_config, allow_shutdown=False):
             fields.get('include_outliers', True),
             fields.get('include_partials', True),
             fields.get('grouping', 'name'),
-            fields.get('by_family', False)
+            fields.get('by_family', False),
         )
 
         x_categories.sort()
@@ -224,14 +235,16 @@ def create_app(db_config, allow_shutdown=False):
                 else:
                     array.append([i, j, 0])
 
-        return create_response({
-            'x_categories': [f'{prefix}{e}' for e in x_categories],
-            'y_categories': y_categories,
-            'totals': totals,
-            'data': array,
-            'min': min_v,
-            'max': max_v
-        })
+        return create_response(
+            {
+                'x_categories': [f'{prefix}{e}' for e in x_categories],
+                'y_categories': y_categories,
+                'totals': totals,
+                'data': array,
+                'min': min_v,
+                'max': max_v,
+            }
+        )
 
     @app.route('/subjects/list', method=['POST', 'OPTIONS'])
     @with_session
@@ -251,7 +264,7 @@ def create_app(db_config, allow_shutdown=False):
 
         return {
             'complete': job_queue.job_complete(uid),
-            'log': '\n'.join(log.split('\n')[-25:]) or ''
+            'log': '\n'.join(log.split('\n')[-25:]) or '',
         }
 
     @app.route('/export/job/<uid>', method=['GET', 'OPTIONS'])
@@ -274,7 +287,7 @@ def create_app(db_config, allow_shutdown=False):
             out_format=schema,
             clones_only=request.query.get('clones_only', False),
             min_subject_copies=request.query.get('min_subject_copies', 1),
-            zipped=True
+            zipped=True,
         )
 
         return create_response({'uid': uid})
@@ -320,7 +333,7 @@ def create_app(db_config, allow_shutdown=False):
             exporting.write_samples,
             session=session,
             sample_ids=decode_run_length(request.query.get('samples')),
-            zipped=True
+            zipped=True,
         )
         return create_response({'uid': uid})
 
@@ -331,7 +344,7 @@ def create_app(db_config, allow_shutdown=False):
             exporting.write_selection,
             session=session,
             sample_ids=decode_run_length(request.query.get('samples')),
-            zipped=True
+            zipped=True,
         )
         return create_response({'uid': uid})
 
@@ -360,6 +373,7 @@ def run_rest_service(args):
             worker_class='eventlet',
             timeout=0,
             sendfile=False,
-            workers=args.nproc)
+            workers=args.nproc,
+        )
     except (KeyboardInterrupt, SystemExit):
         app.job_queue.cleanup()

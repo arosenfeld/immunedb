@@ -8,8 +8,9 @@ import immunedb.util.lookups as lookups
 
 
 class VDJSequence:
-    def __init__(self, seq_id, sequence, quality=None, rev_comp=False,
-                 copy_number=1):
+    def __init__(
+        self, seq_id, sequence, quality=None, rev_comp=False, copy_number=1
+    ):
         if quality and len(sequence) != len(quality):
             raise ValueError('Sequence and quality must be the same length')
 
@@ -47,7 +48,7 @@ class VDJSequence:
             str(Seq(self._sequence).reverse_complement()),
             self._quality[::-1] if self._quality else None,
             rev_comp=not self.rev_comp,
-            copy_number=self.copy_number
+            copy_number=self.copy_number,
         )
 
     def pad(self, count):
@@ -68,9 +69,9 @@ class VDJSequence:
             self._quality = self._quality[count:]
 
     def trim(self, count):
-        new_prefix = ''.join([
-            c if c == '-' else 'N' for c in self._sequence[:count]
-        ])
+        new_prefix = ''.join(
+            [c if c == '-' else 'N' for c in self._sequence[:count]]
+        )
         self._sequence = new_prefix + self._sequence[count:]
         if self._quality:
             self._quality = (' ' * count) + self._quality[count:]
@@ -86,9 +87,9 @@ class VDJSequence:
             self._quality = self._quality[:pos] + ' ' + self._quality[pos:]
 
     def remove(self, pos):
-        self._sequence = self._sequence[:pos] + self._sequence[pos + 1:]
+        self._sequence = self._sequence[:pos] + self._sequence[pos + 1 :]
         if self._quality:
-            self._quality = self._quality[:pos] + self._quality[pos + 1:]
+            self._quality = self._quality[:pos] + self._quality[pos + 1 :]
 
     def rfind(self, seq):
         return self._sequence.rfind(seq)
@@ -105,7 +106,7 @@ class VDJSequence:
 
 class VDJAlignment:
     INDEL_WINDOW = 30
-    INDEL_MISMATCH_THRESHOLD = .6
+    INDEL_MISMATCH_THRESHOLD = 0.6
 
     def __init__(self, sequence):
         self.sequence = sequence
@@ -127,11 +128,13 @@ class VDJAlignment:
 
     @property
     def filled_germline(self):
-        return ''.join((
-            self.germline[:self.cdr3_start],
-            self.germline_cdr3,
-            self.germline[self.cdr3_start + self.cdr3_num_nts:]
-        ))
+        return ''.join(
+            (
+                self.germline[: self.cdr3_start],
+                self.germline_cdr3,
+                self.germline[self.cdr3_start + self.cdr3_num_nts :],
+            )
+        )
 
     @property
     def seq_start(self):
@@ -139,12 +142,13 @@ class VDJAlignment:
 
     @property
     def num_gaps(self):
-        return self.sequence[self.seq_start:self.cdr3_start].count('-')
+        return self.sequence[self.seq_start : self.cdr3_start].count('-')
 
     @property
     def cdr3(self):
-        return self.sequence[self.cdr3_start:self.cdr3_start +
-                             self.cdr3_num_nts]
+        return self.sequence[
+            self.cdr3_start : self.cdr3_start + self.cdr3_num_nts
+        ]
 
     @property
     def partial(self):
@@ -168,15 +172,14 @@ class VDJAlignment:
         end = start + self.v_length + self.num_gaps
 
         return self.v_length - dnautils.hamming(
-            self.filled_germline[start:end],
-            self.sequence[start:end]
+            self.filled_germline[start:end], self.sequence[start:end]
         )
 
     @property
     def j_match(self):
         return self.j_length - dnautils.hamming(
-            self.filled_germline[-self.j_length:],
-            self.sequence[-self.j_length:]
+            self.filled_germline[-self.j_length :],
+            self.sequence[-self.j_length :],
         )
 
     @property
@@ -189,15 +192,14 @@ class VDJAlignment:
         end = self.cdr3_start
 
         return self.pre_cdr3_length - dnautils.hamming(
-            self.germline[start:end],
-            self.sequence[start:end]
+            self.germline[start:end], self.sequence[start:end]
         )
 
     @property
     def post_cdr3_match(self):
         return self.post_cdr3_length - dnautils.hamming(
-            self.germline[-self.post_cdr3_length:],
-            self.sequence[-self.post_cdr3_length:]
+            self.germline[-self.post_cdr3_length :],
+            self.sequence[-self.post_cdr3_length :],
         )
 
     @property
@@ -205,25 +207,25 @@ class VDJAlignment:
         # Start comparison on first full AA to the INDEL_WINDOW or CDR3,
         # whichever comes first
         start = re.search('[ATCG]', self.sequence.sequence).start()
-        germ = self.germline[start:self.cdr3_start]
-        seq = self.sequence[start:self.cdr3_start]
+        germ = self.germline[start : self.cdr3_start]
+        seq = self.sequence[start : self.cdr3_start]
 
         for i in range(0, len(germ) - self.INDEL_WINDOW + 1):
-            dist = dnautils.hamming(germ[i:i+self.INDEL_WINDOW],
-                                    seq[i:i+self.INDEL_WINDOW])
+            dist = dnautils.hamming(
+                germ[i : i + self.INDEL_WINDOW], seq[i : i + self.INDEL_WINDOW]
+            )
             if dist >= self.INDEL_MISMATCH_THRESHOLD * self.INDEL_WINDOW:
                 return True
 
         return False
 
     def trim_to(self, count):
-        old_pad = self.seq_start - self.sequence[:self.seq_start].count('-')
-        n_extension = re.match(
-            '[N]*', self.sequence[count:]).span()[1]
+        old_pad = self.seq_start - self.sequence[: self.seq_start].count('-')
+        n_extension = re.match('[N]*', self.sequence[count:]).span()[1]
 
         self.sequence.trim(count)
         self.seq_offset = re.match(r'[N-]*', self.sequence.sequence).span()[1]
         self.seq_offset -= n_extension
 
-        new_pad = self.sequence[:self.seq_start].count('-')
+        new_pad = self.sequence[: self.seq_start].count('-')
         self.v_length = self.v_length - self.seq_start + old_pad + new_pad

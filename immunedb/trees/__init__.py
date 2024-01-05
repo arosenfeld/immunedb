@@ -8,9 +8,19 @@ from immunedb.util.log import logger
 
 
 class LineageWorker(concurrent.Worker):
-    def __init__(self, session, newick_generator, min_mut_copies,
-                 min_mut_samples, min_seq_copies, min_seq_samples,
-                 exclude_stops, full_seq, max_muts, post_tree_hook=None):
+    def __init__(
+        self,
+        session,
+        newick_generator,
+        min_mut_copies,
+        min_mut_samples,
+        min_seq_copies,
+        min_seq_samples,
+        exclude_stops,
+        full_seq,
+        max_muts,
+        post_tree_hook=None,
+    ):
         self.session = session
         self.newick_generator = newick_generator
         self.min_mut_copies = min_mut_copies
@@ -24,34 +34,44 @@ class LineageWorker(concurrent.Worker):
 
     def get_tree(self, clone, sequences):
         fasta, removed_muts = get_fasta_input(
-            clone.consensus_germline, sequences,
-            self.min_mut_copies, self.min_mut_samples,
-            self.max_muts, None if self.full_seq else clone.cdr3_start
+            clone.consensus_germline,
+            sequences,
+            self.min_mut_copies,
+            self.min_mut_samples,
+            self.max_muts,
+            None if self.full_seq else clone.cdr3_start,
         )
         newick = self.newick_generator(fasta)
         if not newick:
             return None
-        tree = add_tree_metadata(self.session, newick,
-                                 clone.consensus_germline, removed_muts,
-                                 None if self.full_seq else clone.cdr3_start)
+        tree = add_tree_metadata(
+            self.session,
+            newick,
+            clone.consensus_germline,
+            removed_muts,
+            None if self.full_seq else clone.cdr3_start,
+        )
         if self.post_tree_hook:
             tree = self.post_tree_hook(tree)
         return tree
 
     def do_task(self, clone_id):
-        clone_inst = self.session.query(Clone).filter(
-            Clone.id == clone_id).first()
+        clone_inst = (
+            self.session.query(Clone).filter(Clone.id == clone_id).first()
+        )
         if not clone_inst:
             return
 
         self.info(f'Running clone {clone_inst.id}')
 
-        sequences = self.session.query(
-            Sequence
-        ).join(SequenceCollapse).filter(
-            Sequence.clone_id == clone_id,
-            SequenceCollapse.copy_number_in_subject >= self.min_seq_copies,
-            SequenceCollapse.samples_in_subject >= self.min_seq_samples,
+        sequences = (
+            self.session.query(Sequence)
+            .join(SequenceCollapse)
+            .filter(
+                Sequence.clone_id == clone_id,
+                SequenceCollapse.copy_number_in_subject >= self.min_seq_copies,
+                SequenceCollapse.samples_in_subject >= self.min_seq_samples,
+            )
         )
 
         if self.exclude_stops:
@@ -62,8 +82,9 @@ class LineageWorker(concurrent.Worker):
         try:
             tree = self.get_tree(clone_inst, sequences)
             if not tree:
-                logger.warning('No sequences to make tree for clone {}'.format(
-                    clone_id))
+                logger.warning(
+                    'No sequences to make tree for clone {}'.format(clone_id)
+                )
                 clone_inst.tree = None
                 self.session.commit()
                 return
@@ -82,15 +103,21 @@ class LineageWorker(concurrent.Worker):
                 'exclude_stops': self.exclude_stops,
                 'full_seq': self.full_seq,
             },
-            'tree': tree_as_dict(tree)
+            'tree': tree_as_dict(tree),
         }
         clone_inst.tree = json.dumps(final)
         self.session.add(clone_inst)
         self.session.commit()
 
 
-def get_fasta_input(germline_seq, sequences, min_mut_copies, min_mut_samples,
-                    max_muts, limit=None):
+def get_fasta_input(
+    germline_seq,
+    sequences,
+    min_mut_copies,
+    min_mut_samples,
+    max_muts,
+    limit=None,
+):
     seqs = {}
     mut_counts = {}
     for seq in sequences:
@@ -103,8 +130,9 @@ def get_fasta_input(germline_seq, sequences, min_mut_copies, min_mut_samples,
             )
 
         mutations = get_mutations(
-            germline_seq, seq.clone_sequence, map(
-                int, json.loads(seq.mutations_from_clone).keys())
+            germline_seq,
+            seq.clone_sequence,
+            map(int, json.loads(seq.mutations_from_clone).keys()),
         )
         if limit:
             mutations = {m for m in mutations if m[0] < limit}
@@ -118,8 +146,10 @@ def get_fasta_input(germline_seq, sequences, min_mut_copies, min_mut_samples,
 
     removed_muts = set()
     for mut, cnts in mut_counts.items():
-        if (cnts['count'] < min_mut_copies or
-                len(cnts['samples']) < min_mut_samples):
+        if (
+            cnts['count'] < min_mut_copies
+            or len(cnts['samples']) < min_mut_samples
+        ):
             removed_muts.add(mut)
 
     for seq_id, seq in seqs.items():
@@ -135,9 +165,9 @@ def add_tree_metadata(session, newick, germline_seq, removed_muts, limit=None):
     tree = ete3.Tree(newick)
     for node in tree.traverse():
         if node.name not in ('NoName', 'germline', ''):
-            seq = session.query(Sequence).filter(
-                Sequence.ai == node.name
-            ).first()
+            seq = (
+                session.query(Sequence).filter(Sequence.ai == node.name).first()
+            )
             seq_ids = {}
             for collapsed_seq in get_seqs_collapsed_to(session, seq):
                 seq_ids[collapsed_seq.seq_id] = {
@@ -145,19 +175,19 @@ def add_tree_metadata(session, newick, germline_seq, removed_muts, limit=None):
                     'copy_number': collapsed_seq.copy_number,
                     'sample_name': collapsed_seq.sample.name,
                     'sample_id': collapsed_seq.sample.id,
-                    'metadata': collapsed_seq.sample.metadata_dict
+                    'metadata': collapsed_seq.sample.metadata_dict,
                 }
 
             node.name = seq.seq_id
             node.add_feature('seq_ids', seq_ids)
-            node.add_feature('copy_number', sum(
-                [s['copy_number'] for s in seq_ids.values()]
-            ))
-            modified_seq = remove_muts(seq.sequence,
-                                       removed_muts, germline_seq)
+            node.add_feature(
+                'copy_number', sum([s['copy_number'] for s in seq_ids.values()])
+            )
+            modified_seq = remove_muts(seq.sequence, removed_muts, germline_seq)
             muts = get_mutations(
-                germline_seq, modified_seq,
-                map(int, json.loads(seq.mutations_from_clone).keys())
+                germline_seq,
+                modified_seq,
+                map(int, json.loads(seq.mutations_from_clone).keys()),
             )
             if limit:
                 muts = {m for m in muts if m[0] < limit}
@@ -173,9 +203,9 @@ def get_seqs_collapsed_to(session, seq):
         SequenceCollapse.collapse_to_subject_seq_ai == seq.ai
     )
     for sample_seq in sample_level_seqs:
-        yield session.query(
-            Sequence
-        ).filter(Sequence.ai == sample_seq.seq_ai).one()
+        yield session.query(Sequence).filter(
+            Sequence.ai == sample_seq.seq_ai
+        ).one()
 
 
 def remove_muts(seq, removes, germline_seq):
@@ -183,7 +213,7 @@ def remove_muts(seq, removes, germline_seq):
         loc, _, to = mut
         loc -= 1
         if seq[loc] == to:
-            seq = seq[:loc] + germline_seq[loc] + seq[loc + 1:]
+            seq = seq[:loc] + germline_seq[loc] + seq[loc + 1 :]
     return seq
 
 
@@ -201,9 +231,9 @@ def instantiate_node(node):
 
 
 def get_nested(seqs, key):
-    return sorted({
-        s['metadata'][key] for s in seqs.values() if key in s['metadata']
-    })
+    return sorted(
+        {s['metadata'][key] for s in seqs.values() if key in s['metadata']}
+    )
 
 
 def tree_as_dict(tree, root=True):
@@ -215,16 +245,17 @@ def tree_as_dict(tree, root=True):
             'seq_ids': tree.seq_ids,
             'node_id': tree.node_id,
             'copy_number': tree.copy_number,
-            'metadata': {
-                k: get_nested(tree.seq_ids, k) for k in all_meta
-            },
-            'mutations': [{
-                'pos': mut[0],
-                'from': mut[1],
-                'to': mut[2],
-            } for mut in tree.mutations]
+            'metadata': {k: get_nested(tree.seq_ids, k) for k in all_meta},
+            'mutations': [
+                {
+                    'pos': mut[0],
+                    'from': mut[1],
+                    'to': mut[2],
+                }
+                for mut in tree.mutations
+            ],
         },
-        'children': []
+        'children': [],
     }
     for i, child in enumerate(tree.children):
         node['children'].append(tree_as_dict(child, root=False))
@@ -239,7 +270,7 @@ def tree_as_dict(tree, root=True):
             'metadata': {},
             'mutations': [],
         },
-        'children': [node]
+        'children': [node],
     }
 
 
@@ -249,14 +280,12 @@ def cut_tree(tree, max_muts, d=0):
         return [tree]
     subtrees = []
     for node in tree.children:
-        subtrees.extend(cut_tree(node, max_muts, d+1))
+        subtrees.extend(cut_tree(node, max_muts, d + 1))
     return subtrees
 
 
 def get_seq_pks(tree):
-    seq_pks = {
-        (s['sample_id'], s['ai']) for s in tree.seq_ids.values()
-    }
+    seq_pks = {(s['sample_id'], s['ai']) for s in tree.seq_ids.values()}
     for child in tree.children:
         seq_pks.update(get_seq_pks(child))
     return seq_pks

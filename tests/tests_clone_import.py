@@ -11,7 +11,7 @@ from .regression import CONFIG_PATH
 
 class TestCloneImport(BaseTest.BaseRegression):
     def __init__(self, *args, **kwargs):
-        super(TestCloneImport, self).__init__('clone_import', *args, **kwargs)
+        super().__init__('clone_import', *args, **kwargs)
 
     def setUp(self):
         self.session = config.init_db(CONFIG_PATH)
@@ -28,18 +28,25 @@ class TestCloneImport(BaseTest.BaseRegression):
 
     def test_import(self):
         import_template(
-            self.session,
-            'tests/data/clone_import/assigned.tsv',
-            True
+            self.session, 'tests/data/clone_import/assigned.tsv', True
         )
 
         self.regression(
             self.get_path('post_clone_import_clones.json'),
             self.session.query(Clone),
             'id',
-            ('id', 'functional', 'v_gene', 'j_gene', '_insertions',
-                '_deletions', 'cdr3_nt', 'cdr3_num_nts', 'cdr3_aa',
-                'germline'),
+            (
+                'id',
+                'functional',
+                'v_gene',
+                'j_gene',
+                '_insertions',
+                '_deletions',
+                'cdr3_nt',
+                'cdr3_num_nts',
+                'cdr3_aa',
+                'germline',
+            ),
         )
         self.regression(
             self.get_path('post_clone_import_assignment.json'),

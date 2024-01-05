@@ -5,9 +5,7 @@ from immunedb.importing.alignments import import_alignments
 
 class TestPipelineAIRR(BaseTest.RegressionTest):
     def __init__(self, *args, **kwargs):
-        super(TestPipelineAIRR, self).__init__(
-            'pipeline_airr', *args, **kwargs
-        )
+        super().__init__('pipeline_airr', *args, **kwargs)
 
     def identification(self):
         import_alignments(
@@ -18,13 +16,13 @@ class TestPipelineAIRR(BaseTest.RegressionTest):
                 sample_dir='tests/data/identification_import',
                 metadata=None,
                 max_vties=50,
-                min_similarity=.60,
+                min_similarity=0.60,
                 warn_existing=False,
                 warn_missing=False,
                 trim_to=None,
                 max_padding=None,
-                format='airr'
-            )
+                format='airr',
+            ),
         )
         self.session.commit()
 

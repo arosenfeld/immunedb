@@ -31,8 +31,7 @@ class ExportWriter:
     def write(self, data):
         if self.zipped:
             self.zip.writestr(
-                self.filename,
-                data if type(data) == bytes else ''.join(data)
+                self.filename, data if type(data) == bytes else ''.join(data)
             )
         else:
             if type(data) == bytes:

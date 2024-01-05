@@ -18,9 +18,7 @@ class JobQueue:
         return os.path.join(self.temp_dir, uid + ext)
 
     def _job_wrap(self, func, uid, **kwargs):
-        logger.handlers = [
-            logging.FileHandler(self.get_path(uid, '.log'))
-        ]
+        logger.handlers = [logging.FileHandler(self.get_path(uid, '.log'))]
         lock_fh = open(self.get_path(uid, '.LOCK'), 'wb+')
         with open(self.get_path(uid, '.zip'), 'wb+') as fh:
             val = func(**kwargs)
@@ -33,14 +31,13 @@ class JobQueue:
 
         job_func = partial(self._job_wrap, func, uid)
 
-        mp.Process(
-            target=job_func,
-            kwargs=kwargs
-        ).start()
-        self.files.extend([
-            self.get_path(uid, '.log'),
-            self.get_path(uid, '.zip'),
-        ])
+        mp.Process(target=job_func, kwargs=kwargs).start()
+        self.files.extend(
+            [
+                self.get_path(uid, '.log'),
+                self.get_path(uid, '.zip'),
+            ]
+        )
 
         return uid
 

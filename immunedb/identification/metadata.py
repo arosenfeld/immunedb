@@ -22,7 +22,9 @@ def check_populated(row):
             raise MetadataException('Sample name cannot be blank')
         raise MetadataException(
             'Fields {} cannot be blank for sample {}'.format(
-                ','.join(missing), row['sample_name']))
+                ','.join(missing), row['sample_name']
+            )
+        )
 
 
 def parse_metadata(session, fh, warn_existing, warn_missing, path):
@@ -39,12 +41,17 @@ def parse_metadata(session, fh, warn_existing, warn_missing, path):
     if len(missing_fields) > 0:
         raise MetadataException(
             'Metadata is missing the following headers: {}'.format(
-                ','.join(missing_fields)))
+                ','.join(missing_fields)
+            )
+        )
 
     metadata = {}
     for row in reader:
-        row = {k: v for k, v in row.items()
-               if v is not None and len(v) > 0 and v.lower() not in NA_VALUES}
+        row = {
+            k: v
+            for k, v in row.items()
+            if v is not None and len(v) > 0 and v.lower() not in NA_VALUES
+        }
         if len(row) == 0:
             continue
         check_populated(row)
@@ -52,18 +59,23 @@ def parse_metadata(session, fh, warn_existing, warn_missing, path):
         if row['sample_name'] in metadata:
             raise MetadataException(
                 'Duplicate sample name {} in metadata.'.format(
-                    row['sample_name']))
+                    row['sample_name']
+                )
+            )
 
         # Check if a sample with the same name is in the database
-        sample_in_db = session.query(Sample).filter(
-            Sample.name == row['sample_name'],
-            exists().where(
-                Sequence.sample_id == Sample.id
-            )).first()
+        sample_in_db = (
+            session.query(Sample)
+            .filter(
+                Sample.name == row['sample_name'],
+                exists().where(Sequence.sample_id == Sample.id),
+            )
+            .first()
+        )
         if sample_in_db:
             message = 'Sample {} already exists. {}'.format(
                 row['sample_name'],
-                'Skipping.' if warn_existing else 'Cannot continue.'
+                'Skipping.' if warn_existing else 'Cannot continue.',
             )
             if warn_existing:
                 logger.warning(message)
@@ -73,10 +85,11 @@ def parse_metadata(session, fh, warn_existing, warn_missing, path):
 
         # Check if specified file exists
         if not os.path.isfile(os.path.join(path, row['file_name'])):
-            message = (
-                'File {} for sample {} does not exist. {}'.format(
-                    row['file_name'], row['sample_name'],
-                    'Skipping.' if warn_missing else 'Cannot continue.'))
+            message = 'File {} for sample {} does not exist. {}'.format(
+                row['file_name'],
+                row['sample_name'],
+                'Skipping.' if warn_missing else 'Cannot continue.',
+            )
             if warn_missing:
                 logger.warning(message)
                 continue

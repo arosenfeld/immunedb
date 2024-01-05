@@ -7,14 +7,25 @@ import itertools
 import dnautils
 
 import immunedb.common.modification_log as mod_log
-from immunedb.identification import (add_noresults_for_vdj, add_sequences,
-                                     AlignmentException)
+from immunedb.identification import (
+    add_noresults_for_vdj,
+    add_sequences,
+    AlignmentException,
+)
 from immunedb.identification.genes import GeneName, JGermlines
 from immunedb.identification.vdj_sequence import VDJAlignment, VDJSequence
-from immunedb.identification.metadata import (parse_metadata, REQUIRED_FIELDS,
-                                              MetadataException)
-from immunedb.common.models import (CDR3_OFFSET, Sample, SampleMetadata, Study,
-                                    Subject)
+from immunedb.identification.metadata import (
+    parse_metadata,
+    REQUIRED_FIELDS,
+    MetadataException,
+)
+from immunedb.common.models import (
+    CDR3_OFFSET,
+    Sample,
+    SampleMetadata,
+    Study,
+    Subject,
+)
 import immunedb.util.concurrent as concurrent
 import immunedb.util.funcs as funcs
 from immunedb.util.log import logger
@@ -44,40 +55,42 @@ def raw_germlines(fn, gene):
     assert gene in ('v', 'j')
 
     with open(fn) as fh:
-        return CachedTies(gene, {
-            r.description: str(r.seq).upper().replace('.', '-')
-            for r in SeqIO.parse(fh, 'fasta')
-        })
+        return CachedTies(
+            gene,
+            {
+                r.description: str(r.seq).upper().replace('.', '-')
+                for r in SeqIO.parse(fh, 'fasta')
+            },
+        )
 
 
 def create_sample(session, metadata):
     study, new = funcs.get_or_create(
-        session, Study, name=metadata['study_name'])
+        session, Study, name=metadata['study_name']
+    )
 
     if new:
         logger.info(f'Created new study "{study.name}"')
         session.commit()
 
     sample, new = funcs.get_or_create(
-        session, Sample, name=metadata['sample_name'], study=study)
+        session, Sample, name=metadata['sample_name'], study=study
+    )
     if new:
         logger.info(f'Created new sample "{sample.name}"')
         for key, value in metadata.items():
             if key not in REQUIRED_FIELDS:
-                session.add(SampleMetadata(
-                    sample=sample,
-                    key=key,
-                    value=value
-                ))
+                session.add(SampleMetadata(sample=sample, key=key, value=value))
 
         subject, new = funcs.get_or_create(
-            session, Subject, study=study,
-            identifier=metadata['subject'])
+            session, Subject, study=study, identifier=metadata['subject']
+        )
         sample.subject = subject
         session.commit()
     else:
         logger.error(
-            'Sample "{}" already exists'.format(metadata['sample_name']))
+            'Sample "{}" already exists'.format(metadata['sample_name'])
+        )
         return
     return sample
 
@@ -92,8 +105,9 @@ def collapse_duplicates(bucket):
             if alignment.cdr3 not in uniques:
                 uniques[alignment.cdr3] = alignment
             else:
-                uniques[alignment.cdr3].sequence.copy_number += (
-                    alignment.sequence.copy_number)
+                uniques[
+                    alignment.cdr3
+                ].sequence.copy_number += alignment.sequence.copy_number
 
         logger.info(
             'Bucket {v_gene} {j_gene} {cdr3_num_nts} had {cnt} '
@@ -102,12 +116,11 @@ def collapse_duplicates(bucket):
                 j_gene=[g.name for g in bucket[0].j_gene],
                 cdr3_num_nts=bucket[0].cdr3_num_nts,
                 cnt=len(bucket),
-                new_cnt=len(uniques))
+                new_cnt=len(uniques),
+            )
         )
         bucket = sorted(
-            uniques.values(),
-            key=lambda s: s.sequence.copy_number,
-            reverse=True
+            uniques.values(), key=lambda s: s.sequence.copy_number, reverse=True
         )
 
     return collapse_duplicate_alignments(bucket)
@@ -118,15 +131,19 @@ def collapse_duplicate_alignments(bucket):
     while bucket:
         alignment = bucket.pop()
         for i, other_alignment in enumerate(bucket):
-            if (len(alignment.sequence.sequence) !=
-                    len(other_alignment.sequence.sequence)):
-                logger.warning('Sequence lengths differ {} {}'.format(
-                    alignment.sequence.seq_id,
-                    other_alignment.sequence.seq_id)
+            if len(alignment.sequence.sequence) != len(
+                other_alignment.sequence.sequence
+            ):
+                logger.warning(
+                    'Sequence lengths differ {} {}'.format(
+                        alignment.sequence.seq_id,
+                        other_alignment.sequence.seq_id,
+                    )
                 )
                 continue
-            if dnautils.equal(alignment.sequence.sequence,
-                              other_alignment.sequence.sequence):
+            if dnautils.equal(
+                alignment.sequence.sequence, other_alignment.sequence.sequence
+            ):
                 alignment.sequence.copy_number += (
                     other_alignment.sequence.copy_number
                 )
@@ -141,29 +158,25 @@ def process_line(line, alignment_func, props, v_germlines, j_germlines):
         if props.trim_to:
             alignment.trim_to(props.trim_to)
         props.validate(alignment)
-        return {
-            'status': 'success',
-            'alignment': alignment
-        }
+        return {'status': 'success', 'alignment': alignment}
     except AlignmentException as e:
         if len(e.args) == 1:
             vdj, msg = alignment.sequence, str(e)
         else:
             vdj, msg = e.args
 
-        return {
-            'status': 'noresult',
-            'vdj': vdj,
-            'reason': msg
-        }
+        return {'status': 'noresult', 'vdj': vdj, 'reason': msg}
 
 
 def aggregate_results(results, session, sample):
     alignments = {}
     success = [r for r in results if r['status'] == 'success']
     noresults = [r for r in results if r['status'] == 'noresult']
-    logger.info('{} total sequences ({} alignments, {} noresults)'.format(
-        len(results), len(success), len(noresults)))
+    logger.info(
+        '{} total sequences ({} alignments, {} noresults)'.format(
+            len(results), len(success), len(noresults)
+        )
+    )
 
     for result in success:
         alignment = result['alignment']
@@ -172,7 +185,7 @@ def aggregate_results(results, session, sample):
             funcs.format_ties(alignment.j_gene),
             alignment.cdr3_num_nts,
             tuple(alignment.insertions),
-            tuple(alignment.deletions)
+            tuple(alignment.deletions),
         )
         alignments.setdefault(key, []).append(alignment)
 
@@ -182,8 +195,9 @@ def aggregate_results(results, session, sample):
         copies += result['vdj'].copy_number
         for i in range(result['vdj'].copy_number):
             result['vdj'].seq_id = f'{orig_id}_{i}'
-            add_noresults_for_vdj(session, result['vdj'], sample,
-                                  result['reason'])
+            add_noresults_for_vdj(
+                session, result['vdj'], sample, result['reason']
+            )
         if copies % 1000 == 0:
             session.commit()
 
@@ -193,8 +207,9 @@ def aggregate_results(results, session, sample):
 
 def add_results(uniques, sample, session):
     metrics = {'muts': [], 'lens': []}
-    for unique in funcs.periodic_commit(session, itertools.chain(*uniques),
-                                        interval=1000):
+    for unique in funcs.periodic_commit(
+        session, itertools.chain(*uniques), interval=1000
+    ):
         try:
             add_sequences(session, [unique], sample)
             metrics['lens'].append(unique.v_length)
@@ -208,8 +223,17 @@ def add_results(uniques, sample, session):
     session.commit()
 
 
-def parse_file(fh, sample, session, alignment_func, props, v_germlines,
-               j_germlines, nproc, preprocess_func=None):
+def parse_file(
+    fh,
+    sample,
+    session,
+    alignment_func,
+    props,
+    v_germlines,
+    j_germlines,
+    nproc,
+    preprocess_func=None,
+):
     start = time.time()
     reader = csv.DictReader(fh, delimiter='\t')
     if preprocess_func:
@@ -224,12 +248,9 @@ def parse_file(fh, sample, session, alignment_func, props, v_germlines,
             'alignment_func': alignment_func,
             'props': props,
             'v_germlines': v_germlines,
-            'j_germlines': j_germlines
+            'j_germlines': j_germlines,
         },
-        aggregate_args={
-            'session': session,
-            'sample': sample
-        }
+        aggregate_args={'session': session, 'sample': sample},
     )
 
     logger.info(f'There are {len(alignments)} buckets to collapse')
@@ -238,14 +259,14 @@ def parse_file(fh, sample, session, alignment_func, props, v_germlines,
         collapse_duplicates,
         add_results,
         nproc,
-        aggregate_args={
-            'session': session,
-            'sample': sample
-        }
+        aggregate_args={'session': session, 'sample': sample},
     )
 
-    logger.info('Completed sample {} in {}m'.format(
-        sample.name, round((time.time() - start) / 60., 1)))
+    logger.info(
+        'Completed sample {} in {}m'.format(
+            sample.name, round((time.time() - start) / 60.0, 1)
+        )
+    )
 
 
 def add_imgt_gaps(germline, sequence):
@@ -290,17 +311,19 @@ def preprocess_airr(reader):
         line = {k: full_line[k] for k in headers_to_keep}
         copies = re.search(r'DUPCOUNT=(\d+)', line['sequence_id'])
         copies = int(copies.group(1)) if copies else 1
-        line['sequence_id'] = line['sequence_id'].split(
-            '|DUPCOUNT')[0].replace('reversed|', '')
+        line['sequence_id'] = (
+            line['sequence_id'].split('|DUPCOUNT')[0].replace('reversed|', '')
+        )
         if line['sequence_alignment'] in seen:
             seen[line['sequence_alignment']]['copy_number'] += copies
         else:
             line['copy_number'] = copies
             seen[line['sequence_alignment']] = line
-    logger.info('Sample has {} total copies, {} unique'.format(
-        sum([s['copy_number'] for s in seen.values()]),
-        len(seen)
-    ))
+    logger.info(
+        'Sample has {} total copies, {} unique'.format(
+            sum([s['copy_number'] for s in seen.values()]), len(seen)
+        )
+    )
     return sorted(seen.values(), key=lambda s: s['sequence_id'])
 
 
@@ -308,10 +331,16 @@ def parse_airr(line, v_germlines, j_germlines):
     seq = VDJSequence(
         seq_id=line['sequence_id'].replace('reversed|', ''),
         sequence=line['sequence_alignment'],
-        copy_number=line['copy_number']
+        copy_number=line['copy_number'],
     )
-    if not all([line['sequence_id'], line['v_call'], line['j_call'],
-                line['junction_aa']]):
+    if not all(
+        [
+            line['sequence_id'],
+            line['v_call'],
+            line['j_call'],
+            line['junction_aa'],
+        ]
+    ):
         raise AlignmentException(seq, 'Missing v_gene, j_gene, or junction_aa')
 
     seq.pad(int(line['v_germline_start']) - 1)
@@ -319,14 +348,15 @@ def parse_airr(line, v_germlines, j_germlines):
         v_germ_seq = v_germlines.get_ties(line['v_call'].split(','))
     except KeyError:
         raise AlignmentException(
-            seq,
-            'V-gene {} not in germline database'.format(line['v_call'])
+            seq, 'V-gene {} not in germline database'.format(line['v_call'])
         )
 
-    aligned_germ = ''.join([
-        v_germ_seq.replace('-', '')[:int(line['v_germline_start']) - 1],
-        line['germline_alignment']
-    ])
+    aligned_germ = ''.join(
+        [
+            v_germ_seq.replace('-', '')[: int(line['v_germline_start']) - 1],
+            line['germline_alignment'],
+        ]
+    )
     # Append the missing portion, if any, of the J to the germline
     j_germ_seq = j_germlines.get_ties(line['j_call'].split(','))
     append_j = len(j_germ_seq) - int(line['j_germline_end'])
@@ -338,9 +368,9 @@ def parse_airr(line, v_germlines, j_germlines):
         seq.pad_right(append_j)
 
     aligned_seq, gaps_added = add_imgt_gaps(v_germ_seq, seq)
-    aligned_germ = add_imgt_gaps(
-        v_germ_seq, VDJSequence('', aligned_germ)
-    )[0].sequence
+    aligned_germ = add_imgt_gaps(v_germ_seq, VDJSequence('', aligned_germ))[
+        0
+    ].sequence
     cdr3_start = int(line['cdr3_start']) - int(line['v_sequence_start'])
     # Push the start of the CDR3 based on number of IMGT gaps added.  Then add
     # 3 because IgBLAST's CDR3 excludes the preserved Cysteine
@@ -350,10 +380,10 @@ def parse_airr(line, v_germlines, j_germlines):
     cdr3_end = cdr3_start + len(line['cdr3']) + 6
     # If there is an insertion in the CDR3 but not junction, increase CDR3
     # length
-    junction_insertions = aligned_germ[cdr3_end - 3:cdr3_end].count('-')
+    junction_insertions = aligned_germ[cdr3_end - 3 : cdr3_end].count('-')
     cdr3_end += junction_insertions
 
-    junction_insertions = aligned_germ[cdr3_start:cdr3_start + 3].count('-')
+    junction_insertions = aligned_germ[cdr3_start : cdr3_start + 3].count('-')
     cdr3_start -= junction_insertions
 
     cdr3_seq = aligned_seq.sequence[cdr3_start:cdr3_end]
@@ -361,46 +391,60 @@ def parse_airr(line, v_germlines, j_germlines):
 
     germline_cdr3 = aligned_germ[cdr3_start:cdr3_end]
 
-    aligned_germ = ''.join([
-        aligned_germ[:cdr3_start],
-        '.' * (cdr3_end - cdr3_start),
-        aligned_germ[cdr3_end + cdr3_deletions:].ljust(
-            JGermlines.defaults['upstream_of_cdr3'], 'N'
-        )
-    ])
+    aligned_germ = ''.join(
+        [
+            aligned_germ[:cdr3_start],
+            '.' * (cdr3_end - cdr3_start),
+            aligned_germ[cdr3_end + cdr3_deletions :].ljust(
+                JGermlines.defaults['upstream_of_cdr3'], 'N'
+            ),
+        ]
+    )
     gap = re.match('[.]+', aligned_germ)
     if gap:
-        aligned_germ = ('N' * gap.end()) + aligned_germ[gap.end():]
+        aligned_germ = ('N' * gap.end()) + aligned_germ[gap.end() :]
 
-    aligned_seq = ''.join([
-        aligned_seq.sequence[:cdr3_start],
-        cdr3_seq.replace('-', ''),
-        aligned_seq.sequence[cdr3_end:].ljust(
-            JGermlines.defaults['upstream_of_cdr3'], 'N'
-        )
-    ])
+    aligned_seq = ''.join(
+        [
+            aligned_seq.sequence[:cdr3_start],
+            cdr3_seq.replace('-', ''),
+            aligned_seq.sequence[cdr3_end:].ljust(
+                JGermlines.defaults['upstream_of_cdr3'], 'N'
+            ),
+        ]
+    )
     gap = re.match('[.]+', aligned_seq)
     if gap:
-        aligned_seq = ('N' * gap.end()) + aligned_seq[gap.end():]
+        aligned_seq = ('N' * gap.end()) + aligned_seq[gap.end() :]
 
     total_insertions = line['v_germline_alignment'].count('-')
     correct_cdr3_start = CDR3_OFFSET + total_insertions
     if cdr3_start != correct_cdr3_start:
         raise AlignmentException(
-            seq, 'CDR3 starts at {} instead of {} ({} insertions)'.format(
-                cdr3_start, correct_cdr3_start, total_insertions))
+            seq,
+            'CDR3 starts at {} instead of {} ({} insertions)'.format(
+                cdr3_start, correct_cdr3_start, total_insertions
+            ),
+        )
 
     if len(aligned_germ) != len(aligned_seq):
         raise AlignmentException(
-            seq, 'Germline length {} != sequence length {}'.format(
-                len(aligned_germ), len(aligned_seq)))
+            seq,
+            'Germline length {} != sequence length {}'.format(
+                len(aligned_germ), len(aligned_seq)
+            ),
+        )
 
-    alignment = funcs.ClassProxy(VDJAlignment(
-        VDJSequence(
-            line['sequence_id'],
-            aligned_seq.replace('.', '-'),
-            rev_comp=line['rev_comp'] == 'T',
-            copy_number=line['copy_number'])))
+    alignment = funcs.ClassProxy(
+        VDJAlignment(
+            VDJSequence(
+                line['sequence_id'],
+                aligned_seq.replace('.', '-'),
+                rev_comp=line['rev_comp'] == 'T',
+                copy_number=line['copy_number'],
+            )
+        )
+    )
     alignment.germline = aligned_germ.replace('.', '-')
     alignment.v_gene = {GeneName(c) for c in line['v_call'].split(',')}
     alignment.j_gene = {GeneName(c) for c in line['j_call'].split(',')}
@@ -410,8 +454,9 @@ def parse_airr(line, v_germlines, j_germlines):
     alignment.germline_cdr3 = germline_cdr3
     alignment.seq_offset = int(line['v_germline_start']) - 1
     alignment.v_length = int(line['v_alignment_end'])
-    alignment.j_length = (int(line['j_alignment_end']) -
-                          int(line['j_alignment_start']))
+    alignment.j_length = int(line['j_alignment_end']) - int(
+        line['j_alignment_start']
+    )
     alignment.v_mutation_fraction = (100 - float(line['v_identity'])) / 100
     # Skipping the germline_cdr3 field and instead populating its dependencies
     # via the proxy
@@ -424,21 +469,30 @@ def parse_airr(line, v_germlines, j_germlines):
 
 
 def import_alignments(session, args):
-    mod_log.make_mod('import_alignments', session=session, commit=True,
-                     info=vars(args))
+    mod_log.make_mod(
+        'import_alignments', session=session, commit=True, info=vars(args)
+    )
     parse_funcs = {
         'airr': (parse_airr, preprocess_airr),
     }
 
-    meta_fn = args.metadata if args.metadata else os.path.join(
-        args.sample_dir, 'metadata.tsv')
+    meta_fn = (
+        args.metadata
+        if args.metadata
+        else os.path.join(args.sample_dir, 'metadata.tsv')
+    )
     if not os.path.isfile(meta_fn):
         logger.error('Metadata file not found.')
         return
     with open(meta_fn) as fh:
         try:
-            metadata = parse_metadata(session, fh, args.warn_existing,
-                                      args.warn_missing, args.sample_dir)
+            metadata = parse_metadata(
+                session,
+                fh,
+                args.warn_existing,
+                args.warn_missing,
+                args.sample_dir,
+            )
         except MetadataException as ex:
             logger.error(ex)
             return
@@ -451,9 +505,17 @@ def import_alignments(session, args):
         sample = create_sample(session, metadata[sample_name])
         if sample:
             path = os.path.join(
-                args.sample_dir, metadata[sample_name]['file_name'])
+                args.sample_dir, metadata[sample_name]['file_name']
+            )
             with open(path) as fh:
-                parse_file(fh, sample, session, parse_funcs[args.format][0],
-                           props, v_germlines, j_germlines,
-                           args.nproc,
-                           preprocess_func=parse_funcs[args.format][1])
+                parse_file(
+                    fh,
+                    sample,
+                    session,
+                    parse_funcs[args.format][0],
+                    props,
+                    v_germlines,
+                    j_germlines,
+                    args.nproc,
+                    preprocess_func=parse_funcs[args.format][1],
+                )

@@ -28,13 +28,7 @@ def find_removals(tree, cutoff, found=None):
 
 def trim_clones(session, args):
     removals = set()
-    clones = (
-        session
-        .query(Clone.tree)
-        .filter(
-            Clone.id == 7972
-        )
-    )
+    clones = session.query(Clone.tree).filter(Clone.id == 7972)
     for clone in clones:
         removals = removals.union(
             find_removals(json.loads(clone.tree)['tree'], args.cutoff)

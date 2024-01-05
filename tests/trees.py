@@ -18,8 +18,10 @@ def get_height(tree):
         max_height = max(max_height, get_height(child))
 
     # For single-node unmutated clones
-    if ((len(tree['children']) == 1 and
-            len(tree['children'][0]['data']['mutations']) == 0)):
+    if (
+        len(tree['children']) == 1
+        and len(tree['children'][0]['data']['mutations']) == 0
+    ):
         return max_height
     return 1 + max_height
 
@@ -55,12 +57,19 @@ def get_max_leaf_dist(tree):
 def tree_compare(found, correct, error):
     found = json.loads(found)['tree']
     correct = json.loads(correct)['tree']
-    metrics = [get_leaves, get_height, get_height_muts, get_node_num,
-               get_max_leaf_dist]
+    metrics = [
+        get_leaves,
+        get_height,
+        get_height_muts,
+        get_node_num,
+        get_max_leaf_dist,
+    ]
 
     for metric_func in metrics:
         found_v = metric_func(found)
         correct_v = metric_func(correct)
-        assert found_v == correct_v, \
-            'Trees mismatch with {}: {} should be {}'.format(
-                    metric_func.__name__, found_v, correct_v)
+        assert (
+            found_v == correct_v
+        ), 'Trees mismatch with {}: {} should be {}'.format(
+            metric_func.__name__, found_v, correct_v
+        )

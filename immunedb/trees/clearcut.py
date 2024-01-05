@@ -12,8 +12,13 @@ from immunedb.util.log import logger
 
 
 def get_newick(fasta_input):
-    proc = Popen(shlex.split('clearcut --alignment -q --DNA -N -r'),
-                 stdin=PIPE, stdout=PIPE, stderr=PIPE, encoding='utf8')
+    proc = Popen(
+        shlex.split('clearcut --alignment -q --DNA -N -r'),
+        stdin=PIPE,
+        stdout=PIPE,
+        stderr=PIPE,
+        encoding='utf8',
+    )
     return proc.communicate(input=fasta_input)[0]
 
 
@@ -111,12 +116,12 @@ def are_null_nodes(tree):
 
 def run_clearcut(session, args):
     if args.clone_ids is not None:
-        clones = session.query(Clone.id).filter(
-            Clone.id.in_(args.clone_ids))
+        clones = session.query(Clone.id).filter(Clone.id.in_(args.clone_ids))
     else:
         if args.subject_ids is not None:
             clones = session.query(Clone.id).filter(
-                Clone.subject_id.in_(args.subject_ids))
+                Clone.subject_id.in_(args.subject_ids)
+            )
         else:
             clones = session.query(Clone.id)
 
@@ -124,8 +129,9 @@ def run_clearcut(session, args):
         clones = clones.filter(Clone.tree.is_(None))
 
     clones = [c.id for c in clones]
-    mod_log.make_mod('clone_tree', session=session, commit=True,
-                     info=vars(args))
+    mod_log.make_mod(
+        'clone_tree', session=session, commit=True, info=vars(args)
+    )
 
     tasks = concurrent.TaskQueue()
 
@@ -135,14 +141,19 @@ def run_clearcut(session, args):
 
     for _ in range(0, args.nproc):
         session = config.init_db(args.db_config)
-        tasks.add_worker(LineageWorker(
-            session, get_newick,
-            args.min_mut_copies, args.min_mut_samples,
-            args.min_seq_copies,
-            args.min_seq_samples,
-            args.exclude_stops,
-            args.full_seq,
-            args.max_muts,
-            post_tree_hook=minimize_tree))
+        tasks.add_worker(
+            LineageWorker(
+                session,
+                get_newick,
+                args.min_mut_copies,
+                args.min_mut_samples,
+                args.min_seq_copies,
+                args.min_seq_samples,
+                args.exclude_stops,
+                args.full_seq,
+                args.max_muts,
+                post_tree_hook=minimize_tree,
+            )
+        )
 
     tasks.start()

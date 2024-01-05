@@ -29,8 +29,9 @@ class AnchorAligner:
     def _find_index(self, sequence, germline):
         best_pos, best_hamming = None, None
         for pos in range(len(sequence) - len(germline)):
-            hamming = dnautils.hamming(sequence[pos:pos + len(germline)],
-                                       germline) / len(germline)
+            hamming = dnautils.hamming(
+                sequence[pos : pos + len(germline)], germline
+            ) / len(germline)
             if best_hamming is None or hamming < best_hamming:
                 best_pos = pos
                 best_hamming = hamming
@@ -38,8 +39,9 @@ class AnchorAligner:
 
         rc = sequence.reverse_complement()
         for pos in range(len(rc) - len(germline) + 1):
-            hamming = dnautils.hamming(rc[pos:pos + len(germline)],
-                                       germline) / len(germline)
+            hamming = dnautils.hamming(
+                rc[pos : pos + len(germline)], germline
+            ) / len(germline)
             if best_hamming is None or hamming < best_hamming:
                 best_pos = pos
                 best_hamming = hamming
@@ -83,9 +85,9 @@ class AnchorAligner:
         total_best_rc, total_best_pos = None, None
         for j_gene, germ_seq in self.j_germlines.items():
             best_pos, best_hamming, is_rc = self._find_index(
-                alignment.sequence, germ_seq)
-            if (total_best_hamming is None or
-                    best_hamming < total_best_hamming):
+                alignment.sequence, germ_seq
+            )
+            if total_best_hamming is None or best_hamming < total_best_hamming:
                 total_best_hamming = best_hamming
                 total_best_pos = best_pos
                 total_best_rc = is_rc
@@ -93,8 +95,9 @@ class AnchorAligner:
         if total_best_rc:
             alignment.sequence = rc
 
-        return self.process_j(alignment, total_best_pos,
-                              self.j_germlines.anchor_len, limit_js)
+        return self.process_j(
+            alignment, total_best_pos, self.j_germlines.anchor_len, limit_js
+        )
 
     def process_j(self, alignment, i, match_len, limit_js):
         # If a match is found, record its location and gene
@@ -104,17 +107,16 @@ class AnchorAligner:
             alignment.sequence.pad_right(end_of_j - len(alignment.sequence))
         if limit_js:
             j_germs = {
-                k: v for k, v in self.j_germlines.items()
-                if k.name in limit_js
+                k: v for k, v in self.j_germlines.items() if k.name in limit_js
             }
         else:
             j_germs = self.j_germlines
 
         best_dist = None
         for j_gene, j_seq in j_germs.items():
-            seq_j = alignment.sequence[end_of_j - len(j_seq):end_of_j]
+            seq_j = alignment.sequence[end_of_j - len(j_seq) : end_of_j]
             if seq_j:
-                dist = dnautils.hamming(seq_j, j_seq[:len(seq_j)]) / len(seq_j)
+                dist = dnautils.hamming(seq_j, j_seq[: len(seq_j)]) / len(seq_j)
                 if best_dist is None or dist < best_dist:
                     best_dist = dist
                     alignment.j_gene = {j_gene}
@@ -131,27 +133,29 @@ class AnchorAligner:
         # Get the portion of the germline J in the CDR3
         germline_in_cdr3 = self.j_germlines.get_j_in_cdr3(ex_j)
         cdr3_end_pos = (
-            alignment.j_anchor_pos + self.j_germlines.anchor_len -
-            self.j_germlines.upstream_of_cdr3
+            alignment.j_anchor_pos
+            + self.j_germlines.anchor_len
+            - self.j_germlines.upstream_of_cdr3
         )
         sequence_in_cdr3 = alignment.sequence[
-            cdr3_end_pos - len(germline_in_cdr3):
-            cdr3_end_pos
+            cdr3_end_pos - len(germline_in_cdr3) : cdr3_end_pos
         ]
         if len(germline_in_cdr3) == 0 or len(sequence_in_cdr3) == 0:
             alignment.j_gene = set()
-            raise AlignmentException('Could not find sequence or germline in '
-                                     'CDR3')
+            raise AlignmentException(
+                'Could not find sequence or germline in ' 'CDR3'
+            )
 
         # Get the extent of the J in the CDR3
         streak = dnautils.find_streak_position(
             germline_in_cdr3[::-1],
             sequence_in_cdr3[::-1],
-            self.MISMATCH_THRESHOLD)
+            self.MISMATCH_THRESHOLD,
+        )
 
         # Trim the J gene based on the extent in the CDR3
         if streak is not None:
-            j_full = j_full[len(germline_in_cdr3) - streak:]
+            j_full = j_full[len(germline_in_cdr3) - streak :]
             alignment.germline_cdr3 = germline_in_cdr3[-streak:]
         else:
             alignment.germline_cdr3 = germline_in_cdr3
@@ -161,7 +165,9 @@ class AnchorAligner:
 
         # If the trimmed germline J extends past the end of the
         # sequence, there is a misalignment
-        if len(j_full) != len(alignment.sequence[j_start:j_start+len(j_full)]):
+        if len(j_full) != len(
+            alignment.sequence[j_start : j_start + len(j_full)]
+        ):
             alignment.j_gene = set()
             raise AlignmentException('Germline extended past end of J')
 
@@ -184,9 +190,9 @@ class AnchorAligner:
             if limit_vs is not None and v.name not in limit_vs:
                 continue
             try:
-                dist, total_length = germ.compare(aligned_v,
-                                                  alignment.j_anchor_pos,
-                                                  self.MISMATCH_THRESHOLD)
+                dist, total_length = germ.compare(
+                    aligned_v, alignment.j_anchor_pos, self.MISMATCH_THRESHOLD
+                )
             except Exception:
                 continue
             # Record this germline if it is has the lowest distance
@@ -209,9 +215,11 @@ class AnchorAligner:
     def align_to_germline(self, alignment, avg_len=None, avg_mut=None):
         if avg_len is not None and avg_mut is not None:
             alignment.v_gene = self.v_germlines.get_ties(
-                alignment.v_gene, avg_len, avg_mut)
+                alignment.v_gene, avg_len, avg_mut
+            )
             alignment.j_gene = self.j_germlines.get_ties(
-                alignment.j_gene, avg_len, avg_mut)
+                alignment.j_gene, avg_len, avg_mut
+            )
         # Set the germline to the V gene up to the CDR3
         germ = get_common_seq(
             [self.v_germlines[v] for v in alignment.v_gene], cutoff=False
@@ -238,19 +246,26 @@ class AnchorAligner:
         )
         # Calculate the length of the CDR3
         alignment.cdr3_num_nts = (
-            alignment.j_anchor_pos + self.j_germlines.anchor_len -
-            self.j_germlines.upstream_of_cdr3 - alignment.cdr3_start
+            alignment.j_anchor_pos
+            + self.j_germlines.anchor_len
+            - self.j_germlines.upstream_of_cdr3
+            - alignment.cdr3_start
         )
 
         v_end = alignment.seq_start + alignment.num_gaps + alignment.v_length
         v_germ = germ[CDR3_OFFSET:v_end]
-        alignment.germline_cdr3 = ''.join((
-            v_germ,
-            '-' * (alignment.cdr3_num_nts -
-                   len(v_germ) -
-                   len(alignment.germline_cdr3)),
-            alignment.germline_cdr3
-        ))
+        alignment.germline_cdr3 = ''.join(
+            (
+                v_germ,
+                '-'
+                * (
+                    alignment.cdr3_num_nts
+                    - len(v_germ)
+                    - len(alignment.germline_cdr3)
+                ),
+                alignment.germline_cdr3,
+            )
+        )
 
         if alignment.cdr3_num_nts < 3:
             raise AlignmentException('CDR3 has no AAs')
@@ -258,12 +273,13 @@ class AnchorAligner:
         alignment.j_anchor_pos += alignment.cdr3_num_nts
         # Fill germline CDR3 with gaps
         alignment.germline += '-' * alignment.cdr3_num_nts
-        alignment.germline += j_germ[-self.j_germlines.upstream_of_cdr3:]
+        alignment.germline += j_germ[-self.j_germlines.upstream_of_cdr3 :]
         # If the sequence is longer than the germline, trim it
         if len(alignment.sequence) > len(alignment.germline):
             alignment.sequence.trim_right(len(alignment.germline))
         elif len(alignment.sequence) < len(alignment.germline):
-            alignment.sequence.pad_right(len(alignment.germline) -
-                                         len(alignment.sequence))
+            alignment.sequence.pad_right(
+                len(alignment.germline) - len(alignment.sequence)
+            )
         if len(alignment.cdr3) != alignment.cdr3_num_nts:
             raise AlignmentException('Invalid CDR3 length')
