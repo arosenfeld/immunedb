@@ -10,7 +10,7 @@ the ImmuneDB Docker image:
 
 .. code-block:: bash
 
-    $ docker pull arosenfeld/immunedb
+    $ docker pull  ghcr.io/arosenfeld/immunedb
 
 
 .. _running-the-container:
