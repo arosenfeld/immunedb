@@ -7,7 +7,7 @@ import immunedb.util.lookups as lookups
 import immunedb.util.funcs as funcs
 
 
-class ContextualMutations(object):
+class ContextualMutations:
     """Calculates the mutations of a set of sequences within a given
     context.
 
@@ -19,7 +19,7 @@ class ContextualMutations(object):
     def __init__(self, regions):
         self._seen = {}
         self._regions = regions
-        self._pos_seen = set([])
+        self._pos_seen = set()
         self.region_muts = {}
         self.position_muts = {}
 
@@ -97,7 +97,7 @@ class ContextualMutations(object):
         }
 
 
-class CloneMutations(object):
+class CloneMutations:
     def __init__(self, session, clone):
         self._clone = clone
         self._session = session

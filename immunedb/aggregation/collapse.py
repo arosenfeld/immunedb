@@ -45,7 +45,7 @@ class CollapseWorker(concurrent.Worker):
             larger = to_process.pop(0)
             # Iterate over all smaller sequences to find matches
             instances = 1
-            samples = set([larger['sample_id']])
+            samples = {larger['sample_id']}
             for i in reversed(range(len(to_process))):
                 smaller = to_process[i]
                 if len(larger['sequence']) != len(smaller['sequence']):
@@ -88,7 +88,7 @@ class CollapseWorker(concurrent.Worker):
         self._session.commit()
         self._tasks += 1
         if self._tasks > 0 and self._tasks % 100 == 0:
-            self.info('Collapsed {} buckets'.format(self._tasks))
+            self.info(f'Collapsed {self._tasks} buckets')
 
     def cleanup(self):
         self.info('Committing collapsed sequences')
@@ -121,7 +121,7 @@ def run_collapse(session, args):
                     SequenceCollapse.sample_id == sample.id
                 ).delete(synchronize_session=False)
                 sample.sample_stats = []
-            logger.info('Resetting clone info for subject {}'.format(subject))
+            logger.info(f'Resetting clone info for subject {subject}')
             session.query(Clone).filter(Clone.subject_id == subject).delete()
             subject_ids.append(subject)
     session.commit()
@@ -144,7 +144,7 @@ def run_collapse(session, args):
         for bucket in buckets:
             tasks.add_task(bucket)
 
-    logger.info('Generated {} total tasks'.format(tasks.num_tasks()))
+    logger.info(f'Generated {tasks.num_tasks()} total tasks')
 
     for i in range(0, min(tasks.num_tasks(), args.nproc)):
         tasks.add_worker(CollapseWorker(config.init_db(args.db_config)))

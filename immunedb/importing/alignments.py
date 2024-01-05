@@ -25,7 +25,7 @@ from immunedb.identification.identify import IdentificationProps
 
 class CachedTies(dict):
     def __init__(self, gene, *args, **kw):
-        super(CachedTies, self).__init__(*args, **kw)
+        super().__init__(*args, **kw)
         self.gene = gene
         self.ties = {}
 
@@ -55,13 +55,13 @@ def create_sample(session, metadata):
         session, Study, name=metadata['study_name'])
 
     if new:
-        logger.info('Created new study "{}"'.format(study.name))
+        logger.info(f'Created new study "{study.name}"')
         session.commit()
 
     sample, new = funcs.get_or_create(
         session, Sample, name=metadata['sample_name'], study=study)
     if new:
-        logger.info('Created new sample "{}"'.format(sample.name))
+        logger.info(f'Created new sample "{sample.name}"')
         for key, value in metadata.items():
             if key not in REQUIRED_FIELDS:
                 session.add(SampleMetadata(
@@ -181,7 +181,7 @@ def aggregate_results(results, session, sample):
         orig_id = result['vdj'].seq_id
         copies += result['vdj'].copy_number
         for i in range(result['vdj'].copy_number):
-            result['vdj'].seq_id = '{}_{}'.format(orig_id, i)
+            result['vdj'].seq_id = f'{orig_id}_{i}'
             add_noresults_for_vdj(session, result['vdj'], sample,
                                   result['reason'])
         if copies % 1000 == 0:
@@ -232,7 +232,7 @@ def parse_file(fh, sample, session, alignment_func, props, v_germlines,
         }
     )
 
-    logger.info('There are {} buckets to collapse'.format(len(alignments)))
+    logger.info(f'There are {len(alignments)} buckets to collapse')
     concurrent.process_data(
         alignments.values(),
         collapse_duplicates,
@@ -402,8 +402,8 @@ def parse_airr(line, v_germlines, j_germlines):
             rev_comp=line['rev_comp'] == 'T',
             copy_number=line['copy_number'])))
     alignment.germline = aligned_germ.replace('.', '-')
-    alignment.v_gene = set([GeneName(c) for c in line['v_call'].split(',')])
-    alignment.j_gene = set([GeneName(c) for c in line['j_call'].split(',')])
+    alignment.v_gene = {GeneName(c) for c in line['v_call'].split(',')}
+    alignment.j_gene = {GeneName(c) for c in line['j_call'].split(',')}
     alignment.cdr3_start = cdr3_start
     alignment.cdr3_num_nts = len(cdr3_seq)
     alignment.locally_aligned = True
@@ -435,7 +435,7 @@ def import_alignments(session, args):
     if not os.path.isfile(meta_fn):
         logger.error('Metadata file not found.')
         return
-    with open(meta_fn, 'rU') as fh:
+    with open(meta_fn) as fh:
         try:
             metadata = parse_metadata(session, fh, args.warn_existing,
                                       args.warn_missing, args.sample_dir)

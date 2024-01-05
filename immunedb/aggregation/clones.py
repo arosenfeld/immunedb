@@ -95,8 +95,8 @@ def collapse_similar_cdr3s(session, buckets, difference_allowed,
         )
         for gene in restrict_genes:
             clones = clones.filter(
-                getattr(Clone, '{}_gene'.format(gene)) ==
-                getattr(bucket, '{}_gene'.format(gene))
+                getattr(Clone, f'{gene}_gene') ==
+                getattr(bucket, f'{gene}_gene')
             )
 
         clones = clones.order_by(
@@ -111,7 +111,7 @@ def collapse_similar_cdr3s(session, buckets, difference_allowed,
             i, total_buckets, clones_cnt))
         collapsed = {}
         for c in clones:
-            cdr3 = getattr(c, 'cdr3_{}'.format(level)).replace('X', '-')
+            cdr3 = getattr(c, f'cdr3_{level}').replace('X', '-')
             for larger_cdr3, others in collapsed.items():
                 diff = dnautils.hamming(larger_cdr3, cdr3)
                 if difference_metric == 'percent':
@@ -201,7 +201,7 @@ class ClonalWorker(concurrent.Worker):
         self._tasks += 1
         if self._tasks % 100 == 0:
             self.session.commit()
-            self.info('Collapsed {} buckets'.format(self._tasks))
+            self.info(f'Collapsed {self._tasks} buckets')
 
     def cleanup(self):
         self.session.commit()
@@ -211,7 +211,7 @@ class ClonalWorker(concurrent.Worker):
 class SimilarityClonalWorker(ClonalWorker):
     def run_bucket(self, bucket):
         clones = OrderedDict()
-        consensus_needed = set([])
+        consensus_needed = set()
         query = self.get_bucket_seqs(bucket, sort=True)
 
         if query.count() > 0:
@@ -356,7 +356,7 @@ def run_clones(session, args):
                 tasks.add_task(bucket)
         all_buckets.extend(buckets)
 
-    logger.info('Generated {} total tasks'.format(tasks.num_tasks()))
+    logger.info(f'Generated {tasks.num_tasks()} total tasks')
 
     methods = {
         'similarity': SimilarityClonalWorker,
@@ -380,7 +380,7 @@ def run_clones(session, args):
             Clone.cdr3_num_nts
         ]
         for gene in args.collapse_restrict_genes:
-            bucket_key.append(getattr(Clone, '{}_gene'.format(gene)))
+            bucket_key.append(getattr(Clone, f'{gene}_gene'))
         buckets = session.query(
             *bucket_key
         ).filter(

@@ -13,7 +13,7 @@ def sliding_window_match(sequence, match):
     return r.start() if r else -1
 
 
-class AnchorAligner(object):
+class AnchorAligner:
     MISMATCH_THRESHOLD = 3
 
     def __init__(self, v_germlines, j_germlines):
@@ -117,7 +117,7 @@ class AnchorAligner(object):
                 dist = dnautils.hamming(seq_j, j_seq[:len(seq_j)]) / len(seq_j)
                 if best_dist is None or dist < best_dist:
                     best_dist = dist
-                    alignment.j_gene = set([j_gene])
+                    alignment.j_gene = {j_gene}
                 elif dist == best_dist:
                     alignment.j_gene.add(j_gene)
 
@@ -192,7 +192,7 @@ class AnchorAligner(object):
             # Record this germline if it is has the lowest distance
             if dist is not None:
                 if v_score is None or dist < v_score:
-                    alignment.v_gene = set([v])
+                    alignment.v_gene = {v}
                     alignment.v_length = total_length
                     germ_pos = germ.ungapped_anchor_pos
                     v_score = dist

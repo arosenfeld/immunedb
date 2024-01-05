@@ -34,7 +34,7 @@ def serialize_gaps(gaps):
     if gaps is None or len(gaps) == 0:
         return None
     return ','.join(
-        ['{}-{}'.format(start, end) for (start, end) in sorted(gaps)]
+        [f'{start}-{end}' for (start, end) in sorted(gaps)]
     )
 
 
@@ -408,10 +408,10 @@ class CloneStats(Base):
         aggregate = 0
         for region in ['FR1', 'CDR1', 'FR2', 'CDR2', 'FR3']:
             region_muts = muts.get(region, {})
-            aggregate += sum((
+            aggregate += sum(
                 sum([s['total'] for s in type_muts])
                 for type_muts in region_muts.values()
-            ))
+            )
         return aggregate
 
 
@@ -566,7 +566,7 @@ class Sequence(Base):
     def __init__(self, **kwargs):
         self.insertions = kwargs.pop('insertions', None)
         self.deletions = kwargs.pop('deletions', None)
-        super(Sequence, self).__init__(**kwargs)
+        super().__init__(**kwargs)
 
     sample_id = Column(Integer, ForeignKey(Sample.id))
     ai = Column(Integer, autoincrement=True, unique=True)

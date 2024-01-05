@@ -24,7 +24,7 @@ import immunedb.util.funcs as funcs
 from immunedb.util.log import logger
 
 
-class IdentificationProps(object):
+class IdentificationProps:
     defaults = {
         'max_v_ties': 50,
         'min_similarity': .60,
@@ -100,7 +100,7 @@ def setup_sample(session, meta):
     study, new = funcs.get_or_create(session, Study, name=meta['study_name'])
 
     if new:
-        logger.info('Created new study "{}"'.format(study.name))
+        logger.info(f'Created new study "{study.name}"')
         session.commit()
 
     name = meta['sample_name']
@@ -287,7 +287,7 @@ def read_input(path):
             except ValueError:
                 continue
 
-    logger.info('There are {} sequences'.format(len(vdjs)))
+    logger.info(f'There are {len(vdjs)} sequences')
     return vdjs
 
 
@@ -405,7 +405,7 @@ def run_identify(session, args):
         logger.error('Metadata file not found.')
         sys.exit(-1)
 
-    with open(meta_fn, 'rU') as fh:
+    with open(meta_fn) as fh:
         try:
             metadata = parse_metadata(session, fh, args.warn_existing,
                                       args.warn_missing, args.sample_dir)

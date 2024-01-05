@@ -14,7 +14,7 @@ from immunedb.util.log import logger
 
 def _yn_prompt(prompt):
     while True:
-        print('{} [Y/N]'.format(prompt), end=' ')
+        print(f'{prompt} [Y/N]', end=' ')
         v = input().lower()
         if v in ('y', 'n'):
             return v == 'y'
@@ -78,7 +78,7 @@ def create(main_parser, args):
                               string.digits) for _ in range(10))
 
         with conn.cursor() as cursor:
-            logger.info('Creating user "{}"'.format(db_user))
+            logger.info(f'Creating user "{db_user}"')
             existing_password = _create_user_if_not_exists(conn, '%', db_user,
                                                            db_pass)
             if existing_password is not None:
@@ -93,8 +93,8 @@ def create(main_parser, args):
                 else:
                     db_pass = args.db_pass
 
-            logger.info('Creating database "{}"'.format(args.db_name))
-            cursor.execute('CREATE DATABASE {}'.format(args.db_name))
+            logger.info(f'Creating database "{args.db_name}"')
+            cursor.execute(f'CREATE DATABASE {args.db_name}')
 
             cursor.execute(
                 'GRANT ALL PRIVILEGES ON {}.* TO \'{}\'@\'%\''.format(
@@ -102,7 +102,7 @@ def create(main_parser, args):
 
         config_path = os.path.join(args.config_dir, '{}.json'.format(
             args.db_name))
-        logger.info('Creating config at {}'.format(config_path))
+        logger.info(f'Creating config at {config_path}')
         with open(config_path, 'w+') as fh:
             json.dump({
                 'host': args.db_host,
@@ -156,7 +156,7 @@ def backup(main_parser, args):
 def restore(main_parser, args):
     with open(args.db_config) as fh:
         db_config = json.load(fh)
-    with open(args.backup_path, 'r') as fh:
+    with open(args.backup_path) as fh:
         cmd = shlex.split(
             'mysql -h {} -u {} -p{} {}'.format(db_config['host'],
                                                db_config['username'],

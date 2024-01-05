@@ -15,7 +15,7 @@ from immunedb.util.log import logger
 import immunedb.exporting as exporting
 
 
-class EnableCors(object):
+class EnableCors:
     """A class to enable Cross-Origin Resource Sharing to facilitate AJAX
     requests.
 
@@ -225,7 +225,7 @@ def create_app(db_config, allow_shutdown=False):
                     array.append([i, j, 0])
 
         return create_response({
-            'x_categories': ['{}{}'.format(prefix, e) for e in x_categories],
+            'x_categories': [f'{prefix}{e}' for e in x_categories],
             'y_categories': y_categories,
             'totals': totals,
             'data': array,

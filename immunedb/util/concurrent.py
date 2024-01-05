@@ -7,9 +7,9 @@ import time
 from immunedb.util.log import logger
 
 
-class Worker(object):
+class Worker:
     def log(self, lvl, msg):
-        logger.log(lvl, 'Worker {}: {}'.format(self._worker_id, msg))
+        logger.log(lvl, f'Worker {self._worker_id}: {msg}')
 
     def info(self, msg):
         self.log(logging.INFO, msg)
@@ -27,7 +27,7 @@ class Worker(object):
         pass
 
 
-class TaskQueue(object):
+class TaskQueue:
     def __init__(self):
         self._task_queue = mp.JoinableQueue()
         self._num_tasks = 0
@@ -101,7 +101,7 @@ def process_data(input_data, process_func, aggregate_func, nproc,
     if callable(input_data):
         start = time.time()
         input_data = input_data(**generate_args)
-        logger.info('Generate time: {}'.format(time.time() - start))
+        logger.info(f'Generate time: {time.time() - start}')
 
     with mp.Manager() as manager:
         proxy_data = manager.list(input_data)
@@ -112,15 +112,15 @@ def process_data(input_data, process_func, aggregate_func, nproc,
             proxy_data
         )
         start = time.time()
-        logger.info('Waiting on pool {}'.format(process_func.__name__))
+        logger.info(f'Waiting on pool {process_func.__name__}')
 
         res = [r for r in pool.map(f, range(len(proxy_data))) if r is not None]
         pool.close()
-    logger.info('Pool done: {}'.format(time.time() - start))
+    logger.info(f'Pool done: {time.time() - start}')
 
     start = time.time()
-    logger.info('Waiting on aggregation {}'.format(aggregate_func.__name__))
+    logger.info(f'Waiting on aggregation {aggregate_func.__name__}')
     ret = aggregate_func(res, **aggregate_args)
-    logger.info('Done aggregation: {}'.format(time.time() - start))
+    logger.info(f'Done aggregation: {time.time() - start}')
 
     return ret

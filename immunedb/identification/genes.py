@@ -15,14 +15,14 @@ class GermlineException(Exception):
     pass
 
 
-class GeneName(object):
+class GeneName:
     def __init__(self, name):
         self.name = name
         try:
             parts = re.search(r'((([A-Z]+)(\d+)([^\*]+)?)(\*(\d+))?)',
                               self.name).groups()
         except AttributeError:
-            raise AlignmentException('Invalid gene name {}'.format(name))
+            raise AlignmentException(f'Invalid gene name {name}')
 
         self.name = parts[0]
         self.base = parts[1]
@@ -61,7 +61,7 @@ class GeneTies(dict):
 
         self.allele_lookup = {}
         for name in self.keys():
-            self.allele_lookup[name] = set([])
+            self.allele_lookup[name] = set()
             for name2 in self.keys():
                 if name2.base == name.base:
                     self.allele_lookup[name].add(name2)
@@ -77,7 +77,7 @@ class GeneTies(dict):
         return ties
 
     def get_ties(self, genes, length, mutation):
-        ties = set([])
+        ties = set()
         for gene in genes:
             ties.update(self.get_single_tie(gene, length, mutation))
         return ties
@@ -85,7 +85,7 @@ class GeneTies(dict):
     def get_single_tie(self, gene, length, mutation):
         # Used to disable gene ties for genotyping
         if not self.ties:
-            return set([gene])
+            return {gene}
         length = int(length)
         mutation = round(mutation, 3)
         mutation = self.mut_bucket(mutation)
@@ -95,13 +95,13 @@ class GeneTies(dict):
             self.ties[key] = {}
 
         if gene not in self:
-            return set([gene])
+            return {gene}
 
         if gene not in self.ties[key]:
             s_1 = (
                 self[gene].replace('-', '') if self.remove_gaps else self[gene]
             )
-            self.ties[key][gene] = set([gene])
+            self.ties[key][gene] = {gene}
 
             for name, v in sorted(self.items()):
                 s_2 = v.replace('-', '') if self.remove_gaps else v
@@ -127,7 +127,7 @@ class GeneTies(dict):
         return .30
 
     def all_alleles(self, genes):
-        all_genes = set([])
+        all_genes = set()
         for gene in genes:
             all_genes.update(self.allele_lookup[gene])
         return all_genes
@@ -154,11 +154,11 @@ class VGermlines(GeneTies):
                 except Exception:
                     continue
 
-        super(VGermlines, self).__init__({k: v for k, v in self.items()},
+        super().__init__({k: v for k, v in self.items()},
                                          **kwargs)
 
     def get_single_tie(self, gene, length, mutation):
-        return super(VGermlines, self).get_single_tie(
+        return super().get_single_tie(
             gene, min(self.length_bucket(length), self._min_length), mutation
         )
 
@@ -172,7 +172,7 @@ class VGermlines(GeneTies):
         return 300
 
 
-class VGene(object):
+class VGene:
     def __init__(self, gapped_sequence):
         self.sequence = str(gapped_sequence).upper()
         self.sequence_ungapped = self.sequence.replace('-', '')
@@ -261,8 +261,7 @@ def find_v_position(sequence):
     ]
 
     for pattern in patterns:
-        for found in _find_with_frameshifts(frames, pattern):
-            yield found
+        yield from _find_with_frameshifts(frames, pattern)
 
 
 def _find_with_frameshifts(frames, regex):
@@ -300,7 +299,7 @@ class JGermlines(GeneTies):
 
         self._anchors = {name: seq[-anchor_len:] for name, seq in
                          self.items()}
-        super(JGermlines, self).__init__({k: v for k, v in self.items()},
+        super().__init__({k: v for k, v in self.items()},
                                          **kwargs)
 
     @property
@@ -334,9 +333,9 @@ class JGermlines(GeneTies):
     def get_single_tie(self, gene, length, mutation):
         # Used to disable gene ties for genotyping
         if not self.ties:
-            return set([gene])
+            return {gene}
         seq = self[gene][-self.anchor_len:]
-        tied = self.all_alleles(set([gene]))
+        tied = self.all_alleles({gene})
         for j, other_seq in sorted(self.items()):
             other_seq = other_seq[-self.anchor_len:][:len(seq)]
             if other_seq == seq:

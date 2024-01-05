@@ -7,7 +7,7 @@ from immunedb.common.models import CDR3_OFFSET
 import immunedb.util.lookups as lookups
 
 
-class VDJSequence(object):
+class VDJSequence:
     def __init__(self, seq_id, sequence, quality=None, rev_comp=False,
                  copy_number=1):
         if quality and len(sequence) != len(quality):
@@ -103,7 +103,7 @@ class VDJSequence(object):
         return len(self._sequence)
 
 
-class VDJAlignment(object):
+class VDJAlignment:
     INDEL_WINDOW = 30
     INDEL_MISMATCH_THRESHOLD = .6
 
@@ -122,8 +122,8 @@ class VDJAlignment(object):
         self.cdr3_num_nts = 0
         self.germline_cdr3 = None
         self.post_cdr3_length = 0
-        self.insertions = set([])
-        self.deletions = set([])
+        self.insertions = set()
+        self.deletions = set()
 
     @property
     def filled_germline(self):

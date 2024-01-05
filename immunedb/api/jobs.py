@@ -29,7 +29,7 @@ class JobQueue:
 
     def start_job(self, func, **kwargs):
         uid = str(uuid.uuid4())
-        logger.info('Starting job with UUID {}'.format(uid))
+        logger.info(f'Starting job with UUID {uid}')
 
         job_func = partial(self._job_wrap, func, uid)
 
@@ -51,7 +51,7 @@ class JobQueue:
 
     def get_log(self, uid):
         try:
-            return open(self.get_path(uid, '.log'), 'r', buffering=1).read()
+            return open(self.get_path(uid, '.log'), buffering=1).read()
         except FileNotFoundError:
             return None
 
@@ -60,4 +60,4 @@ class JobQueue:
             try:
                 os.remove(fn)
             except OSError as e:
-                logger.warning('Could not remove {}: {}'.format(fn, e))
+                logger.warning(f'Could not remove {fn}: {e}')

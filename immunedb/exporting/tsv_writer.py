@@ -2,7 +2,7 @@ import csv
 import io
 
 
-class StreamingTSV(object):
+class StreamingTSV:
     def __init__(self, fieldnames):
         self.out = io.StringIO()
         self.fieldnames = fieldnames

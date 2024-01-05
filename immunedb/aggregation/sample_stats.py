@@ -64,7 +64,7 @@ _clone_contexts = {
 }
 
 
-class ContextStats(object):
+class ContextStats:
     def __init__(self, record_filter):
         self._record_filter = record_filter
         self.distributions = {}
@@ -107,7 +107,7 @@ class ContextStats(object):
 
 class SeqContextStats(ContextStats):
     def __init__(self, session, record_filter, use_copy):
-        super(SeqContextStats, self).__init__(record_filter)
+        super().__init__(record_filter)
         self._session = session
         self._use_copy = use_copy
         self.quality = []
@@ -135,7 +135,7 @@ class SeqContextStats(ContextStats):
 
 class CloneContextStats(ContextStats):
     def __init__(self, record_filter, seqs):
-        super(CloneContextStats, self).__init__(record_filter)
+        super().__init__(record_filter)
         self._seqs = seqs
 
     def add_if_match(self, clone, in_frame, stop, functional):
@@ -189,7 +189,7 @@ class SampleStatsWorker(concurrent.Worker):
                 ss.quality_dist = json.dumps([])
 
             for dname, dist in stat.distributions.items():
-                setattr(ss, '{}_dist'.format(dname),
+                setattr(ss, f'{dname}_dist',
                         json.dumps([(k, v) for k, v in dist.items()]))
             self._session.add(ss)
 

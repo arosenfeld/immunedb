@@ -82,10 +82,10 @@ class SequenceWriter(StreamingTSV):
         self.mapping = mappings[format_name]
         fields = list(self.mapping.keys()) + list(sorted([
             self.META_PREFIX + m for m in metadata_fields]))
-        super(SequenceWriter, self).__init__(fields)
+        super().__init__(fields)
 
     def writeseq(self, seq):
-        return super(SequenceWriter, self).writerow(self.format_seq(seq))
+        return super().writerow(self.format_seq(seq))
 
     def format_seq(self, seq):
         fields = {
@@ -111,7 +111,7 @@ class SequenceWriter(StreamingTSV):
 
 
 def get_sequences(session, sample, fmt, clones_only, min_subject_copies):
-    meta_keys = set([m.key for m in session.query(SampleMetadata.key)])
+    meta_keys = {m.key for m in session.query(SampleMetadata.key)}
 
     seqs = session.query(Sequence).filter(
         Sequence.sample_id == sample.id
@@ -147,8 +147,8 @@ def write_sequences(session, sample_ids=None, out_format='changeo',
         samples = samples.filter(Sample.id.in_(sample_ids))
     with ExportWriter(zipped=zipped) as fh:
         for sample in samples:
-            logger.info('Exporting sample {}'.format(sample.name))
-            fh.set_filename('{}.{}.tsv'.format(sample.name, out_format))
+            logger.info(f'Exporting sample {sample.name}')
+            fh.set_filename(f'{sample.name}.{out_format}.tsv')
             fh.write(
                 get_sequences(session, sample, out_format, clones_only,
                               min_subject_copies)

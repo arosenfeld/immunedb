@@ -29,7 +29,7 @@ def get_fasta(sequences):
 
 
 def gaps_before(gaps, pos):
-    return sum((e[1] for e in gaps if e[0] < pos))
+    return sum(e[1] for e in gaps if e[0] < pos)
 
 
 def build_index(germlines, path):
@@ -104,7 +104,7 @@ def create_seqs(read_seq, ref_seq, cigar, ref_offset, min_size, **kwargs):
             final_seq.extend(read_seq[:cnt])
             read_seq = read_seq[cnt:]
         else:
-            raise Exception('Unknown opcode {}'.format(op))
+            raise Exception(f'Unknown opcode {op}')
 
     final_ref = ''.join(final_ref)
     final_seq = ''.join(final_seq)
@@ -186,14 +186,14 @@ def process_sample(session, sample, indexes, temp, v_germlines, j_germlines,
         sample.v_ties_len, sample.v_ties_mutations))
     if bucket not in indexes:
         indexes.add(bucket)
-        v_path = os.path.join(temp, 'v_genes_{}'.format(bucket))
-        j_path = os.path.join(temp, 'j_genes_{}'.format(bucket))
+        v_path = os.path.join(temp, f'v_genes_{bucket}')
+        j_path = os.path.join(temp, f'j_genes_{bucket}')
         logger.info('Creating index for V-ties at {} length, {} '
                     'mutation'.format(len_bucket, mut_bucket))
         build_index(sample_v_germlines, v_path)
         build_index(sample_j_germlines, j_path)
 
-    seq_path = os.path.join(temp, 'll_{}.fasta'.format(sample.id))
+    seq_path = os.path.join(temp, f'll_{sample.id}.fasta')
     with open(seq_path, 'w+') as fh:
         fh.write(get_fasta({'tp=Sequence|ai={}|sample_id={}|seq_id={}'.format(
                 r.ai, r.sample_id, r.seq_id): r.sequence for r in indels}))
@@ -202,7 +202,7 @@ def process_sample(session, sample, indexes, temp, v_germlines, j_germlines,
 
     alignments = {}
     logger.info('Running bowtie2 for V-gene sequences')
-    for line in get_reader(align_reference(temp, 'v_genes_{}'.format(bucket),
+    for line in get_reader(align_reference(temp, f'v_genes_{bucket}',
                                            seq_path, nproc)):
         line['ref_offset'] = int(line['ref_offset']) - 1
         ref_gene = line['reference']
@@ -229,7 +229,7 @@ def process_sample(session, sample, indexes, temp, v_germlines, j_germlines,
             'cdr3_start': len(ref)
         }
 
-    seq_path = os.path.join(temp, 'll_j_{}.fasta'.format(sample.id))
+    seq_path = os.path.join(temp, f'll_j_{sample.id}.fasta')
     with open(seq_path, 'w+') as fh:
         seqs = {k: v['v_rem_seq'] for k, v in alignments.items() if
                 len(v['v_rem_seq']) > 0}
@@ -237,7 +237,7 @@ def process_sample(session, sample, indexes, temp, v_germlines, j_germlines,
 
     tasks = []
     logger.info('Running bowtie2 for J-gene sequences')
-    for line in get_reader(align_reference(temp, 'j_genes_{}'.format(bucket),
+    for line in get_reader(align_reference(temp, f'j_genes_{bucket}',
                                            seq_path, nproc)):
         line['ref_offset'] = int(line['ref_offset']) - 1
         ref_gene = line['reference']
@@ -268,8 +268,8 @@ def process_sample(session, sample, indexes, temp, v_germlines, j_germlines,
             continue
         full_germ += ref[-j_length:]
 
-        r_type, pk, sample_id, seq_id = [
-            v.split('=', 1)[1] for v in line['seq_id'].split('|', 3)]
+        r_type, pk, sample_id, seq_id = (
+            v.split('=', 1)[1] for v in line['seq_id'].split('|', 3))
         insertions = gap_positions(full_germ)
         deletions = gap_positions(full_seq)
 
@@ -384,7 +384,7 @@ def add_sequences_from_sample(session, sample, sequences, props):
 
 
 def remove_duplicates(session, sample):
-    logger.info('Removing duplicates from sample {}'.format(sample.id))
+    logger.info(f'Removing duplicates from sample {sample.id}')
     seqs = session.query(
         Sequence
     ).filter(

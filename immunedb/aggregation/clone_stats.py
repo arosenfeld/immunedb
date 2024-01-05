@@ -35,7 +35,7 @@ class CloneStatsWorker(concurrent.Worker):
         if existing is not None:
             return
 
-        self.info('Clone {}'.format(clone_id))
+        self.info(f'Clone {clone_id}')
         sample_ids = [c.sample_id for c in self._session.query(
                 distinct(Sequence.sample_id).label('sample_id')
             ).filter(

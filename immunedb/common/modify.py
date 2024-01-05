@@ -9,7 +9,7 @@ from immunedb.util.log import logger
 
 
 def remove_duplicates(session, sample):
-    logger.info('Removing duplicates from sample {}'.format(sample.id))
+    logger.info(f'Removing duplicates from sample {sample.id}')
     all_seqs = session.query(Sequence).filter(
         Sequence.sample == sample
     ).order_by(
@@ -125,7 +125,7 @@ def combine_samples(session, args):
         subjects.add(meta.sample.subject)
 
     for group_id, samples in groups.items():
-        group_subs = set(s.subject for s in samples)
+        group_subs = {s.subject for s in samples}
         if len(group_subs) > 1:
             logger.error('Cannot combine samples across subjects '
                          '(group "{}" has {} subjects)'.format(
@@ -136,7 +136,7 @@ def combine_samples(session, args):
         subject.reset()
 
     for group_id, samples in groups.items():
-        all_sample_ids = set(s.id for s in samples)
+        all_sample_ids = {s.id for s in samples}
         final_sample_id = min(all_sample_ids)
         if len(samples) > 1:
             logger.info(
@@ -163,7 +163,7 @@ def combine_samples(session, args):
 
             # delete the now-empty samples
             session.query(Sample).filter(
-                Sample.id.in_(all_sample_ids - set([final_sample_id]))
+                Sample.id.in_(all_sample_ids - {final_sample_id})
             ).delete(synchronize_session=False)
         else:
             logger.info(
@@ -181,10 +181,10 @@ def delete_samples(session, args):
     for sample_id in args.sample_ids:
         sample = session.query(Sample).get(sample_id)
         if not sample:
-            logger.warning('Sample #{} does not exist'.format(sample_id))
+            logger.warning(f'Sample #{sample_id} does not exist')
             continue
 
-        logger.info('Deleting sample #{}'.format(sample_id))
+        logger.info(f'Deleting sample #{sample_id}')
         sample.subject.reset()
         session.query(Sequence).filter(Sequence.sample == sample).delete()
         session.delete(sample)

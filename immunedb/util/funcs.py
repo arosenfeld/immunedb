@@ -90,7 +90,7 @@ def get_pos_region(regions, cdr3_len, pos):
         if pos < total:
             rtype = 'FW' if i % 2 == 0 else 'CDR'
             rnum = (i // 2) + 1
-            return '{}{}'.format(rtype, rnum)
+            return f'{rtype}{rnum}'
 
 
 def ord_to_quality(quality):
@@ -151,12 +151,12 @@ def get_cigar(ref, qry):
             op = 'X'
         if op != current_op:
             if current_op:
-                cigar.append('{}{}'.format(cnt, current_op))
+                cigar.append(f'{cnt}{current_op}')
             current_op = op
             cnt = 1
         else:
             cnt += 1
-    cigar.append('{}{}'.format(cnt, current_op))
+    cigar.append(f'{cnt}{current_op}')
     return ''.join(cigar)
 
 
@@ -184,7 +184,7 @@ class ClassProxy:
 
 def gap_positions(seq, char='-'):
     gaps = []
-    for diff in re.finditer('[{}]+'.format(char), seq):
+    for diff in re.finditer(f'[{char}]+', seq):
         start, end = diff.span()
         gaps.append((start, end - start))
     return gaps

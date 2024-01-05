@@ -44,8 +44,8 @@ def get_selection(session, clone_id, script_path, samples=None,
         unique_id = '_{}_{}'.format(clone_id, '_'.join(map(str, samples)))
     else:
         unique_id = '_{}_{}'.format(clone_id, '_ALL')
-    input_path = os.path.join(temp_dir, 'clone{}.fasta'.format(unique_id))
-    out_path = os.path.join(temp_dir, 'output{}'.format(unique_id))
+    input_path = os.path.join(temp_dir, f'clone{unique_id}.fasta')
+    out_path = os.path.join(temp_dir, f'output{unique_id}')
     read_path = os.path.join(temp_dir, 'output{}{}.txt'.format(unique_id,
                              clone.id))
 
@@ -68,7 +68,7 @@ def get_selection(session, clone_id, script_path, samples=None,
     os.unlink(input_path)
     os.unlink(read_path)
     os.unlink(os.path.join(
-        temp_dir, 'output{}{}.RData'.format(unique_id, clone.id)))
+        temp_dir, f'output{unique_id}{clone.id}.RData'))
 
     return output
 
@@ -78,7 +78,7 @@ def _make_input_file(session, input_path, clone, samples, min_mut_count,
     with open(input_path, 'w+') as fh:
         fh.write('>>>CLONE\n')
         fh.write('>>germline\n')
-        fh.write('{}\n'.format(clone.consensus_germline))
+        fh.write(f'{clone.consensus_germline}\n')
 
         seqs = session.query(
             Sequence.sequence,
@@ -121,7 +121,7 @@ def _make_input_file(session, input_path, clone, samples, min_mut_count,
             updated_seqs = [s.sequence for s in seqs]
 
         for i, seq in enumerate(updated_seqs):
-            fh.write('>{}\n{}\n'.format(i, seq))
+            fh.write(f'>{i}\n{seq}\n')
 
 
 def _parse_output(session, clone, fh):
@@ -165,7 +165,7 @@ class SelectionPressureWorker(concurrent.Worker):
         if self._session.query(SelectionPressure).filter(
                 SelectionPressure.clone_id == clone_id).count() > 0:
             return
-        self.info('Clone {}'.format(clone_id))
+        self.info(f'Clone {clone_id}')
         sample_ids = [c.sample_id for c in self._session.query(
                 CloneStats.sample_id
             ).filter(

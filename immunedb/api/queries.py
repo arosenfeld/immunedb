@@ -467,7 +467,7 @@ def get_v_usage(session, samples, filter_type, include_outliers,
         for v in dist:
             name, occ = v
             prefix = name[:4]
-            ties = set([name_func(n, prefix) for n in name.split('|')])
+            ties = {name_func(n, prefix) for n in name.split('|')}
             name = '|'.join(sorted(ties))
 
             if name not in data[group_key]:

@@ -31,7 +31,7 @@ def _get_entries(seq, inference, gene_db):
     first_v = seq.v_gene.split('|')[0]
     entry[v_segment] = (
         ('gene', first_v),
-        ('db_xref', '{}:{}'.format(gene_db, first_v)),
+        ('db_xref', f'{gene_db}:{first_v}'),
         ('inference', inference),
     )
 
@@ -39,12 +39,12 @@ def _get_entries(seq, inference, gene_db):
     first_j = seq.j_gene.split('|')[0]
     entry[j_segment] = (
         ('gene', first_j),
-        ('db_xref', '{}:{}'.format(gene_db, first_j)),
+        ('db_xref', f'{gene_db}:{first_j}'),
         ('inference', inference),
     )
 
     # CDS
-    cds = ('<{}'.format(cds[0]), '>{}'.format(cds[1]), 'CDS')
+    cds = (f'<{cds[0]}', f'>{cds[1]}', 'CDS')
     entry[cds] = (
         ('function', 'junction'),
         ('codon_start', 1),
@@ -67,9 +67,9 @@ def _write_sample(session, sample_id, gene_db, inference, header):
         ).filter(
             Sequence.sample_id == sample_id
         ).filter(Sequence.stop == 0)
-        with open('{}.tbl'.format(sample.name), 'w+') as gb_fh:
+        with open(f'{sample.name}.tbl', 'w+') as gb_fh:
             writer = csv.writer(gb_fh, delimiter='\t')
-            with open('{}.fsa'.format(sample.name), 'w+') as fasta_fh:
+            with open(f'{sample.name}.fsa', 'w+') as fasta_fh:
                 for seq in seqs:
                     gb_entry, fasta_seq = _get_entries(
                         seq, inference, gene_db)
@@ -81,7 +81,7 @@ def _write_sample(session, sample_id, gene_db, inference, header):
                     seq_header = header + ' [note=AIRR_READ_COUNT:{}]'.format(
                         seq.copy_number)
                     fasta_fh.write('>{}\n{}\n'.format(
-                        seq.seq_id.split(' ')[0] + ' {}'.format(seq_header),
+                        seq.seq_id.split(' ')[0] + f' {seq_header}',
                         fasta_seq))
 
 
@@ -95,6 +95,6 @@ def write_genbank(session, args):
         args.species, args.mol_type)
 
     for sample in session.query(Sample):
-        logger.info('Exporting sample {}'.format(sample.name))
+        logger.info(f'Exporting sample {sample.name}')
         _write_sample(session, sample.id, args.gene_db, args.inference,
                       header)
