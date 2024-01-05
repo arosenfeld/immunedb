@@ -19,6 +19,6 @@ jobs:
         with:
           image: immunedb
           registry: ghcr.io
-          #tags: ${{ steps.meta.outputs.tags }}
+          addLatest: true
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
