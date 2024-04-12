@@ -1,5 +1,5 @@
 coloredlogs==10.0
-eventlet==0.34.2
+eventlet==0.35.2
 gunicorn==21.0.1
 SQLAlchemy==1.3.3
 biopython==1.73
