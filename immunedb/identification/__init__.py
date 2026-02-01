@@ -32,6 +32,7 @@ def get_seq_from_alignment(session, alignment, sample, strip_alleles=True):
                 probable_indel_or_misalign=alignment.has_possible_indel,
                 v_gene=funcs.format_ties(alignment.v_gene, strip_alleles),
                 j_gene=funcs.format_ties(alignment.j_gene, strip_alleles),
+                c_call=getattr(alignment, 'c_call', None),
                 num_gaps=alignment.num_gaps,
                 seq_start=alignment.seq_start,
                 v_match=alignment.v_match,

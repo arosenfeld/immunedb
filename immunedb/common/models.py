@@ -674,6 +674,7 @@ class Sequence(Base):
 
     v_gene = Column(String(MAX_GENE_LEN))
     j_gene = Column(String(MAX_GENE_LEN))
+    c_call = Column(String(MAX_GENE_LEN))
 
     num_gaps = Column(Integer)
     seq_start = Column(Integer)

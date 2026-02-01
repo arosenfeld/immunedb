@@ -290,6 +290,7 @@ def preprocess_airr(reader):
         'rev_comp',
         'v_call',
         'j_call',
+        'c_call',
         'sequence_alignment',
         'germline_alignment',
         'v_alignment_end',
@@ -308,7 +309,7 @@ def preprocess_airr(reader):
         'cdr3_start',
     ]
     for full_line in reader:
-        line = {k: full_line[k] for k in headers_to_keep}
+        line = {k: full_line.get(k, '') for k in headers_to_keep}
         copies = re.search(r'DUPCOUNT=(\d+)', line['sequence_id'])
         copies = int(copies.group(1)) if copies else 1
         line['sequence_id'] = (
@@ -448,6 +449,7 @@ def parse_airr(line, v_germlines, j_germlines):
     alignment.germline = aligned_germ.replace('.', '-')
     alignment.v_gene = {GeneName(c) for c in line['v_call'].split(',')}
     alignment.j_gene = {GeneName(c) for c in line['j_call'].split(',')}
+    alignment.c_call = (line.get('c_call') or '').strip() or None
     alignment.cdr3_start = cdr3_start
     alignment.cdr3_num_nts = len(cdr3_seq)
     alignment.locally_aligned = True

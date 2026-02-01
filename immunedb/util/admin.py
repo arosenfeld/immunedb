@@ -142,12 +142,32 @@ def create(main_parser, args):
 
         logger.info('Initializing tables')
         config.init_db(config_path)
+        _ensure_sequences_c_call(conn, args.db_name)
         logger.info('Success!')
         return True
     except Exception as e:
         logger.error(e)
         return False
 
+# --- Added for AIRR constant-region support (c_call) ---
+def _ensure_sequences_c_call(conn, db_name):
+    """Ensure sequences.c_call exists (nullable) + index. Safe to run multiple times."""
+    with conn.cursor() as cursor:
+        cursor.execute(
+            "SELECT COUNT(*) AS n FROM information_schema.COLUMNS "
+            "WHERE TABLE_SCHEMA=%s AND TABLE_NAME='sequences' AND COLUMN_NAME='c_call';",
+            (db_name,),
+        )
+        row = cursor.fetchone()
+        exists = int(row["n"]) if isinstance(row, dict) else int(row[0])
+
+        if exists == 0:
+            logger.info("Adding sequences.c_call column")
+            cursor.execute(f"USE `{db_name}`;")
+            cursor.execute("ALTER TABLE sequences ADD COLUMN c_call VARCHAR(64) NULL;")
+            cursor.execute("CREATE INDEX ix_sequences_c_call ON sequences (c_call);")
+    conn.commit()
+# --- end ---
 
 def delete(main_parser, args):
     try:

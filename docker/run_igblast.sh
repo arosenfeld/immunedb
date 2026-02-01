@@ -39,6 +39,10 @@ do
         -num_threads 12 \
         -domain_system imgt \
         -ig_seqtype $seq_type \
-        -auxiliary_data ${IGDATA}/optional_file/${species}_gl.aux \
+        -auxiliary_data ${IGDATA?}/optional_file/${species}_gl.aux \
+        $( [ "$seq_type" = "Ig" ] && \
+           CDB="/root/germlines/igblast/database/ncbi_${species}_c_genes"; \
+           [ -e "${CDB}.nal" ] || [ -e "${CDB}.nin" ] || [ -e "${CDB}.nsq" ] || CDB="${IGDATA?}/database/ncbi_${species}_c_genes"; \
+           echo "-c_region_db ${CDB}" ) \
         -organism ${species} > $out_fn
 done

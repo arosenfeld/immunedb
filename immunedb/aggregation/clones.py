@@ -79,7 +79,7 @@ def generate_germline(session, seqs, clone):
 
 
 def push_clone_ids(session):
-    session.connection(mapper=Sequence).execute(
+    session.connection().execute(
         text(
             '''
         UPDATE
